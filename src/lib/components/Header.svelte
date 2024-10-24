@@ -20,6 +20,7 @@
 			<div class="text-2xl sm:text-3xl font-bold">{PUBLIC_PROJECT_NAME}</div>
 		</div>
 		<div class="navbar-center hidden lg:flex">
+			{#if !$page.data.user}
 			<ul class="menu menu-horizontal px-1">
 				{#each links as link}
 					<li>
@@ -27,6 +28,7 @@
 					</li>
 				{/each}
 			</ul>
+			{/if}
 		</div>
 		<div class="navbar-end hidden lg:flex">
 			{#if $page.data.user}

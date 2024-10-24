@@ -39,7 +39,7 @@ export async function GET({ request }): Promise<Response> {
 	return new Response(null, {
 		status: 302,
 		headers: {
-			location: '/',
+			location: '/dashboard',
 			'Set-Cookie': sessionCookie.serialize()
 		}
 	});
