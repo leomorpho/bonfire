@@ -44,7 +44,7 @@
 				<Mail size="40" class="mx-auto my-4" />
 				<div class="text-3xl font-bold leading-none tracking-tight">Check your inbox</div>
 				<div class="mt-4 text-muted-primary text-lg opacity-80 max-w-[32ch] mx-auto">
-					We've sent you an activation link. Please be sure to check your spam folder too.
+					We've sent you a login link. Please be sure to check your spam folder too.
 				</div>
 			</div>
 		{:else}
