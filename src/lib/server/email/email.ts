@@ -19,6 +19,7 @@ type LayoutEmailVariables = {
 };
 
 type LoginEmailVariables = LayoutEmailVariables & {
+	login_type: string,
 	action_url: string;
 };
 
@@ -30,6 +31,7 @@ export const loginEmailHtmlTemplate = (variables: LoginEmailVariables) => {
 	return inline(
 		layout
 			.replaceAll('{{{ @content }}}', login)
+			.replaceAll('{{ login_type }}', variables.login_type)
 			.replaceAll('{{ product_url }}', variables.product_url)
 			.replaceAll('{{ product_name }}', variables.product_name)
 			.replaceAll('{{ action_url }}', variables.action_url)

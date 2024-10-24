@@ -36,6 +36,7 @@ export const actions = {
 		}
 
 		let user = await getUserByEmail(form.data.email);
+		let login_type = "magic"
 
 		if (!user) {
 			user = await createNewUser({
@@ -46,6 +47,7 @@ export const actions = {
 			if (!user) {
 				throw error(500, 'Failed to create new user');
 			}
+			login_type = "activation"
 		}
 
 		let ip_address = getClientAddress();
@@ -84,8 +86,9 @@ export const actions = {
 		await sendEmail({
 			from: `${public_env.PUBLIC_PROJECT_NAME} <${env.FROM_EMAIL}>`,
 			to: user.email,
-			subject: `Your activation link for ${public_env.PUBLIC_PROJECT_NAME}`,
+			subject: `Your ${login_type} link for ${public_env.PUBLIC_PROJECT_NAME}`,
 			html: loginEmailHtmlTemplate({
+				login_type: login_type,
 				product_url: PUBLIC_ORIGIN,
 				product_name: public_env.PUBLIC_PROJECT_NAME,
 				action_url: verificationLink
