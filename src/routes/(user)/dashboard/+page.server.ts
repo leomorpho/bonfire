@@ -66,9 +66,9 @@ export const actions = {
 			return fail(401, { error: 'Unauthorized' });
 		}
 
-		const thoughtId = await createThought(user.id, thoughtForm.data.thought);
+		const newThought = await createThought(user.id, thoughtForm.data.thought);
 
-		return { thoughtForm };
+		return { thoughtForm, newThought };
 	},
 
     updateThought: async ({ request, locals }) => {
@@ -86,29 +86,29 @@ export const actions = {
 
 
 		try {
-			await updateThought(user.id, thoughtForm.data.thoughtId, thoughtForm.data.thought);
-			return { success: true };
+			const updatedThought = await updateThought(user.id, thoughtForm.data.thoughtId, thoughtForm.data.thought);
+			return { success: true, updatedThought };
 		} catch (error) {
 			return fail(500, { error: 'Failed to update the thought' });
 		}
 	},
 
-    deleteThought: async ({ request, locals }) => {
-		const data = await request.formData();
-		const thoughtId = Number(data.get('thoughtId')); // Assuming 'thoughtId' is passed as form data
-
-		const user = locals.user;
-		if (!user) {
-			return fail(401, { error: 'Unauthorized' });
-		}
-
-		try {
-			await deleteThought(user.id, thoughtId);
-			return { success: true };
-		} catch (error) {
-			return fail(500, { error: 'Failed to delete the thought' });
-		}
-	},
+    deleteThought: async ({ params, locals }) => {
+        const thoughtId = Number(params.thoughtId); // Extract thoughtId from the request params
+    
+        const user = locals.user;
+        if (!user) {
+            return fail(401, { error: 'Unauthorized' });
+        }
+    
+        try {
+            await deleteThought(user.id, thoughtId); // Pass thoughtId directly
+            return { success: true, thoughtId }; // Return thoughtId for frontend to update state
+        } catch (error) {
+            return fail(500, { error: 'Failed to delete the thought' });
+        }
+    },
+    
 
 	setBelief: async ({ request, locals }) => {
 		const data = await request.formData();

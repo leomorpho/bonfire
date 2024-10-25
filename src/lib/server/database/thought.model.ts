@@ -14,20 +14,29 @@ export const listThoughts = async (userId: string) => {
 };
 
 
-export const createThought = async (userId: string, thought: string): Promise<number> => {
-	let insertedThought = await db
+export const createThought = async (
+	userId: string, 
+	thought: string
+): Promise<{ id: number; userId: string; thought: string; createdAt: Date }> => {
+	const insertedThought = await db
 		.insert(thoughtTable)
 		.values({
 			userId: userId,
 			thought: thought,
 			createdAt: new Date()
 		})
-		.returning({ id: thoughtTable.id });
-	return insertedThought[0].id;
+		.returning(); // Returns all fields by default
+
+	return insertedThought[0];
 };
 
-export const updateThought = async (userId: string, thoughtId: number, newThought: string) => {
-	// Verify that the thought belongs to the user before updating
+
+export const updateThought = async (
+	userId: string, 
+	thoughtId: number, 
+	newThought: string
+): Promise<{ id: number; userId: string; thought: string; createdAt: Date }> => {
+	// Verify ownership
 	const thoughtExists = await db
 		.select()
 		.from(thoughtTable)
@@ -38,11 +47,15 @@ export const updateThought = async (userId: string, thoughtId: number, newThough
 	}
 
 	// Update the thought
-	await db
+	const updatedThought = await db
 		.update(thoughtTable)
 		.set({ thought: newThought })
-		.where(eq(thoughtTable.id, thoughtId));
+		.where(eq(thoughtTable.id, thoughtId))
+		.returning();
+
+	return updatedThought[0];
 };
+
 
 export const deleteThought = async (userId: string, thoughtId: number) => {
 	// Verify that the thought belongs to the user before deleting

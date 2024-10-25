@@ -13,17 +13,13 @@
 	const { form, errors, enhance, submitting } = superForm(data.thoughtForm, {
 		onResult: ({ result }) => {
 			// Check if the submission was successful
-			if (result.type === 'success') {
-                const thoughtText = $form.thought;
-
-
+			if (result.type === 'success') {            
 				// Add the new thought to the thoughts list
 				thoughtsList.update((currentThoughts) => {
-					const newThought = {
-						thought: thoughtText,
-						createdAt: new Date().toISOString()
-					};
+					const newThought = result.data?.newThought;
+
                     console.log(newThought);
+                    
 					return [newThought, ...currentThoughts];
 				});
 
