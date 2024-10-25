@@ -1,5 +1,5 @@
 import { db } from './db';
-import { thoughtTable, thoughtDistortionTable, beliefRatingTable } from './schema';
+import { thoughtTable, thoughtDistortionTable, beliefRatingTable, beliefTargetRatingTable } from './schema';
 import { generateId } from 'lucia';
 import { eq, and, desc } from 'drizzle-orm';
 
@@ -13,9 +13,24 @@ export const listThoughts = async (userId: string) => {
 	return thoughts;
 };
 
+// Get a single thought by ID
+export const getThoughtById = async (thoughtId: number, userId: string) => {
+	// Fetch the thought and verify ownership
+	const thought = await db
+		.select()
+		.from(thoughtTable)
+		.where(and(eq(thoughtTable.id, thoughtId), eq(thoughtTable.userId, userId)))
+		.limit(1); // Limit to one result
+
+	if (thought.length === 0) {
+		throw new Error('Thought not found or unauthorized access');
+	}
+
+	return thought[0]; // Return the thought object
+};
 
 export const createThought = async (
-	userId: string, 
+	userId: string,
 	thought: string
 ): Promise<{ id: number; userId: string; thought: string; createdAt: Date }> => {
 	const insertedThought = await db
@@ -30,10 +45,9 @@ export const createThought = async (
 	return insertedThought[0];
 };
 
-
 export const updateThought = async (
-	userId: string, 
-	thoughtId: number, 
+	userId: string,
+	thoughtId: number,
 	newThought: string
 ): Promise<{ id: number; userId: string; thought: string; createdAt: Date }> => {
 	// Verify ownership
@@ -56,7 +70,6 @@ export const updateThought = async (
 	return updatedThought[0];
 };
 
-
 export const deleteThought = async (userId: string, thoughtId: number) => {
 	// Verify that the thought belongs to the user before deleting
 	const thoughtExists = await db
@@ -69,28 +82,25 @@ export const deleteThought = async (userId: string, thoughtId: number) => {
 	}
 
 	// Delete the thought
-	await db
-		.delete(thoughtTable)
-		.where(eq(thoughtTable.id, thoughtId));
+	await db.delete(thoughtTable).where(eq(thoughtTable.id, thoughtId));
 };
-
 
 export const linkCognitiveDistortion = async (
 	thoughtId: number,
 	cognitiveDistortionId: number,
 	rating: number,
 	source: 'user' | 'ai',
-    userId: string
+	userId: string
 ) => {
-    // Verify that the thought belongs to the user before inserting
+	// Verify that the thought belongs to the user before inserting
 	const thoughtExists = await db
-    .select()
-    .from(thoughtTable)
-    .where(and(eq(thoughtTable.id, thoughtId), eq(thoughtTable.userId, userId)));
+		.select()
+		.from(thoughtTable)
+		.where(and(eq(thoughtTable.id, thoughtId), eq(thoughtTable.userId, userId)));
 
-if (thoughtExists.length === 0) {
-    throw new Error('Unauthorized: User does not own the thought');
-}
+	if (thoughtExists.length === 0) {
+		throw new Error('Unauthorized: User does not own the thought');
+	}
 
 	const id = generateId(40);
 	await db.insert(thoughtDistortionTable).values({
@@ -122,3 +132,4 @@ export const setBeliefInThought = async (
 		ratedAt: new Date() // Timestamp for tracking belief changes
 	});
 };
+

@@ -40,6 +40,6 @@ export const actions = {
 
 		const newThought = await createThought(user.id, thoughtForm.data.thought);
 
-		return { thoughtForm, newThought };
+		redirect(302, `/dashboard/thought/${newThought.id}/belief-right-now`);
 	}
 };
