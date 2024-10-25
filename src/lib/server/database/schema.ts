@@ -30,7 +30,7 @@ export const signinTable = sqliteTable('signin', {
 
 export const thoughtTable = sqliteTable('thought', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
-	userId: integer('user_id')
+	userId: text('user_id')
 		.notNull()
 		.references(() => userTable.id),
 	thought: text('thought').notNull(),
