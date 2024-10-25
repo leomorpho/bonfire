@@ -1,20 +1,23 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { writable } from 'svelte/store';
-	import { Button } from "$lib/components/ui/button";
+	import { Button } from '$lib/components/ui/button';
 
 	const thoughtsList = writable($page.data.thoughts);
 </script>
 
 <div class="m-5">
-	<Button variant="outline">Log new stressful thought</Button>
+	<div class="flex justify-center">
+		<Button href="/dashboard/thought">Log new stressful thought</Button>
+	</div>
+
 	<!-- History of thoughts and moods -->
 	<section class="mt-8">
-		<h2 class="text-lg font-semibold mb-4">Your Thoughts History</h2>
+		<h2 class="mb-4 text-lg font-semibold">Your Thoughts History</h2>
 		{#if $thoughtsList.length > 0}
 			<div class="space-y-2">
 				{#each $thoughtsList as thought}
-					<div class="p-4 border border-gray-300 rounded-lg shadow-sm">
+					<div class="rounded-lg border border-gray-300 p-4 shadow-sm">
 						<p class="text-gray-800">{thought.thought}</p>
 						<p class="text-sm text-gray-500">
 							Created at: {new Date(thought.createdAt).toLocaleString()}

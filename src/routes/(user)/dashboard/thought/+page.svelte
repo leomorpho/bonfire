@@ -1,50 +1,46 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { superForm } from 'sveltekit-superforms';
-
-    let thought_input: HTMLInputElement | null = null;
+	import { Input } from '$lib/components/ui/input';
+	import { Button } from '$lib/components/ui/button';
+	import { Label } from "$lib/components/ui/label";
 
 	const { data } = $props();
 	const { form, errors, enhance, submitting } = superForm(data.thoughtForm);
-
-onMount(() => {
-		// Automatically focus the input on page load
-		if (thought_input) {
-			thought_input.focus();
-		}
-	});
 </script>
 
-<div class="m-5">
-	<form method="post" action="/dashboard/thought?/createThought" use:enhance class="space-y-4">
-		<div class="form-control">
-			<label for="thought" class="label">
-				<span class="label-text">Enter your thought</span>
-			</label>
-			<input
-				bind:this={thought_input}
-                bind:value={$form.thought}
+<div class="flex min-h-screen items-center justify-center">
+	<form
+		method="post"
+		action="/dashboard/thought?/createThought"
+		use:enhance
+		class="m-2 flex w-full max-w-md flex-col space-y-4"
+	>
+		<div class="form-control grid w-full items-center gap-1.5">
+			<Label for="thought">Enter your stressful thought:</Label>
+
+			<Input
+				bind:value={$form.thought}
 				type="text"
 				name="thought"
 				id="thought"
-				class="input input-bordered w-full"
-				placeholder="What’s on your mind?"
-				aria-invalid={$errors.thought ? 'true' : 'false'}
-				aria-describedby="thought-error"
+				placeholder="What's on your mind?"
+				class="w-full"
 			/>
+
 			{#if $errors.thought}
-				<span id="thought-error" class="text-red-500 text-sm">
+				<span id="thought-error" class="text-sm text-red-500">
 					{$errors.thought}
 				</span>
 			{/if}
 		</div>
-
-		<button type="submit" class="btn btn-primary w-full" disabled={$submitting}>
-			{#if $submitting}
-				<span class="loading loading-spinner"></span> Submitting...
-			{:else}
-				Continue
-			{/if}
-		</button>
+		<div class="flex w-full justify-center">
+			<Button type="submit" disabled={$submitting} class="w-full max-w-64">
+				{#if $submitting}
+					<span class="loading loading-spinner"></span> Submitting...
+				{:else}
+					Continue
+				{/if}
+			</Button>
+		</div>
 	</form>
-    </div>
+</div>
