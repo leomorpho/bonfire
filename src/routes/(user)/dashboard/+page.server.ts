@@ -4,12 +4,20 @@ import { superValidate } from 'sveltekit-superforms';
 import {
 	createThought,
 	setBeliefInThought,
-	linkCognitiveDistortion
+	linkCognitiveDistortion,
+    updateThought,
+    deleteThought,
+    listThoughts
 } from '$lib/server/database/thought.model';
 import { zod } from 'sveltekit-superforms/adapters';
 
 // Step 1: Define your form schemas
 const thoughtSchema = z.object({
+	thought: z.string().min(1, 'Thought cannot be empty')
+});
+
+const thoughtUpdateSchema = z.object({
+    thoughtId: z.number(),
 	thought: z.string().min(1, 'Thought cannot be empty')
 });
 
@@ -28,7 +36,20 @@ const distortionSchema = z.object({
 // Step 2: Implement the form load function
 export const load = async (event) => {
 	const thoughtForm = await superValidate(zod(thoughtSchema));
-	return { thoughtForm };
+	
+    // Get the user from locals
+	const user = event.locals.user;
+	if (!user) {
+		throw redirect(302, '/login'); // Redirect to login if not authenticated
+	}
+
+	// Fetch the user's thoughts from the database
+	const thoughts = await listThoughts(user.id);
+
+	return {
+		thoughtForm,
+		thoughts // Pass thoughts to the frontend
+	};
 };
 
 // Step 3: Handle the form actions
@@ -48,6 +69,45 @@ export const actions = {
 		const thoughtId = await createThought(user.id, thoughtForm.data.thought);
 
 		return { thoughtForm };
+	},
+
+    updateThought: async ({ request, locals }) => {
+		const data = await request.formData();
+		const thoughtForm = await superValidate(data, zod(thoughtUpdateSchema));
+
+		if (!thoughtForm.valid) {
+			return fail(400, { thoughtForm });
+		}
+
+		const user = locals.user;
+		if (!user) {
+			return fail(401, { error: 'Unauthorized' });
+		}
+
+
+		try {
+			await updateThought(user.id, thoughtForm.data.thoughtId, thoughtForm.data.thought);
+			return { success: true };
+		} catch (error) {
+			return fail(500, { error: 'Failed to update the thought' });
+		}
+	},
+
+    deleteThought: async ({ request, locals }) => {
+		const data = await request.formData();
+		const thoughtId = Number(data.get('thoughtId')); // Assuming 'thoughtId' is passed as form data
+
+		const user = locals.user;
+		if (!user) {
+			return fail(401, { error: 'Unauthorized' });
+		}
+
+		try {
+			await deleteThought(user.id, thoughtId);
+			return { success: true };
+		} catch (error) {
+			return fail(500, { error: 'Failed to delete the thought' });
+		}
 	},
 
 	setBelief: async ({ request, locals }) => {
