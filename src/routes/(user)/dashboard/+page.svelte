@@ -2,14 +2,41 @@
 	import { superForm } from 'sveltekit-superforms';
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
+	import { writable } from 'svelte/store';
 
 	let thought_input: HTMLInputElement | null = null;
 
 	const { data } = $props();
-	const { form, errors, enhance, submitting } = superForm(data.thoughtForm);
+	const thoughtsList = writable($page.data.thoughts);
 
-    // Thoughts passed from the load function
-	const { thoughts, thoughtForm } = $page.data;
+	// Destructure the superForm with onSubmit callback
+	const { form, errors, enhance, submitting } = superForm(data.thoughtForm, {
+		onResult: ({ result }) => {
+			// Check if the submission was successful
+			if (result.type === 'success') {
+                const thoughtText = $form.thought;
+
+
+				// Add the new thought to the thoughts list
+				thoughtsList.update((currentThoughts) => {
+					const newThought = {
+						thought: thoughtText,
+						createdAt: new Date().toISOString()
+					};
+                    console.log(newThought);
+					return [newThought, ...currentThoughts];
+				});
+
+				// Clear the input field
+				if (thought_input) {
+					thought_input.value = '';
+				}
+
+				// Reset the form
+				$form.thought = '';
+			}
+		}
+	});
 
 	onMount(() => {
 		// Automatically focus the input on page load
@@ -27,6 +54,7 @@
 			</label>
 			<input
 				bind:this={thought_input}
+                bind:value={$form.thought}
 				type="text"
 				name="thought"
 				id="thought"
@@ -52,20 +80,23 @@
 	</form>
 
 	<!-- History of thoughts and moods -->
-	<section class="mt-8">
-		<h2 class="text-lg font-semibold mb-4">Your Thoughts History</h2>
-		{#if thoughts.length > 0}
-			<div class="space-y-2">
-				{#each thoughts as thought}
-					<div class="p-4 border border-gray-300 rounded-lg shadow-sm">
-						<p class="text-gray-800">{thought.thought}</p>
-						<p class="text-sm text-gray-500">Created at: {new Date(thought.createdAt).toLocaleString()}</p>
-						<!-- Additional data like mood or belief rating can be displayed here if needed -->
-					</div>
-				{/each}
-			</div>
-		{:else}
-			<p class="text-gray-600">No thoughts recorded yet. Start by adding your first thought above.</p>
-		{/if}
-	</section>
+    <section class="mt-8">
+        <h2 class="text-lg font-semibold mb-4">Your Thoughts History</h2>
+        {#if $thoughtsList.length > 0}
+          <div class="space-y-2">
+            {#each $thoughtsList as thought}
+              <div class="p-4 border border-gray-300 rounded-lg shadow-sm">
+                <p class="text-gray-800">{thought.thought}</p>
+                <p class="text-sm text-gray-500">
+                  Created at: {new Date(thought.createdAt).toLocaleString()}
+                </p>
+              </div>
+            {/each}
+          </div>
+        {:else}
+          <p class="text-gray-600">
+            No thoughts recorded yet. Start by adding your first thought above.
+          </p>
+        {/if}
+      </section>
 </div>
