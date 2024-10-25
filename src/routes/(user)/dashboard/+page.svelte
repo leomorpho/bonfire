@@ -1,11 +1,13 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { writable } from 'svelte/store';
+	import { Button } from "$lib/components/ui/button";
 
 	const thoughtsList = writable($page.data.thoughts);
 </script>
 
 <div class="m-5">
+	<Button variant="outline">Log new stressful thought</Button>
 	<!-- History of thoughts and moods -->
 	<section class="mt-8">
 		<h2 class="text-lg font-semibold mb-4">Your Thoughts History</h2>
