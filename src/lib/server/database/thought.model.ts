@@ -1,5 +1,10 @@
 import { db } from './db';
-import { thoughtTable, thoughtDistortionTable, beliefRatingTable, beliefTargetRatingTable } from './schema';
+import {
+	thoughtTable,
+	thoughtDistortionTable,
+	beliefRatingTable,
+	beliefTargetRatingTable
+} from './schema';
 import { generateId } from 'lucia';
 import { eq, and, desc } from 'drizzle-orm';
 
@@ -133,3 +138,38 @@ export const setBeliefInThought = async (
 	});
 };
 
+export const upsertBeliefTargetRating = async (
+	thoughtId: number,
+	beliefTargetRating: number,
+	userId: string
+) => {
+	// Verify that the thought belongs to the user before inserting/updating
+	const thoughtExists = await db
+		.select()
+		.from(thoughtTable)
+		.where(and(eq(thoughtTable.id, thoughtId), eq(thoughtTable.userId, userId)));
+
+	if (thoughtExists.length === 0) {
+		throw new Error('Unauthorized: User does not own the thought');
+	}
+
+	const existing = await db
+		.select()
+		.from(beliefTargetRatingTable)
+		.where(eq(beliefTargetRatingTable.thoughtId, thoughtId));
+
+	if (existing.length > 0) {
+		// Update existing record
+		await db
+			.update(beliefTargetRatingTable)
+			.set({ beliefTargetRating, ratedAt: new Date() })
+			.where(eq(beliefTargetRatingTable.thoughtId, thoughtId));
+	} else {
+		// Insert new record
+		await db.insert(beliefTargetRatingTable).values({
+			thoughtId,
+			beliefTargetRating,
+			ratedAt: new Date()
+		});
+	}
+};

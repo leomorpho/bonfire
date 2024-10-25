@@ -64,3 +64,14 @@ export const beliefRatingTable = sqliteTable('belief_rating', {
 	beliefRating: integer('belief_rating').notNull(),
 	ratedAt: integer('rated_at', { mode: 'timestamp' }).notNull()
 });
+
+export const beliefTargetRatingTable = sqliteTable('belief_target_rating', {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	thoughtId: integer('thought_id')
+		.notNull()
+		.references(() => thoughtTable.id)
+		.unique(), // Ensure at most one entry per thoughtId
+	// Rating (0-100) of how much the user believes the thought
+	beliefTargetRating: integer('belief_target_rating').notNull(),
+	ratedAt: integer('rated_at', { mode: 'timestamp' }).notNull()
+});
