@@ -34,7 +34,7 @@
 					</Card.Description>
 				</Card.Header>
 				<Card.Content class="space-y-2">
-					<form method="post" use:enhance class="m-2 flex w-full max-w-md flex-col space-y-4">
+					<form method="post" use:enhance class="m-2 flex w-full flex-col space-y-4">
 						<div class="form-control grid w-full items-center gap-1.5">
 							<!-- Render each cognitive distortion with a slider -->
 							{#each distortions as { name, rating, explanation, example }, index}
@@ -121,12 +121,12 @@
 					>
 				</Card.Header>
 				<Card.Content class="space-y-2">
-					<div class="m-2 flex w-full max-w-md flex-col space-y-4">
+					<div class="m-2 flex w-full flex-col space-y-4">
 						<div class="form-control grid w-full items-center gap-1.5">
 							<!-- Render each cognitive distortion with a slider -->
 							{#each distortions as { name, rating }, index}
 								<div class="mt-4">
-									<Label for="distortion-{index}">{name}</Label>
+									<Label for="distortion-{index}" class="flex flex-row items-center justify-between p-1">{name} </Label>
 									<Slider
 										id="distortion-{index}"
 										bind:value={distortions[index].rating}
