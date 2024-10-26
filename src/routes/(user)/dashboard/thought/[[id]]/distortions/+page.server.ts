@@ -47,7 +47,7 @@ export const load = async (event) => {
 
 		return {
 			name: distortion, // Display name (e.g., "All or Nothing")
-			rating: existing ? [existing.rating] : [50], // Use existing rating or default to 50
+			rating: existing ? [existing.rating] : [0], // Use existing rating or default to 50
 			enumName: enumName, // Enum name in uppercase (e.g., "ALL_OR_NOTHING")
 			...distortionDetails[distortion] // Additional details from `distortionDetails`
 		};

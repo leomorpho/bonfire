@@ -32,7 +32,7 @@ export const load = async (event) => {
 
 // Step 3: Handle the form actions
 export const actions = {
-	default: async ({ request, locals }) => {
+	next: async ({ request, locals }) => {
 		const data = await request.formData();
 		const thoughtForm = await superValidate(data, zod(thoughtSchema));
 
@@ -47,5 +47,21 @@ export const actions = {
 		const newThought = await updateThought(user.id,thoughtForm.data.thoughtId, thoughtForm.data.thought);
 
 		redirect(302, `/dashboard/thought/${newThought.id}/belief-right-now`);
+	},
+	prev: async ({ request, locals }) => {
+		const data = await request.formData();
+		const thoughtForm = await superValidate(data, zod(thoughtSchema));
+
+		if (!thoughtForm.valid) {
+			return fail(400, { thoughtForm });
+		}
+		const user = locals.user;
+		if (!user) {
+			return fail(401, { error: 'Unauthorized' });
+		}
+
+		const newThought = await updateThought(user.id,thoughtForm.data.thoughtId, thoughtForm.data.thought);
+
+		redirect(302, '/dashboard');
 	}
 };
