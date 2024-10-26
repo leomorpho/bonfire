@@ -7,6 +7,7 @@ import {
 } from './schema';
 import { generateId } from 'lucia';
 import { eq, and, desc } from 'drizzle-orm';
+import { CognitiveDistortions } from '$lib/enums';
 
 export const listThoughts = async (userId: string) => {
 	// Fetch all thoughts for the user, ordered by creation date
@@ -92,7 +93,7 @@ export const deleteThought = async (userId: string, thoughtId: number) => {
 
 export const linkCognitiveDistortion = async (
 	thoughtId: number,
-	cognitiveDistortionId: number,
+	cognitiveDistortion: string,
 	rating: number,
 	source: 'user' | 'ai',
 	userId: string
@@ -110,10 +111,38 @@ export const linkCognitiveDistortion = async (
 	const id = generateId(40);
 	await db.insert(thoughtDistortionTable).values({
 		thoughtId,
-		cognitiveDistortionId,
+		cognitiveDistortion,
 		rating, // Rating of how much the distortion applies (0-100)
 		source
 	});
+};
+
+export const linkCognitiveDistortionsBulk = async (
+	thoughtId: number,
+	distortions: {
+		distortion: keyof typeof CognitiveDistortions;
+		rating: number;
+		source: 'user' | 'ai';
+	}[],
+	userId: string
+) => {
+	const thoughtExists = await db
+		.select()
+		.from(thoughtTable)
+		.where(and(eq(thoughtTable.id, thoughtId), eq(thoughtTable.userId, userId)));
+
+	if (thoughtExists.length === 0) {
+		throw new Error('Unauthorized: User does not own the thought');
+	}
+
+	const distortionEntries = distortions.map((distortion) => ({
+		thoughtId,
+		cognitiveDistortion: CognitiveDistortions[distortion.distortion],
+		rating: distortion.rating,
+		source: distortion.source
+	}));
+
+	await db.insert(thoughtDistortionTable).values(distortionEntries);
 };
 
 export const setBeliefInThought = async (

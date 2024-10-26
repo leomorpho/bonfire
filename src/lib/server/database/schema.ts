@@ -37,18 +37,11 @@ export const thoughtTable = sqliteTable('thought', {
 	createdAt: integer('created_at', { mode: 'timestamp' }).notNull()
 });
 
-export const cognitiveDistortionTable = sqliteTable('cognitive_distortion', {
-	id: integer('id').primaryKey({ autoIncrement: true }),
-	name: text('name').notNull() // e.g., Overgeneralization, Catastrophizing, etc.
-});
-
 export const thoughtDistortionTable = sqliteTable('thought_distortion', {
 	thoughtId: integer('thought_id')
 		.notNull()
 		.references(() => thoughtTable.id),
-	cognitiveDistortionId: integer('cognitive_distortion_id')
-		.notNull()
-		.references(() => cognitiveDistortionTable.id),
+	cognitiveDistortion: text('cognitive_distortion').notNull(),
 	// Rating (0-100) of how much this distortion applies to the thought
 	rating: integer('rating').notNull(),
 	// 'user' or 'ai' as the source of the rating

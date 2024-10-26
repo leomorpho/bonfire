@@ -16,7 +16,7 @@
 	<h1 class="mb-5 text-xl">{data.thought.thought}</h1>
 	<form method="post" use:enhance class="m-2 flex w-full max-w-md flex-col space-y-4">
 		<div class="form-control grid w-full items-center gap-1.5">
-			<Label for="belief">How much do you believe in it right now?</Label>
+			<Label for="belief">What would be an acceptable level to bring down your belief to?</Label>
 
 			<Slider id="belief" bind:value={beliefRating} min={0} max={100} step={1} />
 			<input type="hidden" name="beliefRating" value={beliefRating} />
