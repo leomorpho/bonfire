@@ -5,13 +5,15 @@
 	import { Slider } from '$lib/components/ui/slider/index.js';
 	import * as Tabs from '$lib/components/ui/tabs';
 	import * as Card from '$lib/components/ui/card';
-	import { Input } from '$lib/components/ui/input/index.js';
+	import { goto } from '$app/navigation';
 
 	const { data } = $props();
 
 	// Set up the form
 	const { form, errors, enhance, submitting } = superForm(data.form);
-
+    function handlePrevious() {
+		goto(`/dashboard/thought/${data.thought.id}/belief-target`, { replaceState: true });
+	}
 	// Initialize distortions based on enum, with default ratings from load
 	let distortions = data.distortionRatings;
 </script>
@@ -56,8 +58,9 @@
 					</form>
 				</Card.Content>
 				<Card.Footer>
-					<div class="flex w-full justify-center">
-						<Button type="submit" disabled={$submitting} class="w-full max-w-64">
+					<div class="flex w-full justify-center space-x-1">
+						<Button on:click={handlePrevious} disabled={$submitting} class="w-1/2 max-w-64">Previous</Button>
+						<Button type="submit" disabled={$submitting} class="w-1/2 max-w-64">
 							{#if $submitting}
 								<span class="loading loading-spinner"></span> Submitting...
 							{:else}
@@ -72,7 +75,10 @@
 			<Card.Root>
 				<Card.Header>
 					<Card.Title>{data.thought.thought}</Card.Title>
-					<Card.Description class="h-5 sm:h-7">Here's what our A.I. thinks. Use it as a way to learn to recognize cognitive distortions in your thoughts.</Card.Description>
+					<Card.Description class="h-5 sm:h-7"
+						>Here's what our A.I. thinks. Use it as a way to learn to recognize cognitive
+						distortions in your thoughts.</Card.Description
+					>
 				</Card.Header>
 				<Card.Content class="space-y-2">
 					<div class="m-2 flex w-full max-w-md flex-col space-y-4">

@@ -167,6 +167,29 @@ export const setBeliefInThought = async (
 	});
 };
 
+// Get belief rating for a thought
+export const getBeliefInThought = async (thoughtId: number, userId: string) => {
+	// Verify thought ownership
+	const thoughtExists = await db
+		.select()
+		.from(thoughtTable)
+		.where(and(eq(thoughtTable.id, thoughtId), eq(thoughtTable.userId, userId)));
+
+	if (thoughtExists.length === 0) {
+		throw new Error('Unauthorized: User does not own the thought');
+	}
+
+	// Retrieve the belief rating
+	const beliefRating = await db
+		.select()
+		.from(beliefRatingTable)
+		.where(eq(beliefRatingTable.thoughtId, thoughtId))
+		.orderBy(desc(beliefRatingTable.ratedAt))
+		.limit(1); // Get the latest rating if multiple entries exist
+
+	return beliefRating.length > 0 ? beliefRating[0] : null;
+};
+
 export const upsertBeliefTargetRating = async (
 	thoughtId: number,
 	beliefTargetRating: number,
@@ -201,4 +224,27 @@ export const upsertBeliefTargetRating = async (
 			ratedAt: new Date()
 		});
 	}
+};
+
+// Get belief target rating for a thought
+export const getBeliefTargetRating = async (thoughtId: number, userId: string) => {
+	// Verify thought ownership
+	const thoughtExists = await db
+		.select()
+		.from(thoughtTable)
+		.where(and(eq(thoughtTable.id, thoughtId), eq(thoughtTable.userId, userId)));
+
+	if (thoughtExists.length === 0) {
+		throw new Error('Unauthorized: User does not own the thought');
+	}
+
+	// Retrieve the belief target rating
+	const beliefTargetRating = await db
+		.select()
+		.from(beliefTargetRatingTable)
+		.where(eq(beliefTargetRatingTable.thoughtId, thoughtId))
+		.orderBy(desc(beliefTargetRatingTable.ratedAt))
+		.limit(1); // Get the latest rating if multiple entries exist
+
+	return beliefTargetRating.length > 0 ? beliefTargetRating[0] : null;
 };

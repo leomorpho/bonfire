@@ -5,11 +5,12 @@
 	import { Slider } from '$lib/components/ui/slider/index.js';
 
 	const { data } = $props();
-	console.log(data.thought)
+	console.log(data.thought);
+	console.log(data.beliefInThought);
 	const { form, errors, enhance, submitting } = superForm(data.form);
-	let beliefRating = $state([50]); // Default value
 
-	
+	// Set the slider initial value conditionally based on beliefInThought, or default to 50
+	let beliefRating = $state(data.beliefInThought ? [data.beliefInThought.beliefTargetRating] : [50]);
 </script>
 
 <div class="m-2 flex min-h-screen flex-col items-center justify-center">

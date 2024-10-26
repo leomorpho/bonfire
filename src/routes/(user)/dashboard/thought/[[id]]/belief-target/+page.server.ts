@@ -1,7 +1,7 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { z } from 'zod';
 import { superValidate } from 'sveltekit-superforms';
-import { upsertBeliefTargetRating, getThoughtById } from '$lib/server/database/thought.model';
+import { upsertBeliefTargetRating, getThoughtById, getBeliefTargetRating } from '$lib/server/database/thought.model';
 import { zod } from 'sveltekit-superforms/adapters';
 
 // Step 1: Define your form schemas
@@ -29,19 +29,21 @@ export const load = async (event) => {
 		throw redirect(404, '/not-found'); // Handle not found case
 	}
 
+	const beliefInThought = await getBeliefTargetRating(thoughtId, user.id);
+	console.log(beliefInThought);
 	return {
 		form,
-		thought
+		thought,
+		beliefInThought
 	};
 };
 
 // Step 3: Handle the form actions
 export const actions = {
 	default: async ({ request, locals }) => {
-        console.log(request);
 		const data = await request.formData();
 		const form = await superValidate(data, zod(thoughtBeliefTargetSchema));
-
+		
 		if (!form.valid) {
 			return fail(400, { form });
 		}
@@ -49,7 +51,6 @@ export const actions = {
 		if (!user) {
 			return fail(401, { error: 'Unauthorized' });
 		}
-
 		await upsertBeliefTargetRating(form.data.thoughtId, form.data.beliefRating, user.id);
 
 		redirect(302, `/dashboard/thought/${form.data.thoughtId}/distortions`);
