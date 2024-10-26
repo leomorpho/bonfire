@@ -51,6 +51,7 @@ export const createThought = async (
 	return insertedThought[0];
 };
 
+
 export const updateThought = async (
 	userId: string,
 	thoughtId: number,

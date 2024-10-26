@@ -3,19 +3,30 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Label } from '$lib/components/ui/label';
 	import { Slider } from '$lib/components/ui/slider/index.js';
+	import { goto } from '$app/navigation';
 
 	const { data } = $props();
-	console.log(data.thought);
-	console.log(data.beliefInThought);
+
 	const { form, errors, enhance, submitting } = superForm(data.form);
 
 	// Set the slider initial value conditionally based on beliefInThought, or default to 50
-	let beliefRating = $state(data.beliefInThought ? [data.beliefInThought.beliefTargetRating] : [50]);
+	let beliefRating = $state(
+		data.beliefInThought ? [data.beliefInThought.beliefTargetRating] : [50]
+	);
+
+	function handlePrevious() {
+		goto(`/dashboard/thought/${data.thought.id}/belief-right-now`, { replaceState: true });
+	}
 </script>
 
 <div class="m-2 flex min-h-screen flex-col items-center justify-center">
 	<h1 class="mb-5 text-xl">{data.thought.thought}</h1>
-	<form method="post" use:enhance class="m-2 flex w-full max-w-md flex-col space-y-4">
+	<form
+		method="post"
+		action="?/next"
+		use:enhance
+		class="m-2 flex w-full max-w-md flex-col space-y-4"
+	>
 		<div class="form-control grid w-full items-center gap-1.5">
 			<Label for="belief">What would be an acceptable level to bring down your belief to?</Label>
 
@@ -34,8 +45,9 @@
 				</span>
 			{/if}
 		</div>
-		<div class="flex w-full justify-center">
-			<Button type="submit" disabled={$submitting} class="w-full max-w-64">
+		<div class="flex w-full justify-center space-x-1">
+			<Button type="submit" formaction="?/prev" disabled={$submitting} class="w-1/2 max-w-64">Previous</Button>
+			<Button type="submit" disabled={$submitting} class="w-1/2 max-w-64">
 				{#if $submitting}
 					<span class="loading loading-spinner"></span> Submitting...
 				{:else}

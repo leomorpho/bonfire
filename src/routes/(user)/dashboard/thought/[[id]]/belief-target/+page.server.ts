@@ -1,16 +1,19 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { z } from 'zod';
 import { superValidate } from 'sveltekit-superforms';
-import { upsertBeliefTargetRating, getThoughtById, getBeliefTargetRating } from '$lib/server/database/thought.model';
+import {
+	upsertBeliefTargetRating,
+	getThoughtById,
+	getBeliefTargetRating
+} from '$lib/server/database/thought.model';
 import { zod } from 'sveltekit-superforms/adapters';
+import type { Actions } from './$types';
 
-// Step 1: Define your form schemas
 const thoughtBeliefTargetSchema = z.object({
 	thoughtId: z.number(),
 	beliefRating: z.number().min(0).max(100)
 });
 
-// Step 2: Implement the form load function
 export const load = async (event) => {
 	const form = await superValidate(zod(thoughtBeliefTargetSchema));
 
@@ -24,13 +27,13 @@ export const load = async (event) => {
 	const thoughtId = Number(event.params.id); // Ensure it's a number
 
 	// Fetch the associated thought from the database
-	const thought = (await getThoughtById(thoughtId, user.id)); // This function should retrieve the thought object by ID
+	const thought = await getThoughtById(thoughtId, user.id); // This function should retrieve the thought object by ID
 	if (!thought) {
 		throw redirect(404, '/not-found'); // Handle not found case
 	}
 
 	const beliefInThought = await getBeliefTargetRating(thoughtId, user.id);
-	console.log(beliefInThought);
+
 	return {
 		form,
 		thought,
@@ -38,21 +41,35 @@ export const load = async (event) => {
 	};
 };
 
-// Step 3: Handle the form actions
-export const actions = {
-	default: async ({ request, locals }) => {
-		const data = await request.formData();
-		const form = await superValidate(data, zod(thoughtBeliefTargetSchema));
-		
-		if (!form.valid) {
-			return fail(400, { form });
-		}
-		const user = locals.user;
-		if (!user) {
-			return fail(401, { error: 'Unauthorized' });
-		}
-		await upsertBeliefTargetRating(form.data.thoughtId, form.data.beliefRating, user.id);
+// Shared function to handle form logic for belief target rating
+async function handleBeliefTargetRating(
+	request: { formData: () => any },
+	locals: { user: any },
+	redirectPathParam: string
+) {
+	const data = await request.formData();
+	const form = await superValidate(data, zod(thoughtBeliefTargetSchema));
 
-		redirect(302, `/dashboard/thought/${form.data.thoughtId}/distortions`);
+	if (!form.valid) {
+		return fail(400, { form });
 	}
-};
+	const user = locals.user;
+	if (!user) {
+		return fail(401, { error: 'Unauthorized' });
+	}
+
+	await upsertBeliefTargetRating(form.data.thoughtId, form.data.beliefRating, user.id);
+
+	// Redirect to the provided URL after saving
+	throw redirect(302, `/dashboard/thought/${form.data.thoughtId}/${redirectPathParam}`);
+}
+
+export const actions = {
+	next: async ({ request, locals }) => {
+		return handleBeliefTargetRating(request, locals, 'distortions');
+	},
+
+	prev: async ({ request, locals }) => {
+		return handleBeliefTargetRating(request, locals, 'belief-right-now');
+	}
+} satisfies Actions;
