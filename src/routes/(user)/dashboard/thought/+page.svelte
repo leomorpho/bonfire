@@ -2,10 +2,15 @@
 	import { superForm } from 'sveltekit-superforms';
 	import { Input } from '$lib/components/ui/input';
 	import { Button } from '$lib/components/ui/button';
-	import { Label } from "$lib/components/ui/label";
+	import { Label } from '$lib/components/ui/label';
+	import { goto } from '$app/navigation';
 
 	const { data } = $props();
 	const { form, errors, enhance, submitting } = superForm(data.thoughtForm);
+
+	function handlePrevious() {
+		goto('/dashboard');
+	}
 </script>
 
 <div class="flex min-h-screen items-center justify-center">
@@ -33,8 +38,11 @@
 				</span>
 			{/if}
 		</div>
-		<div class="flex w-full justify-center">
-			<Button type="submit" disabled={$submitting} class="w-full max-w-64">
+		<div class="flex w-full justify-center space-x-1">
+			<Button on:click={handlePrevious} disabled={$submitting} class="w-1/2 max-w-64"
+				>Previous</Button
+			>
+			<Button type="submit" disabled={$submitting} class="w-1/2 max-w-64">
 				{#if $submitting}
 					<span class="loading loading-spinner"></span> Submitting...
 				{:else}

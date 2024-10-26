@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "c4c99337-78fc-448d-bdce-39103b8f9629",
+  "id": "84b14030-83b6-4c9c-8052-5898ed74c09f",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "belief_rating": {
@@ -264,7 +264,16 @@
           "autoincrement": false
         }
       },
-      "indexes": {},
+      "indexes": {
+        "thought_distortion_thought_id_cognitive_distortion_unique": {
+          "name": "thought_distortion_thought_id_cognitive_distortion_unique",
+          "columns": [
+            "thought_id",
+            "cognitive_distortion"
+          ],
+          "isUnique": true
+        }
+      },
       "foreignKeys": {
         "thought_distortion_thought_id_thought_id_fk": {
           "name": "thought_distortion_thought_id_thought_id_fk",

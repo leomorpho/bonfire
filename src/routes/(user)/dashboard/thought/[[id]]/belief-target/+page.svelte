@@ -13,10 +13,6 @@
 	let beliefRating = $state(
 		data.beliefInThought ? [data.beliefInThought.beliefTargetRating] : [50]
 	);
-
-	function handlePrevious() {
-		goto(`/dashboard/thought/${data.thought.id}/belief-right-now`, { replaceState: true });
-	}
 </script>
 
 <div class="m-2 flex min-h-screen flex-col items-center justify-center">
@@ -46,7 +42,9 @@
 			{/if}
 		</div>
 		<div class="flex w-full justify-center space-x-1">
-			<Button type="submit" formaction="?/prev" disabled={$submitting} class="w-1/2 max-w-64">Previous</Button>
+			<Button type="submit" formaction="?/prev" disabled={$submitting} class="w-1/2 max-w-64"
+				>Previous</Button
+			>
 			<Button type="submit" disabled={$submitting} class="w-1/2 max-w-64">
 				{#if $submitting}
 					<span class="loading loading-spinner"></span> Submitting...

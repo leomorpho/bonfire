@@ -92,6 +92,33 @@ export const deleteThought = async (userId: string, thoughtId: number) => {
 	await db.delete(thoughtTable).where(eq(thoughtTable.id, thoughtId));
 };
 
+export const getCognitiveDistortionsForThought = async (
+	thoughtId: number,
+	userId: string
+) => {
+	// Verify that the thought belongs to the user before fetching distortions
+	const thoughtExists = await db
+		.select()
+		.from(thoughtTable)
+		.where(and(eq(thoughtTable.id, thoughtId), eq(thoughtTable.userId, userId)));
+
+	if (thoughtExists.length === 0) {
+		throw new Error('Unauthorized: User does not own the thought');
+	}
+
+	// Retrieve distortions and their ratings for the given thoughtId
+	const distortions = await db
+		.select({
+			cognitiveDistortion: thoughtDistortionTable.cognitiveDistortion,
+			rating: thoughtDistortionTable.rating,
+			source: thoughtDistortionTable.source
+		})
+		.from(thoughtDistortionTable)
+		.where(eq(thoughtDistortionTable.thoughtId, thoughtId));
+
+	return distortions;
+};
+
 export const linkCognitiveDistortion = async (
 	thoughtId: number,
 	cognitiveDistortion: string,
@@ -127,6 +154,7 @@ export const linkCognitiveDistortionsBulk = async (
 	}[],
 	userId: string
 ) => {
+	// Ensure the thought belongs to the user
 	const thoughtExists = await db
 		.select()
 		.from(thoughtTable)
@@ -136,15 +164,43 @@ export const linkCognitiveDistortionsBulk = async (
 		throw new Error('Unauthorized: User does not own the thought');
 	}
 
-	const distortionEntries = distortions.map((distortion) => ({
-		thoughtId,
-		cognitiveDistortion: CognitiveDistortions[distortion.distortion],
-		rating: distortion.rating,
-		source: distortion.source
-	}));
+	for (const distortion of distortions) {
+		const cognitiveDistortionValue = CognitiveDistortions[distortion.distortion];
 
-	await db.insert(thoughtDistortionTable).values(distortionEntries);
+		// Check if a record already exists
+		const existingDistortion = await db
+			.select()
+			.from(thoughtDistortionTable)
+			.where(
+				and(
+					eq(thoughtDistortionTable.thoughtId, thoughtId),
+					eq(thoughtDistortionTable.cognitiveDistortion, cognitiveDistortionValue)
+				)
+			);
+
+		if (existingDistortion.length > 0) {
+			// Update the existing record's rating
+			await db
+				.update(thoughtDistortionTable)
+				.set({ rating: distortion.rating, source: distortion.source }) // Ensure the source is also updated if needed
+				.where(
+					and(
+						eq(thoughtDistortionTable.thoughtId, thoughtId),
+						eq(thoughtDistortionTable.cognitiveDistortion, cognitiveDistortionValue)
+					)
+				);
+		} else {
+			// Insert a new record
+			await db.insert(thoughtDistortionTable).values({
+				thoughtId,
+				cognitiveDistortion: cognitiveDistortionValue,
+				rating: distortion.rating,
+				source: distortion.source
+			});
+		}
+	}
 };
+
 
 export const setBeliefInThought = async (
 	thoughtId: number,

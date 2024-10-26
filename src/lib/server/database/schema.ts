@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer, primaryKey } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, text, integer, primaryKey, unique } from 'drizzle-orm/sqlite-core';
 
 export const userTable = sqliteTable('user', {
 	id: text('id').notNull().primaryKey(),
@@ -42,11 +42,13 @@ export const thoughtDistortionTable = sqliteTable('thought_distortion', {
 		.notNull()
 		.references(() => thoughtTable.id),
 	cognitiveDistortion: text('cognitive_distortion').notNull(),
-	// Rating (0-100) of how much this distortion applies to the thought
 	rating: integer('rating').notNull(),
-	// 'user' or 'ai' as the source of the rating
-	source: text('source').notNull()
-});
+	source: text('source').notNull(),
+
+	// Enforce unique constraint on thoughtId and cognitiveDistortion combination
+}, (table) => ({
+	uniqueThoughtDistortion: unique().on(table.thoughtId, table.cognitiveDistortion)
+}));
 
 export const beliefRatingTable = sqliteTable('belief_rating', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
