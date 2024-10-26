@@ -42,6 +42,7 @@
 		"super-sitemap": "^0.15.1",
 		"svelte": "^5.0.0-next.1",
 		"svelte-check": "^3.8.4",
+		"svelte-radix": "^2.0.1",
 		"sveltekit-superforms": "2.16.1",
 		"tailwind-merge": "^2.5.4",
 		"tailwind-variants": "^0.2.1",

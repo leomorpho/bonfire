@@ -1,4 +1,4 @@
-import { CognitiveDistortions } from '$lib/enums';
+import { CognitiveDistortions, distortionDetails } from '$lib/enums';
 import { fail, redirect } from '@sveltejs/kit';
 import { z } from 'zod';
 import { superValidate } from 'sveltekit-superforms';
@@ -37,13 +37,14 @@ export const load = async (event) => {
 	// Initialize each cognitive distortion with a default rating of 50
 	const distortionRatings = Object.values(CognitiveDistortions).map((distortion) => ({
 		name: distortion,
-		rating: [50]
+		rating: [50],
+		...distortionDetails[distortion]
 	}));
 
 	return {
 		form,
 		thought,
-		distortionRatings // Send to the frontend for rendering
+		distortionRatings 
 	};
 };
 

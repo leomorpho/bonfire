@@ -42,7 +42,6 @@ export const load = async (event) => {
 
 export const actions = {
 	next: async ({ request, locals }) => {
-		console.log(request);
 		const data = await request.formData();
 		const form = await superValidate(data, zod(thoughtBeliefRightNowSchema));
 
@@ -60,7 +59,6 @@ export const actions = {
 	},
 
 	prev: async ({ request, locals }) => {
-		console.log(request);
 		const data = await request.formData();
 		const form = await superValidate(data, zod(thoughtBeliefRightNowSchema));
 
