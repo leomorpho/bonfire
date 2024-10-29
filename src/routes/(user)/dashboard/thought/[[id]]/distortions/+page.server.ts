@@ -100,7 +100,7 @@ async function handleDistortions(
 
 export const actions = {
 	next: async ({ request, locals }) => {
-		return handleDistortions(request, locals, 'distortions');
+		return handleDistortions(request, locals, 'work');
 	},
 
 	prev: async ({ request, locals }) => {

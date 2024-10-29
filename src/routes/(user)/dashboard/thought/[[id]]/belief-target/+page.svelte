@@ -24,7 +24,7 @@
 		class="m-2 flex w-full max-w-md flex-col space-y-4"
 	>
 		<div class="form-control grid w-full items-center gap-1.5">
-			<Label for="belief">What would be an acceptable level to bring down your belief to?</Label>
+			<Label for="belief">What would be your preferred belief level for this thought?</Label>
 
 			<Slider id="belief" bind:value={beliefRating} min={0} max={100} step={1} />
 			<input type="hidden" name="beliefRating" value={beliefRating} />

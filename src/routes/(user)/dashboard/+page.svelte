@@ -45,7 +45,7 @@
 									/></svg
 								></Button
 							>
-							<Button>Work</Button>
+							<Button href={`/dashboard/thought/${thought.id}/work`}>Work</Button>
 						</Card.Footer>
 					</Card.Root>
 				{/each}
