@@ -79,7 +79,6 @@ async function handleDistortions(
 		return fail(401, { error: 'Unauthorized' });
 	}
 
-
 	// Extract thoughtId and cognitive distortions from form data
 	const { thoughtId } = form.data;
 	const cognitiveDistortionsArray = Object.entries(form.data)

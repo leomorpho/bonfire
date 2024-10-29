@@ -20,24 +20,28 @@
 	let aiDistortions: any[] = $state([]);
 
 	onMount(async () => {
-	try {
-		const response = await fetch('/api/detect-cognitive-distortions', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({ thought: { text: data.thought.thought } }) 
-		});
+		try {
+			const response = await fetch('/api/detect-cognitive-distortions', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ thought: { text: data.thought.thought } })
+			});
 
-		if (!response.ok) {
-			throw new Error(`HTTP error! status: ${response.status}`);
+			if (!response.ok) {
+				throw new Error(`HTTP error! status: ${response.status}`);
+			}
+
+			const jsonResponse = await response.json();
+			aiDistortions = jsonResponse.distortionRatings;
+			console.log('AI Distortions:', aiDistortions);
+
+			console.log(aiDistortions);
+		} catch (error) {
+			console.error('Error fetching AI distortions:', error);
 		}
-
-		aiDistortions = await response.json();
-	} catch (error) {
-		console.error('Error fetching AI distortions:', error);
-	}
-});
+	});
 </script>
 
 <div class="mx-2 flex items-center justify-center">

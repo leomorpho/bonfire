@@ -2,7 +2,7 @@ import { LLMChain } from 'langchain/chains';
 import { PromptTemplate } from '@langchain/core/prompts';
 import { env } from '$env/dynamic/private';
 import { ChatOpenAI } from '@langchain/openai';
-import { CognitiveDistortions } from './enums';
+import { CognitiveDistortions, distortionDetails } from './enums';
 
 // Set up OpenAI model configuration
 const openai = new ChatOpenAI({
@@ -72,8 +72,28 @@ export async function detectCognitiveDistortions(thoughtText: string) {
 
 	try {
 		const parsedRatings = JSON.parse(cleanedJson);
+    console.log(parsedRatings)
 		// Complete the ratings by ensuring all distortions are included
-		const distortionRatings = completeDistortionRatings(parsedRatings);
+		const existingDistortions = transformDistortionsToList(parsedRatings);
+    console.log(existingDistortions)
+
+    // Map distortions to initialize or set rating based on existing data
+	const distortionRatings = Object.entries(CognitiveDistortions).map(([enumName, distortion]) => {
+		const existing = existingDistortions.find(
+			(d) => d.cognitiveDistortion === distortion && d.source === 'ai'
+		);
+
+		return {
+			name: distortion, // Display name (e.g., "All or Nothing")
+			rating: existing ? [existing.rating] : [0], // Use existing rating or default to 50
+			enumName: enumName, // Enum name in uppercase (e.g., "ALL_OR_NOTHING")
+      details: existing ? existing.details: "",
+			...distortionDetails[distortion] // Additional details from `distortionDetails`
+		};
+	});
+
+    console.log(distortionRatings);
+
 		return distortionRatings;
 	} catch (error) {
 		console.error('Failed to parse JSON:', error);
@@ -91,17 +111,19 @@ function cleanUpMangledJson(jsonString: string): string {
 		.trim(); // Remove leading/trailing whitespace
 }
 
-// Ensure every distortion is accounted for
-function completeDistortionRatings(
+// Convert Cognitive Distortions Enum to Map
+function transformDistortionsToList(
 	partialRatings: Record<string, { rating: number; details: string }>
-): Record<CognitiveDistortions, { rating: number; details: string }> {
-	const allDistortions = Object.values(CognitiveDistortions);
-	const completedRatings: Record<CognitiveDistortions, { rating: number; details: string }> =
-		{} as Record<CognitiveDistortions, { rating: number; details: string }>;
+) {
+	return Object.entries(CognitiveDistortions).map(([enumName, displayName]) => {
+		const distortion = partialRatings[enumName] || { rating: 0, details: '' };
 
-	allDistortions.forEach((distortion) => {
-		completedRatings[distortion] = partialRatings[distortion] || { rating: 0, details: '' };
+		return {
+			cognitiveDistortion: displayName, // Display name (e.g., "All or Nothing")
+			rating: distortion.rating,
+			source: 'ai',
+      details: distortion.details,
+		};
 	});
-
-	return completedRatings;
 }
+
