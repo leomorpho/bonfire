@@ -6,6 +6,8 @@
 	import * as Card from '$lib/components/ui/card';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
+	import { onMount } from 'svelte';
+
 	const { data } = $props();
 
 	// Set up the form
@@ -13,6 +15,29 @@
 
 	// Initialize distortions based on enum, with default ratings from load
 	let distortions = data.distortionRatings;
+
+	// Initialize AI distortions
+	let aiDistortions: any[] = $state([]);
+
+	onMount(async () => {
+	try {
+		const response = await fetch('/api/detect-cognitive-distortions', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ thought: { text: data.thought.thought } }) 
+		});
+
+		if (!response.ok) {
+			throw new Error(`HTTP error! status: ${response.status}`);
+		}
+
+		aiDistortions = await response.json();
+	} catch (error) {
+		console.error('Error fetching AI distortions:', error);
+	}
+});
 </script>
 
 <div class="mx-2 flex items-center justify-center">
@@ -83,11 +108,7 @@
 											max={100}
 											step={1}
 										/>
-										<input
-											type="hidden"
-											name={enumName}
-											value={distortions[index].rating}
-										/>
+										<input type="hidden" name={enumName} value={distortions[index].rating} />
 									</div>
 								{/each}
 								<input type="hidden" name="thoughtId" value={data.thought?.id} />
@@ -127,16 +148,16 @@
 					<div class="m-2 flex w-full flex-col space-y-4">
 						<div class="form-control grid w-full items-center gap-1.5">
 							<!-- Render each cognitive distortion with a slider -->
-							{#each distortions as { name, rating }, index}
+							{#each aiDistortions as { name, rating }, index}
 								<div class="mt-4">
 									<Label
-										for="distortion-{index}"
+										for="ai-distortion-{index}"
 										class="flex flex-row items-center justify-between p-1"
 										>{name}
 									</Label>
 									<Slider
-										id="distortion-{index}"
-										bind:value={distortions[index].rating}
+										id="ai-distortion-{index}"
+										bind:value={aiDistortions[index].rating}
 										min={0}
 										max={100}
 										step={1}

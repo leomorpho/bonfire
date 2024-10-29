@@ -22,6 +22,7 @@ const thoughtBeliefTargetSchema = z.object({
 	LABELING: z.number().min(0).max(100).default(50),
 	PERSONALIZATION: z.number().min(0).max(100).default(50)
 });
+
 export const load = async (event) => {
 	const form = await superValidate(zod(thoughtBeliefTargetSchema));
 	const user = event.locals.user;
