@@ -65,17 +65,14 @@ export async function detectCognitiveDistortions(thoughtText: string) {
 			'```'
 	};
 
-	console.log(response);
-
 	// Clean up and parse the JSON response
 	const cleanedJson = cleanUpMangledJson(response.text);
 
 	try {
 		const parsedRatings = JSON.parse(cleanedJson);
-    console.log(parsedRatings)
-		// Complete the ratings by ensuring all distortions are included
+
+    // Complete the ratings by ensuring all distortions are included
 		const existingDistortions = transformDistortionsToList(parsedRatings);
-    console.log(existingDistortions)
 
     // Map distortions to initialize or set rating based on existing data
 	const distortionRatings = Object.entries(CognitiveDistortions).map(([enumName, distortion]) => {
@@ -92,7 +89,6 @@ export async function detectCognitiveDistortions(thoughtText: string) {
 		};
 	});
 
-    console.log(distortionRatings);
 
 		return distortionRatings;
 	} catch (error) {

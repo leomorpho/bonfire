@@ -11,16 +11,16 @@ import { zod } from 'sveltekit-superforms/adapters';
 
 const thoughtBeliefTargetSchema = z.object({
 	thoughtId: z.number(),
-	ALL_OR_NOTHING: z.number().min(0).max(100).default(50),
-	OVERGENERALIZATION: z.number().min(0).max(100).default(50),
-	MENTAL_FILTER: z.number().min(0).max(100).default(50),
-	DISCOUNTING_POSITIVES: z.number().min(0).max(100).default(50),
-	JUMPING_TO_CONCLUSIONS: z.number().min(0).max(100).default(50),
-	MAGNIFICATION: z.number().min(0).max(100).default(50),
-	EMOTIONAL_REASONING: z.number().min(0).max(100).default(50),
-	SHOULD_STATEMENTS: z.number().min(0).max(100).default(50),
-	LABELING: z.number().min(0).max(100).default(50),
-	PERSONALIZATION: z.number().min(0).max(100).default(50)
+	ALL_OR_NOTHING: z.number().min(0).max(100).default(0),
+	OVERGENERALIZATION: z.number().min(0).max(100).default(0),
+	MENTAL_FILTER: z.number().min(0).max(100).default(0),
+	DISCOUNTING_POSITIVES: z.number().min(0).max(100).default(0),
+	JUMPING_TO_CONCLUSIONS: z.number().min(0).max(100).default(0),
+	MAGNIFICATION: z.number().min(0).max(100).default(0),
+	EMOTIONAL_REASONING: z.number().min(0).max(100).default(0),
+	SHOULD_STATEMENTS: z.number().min(0).max(100).default(0),
+	LABELING: z.number().min(0).max(100).default(0),
+	PERSONALIZATION: z.number().min(0).max(100).default(0)
 });
 
 export const load = async (event) => {
@@ -39,6 +39,7 @@ export const load = async (event) => {
 	}
 
 	const existingDistortions = await getCognitiveDistortionsForThought(thoughtId, user.id);
+	console.log(existingDistortions)
 
 	// Map distortions to initialize or set rating based on existing data
 	const distortionRatings = Object.entries(CognitiveDistortions).map(([enumName, distortion]) => {

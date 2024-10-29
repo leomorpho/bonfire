@@ -7,7 +7,7 @@
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { onMount } from 'svelte';
-	import { Info } from 'lucide-svelte';
+	import { Info, TriangleAlert } from 'lucide-svelte';
 
 	const { data } = $props();
 
@@ -15,7 +15,13 @@
 	const { form, errors, enhance, submitting } = superForm(data.form);
 
 	// Initialize distortions based on enum, with default ratings from load
-	let distortions = data.distortionRatings;
+	let distortions = $state(data.distortionRatings);
+	console.log(distortions);
+
+	// Function to handle distortion rating change and update hidden input value
+	function updateDistortionRating(index: number, newRating: number) {
+		distortions[index].rating = [newRating];
+	}
 
 	// Initialize AI distortions
 	let aiDistortions: any[] = $state([]);
@@ -36,9 +42,6 @@
 
 			const jsonResponse = await response.json();
 			aiDistortions = jsonResponse.distortionRatings;
-			console.log('AI Distortions:', aiDistortions);
-
-			console.log(aiDistortions);
 		} catch (error) {
 			console.error('Error fetching AI distortions:', error);
 		}
@@ -65,7 +68,7 @@
 						<div class="m-2 flex w-full flex-col space-y-4">
 							<div class="form-control grid w-full items-center gap-1.5">
 								<!-- Render each cognitive distortion with a slider -->
-								{#each distortions as { name, rating, enumName, explanation, example }, index}
+								{#each distortions as { name, enumName, explanation, example }, index}
 									<div class="mt-4">
 										<Label
 											class="flex flex-row items-center justify-between p-1"
@@ -147,7 +150,7 @@
 										>{name}
 										{#if details}
 											<Dialog.Root>
-												<Dialog.Trigger><Info class="ml-1 h-3 w-3 sm:h-4 sm:w-4" /></Dialog.Trigger>
+												<Dialog.Trigger><TriangleAlert class="ml-1 h-3 w-3 sm:h-4 sm:w-4" /></Dialog.Trigger>
 												<Dialog.Content class="sm:max-w-[425px]">
 													<Dialog.Header>
 														<Dialog.Title>{name}</Dialog.Title>
@@ -171,6 +174,7 @@
 							{/each}
 						</div>
 					</div>
+					<div class="pt-3 text-sm italic">Note that this analysis is for indicative purposes only.</div>
 				</Card.Content>
 			</Card.Root>
 		</Tabs.Content>
