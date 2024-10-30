@@ -73,3 +73,129 @@ export const distortionDetails = {
 			'You blame yourself when a friend is upset, thinking it must be something you did. Or, if a project fails, you assume it’s solely your fault even if others contributed.'
 	}
 };
+
+type EmotionCategory = {
+	[emotion: string]: string;
+  };
+  
+export const Emotion: Record<string, EmotionCategory> = {
+	// Anger-related emotions
+	Anger: {
+	  Frustration: "Frustration",
+	  Irritation: "Irritation",
+	  Resentment: "Resentment",
+	  Hostility: "Hostility",
+	  Rage: "Rage"
+	},
+  
+	// Sadness-related emotions
+	Sadness: {
+	  Disappointment: "Disappointment",
+	  Loneliness: "Loneliness",
+	  Grief: "Grief",
+	  Despair: "Despair",
+	  Sorrow: "Sorrow"
+	},
+  
+	// Fear-related emotions
+	Fear: {
+	  Anxiety: "Anxiety",
+	  Worry: "Worry",
+	  Insecurity: "Insecurity",
+	  Dread: "Dread",
+	  Panic: "Panic"
+	},
+  
+	// Guilt-related emotions
+	Guilt: {
+	  Remorse: "Remorse",
+	  Regret: "Regret",
+	  Shame: "Shame",
+	  Embarrassment: "Embarrassment",
+	  SelfBlame: "Self-Blame"
+	},
+  
+	// Shame-related emotions
+	Shame: {
+	  Inadequacy: "Inadequacy",
+	  Humiliation: "Humiliation",
+	  Worthlessness: "Worthlessness",
+	  SelfDisgust: "Self-Disgust",
+	  Inferiority: "Inferiority"
+	},
+  
+	// Disgust-related emotions
+	Disgust: {
+	  Aversion: "Aversion",
+	  Repulsion: "Repulsion",
+	  Contempt: "Contempt",
+	  Loathing: "Loathing",
+	  Scorn: "Scorn"
+	},
+  
+	// Jealousy-related emotions
+	Jealousy: {
+	  Envy: "Envy",
+	  Possessiveness: "Possessiveness",
+	  Suspicion: "Suspicion",
+	  Insecurity: "Insecurity",
+	  Distrust: "Distrust"
+	},
+  
+	// Positive emotions
+  
+	// Joy-related emotions
+	Joy: {
+	  Happiness: "Happiness",
+	  Contentment: "Contentment",
+	  Excitement: "Excitement",
+	  Satisfaction: "Satisfaction",
+	  Enjoyment: "Enjoyment"
+	},
+  
+	// Love-related emotions
+	Love: {
+	  Affection: "Affection",
+	  Compassion: "Compassion",
+	  Fondness: "Fondness",
+	  Attraction: "Attraction",
+	  Warmth: "Warmth"
+	},
+  
+	// Peace-related emotions
+	Peace: {
+	  Calm: "Calm",
+	  Relaxation: "Relaxation",
+	  Serenity: "Serenity",
+	  Relief: "Relief",
+	  Tranquility: "Tranquility"
+	},
+  
+	// Pride-related emotions
+	Pride: {
+	  Accomplishment: "Accomplishment",
+	  Confidence: "Confidence",
+	  SelfRespect: "Self-Respect",
+	  Esteem: "Esteem",
+	  Fulfillment: "Fulfillment"
+	},
+  
+	// Hope-related emotions
+	Hope: {
+	  Optimism: "Optimism",
+	  Anticipation: "Anticipation",
+	  Encouragement: "Encouragement",
+	  Inspiration: "Inspiration",
+	  Aspiration: "Aspiration"
+	},
+  
+	// Gratitude-related emotions
+	Gratitude: {
+	  Thankfulness: "Thankfulness",
+	  Appreciation: "Appreciation",
+	  Gratefulness: "Gratefulness",
+	  Acknowledgment: "Acknowledgment",
+	  Blessing: "Blessing"
+	}
+  };
+  

@@ -92,6 +92,35 @@ export const deleteThought = async (userId: string, thoughtId: number) => {
 	await db.delete(thoughtTable).where(eq(thoughtTable.id, thoughtId));
 };
 
+export const setThoughtEmotions = async (
+	userId: string,
+	thoughtId: number,
+	emotions: string[]
+): Promise<{ id: number; userId: string; thought: string; createdAt: Date; emotions: string[] }> => {
+	// Verify ownership
+	const thoughtExists = await db
+		.select()
+		.from(thoughtTable)
+		.where(and(eq(thoughtTable.id, thoughtId), eq(thoughtTable.userId, userId)));
+
+	if (thoughtExists.length === 0) {
+		throw new Error('Unauthorized: User does not own the thought');
+	}
+
+	// Update the emotions
+	const updatedThought = await db
+		.update(thoughtTable)
+		.set({ emotions: JSON.stringify(emotions) }) // Convert emotions array to JSON string
+		.where(eq(thoughtTable.id, thoughtId))
+		.returning();
+
+	return {
+		...updatedThought[0],
+		emotions // Return the updated emotions
+	};
+};
+
+
 export const getCognitiveDistortionsForThought = async (
 	thoughtId: number,
 	userId: string

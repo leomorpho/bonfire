@@ -7,7 +7,8 @@
 </script>
 
 <div class="m-5">
-	<div class="flex justify-center">
+	<div class="flex justify-center space-x-2">
+		<!-- <Button href="/dashboard">Log new gratitude</Button> -->
 		<Button href="/dashboard/thought">Log new stressful thought</Button>
 	</div>
 

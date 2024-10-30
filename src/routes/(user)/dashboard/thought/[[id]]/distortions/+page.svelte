@@ -18,11 +18,6 @@
 	let distortions = $state(data.distortionRatings);
 	console.log(distortions);
 
-	// Function to handle distortion rating change and update hidden input value
-	function updateDistortionRating(index: number, newRating: number) {
-		distortions[index].rating = [newRating];
-	}
-
 	// Initialize AI distortions
 	let aiDistortions: any[] = $state([]);
 
@@ -150,7 +145,9 @@
 										>{name}
 										{#if details}
 											<Dialog.Root>
-												<Dialog.Trigger><TriangleAlert class="ml-1 h-3 w-3 sm:h-4 sm:w-4" /></Dialog.Trigger>
+												<Dialog.Trigger
+													><TriangleAlert class="ml-1 h-3 w-3 sm:h-4 sm:w-4" /></Dialog.Trigger
+												>
 												<Dialog.Content class="sm:max-w-[425px]">
 													<Dialog.Header>
 														<Dialog.Title>{name}</Dialog.Title>
@@ -174,7 +171,9 @@
 							{/each}
 						</div>
 					</div>
-					<div class="pt-3 text-sm italic">Note that this analysis is for indicative purposes only.</div>
+					<div class="pt-3 text-sm italic">
+						Note that this analysis is for indicative purposes only.
+					</div>
 				</Card.Content>
 			</Card.Root>
 		</Tabs.Content>
