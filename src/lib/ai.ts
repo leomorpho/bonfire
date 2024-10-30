@@ -16,7 +16,7 @@ const cognitiveDistortionsPrompt = new PromptTemplate({
 
 Return the response as a JSON object with only the distortions that have a rating greater than 0. The JSON structure should look like this:
     {{
-      "ALL_OR_NOTHING": {{ "rating": 100, "details": "Brief explanation if present" }},
+      "ALL_OR_NOTHING": {{ "rating": 100, "details": "Brief explanation if present, about how that distortion applies specifically to the present thought. Explain it like I'm 12." }},
       "OVERGENERALIZATION": {{ "rating": 0, "details": "" }},
       "MENTAL_FILTER": {{ "rating": 0, "details": "" }},
       "DISCOUNTING_POSITIVES": {{ "rating": 0, "details": "" }},
