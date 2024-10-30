@@ -1,5 +1,10 @@
-import { redirect } from '@sveltejs/kit';
-import { getThoughtById } from '$lib/server/database/thought.model';
+import { redirect, fail } from '@sveltejs/kit';
+import {
+	getBeliefInThought,
+	getBeliefTargetRating,
+	getThoughtById,
+	setBeliefInThought
+} from '$lib/server/database/thought.model';
 
 export const load = async (event) => {
 	// Get the user from locals
@@ -17,7 +22,12 @@ export const load = async (event) => {
 		throw redirect(404, '/not-found'); // Handle not found case
 	}
 
+	const beliefInThought = await getBeliefInThought(thoughtId, user.id);
+	const targetBeliefInThought = await getBeliefTargetRating(thoughtId, user.id);
+
 	return {
-		thought
+		thought,
+		beliefInThought,
+		targetBeliefInThought
 	};
 };

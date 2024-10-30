@@ -28,23 +28,6 @@
 							<!-- Add info on work progress on this thought -->
 						</Card.Content>
 						<Card.Footer class="flex justify-between">
-							<Button variant="outline"
-								><svg
-									xmlns="http://www.w3.org/2000/svg"
-									viewBox="0 0 24 24"
-									fill="none"
-									stroke="currentColor"
-									stroke-width="2"
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									class="lucide lucide-ellipsis w-4 h-4"
-									><circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /><circle
-										cx="5"
-										cy="12"
-										r="1"
-									/></svg
-								></Button
-							>
 							<Button href={`/dashboard/thought/${thought.id}/work`}>Work</Button>
 						</Card.Footer>
 					</Card.Root>
