@@ -6,7 +6,7 @@
 	const thoughtsList = writable($page.data.thoughts);
 </script>
 
-<div class="m-5">
+<div class="mx-2 flex flex-col items-center justify-center">
 	<div class="flex justify-center space-x-2">
 		<!-- <Button href="/dashboard">Log new gratitude</Button> -->
 		<Button href="/dashboard/thought">Log new stressful thought</Button>

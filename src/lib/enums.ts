@@ -110,7 +110,6 @@ export const Emotion: Record<string, EmotionCategory> = {
 	Guilt: {
 	  Remorse: "Remorse",
 	  Regret: "Regret",
-	  Shame: "Shame",
 	  Embarrassment: "Embarrassment",
 	  SelfBlame: "Self-Blame"
 	},
