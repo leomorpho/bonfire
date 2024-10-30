@@ -13,7 +13,7 @@
 	</div>
 
 	<!-- History of thoughts and moods -->
-	<section class="mt-8">
+	<section class="mt-8 w-full sm:w-[450px]">
 		<h2 class="mb-4 text-lg font-semibold">Your Thoughts History</h2>
 		{#if $thoughtsList.length > 0}
 			<div class="space-y-2">

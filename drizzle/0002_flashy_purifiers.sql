@@ -1,0 +1,1 @@
+ALTER TABLE `thought_distortion` ADD `details` text;

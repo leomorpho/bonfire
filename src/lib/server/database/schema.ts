@@ -44,11 +44,12 @@ export const thoughtDistortionTable = sqliteTable('thought_distortion', {
 		.references(() => thoughtTable.id),
 	cognitiveDistortion: text('cognitive_distortion').notNull(),
 	rating: integer('rating').notNull(),
+	details: text('details'),
 	source: text('source').notNull(),
 
 	// Enforce unique constraint on thoughtId and cognitiveDistortion combination
 }, (table) => ({
-	uniqueThoughtDistortion: unique().on(table.thoughtId, table.cognitiveDistortion)
+	uniqueThoughtDistortion: unique().on(table.thoughtId, table.cognitiveDistortion, table.source)
 }));
 
 export const beliefRatingTable = sqliteTable('belief_rating', {

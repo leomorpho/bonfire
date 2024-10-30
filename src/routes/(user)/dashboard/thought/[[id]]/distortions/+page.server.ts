@@ -39,18 +39,37 @@ export const load = async (event) => {
 	}
 
 	const existingDistortions = await getCognitiveDistortionsForThought(thoughtId, user.id);
-	console.log(existingDistortions)
+	console.log(existingDistortions);
+
+	// TODO: the below is awfully not performant but don't care for now
 
 	// Map distortions to initialize or set rating based on existing data
-	const distortionRatings = Object.entries(CognitiveDistortions).map(([enumName, distortion]) => {
+	const userDistortionRatings = Object.entries(CognitiveDistortions).map(
+		([enumName, distortion]) => {
+			const existing = existingDistortions.find(
+				(d) => d.cognitiveDistortion === distortion && d.source === 'user'
+			);
+
+			return {
+				name: distortion, // Display name (e.g., "All or Nothing")
+				rating: existing ? [existing.rating] : [0], // Use existing rating or default to 50
+				enumName: enumName, // Enum name in uppercase (e.g., "ALL_OR_NOTHING")
+				...distortionDetails[distortion] // Additional details from `distortionDetails`
+			};
+		}
+	);
+
+	// Map distortions to initialize or set rating based on existing data
+	const aiDistortionRatings = Object.entries(CognitiveDistortions).map(([enumName, distortion]) => {
 		const existing = existingDistortions.find(
-			(d) => d.cognitiveDistortion === distortion && d.source === 'user'
+			(d) => d.cognitiveDistortion === distortion && d.source === 'ai'
 		);
 
 		return {
 			name: distortion, // Display name (e.g., "All or Nothing")
 			rating: existing ? [existing.rating] : [0], // Use existing rating or default to 50
 			enumName: enumName, // Enum name in uppercase (e.g., "ALL_OR_NOTHING")
+			details: existing?.details,
 			...distortionDetails[distortion] // Additional details from `distortionDetails`
 		};
 	});
@@ -58,7 +77,8 @@ export const load = async (event) => {
 	return {
 		form,
 		thought,
-		distortionRatings
+		userDistortionRatings,
+		aiDistortionRatings
 	};
 };
 

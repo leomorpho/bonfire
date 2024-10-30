@@ -51,7 +51,6 @@ export const createThought = async (
 	return insertedThought[0];
 };
 
-
 export const updateThought = async (
 	userId: string,
 	thoughtId: number,
@@ -96,7 +95,13 @@ export const setThoughtEmotions = async (
 	userId: string,
 	thoughtId: number,
 	emotions: string[]
-): Promise<{ id: number; userId: string; thought: string; createdAt: Date; emotions: string[] }> => {
+): Promise<{
+	id: number;
+	userId: string;
+	thought: string;
+	createdAt: Date;
+	emotions: string[];
+}> => {
 	// Verify ownership
 	const thoughtExists = await db
 		.select()
@@ -120,11 +125,7 @@ export const setThoughtEmotions = async (
 	};
 };
 
-
-export const getCognitiveDistortionsForThought = async (
-	thoughtId: number,
-	userId: string
-) => {
+export const getCognitiveDistortionsForThought = async (thoughtId: number, userId: string) => {
 	// Verify that the thought belongs to the user before fetching distortions
 	const thoughtExists = await db
 		.select()
@@ -140,7 +141,8 @@ export const getCognitiveDistortionsForThought = async (
 		.select({
 			cognitiveDistortion: thoughtDistortionTable.cognitiveDistortion,
 			rating: thoughtDistortionTable.rating,
-			source: thoughtDistortionTable.source
+			source: thoughtDistortionTable.source,
+			details: thoughtDistortionTable.details
 		})
 		.from(thoughtDistortionTable)
 		.where(eq(thoughtDistortionTable.thoughtId, thoughtId));
@@ -180,9 +182,11 @@ export const linkCognitiveDistortionsBulk = async (
 		distortion: keyof typeof CognitiveDistortions;
 		rating: number;
 		source: 'user' | 'ai';
+		details?: string;
 	}[],
 	userId: string
 ) => {
+	
 	// Ensure the thought belongs to the user
 	const thoughtExists = await db
 		.select()
@@ -190,8 +194,10 @@ export const linkCognitiveDistortionsBulk = async (
 		.where(and(eq(thoughtTable.id, thoughtId), eq(thoughtTable.userId, userId)));
 
 	if (thoughtExists.length === 0) {
+		
 		throw new Error('Unauthorized: User does not own the thought');
 	}
+	
 
 	for (const distortion of distortions) {
 		const cognitiveDistortionValue = CognitiveDistortions[distortion.distortion];
@@ -203,7 +209,8 @@ export const linkCognitiveDistortionsBulk = async (
 			.where(
 				and(
 					eq(thoughtDistortionTable.thoughtId, thoughtId),
-					eq(thoughtDistortionTable.cognitiveDistortion, cognitiveDistortionValue)
+					eq(thoughtDistortionTable.cognitiveDistortion, cognitiveDistortionValue),
+					eq(thoughtDistortionTable.source, distortion.source)
 				)
 			);
 
@@ -215,7 +222,8 @@ export const linkCognitiveDistortionsBulk = async (
 				.where(
 					and(
 						eq(thoughtDistortionTable.thoughtId, thoughtId),
-						eq(thoughtDistortionTable.cognitiveDistortion, cognitiveDistortionValue)
+						eq(thoughtDistortionTable.cognitiveDistortion, cognitiveDistortionValue),
+						eq(thoughtDistortionTable.source, distortion.source)
 					)
 				);
 		} else {
@@ -224,12 +232,12 @@ export const linkCognitiveDistortionsBulk = async (
 				thoughtId,
 				cognitiveDistortion: cognitiveDistortionValue,
 				rating: distortion.rating,
-				source: distortion.source
+				source: distortion.source,
+				details: distortion.details
 			});
 		}
 	}
 };
-
 
 export const setBeliefInThought = async (
 	thoughtId: number,

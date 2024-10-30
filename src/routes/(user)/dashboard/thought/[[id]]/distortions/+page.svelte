@@ -8,6 +8,7 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { onMount } from 'svelte';
 	import { Info, TriangleAlert } from 'lucide-svelte';
+	import { LoaderPinwheel } from 'lucide-svelte';
 
 	const { data } = $props();
 
@@ -15,20 +16,32 @@
 	const { form, errors, enhance, submitting } = superForm(data.form);
 
 	// Initialize distortions based on enum, with default ratings from load
-	let distortions = $state(data.distortionRatings);
-	console.log(distortions);
+	let distortions = $state(data.userDistortionRatings);
 
 	// Initialize AI distortions
-	let aiDistortions: any[] = $state([]);
+	let aiDistortions: any[] = $state(data.aiDistortionRatings);
+	console.log(data.aiDistortionRatings);
 
-	onMount(async () => {
+	// Loading state for AI distortions
+	let loadingAI = $state(false);
+
+	// Check if all ratings in aiDistortions are 0
+	function allRatingsZero(distortions: any[]): any {
+		return distortions.every((d) => d.rating[0] === 0);
+	}
+
+	// Query the backend to detect cognitive distortions
+	async function fetchCognitiveDistortions() {
+		loadingAI = true; // Start loading
+		console.log('Fetching cognitive distortions...');
+
 		try {
 			const response = await fetch('/api/detect-cognitive-distortions', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
 				},
-				body: JSON.stringify({ thought: { text: data.thought.thought } })
+				body: JSON.stringify({ thought: { text: data.thought.thought, id: data.thought.id } })
 			});
 
 			if (!response.ok) {
@@ -39,6 +52,15 @@
 			aiDistortions = jsonResponse.distortionRatings;
 		} catch (error) {
 			console.error('Error fetching AI distortions:', error);
+		} finally {
+			loadingAI = false; // Stop loading after fetch completes
+		}
+	}
+
+	onMount(async () => {
+		// Check if aiDistortions have all ratings set to 0
+		if (allRatingsZero(aiDistortions)) {
+			await fetchCognitiveDistortions();
 		}
 	});
 </script>
@@ -47,7 +69,12 @@
 	<Tabs.Root value="you" class="sm:w-[400px]">
 		<Tabs.List class="grid w-full grid-cols-2">
 			<Tabs.Trigger value="you">You</Tabs.Trigger>
-			<Tabs.Trigger value="ai">A.I.</Tabs.Trigger>
+			<Tabs.Trigger value="ai"
+				>A.I.
+				{#if loadingAI}
+					<span class="spin ml-1"><LoaderPinwheel class="w-4 h-4"/></span>
+				{/if}
+			</Tabs.Trigger>
 		</Tabs.List>
 		<Tabs.Content value="you">
 			<Card.Root>
@@ -125,57 +152,78 @@
 			</Card.Root>
 		</Tabs.Content>
 		<Tabs.Content value="ai">
-			<Card.Root>
-				<Card.Header>
-					<Card.Title>{data.thought.thought}</Card.Title>
-					<Card.Description class="h-5 sm:h-7"
-						>Here's what our A.I. thinks. Use it as a way to learn to recognize cognitive
-						distortions in your thoughts.</Card.Description
-					>
-				</Card.Header>
-				<Card.Content class="space-y-2">
-					<div class="m-2 flex w-full flex-col space-y-4">
-						<div class="form-control grid w-full items-center gap-1.5">
-							<!-- Render each cognitive distortion with a slider -->
-							{#each aiDistortions as { name, rating, details }, index}
-								<div class="mt-4">
-									<Label
-										for="ai-distortion-{index}"
-										class="flex flex-row items-center justify-between p-1"
-										>{name}
-										{#if details}
-											<Dialog.Root>
-												<Dialog.Trigger
-													><TriangleAlert class="ml-1 h-3 w-3 sm:h-4 sm:w-4" /></Dialog.Trigger
-												>
-												<Dialog.Content class="sm:max-w-[425px]">
-													<Dialog.Header>
-														<Dialog.Title>{name}</Dialog.Title>
-														<Dialog.Description>
-															<div>{details}</div>
-														</Dialog.Description>
-													</Dialog.Header>
-												</Dialog.Content>
-											</Dialog.Root>
-										{/if}
-									</Label>
-									<Slider
-										id="ai-distortion-{index}"
-										bind:value={aiDistortions[index].rating}
-										disabled
-										min={0}
-										max={100}
-										step={1}
-									/>
-								</div>
-							{/each}
+			{#if loadingAI}
+				<div class="flex h-full items-center justify-center">
+					<span class="loading loading-spinner">Loading AI Analysis...</span>
+				</div>
+			{:else}
+				<Card.Root>
+					<Card.Header>
+						<Card.Title>{data.thought.thought}</Card.Title>
+						<Card.Description class="h-5 sm:h-7"
+							>Here's what our A.I. thinks. Use it as a way to learn to recognize cognitive
+							distortions in your thoughts.</Card.Description
+						>
+					</Card.Header>
+					<Card.Content class="space-y-2">
+						<div class="m-2 flex w-full flex-col space-y-4">
+							<div class="form-control grid w-full items-center gap-1.5">
+								<!-- Render each cognitive distortion with a slider -->
+								{#each aiDistortions as { name, rating, details }, index}
+									<div class="mt-4">
+										<Label
+											for="ai-distortion-{index}"
+											class="flex flex-row items-center justify-between p-1"
+											>{name}
+											{#if details}
+												<Dialog.Root>
+													<Dialog.Trigger
+														><TriangleAlert class="ml-1 h-3 w-3 sm:h-4 sm:w-4" /></Dialog.Trigger
+													>
+													<Dialog.Content class="sm:max-w-[425px]">
+														<Dialog.Header>
+															<Dialog.Title>{name}</Dialog.Title>
+															<Dialog.Description>
+																<div>{details}</div>
+															</Dialog.Description>
+														</Dialog.Header>
+													</Dialog.Content>
+												</Dialog.Root>
+											{/if}
+										</Label>
+										<Slider
+											id="ai-distortion-{index}"
+											bind:value={aiDistortions[index].rating}
+											disabled
+											min={0}
+											max={100}
+											step={1}
+										/>
+									</div>
+								{/each}
+							</div>
 						</div>
-					</div>
-					<div class="pt-3 text-sm italic">
-						Note that this analysis is for indicative purposes only.
-					</div>
-				</Card.Content>
-			</Card.Root>
+						<div class="pt-3 text-sm italic">
+							Note that this analysis is for indicative purposes only.
+						</div>
+					</Card.Content>
+				</Card.Root>
+			{/if}
 		</Tabs.Content>
 	</Tabs.Root>
 </div>
+
+<style>
+	.spin {
+		animation: rotate 1s linear infinite;
+	}
+
+	@keyframes rotate {
+		from {
+			transform: rotate(0deg);
+		}
+		to {
+			transform: rotate(360deg);
+		}
+	}
+</style>

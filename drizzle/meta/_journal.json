@@ -15,6 +15,20 @@
       "when": 1730321323677,
       "tag": "0001_public_silver_surfer",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1730322303710,
+      "tag": "0002_flashy_purifiers",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1730326848886,
+      "tag": "0003_lying_spectrum",
+      "breakpoints": true
     }
   ]
 }

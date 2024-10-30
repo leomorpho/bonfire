@@ -50,45 +50,47 @@ const cognitiveDistortionChain = new LLMChain({
 });
 
 export async function detectCognitiveDistortions(thoughtText: string) {
-	// const response = await cognitiveDistortionChain.call({
-	// 	thoughtText
-	// });
-	const response = {
-		text:
-			'```json\n' +
-			'{\n' +
-			'  "ALL_OR_NOTHING": { "rating": 75, "details": "The thought reflects an extreme perspective, suggesting that if things are not perfect, they are seen as a failure." },\n' +
-			'  "OVERGENERALIZATION": { "rating": 50, "details": "The thought may take a specific instance of disappointment and suggest that future outcomes will always be the same." },\n' +
-			'  "JUMPING_TO_CONCLUSIONS": { "rating": 40, "details": "There may be an assumption made about the outcome of a situation without adequate evidence." },\n' +
-			'  "EMOTIONAL_REASONING": { "rating": 30, "details": "The thought blurs the line between feelings and facts, leading to a belief that negative feelings indicate negative realities." }\n' +
-			'}\n' +
-			'```'
-	};
+	const response = await cognitiveDistortionChain.call({
+		thoughtText
+	});
+	// TODO: don't remove, and set env var to turn off access to AI API for testing
+	// const response = {
+	// 	text:
+	// 		'```json\n' +
+	// 		'{\n' +
+	// 		'  "ALL_OR_NOTHING": { "rating": 75, "details": "The thought reflects an extreme perspective, suggesting that if things are not perfect, they are seen as a failure." },\n' +
+	// 		'  "OVERGENERALIZATION": { "rating": 50, "details": "The thought may take a specific instance of disappointment and suggest that future outcomes will always be the same." },\n' +
+	// 		'  "JUMPING_TO_CONCLUSIONS": { "rating": 40, "details": "There may be an assumption made about the outcome of a situation without adequate evidence." },\n' +
+	// 		'  "EMOTIONAL_REASONING": { "rating": 30, "details": "The thought blurs the line between feelings and facts, leading to a belief that negative feelings indicate negative realities." }\n' +
+	// 		'}\n' +
+	// 		'```'
+	// };
 
 	// Clean up and parse the JSON response
 	const cleanedJson = cleanUpMangledJson(response.text);
-
 	try {
 		const parsedRatings = JSON.parse(cleanedJson);
 
-    // Complete the ratings by ensuring all distortions are included
+		// Complete the ratings by ensuring all distortions are included
 		const existingDistortions = transformDistortionsToList(parsedRatings);
 
-    // Map distortions to initialize or set rating based on existing data
-	const distortionRatings = Object.entries(CognitiveDistortions).map(([enumName, distortion]) => {
-		const existing = existingDistortions.find(
-			(d) => d.cognitiveDistortion === distortion && d.source === 'ai'
-		);
+		// Map distortions to initialize or set rating based on existing data
+		const distortionRatings = Object.entries(CognitiveDistortions).map(([enumName, distortion]) => {
+			const existing = existingDistortions.find(
+				(d) => d.cognitiveDistortion === distortion && d.source === 'ai'
+			);
 
-		return {
-			name: distortion, // Display name (e.g., "All or Nothing")
-			rating: existing ? [existing.rating] : [0], // Use existing rating or default to 50
-			enumName: enumName, // Enum name in uppercase (e.g., "ALL_OR_NOTHING")
-      details: existing ? existing.details: "",
-			...distortionDetails[distortion] // Additional details from `distortionDetails`
-		};
-	});
+			return {
+				name: distortion, // Display name (e.g., "All or Nothing")
+				rating: existing ? [existing.rating] : [0], // Use existing rating or default to 50
+				enumName: enumName, // Enum name in uppercase (e.g., "ALL_OR_NOTHING")
+				details: existing ? existing.details : '',
+				...distortionDetails[distortion] // Additional details from `distortionDetails`
+			};
+		});
 
+		console.log("=========== A.I. ============")
+		console.log(distortionRatings);
 
 		return distortionRatings;
 	} catch (error) {
@@ -118,8 +120,7 @@ function transformDistortionsToList(
 			cognitiveDistortion: displayName, // Display name (e.g., "All or Nothing")
 			rating: distortion.rating,
 			source: 'ai',
-      details: distortion.details,
+			details: distortion.details
 		};
 	});
 }
-
