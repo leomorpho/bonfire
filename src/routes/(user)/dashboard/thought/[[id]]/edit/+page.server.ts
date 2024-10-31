@@ -61,6 +61,6 @@ export const actions = {
 
 		const newThought = await updateThought(user.id,thoughtForm.data.thoughtId, thoughtForm.data.thought);
 
-		redirect(302, '/dashboard');
+		redirect(302, `/dashboard/thought/${newThought.id}/work`);
 	}
 };

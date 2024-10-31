@@ -47,7 +47,7 @@
 		<Card.Content>
 			<div class="flex flex-col gap-y-2 pt-4">
 				<h2>Melt Defenses</h2>
-				<Button href="emotions">Identify associated emotions</Button>
+				<Button href="emotions/selection">Identify associated emotions</Button>
 				<Button>Benefit/cost analysis</Button>
 				<Button>What if?</Button>
 			</div>
