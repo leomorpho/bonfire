@@ -1,17 +1,18 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { z } from 'zod';
 import { superValidate } from 'sveltekit-superforms';
-import { getThoughtById, setThoughtEmotions } from '$lib/server/database/thought.model';
+import { getThoughtById } from '$lib/server/database/thought.model';
 import { zod } from 'sveltekit-superforms/adapters';
 import type { Actions } from '../$types';
+import { Emotion, type EmotionCategory } from '$lib/enums';
 
-const emotionsSchema = z.object({
+const analysisSchema = z.object({
 	thoughtId: z.number(),
 	selectedEmotions: z.array(z.string()).optional() // Optional array for selected emotions
 });
 
 export const load = async (event) => {
-	const form = await superValidate(zod(emotionsSchema));
+	const form = await superValidate(zod(analysisSchema));
 
 	// Get the user from locals
 	const user = event.locals.user;
@@ -28,9 +29,27 @@ export const load = async (event) => {
 		throw redirect(404, '/not-found'); // Handle not found case
 	}
 
+	const availableEmotions: Record<string, EmotionCategory> = Object.keys(Emotion).reduce((acc, family) => {
+		const familyEmotions = Emotion[family];
+		const matchingEmotions = Object.keys(familyEmotions).filter(emotion =>
+			thought.emotions?.includes(familyEmotions[emotion])
+		);
+	
+		if (matchingEmotions.length > 0) {
+			acc[family] = matchingEmotions.reduce((obj, emotion) => {
+				obj[emotion] = familyEmotions[emotion];
+				return obj;
+			}, {} as EmotionCategory);
+		}
+	
+		return acc;
+	}, {} as Record<string, EmotionCategory>);
+	
+
 	return {
 		form,
-		thought
+		thought,
+		availableEmotions
 	};
 };
 
@@ -58,7 +77,7 @@ async function saveAnalysis(
 	// };
 
 	// // Validate the form input using the schema
-	// const form = await superValidate(formInput, zod(emotionsSchema));
+	// const form = await superValidate(formInput, zod(analysisSchema));
 
 	// if (!form.valid) {
 	// 	return fail(400, { form });

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import AILoader from '$lib/components/AILoader.svelte';
 	import { superForm } from 'sveltekit-superforms';
 	import { Label } from '$lib/components/ui/label';
 	import { Slider } from '$lib/components/ui/slider/index.js';
@@ -8,7 +9,6 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { onMount } from 'svelte';
 	import { Info, TriangleAlert } from 'lucide-svelte';
-	import { LoaderPinwheel } from 'lucide-svelte';
 
 	const { data } = $props();
 
@@ -72,7 +72,7 @@
 			<Tabs.Trigger value="ai"
 				>A.I.
 				{#if loadingAI}
-					<span class="spin ml-1"><LoaderPinwheel class="w-4 h-4"/></span>
+					<AILoader/>
 				{/if}
 			</Tabs.Trigger>
 		</Tabs.List>
@@ -212,18 +212,3 @@
 		</Tabs.Content>
 	</Tabs.Root>
 </div>
-
-<style>
-	.spin {
-		animation: rotate 1s linear infinite;
-	}
-
-	@keyframes rotate {
-		from {
-			transform: rotate(0deg);
-		}
-		to {
-			transform: rotate(360deg);
-		}
-	}
-</style>

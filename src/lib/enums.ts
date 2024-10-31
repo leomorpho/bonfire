@@ -74,7 +74,7 @@ export const distortionDetails = {
 	}
 };
 
-type EmotionCategory = {
+export type EmotionCategory = {
 	[emotion: string]: string;
   };
   
