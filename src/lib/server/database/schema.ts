@@ -4,7 +4,8 @@ import { sqliteTable, text, integer, primaryKey, unique } from 'drizzle-orm/sqli
 export const userTable = sqliteTable('user', {
 	id: text('id').notNull().primaryKey(),
 	email: text('email').notNull(),
-	email_verified: integer('email_verified', { mode: 'boolean' })
+	email_verified: integer('email_verified', { mode: 'boolean' }),
+	encryption_salt: text('encryption_salt')
 });
 
 export const sessionTable = sqliteTable('session', {

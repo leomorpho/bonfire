@@ -70,6 +70,7 @@
 		"emailjs": "^4.0.3",
 		"embla-carousel": "^8.3.0",
 		"embla-carousel-svelte": "^8.3.0",
+		"idb": "^8.0.0",
 		"langchain": "^0.3.4",
 		"lucia": "^3.2.2",
 		"lucide-svelte": "^0.453.0",

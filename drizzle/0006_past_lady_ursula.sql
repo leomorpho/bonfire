@@ -1,0 +1,1 @@
+ALTER TABLE `user` ADD `encryption_salt` text NOT NULL;
