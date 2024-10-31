@@ -133,12 +133,12 @@
 					>
 					<Card.Footer>
 						<div class="flex w-full justify-center space-x-1">
-							<Button
+							<!-- <Button
 								type="submit"
 								formaction="?/prev"
 								disabled={$submitting}
 								class="w-1/2 max-w-64">Previous</Button
-							>
+							> -->
 							<Button type="submit" disabled={$submitting} class="w-1/2 max-w-64">
 								{#if $submitting}
 									<span class="loading loading-spinner"></span> Submitting...

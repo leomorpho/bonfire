@@ -36,7 +36,8 @@ export const thoughtTable = sqliteTable('thought', {
 		.references(() => userTable.id),
 	thought: text('thought').notNull(),
 	emotions: text('emotions').default("[]"), // Store emotions as a JSON string
-	areDistortionsDone: integer("areDistortionsDone", { mode: 'boolean' }),
+	areDistortionsDone: integer("are_distortions_done", { mode: 'boolean' }),
+	areEmotionsIdentified: integer("are_emotions_identified", { mode: 'boolean' }),
 	createdAt: integer('created_at', { mode: 'timestamp' }).notNull()
 });
 

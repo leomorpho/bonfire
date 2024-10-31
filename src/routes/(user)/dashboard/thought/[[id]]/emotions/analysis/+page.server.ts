@@ -29,6 +29,10 @@ export const load = async (event) => {
 		throw redirect(404, '/not-found'); // Handle not found case
 	}
 
+	if (!thought.areEmotionsIdentified){
+		throw redirect(302, 'selection'); // Handle not found case
+	}
+
 	const availableEmotions: Record<string, EmotionCategory> = Object.keys(Emotion).reduce((acc, family) => {
 		const familyEmotions = Emotion[family];
 		const matchingEmotions = Object.keys(familyEmotions).filter(emotion =>
@@ -100,6 +104,6 @@ export const actions = {
 		await saveAnalysis(request, locals, 'work');
 	},
 	prev: async ({ request, locals }) => {
-		await saveAnalysis(request, locals, 'emotions/selection');
+		await saveAnalysis(request, locals, 'work');
 	}
 } satisfies Actions;

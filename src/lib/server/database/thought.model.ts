@@ -125,6 +125,76 @@ export const setThoughtEmotions = async (
 	};
 };
 
+export const setDistortionsDone = async (
+	userId: string,
+	thoughtId: number,
+	isDone: boolean
+): Promise<{
+	id: number;
+	userId: string;
+	thought: string;
+	createdAt: Date;
+	emotions: string | null;
+	areDistortionsDone: boolean;
+}> => {
+	// Verify ownership
+	const thoughtExists = await db
+		.select()
+		.from(thoughtTable)
+		.where(and(eq(thoughtTable.id, thoughtId), eq(thoughtTable.userId, userId)));
+
+	if (thoughtExists.length === 0) {
+		throw new Error('Unauthorized: User does not own the thought');
+	}
+
+	// Update the areDistortionsDone field
+	const updatedThought = await db
+		.update(thoughtTable)
+		.set({ areDistortionsDone: isDone }) 
+		.where(eq(thoughtTable.id, thoughtId))
+		.returning();
+
+	return {
+		...updatedThought[0],
+		areDistortionsDone: isDone // Return updated value
+	};
+};
+
+export const setEmotionsIdenfitied = async (
+	userId: string,
+	thoughtId: number,
+	isDone: boolean
+): Promise<{
+	id: number;
+	userId: string;
+	thought: string;
+	createdAt: Date;
+	emotions: string | null;
+	areDistortionsDone: boolean;
+}> => {
+	// Verify ownership
+	const thoughtExists = await db
+		.select()
+		.from(thoughtTable)
+		.where(and(eq(thoughtTable.id, thoughtId), eq(thoughtTable.userId, userId)));
+
+	if (thoughtExists.length === 0) {
+		throw new Error('Unauthorized: User does not own the thought');
+	}
+
+	// Update the areDistortionsDone field
+	const updatedThought = await db
+		.update(thoughtTable)
+		.set({ areEmotionsIdentified: isDone }) 
+		.where(eq(thoughtTable.id, thoughtId))
+		.returning();
+
+	return {
+		...updatedThought[0],
+		areDistortionsDone: isDone // Return updated value
+	};
+};
+
 export const getCognitiveDistortionsForThought = async (thoughtId: number, userId: string) => {
 	// Verify that the thought belongs to the user before fetching distortions
 	const thoughtExists = await db
@@ -186,7 +256,6 @@ export const linkCognitiveDistortionsBulk = async (
 	}[],
 	userId: string
 ) => {
-	
 	// Ensure the thought belongs to the user
 	const thoughtExists = await db
 		.select()
@@ -194,10 +263,8 @@ export const linkCognitiveDistortionsBulk = async (
 		.where(and(eq(thoughtTable.id, thoughtId), eq(thoughtTable.userId, userId)));
 
 	if (thoughtExists.length === 0) {
-		
 		throw new Error('Unauthorized: User does not own the thought');
 	}
-	
 
 	for (const distortion of distortions) {
 		const cognitiveDistortionValue = CognitiveDistortions[distortion.distortion];

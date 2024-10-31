@@ -5,7 +5,8 @@ import { superValidate } from 'sveltekit-superforms';
 import {
 	getCognitiveDistortionsForThought,
 	getThoughtById,
-	linkCognitiveDistortionsBulk
+	linkCognitiveDistortionsBulk,
+	setDistortionsDone
 } from '$lib/server/database/thought.model';
 import { zod } from 'sveltekit-superforms/adapters';
 
@@ -113,6 +114,7 @@ async function handleDistortions(
 	// Link cognitive distortions in bulk
 	if (cognitiveDistortionsArray.length > 0) {
 		await linkCognitiveDistortionsBulk(thoughtId, cognitiveDistortionsArray, user.id);
+		await setDistortionsDone(user.id, thoughtId, true)
 	}
 
 	throw redirect(302, `/dashboard/thought/${thoughtId}/${redirectPathParam}`);

@@ -1,7 +1,7 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { z } from 'zod';
 import { superValidate } from 'sveltekit-superforms';
-import { getThoughtById, setThoughtEmotions } from '$lib/server/database/thought.model';
+import { getThoughtById, setEmotionsIdenfitied, setThoughtEmotions } from '$lib/server/database/thought.model';
 import { zod } from 'sveltekit-superforms/adapters';
 import type { Actions } from '../$types';
 
@@ -74,12 +74,13 @@ async function saveEmotions(
 		form.data.thoughtId,
 		form.data.selectedEmotions ? form.data.selectedEmotions : []
 	);
+	await setEmotionsIdenfitied(user.id, thoughtId, true)
 	throw redirect(302, `/dashboard/thought/${thoughtId}/${redirectPathParam}`);
 }
 
 export const actions = {
 	save: async ({ request, locals }) => {
-		await saveEmotions(request, locals, 'emotions/analysis');
+		await saveEmotions(request, locals, 'work');
 	},
 	prev: async ({ request, locals }) => {
 		await saveEmotions(request, locals, 'work');

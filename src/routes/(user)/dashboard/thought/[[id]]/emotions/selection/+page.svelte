@@ -36,14 +36,14 @@
 			</Card.Root>
 		{/each}
 		<div class="flex w-full justify-center space-x-1">
-			<Button type="submit" formaction="?/prev" disabled={$submitting} class="w-1/2 max-w-64"
+			<!-- <Button type="submit" formaction="?/prev" disabled={$submitting} class="w-1/2 max-w-64"
 				>Previous</Button
-			>
+			> -->
 			<Button type="submit" disabled={$submitting} class="w-1/2 max-w-64">
 				{#if $submitting}
 					<span class="loading loading-spinner"></span> Submitting...
 				{:else}
-					Continue
+					Save
 				{/if}
 			</Button>
 		</div>
