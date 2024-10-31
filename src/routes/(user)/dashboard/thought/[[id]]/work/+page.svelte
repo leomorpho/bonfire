@@ -47,17 +47,18 @@
 		<Card.Content>
 			<div class="flex flex-col gap-y-2 pt-4">
 				<h2>Melt Defenses</h2>
+				<Button href="distortions">Distortions</Button>
 				<Button href="emotions/selection">Identify associated emotions</Button>
-				<Button>Benefit/cost analysis</Button>
-				<Button>What if?</Button>
+				<!-- <Button>Benefit/cost analysis</Button> -->
+				<!-- <Button>What if?</Button> -->
 			</div>
 
-			<div class="flex flex-col gap-y-2 pt-8">
+			<!-- <div class="flex flex-col gap-y-2 pt-8">
 				<h2>Turn Thought Around</h2>
 				<Button>Find the evidence</Button>
 				<Button>Reframe</Button>
 				<Button>Self-compassion</Button>
-			</div>
+			</div> -->
 			<div></div>
 		</Card.Content>
 		<Card.Footer class="flex justify-center">

@@ -66,7 +66,7 @@ async function handleBeliefTargetRating(
 
 export const actions = {
 	next: async ({ request, locals }) => {
-		return handleBeliefTargetRating(request, locals, 'distortions');
+		return handleBeliefTargetRating(request, locals, 'work');
 	},
 
 	prev: async ({ request, locals }) => {

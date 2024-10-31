@@ -1,3 +1,4 @@
+import { boolean } from 'drizzle-orm/mysql-core';
 import { sqliteTable, text, integer, primaryKey, unique } from 'drizzle-orm/sqlite-core';
 
 export const userTable = sqliteTable('user', {
@@ -35,6 +36,7 @@ export const thoughtTable = sqliteTable('thought', {
 		.references(() => userTable.id),
 	thought: text('thought').notNull(),
 	emotions: text('emotions').default("[]"), // Store emotions as a JSON string
+	areDistortionsDone: integer("areDistortionsDone", { mode: 'boolean' }),
 	createdAt: integer('created_at', { mode: 'timestamp' }).notNull()
 });
 

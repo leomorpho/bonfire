@@ -143,7 +143,7 @@
 								{#if $submitting}
 									<span class="loading loading-spinner"></span> Submitting...
 								{:else}
-									Continue
+									Save
 								{/if}
 							</Button>
 						</div>
