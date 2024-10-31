@@ -39,7 +39,7 @@ export const load = async (event) => {
 	}
 
 	const existingDistortions = await getCognitiveDistortionsForThought(thoughtId, user.id);
-	console.log(existingDistortions);
+	// console.log(existingDistortions);
 
 	// TODO: the below is awfully not performant but don't care for now
 

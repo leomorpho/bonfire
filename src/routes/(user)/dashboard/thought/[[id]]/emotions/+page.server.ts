@@ -37,7 +37,25 @@ export const load = async (event) => {
 export const actions = {
 	save: async ({ request, locals }) => {
 		const data = await request.formData();
-		const form = await superValidate(data, zod(emotionsSchema));
+		const thoughtId = Number(data.get("thoughtId"));
+
+		// Collect checkbox values into an array
+		const selectedEmotions = [];
+		for (const key of data.keys()) {
+			// Only add checkbox items with true values (which will be the name of each emotion)
+			if (key !== 'thoughtId' && key !== '__superform_id') {
+				selectedEmotions.push(key);
+			}
+		}
+
+		const formInput = {
+			thoughtId,
+			selectedEmotions,
+		};
+
+		// Validate the form input using the schema
+		const form = await superValidate(formInput, zod(emotionsSchema));
+
 
 		if (!form.valid) {
 			return fail(400, { form });

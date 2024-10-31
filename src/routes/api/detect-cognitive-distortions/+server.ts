@@ -27,9 +27,6 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			source: 'ai' as 'user' | 'ai',
 			details: item.details
 		}));
-		console.log(formattedDistortions);
-		console.log(thought.id);
-		console.log(user.id);
 		await linkCognitiveDistortionsBulk(thought.id, formattedDistortions, user.id);
 
 		return json({ distortionRatings });

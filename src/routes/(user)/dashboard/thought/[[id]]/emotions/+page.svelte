@@ -5,16 +5,18 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { superForm } from 'sveltekit-superforms';
 
-    const { data } = $props();
+	const { data } = $props();
 
 	const { form, errors, enhance, submitting } = superForm(data.form);
 </script>
 
 <div class="m-2 flex min-h-screen flex-col items-center justify-center space-y-4">
 	<h1 class="mb-1 text-xl">"{data.thought.thought}"</h1>
-	<h2 class="mb-5">What do you feel when you believe this thought?</h2>
+	<h2 class="mb-5">What do you <span class="italic">feel</span> when you believe this thought?</h2>
 
 	<form action="?/save" method="post" use:enhance>
+		<input type="hidden" name="thoughtId" value={data.thought?.id} />
+
 		<!-- Iterate over each emotion category -->
 		{#each Object.entries(Emotion) as [category, emotions]}
 			<Card.Root class="mb-4 w-full sm:w-[450px]">

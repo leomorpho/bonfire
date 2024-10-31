@@ -19,7 +19,6 @@ export const load = async (event) => {
 	}
 
 	const thoughtId = Number(event.params.id);
-	console.log(thoughtId);
 	const thought = await getThoughtById(thoughtId, user.id);
 
 	const thoughtForm = await superValidate(thought, zod(thoughtSchema));

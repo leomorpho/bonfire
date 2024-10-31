@@ -89,8 +89,8 @@ export async function detectCognitiveDistortions(thoughtText: string) {
 			};
 		});
 
-		console.log("=========== A.I. ============")
-		console.log(distortionRatings);
+		// console.log("=========== A.I. ============")
+		// console.log(distortionRatings);
 
 		return distortionRatings;
 	} catch (error) {
