@@ -5,6 +5,7 @@
 	import { openDB } from 'idb';
 	import { goto } from '$app/navigation';
 	import PasswordInput from '$lib/components/password-input/password-input.svelte';
+	import { deriveEncryptionKey, savePassword } from '$lib/encryption.js';
 
 	const { data } = $props();
 	const { form, errors, enhance, submitting } = superForm(data.form);
@@ -19,7 +20,7 @@
 		return btoa(String.fromCharCode(...randomArray));
 	}
 
-	let salt = generateSalt(); 
+	let salt = generateSalt();
 
 	// Validate password confirmation
 	function validatePasswords() {
@@ -28,46 +29,6 @@
 			return false;
 		}
 		return true;
-	}
-
-	// Secure storage in IndexedDB
-	async function getDatabase() {
-		return openDB('encryption-store', 1, {
-			upgrade(db) {
-				db.createObjectStore('secure', { keyPath: 'id' });
-			}
-		});
-	}
-
-	// Save password in secure storage
-	async function savePassword(password: string) {
-		const db = await getDatabase();
-		await db.put('secure', { id: 'user-password', password });
-	}
-
-	// Key derivation
-	async function deriveEncryptionKey(password: string, salt: string) {
-		const encoder = new TextEncoder();
-		const baseKey = await crypto.subtle.importKey(
-			'raw',
-			encoder.encode(password),
-			'PBKDF2',
-			false,
-			['deriveKey']
-		);
-
-		return crypto.subtle.deriveKey(
-			{
-				name: 'PBKDF2',
-				salt: encoder.encode(salt),
-				iterations: 100000,
-				hash: 'SHA-256'
-			},
-			baseKey,
-			{ name: 'AES-GCM', length: 256 },
-			false,
-			['encrypt', 'decrypt']
-		);
 	}
 
 	// Submit handler
@@ -104,7 +65,6 @@
 			<PasswordInput type="password" bind:value={confirmPassword} required />
 		</div>
 		<input type="hidden" name="salt" value={salt} />
-
 
 		<div class="flex w-full justify-center space-x-1">
 			<Button type="submit" disabled={$submitting} class="w-1/2 max-w-64">
