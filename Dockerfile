@@ -1,23 +1,30 @@
-# Use a Node.js base image
-FROM node:18
+# Stage 1: Build the SvelteKit app
+FROM node:18 AS builder
 
-# Set working directory in the container
 WORKDIR /app
 
-# Copy package.json and package-lock.json
-COPY package.json package-lock.json ./
+# Install pnpm and dependencies
+RUN npm install -g pnpm
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
 
-# Install dependencies
-RUN npm install
-
-# Copy all files from local directory to the working directory in the container
+# Copy and build the app
 COPY . .
+RUN pnpm build
 
-# Build the SvelteKit app
-RUN npm run build
+# Stage 2: Create the final, minimal image
+FROM node:18-slim AS runner
 
-# Expose the port SvelteKit will run on (e.g., 3000 by default)
-EXPOSE 3000
+WORKDIR /app
 
-# Start the SvelteKit app
-CMD ["npm", "run", "preview"]
+# Copy the built app from the previous stage
+COPY --from=builder /app/build ./build
+
+# Install a lightweight HTTP server (e.g., serve) to serve static files
+RUN npm install -g serve
+
+# Expose the app on port 4000
+EXPOSE 4000
+
+# Start the server
+CMD ["serve", "-s", "build", "-l", "4000"]

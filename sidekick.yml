@@ -1,0 +1,9 @@
+name: happipath
+version: V1
+image: ""
+url: happipath.24.199.113.242.sslip.io
+port: 4000
+createdAt: Sat Nov  2 13:37:04 PDT 2024
+env:
+    file: .env
+    hash: 9fa1281c165e87f021869ed3c595e12c
