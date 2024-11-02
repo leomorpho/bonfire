@@ -67,9 +67,9 @@ export const sendEmail = async (options: {
 	headers?: Record<string, string>;
 }) => {
 	try {
-		if (dev) {
-			return await sendTestEmail(options);
-		}
+		// if (dev) {
+		// 	return await sendTestEmail(options);
+		// }
 		// const postmarkClient = new postmark.ServerClient(POSTMARK_SERVER_TOKEN);
 		// const result = await postmarkClient.sendEmail({
 		// 	From: options.from,
@@ -79,11 +79,11 @@ export const sendEmail = async (options: {
 		// });
 		const resend = new Resend(RESEND_SERVER_TOKEN);
 		const result = await resend.emails.send({
-			from: 'you@example.com',
-			to: 'user@gmail.com',
-			replyTo: 'you@example.com',
-			subject: 'hello world',
-			html: '<strong>it works!</strong>',
+			from: options.from,
+			to: options.to,
+			replyTo: options.from,
+			subject: options.subject,
+			html: options.html
 		  });
 		console.log(result);
 	} catch (e) {
