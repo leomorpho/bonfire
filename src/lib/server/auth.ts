@@ -43,6 +43,6 @@ const redirect_url = dev
 
 export const google = new Google(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, redirect_url);
 
-if (!dev && (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET)) {
-	throw new Error('GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET are not set');
-}
+// if (!dev && (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET)) {
+// 	throw new Error('GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET are not set');
+// }

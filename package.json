@@ -63,6 +63,7 @@
 		"@langchain/openai": "^0.3.11",
 		"@libsql/client": "^0.14.0",
 		"@lucia-auth/adapter-drizzle": "^1.1.0",
+		"@sveltejs/adapter-node": "^5.2.9",
 		"@tailwindcss/typography": "^0.5.15",
 		"arctic": "^2.0.1",
 		"dotenv": "^16.4.5",
@@ -71,12 +72,12 @@
 		"embla-carousel": "^8.3.0",
 		"embla-carousel-svelte": "^8.3.0",
 		"idb": "^8.0.0",
+		"install": "^0.13.0",
 		"langchain": "^0.3.4",
 		"lucia": "^3.2.2",
 		"lucide-svelte": "^0.453.0",
 		"oslo": "^1.2.1",
 		"posthog-js": "^1.176.0",
-		"postmark": "^4.0.5",
 		"resend": "4.0.1-alpha.0",
 		"stripe": "^16.5.0"
 	}

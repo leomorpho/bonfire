@@ -5,7 +5,7 @@ import { dev } from '$app/environment';
 import { inline } from '@css-inline/css-inline';
 import layout from './layout.html?raw';
 import login from './login-email.html?raw';
-import postmark from 'postmark';
+// import postmark from 'postmark';
 import { Resend } from 'resend';
 
 const localClient = new SMTPClient({
