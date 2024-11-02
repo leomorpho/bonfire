@@ -17,14 +17,13 @@ FROM node:18-slim AS runner
 
 WORKDIR /app
 
-# Copy the built app from the previous stage
+# Copy the necessary files from the build stage
 COPY --from=builder /app/build ./build
-
-# Install a lightweight HTTP server (e.g., serve) to serve static files
-RUN npm install -g serve
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/node_modules ./node_modules
 
 # Expose the app on port 4000
 EXPOSE 4000
 
-# Start the server
-CMD ["serve", "-s", "build", "-l", "4000"]
+# Start the SvelteKit app in production mode
+CMD ["node", "./build"]
