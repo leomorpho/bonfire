@@ -1,4 +1,4 @@
-import { fail, redirect } from '@sveltejs/kit';
+import { fail, redirect, type Actions } from '@sveltejs/kit';
 import { z } from 'zod';
 import { superValidate } from 'sveltekit-superforms';
 import {
@@ -7,7 +7,6 @@ import {
 	getBeliefTargetRating
 } from '$lib/server/database/thought.model';
 import { zod } from 'sveltekit-superforms/adapters';
-import type { Actions } from '../$types';
 
 const saltSchema = z.object({
 	salt: z.string()

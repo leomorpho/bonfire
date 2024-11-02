@@ -1,4 +1,4 @@
-<script lang="ts">
+<!-- <script lang="ts">
 	import { superForm } from 'sveltekit-superforms';
 	import { Button } from '$lib/components/ui/button';
 	import { Label } from '$lib/components/ui/label';
@@ -7,7 +7,7 @@
 	import { goto } from '$app/navigation';
 
 	// SvelteKit superforms setup
-	const { form, errors, enhance, submitting } = superForm();
+	// const { form, errors, enhance, submitting } = superForm();
 
 	let password = '';
 	let salt = ''; // The salt fetched from the server or stored previously
@@ -89,4 +89,4 @@
 			</Button>
 		</div>
 	</form>
-</div>
+</div> -->

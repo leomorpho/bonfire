@@ -1,11 +1,12 @@
 /* eslint-disable no-irregular-whitespace */
 import { SMTPClient } from 'emailjs';
-import { POSTMARK_SERVER_TOKEN } from '$env/static/private';
+import { POSTMARK_SERVER_TOKEN, RESEND_SERVER_TOKEN } from '$env/static/private';
 import { dev } from '$app/environment';
 import { inline } from '@css-inline/css-inline';
 import layout from './layout.html?raw';
 import login from './login-email.html?raw';
 import postmark from 'postmark';
+import { Resend } from 'resend';
 
 const localClient = new SMTPClient({
 	host: 'localhost',
@@ -69,13 +70,21 @@ export const sendEmail = async (options: {
 		if (dev) {
 			return await sendTestEmail(options);
 		}
-		const postmarkClient = new postmark.ServerClient(POSTMARK_SERVER_TOKEN);
-		const result = await postmarkClient.sendEmail({
-			From: options.from,
-			To: options.to,
-			Subject: options.subject,
-			HtmlBody: options.html
-		});
+		// const postmarkClient = new postmark.ServerClient(POSTMARK_SERVER_TOKEN);
+		// const result = await postmarkClient.sendEmail({
+		// 	From: options.from,
+		// 	To: options.to,
+		// 	Subject: options.subject,
+		// 	HtmlBody: options.html
+		// });
+		const resend = new Resend(RESEND_SERVER_TOKEN);
+		const result = await resend.emails.send({
+			from: 'you@example.com',
+			to: 'user@gmail.com',
+			replyTo: 'you@example.com',
+			subject: 'hello world',
+			html: '<strong>it works!</strong>',
+		  });
 		console.log(result);
 	} catch (e) {
 		console.error(e);
