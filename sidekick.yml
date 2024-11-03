@@ -1,14 +1,9 @@
 name: happipath
-version: V1
+version: V2
 image: ""
-url: happipath.24.199.113.242.sslip.io
+url: happipath.164.92.88.32.sslip.io
 port: 4000
-createdAt: Sat Nov  2 13:37:04 PDT 2024
+createdAt: Sat Nov  2 15:32:15 PDT 2024
 env:
     file: .env
-    hash: 9fa1281c165e87f021869ed3c595e12c
-previewEnvs:
-    f791a087:
-        url: https://f791a087.happipath.24.199.113.242.sslip.io
-        image: happipath:f791a087
-        createdAt: Sat Nov  2 13:40:20 PDT 2024
+    hash: 2c379c3f57f65de2f49e4092e020808e
