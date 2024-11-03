@@ -17,6 +17,9 @@ FROM node:18-slim AS runner
 
 WORKDIR /app
 
+# Set the environment variable for port 4000
+ENV PORT 4000
+
 # Copy the necessary files from the build stage
 COPY --from=builder /app/build ./build
 COPY --from=builder /app/package.json ./
