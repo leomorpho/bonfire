@@ -1,6 +1,6 @@
 /* eslint-disable no-irregular-whitespace */
 import { SMTPClient } from 'emailjs';
-import { POSTMARK_SERVER_TOKEN, RESEND_SERVER_TOKEN } from '$env/static/private';
+import { RESEND_SERVER_TOKEN } from '$env/static/private';
 import { dev } from '$app/environment';
 import { inline } from '@css-inline/css-inline';
 import layout from './layout.html?raw';
@@ -20,7 +20,7 @@ type LayoutEmailVariables = {
 };
 
 type LoginEmailVariables = LayoutEmailVariables & {
-	login_type: string,
+	login_type: string;
 	action_url: string;
 };
 
@@ -67,16 +67,10 @@ export const sendEmail = async (options: {
 	headers?: Record<string, string>;
 }) => {
 	try {
-		// if (dev) {
-		// 	return await sendTestEmail(options);
-		// }
-		// const postmarkClient = new postmark.ServerClient(POSTMARK_SERVER_TOKEN);
-		// const result = await postmarkClient.sendEmail({
-		// 	From: options.from,
-		// 	To: options.to,
-		// 	Subject: options.subject,
-		// 	HtmlBody: options.html
-		// });
+		if (dev) {
+			return await sendTestEmail(options);
+		}
+
 		const resend = new Resend(RESEND_SERVER_TOKEN);
 		const result = await resend.emails.send({
 			from: options.from,
@@ -84,7 +78,7 @@ export const sendEmail = async (options: {
 			replyTo: options.from,
 			subject: options.subject,
 			html: options.html
-		  });
+		});
 		console.log(result);
 	} catch (e) {
 		console.error(e);

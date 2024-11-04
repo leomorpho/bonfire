@@ -13,6 +13,7 @@ export const load = async (event) => {
 	const thoughts = await listThoughts(user.id);
 
 	return {
-		thoughts // Pass thoughts to the frontend
+		thoughts, // Pass thoughts to the frontend
+		userId: user.id
 	};
 };

@@ -1,45 +1,43 @@
 import { openDB } from 'idb';
-import { EThree } from '@virgilsecurity/e3kit-browser'; //for WebAssembly
 
-let eThreeInstance: EThree | null = null;
 
-// Function to get and initialize the EThree instance
-export async function initE3KitInstance(userId: string) {
-	if (eThreeInstance != null) {
-		return eThreeInstance;
-	}
+// // Function to get and initialize the EThree instance
+// export async function initE3KitInstance(userId: string) {
+// 	if (eThreeInstance != null) {
+// 		return eThreeInstance;
+// 	}
 
-	try {
-		// Fetch the JWT from the backend API
-		const response = await fetch('/api/e3kit-jwt', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({ userId })
-		});
+// 	try {
+// 		// Fetch the JWT from the backend API
+// 		const response = await fetch('/api/e3kit-jwt', {
+// 			method: 'POST',
+// 			headers: {
+// 				'Content-Type': 'application/json'
+// 			},
+// 			body: JSON.stringify({ userId })
+// 		});
 
-		if (!response.ok) {
-			throw new Error('Failed to retrieve JWT from the backend');
-		}
+// 		if (!response.ok) {
+// 			throw new Error('Failed to retrieve JWT from the backend');
+// 		}
 
-		const data = await response.json();
-		const virgilToken = data.virgilToken;
+// 		const data = await response.json();
+// 		const virgilToken = data.virgilToken;
 
-		// Initialize EThree with the token
-		eThreeInstance = await EThree.initialize(() => Promise.resolve(virgilToken));
+// 		// Initialize EThree with the token
+// 		eThreeInstance = await EThree.initialize(() => Promise.resolve(virgilToken));
 
-		await eThreeInstance
-			.register()
-			.then(() => console.log('success'))
-			.catch((e) => console.error('error: ', e));
+// 		await eThreeInstance
+// 			.register()
+// 			.then(() => console.log('success'))
+// 			.catch((e) => console.error('error: ', e));
 
-		return eThreeInstance;
-	} catch (error) {
-		console.error('Error initializing EThree:', error);
-		throw error;
-	}
-}
+// 		return eThreeInstance;
+// 	} catch (error) {
+// 		console.error('Error initializing EThree:', error);
+// 		throw error;
+// 	}
+// }
 
 // Secure storage in IndexedDB
 async function getDatabase() {

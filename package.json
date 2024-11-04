@@ -67,6 +67,7 @@
 		"@sveltejs/adapter-node": "^5.2.9",
 		"@tailwindcss/typography": "^0.5.15",
 		"arctic": "^2.0.1",
+		"buffer": "^6.0.3",
 		"dotenv": "^16.4.5",
 		"drizzle-orm": "^0.35.3",
 		"emailjs": "^4.0.3",
@@ -80,6 +81,8 @@
 		"oslo": "^1.2.1",
 		"posthog-js": "^1.176.0",
 		"resend": "4.0.1-alpha.0",
-		"stripe": "^16.5.0"
+		"stripe": "^16.5.0",
+		"virgil-crypto": "^5.1.2",
+		"virgil-sdk": "^6.2.0"
 	}
 }

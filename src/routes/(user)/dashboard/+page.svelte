@@ -3,7 +3,13 @@
 	import { writable } from 'svelte/store';
 	import { Button } from '$lib/components/ui/button';
 	import * as Card from '$lib/components/ui/card/index.js';
+	import { onMount } from 'svelte';
+
 	const thoughtsList = writable($page.data.thoughts);
+
+	onMount(() => {
+		window.userId = $page.data.userId;
+	});
 </script>
 
 <div class="mx-2 flex flex-col items-center justify-center">
