@@ -15,6 +15,9 @@ import { lucia } from '$lib/server/auth';
 import { PUBLIC_ORIGIN } from '$env/static/public';
 import { createSignin, getSignins } from '$lib/server/database/signin.model';
 import { dev } from '$app/environment';
+import { LOGIN_TYPE_ACTIVATION, LOGIN_TYPE_MAGIC_LINK } from '$lib/enums';
+
+
 
 // Name has a default value just to display something in the form.
 const schema = z.object({
@@ -36,7 +39,7 @@ export const actions = {
 		}
 
 		let user = await getUserByEmail(form.data.email);
-		let login_type = "magic"
+		let login_type = LOGIN_TYPE_MAGIC_LINK;
 
 		if (!user) {
 			user = await createNewUser({
@@ -47,7 +50,7 @@ export const actions = {
 			if (!user) {
 				throw error(500, 'Failed to create new user');
 			}
-			login_type = "activation"
+			login_type = LOGIN_TYPE_ACTIVATION;
 		}
 
 		let ip_address = getClientAddress();
@@ -81,7 +84,11 @@ export const actions = {
 		const verification_token = await createEmailVerificationToken(user.id, user.email);
 		const origin = new URL(request.url).origin;
 		const verificationLink =
-			origin + '/login/email-verification?verification_token=' + verification_token;
+			origin +
+			'/login/email-verification?verification_token=' +
+			verification_token +
+			'&login_type=' +
+			login_type;
 
 		await sendEmail({
 			from: `${public_env.PUBLIC_PROJECT_NAME} <${env.FROM_EMAIL}>`,

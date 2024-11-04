@@ -21,6 +21,7 @@
 	onMount(() => {
 		// Define global polyfill for `global` if not defined
 		if (typeof global === 'undefined') {
+            // @ts-ignore
 			window.global = window;
 		}
 		

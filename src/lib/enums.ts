@@ -1,3 +1,6 @@
+export const LOGIN_TYPE_MAGIC_LINK = "magic"
+export const LOGIN_TYPE_ACTIVATION = "activation"
+
 export enum CognitiveDistortions {
 	ALL_OR_NOTHING = 'All or Nothing',
 	OVERGENERALIZATION = 'Overgeneralization',
