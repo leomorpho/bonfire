@@ -5,7 +5,7 @@ export const userTable = sqliteTable('user', {
 	id: text('id').notNull().primaryKey(),
 	email: text('email').notNull(),
 	email_verified: integer('email_verified', { mode: 'boolean' }),
-	encryption_salt: text('encryption_salt')
+	encryption_backup_up: integer('encryption_backup_up', { mode: 'boolean' })
 });
 
 export const sessionTable = sqliteTable('session', {
@@ -36,25 +36,29 @@ export const thoughtTable = sqliteTable('thought', {
 		.notNull()
 		.references(() => userTable.id),
 	thought: text('thought').notNull(),
-	emotions: text('emotions').default("[]"), // Store emotions as a JSON string
-	areDistortionsDone: integer("are_distortions_done", { mode: 'boolean' }),
-	areEmotionsIdentified: integer("are_emotions_identified", { mode: 'boolean' }),
+	emotions: text('emotions').default('[]'), // Store emotions as a JSON string
+	areDistortionsDone: integer('are_distortions_done', { mode: 'boolean' }),
+	areEmotionsIdentified: integer('are_emotions_identified', { mode: 'boolean' }),
 	createdAt: integer('created_at', { mode: 'timestamp' }).notNull()
 });
 
-export const thoughtDistortionTable = sqliteTable('thought_distortion', {
-	thoughtId: integer('thought_id')
-		.notNull()
-		.references(() => thoughtTable.id),
-	cognitiveDistortion: text('cognitive_distortion').notNull(),
-	rating: integer('rating').notNull(),
-	details: text('details'),
-	source: text('source').notNull(),
+export const thoughtDistortionTable = sqliteTable(
+	'thought_distortion',
+	{
+		thoughtId: integer('thought_id')
+			.notNull()
+			.references(() => thoughtTable.id),
+		cognitiveDistortion: text('cognitive_distortion').notNull(),
+		rating: integer('rating').notNull(),
+		details: text('details'),
+		source: text('source').notNull()
 
-	// Enforce unique constraint on thoughtId and cognitiveDistortion combination
-}, (table) => ({
-	uniqueThoughtDistortion: unique().on(table.thoughtId, table.cognitiveDistortion, table.source)
-}));
+		// Enforce unique constraint on thoughtId and cognitiveDistortion combination
+	},
+	(table) => ({
+		uniqueThoughtDistortion: unique().on(table.thoughtId, table.cognitiveDistortion, table.source)
+	})
+);
 
 export const beliefRatingTable = sqliteTable('belief_rating', {
 	id: integer('id').primaryKey({ autoIncrement: true }),

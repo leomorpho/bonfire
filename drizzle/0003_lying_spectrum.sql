@@ -1,2 +1,0 @@
-DROP INDEX IF EXISTS `thought_distortion_thought_id_cognitive_distortion_unique`;--> statement-breakpoint
-CREATE UNIQUE INDEX `thought_distortion_thought_id_cognitive_distortion_source_unique` ON `thought_distortion` (`thought_id`,`cognitive_distortion`,`source`);

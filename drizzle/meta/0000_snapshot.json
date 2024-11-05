@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "84b14030-83b6-4c9c-8052-5898ed74c09f",
+  "id": "0c8e32ff-bbc3-4354-84e4-eb0a10fac057",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "belief_rating": {
@@ -53,7 +53,8 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "checkConstraints": {}
     },
     "belief_target_rating": {
       "name": "belief_target_rating",
@@ -112,7 +113,8 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "checkConstraints": {}
     },
     "email_verification_token": {
       "name": "email_verification_token",
@@ -149,7 +151,8 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "checkConstraints": {}
     },
     "session": {
       "name": "session",
@@ -193,7 +196,8 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "checkConstraints": {}
     },
     "signin": {
       "name": "signin",
@@ -230,7 +234,8 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "checkConstraints": {}
     },
     "thought_distortion": {
       "name": "thought_distortion",
@@ -256,6 +261,13 @@
           "notNull": true,
           "autoincrement": false
         },
+        "details": {
+          "name": "details",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "source": {
           "name": "source",
           "type": "text",
@@ -265,11 +277,12 @@
         }
       },
       "indexes": {
-        "thought_distortion_thought_id_cognitive_distortion_unique": {
-          "name": "thought_distortion_thought_id_cognitive_distortion_unique",
+        "thought_distortion_thought_id_cognitive_distortion_source_unique": {
+          "name": "thought_distortion_thought_id_cognitive_distortion_source_unique",
           "columns": [
             "thought_id",
-            "cognitive_distortion"
+            "cognitive_distortion",
+            "source"
           ],
           "isUnique": true
         }
@@ -290,7 +303,8 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "checkConstraints": {}
     },
     "thought": {
       "name": "thought",
@@ -314,6 +328,28 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false
+        },
+        "emotions": {
+          "name": "emotions",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'[]'"
+        },
+        "are_distortions_done": {
+          "name": "are_distortions_done",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "are_emotions_identified": {
+          "name": "are_emotions_identified",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
           "autoincrement": false
         },
         "created_at": {
@@ -341,7 +377,8 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "checkConstraints": {}
     },
     "user": {
       "name": "user",
@@ -366,14 +403,23 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
+        },
+        "encryption_backup_up": {
+          "name": "encryption_backup_up",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         }
       },
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "checkConstraints": {}
     }
   },
+  "views": {},
   "enums": {},
   "_meta": {
     "schemas": {},

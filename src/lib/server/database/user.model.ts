@@ -44,3 +44,13 @@ export const createNewUser = async (user: NewUser) => {
 		return result[0];
 	}
 };
+
+export const setEncryptionBackupStatus = async (id: string, status: boolean) => {
+	const result = await db
+		.update(userTable)
+		.set({ encryption_backup_up: status })
+		.where(eq(userTable.id, id))
+		.returning();
+
+	return result.length === 0 ? null : result[0];
+};

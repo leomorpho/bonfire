@@ -45,7 +45,7 @@
 				// Now you can initialize E3Kit here
 				try {
 					console.log(`window.userId: ${window.userId}`);
-					await EThree.initialize(tokenCallback, window.userId);
+					window.eThree = await EThree.initialize(tokenCallback, window.userId);
 				} catch (error) {
 					console.error('Failed to initialize E3Kit:', error);
 				}

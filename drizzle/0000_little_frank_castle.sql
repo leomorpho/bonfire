@@ -14,6 +14,7 @@ CREATE TABLE `belief_target_rating` (
 	FOREIGN KEY (`thought_id`) REFERENCES `thought`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
+CREATE UNIQUE INDEX `belief_target_rating_thought_id_unique` ON `belief_target_rating` (`thought_id`);--> statement-breakpoint
 CREATE TABLE `email_verification_token` (
 	`id` text PRIMARY KEY NOT NULL,
 	`user_id` text NOT NULL,
@@ -39,14 +40,19 @@ CREATE TABLE `thought_distortion` (
 	`thought_id` integer NOT NULL,
 	`cognitive_distortion` text NOT NULL,
 	`rating` integer NOT NULL,
+	`details` text,
 	`source` text NOT NULL,
 	FOREIGN KEY (`thought_id`) REFERENCES `thought`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
+CREATE UNIQUE INDEX `thought_distortion_thought_id_cognitive_distortion_source_unique` ON `thought_distortion` (`thought_id`,`cognitive_distortion`,`source`);--> statement-breakpoint
 CREATE TABLE `thought` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`user_id` text NOT NULL,
 	`thought` text NOT NULL,
+	`emotions` text DEFAULT '[]',
+	`are_distortions_done` integer,
+	`are_emotions_identified` integer,
 	`created_at` integer NOT NULL,
 	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
 );
@@ -54,8 +60,6 @@ CREATE TABLE `thought` (
 CREATE TABLE `user` (
 	`id` text PRIMARY KEY NOT NULL,
 	`email` text NOT NULL,
-	`email_verified` integer
+	`email_verified` integer,
+	`encryption_backup_up` integer
 );
---> statement-breakpoint
-CREATE UNIQUE INDEX `belief_target_rating_thought_id_unique` ON `belief_target_rating` (`thought_id`);--> statement-breakpoint
-CREATE UNIQUE INDEX `thought_distortion_thought_id_cognitive_distortion_unique` ON `thought_distortion` (`thought_id`,`cognitive_distortion`);

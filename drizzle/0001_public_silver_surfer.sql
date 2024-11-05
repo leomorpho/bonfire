@@ -1,1 +1,0 @@
-ALTER TABLE `thought` ADD `emotions` text DEFAULT '[]';
