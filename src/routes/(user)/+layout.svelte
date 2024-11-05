@@ -1,7 +1,7 @@
-<script>
+<script lang="ts">
 	import { onMount } from 'svelte';
 	import { Buffer } from 'buffer';
-	import eThreeStore from '$lib/e3kit';
+	import { initializeEThree, waitForUserId } from '$lib/e3kit';
 
 	// Function to check WebAssembly support
 	function isWebAssemblySupported() {
@@ -20,9 +20,6 @@
 
 	// Load the appropriate E3Kit version based on WebAssembly support
 	onMount(() => {
-		// Declare `eThreeReady` globally so other parts of the app can access it
-		window.eThreeReady = null;
-
 		// Define global polyfill for `global` if not defined
 		if (typeof global === 'undefined') {
 			// @ts-ignore
@@ -40,23 +37,17 @@
 
 			if (EThree) {
 				console.log('EThree loaded:', EThree);
+				console.log("#####")
 				// Now you can initialize E3Kit here
 				try {
-					console.log(`window.userId: ${window.userId}`);
-					const initializedEThree = await EThree.initialize(tokenCallback, window.userId);
-					eThreeStore.set(initializedEThree);
+					// TODO: use store instead of window to store userId
+					const userId = await waitForUserId();
+
+					console.log(`userId: ${userId}`);
+					await initializeEThree(tokenCallback, userId);
 				} catch (error) {
 					console.error('Failed to initialize E3Kit:', error);
-					eThreeStore.set(null);
 				}
-
-				// const hasLocalPrivateKey = await window.eThree.hasLocalPrivateKey();
-				// console.log(`hasLocalPrivateKey: ${hasLocalPrivateKey}`);
-
-				// // Redirect if the local private key is not available
-				// if (!hasLocalPrivateKey) {
-				// 	goto('/encryption/decrypt'); // Replace with your target page
-				// }
 			} else {
 				console.error('EThree is not defined.');
 			}

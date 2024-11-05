@@ -5,38 +5,43 @@
 	import { goto } from '$app/navigation';
 	import PasswordInput from '$lib/components/password-input/password-input.svelte';
 	import { onMount } from 'svelte';
+	import { waitForEThree } from '$lib/e3kit.js';
 
 	const { data } = $props();
 	const { form, errors, enhance, submitting } = superForm(data.form);
 
 	let password = $state('');
 
-	// Define eThree locally to avoid direct access to `window` during SSR
-	let eThree: typeof window.eThree | null = null;
-
 	onMount(() => {
 		const initEThree = async () => {
 			// Ensure eThreeReady is initialized
-			await window.eThreeReady;
-			eThree = window.eThree;
+			const eThree = await waitForEThree();
+			// @ts-ignore
+			const hasLocalPrivateKey = await eThree.hasLocalPrivateKey();
+			if (hasLocalPrivateKey) {
+				goto('/dashboard');
+			}
+            // @ts-ignore
+            eThree.restorePrivateKey(password);
 		};
 
 		initEThree().catch((error) => {
 			console.error('Failed to initialize eThree:', error);
 		});
 	});
-    
+
 	// Submit handler
 	async function handleSubmit() {
 		try {
-			eThree
-				.backupPrivateKey(password)
-				.then(() => console.log('success'))
-				.catch((e) => console.error('error: ', e));
-			alert('Encryption setup successful!');
+			const eThree = await waitForEThree();
+			console.log(`decrypt w/ password: ${password}`)
+
+			// @ts-ignore
+			await eThree.restorePrivateKey(password);
+			alert('Decryption successful!');
 			goto('/dashboard');
 		} catch (error) {
-			console.error('Encryption setup failed:', error);
+			console.error('Decryption setup failed:', error);
 			alert('Failed to set up encryption.');
 		}
 	}

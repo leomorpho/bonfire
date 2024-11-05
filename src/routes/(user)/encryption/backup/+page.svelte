@@ -4,12 +4,28 @@
 	import { Label } from '$lib/components/ui/label';
 	import { goto } from '$app/navigation';
 	import PasswordInput from '$lib/components/password-input/password-input.svelte';
+	import { waitForEThree } from '$lib/e3kit.js';
+	import { onMount } from 'svelte';
 
 	const { data } = $props();
 	const { form, errors, enhance, submitting } = superForm(data.form);
 
 	let password = $state('');
 	let confirmPassword = $state('');
+
+	onMount(() => {
+		const initEThree = async () => {
+			// Ensure eThreeReady is initialized
+			const eThree = await waitForEThree();
+			console.log(`eThree....: ${eThree}`);
+			// @ts-ignore
+			await eThree.register();
+		};
+
+		initEThree().catch((error) => {
+			console.error('Failed to initialize eThree:', error);
+		});
+	});
 
 	// Validate password confirmation
 	function validatePasswords() {
@@ -20,20 +36,19 @@
 		return true;
 	}
 
-	
 	// Submit handler
 	async function handleSubmit() {
 		if (!validatePasswords()) return;
 
 		// Ensure eThreeReady is initialized
-		await window.eThreeReady;
-		
-		try {
-			const eThree = window.eThree;
 
+		try {
+			const eThree = waitForEThree();
 			eThree
+				// @ts-ignore
 				.backupPrivateKey(password)
 				.then(() => console.log('success'))
+				// @ts-ignore
 				.catch((e) => console.error('error: ', e));
 			alert('Encryption setup successful!');
 			goto('/dashboard');
@@ -45,7 +60,7 @@
 </script>
 
 <div class="m-2 flex min-h-screen flex-col items-center justify-center">
-	<h1 class="mb-5 m-4 text-xl sm:text-2xl">Let's set up your end-to-end encryption</h1>
+	<h1 class="m-4 mb-5 text-xl sm:text-2xl">Let's set up your end-to-end encryption</h1>
 	<div class="m-4 md:w-1/2">
 		<p>
 			What is it for? It will protect your data as only you will be able to read sensitive fields

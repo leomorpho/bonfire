@@ -2,14 +2,14 @@
 	import { page } from '$app/stores';
 	import { writable } from 'svelte/store';
 	import { onMount } from 'svelte';
-	import { waitForEThree } from '$lib/e3kit';
+	import { userIdStore, waitForEThree } from '$lib/e3kit';
 
 	const thoughtsList = writable($page.data.thoughts);
 
 	onMount(() => {
-		window.userId = $page.data.userId;
 		const initEThree = async () => {
 			const initializedEThree = await waitForEThree();
+			// @ts-ignore
 			initializedEThree.cleanup();
 			console.log('eThree cleanup up');
 		};

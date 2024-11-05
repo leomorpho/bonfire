@@ -14,6 +14,6 @@ export const load = async (event) => {
 
 	return {
 		thoughts, // Pass thoughts to the frontend
-		userId: user.id
+		user: user
 	};
 };

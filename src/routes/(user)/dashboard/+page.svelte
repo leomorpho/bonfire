@@ -3,21 +3,13 @@
 	import { writable } from 'svelte/store';
 	import { Button } from '$lib/components/ui/button';
 	import * as Card from '$lib/components/ui/card/index.js';
+	import { userIdStore } from '$lib/e3kit';
 	import { onMount } from 'svelte';
-	import { waitForEThree } from '$lib/e3kit';
 
 	const thoughtsList = writable($page.data.thoughts);
 
 	onMount(() => {
-		window.userId = $page.data.userId;
-		const initEThree = async () => {
-			const initializedEThree = await waitForEThree();
-			initializedEThree.cleanup();
-			console.log('eThree cleanup up');
-		};
-		initEThree().catch((error) => {
-			console.error('Failed to initialize eThree:', error);
-		});
+		userIdStore.set($page.data.user.id)
 	});
 </script>
 
