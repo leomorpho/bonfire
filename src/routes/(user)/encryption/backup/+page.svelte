@@ -4,8 +4,10 @@
 	import { Label } from '$lib/components/ui/label';
 	import { goto } from '$app/navigation';
 	import PasswordInput from '$lib/components/password-input/password-input.svelte';
-	import { waitForEThree } from '$lib/e3kit.js';
+	import { initE3Singleton, userIdStore, waitForEThree } from '$lib/e3kit.js';
 	import { onMount } from 'svelte';
+	import { Buffer } from 'buffer';
+	import { page } from '$app/stores';
 
 	const { data } = $props();
 	const { form, errors, enhance, submitting } = superForm(data.form);
@@ -13,7 +15,11 @@
 	let password = $state('');
 	let confirmPassword = $state('');
 
+
 	onMount(() => {
+		window.Buffer = Buffer;
+
+		userIdStore.set($page.data.user.id);
 		const initEThree = async () => {
 			// Ensure eThreeReady is initialized
 			const eThree = await waitForEThree();

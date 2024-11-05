@@ -1,11 +1,15 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { waitForEThree } from '$lib/e3kit';
+	import { page } from '$app/stores';
+	import { userIdStore, waitForEThree } from '$lib/e3kit';
 	import { onMount } from 'svelte';
 
 // This is where we redirect to decryption page if there is no local private key
     onMount(() => {
 		const initEThree = async () => {
+			userIdStore.set($page.data.user.id)
+
+			
 			// Ensure eThreeReady is initialized
 			const eThree = await waitForEThree();
 			console.log(`eThree....: ${eThree}`);
