@@ -71,7 +71,17 @@ export const initE3Singleton = async () => {
 				const userId = await waitForUserId();
 
 				console.log(`userId: ${userId}`);
-				await initializeEThree(e3tokenCallback, userId);
+				const EThree = window.E3kit.EThree;
+				if (EThree) {
+					try {
+						const initializedEThree = await EThree.initialize(e3tokenCallback, userId);
+						console.log(`Initialized e3!!!: ${initializedEThree}`);
+						eThreeStore.set(initializedEThree); // Set the store value once initialized
+					} catch (error) {
+						console.error('Failed to initialize E3Kit:', error);
+						eThreeStore.set(null); // Optionally set to null or handle error state
+					}
+				}
 			} catch (error) {
 				console.error('Failed to initialize E3Kit:', error);
 			}
@@ -102,7 +112,7 @@ function isWebAssemblySupported() {
 }
 
 // This tokenCallback function should fetch the JWT from your backend
-export const e3tokenCallback = async () => {
+const e3tokenCallback = async () => {
 	// Fetch the JWT from your backend, e.g. using fetch
 	const response = await fetch('/api/e3kit-jwt');
 	if (!response.ok) throw new Error('Failed to fetch token');

@@ -29,7 +29,7 @@
 		};
 
 		initEThree().catch((error) => {
-			console.error('Failed to initialize eThree:', error);
+			console.error('Failed to register user to eThree:', error);
 		});
 	});
 
