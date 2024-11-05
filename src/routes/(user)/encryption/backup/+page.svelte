@@ -49,8 +49,9 @@
 		// Ensure eThreeReady is initialized
 
 		try {
-			const eThree = waitForEThree();
-			eThree
+			const eThree = await waitForEThree();
+			// @ts-ignore
+			await eThree
 				// @ts-ignore
 				.backupPrivateKey(password)
 				.then(() => console.log('success'))
