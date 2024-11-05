@@ -2,7 +2,6 @@
 	import { superForm } from 'sveltekit-superforms';
 	import { Button } from '$lib/components/ui/button';
 	import { Label } from '$lib/components/ui/label';
-	import { openDB } from 'idb';
 	import { goto } from '$app/navigation';
 	import PasswordInput from '$lib/components/password-input/password-input.svelte';
 
@@ -21,10 +20,14 @@
 		return true;
 	}
 
+	
 	// Submit handler
 	async function handleSubmit() {
 		if (!validatePasswords()) return;
 
+		// Ensure eThreeReady is initialized
+		await window.eThreeReady;
+		
 		try {
 			const eThree = window.eThree;
 
@@ -42,7 +45,7 @@
 </script>
 
 <div class="m-2 flex min-h-screen flex-col items-center justify-center">
-	<h1 class="mb-5 text-xl">Let's set up your end-to-end encryption</h1>
+	<h1 class="mb-5 m-4 text-xl sm:text-2xl">Let's set up your end-to-end encryption</h1>
 	<div class="m-4 md:w-1/2">
 		<p>
 			What is it for? It will protect your data as only you will be able to read sensitive fields

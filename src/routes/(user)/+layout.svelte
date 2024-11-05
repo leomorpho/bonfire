@@ -1,6 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
-    import { Buffer } from 'buffer';
+	import { Buffer } from 'buffer';
+	import eThreeStore from '$lib/e3kit';
 
 	// Function to check WebAssembly support
 	function isWebAssemblySupported() {
@@ -19,22 +20,19 @@
 
 	// Load the appropriate E3Kit version based on WebAssembly support
 	onMount(() => {
+		// Declare `eThreeReady` globally so other parts of the app can access it
+		window.eThreeReady = null;
+
 		// Define global polyfill for `global` if not defined
 		if (typeof global === 'undefined') {
-            // @ts-ignore
+			// @ts-ignore
 			window.global = window;
 		}
-		
 
 		// @ts-ignore
 		window.Buffer = Buffer;
 
 		const script = document.createElement('script');
-
-		// Error handling for script loading
-		script.onerror = () => {
-			console.error('Failed to load E3Kit script.');
-		};
 
 		script.onload = async () => {
 			// Make this callback async
@@ -45,13 +43,28 @@
 				// Now you can initialize E3Kit here
 				try {
 					console.log(`window.userId: ${window.userId}`);
-					window.eThree = await EThree.initialize(tokenCallback, window.userId);
+					const initializedEThree = await EThree.initialize(tokenCallback, window.userId);
+					eThreeStore.set(initializedEThree);
 				} catch (error) {
 					console.error('Failed to initialize E3Kit:', error);
+					eThreeStore.set(null);
 				}
+
+				// const hasLocalPrivateKey = await window.eThree.hasLocalPrivateKey();
+				// console.log(`hasLocalPrivateKey: ${hasLocalPrivateKey}`);
+
+				// // Redirect if the local private key is not available
+				// if (!hasLocalPrivateKey) {
+				// 	goto('/encryption/decrypt'); // Replace with your target page
+				// }
 			} else {
 				console.error('EThree is not defined.');
 			}
+		};
+
+		// Error handling for script loading
+		script.onerror = () => {
+			console.error('Failed to load E3Kit script.');
 		};
 
 		if (isWebAssemblySupported()) {

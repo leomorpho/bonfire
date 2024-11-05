@@ -1,12 +1,8 @@
 import { fail, redirect, type Actions } from '@sveltejs/kit';
 import { z } from 'zod';
 import { superValidate } from 'sveltekit-superforms';
-import {
-	upsertBeliefTargetRating,
-	getThoughtById,
-	getBeliefTargetRating
-} from '$lib/server/database/thought.model';
 import { zod } from 'sveltekit-superforms/adapters';
+import { setEncryptionBackupStatus } from '$lib/server/database/user.model.js';
 
 const saltSchema = z.object({
 	salt: z.string()
@@ -23,8 +19,7 @@ export const load = async (event) => {
 
 	return {
 		form,
-		user,
-        salt: user.salt,
+		user
 	};
 };
 
@@ -41,6 +36,8 @@ export const actions = {
 			return fail(401, { error: 'Unauthorized' });
 		}
 
+		await setEncryptionBackupStatus(user.id, true)
+		
 		// Redirect to the provided URL after saving
 		throw redirect(302, '/dashboard/');
 	}
