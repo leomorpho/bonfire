@@ -1,5 +1,4 @@
-import { fail, redirect, type Actions } from '@sveltejs/kit';
-import { setEncryptionBackupStatus } from '$lib/server/database/user.model.js';
+import { redirect } from '@sveltejs/kit';
 
 export const load = async (event) => {
 	// Get the user from locals
@@ -12,4 +11,3 @@ export const load = async (event) => {
 		user
 	};
 };
-

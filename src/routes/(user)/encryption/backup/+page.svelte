@@ -10,6 +10,8 @@
 	import { dev } from '$app/environment';
 
 	const { data } = $props();
+	
+	userIdStore.set($page.data.user.id)
 
 	let password = $state('');
 	let confirmPassword = $state('');

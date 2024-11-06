@@ -1,12 +1,15 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
 	import { goto } from '$app/navigation';
-	import { waitForEThree } from '$lib/e3kit.js';
+	import { userIdStore, waitForEThree } from '$lib/e3kit.js';
 	import { onMount } from 'svelte';
 	import { Buffer } from 'buffer';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
+	import { page } from '$app/stores';
 
 	const { data } = $props();
+
+	userIdStore.set($page.data.user.id)
 
 	let submitting = $state(false);
 

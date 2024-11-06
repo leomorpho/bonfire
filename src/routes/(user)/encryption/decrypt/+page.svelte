@@ -5,11 +5,15 @@
 	import { goto } from '$app/navigation';
 	import PasswordInput from '$lib/components/password-input/password-input.svelte';
 	import { onMount } from 'svelte';
-	import { waitForEThree } from '$lib/e3kit.js';
+	import { userIdStore, waitForEThree } from '$lib/e3kit.js';
+	import { page } from '$app/stores';
 
 	const { data } = $props();
 	const { form, errors, enhance, submitting } = superForm(data.form);
 
+	userIdStore.set($page.data.user.id)
+
+	
 	let password = $state('');
 
 	onMount(() => {

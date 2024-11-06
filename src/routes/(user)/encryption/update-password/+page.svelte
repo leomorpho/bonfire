@@ -3,13 +3,17 @@
 	import { Label } from '$lib/components/ui/label';
 	import { goto } from '$app/navigation';
 	import PasswordInput from '$lib/components/password-input/password-input.svelte';
-	import { waitForEThree } from '$lib/e3kit.js';
+	import { userIdStore, waitForEThree } from '$lib/e3kit.js';
 	import { onMount } from 'svelte';
 	import { Buffer } from 'buffer';
 	import { dev } from '$app/environment';
+	import { page } from '$app/stores';
 
 	const { data } = $props();
 
+	userIdStore.set($page.data.user.id)
+
+	
 	let oldPassword = $state('');
 
 	let password = $state('');
