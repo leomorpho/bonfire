@@ -1,20 +1,30 @@
 <script lang="ts">
-	import { superForm } from 'sveltekit-superforms';
 	import { Button } from '$lib/components/ui/button';
 	import { Label } from '$lib/components/ui/label';
 	import { goto } from '$app/navigation';
 	import PasswordInput from '$lib/components/password-input/password-input.svelte';
-	import { initE3Singleton, userIdStore, waitForEThree } from '$lib/e3kit.js';
+	import { userIdStore, waitForEThree } from '$lib/e3kit.js';
 	import { onMount } from 'svelte';
 	import { Buffer } from 'buffer';
 	import { page } from '$app/stores';
+	import { dev } from '$app/environment';
 
 	const { data } = $props();
-	const { form, errors, enhance, submitting } = superForm(data.form);
 
 	let password = $state('');
 	let confirmPassword = $state('');
+	let submitting = $state(false);
 
+	let minPassWordLen = $state(8);
+	if (dev) {
+		minPassWordLen = 3;
+	}
+
+	let passwordTooShort = $state(true);
+	let passwordsNotEqual = $state(true);
+
+	// Computed variable using $derived for submit button state
+	let isSubmitDisabled = $derived(validatePasswords(password, confirmPassword));
 
 	onMount(() => {
 		window.Buffer = Buffer;
@@ -34,34 +44,50 @@
 	});
 
 	// Validate password confirmation
-	function validatePasswords() {
-		if (password !== confirmPassword) {
-			alert('Passwords do not match');
-			return false;
+	function validatePasswords(password: string, confirmPassword: string) {
+		if (password.length < minPassWordLen) {
+			$effect(() => {
+				passwordTooShort = true;
+			});
+
+			return true;
+		} else {
+			$effect(() => {
+				passwordTooShort = false;
+			});
 		}
-		return true;
+		if (password !== confirmPassword) {
+			$effect(() => {
+				passwordsNotEqual = true;
+			});
+			return true;
+		} else {
+			$effect(() => {
+				passwordsNotEqual = false;
+			});
+		}
+		return false;
 	}
 
 	// Submit handler
-	async function handleSubmit() {
-		if (!validatePasswords()) return;
+	async function handleSubmit(event: Event) {
+		// TODO: not ideal, if validatePasswords and form is force submitted it will still 
+		// go through and set the password as "set" in BE (note that we don't save it, only save the fact it's been set)
+		submitting = true;
 
-		// Ensure eThreeReady is initialized
+		if (!validatePasswords(password, confirmPassword)) return;
 
 		try {
 			const eThree = await waitForEThree();
 			// @ts-ignore
-			await eThree
-				// @ts-ignore
-				.backupPrivateKey(password)
-				.then(() => console.log('success'))
-				// @ts-ignore
-				.catch((e) => console.error('error: ', e));
+			await eThree.backupPrivateKey(password);
 			alert('Encryption setup successful!');
 			goto('/dashboard');
 		} catch (error) {
 			console.error('Encryption setup failed:', error);
 			alert('Failed to set up encryption.');
+		} finally {
+			submitting = false;
 		}
 	}
 </script>
@@ -79,12 +105,7 @@
 			to access your data on any new device or browser.
 		</p>
 	</div>
-	<form
-		method="post"
-		use:enhance
-		class="m-2 flex w-full max-w-md flex-col space-y-4"
-		onsubmit={handleSubmit}
-	>
+	<form method="post" class="m-2 flex w-full max-w-md flex-col space-y-4" onsubmit={handleSubmit}>
 		<div class="space-y-2">
 			<Label for="password">Password</Label>
 			<PasswordInput type="password" bind:value={password} required />
@@ -94,10 +115,19 @@
 			<Label for="confirmPassword">Confirm Password</Label>
 			<PasswordInput type="password" bind:value={confirmPassword} required />
 		</div>
-
+		<div>
+			<ul class="max-w-md list-inside list-disc space-y-1 text-yellow-500 dark:text-yellow-400">
+				{#if passwordTooShort}
+					<li>Password should be at least {minPassWordLen} characters long.</li>
+				{/if}
+				{#if passwordsNotEqual}
+					<li>Passwords are not equal</li>
+				{/if}
+			</ul>
+		</div>
 		<div class="flex w-full justify-center space-x-1">
-			<Button type="submit" disabled={$submitting} class="w-1/2 max-w-64">
-				{#if $submitting}
+			<Button disabled={isSubmitDisabled} type="submit" class="w-1/2 max-w-64">
+				{#if submitting}
 					<span class="loading loading-spinner"></span> Submitting...
 				{:else}
 					Save

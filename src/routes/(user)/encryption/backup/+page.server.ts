@@ -4,13 +4,7 @@ import { superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { setEncryptionBackupStatus } from '$lib/server/database/user.model.js';
 
-const saltSchema = z.object({
-	salt: z.string()
-});
-
 export const load = async (event) => {
-	const form = await superValidate(zod(saltSchema));
-
 	// Get the user from locals
 	const user = event.locals.user;
 	if (!user) {
@@ -18,26 +12,22 @@ export const load = async (event) => {
 	}
 
 	return {
-		form,
 		user
 	};
 };
 
 export const actions = {
 	default: async ({ request, locals }) => {
-		const data = await request.formData();
-		const form = await superValidate(data, zod(saltSchema));
-
-		if (!form.valid) {
-			return fail(400, { form });
-		}
 		const user = locals.user;
 		if (!user) {
 			return fail(401, { error: 'Unauthorized' });
 		}
+		if (user.encryption_backup_up){
+			throw redirect(302, 'update-password')
+		}
 
-		await setEncryptionBackupStatus(user.id, true)
-		
+		await setEncryptionBackupStatus(user.id, true);
+
 		// Redirect to the provided URL after saving
 		throw redirect(302, '/dashboard/');
 	}
