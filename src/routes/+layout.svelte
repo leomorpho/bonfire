@@ -11,6 +11,7 @@
 		PUBLIC_PROJECT_NAME
 	} from '$env/static/public';
 	import Header from '$lib/components/Header.svelte';
+	import { getFlash } from 'sveltekit-flash-message';
 
 	let { children } = $props();
 
@@ -28,6 +29,8 @@
 			pageParam: $page.params?.page ?? ''
 		})
 	);
+
+	const flash = getFlash(page);
 </script>
 
 <svelte:head>
@@ -78,4 +81,18 @@
 </svelte:head>
 
 <Header></Header>
+{#if $flash}
+  <div
+    class={`m-2 sm:m-4 md:m-8 mb-4 rounded-lg p-4 text-sm ${
+      $flash.type === 'success' ? 'bg-green-50 text-green-800 dark:bg-gray-800 dark:text-green-400' :
+      $flash.type === 'error' ? 'bg-red-50 text-red-800 dark:bg-gray-800 dark:text-red-400' :
+      $flash.type === 'warning' ? 'bg-yellow-50 text-yellow-800 dark:bg-gray-800 dark:text-yellow-400' :
+      $flash.type === 'info' ? 'bg-blue-50 text-blue-800 dark:bg-gray-800 dark:text-blue-400' :
+      'bg-gray-50 text-gray-800 dark:bg-gray-800 dark:text-gray-400'
+    }`}
+    role="alert"
+  >
+    {$flash.message}
+  </div>
+{/if}
 {@render children()}

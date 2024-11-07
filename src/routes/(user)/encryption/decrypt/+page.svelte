@@ -7,14 +7,16 @@
 	import { onMount } from 'svelte';
 	import { userIdStore, waitForEThree } from '$lib/e3kit.js';
 	import { page } from '$app/stores';
+	import { getFlash } from 'sveltekit-flash-message';
 
 	const { data } = $props();
 	const { form, errors, enhance, submitting } = superForm(data.form);
 
-	userIdStore.set($page.data.user.id)
+	userIdStore.set($page.data.user.id);
 
-	
 	let password = $state('');
+
+	const flash = getFlash(page);
 
 	onMount(() => {
 		const initEThree = async () => {
@@ -39,7 +41,8 @@
 
 			// @ts-ignore
 			await eThree.restorePrivateKey(password);
-			alert('Decryption successful!');
+			$flash = { type: 'success', message: 'Decryption successful!' };
+
 			goto('/dashboard');
 		} catch (error) {
 			console.error('Decryption setup failed:', error);

@@ -159,6 +159,9 @@ importers:
       svelte-radix:
         specifier: ^2.0.1
         version: 2.0.1(svelte@5.1.6)
+      sveltekit-flash-message:
+        specifier: ^2.4.4
+        version: 2.4.4(@sveltejs/kit@2.7.3(@sveltejs/vite-plugin-svelte@4.0.0(svelte@5.1.6)(vite@5.4.10(@types/node@22.8.4)(terser@5.36.0)))(svelte@5.1.6)(vite@5.4.10(@types/node@22.8.4)(terser@5.36.0)))(svelte@5.1.6)
       sveltekit-superforms:
         specifier: 2.20.0
         version: 2.20.0(@sveltejs/kit@2.7.3(@sveltejs/vite-plugin-svelte@4.0.0(svelte@5.1.6)(vite@5.4.10(@types/node@22.8.4)(terser@5.36.0)))(svelte@5.1.6)(vite@5.4.10(@types/node@22.8.4)(terser@5.36.0)))(@types/json-schema@7.0.15)(svelte@5.1.6)(typescript@5.6.3)
@@ -4448,6 +4451,12 @@ packages:
   svelte@5.1.6:
     resolution: {integrity: sha512-bYS/DpkqXk0j5UZgiNXrEjZYPRZ4Ncd87w4KUSbcZGyojA0+i/Ls9OGUjETHmdLe8RcQ0G8SX/T0PypPpAA/ew==}
     engines: {node: '>=18'}
+
+  sveltekit-flash-message@2.4.4:
+    resolution: {integrity: sha512-CFN03chH/FMEJcBZ/8zKm7RqGee/pwb57Spbbx8QCQPhe7N9ofZHd9iYV2vVy4E9glBo/oQ1IG7VQje6L092wg==}
+    peerDependencies:
+      '@sveltejs/kit': 1.x || 2.x
+      svelte: 3.x || 4.x || >=5.0.0-next.51
 
   sveltekit-superforms@2.20.0:
     resolution: {integrity: sha512-5HyA6THKFBHEmJinZ/klu2/0jYr9ElSaXMYc5EO9ptP3x1wQPWVXYl59sMcaSrIjWUlPpayGxVppCyu+x/o4WA==}
@@ -9075,6 +9084,11 @@ snapshots:
       locate-character: 3.0.0
       magic-string: 0.30.12
       zimmerframe: 1.1.2
+
+  sveltekit-flash-message@2.4.4(@sveltejs/kit@2.7.3(@sveltejs/vite-plugin-svelte@4.0.0(svelte@5.1.6)(vite@5.4.10(@types/node@22.8.4)(terser@5.36.0)))(svelte@5.1.6)(vite@5.4.10(@types/node@22.8.4)(terser@5.36.0)))(svelte@5.1.6):
+    dependencies:
+      '@sveltejs/kit': 2.7.3(@sveltejs/vite-plugin-svelte@4.0.0(svelte@5.1.6)(vite@5.4.10(@types/node@22.8.4)(terser@5.36.0)))(svelte@5.1.6)(vite@5.4.10(@types/node@22.8.4)(terser@5.36.0))
+      svelte: 5.1.6
 
   sveltekit-superforms@2.20.0(@sveltejs/kit@2.7.3(@sveltejs/vite-plugin-svelte@4.0.0(svelte@5.1.6)(vite@5.4.10(@types/node@22.8.4)(terser@5.36.0)))(svelte@5.1.6)(vite@5.4.10(@types/node@22.8.4)(terser@5.36.0)))(@types/json-schema@7.0.15)(svelte@5.1.6)(typescript@5.6.3):
     dependencies:

@@ -6,12 +6,14 @@
 	import { Buffer } from 'buffer';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { page } from '$app/stores';
+	import { getFlash } from 'sveltekit-flash-message';
 
 	const { data } = $props();
 
 	userIdStore.set($page.data.user.id)
 
 	let submitting = $state(false);
+	const flash = getFlash(page);
 
 	onMount(() => {
 		window.Buffer = Buffer;
@@ -38,16 +40,16 @@
 			await eThree.resetPrivateKeyBackup();
 			console.log('done resettting private key backup with virgil E3Kit');
 
-			console.log('resetting account..');
+			console.log('finishing to reset account..');
 
 			// Call server-side logic by sending a request to an endpoint
 			const response = await fetch('reset-account');
 
 			if (response.ok) {
-				alert('Password reset successful!');
+				$flash = { type: 'success', message: 'Password reset successful!' };
 				goto('backup');
 			} else {
-				alert('Server-side reset failed.');
+				throw new Error(`Server-side reset failed: ${response.status} ${response.statusText}`);
 			}
 			console.log('done resetting account.');
 		} catch (error) {

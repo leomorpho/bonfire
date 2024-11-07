@@ -8,6 +8,7 @@
 	import { Buffer } from 'buffer';
 	import { page } from '$app/stores';
 	import { dev } from '$app/environment';
+	import { getFlash } from 'sveltekit-flash-message';
 
 	const { data } = $props();
 
@@ -27,6 +28,8 @@
 
 	// Computed variable using $derived for submit button state
 	let isSubmitDisabled = $derived(validatePasswords(password, confirmPassword));
+
+	const flash = getFlash(page);
 
 	onMount(() => {
 		window.Buffer = Buffer;
@@ -90,7 +93,7 @@
 			}
 
 			console.log('Update user in DB to show user backed up password');
-			alert('Encryption setup successful!');
+			$flash = { type: 'success', message: 'Encryption setup successful!' };
 			goto('/dashboard');
 		} catch (error) {
 			console.error('Encryption setup failed:', error);

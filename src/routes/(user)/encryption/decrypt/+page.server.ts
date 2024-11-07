@@ -1,8 +1,9 @@
-import { fail, redirect, type Actions } from '@sveltejs/kit';
+import { fail, type Actions } from '@sveltejs/kit';
 import { z } from 'zod';
 import { superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { setEncryptionBackupStatus } from '$lib/server/database/user.model.js';
+import { redirect } from 'sveltekit-flash-message/server'
 
 const saltSchema = z.object({
 	salt: z.string()
@@ -24,7 +25,7 @@ export const load = async (event) => {
 };
 
 export const actions = {
-	default: async ({ request, locals }) => {
+	default: async ({ request, locals, cookies }) => {
 		const data = await request.formData();
 		const form = await superValidate(data, zod(saltSchema));
 
@@ -39,6 +40,6 @@ export const actions = {
 		await setEncryptionBackupStatus(user.id, true)
 		
 		// Redirect to the provided URL after saving
-		throw redirect(302, '/dashboard/');
+		throw redirect('/dashboard/', { type: 'success', message: "Decryption successful!" }, cookies);
 	}
 } satisfies Actions;
