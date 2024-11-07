@@ -7,6 +7,7 @@
 	import { enhance } from '$app/forms';
 
 	const authLinks: Array<Link> = [
+		{ name: 'Dashboard', href: '/dashboard' },
 		{ name: 'Settings', href: '/settings' },
 	];
 
