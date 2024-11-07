@@ -10,7 +10,7 @@
 
 	const { data } = $props();
 
-	userIdStore.set($page.data.user.id)
+	userIdStore.set($page.data.user.id);
 
 	let submitting = $state(false);
 	const flash = getFlash(page);
@@ -64,31 +64,40 @@
 <div class="m-2 flex min-h-screen flex-col items-center justify-center">
 	<h1 class="m-4 mb-5 text-xl sm:text-2xl">Reset encryption password</h1>
 	<div class="m-4 md:w-1/2">
-		<p>All your data will be lost. You will be starting from a brand new slate.</p>
+		<p class="my-2">All your data will be lost. You will be starting from a brand new slate.</p>
+
+		<p class="my-2">
+			We use strong end-to-end encryption, meaning that if you lose your encryption password, your
+			data is lost as we ourselves cannot read it.
+		</p>
 	</div>
-	<Dialog.Root>
-		<Dialog.Trigger><Button>Reset</Button></Dialog.Trigger>
-		<Dialog.Content class="sm:max-w-[425px]">
-			<Dialog.Header>
-				<Dialog.Title>Reset Account</Dialog.Title>
-				<Dialog.Description>
-					All your past data will be lost. You will need to set a new encryption password in the
-					next screen.
-				</Dialog.Description>
-			</Dialog.Header>
-			<div class="grid gap-4 py-4">
-				<div class="grid grid-cols-4 items-center gap-4"></div>
-				<div class="grid grid-cols-4 items-center gap-4"></div>
-			</div>
-			<Dialog.Footer>
-				<Button type="submit" on:click={handleSubmit}>
-					{#if submitting}
-						<span class="loading loading-spinner"></span> Submitting...
-					{:else}
-						Yes, I understand
-					{/if}</Button
-				>
-			</Dialog.Footer>
-		</Dialog.Content>
-	</Dialog.Root>
+	<div class="flex w-full justify-center space-x-1">
+		<Button on:click={() => window.history.back()} class="w-1/2 max-w-64">Previous</Button>
+
+		<Dialog.Root>
+			<Dialog.Trigger><Button class="bg-red-500 hover:bg-red-400">Reset</Button></Dialog.Trigger>
+			<Dialog.Content class="sm:max-w-[425px]">
+				<Dialog.Header>
+					<Dialog.Title>Reset Account</Dialog.Title>
+					<Dialog.Description>
+						All your past data will be lost. You will need to set a new encryption password in the
+						next screen.
+					</Dialog.Description>
+				</Dialog.Header>
+				<div class="grid gap-4 py-4">
+					<div class="grid grid-cols-4 items-center gap-4"></div>
+					<div class="grid grid-cols-4 items-center gap-4"></div>
+				</div>
+				<Dialog.Footer>
+					<Button type="submit" on:click={handleSubmit} class="bg-red-500 hover:bg-red-400">
+						{#if submitting}
+							<span class="loading loading-spinner"></span> Submitting...
+						{:else}
+							Yes, I understand
+						{/if}</Button
+					>
+				</Dialog.Footer>
+			</Dialog.Content>
+		</Dialog.Root>
+	</div>
 </div>

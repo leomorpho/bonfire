@@ -11,9 +11,8 @@
 
 	const { data } = $props();
 
-	userIdStore.set($page.data.user.id)
+	userIdStore.set($page.data.user.id);
 
-	
 	let oldPassword = $state('');
 
 	let password = $state('');
@@ -153,13 +152,16 @@
 			</ul>
 		</div>
 		<div class="flex w-full justify-center space-x-1">
-			<Button disabled={isSubmitDisabled} type="submit" class="w-1/2 max-w-64">
-				{#if submitting}
-					<span class="loading loading-spinner"></span> Submitting...
-				{:else}
-					Save
-				{/if}
-			</Button>
+			<div class="flex w-full justify-center space-x-1">
+				<Button on:click={() => window.history.back()} class="w-1/2 max-w-64">Previous</Button>
+				<Button disabled={isSubmitDisabled} type="submit" class="w-1/2 max-w-64">
+					{#if submitting}
+						<span class="loading loading-spinner"></span> Submitting...
+					{:else}
+						Save
+					{/if}
+				</Button>
+			</div>
 		</div>
 	</form>
 </div>

@@ -13,9 +13,9 @@
 		<h2 class="my-6 text-2xl font-semibold">Settings</h2>
 
 		<div class="flex flex-col justify-center space-y-3">
-            <Button>Update Encryption Password</Button>
-			<Button class="bg-red-400">Reset Account</Button>
-			<Button class="bg-red-400">Delete Account</Button>
+            <Button href="encryption/update-password">Update Encryption Password</Button>
+			<Button class="bg-red-500 hover:bg-red-400" href="encryption/reset-account">Reset Account</Button>
+			<Button class="bg-red-500 hover:bg-red-400">Delete Account</Button>
 		</div>
 	</section>
 </div>
