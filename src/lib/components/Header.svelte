@@ -6,31 +6,39 @@
 	import { page } from '$app/stores';
 	import { enhance } from '$app/forms';
 
-	const links: Array<Link> = [
+	const authLinks: Array<Link> = [
+		{ name: 'Settings', href: '/settings' },
+	];
+
+	const unauthLinks: Array<Link> = [
 		{ name: 'About', href: '/#about' },
 		{ name: 'Pricing', href: '/#pricing' },
 		{ name: 'FAQ', href: '/#faq' }
 	];
+
+	let links = unauthLinks;
+
+	if ($page.data.user) {
+		links = authLinks;
+	}
 </script>
 
 <Container>
 	<header class="navbar px-0">
 		<div class="navbar-start">
 			<a href="/" class="flex">
-				<Rainbow class="mr-3 h-10 w-10"/>
+				<Rainbow class="mr-3 h-10 w-10" />
 				<div class="text-2xl font-bold sm:text-3xl">{PUBLIC_PROJECT_NAME}</div>
 			</a>
 		</div>
 		<div class="navbar-center hidden lg:flex">
-			{#if !$page.data.user}
-				<ul class="menu menu-horizontal px-1">
-					{#each links as link}
-						<li>
-							<a href={link.href}>{link.name}</a>
-						</li>
-					{/each}
-				</ul>
-			{/if}
+			<ul class="menu menu-horizontal px-1">
+				{#each links as link}
+					<li>
+						<a href={link.href}>{link.name}</a>
+					</li>
+				{/each}
+			</ul>
 		</div>
 		<div class="navbar-end hidden lg:flex">
 			{#if $page.data.user}
@@ -72,6 +80,7 @@
 							<a href={link.href}>{link.name}</a>
 						</li>
 					{/each}
+
 					{#if $page.data.user}
 						<form
 							method="post"
