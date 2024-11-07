@@ -25,8 +25,6 @@
 			if (hasLocalPrivateKey) {
 				goto('/dashboard');
 			}
-            // @ts-ignore
-            eThree.restorePrivateKey(password);
 		};
 
 		initEThree().catch((error) => {
@@ -38,7 +36,6 @@
 	async function handleSubmit() {
 		try {
 			const eThree = await waitForEThree();
-			console.log(`decrypt w/ password: ${password}`)
 
 			// @ts-ignore
 			await eThree.restorePrivateKey(password);
@@ -46,7 +43,7 @@
 			goto('/dashboard');
 		} catch (error) {
 			console.error('Decryption setup failed:', error);
-			alert('Failed to set up encryption.');
+			alert('Failed to decrypt your data.');
 		}
 	}
 </script>

@@ -10,8 +10,8 @@
 	import { dev } from '$app/environment';
 
 	const { data } = $props();
-	
-	userIdStore.set($page.data.user.id)
+
+	userIdStore.set($page.data.user.id);
 
 	let password = $state('');
 	let confirmPassword = $state('');
@@ -71,23 +71,32 @@
 		return false;
 	}
 
-	// Submit handler
 	async function handleSubmit(event: Event) {
-		// TODO: not ideal, if validatePasswords and form is force submitted it will still 
-		// go through and set the password as "set" in BE (note that we don't save it, only save the fact it's been set)
 		submitting = true;
-
-		if (!validatePasswords(password, confirmPassword)) return;
 
 		try {
 			const eThree = await waitForEThree();
 			// @ts-ignore
 			await eThree.backupPrivateKey(password);
+			console.log('Private key backed up to e3Kit');
+
+			// Call server-side logic by sending a request to an endpoint
+			const response = await fetch('backup');
+
+			if (!response.ok) {
+				throw new Error(
+					`Failed to update backup status: ${response.status} ${response.statusText}`
+				);
+			}
+
+			console.log('Update user in DB to show user backed up password');
 			alert('Encryption setup successful!');
 			goto('/dashboard');
 		} catch (error) {
 			console.error('Encryption setup failed:', error);
 			alert('Failed to set up encryption.');
+			// Re-throw the error to prevent navigation on failure
+			throw error;
 		} finally {
 			submitting = false;
 		}
@@ -107,7 +116,7 @@
 			to access your data on any new device or browser.
 		</p>
 	</div>
-	<form method="post" class="m-2 flex w-full max-w-md flex-col space-y-4" onsubmit={handleSubmit}>
+	<form class="m-2 flex w-full max-w-md flex-col space-y-4" onsubmit={handleSubmit}>
 		<div class="space-y-2">
 			<Label for="password">Password</Label>
 			<PasswordInput type="password" bind:value={password} required />

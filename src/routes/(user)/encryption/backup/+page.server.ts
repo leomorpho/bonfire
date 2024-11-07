@@ -16,19 +16,3 @@ export const load = async (event) => {
 	};
 };
 
-export const actions = {
-	default: async ({ request, locals }) => {
-		const user = locals.user;
-		if (!user) {
-			return fail(401, { error: 'Unauthorized' });
-		}
-		if (user.encryption_backup_up){
-			throw redirect(302, 'update-password')
-		}
-
-		await setEncryptionBackupStatus(user.id, true);
-
-		// Redirect to the provided URL after saving
-		throw redirect(302, '/dashboard/');
-	}
-} satisfies Actions;
