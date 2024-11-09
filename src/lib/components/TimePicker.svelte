@@ -28,7 +28,7 @@
 
 <!-- Time Selector Dropdown -->
 <Select.Root bind:value={selectedTime}>
-	<Select.Trigger class="w-[180px]">
+	<Select.Trigger class="w-full">
         <Clock class="ml-1 mr-1 h-4 w-4 text-slate-500" />
 		<Select.Value placeholder="Select Time" />
 	</Select.Trigger>

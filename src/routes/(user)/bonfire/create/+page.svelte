@@ -19,10 +19,10 @@
 	let dateValue: DatedateValue | undefined = undefined;
 </script>
 
-<div class="mx-2 flex flex-col items-center justify-center">
+<div class="mx-4 flex flex-col items-center justify-center">
 	<section class="mt-8 w-full sm:w-[450px]">
 		<h2 class="mb-4 text-lg font-semibold">Create a Bonfire</h2>
-		<div class="max-w-xs space-y-2">
+		<div class="space-y-2">
 			<Input type="text" placeholder="Event Name" class="w-full" />
 			<div>
 				<Popover.Root>
@@ -45,11 +45,11 @@
 				</Popover.Root>
 			</div>
 			<div class="flex flex-row space-x-2">
-				<TimePicker />
-				<AmPmPicker />
+				<div class="w-1/2"><TimePicker /></div>
+				<div class="w-1/2"><AmPmPicker /></div>
 			</div>
 			<TimezonePicker class="w-full" />
-			<Input type="text" placeholder="Location" class="max-w-xs" />
+			<Input type="text" placeholder="Location" class="w-full" />
 			<Textarea placeholder="Details" />
 			<Button type="submit" class="w-full">
 				<Plus class="ml-1 mr-1 h-4 w-4" />
