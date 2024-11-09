@@ -19,13 +19,12 @@
 </script>
 
 <div class="mx-2 flex flex-col items-center justify-center">
-	<!-- History of thoughts and moods -->
 	<section class="mt-8 w-full sm:w-[450px]">
 		<h2 class="mb-4 text-lg font-semibold">Upcoming Bonfires</h2>
 		{#each parties as party}
-			<Card.Root class="w-full my-4 bg-slate-100">
+			<Card.Root class="my-4 w-full bg-slate-100">
 				<Card.Header>
-					<Card.Title>{party.name}</Card.Title>
+					<Card.Title class="font-mono">{party.name}</Card.Title>
 					<Card.Description>{party.time}</Card.Description>
 					<Card.Description>Hosted by {party.host}</Card.Description>
 				</Card.Header>
@@ -53,7 +52,10 @@
 	</section>
 </div>
 <div class="fixed bottom-6 left-1/2 flex -translate-x-1/2 transform flex-col items-center">
-	<button class="rounded-full bg-blue-500 p-4 text-white shadow-lg transition hover:bg-blue-600">
+	<a
+		href="bonfire/create"
+		class="rounded-full bg-blue-500 p-4 text-white shadow-lg transition hover:bg-blue-600"
+	>
 		<!-- Button Icon -->
 		<svg
 			class="h-6 w-6"
@@ -64,6 +66,6 @@
 		>
 			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
 		</svg>
-	</button>
+	</a>
 	<span class="mt-2">Create a Bonfire</span>
 </div>
