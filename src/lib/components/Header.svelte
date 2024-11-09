@@ -2,7 +2,7 @@
 	import { PUBLIC_PROJECT_NAME } from '$env/static/public';
 	import type { Link } from '$lib/types';
 	import Container from './Container.svelte';
-	import { LogOut, Menu, Rainbow } from 'lucide-svelte';
+	import { LogOut, Menu, FlameKindling } from 'lucide-svelte';
 	import { page } from '$app/stores';
 	import { enhance } from '$app/forms';
 
@@ -28,7 +28,7 @@
 	<header class="navbar px-0">
 		<div class="navbar-start">
 			<a href="/" class="flex">
-				<Rainbow class="mr-3 h-10 w-10" />
+				<FlameKindling class="mr-3 h-10 w-10" />
 				<div class="text-2xl font-bold sm:text-3xl">{PUBLIC_PROJECT_NAME}</div>
 			</a>
 		</div>
@@ -52,7 +52,7 @@
 					</button>
 				</form>
 			{:else}
-				<a href="/login" class="btn ml-auto"> <Rainbow />login</a>
+				<a href="/login" class="btn ml-auto"> <FlameKindling />login</a>
 			{/if}
 		</div>
 		<div class="navbar-end lg:hidden">
@@ -66,7 +66,7 @@
 					</button>
 				</form>
 			{:else}
-				<a href="/login" class="btn ml-auto mr-2 hidden sm:flex"> <Rainbow />login</a>
+				<a href="/login" class="btn ml-auto mr-2 hidden sm:flex"> <FlameKindling />login</a>
 			{/if}
 			<!-- <a href="/" class="btn ml-auto">your call to action</a> -->
 			<div class="dropdown dropdown-end">
@@ -97,7 +97,7 @@
 							</button>
 						</form>
 					{:else}
-						<a href="/login" class="btn mx-2 mb-2 mt-5 sm:hidden"> <Rainbow />login</a>
+						<a href="/login" class="btn mx-2 mb-2 mt-5 sm:hidden"> <FlameKindling />login</a>
 					{/if}
 				</ul>
 			</div>
