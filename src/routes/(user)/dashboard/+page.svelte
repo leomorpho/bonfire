@@ -3,14 +3,8 @@
 	import { writable } from 'svelte/store';
 	import { Button } from '$lib/components/ui/button';
 	import * as Card from '$lib/components/ui/card/index.js';
-	import { userIdStore } from '$lib/e3kit';
-	import { onMount } from 'svelte';
 
 	const thoughtsList = writable($page.data.thoughts);
-
-	onMount(() => {
-		userIdStore.set($page.data.user.id)
-	});
 </script>
 
 <div class="mx-2 flex flex-col items-center justify-center">

@@ -118,6 +118,6 @@ export const actions = {
 			path: '.',
 			...sessionCookie.attributes
 		});
-		redirect(302, '/logout');
+		redirect(302, '/');
 	}
 };
