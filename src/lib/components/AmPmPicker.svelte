@@ -8,14 +8,13 @@
 		{ value: 'PM', label: 'PM' }
 	];
 
-	let selectedAMPM: any = undefined;
+	let selected = { value: 'PM', label: 'PM' }
 </script>
 
 <!-- AM/PM Selector Dropdown -->
-<Select.Root bind:value={selectedAMPM}>
+<Select.Root bind:selected>
 	<Select.Trigger class="w-full">
-		<SunMoon class="ml-1 mr-1 h-4 w-4 text-slate-500" />
-		<Select.Value placeholder="Select AM/PM" />
+		<Select.Value placeholder="AM/PM" />
 	</Select.Trigger>
 	<Select.Content>
 		<Select.Group>

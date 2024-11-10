@@ -1,22 +1,22 @@
 <script lang="ts">
 	import { Input } from '$lib/components/ui/input/index.js';
 	import CalendarIcon from 'svelte-radix/Calendar.svelte';
-	import { DateFormatter, type DatedateValue, getLocalTimeZone } from '@internationalized/date';
+	import { DateFormatter, type DateValue, getLocalTimeZone } from '@internationalized/date';
 	import { cn } from '$lib/utils.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Calendar } from '$lib/components/ui/calendar/index.js';
 	import * as Popover from '$lib/components/ui/popover/index.js';
-	import TimePicker from '$lib/components/TimePicker.svelte';
 	import AmPmPicker from '$lib/components/AmPmPicker.svelte';
 	import TimezonePicker from '$lib/components/TimezonePicker.svelte';
 	import { Textarea } from '$lib/components/ui/textarea/index.js';
-	import { Plus } from 'lucide-svelte';
+	import { Plus, Clock } from 'lucide-svelte';
+	import DoubleDigitsPicker from '$lib/components/DoubleDigitsPicker.svelte';
 
 	const df = new DateFormatter('en-US', {
 		dateStyle: 'long'
 	});
 
-	let dateValue: DatedateValue | undefined = undefined;
+	let dateValue: DateValue | undefined = undefined;
 </script>
 
 <div class="mx-4 flex flex-col items-center justify-center">
@@ -44,12 +44,19 @@
 					</Popover.Content>
 				</Popover.Root>
 			</div>
-			<div class="flex flex-row space-x-2">
-				<div class="w-1/2"><TimePicker /></div>
-				<div class="w-1/2"><AmPmPicker /></div>
+			<div class="flex flex-row items-center justify-center space-x-2">
+				<Clock class="ml-1 mr-1 h-4 w-4" />
+
+				<div class="font-mono"><DoubleDigitsPicker maxValue="12" /></div>
+				<div class="font-mono"><DoubleDigitsPicker /></div>
+
+				<div class="w-18"><AmPmPicker /></div>
 			</div>
 			<TimezonePicker class="w-full" />
-			<Input type="text" placeholder="Location" class="w-full" />
+
+			<div class="flex flex-row items-center">
+				<Input type="text" placeholder="Location" class="w-full" />
+			</div>
 			<Textarea placeholder="Details" />
 			<Button type="submit" class="w-full">
 				<Plus class="ml-1 mr-1 h-4 w-4" />
