@@ -18,7 +18,7 @@
 	];
 </script>
 
-<div class="mx-4 flex flex-col items-center justify-center mb-48 sm:mb-20">
+<div class="mx-4 mb-48 flex flex-col items-center justify-center sm:mb-20">
 	<section class="mt-8 w-full sm:w-[450px]">
 		<h2 class="mb-4 text-lg font-semibold">Upcoming Bonfires</h2>
 		{#each parties as party}

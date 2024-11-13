@@ -3,7 +3,7 @@
 	import { DateFormatter, type DateValue } from '@internationalized/date';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Textarea } from '$lib/components/ui/textarea/index.js';
-	import { Plus, Clock } from 'lucide-svelte';
+	import { Plus, Minus, Clock } from 'lucide-svelte';
 	import DoubleDigitsPicker from '$lib/components/DoubleDigitsPicker.svelte';
 	import { TriplitClient } from '@triplit/client';
 	import { schema } from '../../../../../triplit/schema';
@@ -21,8 +21,21 @@
 	let details = $state(''); // State for event details
 	let startHour = $state(''); // State for hour
 	let startMinute = $state(''); // State for minute
-	let ampm = $state('PM'); // State for AM/PM
+	let ampmStart = $state('PM'); // State for AM/PM
+	let endHour = $state(''); // State for hour
+	let endMinute = $state(''); // State for minute
+	let ampmEnd = $state('PM'); // State for AM/PM
+
 	let timezone = $state({});
+
+	let setEndTime = $state(false);
+	let submitDisabled = $state(true);
+
+	$effect(() => {
+		if (dateValue && eventName && startHour) {
+			submitDisabled = false;
+		}
+	});
 
 	const client = new TriplitClient({ schema });
 
@@ -52,7 +65,7 @@
 			end_time: null, // Set `end_time` as `null` if not provided
 			user_id: 'userId', // Use the authenticated user's ID
 			timezone: timezone,
-			ampm: ampm
+			ampm: ampmStart
 		});
 		// await client.insert('events', {
 		// 	title: eventName,
@@ -81,21 +94,81 @@
 			<Input type="text" placeholder="Event Name" bind:value={eventName} class="w-full" />
 			<Datepicker bind:value={dateValue} />
 
-			<div class="flex flex-row items-center justify-center space-x-2">
-				<Clock class="ml-1 mr-1 h-4 w-4" />
+			<div class="flex flex-row items-center justify-between space-x-4">
+				<!-- Start Time Inputs -->
+				<div class="grid grid-cols-4 items-center gap-2">
+					<Clock class="ml-4 mr-1 h-4 w-4 text-slate-500" />
+					<div class="font-mono">
+						<DoubleDigitsPicker maxValue={12} bind:value={startHour} placeholder="HH" />
+					</div>
+					<div class="font-mono">
+						<DoubleDigitsPicker bind:value={startMinute} placeholder="mm" />
+					</div>
+					<div class="w-18">
+						<AmPmPicker onValueChange={(newValue: any) => (ampmStart = newValue)} />
+					</div>
+				</div>
 
-				<div class="font-mono"><DoubleDigitsPicker maxValue={12} bind:value={startHour} placeholder={"HH"}/></div>
-				<div class="font-mono"><DoubleDigitsPicker bind:value={startMinute} placeholder="mm"/></div>
-
-				<div class="w-18"><AmPmPicker onValueChange={(newValue:any) => (ampm = newValue)} /></div>
+				<!-- Toggle Button -->
+				{#if !setEndTime}
+					<Button
+						onclick={() => {
+							setEndTime = true;
+						}}
+						class="text-xs"
+					>
+						<Plus class="ml-1 mr-1 h-2 w-2" />
+						to
+					</Button>
+				{:else}
+					<Button
+						onclick={() => {
+							setEndTime = false;
+						}}
+						class="text-xs"
+					>
+						<Minus class="h-2 w-2" />
+						to
+					</Button>
+				{/if}
 			</div>
-			<TimezonePicker  onValueChange={(newValue:any) => (timezone = newValue)}/>
+
+			{#if setEndTime}
+				<div class="flex flex-row items-center justify-between space-x-4">
+					<!-- End Time Inputs -->
+					<div class="grid grid-cols-4 items-center gap-2">
+						<Clock class="ml-4 mr-1 h-4 w-4 text-slate-500" />
+						<div class="font-mono">
+							<DoubleDigitsPicker maxValue={12} bind:value={endHour} placeholder="HH" />
+						</div>
+						<div class="font-mono">
+							<DoubleDigitsPicker bind:value={endMinute} placeholder="mm" />
+						</div>
+						<div class="w-18">
+							<AmPmPicker onValueChange={(newValue: any) => (ampmEnd = newValue)} />
+						</div>
+					</div>
+
+					<!-- Invisible Button for Spacing -->
+					<Button
+						onclick={() => {
+							setEndTime = false;
+						}}
+						class="invisible"
+					>
+						<Minus class="ml-1 mr-1 h-4 w-4" />
+						to
+					</Button>
+				</div>
+			{/if}
+
+			<TimezonePicker onValueChange={(newValue: any) => (timezone = newValue)} />
 
 			<div class="flex flex-row items-center">
 				<Input type="text" placeholder="Location" class="w-full" bind:value={location} />
 			</div>
 			<Textarea placeholder="Details" bind:value={details} />
-			<Button type="submit" class="w-full">
+			<Button disabled={submitDisabled} type="submit" class="w-full">
 				<Plus class="ml-1 mr-1 h-4 w-4" />
 				Create
 			</Button>
