@@ -9,6 +9,7 @@
 	import { schema } from '../../../../../triplit/schema';
 	import TimezonePicker from '$lib/components/TimezonePicker.svelte';
 	import Datepicker from '$lib/components/Datepicker.svelte';
+	import AmPmPicker from '$lib/components/AmPmPicker.svelte';
 
 	const df = new DateFormatter('en-US', {
 		dateStyle: 'long'
@@ -20,7 +21,7 @@
 	let details = $state(''); // State for event details
 	let startHour = $state(''); // State for hour
 	let startMinute = $state(''); // State for minute
-	let ampm = $state({ value: 'PM', label: 'PM' }); // State for AM/PM
+	let ampm = $state('PM'); // State for AM/PM
 	let timezone = $state({});
 
 	const client = new TriplitClient({ schema });
@@ -35,8 +36,8 @@
 		const date = dateValue?.toDate();
 
 		// Convert the hour to 24-hour format based on AM/PM
-		const hours = (parseInt(startHour) % 12) + (ampm.value === 'PM' ? 12 : 0);
-
+		const hours = (parseInt(startHour) % 12) + (ampm === 'PM' ? 12 : 0);
+		console.log(hours);
 		// Set hours and minutes based on user input
 		date.setHours(hours, parseInt(startMinute), 0, 0);
 
@@ -86,7 +87,7 @@
 				<div class="font-mono"><DoubleDigitsPicker maxValue={12} bind:value={startHour} placeholder={"HH"}/></div>
 				<div class="font-mono"><DoubleDigitsPicker bind:value={startMinute} placeholder="mm"/></div>
 
-				<!-- <div class="w-18"><AmPmPicker bind:selected={ampm} /></div> -->
+				<div class="w-18"><AmPmPicker onValueChange={(newValue:any) => (ampm = newValue)} /></div>
 			</div>
 			<TimezonePicker  onValueChange={(newValue:any) => (timezone = newValue)}/>
 

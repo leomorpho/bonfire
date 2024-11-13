@@ -51,6 +51,7 @@
 
 	let triggerRef = $state<HTMLButtonElement>(null!);
 	value = detectUserTimezone();
+	onValueChange(value)
 
 	const selectedValue = $derived(
 		timezoneOptions.find((f: any) => f.value == value.value)?.label ?? 'Select a time zone...'
