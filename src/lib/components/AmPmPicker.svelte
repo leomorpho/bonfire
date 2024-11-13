@@ -8,7 +8,7 @@
 		{ value: 'PM', label: 'PM' }
 	];
 
-	let selected = { value: 'PM', label: 'PM' }
+	export let selected = { value: 'PM', label: 'PM' }
 </script>
 
 <!-- AM/PM Selector Dropdown -->
