@@ -56,9 +56,9 @@
 		timezoneOptions.find((f: any) => f.value == value.value)?.label ?? 'Select a time zone...'
 	);
 
-	$effect(() => {
-		console.log(value);
-	});
+	// $effect(() => {
+	// 	console.log(value);
+	// });
 
 	// We want to refocus the trigger button when the user selects
 	// an item from the list so users can continue navigating the

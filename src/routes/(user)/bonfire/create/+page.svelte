@@ -1,20 +1,13 @@
 <script lang="ts">
 	import { Input } from '$lib/components/ui/input/index.js';
-	import CalendarIcon from 'svelte-radix/Calendar.svelte';
-	import { DateFormatter, type DateValue, getLocalTimeZone } from '@internationalized/date';
-	import { cn } from '$lib/utils.js';
+	import { DateFormatter, type DateValue } from '@internationalized/date';
 	import { Button } from '$lib/components/ui/button/index.js';
-	import { Calendar } from '$lib/components/ui/calendar/index.js';
-	import * as Popover from '$lib/components/ui/popover/index.js';
-	import AmPmPicker from '$lib/components/AmPmPicker.svelte';
-	// import TimezonePicker from '$lib/components/TimezonePicker.svelte';
 	import { Textarea } from '$lib/components/ui/textarea/index.js';
 	import { Plus, Clock } from 'lucide-svelte';
 	import DoubleDigitsPicker from '$lib/components/DoubleDigitsPicker.svelte';
 	import { TriplitClient } from '@triplit/client';
 	import { schema } from '../../../../../triplit/schema';
 	import TimezonePicker from '$lib/components/TimezonePicker.svelte';
-	import { buttonVariants } from '$lib/components/ui/button/index.js';
 	import Datepicker from '$lib/components/Datepicker.svelte';
 
 	const df = new DateFormatter('en-US', {
@@ -27,7 +20,7 @@
 	let details = $state(''); // State for event details
 	let startHour = $state(''); // State for hour
 	let startMinute = $state(''); // State for minute
-	let ampm = { value: 'PM', label: 'PM' }; // State for AM/PM
+	let ampm = $state({ value: 'PM', label: 'PM' }); // State for AM/PM
 	let timezone = $state({});
 
 	const client = new TriplitClient({ schema });
@@ -90,8 +83,8 @@
 			<div class="flex flex-row items-center justify-center space-x-2">
 				<Clock class="ml-1 mr-1 h-4 w-4" />
 
-				<div class="font-mono"><DoubleDigitsPicker maxValue={12} bind:value={startHour} /></div>
-				<div class="font-mono"><DoubleDigitsPicker bind:value={startMinute} /></div>
+				<div class="font-mono"><DoubleDigitsPicker maxValue={12} bind:value={startHour} placeholder={"HH"}/></div>
+				<div class="font-mono"><DoubleDigitsPicker bind:value={startMinute} placeholder="mm"/></div>
 
 				<!-- <div class="w-18"><AmPmPicker bind:selected={ampm} /></div> -->
 			</div>
