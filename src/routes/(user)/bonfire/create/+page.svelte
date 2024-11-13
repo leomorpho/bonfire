@@ -48,42 +48,65 @@
 		// Convert DateValue to a JS Date object for the event date
 		const date = dateValue?.toDate();
 
-		// Convert the hour to 24-hour format based on AM/PM
-		const hours = (parseInt(startHour) % 12) + (ampm === 'PM' ? 12 : 0);
-		console.log(hours);
-		// Set hours and minutes based on user input
-		date.setHours(hours, parseInt(startMinute), 0, 0);
+		// Default startMinute to "00" if not provided
+		const startMinutes = startMinute ? parseInt(startMinute) : 0;
 
-		// Convert the event date-time to the specified timezone
-		const eventDateTime = new Date(date.toLocaleString('en-US', { timeZone: timezone.value }));
+		// Convert the hour to 24-hour format based on AM/PM for start time
+		const startHours = (parseInt(startHour) % 12) + (ampmStart === 'PM' ? 12 : 0);
+
+		// Set hours and minutes based on user input for start time
+		date.setHours(startHours, startMinutes, 0, 0);
+
+		// Convert the event date-time to the specified timezone for start time
+		const eventStartDatetime = new Date(date.toLocaleString('en-US', { timeZone: timezone.value }));
+
+		let eventEndDatetime = null;
+
+		if (setEndTime) {
+			// If end time is set, calculate end datetime
+			const endHours = (parseInt(endHour) % 12) + (ampmEnd === 'PM' ? 12 : 0);
+			const endMinutes = endMinute ? parseInt(endMinute) : 0;
+
+			// Create a new Date object for end time, based on the same date
+			const endDate = new Date(date);
+			endDate.setHours(endHours, endMinutes, 0, 0);
+
+			// Convert the event date-time to the specified timezone for end time
+			eventEndDatetime = new Date(endDate.toLocaleString('en-US', { timeZone: timezone.value }));
+		}
 
 		console.log({
 			title: eventName,
 			description: details || null,
 			location: location || null,
-			start_time: eventDateTime,
-			end_time: null, // Set `end_time` as `null` if not provided
+			start_time: eventStartDatetime,
+			end_time: eventEndDatetime,
 			user_id: 'userId', // Use the authenticated user's ID
-			timezone: timezone,
-			ampm: ampmStart
+			timezone: timezone
 		});
+
+		// Save the event (uncomment in production)
 		// await client.insert('events', {
-		// 	title: eventName,
-		// 	description: details || null,
-		// 	location: location || null,
-		// 	start_time: eventDateTime,
-		// 	end_time: null, // Set `end_time` as `null` if not provided
-		// 	user_id: "userId", // Use the authenticated user's ID
+		//     title: eventName,
+		//     description: details || null,
+		//     location: location || null,
+		//     start_time: eventStartDatetime,
+		//     end_time: eventEndDatetime,
+		//     user_id: "userId", // Use the authenticated user's ID
 		// });
 
-		// Clear form fields
+		// Clear form fields (optional)
 		// eventName = '';
 		// location = '';
 		// details = '';
 		// dateValue = undefined;
 		// startHour = '';
 		// startMinute = '';
-		// ampm = 'AM';
+		// endHour = '';
+		// endMinute = '';
+		// ampmStart = 'AM';
+		// ampmEnd = 'AM';
+		// setEndTime = false;
 	};
 </script>
 
