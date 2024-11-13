@@ -1,6 +1,7 @@
 import { eq } from 'drizzle-orm';
 import { db } from './db';
 import { userTable } from './schema';
+import { triplitClient } from '$lib/triplit';
 
 export const getUserByEmail = async (email: string) => {
 	const user = await db.select().from(userTable).where(eq(userTable.email, email));
@@ -40,9 +41,9 @@ export const createNewUser = async (user: NewUser) => {
 	const result = await db.insert(userTable).values(user).onConflictDoNothing().returning();
 	if (result.length === 0) {
 		return null;
-	} else {
-		return result[0];
 	}
+	await triplitClient.insert('user', { id: result[0].id });
+	return result[0];
 };
 
 export const setEncryptionBackupStatus = async (id: string, status: boolean) => {

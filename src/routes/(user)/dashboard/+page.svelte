@@ -3,36 +3,46 @@
 	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Card from '$lib/components/ui/card/index.js';
+	import { triplitClient, waitForUserId } from '$lib/triplit';
+	import { onMount } from 'svelte';
 
-	const parties = [
-		{
-			name: 'Boardgames and Beers',
-			time: 'July 18, 2024 at 6:30PM',
-			host: 'Philip'
-		},
-		{
-			name: 'Beer night with the bros',
-			time: 'July 30, 2024 at 8:30PM',
-			host: 'Jo'
-		}
-	];
+	let events: any = null;
+	onMount(() => {
+		const initEvents = async () => {
+			const userId: string = (await waitForUserId()) as string;
+
+			let query = triplitClient.query('events').where(['user_id', '=', userId]).build();
+			events = await triplitClient.fetch(query);
+			console.log(events);
+		};
+
+		initEvents().catch((error) => {
+			console.error('Failed to get events:', error);
+		});
+	});
 </script>
 
 <div class="mx-4 mb-48 flex flex-col items-center justify-center sm:mb-20">
 	<section class="mt-8 w-full sm:w-[450px]">
 		<h2 class="mb-4 text-lg font-semibold">Upcoming Bonfires</h2>
-		{#each parties as party}
-			<Card.Root class="my-4 w-full bg-slate-100">
-				<Card.Header>
-					<Card.Title class="font-mono">{party.name}</Card.Title>
-					<Card.Description>{party.time}</Card.Description>
-					<Card.Description>Hosted by {party.host}</Card.Description>
-				</Card.Header>
-				<Card.Content></Card.Content>
-			</Card.Root>
-		{/each}
+		{#if !events}
+			<p>Loading...</p>
+		{:else}
+			<div>
+				{#each events as event}
+					<Card.Root class="my-4 w-full bg-slate-100">
+						<Card.Header>
+							<Card.Title class="font-mono">{event.title}</Card.Title>
+							<Card.Description>{event.start_time}</Card.Description>
+							<Card.Description>Hosted by {event.user_id}</Card.Description>
+						</Card.Header>
+						<Card.Content></Card.Content>
+					</Card.Root>
+				{/each}
+			</div>
+		{/if}
 	</section>
-	<section class="mt-8 w-full sm:w-[450px]">
+	<!-- <section class="mt-8 w-full sm:w-[450px]">
 		<Collapsible.Root class="w-full space-y-2">
 			<div class="flex items-center justify-between space-x-4 px-4">
 				<h4 class="text-sm font-semibold">3 past bonfires</h4>
@@ -49,7 +59,7 @@
 				<div class="rounded-md border px-4 py-3 font-mono text-sm">Aquarium Party</div>
 			</Collapsible.Content>
 		</Collapsible.Root>
-	</section>
+	</section> -->
 </div>
 <div class="fixed bottom-6 left-1/2 flex -translate-x-1/2 transform flex-col items-center">
 	<a

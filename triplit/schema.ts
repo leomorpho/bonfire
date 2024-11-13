@@ -3,8 +3,7 @@ import { Schema as S, type ClientSchema } from '@triplit/client';
 export const schema = {
 	user: {
 		schema: S.Schema({
-			id: S.String(), // Drizzle-generated ID, linked here as a String
-			user_id: S.String() // User ID to link back to Drizzle's user table
+			id: S.String(), // Should be same as drizzle user ID
 		})
 	},
 	events: {

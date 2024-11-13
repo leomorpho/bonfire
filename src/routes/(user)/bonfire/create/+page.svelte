@@ -10,6 +10,7 @@
 	import TimezonePicker from '$lib/components/TimezonePicker.svelte';
 	import Datepicker from '$lib/components/Datepicker.svelte';
 	import AmPmPicker from '$lib/components/AmPmPicker.svelte';
+	import { triplitClient, waitForUserId } from '$lib/triplit';
 
 	const df = new DateFormatter('en-US', {
 		dateStyle: 'long'
@@ -36,8 +37,6 @@
 			submitDisabled = false;
 		}
 	});
-
-	const client = new TriplitClient({ schema });
 
 	const handleSubmit = async (e: Event) => {
 		e.preventDefault();
@@ -74,26 +73,26 @@
 			// Convert the event date-time to the specified timezone for end time
 			eventEndDatetime = new Date(endDate.toLocaleString('en-US', { timeZone: timezone.value }));
 		}
-
+		const userId: string = await waitForUserId() as string;
 		console.log({
 			title: eventName,
 			description: details || null,
 			location: location || null,
 			start_time: eventStartDatetime,
 			end_time: eventEndDatetime,
-			user_id: 'userId', // Use the authenticated user's ID
+			user_id: userId, // Use the authenticated user's ID
 			timezone: timezone
 		});
 
 		// Save the event (uncomment in production)
-		// await client.insert('events', {
-		//     title: eventName,
-		//     description: details || null,
-		//     location: location || null,
-		//     start_time: eventStartDatetime,
-		//     end_time: eventEndDatetime,
-		//     user_id: "userId", // Use the authenticated user's ID
-		// });
+		await triplitClient.insert('events', {
+			title: eventName,
+			description: details || null,
+			location: location || null,
+			start_time: eventStartDatetime,
+			end_time: eventEndDatetime,
+			user_id: userId // Use the authenticated user's ID
+		});
 
 		// Clear form fields (optional)
 		// eventName = '';
