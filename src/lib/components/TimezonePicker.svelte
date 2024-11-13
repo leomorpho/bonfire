@@ -11,8 +11,8 @@
 	import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
 
 	// Timezone data and selection
-	let { value = $bindable() } = $props();
-
+	let { onValueChange = $bindable(() => {}) } = $props();
+	let value = $state({})
 	let timezoneOptions: any = $state([]);
 
 	// Helper function to get the UTC offset for a timezone in hours
@@ -100,6 +100,7 @@
 							value={timezone.value}
 							onSelect={() => {
 								value = timezone;
+								onValueChange(timezone)
 								closeAndFocusTrigger();
 							}}
 						>

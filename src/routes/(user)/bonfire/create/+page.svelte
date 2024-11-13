@@ -88,7 +88,7 @@
 
 				<!-- <div class="w-18"><AmPmPicker bind:selected={ampm} /></div> -->
 			</div>
-			<TimezonePicker bind:value={timezone} />
+			<TimezonePicker  onValueChange={(newValue:any) => (timezone = newValue)}/>
 
 			<div class="flex flex-row items-center">
 				<Input type="text" placeholder="Location" class="w-full" bind:value={location} />
