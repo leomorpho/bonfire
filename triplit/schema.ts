@@ -4,6 +4,7 @@ export const schema = {
 	user: {
 		schema: S.Schema({
 			id: S.String(), // Should be same as drizzle user ID
+			username: S.String(),
 		})
 	},
 	events: {

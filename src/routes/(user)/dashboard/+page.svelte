@@ -3,16 +3,16 @@
 	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Card from '$lib/components/ui/card/index.js';
-	import { triplitClient, waitForUserId } from '$lib/triplit';
+	import { feTriplitClient, waitForUserId } from '$lib/triplit';
 	import { onMount } from 'svelte';
 
 	let events: any = null;
 	onMount(() => {
 		const initEvents = async () => {
 			const userId: string = (await waitForUserId()) as string;
-
-			let query = triplitClient.query('events').where(['user_id', '=', userId]).build();
-			events = await triplitClient.fetch(query);
+			console.log(userId)
+			let query = feTriplitClient.query('events').where(['user_id', '=', userId]).build();
+			events = await feTriplitClient.fetch(query);
 			console.log(events);
 		};
 
