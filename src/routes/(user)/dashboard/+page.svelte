@@ -35,19 +35,23 @@
 		{:else}
 			<div>
 				{#each events as event}
-					<Card.Root class="my-4 w-full bg-slate-100">
-						<Card.Header>
-							<Card.Title class="font-mono">{event.title}</Card.Title>
-							<Card.Description>{event.start_time}</Card.Description>
-							<Card.Description>Hosted by {event.user_id}</Card.Description>
-						</Card.Header>
-						<Card.Content></Card.Content>
-						{#if event.user_id == (userId as string)}
-							<a href={`/bonfire/${event.id}/update`}>
-								<Cog />
-							</a>
-						{/if}
-					</Card.Root>
+					<a href={`/bonfire/${event.id}`}>
+						<Card.Root class="my-4 w-full bg-slate-100">
+							<Card.Header>
+								<Card.Title class="font-mono">{event.title}</Card.Title>
+								<Card.Description>{event.start_time}</Card.Description>
+								<Card.Description>Hosted by {event.user_id}</Card.Description>
+							</Card.Header>
+							<Card.Content></Card.Content>
+							{#if event.user_id == (userId as string)}
+								<a href={`/bonfire/${event.id}/update`}>
+									<Button variant="outline" class="rounded-full m-2">
+										<Cog class="h-5 w-5" />
+									</Button>
+								</a>
+							{/if}
+						</Card.Root>
+					</a>
 				{/each}
 			</div>
 		{/if}

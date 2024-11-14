@@ -30,7 +30,7 @@ export const schema = {
 				delete: { filter: [true] }
 			},
 			user: {
-				// Disallow all CRUD operations for regular users
+				read: { filter: [['id', '=', '$relation.user_id']] } // Users can only read user data tied to related events
 			}
 		}
 	},
@@ -53,6 +53,7 @@ export const schema = {
 				delete: { filter: [true] }
 			},
 			user: {
+				read: { filter: [true] },
 				insert: { filter: [true] },
 				update: { filter: [['user_id', '=', '$role.userId']] },
 				delete: { filter: [['user_id', '=', '$role.userId']] }
@@ -81,6 +82,7 @@ export const schema = {
 				delete: { filter: [true] }
 			},
 			user: {
+				read: { filter: [true] },
 				insert: {
 					// Users can RSVP or add themselves as attendees
 					filter: [['user_id', '=', '$role.userId']]
@@ -120,6 +122,7 @@ export const schema = {
 				delete: { filter: [true] }
 			},
 			user: {
+				read: { filter: [true] },
 				insert: { filter: [true] },
 				update: { filter: [['user_id', '=', '$role.userId']] },
 				delete: { filter: [['user_id', '=', '$role.userId']] }
@@ -144,6 +147,7 @@ export const schema = {
 				delete: { filter: [true] }
 			},
 			user: {
+				read: { filter: [true] },
 				insert: { filter: [true] },
 				update: { filter: [['uploader_id', '=', '$role.userId']] },
 				delete: { filter: [['uploader_id', '=', '$role.userId']] }
