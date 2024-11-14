@@ -2,7 +2,6 @@
 	import EventForm from '$lib/components/EventForm.svelte';
 	import { page } from '$app/stores';
 	import { useQuery } from '@triplit/svelte';
-	import { feTriplitClient } from '$lib/triplit';
 	import { TriplitClient } from '@triplit/client';
 	import { schema } from '../../../../../../triplit/schema';
 	import { PUBLIC_TRIPLIT_TOKEN, PUBLIC_TRIPLIT_URL } from '$env/static/public';
@@ -17,8 +16,7 @@
 			token: PUBLIC_TRIPLIT_TOKEN
 		});
 
-		let id = '3bClu2NHR1H9g6gsvdVgY';
-		data = useQuery(client, client.query('events').where(['id', '=', id]));
+		data = useQuery(client, client.query('events').where(['id', '=', $page.params.id]));
 	});
 </script>
 

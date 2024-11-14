@@ -6,15 +6,16 @@
 	import { feTriplitClient, waitForUserId } from '$lib/triplit';
 	import { onMount } from 'svelte';
 	import type { TriplitClient } from '@triplit/client';
+	import { Cog } from 'lucide-svelte';
 
 	let events: any = null;
 	let client = feTriplitClient as TriplitClient;
 
-	
+	let userId = '';
 	onMount(() => {
 		const initEvents = async () => {
-			const userId: string = (await waitForUserId()) as string;
-			console.log(userId)
+			userId = (await waitForUserId()) as string;
+			console.log(userId);
 			let query = client.query('events').where(['user_id', '=', userId]).build();
 			events = await client.fetch(query);
 			console.log(events);
@@ -41,6 +42,11 @@
 							<Card.Description>Hosted by {event.user_id}</Card.Description>
 						</Card.Header>
 						<Card.Content></Card.Content>
+						{#if event.user_id == (userId as string)}
+							<a href={`/bonfire/${event.id}/update`}>
+								<Cog />
+							</a>
+						{/if}
 					</Card.Root>
 				{/each}
 			</div>
