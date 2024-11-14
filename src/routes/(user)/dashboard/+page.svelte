@@ -5,14 +5,18 @@
 	import * as Card from '$lib/components/ui/card/index.js';
 	import { feTriplitClient, waitForUserId } from '$lib/triplit';
 	import { onMount } from 'svelte';
+	import type { TriplitClient } from '@triplit/client';
 
 	let events: any = null;
+	let client = feTriplitClient as TriplitClient;
+
+	
 	onMount(() => {
 		const initEvents = async () => {
 			const userId: string = (await waitForUserId()) as string;
 			console.log(userId)
-			let query = feTriplitClient.query('events').where(['user_id', '=', userId]).build();
-			events = await feTriplitClient.fetch(query);
+			let query = client.query('events').where(['user_id', '=', userId]).build();
+			events = await client.fetch(query);
 			console.log(events);
 		};
 

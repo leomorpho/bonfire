@@ -42,7 +42,7 @@ export const createNewUser = async (user: NewUser) => {
 	if (result.length === 0) {
 		return null;
 	}
-	await serverTriplitClient.insert('user', { id: result[0].id });
+	await serverTriplitClient.insert('user', { id: result[0].id, username: "" });
 	return result[0];
 };
 
