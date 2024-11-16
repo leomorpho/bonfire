@@ -3,25 +3,20 @@
 	import { page } from '$app/stores';
 	import { useQuery } from '@triplit/svelte';
 	import { TriplitClient } from '@triplit/client';
-	import { schema } from '../../../../../../triplit/schema';
-	import { PUBLIC_TRIPLIT_TOKEN, PUBLIC_TRIPLIT_URL } from '$env/static/public';
 	import { onMount } from 'svelte';
+	import { feTriplitClient } from '$lib/triplit';
+	import Loader from '$lib/components/Loader.svelte';
 
 	let data;
-	onMount(() => {
-		const client = new TriplitClient({
-			storage: 'indexeddb',
-			schema,
-			serverUrl: PUBLIC_TRIPLIT_URL,
-			token: PUBLIC_TRIPLIT_TOKEN
-		});
+	let client = feTriplitClient as TriplitClient;
 
+	onMount(() => {
 		data = useQuery(client, client.query('events').where(['id', '=', $page.params.id]));
 	});
 </script>
 
 {#if !data || data.fetching}
-	<p>Loading...</p>
+	<Loader />
 {:else if data.error}
 	<p>Error: {data.error.message}</p>
 {:else if data.results}

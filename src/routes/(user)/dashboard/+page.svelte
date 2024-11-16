@@ -6,7 +6,7 @@
 	import { feTriplitClient, waitForUserId } from '$lib/triplit';
 	import { onMount } from 'svelte';
 	import type { TriplitClient } from '@triplit/client';
-	import { Cog } from 'lucide-svelte';
+	import { Cog, Loader } from 'lucide-svelte';
 
 	let events: any = null;
 	let client = feTriplitClient as TriplitClient;
@@ -31,7 +31,7 @@
 	<section class="mt-8 w-full sm:w-[450px]">
 		<h2 class="mb-4 text-lg font-semibold">Upcoming Bonfires</h2>
 		{#if !events}
-			<p>Loading...</p>
+			<Loader />
 		{:else}
 			<div>
 				{#each events as event}
@@ -45,7 +45,7 @@
 							<Card.Content></Card.Content>
 							{#if event.user_id == (userId as string)}
 								<a href={`/bonfire/${event.id}/update`}>
-									<Button variant="outline" class="rounded-full m-2">
+									<Button variant="outline" class="m-2 rounded-full">
 										<Cog class="h-5 w-5" />
 									</Button>
 								</a>
