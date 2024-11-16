@@ -3,7 +3,7 @@
 	import { DateFormatter, CalendarDate, type DateValue } from '@internationalized/date';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Textarea } from '$lib/components/ui/textarea/index.js';
-	import { Plus, Minus, Clock, ArrowDownToLine } from 'lucide-svelte';
+	import { Plus, Minus, Clock, Clock8, ArrowDownToLine } from 'lucide-svelte';
 	import DoubleDigitsPicker from '$lib/components/DoubleDigitsPicker.svelte';
 	import TimezonePicker from '$lib/components/TimezonePicker.svelte';
 	import Datepicker from '$lib/components/Datepicker.svelte';
@@ -209,7 +209,7 @@
 				<div class="flex flex-row items-center justify-between space-x-4">
 					<!-- End Time Inputs -->
 					<div class="grid grid-cols-4 items-center gap-2">
-						<Clock class="ml-4 mr-1 h-4 w-4 text-slate-500" />
+						<Clock8 class="ml-4 mr-1 h-4 w-4 text-slate-500" />
 						<div class="font-mono">
 							<DoubleDigitsPicker maxValue={12} bind:value={endHour} placeholder="HH" />
 						</div>

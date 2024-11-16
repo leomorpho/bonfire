@@ -8,7 +8,7 @@
 	import { format } from 'date-fns';
 	import * as Avatar from '$lib/components/ui/avatar/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
-	import { Cog } from 'lucide-svelte';
+	import { Cog, Share, ImagePlus } from 'lucide-svelte';
 
 	let client = feTriplitClient as TriplitClient;
 
@@ -53,7 +53,7 @@
 	<div class="mx-4 flex flex-col items-center justify-center">
 		<section class="mt-8 w-full sm:w-[450px]">
 			{#if event.results[0].user_id == (userId as string)}
-				<a href={`/bonfire/${event.id}/update`}>
+				<a href={`/bonfire/${$page.params.id}/update`}>
 					<Button variant="outline" class="m-2 rounded-full">
 						<Cog class="h-5 w-5" />
 					</Button>
@@ -78,6 +78,25 @@
 						{/each}
 					</div>
 				{/if}
+			</div>
+			<Button variant="outline" class="mt-4 flex w-full items-center justify-center">RSVP</Button>
+
+			<Button class="mt-4 flex w-full items-center justify-center">
+				<Share class="h-5 w-5" />
+				Share Bonfire</Button
+			>
+			<div class="my-10">
+				{event.results[0].description}
+			</div>
+			<hr class="my-10" />
+			<div>
+				<div class="my-10">
+					<div>Images</div>
+					<Button variant="outline" class="flex w-full items-center justify-center"
+						><ImagePlus />Add to gallery</Button
+					>
+				</div>
+				<div>Comments</div>
 			</div>
 		</section>
 	</div>
