@@ -7,6 +7,7 @@
 	import { onMount } from 'svelte';
 	import type { TriplitClient } from '@triplit/client';
 	import { Cog, Loader } from 'lucide-svelte';
+	import { formatHumanReadable } from '$lib/utils';
 
 	let events: any = null;
 	let client = feTriplitClient as TriplitClient;
@@ -38,8 +39,8 @@
 					<a href={`/bonfire/${event.id}`}>
 						<Card.Root class="my-4 w-full bg-slate-100">
 							<Card.Header>
-								<Card.Title class="font-mono">{event.title}</Card.Title>
-								<Card.Description>{event.start_time}</Card.Description>
+								<Card.Title class="text-lg">{event.title}</Card.Title>
+								<Card.Description>{formatHumanReadable(event.start_time)}</Card.Description>
 								<Card.Description>Hosted by {event.user_id}</Card.Description>
 							</Card.Header>
 							<Card.Content></Card.Content>

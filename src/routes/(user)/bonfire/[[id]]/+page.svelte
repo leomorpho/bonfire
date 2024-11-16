@@ -5,10 +5,10 @@
 	import { onMount } from 'svelte';
 	import { feTriplitClient, waitForUserId } from '$lib/triplit';
 	import Loader from '$lib/components/Loader.svelte';
-	import { format } from 'date-fns';
 	import * as Avatar from '$lib/components/ui/avatar/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Cog, Share, ImagePlus } from 'lucide-svelte';
+	import { formatHumanReadable } from '$lib/utils';
 
 	let client = feTriplitClient as TriplitClient;
 
@@ -33,9 +33,7 @@
 		});
 	});
 
-	function formatHumanReadable(date: Date): string {
-		return format(date, "MMMM d, yyyy 'at' h:mma"); // Convert "AM/PM" to "am/pm"
-	}
+	
 
 	let attendeesFake = [
 		{ url: 'https://github.com/shadcn.png', name: 'CN' },
