@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { feTriplitClient, userIdStore } from '$lib/triplit';
 	import type { TriplitClient } from '@triplit/client';
@@ -15,6 +16,10 @@
 
 			if (result.length == 0) {
 				await client.insert('user', { id: $page.data.user.id, username: '' });
+			}
+			console.log(result);
+			if (result.username.length == 0) {
+				goto('profile/username');
 			}
 		};
 

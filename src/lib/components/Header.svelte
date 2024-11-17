@@ -8,6 +8,7 @@
 
 	const authLinks: Array<Link> = [
 		{ name: 'Dashboard', href: '/dashboard' },
+		{ name: 'Profile', href: '/profile' },
 		{ name: 'Settings', href: '/settings' },
 	];
 
