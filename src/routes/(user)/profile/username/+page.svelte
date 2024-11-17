@@ -4,6 +4,7 @@
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { feTriplitClient, waitForUserId } from '$lib/triplit';
 	import type { TriplitClient } from '@triplit/client';
+	import { onMount } from 'svelte';
 
 	let username = $state('');
 	let submitEnabled = $state(false);
@@ -17,6 +18,24 @@
 	});
 	let client = feTriplitClient as TriplitClient;
 
+	let userId = $state('');
+
+	onMount(() => {
+		const initEvents = async () => {
+			userId = (await waitForUserId()) as string;
+			console.log(userId);
+			const query = client.query('user').where('id', '=', userId).build();
+			let result = await client.fetch(query, { policy: 'local-and-remote' });
+			if (result.length == 1) {
+				username = result[0].username;
+			}
+		};
+
+		initEvents().catch((error) => {
+			console.error('Failed to get events:', error);
+		});
+	});
+
 	const handleSubmit = async (e: Event) => {
 		const userId = (await waitForUserId()) as string;
 
@@ -24,7 +43,7 @@
 			entity.username = username;
 		});
 
-		goto("/dashboard")
+		goto('/dashboard');
 	};
 </script>
 

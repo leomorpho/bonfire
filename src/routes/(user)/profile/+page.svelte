@@ -11,7 +11,7 @@
 		<h2 class="my-6 text-2xl font-semibold">Profile</h2>
 
 		<div class="flex flex-col justify-center space-y-3">
-			<Button href="username">Update username</Button>
+			<Button href="profile/username">Update username</Button>
 		</div>
 	</section>
 </div>

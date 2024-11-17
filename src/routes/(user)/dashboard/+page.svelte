@@ -19,8 +19,13 @@
 			userId = (await waitForUserId()) as string;
 			console.log(userId);
 			let query = client.query('events').where(['user_id', '=', userId]).include('user').build();
-			events = await client.fetch(query, { policy: 'local-and-remote' });
-			console.log(events);
+			// events = await client.fetch(query, { policy: 'local-and-remote' });
+
+			client.subscribe(query, (e) => {
+				console.log(e);
+				events = e;
+			});
+			// console.log(events);
 		};
 
 		initEvents().catch((error) => {
@@ -42,7 +47,7 @@
 							<Card.Header>
 								<Card.Title class="text-lg">{event.title}</Card.Title>
 								<Card.Description>{formatHumanReadable(event.start_time)}</Card.Description>
-								<Card.Description>Hosted by {event.user_id}</Card.Description>
+								<Card.Description>Hosted by {event.user.username}</Card.Description>
 							</Card.Header>
 							<Card.Content></Card.Content>
 							{#if event.user_id == (userId as string)}

@@ -9,6 +9,8 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Cog, Share, ImagePlus } from 'lucide-svelte';
 	import { formatHumanReadable } from '$lib/utils';
+	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
+	import { Smile, Meh, Frown } from 'lucide-svelte';
 
 	let client = feTriplitClient as TriplitClient;
 
@@ -33,8 +35,6 @@
 		});
 	});
 
-	
-
 	let attendeesFake = [
 		{ url: 'https://github.com/shadcn.png', name: 'CN' },
 		{ url: 'https://github.com/shadcn.png', name: 'AP' },
@@ -51,13 +51,13 @@
 	<div class="mx-4 flex flex-col items-center justify-center">
 		<section class="mt-8 w-full sm:w-[450px]">
 			{#if event.results[0].user_id == (userId as string)}
-				<a class="w-full flex justify-center" href={`/bonfire/${$page.params.id}/update`}>
+				<a class="flex w-full justify-center" href={`/bonfire/${$page.params.id}/update`}>
 					<Button variant="outline" class="m-2 rounded-full">
 						<Cog class="h-5 w-5" />
 					</Button>
 				</a>
 			{/if}
-			<h1 class="text-xl my-5">{event.results[0].title}</h1>
+			<h1 class="my-5 text-xl">{event.results[0].title}</h1>
 			<div class="font-medium">{formatHumanReadable(event.results[0].start_time)}</div>
 			<div class="font-light">{event.results[0].location}</div>
 			<div>
@@ -77,7 +77,20 @@
 					</div>
 				{/if}
 			</div>
-			<Button variant="outline" class="mt-4 flex w-full items-center justify-center">RSVP</Button>
+			<DropdownMenu.Root>
+				<DropdownMenu.Trigger class="w-full"
+					><Button variant="outline" class="mt-4 flex w-full items-center justify-center"
+						>RSVP</Button
+					></DropdownMenu.Trigger
+				>
+				<DropdownMenu.Content class="w-full">
+					<DropdownMenu.Group>
+						<DropdownMenu.Item class="cursor-pointer"><Smile />Going</DropdownMenu.Item>
+						<DropdownMenu.Item class="cursor-pointer"><Meh />Maybe</DropdownMenu.Item>
+						<DropdownMenu.Item class="cursor-pointer"><Frown />Not going</DropdownMenu.Item>
+					</DropdownMenu.Group>
+				</DropdownMenu.Content>
+			</DropdownMenu.Root>
 
 			<Button class="mt-4 flex w-full items-center justify-center">
 				<Share class="h-5 w-5" />
