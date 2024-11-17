@@ -19,7 +19,7 @@
 			userId = (await waitForUserId()) as string;
 			console.log(userId);
 			let query = client.query('events').where(['user_id', '=', userId]).include('user').build();
-			events = await client.fetch(query);
+			events = await client.fetch(query, { policy: 'local-and-remote' });
 			console.log(events);
 		};
 

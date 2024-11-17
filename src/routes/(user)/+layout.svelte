@@ -12,13 +12,13 @@
 	onMount(() => {
 		const init = async () => {
 			const query = client.query('user').where('id', '=', $page.data.user.id).build();
-			const result = await client.fetch(query, { policy: 'local-and-remote' });
+			let result = await client.fetch(query, { policy: 'local-and-remote' });
 
 			if (result.length == 0) {
 				await client.insert('user', { id: $page.data.user.id, username: '' });
+				result = await client.fetch(query, { policy: 'local-and-remote' });
 			}
-			console.log(result);
-			if (result.username.length == 0) {
+			if (result[0].username.length == 0) {
 				goto('profile/username');
 			}
 		};
