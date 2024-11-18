@@ -43,7 +43,10 @@ export const schema = {
 			end_time: S.Date({ nullable: true }),
 			location: S.String({ nullable: true }),
 			user_id: S.String(),
-			user: S.RelationById('user', '$user_id')
+			user: S.RelationById('user', '$user_id'),
+			attendees: S.RelationMany('attendees', {
+				where: [['event_id', '=', '$id']]
+			})
 		}),
 		permissions: {
 			admin: {
@@ -68,9 +71,8 @@ export const schema = {
 			user_id: S.String(), // ID of the attendee
 			user: S.RelationById('user', '$user_id'), // Link to the user
 			response: S.String({ default: 'undecided' }), // RSVP status: attending, not attending, undecided
-			invitation_status: S.String({ default: 'invited' }), // Invitation status: invited, confirmed, declined
-			guest_count: S.Number({ default: 0 }), // Number of additional guests
-			special_requests: S.String({ nullable: true }), // Any special requests (e.g., dietary)
+			// guest_count: S.Number({ default: 0 }), // Number of additional guests
+			// special_requests: S.String({ nullable: true }), // Any special requests (e.g., dietary)
 			updated_at: S.Date({ default: S.Default.now() }) // Last updated timestamp
 		}),
 		permissions: {

@@ -9,26 +9,21 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Cog, Share, ImagePlus } from 'lucide-svelte';
 	import { formatHumanReadable } from '$lib/utils';
-	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
-	import { Smile, Meh, Frown } from 'lucide-svelte';
+	import Rsvp from '$lib/components/Rsvp.svelte';
 
 	let client = feTriplitClient as TriplitClient;
 
-	let userId = '';
+	let userId = $state('');
 
-	let event;
-	let attendees;
+	let event = $state();
+
+	let rsvpStatus = $state('');
 
 	onMount(() => {
 		const initAsync = async () => {
 			userId = (await waitForUserId()) as string;
 		};
-
 		event = useQuery(client, client.query('events').where(['id', '=', $page.params.id]));
-		attendees = useQuery(
-			client,
-			client.query('attendees').where(['event_id', '=', $page.params.id])
-		);
 
 		initAsync().catch((error) => {
 			console.error('Failed to get async data:', error);
@@ -41,6 +36,25 @@
 		{ url: 'https://github.com/shadcn.png', name: 'JL' },
 		{ url: 'https://github.com/shadcn.png', name: 'CH' }
 	];
+
+	$effect(() => {
+		// Ensure event data and userId are available
+		if (event.results && event.results.length > 0 && userId) {
+			console.log('##$$$$');
+			// Find the current user's RSVP status in the attendees list
+			const attendees = event.results[0].attendees;
+			console.log(attendees);
+			if (attendees && attendees.length > 0) {
+				const currentUserAttendee = attendees.find((attendee) => attendee.user_id === userId);
+
+				// Set RSVP status based on the attendee record, or keep it as default
+				rsvpStatus = currentUserAttendee ? currentUserAttendee.response : 'undecided';
+				console.log(rsvpStatus);
+			} else {
+				console.log('No attendees yet.');
+			}
+		}
+	});
 </script>
 
 {#if !event || event.fetching}
@@ -61,36 +75,17 @@
 			<div class="font-medium">{formatHumanReadable(event.results[0].start_time)}</div>
 			<div class="font-light">{event.results[0].location}</div>
 			<div>
-				{#if !attendees || attendees.fetching}
-					<div>Loading attendees...</div>
-				{:else if attendees.error}
-					<p>Error: {attendees.error.message}</p>
-				{:else if attendees.results}
-					<div class="mt-5 flex -space-x-4">
-						<!-- {#each attendees.results as attendee} -->
-						{#each attendeesFake as attendee}
-							<Avatar.Root>
-								<Avatar.Image src={attendee.url} alt="@shadcn" />
-								<Avatar.Fallback>{attendee.name}</Avatar.Fallback>
-							</Avatar.Root>
-						{/each}
-					</div>
-				{/if}
+				<div class="mt-5 flex -space-x-4">
+					<!-- {#each attendees.results as attendee} -->
+					{#each attendeesFake as attendee}
+						<Avatar.Root>
+							<Avatar.Image src={attendee.url} alt="@shadcn" />
+							<Avatar.Fallback>{attendee.name}</Avatar.Fallback>
+						</Avatar.Root>
+					{/each}
+				</div>
 			</div>
-			<DropdownMenu.Root>
-				<DropdownMenu.Trigger class="w-full"
-					><Button variant="outline" class="mt-4 flex w-full items-center justify-center"
-						>RSVP</Button
-					></DropdownMenu.Trigger
-				>
-				<DropdownMenu.Content class="w-full">
-					<DropdownMenu.Group>
-						<DropdownMenu.Item class="cursor-pointer"><Smile />Going</DropdownMenu.Item>
-						<DropdownMenu.Item class="cursor-pointer"><Meh />Maybe</DropdownMenu.Item>
-						<DropdownMenu.Item class="cursor-pointer"><Frown />Not going</DropdownMenu.Item>
-					</DropdownMenu.Group>
-				</DropdownMenu.Content>
-			</DropdownMenu.Root>
+			<Rsvp value={rsvpStatus}/>
 
 			<Button class="mt-4 flex w-full items-center justify-center">
 				<Share class="h-5 w-5" />
