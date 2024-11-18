@@ -18,6 +18,7 @@
 	let futureEvents = $state({});
 	let pastEvents = $state({});
 	let userId = $state('');
+
 	onMount(() => {
 		const initEvents = async () => {
 			userId = (await waitForUserId()) as string;
@@ -31,7 +32,7 @@
 
 	$effect(() => {
 		if (userId) {
-			let query = client
+			let futureEventsQuery = client
 				.query('events')
 				.where(['start_time', '>=', new Date().toISOString()]) // Filter out past events
 				.subquery(
@@ -43,7 +44,21 @@
 				.order('start_time', 'ASC'); // Order by start time, closest to today
 
 			// events = await client.fetch(query, { policy: 'local-and-remote' });
-			futureEvents = useQuery(client, query);
+			futureEvents = useQuery(client, futureEventsQuery);
+
+			let pastEventsQuery = client
+				.query('events')
+				.where(['start_time', '<', new Date().toISOString()]) // Filter out past events
+				.subquery(
+					'attendees',
+					client.query('attendees').where(['user_id', '=', userId]).build(),
+					'many'
+				)
+				.include('user') // Include the related user
+				.order('start_time', 'ASC'); // Order by start time, closest to today
+
+			// events = await client.fetch(query, { policy: 'local-and-remote' });
+			pastEvents = useQuery(client, pastEventsQuery);
 		}
 	});
 </script>
