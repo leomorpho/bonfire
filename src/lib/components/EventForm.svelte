@@ -13,6 +13,7 @@
 	import type { TriplitClient } from '@triplit/client';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import Footer from './Footer.svelte';
+	import { DEFAULT } from '$lib/enums';
 
 	let { mode, event = null } = $props();
 
@@ -140,7 +141,7 @@
 
 		if (mode == 'create') {
 			// Save the event (uncomment in production)
-			await client.insert('events', {
+			const { output } = await client.insert('events', {
 				title: eventName,
 				description: details || null,
 				location: location || null,
@@ -148,6 +149,16 @@
 				end_time: eventEndDatetime,
 				user_id: userId // Use the authenticated user's ID
 			});
+
+			if (output) {
+				await client.insert('attendees', {
+					user_id: userId,
+					event_id: output.id as string,
+					status: DEFAULT // Default status
+				});
+			}else{
+				console.log("Failed to create event object")
+			}
 		} else {
 			await client.update('events', event.id, async (entity) => {
 				entity.title = eventName;
