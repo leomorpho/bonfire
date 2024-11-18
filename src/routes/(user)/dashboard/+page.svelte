@@ -19,7 +19,11 @@
 		const initEvents = async () => {
 			userId = (await waitForUserId()) as string;
 			console.log(userId);
-			let query = client.query('events').where(['user_id', '=', userId]).include('user').build();
+			let query = client
+				.query('events')
+				.where(['user_id', '=', userId])
+				.include('user')
+				.build();
 			// events = await client.fetch(query, { policy: 'local-and-remote' });
 
 			client.subscribe(query, (e) => {
@@ -41,7 +45,9 @@
 		{#if !events}
 			<Loader />
 		{:else if events.length == 0}
-			<div class="rounded-lg bg-slate-100 p-4 flex items-center justify-center"><Frown class="mr-2 h-4 w-4"/>No events yet.</div>
+			<div class="flex items-center justify-center rounded-lg bg-slate-100 p-4">
+				<Frown class="mr-2 h-4 w-4" />No events yet.
+			</div>
 		{:else}
 			<div>
 				{#each events as event}

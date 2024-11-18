@@ -48,6 +48,7 @@
 
 				// Set RSVP status based on the attendee record, or keep it as default
 				rsvpStatus = currentUserAttendee ? currentUserAttendee : undefined;
+				
 				console.log('rsvpStatus', rsvpStatus);
 			} else {
 				console.log('No attendees yet.');
