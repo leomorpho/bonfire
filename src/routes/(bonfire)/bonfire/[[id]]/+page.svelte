@@ -2,7 +2,6 @@
 	import { page } from '$app/stores';
 	import { useQuery } from '@triplit/svelte';
 	import { TriplitClient } from '@triplit/client';
-	import { onMount } from 'svelte';
 	import { feTriplitClient, waitForUserId } from '$lib/triplit';
 	import Loader from '$lib/components/Loader.svelte';
 	import * as Avatar from '$lib/components/ui/avatar/index.js';
@@ -10,24 +9,25 @@
 	import { Cog, Share, ImagePlus } from 'lucide-svelte';
 	import { formatHumanReadable } from '$lib/utils';
 	import Rsvp from '$lib/components/Rsvp.svelte';
+	import { onMount } from 'svelte';
 
-	let client = feTriplitClient as TriplitClient;
-
-	let userId = $state('');
+	let userId = '';
 
 	let event = $state();
 
-	let rsvpStatus = $state('');
+	let rsvpStatus = $state();
+
+	let client = feTriplitClient as TriplitClient;
 
 	onMount(() => {
-		const initAsync = async () => {
+		(async () => {
+			console.log('start');
 			userId = (await waitForUserId()) as string;
-		};
-		event = useQuery(client, client.query('events').where(['id', '=', $page.params.id]));
+			console.log('end');
+		})();
 
-		initAsync().catch((error) => {
-			console.error('Failed to get async data:', error);
-		});
+		// Update event data based on the current page id
+		event = useQuery(client, client.query('events').where(['id', '=', $page.params.id]));
 	});
 
 	let attendeesFake = [
@@ -40,15 +40,14 @@
 	$effect(() => {
 		// Ensure event data and userId are available
 		if (event.results && event.results.length > 0 && userId) {
-			console.log('##$$$$');
 			// Find the current user's RSVP status in the attendees list
 			const attendees = event.results[0].attendees;
-			console.log(attendees);
+
 			if (attendees && attendees.length > 0) {
 				const currentUserAttendee = attendees.find((attendee) => attendee.user_id === userId);
 
 				// Set RSVP status based on the attendee record, or keep it as default
-				rsvpStatus = currentUserAttendee ? currentUserAttendee.response : 'undecided';
+				rsvpStatus = currentUserAttendee ? currentUserAttendee : undefined;
 				console.log(rsvpStatus);
 			} else {
 				console.log('No attendees yet.');
@@ -85,7 +84,7 @@
 					{/each}
 				</div>
 			</div>
-			<Rsvp value={rsvpStatus}/>
+			<Rsvp attendance={rsvpStatus} {userId} eventId={event.results[0].id} />
 
 			<Button class="mt-4 flex w-full items-center justify-center">
 				<Share class="h-5 w-5" />

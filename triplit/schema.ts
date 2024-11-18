@@ -70,7 +70,7 @@ export const schema = {
 			event: S.RelationById('events', '$event_id'), // Link to the event
 			user_id: S.String(), // ID of the attendee
 			user: S.RelationById('user', '$user_id'), // Link to the user
-			response: S.String({ default: 'undecided' }), // RSVP status: attending, not attending, undecided
+			status: S.String({ default: 'undecided' }), // RSVP status: attending, not attending, undecided
 			// guest_count: S.Number({ default: 0 }), // Number of additional guests
 			// special_requests: S.String({ nullable: true }), // Any special requests (e.g., dietary)
 			updated_at: S.Date({ default: S.Default.now() }) // Last updated timestamp

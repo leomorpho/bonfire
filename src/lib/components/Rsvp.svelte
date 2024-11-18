@@ -2,10 +2,21 @@
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import { Smile, Meh, Frown } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
+	import type { TriplitClient } from '@triplit/client';
+	import { feTriplitClient } from '$lib/triplit';
+
+	let { attendance, userId, eventId } = $props();
+
+	console.log('attendance', attendance);
+	console.log('userId', userId);
+	console.log('eventId', eventId);
+
+	let client = feTriplitClient as TriplitClient;
 
 	const GOING = 'going';
 	const NOT_GOING = 'not_going';
 	const MAYBE = 'maybe';
+	const DEFAULT = 'RSVP';
 
 	const getStrValueOfRSVP = (status: string) => {
 		switch (status) {
@@ -20,14 +31,33 @@
 		}
 	};
 
-	// Initialize RSVP status
-	let rsvpStatus: string = 'RSVP'; // Default button label
+	let rsvpStatus: string = $state(DEFAULT);
+	if (attendance) {
+		rsvpStatus = attendance.status;
+	}
 
 	// Function to handle RSVP updates
 	const updateRSVP = async (newValue: string) => {
-		rsvpStatus = newValue; // Update the label
-		// Perform any additional actions, e.g., API call to save the new RSVP status
-		console.log('RSVP updated to:', newValue);
+		try {
+			if (rsvpStatus == DEFAULT) {
+				// Create
+				await client.insert('attendees', {
+					event_id: eventId,
+					user_id: userId,
+					status: newValue
+				});
+			} else {
+				// Update
+				attendance = await client.update('attendees', attendance.id, async (entity) => {
+					entity.status = newValue;
+				});
+			}
+			rsvpStatus = newValue; // Update the label
+			// Perform any additional actions, e.g., API call to save the new RSVP status
+			console.log('RSVP updated to:', newValue);
+		} catch (error) {
+			console.log('failed to update RSVP status to:', newValue, error);
+		}
 	};
 </script>
 
