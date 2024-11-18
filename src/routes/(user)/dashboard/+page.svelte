@@ -10,66 +10,79 @@
 	import { formatHumanReadable } from '$lib/utils';
 	import Loader from '$lib/components/Loader.svelte';
 	import { Frown } from 'lucide-svelte';
+	import { useQuery } from '@triplit/svelte';
 
 	let events: any = null;
 	let client = feTriplitClient as TriplitClient;
 
-	let userId = '';
+	let futureEvents = $state({});
+	let pastEvents = $state({});
+	let userId = $state('');
 	onMount(() => {
 		const initEvents = async () => {
 			userId = (await waitForUserId()) as string;
 			console.log(userId);
-			let query = client
-				.query('events')
-				.where(['user_id', '=', userId])
-				.include('user')
-				.build();
-			// events = await client.fetch(query, { policy: 'local-and-remote' });
-
-			client.subscribe(query, (e) => {
-				console.log(e);
-				events = e;
-			});
-			// console.log(events);
 		};
 
 		initEvents().catch((error) => {
 			console.error('Failed to get events:', error);
 		});
 	});
+
+	$effect(() => {
+		if (userId) {
+			let query = client
+				.query('events')
+				.where(['start_time', '>=', new Date().toISOString()]) // Filter out past events
+				.subquery(
+					'attendees',
+					client.query('attendees').where(['user_id', '=', userId]).build(),
+					'many'
+				)
+				.include('user') // Include the related user
+				.order('start_time', 'ASC'); // Order by start time, closest to today
+
+			// events = await client.fetch(query, { policy: 'local-and-remote' });
+			futureEvents = useQuery(client, query);
+		}
+	});
 </script>
 
 <div class="mx-4 mb-48 flex flex-col items-center justify-center sm:mb-20">
 	<section class="mt-8 w-full sm:w-[450px]">
 		<h2 class="mb-4 text-lg font-semibold">Upcoming Bonfires</h2>
-		{#if !events}
+		{#if futureEvents.fetching}
 			<Loader />
-		{:else if events.length == 0}
-			<div class="flex items-center justify-center rounded-lg bg-slate-100 p-4">
-				<Frown class="mr-2 h-4 w-4" />No events yet.
-			</div>
-		{:else}
-			<div>
-				{#each events as event}
-					<a href={`/bonfire/${event.id}`}>
-						<Card.Root class="my-4 w-full bg-slate-100">
-							<Card.Header>
-								<Card.Title class="text-lg">{event.title}</Card.Title>
-								<Card.Description>{formatHumanReadable(event.start_time)}</Card.Description>
-								<Card.Description>Hosted by {event.user.username}</Card.Description>
-							</Card.Header>
-							<Card.Content></Card.Content>
-							{#if event.user_id == (userId as string)}
-								<a href={`/bonfire/${event.id}/update`}>
-									<Button variant="outline" class="m-2 rounded-full">
-										<Cog class="h-5 w-5" />
-									</Button>
-								</a>
-							{/if}
-						</Card.Root>
-					</a>
-				{/each}
-			</div>
+		{:else if futureEvents.error}
+			<p>Error: {data.error.message}</p>
+		{:else if futureEvents.results}
+			{#if futureEvents.results.length == 0}
+				<div class="flex items-center justify-center rounded-lg bg-slate-100 p-4">
+					<Frown class="mr-2 h-4 w-4" />No events yet.
+				</div>
+			{:else}
+				<div>
+					{#each futureEvents.results as event}
+						<a href={`/bonfire/${event.id}`}>
+							<Card.Root class="my-4 w-full bg-slate-100">
+								<Card.Header>
+									<Card.Title class="text-lg">{event.title}</Card.Title>
+									<Card.Description>{formatHumanReadable(event.start_time)}</Card.Description>
+									<Card.Description>Hosted by {event.user.username}</Card.Description>
+								</Card.Header>
+								<Card.Content></Card.Content>
+								{#if event.user_id == (userId as string)}
+									<a href={`/bonfire/${event.id}/update`}>
+										<Button variant="outline" class="m-2 rounded-full">
+											<Cog class="h-5 w-5" />
+										</Button>
+									</a>
+								{/if}
+							</Card.Root>
+						</a>
+					{/each}
+				</div>
+			{/if}
 		{/if}
 	</section>
 	<!-- <section class="mt-8 w-full sm:w-[450px]">
