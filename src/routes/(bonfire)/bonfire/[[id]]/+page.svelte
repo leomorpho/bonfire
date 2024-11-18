@@ -27,7 +27,7 @@
 		})();
 
 		// Update event data based on the current page id
-		event = useQuery(client, client.query('events').where(['id', '=', $page.params.id]));
+		event = useQuery(client, client.query('events').include('attendees').where(['id', '=', $page.params.id]));
 	});
 
 	let attendeesFake = [
@@ -48,7 +48,7 @@
 
 				// Set RSVP status based on the attendee record, or keep it as default
 				rsvpStatus = currentUserAttendee ? currentUserAttendee : undefined;
-				console.log(rsvpStatus);
+				console.log('rsvpStatus', rsvpStatus);
 			} else {
 				console.log('No attendees yet.');
 			}

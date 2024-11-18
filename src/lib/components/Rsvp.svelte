@@ -41,7 +41,7 @@
 		try {
 			if (rsvpStatus == DEFAULT) {
 				// Create
-				await client.insert('attendees', {
+				attendance = await client.insert('attendees', {
 					event_id: eventId,
 					user_id: userId,
 					status: newValue
