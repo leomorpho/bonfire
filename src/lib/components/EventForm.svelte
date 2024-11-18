@@ -3,7 +3,7 @@
 	import { DateFormatter, CalendarDate, type DateValue } from '@internationalized/date';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Textarea } from '$lib/components/ui/textarea/index.js';
-	import { Plus, Minus, Clock, Clock8, ArrowDownToLine } from 'lucide-svelte';
+	import { Plus, Minus, Clock, Clock8, ArrowDownToLine, Trash2 } from 'lucide-svelte';
 	import DoubleDigitsPicker from '$lib/components/DoubleDigitsPicker.svelte';
 	import TimezonePicker from '$lib/components/TimezonePicker.svelte';
 	import Datepicker from '$lib/components/Datepicker.svelte';
@@ -11,6 +11,8 @@
 	import { feTriplitClient, waitForUserId } from '$lib/triplit';
 	import { goto } from '$app/navigation';
 	import type { TriplitClient } from '@triplit/client';
+	import * as Dialog from '$lib/components/ui/dialog/index.js';
+	import Footer from './Footer.svelte';
 
 	let { mode, event = null } = $props();
 
@@ -157,6 +159,17 @@
 		}
 		goto('/dashboard');
 	};
+
+	const deleteEvent = async (e: Event) => {
+		try {
+			console.log('Event ID:', event.id);
+			await client.delete('event', event.id);
+			console.log('Deleted event!!!!');
+			// goto('/dashboard'); // Uncomment if redirection is needed
+		} catch (error) {
+			console.error('Error deleting event:', error);
+		}
+	};
 </script>
 
 <div class="mx-4 flex flex-col items-center justify-center">
@@ -250,5 +263,32 @@
 				{mode === 'create' ? 'Create' : 'Update'}
 			</Button>
 		</form>
+		{#if mode == 'update'}
+			<Dialog.Root>
+				<Dialog.Trigger class="w-full"
+					><Button disabled={submitDisabled} class="mt-2 w-full bg-red-500 hover:bg-red-400">
+						<Trash2 class="ml-1 mr-1 h-4 w-4" /> Delete
+					</Button></Dialog.Trigger
+				>
+				<Dialog.Content>
+					<Dialog.Header>
+						<Dialog.Title>Are you sure absolutely sure?</Dialog.Title>
+						<Dialog.Description>
+							This action cannot be undone. This will permanently delete this event and remove its
+							data from our servers.
+						</Dialog.Description>
+					</Dialog.Header>
+					<Dialog.Footer
+						><Button
+							disabled={submitDisabled}
+							class="mt-2 w-full bg-red-500 hover:bg-red-400"
+							onclick={deleteEvent}
+						>
+							<Trash2 class="ml-1 mr-1 h-4 w-4" /> Crush it
+						</Button></Dialog.Footer
+					>
+				</Dialog.Content>
+			</Dialog.Root>
+		{/if}
 	</section>
 </div>
