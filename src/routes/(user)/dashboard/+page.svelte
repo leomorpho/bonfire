@@ -1,6 +1,7 @@
 <script lang="ts">
-	import CaretSort from 'svelte-radix/CaretSort.svelte';
+	import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
 	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
+	import { buttonVariants } from '$lib/components/ui/button/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import { feTriplitClient, waitForUserId } from '$lib/triplit';
@@ -43,12 +44,11 @@
 				.include('user') // Include the related user
 				.order('start_time', 'ASC'); // Order by start time, closest to today
 
-			// events = await client.fetch(query, { policy: 'local-and-remote' });
 			futureEvents = useQuery(client, futureEventsQuery);
 
 			let pastEventsQuery = client
 				.query('events')
-				.where(['start_time', '<', new Date().toISOString()]) // Filter out past events
+				.where(['start_time', '<', new Date().toISOString()]) // Filter out current and future events
 				.subquery(
 					'attendees',
 					client.query('attendees').where(['user_id', '=', userId]).build(),
@@ -57,7 +57,6 @@
 				.include('user') // Include the related user
 				.order('start_time', 'ASC'); // Order by start time, closest to today
 
-			// events = await client.fetch(query, { policy: 'local-and-remote' });
 			pastEvents = useQuery(client, pastEventsQuery);
 		}
 	});
@@ -69,7 +68,7 @@
 		{#if futureEvents.fetching}
 			<Loader />
 		{:else if futureEvents.error}
-			<p>Error: {data.error.message}</p>
+			<p>Error: {futureEvents.error.message}</p>
 		{:else if futureEvents.results}
 			{#if futureEvents.results.length == 0}
 				<div class="flex items-center justify-center rounded-lg bg-slate-100 p-4">
@@ -100,6 +99,33 @@
 			{/if}
 		{/if}
 	</section>
+	{#if pastEvents.fetching}
+		<Loader />
+	{:else if pastEvents.error}
+		<p>Error: {pastEvents.error.message}</p>
+	{:else if pastEvents.results}
+		{#if pastEvents.results.length > 0}
+			<Collapsible.Root class="w-[450px] space-y-2">
+				<div class="flex items-center justify-between space-x-4 px-4">
+					<h4 class="text-sm font-semibold">{pastEvents.results.length} past events</h4>
+					<Collapsible.Trigger
+						class={buttonVariants({ variant: 'ghost', size: 'sm', class: 'w-9 p-0' })}
+					>
+						<ChevronsUpDown />
+						<span class="sr-only">Toggle</span>
+					</Collapsible.Trigger>
+				</div>
+				<Collapsible.Content class="space-y-2">
+					{#each pastEvents.results as event}
+						<a href={`/bonfire/${event.id}`}>
+							<div class="rounded-md border px-4 py-3 my-2 text-sm">{event.title}</div>
+						</a>
+					{/each}
+				</Collapsible.Content>
+			</Collapsible.Root>
+		{/if}
+	{/if}
+
 	<!-- <section class="mt-8 w-full sm:w-[450px]">
 		<Collapsible.Root class="w-full space-y-2">
 			<div class="flex items-center justify-between space-x-4 px-4">
