@@ -9,6 +9,7 @@
 	import { Cog } from 'lucide-svelte';
 	import { formatHumanReadable } from '$lib/utils';
 	import Loader from '$lib/components/Loader.svelte';
+	import { Frown } from 'lucide-svelte';
 
 	let events: any = null;
 	let client = feTriplitClient as TriplitClient;
@@ -39,6 +40,8 @@
 		<h2 class="mb-4 text-lg font-semibold">Upcoming Bonfires</h2>
 		{#if !events}
 			<Loader />
+		{:else if events.length == 0}
+			<div class="rounded-lg bg-slate-100 p-4 flex items-center justify-center"><Frown class="mr-2 h-4 w-4"/>No events yet.</div>
 		{:else}
 			<div>
 				{#each events as event}

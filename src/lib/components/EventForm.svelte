@@ -163,9 +163,9 @@
 	const deleteEvent = async (e: Event) => {
 		try {
 			console.log('Event ID:', event.id);
-			await client.delete('event', event.id);
+			await client.delete('events', event.id);
 			console.log('Deleted event!!!!');
-			// goto('/dashboard'); // Uncomment if redirection is needed
+			goto('/dashboard'); // Uncomment if redirection is needed
 		} catch (error) {
 			console.error('Error deleting event:', error);
 		}
