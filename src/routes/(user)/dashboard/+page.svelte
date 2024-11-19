@@ -12,6 +12,8 @@
 	import Loader from '$lib/components/Loader.svelte';
 	import { Frown } from 'lucide-svelte';
 	import { useQuery } from '@triplit/svelte';
+	import { DEFAULT, getStrValueOfRSVP, GOING, MAYBE, NOT_GOING } from '$lib/enums';
+	import EventCard from '$lib/components/EventCard.svelte';
 
 	let events: any = null;
 	let client = feTriplitClient as TriplitClient;
@@ -24,6 +26,15 @@
 		const initEvents = async () => {
 			userId = (await waitForUserId()) as string;
 			console.log(userId);
+
+			// let pastEventsQuery = client
+			// 	.query('events')
+			// 	.where(['start_time', '<', new Date().toISOString()]) // Filter out current and future events
+			// 	.subquery('attendees', client.query('attendees').where(['user_id', '=', userId]).build())
+			// 	.include('user') // Include the related user
+			// 	.include('attendees')
+			// 	.order('start_time', 'ASC'); // Order by start time, closest to today
+			// console.log(await client.fetch(pastEventsQuery.build()));
 		};
 
 		initEvents().catch((error) => {
@@ -42,20 +53,18 @@
 					'many'
 				)
 				.include('user') // Include the related user
+				.include('attendees')
 				.order('start_time', 'ASC'); // Order by start time, closest to today
-
-			futureEvents = useQuery(client, futureEventsQuery);
 
 			let pastEventsQuery = client
 				.query('events')
 				.where(['start_time', '<', new Date().toISOString()]) // Filter out current and future events
-				.subquery(
-					'attendees',
-					client.query('attendees').where(['user_id', '=', userId]).build(),
-					'many'
-				)
+				.subquery('attendees', client.query('attendees').where(['user_id', '=', userId]).build())
 				.include('user') // Include the related user
+				.include('attendees')
 				.order('start_time', 'ASC'); // Order by start time, closest to today
+
+			futureEvents = useQuery(client, futureEventsQuery);
 
 			pastEvents = useQuery(client, pastEventsQuery);
 		}
@@ -77,23 +86,7 @@
 			{:else}
 				<div>
 					{#each futureEvents.results as event}
-						<a href={`/bonfire/${event.id}`}>
-							<Card.Root class="my-4 w-full bg-slate-100">
-								<Card.Header>
-									<Card.Title class="text-lg">{event.title}</Card.Title>
-									<Card.Description>{formatHumanReadable(event.start_time)}</Card.Description>
-									<Card.Description>Hosted by {event.user.username}</Card.Description>
-								</Card.Header>
-								<Card.Content></Card.Content>
-								{#if event.user_id == (userId as string)}
-									<a href={`/bonfire/${event.id}/update`}>
-										<Button variant="outline" class="m-2 rounded-full">
-											<Cog class="h-5 w-5" />
-										</Button>
-									</a>
-								{/if}
-							</Card.Root>
-						</a>
+						<EventCard {event} {userId} />
 					{/each}
 				</div>
 			{/if}
@@ -117,33 +110,12 @@
 				</div>
 				<Collapsible.Content class="space-y-2">
 					{#each pastEvents.results as event}
-						<a href={`/bonfire/${event.id}`}>
-							<div class="rounded-md border px-4 py-3 my-2 text-sm">{event.title}</div>
-						</a>
+						<EventCard {event} {userId} rsvpCanBeChanged={false} />
 					{/each}
 				</Collapsible.Content>
 			</Collapsible.Root>
 		{/if}
 	{/if}
-
-	<!-- <section class="mt-8 w-full sm:w-[450px]">
-		<Collapsible.Root class="w-full space-y-2">
-			<div class="flex items-center justify-between space-x-4 px-4">
-				<h4 class="text-sm font-semibold">3 past bonfires</h4>
-				<Collapsible.Trigger asChild let:builder>
-					<Button builders={[builder]} variant="ghost" size="sm" class="w-9 p-0">
-						<CaretSort class="h-4 w-4" />
-						<span class="sr-only">Toggle</span>
-					</Button>
-				</Collapsible.Trigger>
-			</div>
-			<div class="rounded-md border px-4 py-3 font-mono text-sm">Joe's 30th</div>
-			<Collapsible.Content class="space-y-2">
-				<div class="rounded-md border px-4 py-3 font-mono text-sm">Mel & Gibson 2024</div>
-				<div class="rounded-md border px-4 py-3 font-mono text-sm">Aquarium Party</div>
-			</Collapsible.Content>
-		</Collapsible.Root>
-	</section> -->
 </div>
 <div class="fixed bottom-6 left-1/2 flex -translate-x-1/2 transform flex-col items-center">
 	<a

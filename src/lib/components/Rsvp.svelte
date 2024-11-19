@@ -4,10 +4,10 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import type { TriplitClient } from '@triplit/client';
 	import { feTriplitClient } from '$lib/triplit';
-	import { DEFAULT, GOING, MAYBE, NOT_GOING } from '$lib/enums';
+	import { DEFAULT, getStrValueOfRSVP, GOING, MAYBE, NOT_GOING } from '$lib/enums';
 	import { and } from '@triplit/client';
 
-	let { attendance, userId, eventId } = $props();
+	let { attendance, userId, eventId, rsvpCanBeChanged } = $props();
 
 	console.log('attendance', attendance);
 	console.log('userId', userId);
@@ -15,26 +15,18 @@
 
 	let client = feTriplitClient as TriplitClient;
 
-	const getStrValueOfRSVP = (status: string) => {
-		switch (status) {
-			case GOING:
-				return 'Going';
-			case NOT_GOING:
-				return 'Not going';
-			case MAYBE:
-				return 'Maybe';
-			default:
-				return 'RSVP';
-		}
-	};
-
 	let rsvpStatus: string = $state(DEFAULT);
 	if (attendance) {
 		rsvpStatus = attendance.status;
 	}
 
+	// Track dropdown state
+	let dropdownOpen = $state(false);
+
 	// Function to handle RSVP updates
-	const updateRSVP = async (newValue: string) => {
+	const updateRSVP = async (event: Event, newValue: string) => {
+		event.preventDefault();
+
 		try {
 			const query = client
 				.query('attendees')
@@ -46,7 +38,7 @@
 				])
 				.build();
 			attendance = await client.fetchOne(query);
-			
+
 			// NOTE that we automatically create a RSVP status attendance object
 			// upon navigation to an event if the user does not have an attendance object for it.
 			attendance = await client.update('attendees', attendance.id, async (entity) => {
@@ -59,11 +51,15 @@
 		} catch (error) {
 			console.log('failed to update RSVP status to:', newValue, error);
 		}
+		dropdownOpen = false;
 	};
 </script>
 
-<DropdownMenu.Root>
-	<DropdownMenu.Trigger class="w-full">
+<DropdownMenu.Root bind:open={dropdownOpen}>
+	<DropdownMenu.Trigger
+		class="w-full {rsvpCanBeChanged ? '' : 'pointer-events-none opacity-50'}"
+		disabled={!rsvpCanBeChanged}
+	>
 		<Button
 			variant="outline"
 			class="mt-4 flex w-full items-center justify-center {rsvpStatus === GOING
@@ -79,20 +75,20 @@
 	<DropdownMenu.Content class="w-full">
 		<DropdownMenu.Group>
 			<DropdownMenu.Item
-				class="cursor-pointer {rsvpStatus === GOING ? 'bg-green-200' : ''}"
-				onclick={() => updateRSVP(GOING)}
+				class={rsvpStatus === GOING ? 'bg-green-200' : ''}
+				onclick={(event) => updateRSVP(event, GOING)}
 			>
 				<Smile /> Going
 			</DropdownMenu.Item>
 			<DropdownMenu.Item
-				class="cursor-pointer {rsvpStatus === MAYBE ? 'bg-yellow-200' : ''}"
-				onclick={() => updateRSVP(MAYBE)}
+				class={rsvpStatus === MAYBE ? 'bg-yellow-200' : ''}
+				onclick={(event) => updateRSVP(event, MAYBE)}
 			>
 				<Meh /> Maybe
 			</DropdownMenu.Item>
 			<DropdownMenu.Item
-				class="cursor-pointer {rsvpStatus === NOT_GOING ? 'bg-red-200' : ''}"
-				onclick={() => updateRSVP(NOT_GOING)}
+				class={rsvpStatus === NOT_GOING ? 'bg-red-200' : ''}
+				onclick={(event) => updateRSVP(event, NOT_GOING)}
 			>
 				<Frown /> Not going
 			</DropdownMenu.Item>
