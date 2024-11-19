@@ -6,6 +6,7 @@
 	import { feTriplitClient } from '$lib/triplit';
 	import { DEFAULT, getStrValueOfRSVP, GOING, MAYBE, NOT_GOING } from '$lib/enums';
 	import { and } from '@triplit/client';
+	import AddToCalendar from './AddToCalendar.svelte';
 
 	let { attendance, userId, eventId, rsvpCanBeChanged } = $props();
 
@@ -13,12 +14,20 @@
 	console.log('userId', userId);
 	console.log('eventId', eventId);
 
+	let showAddToCalendar = $state(false);
+
 	let client = feTriplitClient as TriplitClient;
 
 	let rsvpStatus: string = $state(DEFAULT);
 	if (attendance) {
 		rsvpStatus = attendance.status;
 	}
+
+	let showAddToCalendarStatuses = new Set([GOING, MAYBE]);
+
+	$effect(() => {
+		showAddToCalendar = showAddToCalendarStatuses.has(rsvpStatus);
+	});
 
 	// Track dropdown state
 	let dropdownOpen = $state(false);
@@ -55,43 +64,48 @@
 	};
 </script>
 
-<DropdownMenu.Root bind:open={dropdownOpen}>
-	<DropdownMenu.Trigger
-		class="w-full {rsvpCanBeChanged ? '' : 'pointer-events-none opacity-50'}"
-		disabled={!rsvpCanBeChanged}
-	>
-		<Button
-			variant="outline"
-			class="mt-4 flex w-full items-center justify-center {rsvpStatus === GOING
-				? 'bg-green-200 hover:bg-green-100'
-				: ''} {rsvpStatus === MAYBE ? 'bg-yellow-200 hover:bg-yellow-100' : ''} {rsvpStatus ===
-			NOT_GOING
-				? 'bg-red-200 hover:bg-red-100'
-				: ''}"
+<div class="flex">
+	<DropdownMenu.Root bind:open={dropdownOpen}>
+		<DropdownMenu.Trigger
+			class="w-full {rsvpCanBeChanged ? '' : 'pointer-events-none opacity-50'}"
+			disabled={!rsvpCanBeChanged}
 		>
-			{getStrValueOfRSVP(rsvpStatus)}
-		</Button>
-	</DropdownMenu.Trigger>
-	<DropdownMenu.Content class="w-full">
-		<DropdownMenu.Group>
-			<DropdownMenu.Item
-				class={rsvpStatus === GOING ? 'bg-green-200' : ''}
-				onclick={(event) => updateRSVP(event, GOING)}
+			<Button
+				variant="outline"
+				class="mt-4 flex w-full items-center justify-center {rsvpStatus === GOING
+					? 'bg-green-200 hover:bg-green-100'
+					: ''} {rsvpStatus === MAYBE ? 'bg-yellow-200 hover:bg-yellow-100' : ''} {rsvpStatus ===
+				NOT_GOING
+					? 'bg-red-200 hover:bg-red-100'
+					: ''}"
 			>
-				<Smile /> Going
-			</DropdownMenu.Item>
-			<DropdownMenu.Item
-				class={rsvpStatus === MAYBE ? 'bg-yellow-200' : ''}
-				onclick={(event) => updateRSVP(event, MAYBE)}
-			>
-				<Meh /> Maybe
-			</DropdownMenu.Item>
-			<DropdownMenu.Item
-				class={rsvpStatus === NOT_GOING ? 'bg-red-200' : ''}
-				onclick={(event) => updateRSVP(event, NOT_GOING)}
-			>
-				<Frown /> Not going
-			</DropdownMenu.Item>
-		</DropdownMenu.Group>
-	</DropdownMenu.Content>
-</DropdownMenu.Root>
+				{getStrValueOfRSVP(rsvpStatus)}
+			</Button>
+		</DropdownMenu.Trigger>
+		<DropdownMenu.Content class="w-full">
+			<DropdownMenu.Group>
+				<DropdownMenu.Item
+					class={rsvpStatus === GOING ? 'bg-green-200' : ''}
+					onclick={(event) => updateRSVP(event, GOING)}
+				>
+					<Smile /> Going
+				</DropdownMenu.Item>
+				<DropdownMenu.Item
+					class={rsvpStatus === MAYBE ? 'bg-yellow-200' : ''}
+					onclick={(event) => updateRSVP(event, MAYBE)}
+				>
+					<Meh /> Maybe
+				</DropdownMenu.Item>
+				<DropdownMenu.Item
+					class={rsvpStatus === NOT_GOING ? 'bg-red-200' : ''}
+					onclick={(event) => updateRSVP(event, NOT_GOING)}
+				>
+					<Frown /> Not going
+				</DropdownMenu.Item>
+			</DropdownMenu.Group>
+		</DropdownMenu.Content>
+	</DropdownMenu.Root>
+	{#if showAddToCalendar}
+		<span class="ml-1"> <AddToCalendar /> </span>
+	{/if}
+</div>
