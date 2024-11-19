@@ -98,7 +98,7 @@
 		<p>Error: {pastEvents.error.message}</p>
 	{:else if pastEvents.results}
 		{#if pastEvents.results.length > 0}
-			<Collapsible.Root class="w-[450px] space-y-2">
+			<Collapsible.Root class="w-full sm:w-[450px] space-y-2">
 				<div class="flex items-center justify-between space-x-4 px-4">
 					<h4 class="text-sm font-semibold">{pastEvents.results.length} past events</h4>
 					<Collapsible.Trigger
