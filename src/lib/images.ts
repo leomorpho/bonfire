@@ -4,19 +4,21 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { env } from '$env/dynamic/private';
 import sharp from 'sharp'; // For resizing images
 import { serverTriplitClient } from './triplit';
+import { dev } from '$app/environment';
 
 // Create an S3 client
 const s3 = new S3Client({
 	region: env.S3_REGION, // Your Backblaze region
 	endpoint: env.S3_ENDPOINT,
 	credentials: {
-		accessKeyId: env.S3_ACCESS_KEY_ID,
-		secretAccessKey: env.S3_SECRET_ACCESS_KEY
+		accessKeyId: dev ? env.DEV_S3_ACCESS_KEY_ID : env.S3_ACCESS_KEY_ID,
+		secretAccessKey: dev ? env.DEV_S3_SECRET_ACCESS_KEY : env.S3_SECRET_ACCESS_KEY
 	}
 });
 
+const bucketName = dev ? env.DEV_S3_BUCKET_NAME : env.S3_BUCKET_NAME;
+
 export async function uploadProfileImageToS3(file: File, userId: string) {
-	const bucketName = 'bonfire2'; // TODO: change
 
 	// Generate keys
 	const fullImageKey = `profile-images/${userId}/full.jpg`;
