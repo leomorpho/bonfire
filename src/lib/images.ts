@@ -6,7 +6,7 @@ import { Readable } from 'stream';
 
 // Create an S3 client
 const s3 = new S3Client({
-	region: 'us-west-002', // Your Backblaze region
+	region: env.S3_REGION, // Your Backblaze region
 	endpoint: env.S3_ENDPOINT,
 	credentials: {
 		accessKeyId: env.S3_ACCESS_KEY_ID,
@@ -25,11 +25,12 @@ export async function uploadProfileImageToS3(file: File, userId: string) {
 		const stream = Readable.from(buffer);
 
 		const command = new PutObjectCommand({
-			Bucket: 'bucketName', // Replace with your bucket name
+			Bucket: 'bonfire2', // Replace with your bucket name
 			Key: key,
 			Body: stream,
 			ContentType: file.type,
 			ACL: 'private', // Ensure the file is private
+			ContentLength: buffer.length,
 		});
 
 		const response = await s3.send(command);
