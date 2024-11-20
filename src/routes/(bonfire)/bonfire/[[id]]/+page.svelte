@@ -10,6 +10,8 @@
 	import { formatHumanReadable } from '$lib/utils';
 	import Rsvp from '$lib/components/Rsvp.svelte';
 	import { onMount } from 'svelte';
+	import { GOING, MAYBE, NOT_GOING } from '$lib/enums';
+	import { and } from '@triplit/client';
 
 	let userId = '';
 
@@ -20,6 +22,14 @@
 	let client = feTriplitClient as TriplitClient;
 
 	let profileImageMap = $page.data.profileImageMap;
+
+	let attendeesGoing = $state([]);
+	let attendeesMaybeGoing = $state([]);
+	let attendeesNotGoing = $state([]);
+
+	let unsubscribeGoing;
+	let unsubscribeMaybe;
+	let unsubscribeNot;
 
 	onMount(() => {
 		(async () => {
@@ -32,6 +42,63 @@
 		event = useQuery(
 			client,
 			client.query('events').include('attendees').where(['id', '=', $page.params.id])
+		);
+
+		// Subscribe to "going" attendees
+		unsubscribeGoing = client.subscribe(
+			client
+				.query('attendees')
+				.where([
+					and([
+						['status', '=', GOING],
+						['event_id', '=', $page.params.id]
+					])
+				])
+				.build(),
+			(results) => {
+				attendeesGoing = results;
+			},
+			(error) => {
+				console.error('Error fetching "going" attendees:', error);
+			}
+		);
+
+		// Subscribe to "not going" attendees
+		unsubscribeNot = client.subscribe(
+			client
+				.query('attendees')
+				.where([
+					and([
+						['status', '=', NOT_GOING],
+						['event_id', '=', $page.params.id]
+					])
+				])
+				.build(),
+			(results) => {
+				attendeesNotGoing = results;
+			},
+			(error) => {
+				console.error('Error fetching "going" attendees:', error);
+			}
+		);
+
+		// Subscribe to "maybe" attendees
+		unsubscribeMaybe = client.subscribe(
+			client
+				.query('attendees')
+				.where([
+					and([
+						['status', '=', MAYBE],
+						['event_id', '=', $page.params.id]
+					])
+				])
+				.build(),
+			(results) => {
+				attendeesMaybeGoing = results;
+			},
+			(error) => {
+				console.error('Error fetching "going" attendees:', error);
+			}
 		);
 	});
 
@@ -46,6 +113,8 @@
 
 				// Set RSVP status based on the attendee record, or keep it as default
 				rsvpStatus = currentUserAttendee ? currentUserAttendee : undefined;
+
+				// Group attendees by their RSVP status
 			} else {
 				console.log('No attendees yet.');
 			}
@@ -72,16 +141,19 @@
 			<div class="font-light">{event.results[0].location}</div>
 			<div>
 				<div class="mt-5 flex -space-x-4">
-					<!-- {#each attendees.results as attendee} -->
-					{#each event.results[0].attendees as attendee}
-						<Avatar.Root>
-							<Avatar.Image
-								src={profileImageMap.get(attendee.user_id)?.small_image_url}
-								alt="@shadcn"
-							/>
-							<Avatar.Fallback>{attendee.name}</Avatar.Fallback>
-						</Avatar.Root>
-					{/each}
+					{#if attendeesGoing.length > 0}
+						<div class="flex -space-x-4">
+							{#each attendeesGoing as attendee}
+								<Avatar.Root>
+									<Avatar.Image
+										src={profileImageMap.get(attendee.user_id)?.small_image_url}
+										alt={attendee.name}
+									/>
+									<Avatar.Fallback>{attendee.name}</Avatar.Fallback>
+								</Avatar.Root>
+							{/each}
+						</div>
+					{/if}
 				</div>
 			</div>
 			<Rsvp
