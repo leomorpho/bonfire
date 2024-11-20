@@ -88,7 +88,7 @@ export async function uploadProfileImageToS3(file: File, userId: string) {
 	return { fullImageKey, smallImageKey };
 }
 
-export async function generateSignedUrl(bucketName: string, key: string, expiresIn = 3600) {
+export async function generateSignedUrl(key: string, expiresIn = 3600) {
 	try {
 		const command = new GetObjectCommand({
 			Bucket: bucketName,
@@ -96,7 +96,7 @@ export async function generateSignedUrl(bucketName: string, key: string, expires
 		});
 
 		const signedUrl = await getSignedUrl(s3, command, { expiresIn });
-		console.log('Signed URL:', signedUrl);
+
 		return signedUrl;
 	} catch (error) {
 		console.error('Error generating signed URL:', error);

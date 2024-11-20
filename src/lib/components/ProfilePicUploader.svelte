@@ -5,6 +5,7 @@
 
 	// Props using $props rune
 	let {
+		presetPreviewUrl = '',
 		allowedTypes = ['image/jpeg', 'image/png', 'image/webp'],
 		maxSizeMB = 5,
 		defaultShape = 'round' as 'round' | 'square'
@@ -12,7 +13,7 @@
 
 	// State using let rune
 	let fileInput: HTMLInputElement;
-	let previewUrl = $state<string | null>(null);
+	let previewUrl = $state<string | null>(presetPreviewUrl ? presetPreviewUrl : null);
 	let isDragging = $state(false);
 	let isUploading = $state(false);
 	let error = $state<string | null>(null);

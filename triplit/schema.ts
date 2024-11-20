@@ -20,7 +20,10 @@ export const schema = {
 	user: {
 		schema: S.Schema({
 			id: S.String(),
-			username: S.String()
+			username: S.String(),
+			profile_image: S.RelationOne('profile_images', {
+				where: [['user_id', '=', '$id']]
+			})
 		}),
 		permissions: {
 			admin: {
