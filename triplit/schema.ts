@@ -34,6 +34,36 @@ export const schema = {
 			}
 		}
 	},
+	profile_images: {
+		schema: S.Schema({
+			id: S.Id(), // Unique ID for the image
+			user_id: S.String(), // ID of the user who owns the image
+			user: S.RelationById('user', '$user_id'), // Relation to the user table
+			full_image_key: S.String(), // Key for the full version of the image
+			small_image_key: S.String(), // Key for the smaller version of the image
+			uploaded_at: S.Date({ default: S.Default.now() }) // Timestamp of upload
+		}),
+		permissions: {
+			admin: {
+				read: { filter: [true] }, // Admins can read all profile images
+				insert: { filter: [true] }, // Admins can insert new profile images
+				update: { filter: [true] }, // Admins can update profile images
+				delete: { filter: [true] } // Admins can delete profile images
+			},
+			user: {
+				read: { filter: [true] },
+				insert: {
+					filter: [['user_id', '=', '$role.userId']] // Users can only insert their own profile images
+				},
+				update: {
+					filter: [['user_id', '=', '$role.userId']] // Users can only update their own profile images
+				},
+				delete: {
+					filter: [['user_id', '=', '$role.userId']] // Users can only delete their own profile images
+				}
+			}
+		}
+	},
 	events: {
 		schema: S.Schema({
 			id: S.Id(),
