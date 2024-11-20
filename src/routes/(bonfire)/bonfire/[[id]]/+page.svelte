@@ -19,6 +19,9 @@
 
 	let client = feTriplitClient as TriplitClient;
 
+	let profileImageMap = $page.data.profileImageMap;
+	console.log('>>>>> profileImageMap', profileImageMap);
+
 	onMount(() => {
 		(async () => {
 			console.log('start');
@@ -27,7 +30,10 @@
 		})();
 
 		// Update event data based on the current page id
-		event = useQuery(client, client.query('events').include('attendees').where(['id', '=', $page.params.id]));
+		event = useQuery(
+			client,
+			client.query('events').include('attendees').where(['id', '=', $page.params.id])
+		);
 	});
 
 	let attendeesFake = [
@@ -48,8 +54,6 @@
 
 				// Set RSVP status based on the attendee record, or keep it as default
 				rsvpStatus = currentUserAttendee ? currentUserAttendee : undefined;
-				
-				console.log('rsvpStatus', rsvpStatus);
 			} else {
 				console.log('No attendees yet.');
 			}
@@ -77,9 +81,12 @@
 			<div>
 				<div class="mt-5 flex -space-x-4">
 					<!-- {#each attendees.results as attendee} -->
-					{#each attendeesFake as attendee}
+					{#each event.results[0].attendees as attendee}
 						<Avatar.Root>
-							<Avatar.Image src={attendee.url} alt="@shadcn" />
+							<Avatar.Image
+								src={profileImageMap.get(attendee.user_id)?.small_image_url}
+								alt="@shadcn"
+							/>
 							<Avatar.Fallback>{attendee.name}</Avatar.Fallback>
 						</Avatar.Root>
 					{/each}
