@@ -23,7 +23,7 @@
 
 <div class="mx-2 flex flex-col items-center justify-center">
 	<!-- History of thoughts and moods -->
-	<section class="mt-8 w-full sm:w-[450px]">
+	<section class="mt-8 sm:w-[450px] flex w-full flex-col items-center justify-center">
 		<h2 class="my-6 text-2xl font-semibold">Profile</h2>
 		<div class="flex w-full flex-col items-center justify-center">
 			<Avatar.Root class="h-24 w-24 sm:h-32 sm:w-32">

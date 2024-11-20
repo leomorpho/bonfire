@@ -20,7 +20,6 @@
 	let client = feTriplitClient as TriplitClient;
 
 	let profileImageMap = $page.data.profileImageMap;
-	console.log('>>>>> profileImageMap', profileImageMap);
 
 	onMount(() => {
 		(async () => {
@@ -35,13 +34,6 @@
 			client.query('events').include('attendees').where(['id', '=', $page.params.id])
 		);
 	});
-
-	let attendeesFake = [
-		{ url: 'https://github.com/shadcn.png', name: 'CN' },
-		{ url: 'https://github.com/shadcn.png', name: 'AP' },
-		{ url: 'https://github.com/shadcn.png', name: 'JL' },
-		{ url: 'https://github.com/shadcn.png', name: 'CH' }
-	];
 
 	$effect(() => {
 		// Ensure event data and userId are available
@@ -92,7 +84,12 @@
 					{/each}
 				</div>
 			</div>
-			<Rsvp attendance={rsvpStatus} {userId} eventId={event.results[0].id} />
+			<Rsvp
+				attendance={rsvpStatus}
+				{userId}
+				eventId={event.results[0].id}
+				rsvpCanBeChanged={true}
+			/>
 
 			<Button class="mt-4 flex w-full items-center justify-center">
 				<Share class="h-5 w-5" />
