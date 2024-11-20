@@ -44,10 +44,20 @@ export const load = async (event) => {
 	const attendeesQuery = serverTriplitClient
 		.query('attendees')
 		.where([['event_id', '=', eventId as string]])
-		.select(['user_id'])
+		.select(['user_id', 'status'])
 		.build();
 
 	const attendeesResult = await serverTriplitClient.fetch(attendeesQuery);
+
+	// // Generate a Map of user IDs to image URLs
+	// const profileAttendanceMap = new Map();
+
+	// for (const attendance of attendeesResult) {
+	// 	// Add to the Map
+	// 	profileAttendanceMap.set(attendance.user_id, {
+	// 		status: attendance.status
+	// 	});
+	// }
 
 	// Create a Set of user IDs
 	const userIdList = attendeesResult.map((attendee) => attendee.user_id);
@@ -63,8 +73,8 @@ export const load = async (event) => {
 	const profileImageMap = new Map();
 
 	for (const image of profileImages) {
-		const fullImageUrl = await generateSignedUrl(image.full_image_key)
-		const smallImageUrl = await generateSignedUrl(image.small_image_key)
+		const fullImageUrl = await generateSignedUrl(image.full_image_key);
+		const smallImageUrl = await generateSignedUrl(image.small_image_key);
 
 		// Add to the Map
 		profileImageMap.set(image.user_id, {
