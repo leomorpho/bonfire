@@ -73,6 +73,8 @@
 		"@tailwindcss/typography": "^0.5.15",
 		"@triplit/client": "^0.5.15",
 		"@triplit/svelte": "^0.2.16",
+		"@uppy/aws-s3": "^4.1.2",
+		"@uppy/core": "^4.2.3",
 		"arctic": "^2.0.1",
 		"buffer": "^6.0.3",
 		"date-fns": "^4.1.0",

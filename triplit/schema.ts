@@ -33,8 +33,9 @@ export const schema = {
 				delete: { filter: [true] }
 			},
 			user: {
-				read: { filter: [['id', '=', '$relation.user_id']] } // Users can only read user data tied to related events
-			}
+				read: { filter: [true] },
+				// read: { filter: [['id', '=', '$relation.user_id']] } // Users can only read user data tied to related events
+			},
 		}
 	},
 	profile_images: {

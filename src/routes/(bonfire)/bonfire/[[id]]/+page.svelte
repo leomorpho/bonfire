@@ -4,7 +4,6 @@
 	import { TriplitClient } from '@triplit/client';
 	import { feTriplitClient, waitForUserId } from '$lib/triplit';
 	import Loader from '$lib/components/Loader.svelte';
-	import * as Avatar from '$lib/components/ui/avatar/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Cog, Share, ImagePlus } from 'lucide-svelte';
 	import { formatHumanReadable } from '$lib/utils';
@@ -16,15 +15,18 @@
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import ProfileAvatar from '$lib/components/ProfileAvatar.svelte';
 
-	let userId = '';
+	let userId = $state('');
 
 	let event = $state();
 
 	let rsvpStatus = $state();
 
+	let anonymousUser = $state(!$page.data.user);
+
 	let client = feTriplitClient as TriplitClient;
 
 	let profileImageMap = $page.data.profileImageMap;
+	console.log('######## profileImageMap', profileImageMap);
 
 	let attendeesGoing = $state([]);
 	let attendeesMaybeGoing = $state([]);
@@ -136,7 +138,7 @@
 	<div class="mx-4 flex flex-col items-center justify-center">
 		<section class="mt-8 w-full sm:w-[450px]">
 			{#if event.results[0].user_id == (userId as string)}
-				<a class="flex w-full justify-center" href={`/bonfire/${$page.params.id}/update`}>
+				<a class="flex w-full justify-center" href="update">
 					<Button variant="outline" class="m-2 rounded-full">
 						<Cog class="h-5 w-5" />
 					</Button>
@@ -149,12 +151,12 @@
 				{#if attendeesGoing.length > 0}
 					<div class="flex flex-wrap -space-x-4">
 						{#each attendeesGoing as attendee}
-							{console.log('ppppp',attendee)}
+							{console.log('ppppp', attendee)}
 							<ProfileAvatar
 								url={profileImageMap.get(attendee.user_id)?.small_image_url}
 								fullsizeUrl={profileImageMap.get(attendee.user_id)?.full_image_url}
-								username={attendee.user.username}
-								fallbackName={attendee.user.username}
+								username={attendee.user?.username}
+								fallbackName={attendee.user?.username}
 							/>
 						{/each}
 					</div>
@@ -173,8 +175,8 @@
 												<ProfileAvatar
 													url={profileImageMap.get(attendee.user_id)?.small_image_url}
 													fullsizeUrl={profileImageMap.get(attendee.user_id)?.full_image_url}
-													username={attendee.user.username}
-													fallbackName={attendee.user.username}
+													username={attendee.user?.username}
+													fallbackName={attendee.user?.username}
 												/>
 											{/each}
 										</div>
@@ -188,8 +190,8 @@
 												<ProfileAvatar
 													url={profileImageMap.get(attendee.user_id)?.small_image_url}
 													fullsizeUrl={profileImageMap.get(attendee.user_id)?.full_image_url}
-													username={attendee.user.username}
-													fallbackName={attendee.user.username}
+													username={attendee.user?.username}
+													fallbackName={attendee.user?.username}
 												/>
 											{/each}
 										</div>
@@ -203,8 +205,8 @@
 												<ProfileAvatar
 													url={profileImageMap.get(attendee.user_id)?.small_image_url}
 													fullsizeUrl={profileImageMap.get(attendee.user_id)?.full_image_url}
-													username={attendee.user.username}
-													fallbackName={attendee.user.username}
+													username={attendee.user?.username}
+													fallbackName={attendee.user?.username}
 												/>
 											{/each}
 										</div>
@@ -215,30 +217,40 @@
 					</Dialog.Content>
 				</Dialog.Root>
 			</div>
+			{#if anonymousUser}
+				<div class="mt-4 flex justify-center text-yellow-600">
+					Log in or register to interact with event.
+				</div>
+			{/if}
 			<Rsvp
 				attendance={rsvpStatus}
 				{userId}
 				eventId={event.results[0].id}
-				rsvpCanBeChanged={true}
+				rsvpCanBeChanged={!anonymousUser}
 			/>
 
-			<Button class="mt-4 flex w-full items-center justify-center">
+			<Button disabled={anonymousUser} class="mt-4 flex w-full items-center justify-center">
 				<Share class="h-5 w-5" />
 				Share Bonfire</Button
 			>
 			<div class="my-10">
 				{event.results[0].description}
 			</div>
-			<hr class="my-10" />
-			<div>
-				<div class="my-10">
-					<div>Images</div>
-					<Button variant="outline" class="flex w-full items-center justify-center"
-						><ImagePlus />Add to gallery</Button
-					>
+			{#if !anonymousUser}
+				<hr class="my-10" />
+				<div>
+					<div class="my-10">
+						<div>Images</div>
+
+						<a href="media/add"
+							><Button variant="outline" class="flex w-full items-center justify-center"
+								><ImagePlus />Add to gallery</Button
+							>
+						</a>
+					</div>
+					<div>Comments</div>
 				</div>
-				<div>Comments</div>
-			</div>
+			{/if}
 		</section>
 	</div>
 {/if}

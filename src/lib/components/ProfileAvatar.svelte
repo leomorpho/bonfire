@@ -2,7 +2,9 @@
 	import * as Avatar from '$lib/components/ui/avatar/index.js';
 	import * as Popover from '$lib/components/ui/popover/index.js';
 
-	let { url, fullsizeUrl = null, fallbackName, username } = $props();
+	let { url, fullsizeUrl = null, fallbackName ="", username } = $props();
+
+
 </script>
 
 <Popover.Root>

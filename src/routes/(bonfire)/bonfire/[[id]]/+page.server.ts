@@ -4,40 +4,41 @@ import { generateSignedUrl } from '$lib/images.js';
 import { serverTriplitClient } from '$lib/triplit';
 import { and } from '@triplit/client';
 
+export const trailingSlash = 'always';
+
 // Step 2: Implement the form load function
 export const load = async (event) => {
-	// Get the user from locals
-	const user = event.locals.user;
-	if (!user) {
-		return;
-	}
 	const eventId = event.params.id; // Get the event ID from the route parameters
 
 	if (!eventId) {
 		goto('/dashboard');
 	}
 
-	// Below we create an attendance object for anyone visiting the bonfire if they don't yet have an attendance object.
-	// This allows them to keep track from their dashboard of events they've been invited to (and seen).
-	const query = serverTriplitClient
-		.query('attendees')
-		.where([
-			and([
-				['user_id', '=', user.id],
-				['event_id', '=', eventId as string]
+	// Get the user from locals
+	const user = event.locals.user;
+	if (user) {
+		// Below we create an attendance object for anyone visiting the bonfire if they don't yet have an attendance object.
+		// This allows them to keep track from their dashboard of events they've been invited to (and seen).
+		const currentUserAttendanceQuery = serverTriplitClient
+			.query('attendees')
+			.where([
+				and([
+					['user_id', '=', user.id],
+					['event_id', '=', eventId as string]
+				])
 			])
-		])
-		.build();
+			.build();
 
-	const result = await serverTriplitClient.fetch(query);
+		const result = await serverTriplitClient.fetch(currentUserAttendanceQuery);
 
-	// Create an attendance record if it does not exist
-	if (result.length === 0) {
-		await serverTriplitClient.insert('attendees', {
-			user_id: user.id,
-			event_id: eventId as string,
-			status: DEFAULT // Default status
-		});
+		// Create an attendance record if it does not exist
+		if (result.length === 0) {
+			await serverTriplitClient.insert('attendees', {
+				user_id: user.id,
+				event_id: eventId as string,
+				status: DEFAULT // Default status
+			});
+		}
 	}
 
 	// Get profile pics of all attendees
@@ -68,6 +69,7 @@ export const load = async (event) => {
 		.build();
 
 	const profileImages = await serverTriplitClient.fetch(profileImageQuery);
+	console.log('profileImages', profileImages);
 
 	// Generate a Map of user IDs to image URLs
 	const profileImageMap = new Map();
@@ -84,6 +86,7 @@ export const load = async (event) => {
 	}
 
 	return {
-		profileImageMap: profileImageMap
+		profileImageMap: profileImageMap,
+		user: user
 	};
 };
