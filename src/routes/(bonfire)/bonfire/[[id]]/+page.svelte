@@ -152,6 +152,7 @@
 							{console.log('ppppp',attendee)}
 							<ProfileAvatar
 								url={profileImageMap.get(attendee.user_id)?.small_image_url}
+								fullsizeUrl={profileImageMap.get(attendee.user_id)?.full_image_url}
 								username={attendee.user.username}
 								fallbackName={attendee.user.username}
 							/>
@@ -171,6 +172,7 @@
 											{#each attendeesGoing as attendee}
 												<ProfileAvatar
 													url={profileImageMap.get(attendee.user_id)?.small_image_url}
+													fullsizeUrl={profileImageMap.get(attendee.user_id)?.full_image_url}
 													username={attendee.user.username}
 													fallbackName={attendee.user.username}
 												/>
@@ -185,6 +187,7 @@
 											{#each attendeesMaybeGoing as attendee}
 												<ProfileAvatar
 													url={profileImageMap.get(attendee.user_id)?.small_image_url}
+													fullsizeUrl={profileImageMap.get(attendee.user_id)?.full_image_url}
 													username={attendee.user.username}
 													fallbackName={attendee.user.username}
 												/>
@@ -199,6 +202,7 @@
 											{#each attendeesNotGoing as attendee}
 												<ProfileAvatar
 													url={profileImageMap.get(attendee.user_id)?.small_image_url}
+													fullsizeUrl={profileImageMap.get(attendee.user_id)?.full_image_url}
 													username={attendee.user.username}
 													fallbackName={attendee.user.username}
 												/>
