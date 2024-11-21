@@ -1,15 +1,16 @@
 <script lang="ts">
 	import { TriplitClient } from '@triplit/client';
-	import { feTriplitClient, waitForUserId } from '$lib/triplit';
+	import { feTriplitClient } from '$lib/triplit';
 	import { Button } from '$lib/components/ui/button';
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import * as Avatar from '$lib/components/ui/avatar/index.js';
 	import { useQuery } from '@triplit/svelte';
-	import Loader from '$lib/components/Loader.svelte';
 	import { Pencil } from 'lucide-svelte';
+	import { Plus } from 'lucide-svelte';
+	import * as Dialog from '$lib/components/ui/dialog/index.js';
+	import { AspectRatio } from '$lib/components/ui/aspect-ratio/index.js';
 
-	let userId = $state('');
 	let user = $state();
 	let client = feTriplitClient as TriplitClient;
 
@@ -23,13 +24,25 @@
 
 <div class="mx-2 flex flex-col items-center justify-center">
 	<!-- History of thoughts and moods -->
-	<section class="mt-8 sm:w-[450px] flex w-full flex-col items-center justify-center">
-		<h2 class="my-6 text-2xl font-semibold">Profile</h2>
+	<section class="mt-8 flex w-full flex-col items-center justify-center sm:w-[450px]">
+		<h2 class="my-6 text-2xl font-semibold">My Profile</h2>
 		<div class="flex w-full flex-col items-center justify-center">
-			<Avatar.Root class="h-24 w-24 sm:h-32 sm:w-32">
-				<Avatar.Image src={full_image_url} alt="@shadcn" />
-				<Avatar.Fallback>CN</Avatar.Fallback>
-			</Avatar.Root>
+			<Dialog.Root>
+				<Dialog.Trigger
+					><Avatar.Root class="h-24 w-24 sm:h-32 sm:w-32">
+						<Avatar.Image src={full_image_url} alt="@shadcn" />
+						<Avatar.Fallback>CN</Avatar.Fallback>
+					</Avatar.Root>
+				</Dialog.Trigger>
+				<Dialog.Content class="flex items-center justify-center">
+					<Dialog.Header>
+						<Avatar.Root class="h-full w-full ">
+							<Avatar.Image src={full_image_url} alt="@shadcn" />
+							<Avatar.Fallback>CN</Avatar.Fallback>
+						</Avatar.Root>
+					</Dialog.Header>
+				</Dialog.Content>
+			</Dialog.Root>
 			<a href="profile/upload-profile-image"> <Button variant="link">Edit Avatar</Button></a>
 		</div>
 
@@ -48,6 +61,10 @@
 					</div></a
 				>
 			</div>
+			<div class="my-2">{$page.data.user.email}</div>
+			<div class="my-2 mt-5">You have 2 logs remaining</div>
+			<Button class="my-2"><Plus />Add more logs</Button>
+			<!-- <Button class="my-2">Log out</Button> -->
 		{/if}
 	</section>
 </div>
