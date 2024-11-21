@@ -29,7 +29,7 @@
 		"@types/better-sqlite3": "^7.6.11",
 		"@types/eslint": "^9.6.1",
 		"autoprefixer": "^10.4.20",
-		"bits-ui": "1.0.0-next.60",
+		"bits-ui": "1.0.0-next.63",
 		"clsx": "^2.1.1",
 		"cmdk-sv": "^0.0.18",
 		"cross-env": "^7.0.3",

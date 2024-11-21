@@ -14,6 +14,7 @@
 	import { and } from '@triplit/client';
 	import { ChevronRight } from 'lucide-svelte';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
+	import ProfileAvatar from '$lib/components/ProfileAvatar.svelte';
 
 	let userId = '';
 
@@ -56,6 +57,7 @@
 						['event_id', '=', $page.params.id]
 					])
 				])
+				.include('user')
 				.build(),
 			(results) => {
 				attendeesGoing = results;
@@ -75,6 +77,7 @@
 						['event_id', '=', $page.params.id]
 					])
 				])
+				.include('user')
 				.build(),
 			(results) => {
 				attendeesNotGoing = results;
@@ -94,6 +97,7 @@
 						['event_id', '=', $page.params.id]
 					])
 				])
+				.include('user')
 				.build(),
 			(results) => {
 				attendeesMaybeGoing = results;
@@ -145,13 +149,12 @@
 				{#if attendeesGoing.length > 0}
 					<div class="flex flex-wrap -space-x-4">
 						{#each attendeesGoing as attendee}
-							<Avatar.Root>
-								<Avatar.Image
-									src={profileImageMap.get(attendee.user_id)?.small_image_url}
-									alt={attendee.name}
-								/>
-								<Avatar.Fallback>{attendee.name}</Avatar.Fallback>
-							</Avatar.Root>
+							{console.log('ppppp',attendee)}
+							<ProfileAvatar
+								url={profileImageMap.get(attendee.user_id)?.small_image_url}
+								username={attendee.user.username}
+								fallbackName={attendee.user.username}
+							/>
 						{/each}
 					</div>
 				{/if}
@@ -166,13 +169,11 @@
 										<h2>Going</h2>
 										<div class="flex flex-wrap -space-x-4">
 											{#each attendeesGoing as attendee}
-												<Avatar.Root>
-													<Avatar.Image
-														src={profileImageMap.get(attendee.user_id)?.small_image_url}
-														alt={attendee.name}
-													/>
-													<Avatar.Fallback>{attendee.name}</Avatar.Fallback>
-												</Avatar.Root>
+												<ProfileAvatar
+													url={profileImageMap.get(attendee.user_id)?.small_image_url}
+													username={attendee.user.username}
+													fallbackName={attendee.user.username}
+												/>
 											{/each}
 										</div>
 									{/if}
@@ -182,13 +183,11 @@
 										<h2>Maybe</h2>
 										<div class="flex flex-wrap -space-x-4">
 											{#each attendeesMaybeGoing as attendee}
-												<Avatar.Root>
-													<Avatar.Image
-														src={profileImageMap.get(attendee.user_id)?.small_image_url}
-														alt={attendee.name}
-													/>
-													<Avatar.Fallback>{attendee.name}</Avatar.Fallback>
-												</Avatar.Root>
+												<ProfileAvatar
+													url={profileImageMap.get(attendee.user_id)?.small_image_url}
+													username={attendee.user.username}
+													fallbackName={attendee.user.username}
+												/>
 											{/each}
 										</div>
 									{/if}
@@ -198,13 +197,11 @@
 										<h2>Not Going</h2>
 										<div class="flex flex-wrap -space-x-4">
 											{#each attendeesNotGoing as attendee}
-												<Avatar.Root>
-													<Avatar.Image
-														src={profileImageMap.get(attendee.user_id)?.small_image_url}
-														alt={attendee.name}
-													/>
-													<Avatar.Fallback>{attendee.name}</Avatar.Fallback>
-												</Avatar.Root>
+												<ProfileAvatar
+													url={profileImageMap.get(attendee.user_id)?.small_image_url}
+													username={attendee.user.username}
+													fallbackName={attendee.user.username}
+												/>
 											{/each}
 										</div>
 									{/if}
