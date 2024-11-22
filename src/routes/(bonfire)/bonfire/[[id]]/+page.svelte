@@ -26,7 +26,6 @@
 	let client = feTriplitClient as TriplitClient;
 
 	let profileImageMap = $page.data.profileImageMap;
-	console.log('######## profileImageMap', profileImageMap);
 
 	let attendeesGoing = $state([]);
 	let attendeesMaybeGoing = $state([]);
@@ -151,7 +150,6 @@
 				{#if attendeesGoing.length > 0}
 					<div class="flex flex-wrap -space-x-4">
 						{#each attendeesGoing as attendee}
-							{console.log('ppppp', attendee)}
 							<ProfileAvatar
 								url={profileImageMap.get(attendee.user_id)?.small_image_url}
 								fullsizeUrl={profileImageMap.get(attendee.user_id)?.full_image_url}
@@ -240,8 +238,6 @@
 				<hr class="my-10" />
 				<div>
 					<div class="my-10">
-						<div>Images</div>
-
 						<a href="media/add"
 							><Button variant="outline" class="flex w-full items-center justify-center"
 								><ImagePlus />Add to gallery</Button
