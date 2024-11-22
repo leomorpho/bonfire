@@ -4,6 +4,8 @@
 	import Webcam from '@uppy/webcam';
 	import Audio from '@uppy/audio';
 	import XHR from '@uppy/xhr-upload';
+	import GoldenRetriever from '@uppy/golden-retriever';
+	import Compressor from '@uppy/compressor';
 
 	// Import CSS for Uppy components and plugins
 	import '@uppy/core/dist/style.css';
@@ -28,9 +30,11 @@
 		})
 			.use(Webcam, {
 				mirror: true, // Use mirror mode for webcam
-				countdown: true // Add a countdown before capturing
+				// countdown: true // Add a countdown before capturing
 			})
 			.use(Audio)
+			.use(GoldenRetriever)
+			.use(Compressor)
 			.use(XHR, {
 				endpoint: `/bonfire/${$page.params.id}/media/add`, // Your SvelteKit endpoint
 				method: 'POST',

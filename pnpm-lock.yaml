@@ -47,12 +47,18 @@ importers:
       '@uppy/aws-s3':
         specifier: ^4.1.2
         version: 4.1.2(@uppy/core@4.2.3)
+      '@uppy/compressor':
+        specifier: ^2.1.0
+        version: 2.1.0(@uppy/core@4.2.3)
       '@uppy/core':
         specifier: ^4.2.3
         version: 4.2.3
       '@uppy/dashboard':
         specifier: ^4.1.2
         version: 4.1.2(@uppy/core@4.2.3)
+      '@uppy/golden-retriever':
+        specifier: ^4.0.1
+        version: 4.0.1(@uppy/core@4.2.3)
       '@uppy/progress-bar':
         specifier: ^4.0.1
         version: 4.0.1(@uppy/core@4.2.3)
@@ -2282,6 +2288,11 @@ packages:
     peerDependencies:
       '@uppy/core': ^4.2.3
 
+  '@uppy/compressor@2.1.0':
+    resolution: {integrity: sha512-F3fBqKSlMy/JCdT0sn6l+I+WlSRox2+/85JU1C51HdOgFbrzFnf0s0yNSLv201f5TRJsvaAWQDF/O+UV26YUsA==}
+    peerDependencies:
+      '@uppy/core': ^4.2.0
+
   '@uppy/core@4.2.3':
     resolution: {integrity: sha512-JSZiTZksrIZeATAtq9+QxXiPl7snfA5HbCn8uL20WJJxLqSff5ctnKmjvj0QmtwctPli00YrryDvEhCMhgmP7g==}
 
@@ -2292,6 +2303,11 @@ packages:
 
   '@uppy/drag-drop@4.0.4':
     resolution: {integrity: sha512-Ibz+NI9OrAFJ9BmuA0LZT9BuKBpIltfsyUIGbMGbNKmtQ1AGGswwgQMnD93RQE0lHC7V1BeU9vG655lNok0CCQ==}
+    peerDependencies:
+      '@uppy/core': ^4.2.3
+
+  '@uppy/golden-retriever@4.0.1':
+    resolution: {integrity: sha512-hT54gLXDtHuM0DfTUuUOfMAvEvBYA8eXsGKFuKJKYNz3pQUzGTM1PJnh+blWwdeOrdjIJq/Wp+s0zXWyICRSyQ==}
     peerDependencies:
       '@uppy/core': ^4.2.3
 
@@ -2538,6 +2554,9 @@ packages:
     peerDependencies:
       svelte: ^5.0.0-next.1
 
+  blueimp-canvas-to-blob@3.29.0:
+    resolution: {integrity: sha512-0pcSSGxC0QxT+yVkivxIqW0Y4VlO2XSDPofBAqoJ1qJxgH9eiUDLv50Rixij2cDuEfx4M6DpD9UGZpRhT5Q8qg==}
+
   bowser@2.11.0:
     resolution: {integrity: sha512-AlcaJBi/pqqJBIQ8U9Mcpc9i8Aqxn88Skv5d+xBX006BY5u8N3mGLHa5Lgppa7L/HfwgwLgZ6NYs+Ag6uUmJRA==}
 
@@ -2685,6 +2704,9 @@ packages:
 
   commondir@1.0.1:
     resolution: {integrity: sha512-W9pAhw0ja1Edb5GVdIF1mjZw/ASI0AlShXM83UUGe2DVr5TdAPEA1OA8m/g8zWp9x6On7gqufY+FatDbC3MDQg==}
+
+  compressorjs@1.2.1:
+    resolution: {integrity: sha512-+geIjeRnPhQ+LLvvA7wxBQE5ddeLU7pJ3FsKFWirDw6veY3s9iLxAQEw7lXGHnhCJvBujEQWuNnGzZcvCvdkLQ==}
 
   concat-map@0.0.1:
     resolution: {integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==}
@@ -3393,6 +3415,10 @@ packages:
   is-binary-path@2.1.0:
     resolution: {integrity: sha512-ZMERYes6pDydyuGidse7OsHxtbI7WVeUEozgR/g7rd0xUimYNlvZRE/K2MgZTjWy725IfelLeVcEM97mmtRGXw==}
     engines: {node: '>=8'}
+
+  is-blob@2.1.0:
+    resolution: {integrity: sha512-SZ/fTft5eUhQM6oF/ZaASFDEdbFVe89Imltn9uZr03wdKMcWNVYSMjQPFtg05QuNkt5l5c135ElvXEQG0rk4tw==}
+    engines: {node: '>=6'}
 
   is-buffer@1.1.6:
     resolution: {integrity: sha512-NcdALwpXkTm5Zvvbk7owOUSvVvBKDgKP5/ewfXEznmQFfs4ZRmanOeKBTjRVjka3QFoN6XJ+9F3USqfHqTaU5w==}
@@ -4107,6 +4133,10 @@ packages:
 
   promise-limit@2.7.0:
     resolution: {integrity: sha512-7nJ6v5lnJsXwGprnGXga4wx6d1POjvi5Qmf1ivTRxTjH4Z/9Czja/UCMLVmB9N93GeWOU93XaFaEt6jbuoagNw==}
+
+  promise-queue@2.2.5:
+    resolution: {integrity: sha512-p/iXrPSVfnqPft24ZdNNLECw/UrtLTpT3jpAAMzl/o5/rDsGCPo3/CQS2611flL6LkoEJ3oQZw7C8Q80ZISXRQ==}
+    engines: {node: '>= 0.8.0'}
 
   proper-lockfile@4.1.2:
     resolution: {integrity: sha512-TjNPblN4BwAWMXU8s9AEz4JmQxnD1NNL7bNOY/AKUzyamc379FWASUhc/K1pL2noVb+XmZKLL68cjzLsiOAMaA==}
@@ -6982,6 +7012,15 @@ snapshots:
       namespace-emitter: 2.0.1
       p-retry: 6.2.1
 
+  '@uppy/compressor@2.1.0(@uppy/core@4.2.3)':
+    dependencies:
+      '@transloadit/prettier-bytes': 0.3.5
+      '@uppy/core': 4.2.3
+      '@uppy/utils': 6.0.4
+      compressorjs: 1.2.1
+      preact: 10.24.3
+      promise-queue: 2.2.5
+
   '@uppy/core@4.2.3':
     dependencies:
       '@transloadit/prettier-bytes': 0.3.5
@@ -7014,6 +7053,12 @@ snapshots:
       '@uppy/core': 4.2.3
       '@uppy/utils': 6.0.4
       preact: 10.24.3
+
+  '@uppy/golden-retriever@4.0.1(@uppy/core@4.2.3)':
+    dependencies:
+      '@uppy/core': 4.2.3
+      '@uppy/utils': 6.0.4
+      lodash: 4.17.21
 
   '@uppy/informer@4.1.1(@uppy/core@4.2.3)':
     dependencies:
@@ -7291,6 +7336,8 @@ snapshots:
       svelte: 5.1.6
       svelte-toolbelt: 0.4.6(svelte@5.1.6)
 
+  blueimp-canvas-to-blob@3.29.0: {}
+
   bowser@2.11.0: {}
 
   brace-expansion@1.1.11:
@@ -7458,6 +7505,11 @@ snapshots:
   commander@4.1.1: {}
 
   commondir@1.0.1: {}
+
+  compressorjs@1.2.1:
+    dependencies:
+      blueimp-canvas-to-blob: 3.29.0
+      is-blob: 2.1.0
 
   concat-map@0.0.1: {}
 
@@ -8168,6 +8220,8 @@ snapshots:
     dependencies:
       binary-extensions: 2.3.0
 
+  is-blob@2.1.0: {}
+
   is-buffer@1.1.6: {}
 
   is-callable@1.2.7: {}
@@ -8747,6 +8801,8 @@ snapshots:
   process@0.11.10: {}
 
   promise-limit@2.7.0: {}
+
+  promise-queue@2.2.5: {}
 
   proper-lockfile@4.1.2:
     dependencies:
