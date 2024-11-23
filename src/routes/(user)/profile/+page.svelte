@@ -26,31 +26,31 @@
 	<!-- History of thoughts and moods -->
 	<section class="mt-8 flex w-full flex-col items-center justify-center sm:w-[450px]">
 		<h2 class="my-6 text-2xl font-semibold">My Profile</h2>
-		<div class="flex w-full flex-col items-center justify-center">
-			<Dialog.Root>
-				<Dialog.Trigger
-					><Avatar.Root class="h-24 w-24 sm:h-32 sm:w-32">
-						<Avatar.Image src={full_image_url} alt="@shadcn" />
-						<Avatar.Fallback>CN</Avatar.Fallback>
-					</Avatar.Root>
-				</Dialog.Trigger>
-				<Dialog.Content class="flex items-center justify-center">
-					<Dialog.Header>
-						<Avatar.Root class="h-full w-full ">
-							<Avatar.Image src={full_image_url} alt="@shadcn" />
-							<Avatar.Fallback>CN</Avatar.Fallback>
-						</Avatar.Root>
-					</Dialog.Header>
-				</Dialog.Content>
-			</Dialog.Root>
-			<a href="profile/upload-profile-image"> <Button variant="link">Edit Avatar</Button></a>
-		</div>
 
 		{#if !user || user.fetching}
 			<!-- <Loader /> -->
 		{:else if user.error}
 			<p>Error: {user.error.message}</p>
 		{:else if user.results}
+			<div class="flex w-full flex-col items-center justify-center">
+				<Dialog.Root>
+					<Dialog.Trigger
+						><Avatar.Root class="h-24 w-24 sm:h-32 sm:w-32">
+							<Avatar.Image src={full_image_url} alt="@shadcn" />
+								<Avatar.Fallback>{user.results[0].username?.slice(0, 2)}</Avatar.Fallback>
+						</Avatar.Root>
+					</Dialog.Trigger>
+					<Dialog.Content class="flex items-center justify-center">
+						<Dialog.Header>
+							<Avatar.Root class="h-full w-full ">
+								<Avatar.Image src={full_image_url} alt="@shadcn" />
+									<Avatar.Fallback>{user.results[0].username?.slice(0, 2)}</Avatar.Fallback>
+							</Avatar.Root>
+						</Dialog.Header>
+					</Dialog.Content>
+				</Dialog.Root>
+				<a href="profile/upload-profile-image"> <Button variant="link">Edit Avatar</Button></a>
+			</div>
 			<div class="mt-10 flex items-center justify-center text-xl font-semibold">
 				{user.results[0].username}
 				<a href="profile/username"
