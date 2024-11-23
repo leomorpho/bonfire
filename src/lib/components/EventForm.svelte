@@ -12,7 +12,6 @@
 	import { goto } from '$app/navigation';
 	import type { TriplitClient } from '@triplit/client';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
-	import Footer from './Footer.svelte';
 	import { DEFAULT } from '$lib/enums';
 
 	let { mode, event = null } = $props();

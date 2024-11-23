@@ -4,7 +4,6 @@
 	import { Cog } from 'lucide-svelte';
 	import { formatHumanReadable } from '$lib/utils';
 	import Rsvp from './Rsvp.svelte';
-	import { preventDefault } from 'svelte/legacy';
 
 	let { event, userId } = $props();
 
@@ -20,10 +19,11 @@
 		<Card.Header>
 			<Card.Title class="text-lg">{event.title}</Card.Title>
 			<Card.Description>{formatHumanReadable(event.start_time)}</Card.Description>
-			<Card.Description>Hosted by {event.user.username}</Card.Description>
+			<Card.Description>Hosted by {event.user?.username }</Card.Description
+			>
 		</Card.Header>
 		<Card.Content>
-				<Rsvp attendance={rsvpStatus} {userId} eventId={event.id} rsvpCanBeChanged={rsvpCanBeChanged}/>
+			<Rsvp attendance={rsvpStatus} {userId} eventId={event.id} {rsvpCanBeChanged} />
 		</Card.Content>
 		{#if event.user_id == (userId as string)}
 			<a href={`/bonfire/${event.id}/update`}>
