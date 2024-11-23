@@ -88,6 +88,7 @@
 		"arctic": "^2.0.1",
 		"aws-sdk": "^2.1692.0",
 		"buffer": "^6.0.3",
+		"busboy": "^1.6.0",
 		"date-fns": "^4.1.0",
 		"dotenv": "^16.4.5",
 		"drizzle-orm": "^0.35.3",

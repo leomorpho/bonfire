@@ -21,7 +21,6 @@
 
 	const maxMbSize = 100;
 
-
 	onMount(() => {
 		// Initialize Uppy instance with Tus for resumable uploads
 		uppy = new Uppy({
@@ -53,14 +52,27 @@
 				fieldName: 'file', // Ensure this matches the backend expectation
 				headers: {
 					Authorization: `Bearer ${window.localStorage.getItem('token')}`
-				}
+				},
+				allowedMetaFields: true
 			})
 			.on('upload-success', (file, response) => {
 				console.log('Upload successful:', file, response);
 			})
 			.on('error', (error) => {
 				console.error('Upload error:', error);
+			}).setFileMeta(file.id, {
+				originalName: file.name,
+				mimeType: file.type,
+				size: file.size,
 			});
+			
+		uppy.on('file-added', (file) => {
+			uppy.setFileMeta(file.id, {
+				originalName: file.name,
+				mimeType: file.type,
+				size: file.size,
+			});
+		});
 	});
 </script>
 

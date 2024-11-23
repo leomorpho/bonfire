@@ -33,9 +33,9 @@ export const schema = {
 				delete: { filter: [true] }
 			},
 			user: {
-				read: { filter: [true] },
+				read: { filter: [true] }
 				// read: { filter: [['id', '=', '$relation.user_id']] } // Users can only read user data tied to related events
-			},
+			}
 		}
 	},
 	profile_images: {
@@ -130,6 +130,39 @@ export const schema = {
 				delete: {
 					// Users can remove themselves from the event
 					filter: [['user_id', '=', '$role.userId']]
+				}
+			}
+		}
+	},
+	files: {
+		schema: S.Schema({
+			id: S.Id(),
+			file_key: S.String(), // S3 key for the file
+			file_type: S.String(), // e.g., 'image', 'video', 'gif'
+			file_name: S.String(),
+			size_in_bytes: S.Number(),
+			uploaded_at: S.Date({ default: S.Default.now() }),
+			uploader_id: S.String(), // ID of the attendee
+			uploader: S.RelationById('user', '$user_id'), // Link to the user
+			event_id: S.String(), // ID of the event
+			event: S.RelationById('events', '$event_id') // Link to the event
+		}),
+		permissions: {
+			admin: {
+				read: { filter: [true] }, // Admins can read all files
+				insert: { filter: [true] }, // Admins can insert files
+				update: { filter: [true] }, // Admins can update files
+				delete: { filter: [true] } // Admins can delete files
+			},
+			user: {
+				// No need to allow read and insert since we will do that in BE logic and
+				// triplit doesn't seem powerful enough to be able to set appropriate permissions (user
+				// is attending event).
+				update: {
+					filter: [['uploader_id', '=', '$role.userId']] // Users can only update their own files
+				},
+				delete: {
+					filter: [['uploader_id', '=', '$role.userId']] // Users can only delete their own files
 				}
 			}
 		}

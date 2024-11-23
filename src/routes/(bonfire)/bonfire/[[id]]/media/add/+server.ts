@@ -2,6 +2,7 @@ import { uploadLargeFileToS3 } from '$lib/filestorage';
 import type { RequestEvent } from '@sveltejs/kit';
 import { Readable } from 'stream';
 import { error } from '@sveltejs/kit';
+import { serverTriplitClient } from '$lib/triplit';
 
 export const POST = async (event: RequestEvent): Promise<Response> => {
 	try {
@@ -27,30 +28,41 @@ export const POST = async (event: RequestEvent): Promise<Response> => {
 		const formData = await parseMultipart(event.request, boundary);
 
 		const file = formData.get('file');
-		const metadata = formData.get('metadata'); // Optional additional metadata
 
 		if (!file || !(file instanceof Buffer)) {
 			throw new TypeError('No valid file uploaded');
 		}
 
+		// Extract file from formData
+		const filename = formData.get('name');
+		const filetype = formData.get('type');
+		const fileSize = file.length; // Get the file size in bytes
+
+
 		const fileStream = Readable.from(file);
 
-		const fileKey = `events/eventid_${id}/userid_${user.id}/${Date.now()}_${metadata?.name || 'file'}`;
-		const contentTypeHeader = metadata?.type || 'application/octet-stream';
+		const fileKey = `events/eventid_${id}/userid_${user.id}/${filename}`;
 
 		await uploadLargeFileToS3({
 			fileStream,
 			key: fileKey,
-			contentType: contentTypeHeader,
+			contentType: filetype
 		});
 
-		return new Response(
-			JSON.stringify({ message: 'File uploaded successfully', fileKey }),
-			{
-				status: 200,
-				headers: { 'Content-Type': 'application/json' },
-			}
-		);
+		// Create entry
+		await serverTriplitClient.insert('files', {
+			uploader_id: user.id,
+			event_id: id,
+			file_key: fileKey,
+			file_type: filetype,
+			file_name: filename,
+			size_in_bytes: fileSize
+		});
+
+		return new Response(JSON.stringify({ message: 'File uploaded successfully', fileKey }), {
+			status: 200,
+			headers: { 'Content-Type': 'application/json' }
+		});
 	} catch (error) {
 		console.error('Error uploading file:', error);
 		return new Response('Internal Server Error', { status: 500 });
@@ -69,7 +81,6 @@ async function parseMultipart(request: Request, boundary: string) {
 			/Content-Disposition: form-data; name="([^"]+)"(; filename="([^"]+)")?/
 		);
 		if (!match) continue;
-
 		const name = match[1];
 		const filename = match[3];
 		const contentIndex = part.indexOf('\r\n\r\n') + 4;
