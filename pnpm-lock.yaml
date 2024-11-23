@@ -59,6 +59,9 @@ importers:
       '@uppy/golden-retriever':
         specifier: ^4.0.1
         version: 4.0.1(@uppy/core@4.2.3)
+      '@uppy/image-editor':
+        specifier: ^3.2.0
+        version: 3.2.0(@uppy/core@4.2.3)
       '@uppy/progress-bar':
         specifier: ^4.0.1
         version: 4.0.1(@uppy/core@4.2.3)
@@ -2311,6 +2314,11 @@ packages:
     peerDependencies:
       '@uppy/core': ^4.2.3
 
+  '@uppy/image-editor@3.2.0':
+    resolution: {integrity: sha512-yKC3+jMUARMizS4O5n2fEtPAVEaDveJHVeFLOb9NrFv+2HCmkxg74kMVTkc3B24m0yAYZz7p6Fwg6EEe+u35aw==}
+    peerDependencies:
+      '@uppy/core': ^4.2.3
+
   '@uppy/informer@4.1.1':
     resolution: {integrity: sha512-RRNCw4Z9EVeuYH+U6LKKPmeC78hLUESSIjMlXpJzxPZCqOdpERVEH5Lslg1TZELb5q1ezHFC3pKRxHS++SBcAg==}
     peerDependencies:
@@ -2724,6 +2732,9 @@ packages:
 
   core-js@3.38.1:
     resolution: {integrity: sha512-OP35aUorbU3Zvlx7pjsFdu1rGNnD4pgw/CWoYzRY3t2EzoVT7shKHY1dlAy3f41cGIO7ZDPQimhGFTlEYkG/Hw==}
+
+  cropperjs@1.6.2:
+    resolution: {integrity: sha512-nhymn9GdnV3CqiEHJVai54TULFAE3VshJTXSqSJKa8yXAKyBKDWdhHarnlIPrshJ0WMFTGuFvG02YjLXfPiuOA==}
 
   cross-env@7.0.3:
     resolution: {integrity: sha512-+/HKd6EgcQCJGh2PSjZuUitQBQynKor4wrFbRg4DtAgS1aWO+gU52xpH7M9ScGgXSYmAVS9bIJ8EzuaGw0oNAw==}
@@ -7060,6 +7071,13 @@ snapshots:
       '@uppy/utils': 6.0.4
       lodash: 4.17.21
 
+  '@uppy/image-editor@3.2.0(@uppy/core@4.2.3)':
+    dependencies:
+      '@uppy/core': 4.2.3
+      '@uppy/utils': 6.0.4
+      cropperjs: 1.6.2
+      preact: 10.24.3
+
   '@uppy/informer@4.1.1(@uppy/core@4.2.3)':
     dependencies:
       '@uppy/core': 4.2.3
@@ -7525,6 +7543,8 @@ snapshots:
       is-what: 4.1.16
 
   core-js@3.38.1: {}
+
+  cropperjs@1.6.2: {}
 
   cross-env@7.0.3:
     dependencies:

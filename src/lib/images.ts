@@ -116,106 +116,102 @@ interface UploadLargeFileToS3Params {
 	fileStream: Readable; // A readable stream for the file
 	key: string; // The S3 object key
 	contentType: string; // The MIME type of the file
-  }
-  
-  // Define types for the function return value
-  interface UploadLargeFileToS3Result {
+}
+
+// Define types for the function return value
+interface UploadLargeFileToS3Result {
 	success: boolean;
 	key: string;
-  }
+}
 
-  export async function uploadLargeFileToS3({
+export async function uploadLargeFileToS3({
 	fileStream,
 	key,
-	contentType,
-  }: UploadLargeFileToS3Params): Promise<UploadLargeFileToS3Result> {
+	contentType
+}: UploadLargeFileToS3Params): Promise<UploadLargeFileToS3Result> {
 	const chunkSize = 8 * 1024 * 1024; // 8MB
-  
+
 	let uploadId: string | undefined;
 	const parts: { PartNumber: number; ETag: string }[] = [];
 	let partNumber = 1;
-  
+
 	try {
-	  // Start the multipart upload
-	  const createCommand = new CreateMultipartUploadCommand({
-		Bucket: bucketName,
-		Key: key,
-		ContentType: contentType,
-	  });
-	  const createResponse = await s3.send(createCommand);
-	  uploadId = createResponse.UploadId;
-  
-	  if (!uploadId) {
-		throw new Error('Failed to start multipart upload');
-	  }
-  
-	  // Read and upload chunks
-	  for await (const chunk of chunkFileStream(fileStream, chunkSize)) {
-		const uploadPartCommand = new UploadPartCommand({
-		  Bucket: bucketName,
-		  Key: key,
-		  PartNumber: partNumber,
-		  UploadId: uploadId,
-		  Body: chunk,
+		// Start the multipart upload
+		const createCommand = new CreateMultipartUploadCommand({
+			Bucket: bucketName,
+			Key: key,
+			ContentType: contentType
 		});
-		const partResponse = await s3.send(uploadPartCommand);
-  
-		if (!partResponse.ETag) {
-		  throw new Error(`Failed to upload part ${partNumber}`);
+		const createResponse = await s3.send(createCommand);
+		uploadId = createResponse.UploadId;
+
+		if (!uploadId) {
+			throw new Error('Failed to start multipart upload');
 		}
-  
-		parts.push({ PartNumber: partNumber, ETag: partResponse.ETag });
-		partNumber++;
-	  }
-  
-	  // Complete the upload
-	  const completeCommand = new CompleteMultipartUploadCommand({
-		Bucket: bucketName,
-		Key: key,
-		UploadId: uploadId,
-		MultipartUpload: { Parts: parts },
-	  });
-	  await s3.send(completeCommand);
-  
-	  console.log(`File uploaded successfully: ${key}`);
-	  return { success: true, key };
-	} catch (error) {
-	  console.error(`Error uploading file: ${error}`);
-  
-	  // Abort the upload on failure
-	  if (uploadId) {
-		const abortCommand = new AbortMultipartUploadCommand({
-		  Bucket: bucketName,
-		  Key: key,
-		  UploadId: uploadId,
+
+		// Read and upload chunks
+		for await (const chunk of chunkFileStream(fileStream, chunkSize)) {
+			const uploadPartCommand = new UploadPartCommand({
+				Bucket: bucketName,
+				Key: key,
+				PartNumber: partNumber,
+				UploadId: uploadId,
+				Body: chunk
+			});
+			const partResponse = await s3.send(uploadPartCommand);
+
+			if (!partResponse.ETag) {
+				throw new Error(`Failed to upload part ${partNumber}`);
+			}
+
+			parts.push({ PartNumber: partNumber, ETag: partResponse.ETag });
+			partNumber++;
+		}
+
+		// Complete the upload
+		const completeCommand = new CompleteMultipartUploadCommand({
+			Bucket: bucketName,
+			Key: key,
+			UploadId: uploadId,
+			MultipartUpload: { Parts: parts }
 		});
-		await s3.send(abortCommand);
-		console.error(`Multipart upload aborted: ${key}`);
-	  }
-  
-	  throw error;
+		await s3.send(completeCommand);
+
+		console.log(`File uploaded successfully: ${key}`);
+		return { success: true, key };
+	} catch (error) {
+		console.error(`Error uploading file: ${error}`);
+
+		// Abort the upload on failure
+		if (uploadId) {
+			const abortCommand = new AbortMultipartUploadCommand({
+				Bucket: bucketName,
+				Key: key,
+				UploadId: uploadId
+			});
+			await s3.send(abortCommand);
+			console.error(`Multipart upload aborted: ${key}`);
+		}
+
+		throw error;
 	}
-  }
-  
-  // Utility function to chunk the stream
-  async function* chunkFileStream(
-	fileStream: Readable,
-	chunkSize: number
-  ): AsyncIterable<Buffer> {
+}
+
+// Utility function to chunk the stream
+async function* chunkFileStream(fileStream: Readable, chunkSize: number): AsyncIterable<Buffer> {
 	let buffer = Buffer.alloc(0);
-  
+
 	for await (const chunk of fileStream) {
-	  buffer = Buffer.concat([buffer, chunk]);
-	  while (buffer.length >= chunkSize) {
-		// Use Uint8Array.prototype.slice
-		const chunkToYield = buffer.subarray(0, chunkSize); // Use `subarray` instead of `slice`
-		yield Buffer.from(chunkToYield);
-		buffer = buffer.subarray(chunkSize); // Update the buffer with the remaining data
-	  }
+		buffer = Buffer.concat([buffer, chunk]);
+		while (buffer.length >= chunkSize) {
+			// Use Uint8Array.prototype.slice
+			const chunkToYield = buffer.subarray(0, chunkSize); // Use `subarray` instead of `slice`
+			yield Buffer.from(chunkToYield);
+			buffer = buffer.subarray(chunkSize); // Update the buffer with the remaining data
+		}
 	}
-  
+
 	if (buffer.length > 0) {
-	  yield buffer; // Yield any remaining data
+		yield buffer; // Yield any remaining data
 	}
-  }
-  
+}

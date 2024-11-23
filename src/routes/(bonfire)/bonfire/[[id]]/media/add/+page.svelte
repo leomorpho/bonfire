@@ -6,6 +6,7 @@
 	import XHR from '@uppy/xhr-upload';
 	import GoldenRetriever from '@uppy/golden-retriever';
 	import Compressor from '@uppy/compressor';
+	import DashboardPlugin from '@uppy/dashboard';
 
 	// Import CSS for Uppy components and plugins
 	import '@uppy/core/dist/style.css';
@@ -13,23 +14,33 @@
 	import '@uppy/webcam/dist/style.css';
 	import '@uppy/audio/dist/style.min.css';
 
-	import { onMount, onDestroy } from 'svelte';
+	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 
 	let uppy;
 
+	const maxMbSize = 100;
+
+
 	onMount(() => {
 		// Initialize Uppy instance with Tus for resumable uploads
 		uppy = new Uppy({
-			debug: true, // Enable debug logs (optional)
+			debug: false, // Enable debug logs (optional)
 			autoProceed: false, // Wait for user action before starting uploads
 			restrictions: {
-				maxFileSize: 100 * 1024 * 1024, // Limit file size to 100MB
+				maxFileSize: maxMbSize * 1024 * 1024, // Limit file size to 100MB
 				allowedFileTypes: ['image/*', 'video/*', 'audio/*'] // Allowed file types
 			}
 		})
+			.use(DashboardPlugin, {
+				inline: true,
+				target: '#uppy-dashboard',
+				autoOpen: 'imageEditor', // Automatically open the editor
+				showProgressDetails: true,
+				note: `Images, videos or sound files. Max size: ${maxMbSize}MB.`
+			})
 			.use(Webcam, {
-				mirror: true, // Use mirror mode for webcam
+				mirror: true // Use mirror mode for webcam
 				// countdown: true // Add a countdown before capturing
 			})
 			.use(Audio)
@@ -55,14 +66,6 @@
 
 <div class="mx-4 flex flex-col items-center justify-center">
 	<section class="mt-8 w-full sm:w-[450px]">
-		{#if uppy}
-			<!-- Display Uppy Dashboard -->
-			<Dashboard
-				{uppy}
-				inline={true}
-				showProgressDetails={true}
-				note="Images, videos, and audio only. Max size: 100MB."
-			/>
-		{/if}
+		<div id="uppy-dashboard"></div>
 	</section>
 </div>
