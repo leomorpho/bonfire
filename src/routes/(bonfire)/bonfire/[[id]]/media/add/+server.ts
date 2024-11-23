@@ -1,4 +1,4 @@
-import { uploadLargeFileToS3 } from '$lib/images';
+import { uploadLargeFileToS3 } from '$lib/filestorage';
 import type { RequestEvent } from '@sveltejs/kit';
 import { Readable } from 'stream';
 import { error } from '@sveltejs/kit';

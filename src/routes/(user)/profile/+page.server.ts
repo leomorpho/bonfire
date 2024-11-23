@@ -1,4 +1,4 @@
-import { generateSignedUrl } from '$lib/images.js';
+import { generateSignedUrl } from '$lib/filestorage.js';
 import { serverTriplitClient } from '$lib/triplit';
 import { redirect } from '@sveltejs/kit';
 
