@@ -14,6 +14,7 @@
 	import { ChevronRight } from 'lucide-svelte';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import ProfileAvatar from '$lib/components/ProfileAvatar.svelte';
+	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
 
 	let userId = $state('');
 
@@ -43,10 +44,7 @@
 		})();
 
 		// Update event data based on the current page id
-		event = useQuery(
-			client,
-			client.query('events').include('attendees').where(['id', '=', $page.params.id])
-		);
+		event = useQuery(client, client.query('events').where(['id', '=', $page.params.id]));
 
 		// Subscribe to "going" attendees
 		unsubscribeGoing = client.subscribe(
@@ -62,6 +60,7 @@
 				.build(),
 			(results) => {
 				attendeesGoing = results;
+				console.log('# attendeesGoing', attendeesGoing);
 			},
 			(error) => {
 				console.error('Error fetching "going" attendees:', error);
@@ -162,56 +161,58 @@
 				<Dialog.Root>
 					<Dialog.Trigger><ChevronRight class="ml-1 h-4 w-4" /></Dialog.Trigger>
 					<Dialog.Content>
-						<Dialog.Header>
-							<Dialog.Title>Attendees</Dialog.Title>
-							<Dialog.Description>
-								<div class="mb-3 mt-5">
-									{#if attendeesGoing.length > 0}
-										<h2>Going</h2>
-										<div class="flex flex-wrap -space-x-4">
-											{#each attendeesGoing as attendee}
-												<ProfileAvatar
-													url={profileImageMap.get(attendee.user_id)?.small_image_url}
-													fullsizeUrl={profileImageMap.get(attendee.user_id)?.full_image_url}
-													username={attendee.user?.username}
-													fallbackName={attendee.user?.username}
-												/>
-											{/each}
-										</div>
-									{/if}
-								</div>
-								<div class="mb-3 mt-5">
-									{#if attendeesMaybeGoing.length > 0}
-										<h2>Maybe</h2>
-										<div class="flex flex-wrap -space-x-4">
-											{#each attendeesMaybeGoing as attendee}
-												<ProfileAvatar
-													url={profileImageMap.get(attendee.user_id)?.small_image_url}
-													fullsizeUrl={profileImageMap.get(attendee.user_id)?.full_image_url}
-													username={attendee.user?.username}
-													fallbackName={attendee.user?.username}
-												/>
-											{/each}
-										</div>
-									{/if}
-								</div>
-								<div class="mb-3 mt-5">
-									{#if attendeesNotGoing.length > 0}
-										<h2>Not Going</h2>
-										<div class="flex flex-wrap -space-x-4">
-											{#each attendeesNotGoing as attendee}
-												<ProfileAvatar
-													url={profileImageMap.get(attendee.user_id)?.small_image_url}
-													fullsizeUrl={profileImageMap.get(attendee.user_id)?.full_image_url}
-													username={attendee.user?.username}
-													fallbackName={attendee.user?.username}
-												/>
-											{/each}
-										</div>
-									{/if}
-								</div>
-							</Dialog.Description>
-						</Dialog.Header>
+						<ScrollArea class="h-screen">
+							<Dialog.Header>
+								<Dialog.Title>Attendees</Dialog.Title>
+								<Dialog.Description>
+									<div class="mb-3 mt-5">
+										{#if attendeesGoing.length > 0}
+											<h2>Going</h2>
+											<div class="flex flex-wrap -space-x-4">
+												{#each attendeesGoing as attendee}
+													<ProfileAvatar
+														url={profileImageMap.get(attendee.user_id)?.small_image_url}
+														fullsizeUrl={profileImageMap.get(attendee.user_id)?.full_image_url}
+														username={attendee.user?.username}
+														fallbackName={attendee.user?.username}
+													/>
+												{/each}
+											</div>
+										{/if}
+									</div>
+									<div class="mb-3 mt-5">
+										{#if attendeesMaybeGoing.length > 0}
+											<h2>Maybe</h2>
+											<div class="flex flex-wrap -space-x-4">
+												{#each attendeesMaybeGoing as attendee}
+													<ProfileAvatar
+														url={profileImageMap.get(attendee.user_id)?.small_image_url}
+														fullsizeUrl={profileImageMap.get(attendee.user_id)?.full_image_url}
+														username={attendee.user?.username}
+														fallbackName={attendee.user?.username}
+													/>
+												{/each}
+											</div>
+										{/if}
+									</div>
+									<div class="mb-3 mt-5">
+										{#if attendeesNotGoing.length > 0}
+											<h2>Not Going</h2>
+											<div class="flex flex-wrap -space-x-4">
+												{#each attendeesNotGoing as attendee}
+													<ProfileAvatar
+														url={profileImageMap.get(attendee.user_id)?.small_image_url}
+														fullsizeUrl={profileImageMap.get(attendee.user_id)?.full_image_url}
+														username={attendee.user?.username}
+														fallbackName={attendee.user?.username}
+													/>
+												{/each}
+											</div>
+										{/if}
+									</div>
+								</Dialog.Description>
+							</Dialog.Header>
+						</ScrollArea>
 					</Dialog.Content>
 				</Dialog.Root>
 			</div>
