@@ -25,23 +25,23 @@ export const schema = {
 				where: [['user_id', '=', '$id']]
 			})
 		}),
-		permissions: {
-			admin: {
-				read: { filter: [true] },
-				insert: { filter: [true] },
-				update: { filter: [true] },
-				delete: { filter: [true] }
-			},
-			user: {
-				read: { filter: [true] },
-				update: {
-					filter: [['id', '=', '$role.userId']] // Users can only update their own profile
-				},
-				delete: {
-					filter: [['id', '=', '$role.userId']] // Users can only delete their own profile
-				}
-			}
-		}
+		// permissions: {
+		// 	admin: {
+		// 		read: { filter: [true] },
+		// 		insert: { filter: [true] },
+		// 		update: { filter: [true] },
+		// 		delete: { filter: [true] }
+		// 	},
+		// 	user: {
+		// 		read: { filter: [true] },
+		// 		update: {
+		// 			filter: [['id', '=', '$role.userId']] // Users can only update their own profile
+		// 		},
+		// 		delete: {
+		// 			filter: [['id', '=', '$role.userId']] // Users can only delete their own profile
+		// 		}
+		// 	}
+		// }
 	},
 	profile_images: {
 		schema: S.Schema({

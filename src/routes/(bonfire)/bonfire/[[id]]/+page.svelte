@@ -121,8 +121,6 @@
 				rsvpStatus = currentUserAttendee ? currentUserAttendee : undefined;
 
 				// Group attendees by their RSVP status
-			} else {
-				console.log('No attendees yet.');
 			}
 		}
 	});
