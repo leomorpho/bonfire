@@ -35,10 +35,10 @@ export const schema = {
 			user: {
 				read: { filter: [true] },
 				update: {
-					filter: [['user_id', '=', '$role.userId']] // Users can only update their own profile images
+					filter: [['id', '=', '$role.userId']] // Users can only update their own profile images
 				},
 				delete: {
-					filter: [['user_id', '=', '$role.userId']] // Users can only delete their own profile images
+					filter: [['id', '=', '$role.userId']] // Users can only delete their own profile images
 				}
 			}
 		}

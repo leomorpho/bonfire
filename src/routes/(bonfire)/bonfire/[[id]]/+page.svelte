@@ -62,7 +62,6 @@
 				.build(),
 			(results) => {
 				attendeesGoing = results;
-				console.log('# attendeesGoing', attendeesGoing);
 			},
 			(error) => {
 				console.error('Error fetching "going" attendees:', error);
@@ -121,7 +120,7 @@
 
 				// Set RSVP status based on the attendee record, or keep it as default
 				rsvpStatus = currentUserAttendee ? currentUserAttendee : undefined;
-
+				$inspect('### rsvpStatus', rsvpStatus);
 				// Group attendees by their RSVP status
 			}
 		}
