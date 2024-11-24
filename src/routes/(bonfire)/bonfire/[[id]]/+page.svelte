@@ -9,7 +9,7 @@
 	import { formatHumanReadable } from '$lib/utils';
 	import Rsvp from '$lib/components/Rsvp.svelte';
 	import { onMount } from 'svelte';
-	import { GOING, MAYBE, NOT_GOING } from '$lib/enums';
+	import { Status } from '$lib/enums';
 	import { and } from '@triplit/client';
 	import { ChevronRight } from 'lucide-svelte';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
@@ -52,9 +52,9 @@
 				.build(),
 			(results) => {
 				// Separate attendees into different variables by status
-				attendeesGoing = results.filter((attendee) => attendee.status === GOING);
-				attendeesNotGoing = results.filter((attendee) => attendee.status === NOT_GOING);
-				attendeesMaybeGoing = results.filter((attendee) => attendee.status === MAYBE);
+				attendeesGoing = results.filter((attendee) => attendee.status === Status.GOING);
+				attendeesNotGoing = results.filter((attendee) => attendee.status === Status.NOT_GOING);
+				attendeesMaybeGoing = results.filter((attendee) => attendee.status === Status.MAYBE);
 
 				// Optionally log results for debugging
 				// console.log('Going:', attendeesGoing);

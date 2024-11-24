@@ -10,7 +10,6 @@
 	import Loader from '$lib/components/Loader.svelte';
 	import { Frown } from 'lucide-svelte';
 	import { useQuery } from '@triplit/svelte';
-	import { DEFAULT, getStrValueOfRSVP, GOING, MAYBE, NOT_GOING } from '$lib/enums';
 	import EventCard from '$lib/components/EventCard.svelte';
 	import { page } from '$app/stores';
 

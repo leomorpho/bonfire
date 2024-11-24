@@ -4,13 +4,13 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import type { TriplitClient } from '@triplit/client';
 	import { getFeTriplitClient } from '$lib/triplit';
-	import { DEFAULT, getStrValueOfRSVP, GOING, MAYBE, NOT_GOING } from '$lib/enums';
+	import { getStrValueOfRSVP, Status } from '$lib/enums';
 	import { and } from '@triplit/client';
 	import AddToCalendar from './AddToCalendar.svelte';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 
-	let { rsvpStatus=DEFAULT, userId, eventId, rsvpCanBeChanged } = $props();
+	let { rsvpStatus = Status.DEFAULT, userId, eventId, rsvpCanBeChanged } = $props();
 
 	// console.log('attendance', attendance);
 	console.log('userId', userId);
@@ -29,7 +29,7 @@
 	// 	rsvpStatus = attendance.status;
 	// }
 
-	let showAddToCalendarStatuses = new Set([GOING, MAYBE]);
+	let showAddToCalendarStatuses = new Set([Status.GOING, Status.MAYBE]);
 
 	$effect(() => {
 		showAddToCalendar = showAddToCalendarStatuses.has(rsvpStatus);
@@ -53,6 +53,10 @@
 				])
 				.build();
 			let attendance = await client.fetchOne(query);
+
+			if (!attendance) {
+				return;
+			}
 
 			// NOTE that we automatically create a RSVP status attendance object
 			// upon navigation to an event if the user does not have an attendance object for it.
@@ -78,12 +82,11 @@
 		>
 			<Button
 				variant="outline"
-				class="mt-4 flex w-full items-center justify-center {rsvpStatus === GOING
+				class="mt-4 flex w-full items-center justify-center {rsvpStatus === Status.GOING
 					? 'bg-green-200 hover:bg-green-100'
-					: ''} {rsvpStatus === MAYBE ? 'bg-yellow-200 hover:bg-yellow-100' : ''} {rsvpStatus ===
-				NOT_GOING
-					? 'bg-red-200 hover:bg-red-100'
-					: ''}"
+					: ''} {rsvpStatus === Status.MAYBE
+					? 'bg-yellow-200 hover:bg-yellow-100'
+					: ''} {rsvpStatus === Status.NOT_GOING ? 'bg-red-200 hover:bg-red-100' : ''}"
 			>
 				{getStrValueOfRSVP(rsvpStatus)}
 			</Button>
@@ -91,20 +94,20 @@
 		<DropdownMenu.Content class="w-full">
 			<DropdownMenu.Group>
 				<DropdownMenu.Item
-					class={rsvpStatus === GOING ? 'bg-green-200' : ''}
-					onclick={(event) => updateRSVP(event, GOING)}
+					class={rsvpStatus === Status.GOING ? 'bg-green-200' : ''}
+					onclick={(event) => updateRSVP(event, Status.GOING)}
 				>
 					<Smile /> Going
 				</DropdownMenu.Item>
 				<DropdownMenu.Item
-					class={rsvpStatus === MAYBE ? 'bg-yellow-200' : ''}
-					onclick={(event) => updateRSVP(event, MAYBE)}
+					class={rsvpStatus === Status.MAYBE ? 'bg-yellow-200' : ''}
+					onclick={(event) => updateRSVP(event, Status.MAYBE)}
 				>
 					<Meh /> Maybe
 				</DropdownMenu.Item>
 				<DropdownMenu.Item
-					class={rsvpStatus === NOT_GOING ? 'bg-red-200' : ''}
-					onclick={(event) => updateRSVP(event, NOT_GOING)}
+					class={rsvpStatus === Status.NOT_GOING ? 'bg-red-200' : ''}
+					onclick={(event) => updateRSVP(event, Status.NOT_GOING)}
 				>
 					<Frown /> Not going
 				</DropdownMenu.Item>

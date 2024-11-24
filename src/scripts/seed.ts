@@ -3,7 +3,7 @@ import { generateId } from 'lucia';
 import { faker } from '@faker-js/faker';
 import type { TriplitClient } from '@triplit/client';
 import { serverTriplitClient } from '$lib/triplit';
-import { GOING, MAYBE, NOT_GOING } from '$lib/enums';
+import { Status} from '$lib/enums';
 
 let client = serverTriplitClient as TriplitClient;
 
@@ -28,7 +28,7 @@ const { output } = await client.insert('events', {
 });
 
 function getRandomStatus() {
-	const statuses = [GOING, NOT_GOING, MAYBE];
+	const statuses = [Status.GOING, Status.NOT_GOING, Status.MAYBE];
 	return statuses[Math.floor(Math.random() * statuses.length)];
 }
 

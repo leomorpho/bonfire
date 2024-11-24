@@ -1,5 +1,5 @@
 import { goto } from '$app/navigation';
-import { DEFAULT } from '$lib/enums';
+import { Status } from '$lib/enums';
 import { generateSignedUrl } from '$lib/filestorage.js';
 import { serverTriplitClient } from '$lib/triplit';
 import { and } from '@triplit/client';
@@ -36,7 +36,7 @@ export const load = async (event) => {
 			await serverTriplitClient.insert('attendees', {
 				user_id: user.id,
 				event_id: eventId as string,
-				status: DEFAULT // Default status
+				status: Status.DEFAULT // Default status
 			});
 		}
 	}
