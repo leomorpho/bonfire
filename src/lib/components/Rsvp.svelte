@@ -3,10 +3,12 @@
 	import { Smile, Meh, Frown } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import type { TriplitClient } from '@triplit/client';
-	import { feTriplitClient } from '$lib/triplit';
+	import { getFeTriplitClient } from '$lib/triplit';
 	import { DEFAULT, getStrValueOfRSVP, GOING, MAYBE, NOT_GOING } from '$lib/enums';
 	import { and } from '@triplit/client';
 	import AddToCalendar from './AddToCalendar.svelte';
+	import { page } from '$app/stores';
+	import { onMount } from 'svelte';
 
 	let { attendance, userId, eventId, rsvpCanBeChanged } = $props();
 
@@ -16,7 +18,11 @@
 
 	let showAddToCalendar = $state(false);
 
-	let client = feTriplitClient as TriplitClient;
+	let client: TriplitClient;
+
+	onMount(() => {
+		client = getFeTriplitClient($page.data.jwt) as TriplitClient;
+	});
 
 	let rsvpStatus: string = $state(DEFAULT);
 	if (attendance) {

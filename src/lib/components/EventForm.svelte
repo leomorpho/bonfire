@@ -8,17 +8,23 @@
 	import TimezonePicker from '$lib/components/TimezonePicker.svelte';
 	import Datepicker from '$lib/components/Datepicker.svelte';
 	import AmPmPicker from '$lib/components/AmPmPicker.svelte';
-	import { feTriplitClient, waitForUserId } from '$lib/triplit';
+	import { getFeTriplitClient, waitForUserId } from '$lib/triplit';
 	import { goto } from '$app/navigation';
 	import type { TriplitClient } from '@triplit/client';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { DEFAULT } from '$lib/enums';
+	import { page } from '$app/stores';
+	import { onMount } from 'svelte';
 
 	let { mode, event = null } = $props();
 
 	console.log(event);
 
-	let client = feTriplitClient as TriplitClient;
+	let client: TriplitClient;
+
+	onMount(() => {
+		client = getFeTriplitClient($page.data.jwt) as TriplitClient;
+	});
 
 	const df = new DateFormatter('en-US', {
 		dateStyle: 'long'
@@ -155,8 +161,8 @@
 					event_id: output.id as string,
 					status: DEFAULT // Default status
 				});
-			}else{
-				console.log("Failed to create event object")
+			} else {
+				console.log('Failed to create event object');
 			}
 		} else {
 			await client.update('events', event.id, async (entity) => {

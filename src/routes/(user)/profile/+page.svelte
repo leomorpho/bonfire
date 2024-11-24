@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { TriplitClient } from '@triplit/client';
-	import { feTriplitClient } from '$lib/triplit';
 	import { Button } from '$lib/components/ui/button';
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
@@ -9,15 +8,17 @@
 	import { Pencil } from 'lucide-svelte';
 	import { Plus } from 'lucide-svelte';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
-	import { AspectRatio } from '$lib/components/ui/aspect-ratio/index.js';
+	import { getFeTriplitClient } from '$lib/triplit';
 
 	let user = $state();
-	let client = feTriplitClient as TriplitClient;
+	let client: TriplitClient;
 
 	const full_image_url = $page.data.full_image_url;
 	const small_image_url = $page.data.small_image_url;
 
 	onMount(() => {
+		client = getFeTriplitClient($page.data.jwt) as TriplitClient;
+
 		user = useQuery(client, client.query('user').where(['id', '=', $page.data.user.id]));
 	});
 </script>
@@ -37,14 +38,14 @@
 					<Dialog.Trigger
 						><Avatar.Root class="h-24 w-24 sm:h-32 sm:w-32">
 							<Avatar.Image src={full_image_url} alt="@shadcn" />
-								<Avatar.Fallback>{user.results[0].username?.slice(0, 2)}</Avatar.Fallback>
+							<Avatar.Fallback>{user.results[0].username?.slice(0, 2)}</Avatar.Fallback>
 						</Avatar.Root>
 					</Dialog.Trigger>
 					<Dialog.Content class="flex items-center justify-center">
 						<Dialog.Header>
 							<Avatar.Root class="h-full w-full ">
 								<Avatar.Image src={full_image_url} alt="@shadcn" />
-									<Avatar.Fallback>{user.results[0].username?.slice(0, 2)}</Avatar.Fallback>
+								<Avatar.Fallback>{user.results[0].username?.slice(0, 2)}</Avatar.Fallback>
 							</Avatar.Root>
 						</Dialog.Header>
 					</Dialog.Content>

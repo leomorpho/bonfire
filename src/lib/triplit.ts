@@ -26,12 +26,21 @@ export const serverTriplitClient = new TriplitClient({
 	token: PUBLIC_TRIPLIT_TOKEN
 });
 
-// Ensure feTriplitClient is only created in the browser
-export const feTriplitClient = browser
-	? new TriplitClient({
-			storage: 'indexeddb',
-			schema,
-			serverUrl: PUBLIC_TRIPLIT_URL,
-			token: PUBLIC_TRIPLIT_TOKEN
-	  })
-	: null;
+let feTriplitClient: TriplitClient;
+
+export function getFeTriplitClient(jwt: string) {
+	if (!browser) {
+		throw new Error('TriplitClient can only be created in the browser.');
+	}
+	if (feTriplitClient) {
+		return feTriplitClient;
+	}
+
+	feTriplitClient = new TriplitClient({
+		storage: 'indexeddb',
+		schema,
+		serverUrl: PUBLIC_TRIPLIT_URL,
+		token: jwt
+	}) as TriplitClient;
+	return feTriplitClient;
+}

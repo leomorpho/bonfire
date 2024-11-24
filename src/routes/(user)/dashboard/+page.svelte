@@ -2,9 +2,7 @@
 	import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
 	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
 	import { buttonVariants } from '$lib/components/ui/button/index.js';
-	import { Button } from '$lib/components/ui/button/index.js';
-	import * as Card from '$lib/components/ui/card/index.js';
-	import { feTriplitClient, waitForUserId } from '$lib/triplit';
+	import { getFeTriplitClient, waitForUserId } from '$lib/triplit';
 	import { onMount } from 'svelte';
 	import type { TriplitClient } from '@triplit/client';
 	import { Cog } from 'lucide-svelte';
@@ -14,15 +12,18 @@
 	import { useQuery } from '@triplit/svelte';
 	import { DEFAULT, getStrValueOfRSVP, GOING, MAYBE, NOT_GOING } from '$lib/enums';
 	import EventCard from '$lib/components/EventCard.svelte';
+	import { page } from '$app/stores';
 
 	let events: any = null;
-	let client = feTriplitClient as TriplitClient;
+	let client: TriplitClient;
 
 	let futureEvents = $state({});
 	let pastEvents = $state({});
 	let userId = $state('');
 
 	onMount(() => {
+		client = getFeTriplitClient($page.data.jwt) as TriplitClient;
+
 		const initEvents = async () => {
 			userId = (await waitForUserId()) as string;
 			console.log(userId);
@@ -98,7 +99,7 @@
 		<p>Error: {pastEvents.error.message}</p>
 	{:else if pastEvents.results}
 		{#if pastEvents.results.length > 0}
-			<Collapsible.Root class="w-full sm:w-[450px] space-y-2">
+			<Collapsible.Root class="w-full space-y-2 sm:w-[450px]">
 				<div class="flex items-center justify-between space-x-4 px-4">
 					<h4 class="text-sm font-semibold">{pastEvents.results.length} past events</h4>
 					<Collapsible.Trigger

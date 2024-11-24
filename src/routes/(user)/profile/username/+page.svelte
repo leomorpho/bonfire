@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { Input } from '$lib/components/ui/input/index.js';
-	import { feTriplitClient, waitForUserId } from '$lib/triplit';
+	import { getFeTriplitClient, waitForUserId } from '$lib/triplit';
 	import type { TriplitClient } from '@triplit/client';
 	import { onMount } from 'svelte';
 
@@ -16,11 +17,14 @@
 			submitEnabled = false;
 		}
 	});
-	let client = feTriplitClient as TriplitClient;
+
+	let client: TriplitClient;
 
 	let userId = $state('');
 
 	onMount(() => {
+		client = getFeTriplitClient($page.data.jwt) as TriplitClient;
+
 		const initEvents = async () => {
 			userId = (await waitForUserId()) as string;
 			console.log(userId);

@@ -7,11 +7,14 @@
 	import Pricing from '$lib/components/Pricing.svelte';
 	import { onMount } from 'svelte';
 	import type { TriplitClient } from '@triplit/client';
-	import { feTriplitClient } from '$lib/triplit';
+	import { getFeTriplitClient } from '$lib/triplit';
+	import { page } from '$app/stores';
 
-	let client = feTriplitClient as TriplitClient;
+	let client: TriplitClient;
 
 	onMount(() => {
+		client = getFeTriplitClient($page.data.jwt) as TriplitClient;
+
 		async function clearCache() {
 			await client.reset();
 		}

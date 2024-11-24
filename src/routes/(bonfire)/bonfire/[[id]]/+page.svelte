@@ -2,7 +2,7 @@
 	import { page } from '$app/stores';
 	import { useQuery } from '@triplit/svelte';
 	import { TriplitClient } from '@triplit/client';
-	import { feTriplitClient, waitForUserId } from '$lib/triplit';
+	import { getFeTriplitClient, waitForUserId } from '$lib/triplit';
 	import Loader from '$lib/components/Loader.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Cog, Share, ImagePlus } from 'lucide-svelte';
@@ -24,7 +24,7 @@
 
 	let anonymousUser = $state(!$page.data.user);
 
-	let client = feTriplitClient as TriplitClient;
+	let client: TriplitClient;
 
 	let profileImageMap = $page.data.profileImageMap;
 
@@ -37,6 +37,8 @@
 	let unsubscribeNot;
 
 	onMount(() => {
+		client = getFeTriplitClient($page.data.jwt) as TriplitClient;
+
 		(async () => {
 			console.log('start');
 			userId = (await waitForUserId()) as string;

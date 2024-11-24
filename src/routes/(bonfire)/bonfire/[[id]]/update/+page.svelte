@@ -4,13 +4,14 @@
 	import { useQuery } from '@triplit/svelte';
 	import { TriplitClient } from '@triplit/client';
 	import { onMount } from 'svelte';
-	import { feTriplitClient } from '$lib/triplit';
+	import { getFeTriplitClient } from '$lib/triplit';
 	import Loader from '$lib/components/Loader.svelte';
 
 	let data;
-	let client = feTriplitClient as TriplitClient;
+	let client: TriplitClient;
 
 	onMount(() => {
+		client = getFeTriplitClient($page.data.jwt) as TriplitClient;
 		data = useQuery(client, client.query('events').where(['id', '=', $page.params.id]));
 	});
 </script>
