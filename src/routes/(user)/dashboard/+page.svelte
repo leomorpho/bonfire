@@ -26,7 +26,6 @@
 
 		const initEvents = async () => {
 			userId = (await waitForUserId()) as string;
-			console.log(userId);
 
 			// let pastEventsQuery = client
 			// 	.query('events')
@@ -54,7 +53,7 @@
 					'many'
 				)
 				.include('user') // Include the related user
-				.include('attendees')
+				.include('attendees', (rel) => rel('attendees').where(['user_id', '=', userId]).build())
 				.order('start_time', 'ASC'); // Order by start time, closest to today
 
 			let pastEventsQuery = client
@@ -62,7 +61,7 @@
 				.where(['start_time', '<', new Date().toISOString()]) // Filter out current and future events
 				.subquery('attendees', client.query('attendees').where(['user_id', '=', userId]).build())
 				.include('user') // Include the related user
-				.include('attendees')
+				.include('attendees', (rel) => rel('attendees').where(['user_id', '=', userId]).build())
 				.order('start_time', 'ASC'); // Order by start time, closest to today
 
 			futureEvents = useQuery(client, futureEventsQuery);

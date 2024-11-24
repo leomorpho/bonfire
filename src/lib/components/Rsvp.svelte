@@ -10,9 +10,9 @@
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 
-	let { attendance, userId, eventId, rsvpCanBeChanged } = $props();
+	let { rsvpStatus=DEFAULT, userId, eventId, rsvpCanBeChanged } = $props();
 
-	console.log('attendance', attendance);
+	// console.log('attendance', attendance);
 	console.log('userId', userId);
 	console.log('eventId', eventId);
 
@@ -24,10 +24,10 @@
 		client = getFeTriplitClient($page.data.jwt) as TriplitClient;
 	});
 
-	let rsvpStatus: string = $state(DEFAULT);
-	if (attendance) {
-		rsvpStatus = attendance.status;
-	}
+	// let rsvpStatus: string = $state(DEFAULT);
+	// if (attendance) {
+	// 	rsvpStatus = attendance.status;
+	// }
 
 	let showAddToCalendarStatuses = new Set([GOING, MAYBE]);
 
@@ -52,7 +52,7 @@
 					])
 				])
 				.build();
-			attendance = await client.fetchOne(query);
+			let attendance = await client.fetchOne(query);
 
 			// NOTE that we automatically create a RSVP status attendance object
 			// upon navigation to an event if the user does not have an attendance object for it.

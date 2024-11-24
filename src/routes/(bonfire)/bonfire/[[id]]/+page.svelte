@@ -20,7 +20,7 @@
 
 	let event = $state();
 
-	let rsvpStatus = $state();
+	let rsvpStatus = $state('');
 
 	let anonymousUser = $state(!$page.data.user);
 
@@ -31,10 +31,6 @@
 	let attendeesGoing = $state([]);
 	let attendeesMaybeGoing = $state([]);
 	let attendeesNotGoing = $state([]);
-
-	let unsubscribeGoing;
-	let unsubscribeMaybe;
-	let unsubscribeNot;
 
 	onMount(() => {
 		client = getFeTriplitClient($page.data.jwt) as TriplitClient;
@@ -48,78 +44,46 @@
 		// Update event data based on the current page id
 		event = useQuery(client, client.query('events').where(['id', '=', $page.params.id]));
 
-		// Subscribe to "going" attendees
-		unsubscribeGoing = client.subscribe(
+		unsubscribeAll = client.subscribe(
 			client
 				.query('attendees')
-				.where([
-					and([
-						['status', '=', GOING],
-						['event_id', '=', $page.params.id]
-					])
-				])
+				.where([['event_id', '=', $page.params.id]])
 				.include('user')
 				.build(),
 			(results) => {
-				attendeesGoing = results;
-			},
-			(error) => {
-				console.error('Error fetching "going" attendees:', error);
-			}
-		);
+				// Separate attendees into different variables by status
+				attendeesGoing = results.filter((attendee) => attendee.status === GOING);
+				attendeesNotGoing = results.filter((attendee) => attendee.status === NOT_GOING);
+				attendeesMaybeGoing = results.filter((attendee) => attendee.status === MAYBE);
 
-		// Subscribe to "not going" attendees
-		unsubscribeNot = client.subscribe(
-			client
-				.query('attendees')
-				.where([
-					and([
-						['status', '=', NOT_GOING],
-						['event_id', '=', $page.params.id]
-					])
-				])
-				.include('user')
-				.build(),
-			(results) => {
-				attendeesNotGoing = results;
+				// Optionally log results for debugging
+				// console.log('Going:', attendeesGoing);
+				// console.log('Not Going:', attendeesNotGoing);
+				// console.log('Maybe:', attendeesMaybeGoing);
 			},
 			(error) => {
-				console.error('Error fetching "going" attendees:', error);
-			}
-		);
-
-		// Subscribe to "maybe" attendees
-		unsubscribeMaybe = client.subscribe(
-			client
-				.query('attendees')
-				.where([
-					and([
-						['status', '=', MAYBE],
-						['event_id', '=', $page.params.id]
-					])
-				])
-				.include('user')
-				.build(),
-			(results) => {
-				attendeesMaybeGoing = results;
-			},
-			(error) => {
-				console.error('Error fetching "going" attendees:', error);
+				console.error('Error fetching attendees:', error);
 			}
 		);
 	});
 
+	let allAttendees = $derived([
+		...(attendeesGoing || []),
+		...(attendeesNotGoing || []),
+		...(attendeesMaybeGoing || [])
+	]);
+
 	$effect(() => {
 		// Ensure event data and userId are available
-		if (event.results && event.results.length > 0 && userId) {
+		if (allAttendees && userId) {
 			// Find the current user's RSVP status in the attendees list
-			const attendees = event.results[0].attendees;
+			const attendees = allAttendees;
 
 			if (attendees && attendees.length > 0) {
-				const currentUserAttendee = attendees.find((attendee) => attendee.user_id === userId);
+				const currentUserAttendee = attendees.find((attendee) => attendee.user_id == userId);
 
 				// Set RSVP status based on the attendee record, or keep it as default
-				rsvpStatus = currentUserAttendee ? currentUserAttendee : undefined;
+				rsvpStatus = currentUserAttendee ? currentUserAttendee.status : undefined;
 				$inspect('### rsvpStatus', rsvpStatus);
 				// Group attendees by their RSVP status
 			}
@@ -220,12 +184,7 @@
 					Log in or register to interact with event.
 				</div>
 			{/if}
-			<Rsvp
-				attendance={rsvpStatus}
-				{userId}
-				eventId={event.results[0].id}
-				rsvpCanBeChanged={!anonymousUser}
-			/>
+			<Rsvp {rsvpStatus} {userId} eventId={event.results[0].id} rsvpCanBeChanged={!anonymousUser} />
 
 			<Button disabled={anonymousUser} class="mt-4 flex w-full items-center justify-center">
 				<Share class="h-5 w-5" />
