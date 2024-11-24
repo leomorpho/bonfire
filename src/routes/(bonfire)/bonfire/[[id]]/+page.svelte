@@ -108,9 +108,9 @@
 			<h1 class="my-5 text-xl">{event.results[0].title}</h1>
 			<div class="font-medium">{formatHumanReadable(event.results[0].start_time)}</div>
 			<div class="font-light">{event.results[0].location}</div>
-			<div class="mt-5 flex flex-row flex-wrap items-center">
+			<div class="mx-3 mt-5 flex flex-row flex-wrap items-center">
 				{#if attendeesGoing.length > 0}
-					<div class="flex flex-wrap -space-x-4">
+					<div class="flex flex-wrap items-center -space-x-4">
 						{#each attendeesGoing as attendee}
 							<ProfileAvatar
 								url={profileImageMap.get(attendee.user_id)?.small_image_url}
@@ -123,15 +123,15 @@
 				{/if}
 				<Dialog.Root>
 					<Dialog.Trigger><ChevronRight class="ml-1 h-4 w-4" /></Dialog.Trigger>
-					<Dialog.Content>
-						<ScrollArea class="h-screen">
+					<Dialog.Content class="h-full">
+						<ScrollArea>
 							<Dialog.Header>
 								<Dialog.Title>Attendees</Dialog.Title>
 								<Dialog.Description>
 									<div class="mb-3 mt-5">
 										{#if attendeesGoing.length > 0}
 											<h2>Going</h2>
-											<div class="flex flex-wrap -space-x-4">
+											<div class="mx-5 flex flex-wrap -space-x-4">
 												{#each attendeesGoing as attendee}
 													<ProfileAvatar
 														url={profileImageMap.get(attendee.user_id)?.small_image_url}
@@ -146,7 +146,7 @@
 									<div class="mb-3 mt-5">
 										{#if attendeesMaybeGoing.length > 0}
 											<h2>Maybe</h2>
-											<div class="flex flex-wrap -space-x-4">
+											<div class="mx-5 flex flex-wrap -space-x-4">
 												{#each attendeesMaybeGoing as attendee}
 													<ProfileAvatar
 														url={profileImageMap.get(attendee.user_id)?.small_image_url}
@@ -161,7 +161,7 @@
 									<div class="mb-3 mt-5">
 										{#if attendeesNotGoing.length > 0}
 											<h2>Not Going</h2>
-											<div class="flex flex-wrap -space-x-4">
+											<div class="mx-5 flex flex-wrap -space-x-4">
 												{#each attendeesNotGoing as attendee}
 													<ProfileAvatar
 														url={profileImageMap.get(attendee.user_id)?.small_image_url}
