@@ -18,6 +18,7 @@
 
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
+	import { goto } from '$app/navigation';
 
 	let uppy;
 
@@ -78,6 +79,7 @@
 			})
 			.on('upload-success', (file, response) => {
 				console.log('Upload successful:', file, response);
+				goto('/profile')
 			})
 			.on('error', (error) => {
 				console.error('Upload error:', error);
