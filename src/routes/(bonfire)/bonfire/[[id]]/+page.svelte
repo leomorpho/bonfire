@@ -121,7 +121,7 @@
 {:else if event.results}
 	{console.log(event)}
 	<div class="mx-4 flex flex-col items-center justify-center">
-		<section class="mt-8 w-full sm:w-[450px]">
+		<section class="mt-8 w-full sm:w-[450px] md:w-[550px] lg:w-[650px]">
 			{#if event.results[0].user_id == (userId as string)}
 				<a class="flex w-full justify-center" href="update">
 					<Button variant="outline" class="m-2 rounded-full">
@@ -251,11 +251,13 @@
 							>
 						</a>
 						{#if $page.data.eventFiles}
-							{console.log($page.data.eventFiles)}
+						<div class=" my-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
 							{#each $page.data.eventFiles as file}
-								<img src={file.URL} alt={file.file_name} />
+								<img class="rounded-lg" src={file.URL} alt={file.file_name} />
 							{/each}
+						</div>
 						{/if}
+
 					</div>
 					<div>Comments</div>
 				</div>
