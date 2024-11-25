@@ -32,7 +32,7 @@ function getRandomStatus() {
 	return statuses[Math.floor(Math.random() * statuses.length)];
 }
 
-for (let i = 0; i < 3000; i++) {
+for (let i = 0; i < 100; i++) {
 	const user = await createNewUser({
 		id: generateId(15),
 		email: faker.internet.email(),

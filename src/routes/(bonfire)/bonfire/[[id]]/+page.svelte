@@ -15,6 +15,7 @@
 	import ProfileAvatar from '$lib/components/ProfileAvatar.svelte';
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
 	import { Skeleton } from '$lib/components/ui/skeleton/index.js';
+	import { PUBLIC_ORIGIN } from '$env/static/public';
 
 	let userId = $state('');
 
@@ -91,6 +92,25 @@
 			}
 		}
 	});
+	function handleShare(eventData) {
+		if (!navigator.share) {
+			alert('Sharing is not supported on this browser.');
+			return;
+		}
+
+		navigator
+			.share({
+				title: `Hey! You're invited to ${eventData.title}!`, // Use the event title
+				text: `...Check out this awesome event at ${eventData.location}!`, // Use the event location
+				url: `https://${PUBLIC_ORIGIN}/bonfire/${eventData.id}` // Use the event's unique ID in the URL
+			})
+			.then(() => {
+				console.log('Content shared successfully!');
+			})
+			.catch((error) => {
+				console.error('Error sharing content:', error);
+			});
+	}
 </script>
 
 {#if !event || event.fetching}
@@ -205,7 +225,11 @@
 			{/if}
 			<Rsvp {rsvpStatus} {userId} eventId={event.results[0].id} rsvpCanBeChanged={!anonymousUser} />
 
-			<Button disabled={anonymousUser} class="mt-4 flex w-full items-center justify-center">
+			<Button
+				onclick={() => handleShare(event.results[0])}
+				disabled={anonymousUser}
+				class="mt-4 flex w-full items-center justify-center"
+			>
 				<Share class="h-5 w-5" />
 				Share Bonfire</Button
 			>
