@@ -10,11 +10,11 @@
 	import Rsvp from '$lib/components/Rsvp.svelte';
 	import { onMount } from 'svelte';
 	import { Status } from '$lib/enums';
-	import { and } from '@triplit/client';
 	import { ChevronRight } from 'lucide-svelte';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import ProfileAvatar from '$lib/components/ProfileAvatar.svelte';
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
+	import { Skeleton } from '$lib/components/ui/skeleton/index.js';
 
 	let userId = $state('');
 
@@ -32,6 +32,8 @@
 	let attendeesMaybeGoing = $state([]);
 	let attendeesNotGoing = $state([]);
 
+	const showMaxNumPeople = 50;
+
 	onMount(() => {
 		client = getFeTriplitClient($page.data.jwt) as TriplitClient;
 
@@ -44,7 +46,7 @@
 		// Update event data based on the current page id
 		event = useQuery(client, client.query('events').where(['id', '=', $page.params.id]));
 
-		unsubscribeAll = client.subscribe(
+		const unsubscribeAll = client.subscribe(
 			client
 				.query('attendees')
 				.where([['event_id', '=', $page.params.id]])
@@ -108,21 +110,38 @@
 			<h1 class="my-5 text-xl">{event.results[0].title}</h1>
 			<div class="font-medium">{formatHumanReadable(event.results[0].start_time)}</div>
 			<div class="font-light">{event.results[0].location}</div>
-			<div class="mx-3 mt-5 flex flex-row flex-wrap items-center">
+			<div class="mx-3 mt-5 items-center">
 				{#if attendeesGoing.length > 0}
-					<div class="flex flex-wrap items-center -space-x-4">
-						{#each attendeesGoing as attendee}
-							<ProfileAvatar
-								url={profileImageMap.get(attendee.user_id)?.small_image_url}
-								fullsizeUrl={profileImageMap.get(attendee.user_id)?.full_image_url}
-								username={attendee.user?.username}
-								fallbackName={attendee.user?.username}
-							/>
+					<div class="flex flex-wrap items-center">
+						<div class="-space-x-4">
+							{#each attendeesGoing.slice(0, showMaxNumPeople) as attendee}
+								<ProfileAvatar
+									url={profileImageMap.get(attendee.user_id)?.small_image_url}
+									fullsizeUrl={profileImageMap.get(attendee.user_id)?.full_image_url}
+									username={attendee.user?.username}
+									fallbackName={attendee.user?.username}
+								/>
+							{/each}
+						</div>
+					</div>
+				{:else}
+					<div class="flex flex-wrap items-center -space-x-3">
+						{#each Array(10).fill() as _, index}
+							<Skeleton class="size-10 rounded-full" />
 						{/each}
 					</div>
 				{/if}
+
 				<Dialog.Root>
-					<Dialog.Trigger><ChevronRight class="ml-1 h-4 w-4" /></Dialog.Trigger>
+					<Dialog.Trigger class="flex"
+						>{#if attendeesGoing.length > showMaxNumPeople}
+							<div class="text-sm text-gray-500">
+								and {attendeesGoing.length - showMaxNumPeople} more
+							</div>
+						{:else}
+							see all
+						{/if}<ChevronRight class="ml-1 h-4 w-4" /></Dialog.Trigger
+					>
 					<Dialog.Content class="h-full">
 						<ScrollArea>
 							<Dialog.Header>

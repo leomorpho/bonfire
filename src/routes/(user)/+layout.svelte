@@ -19,7 +19,7 @@
 				return;
 			}
 			if (result[0].username.length == 0) {
-				goto('profile/username');
+				goto('/profile/username');
 			}
 		};
 
