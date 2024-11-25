@@ -20,6 +20,30 @@
 		return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 	}
 
+	function toggleSelection() {
+		selectionActive = !selectionActive;
+
+		if (selectionActive) {
+			lightbox?.destroy();
+		} else {
+			// Clear selectedImages and remove selection styling
+			selectedImages = [];
+			const selectedElements = document.querySelectorAll('.image-item.border-blue-400');
+			selectedElements.forEach((el) => {
+				el.classList.remove('border-blue-400');
+			});
+
+			lightbox = new PhotoSwipeLightbox({
+				gallery: '.gallery-container',
+				children: 'a', // Target that tag within the gallery container
+				pswpModule: () => import('photoswipe'),
+				showHideAnimationType: 'zoom' // Optional animation
+			});
+
+			lightbox.init();
+		}
+	}
+
 	// Function to handle download
 	async function handleDownload() {
 		if (selectedImages.length === 0) {
@@ -208,30 +232,34 @@
 				class="gallery-container selection-area my-5 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3"
 			>
 				{#each $page.data.eventFiles as file}
-					<a
-						href={file.URL}
+					<div
 						class="image-item rounded-xl border-2 border-transparent"
 						data-src={file.URL}
 						data-name={file.file_name}
-						data-pswp-width="1200"
-						data-pswp-height="800"
 					>
-						<Image
-							height={400}
-							class="rounded-lg"
-							src={file.URL}
-							layout="constrained"
-							aspectRatio={4 / 3}
-							alt={file.file_name}
-						/>
-					</a>
+						<a
+							href={file.URL}
+							class={selectionActive ? 'disabled-link' : ''}
+							data-pswp-width="1200"
+							data-pswp-height="800"
+						>
+							<Image
+								height={400}
+								class="rounded-lg"
+								src={file.URL}
+								layout="constrained"
+								aspectRatio={4 / 3}
+								alt={file.file_name}
+							/>
+						</a>
+					</div>
 				{/each}
 			</div>
 		{/if}
 	</section>
 </div>
 <div class="fixed left-1/2 top-6 flex -translate-x-1/2 transform flex-col items-center">
-	<Toggle aria-label="toggle selection" onclick={() => (selectionActive = !selectionActive)}>
+	<Toggle aria-label="toggle selection" onclick={toggleSelection}>
 		<!-- Button Icon -->
 		<SquareDashedMousePointer class="h-6 w-6" />{selectionActive
 			? 'Disable Selection'
@@ -258,5 +286,9 @@
 	}
 	.gallery-container {
 		user-select: none;
+	}
+	.disabled-link {
+		pointer-events: none; /* Disables all mouse interactions */
+		cursor: default; /* Changes the cursor to indicate no interaction */
 	}
 </style>
