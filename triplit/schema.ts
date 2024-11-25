@@ -12,6 +12,11 @@ export const roles: Roles = {
 			type: 'user',
 			uid: '$userId'
 		}
+	},
+	anon: {
+		match: {
+			type: 'anon'
+		}
 	}
 };
 
@@ -40,6 +45,9 @@ export const schema = {
 				delete: {
 					filter: [['id', '=', '$role.userId']] // Users can only delete their own profile images
 				}
+			},
+			anon: {
+				read: { filter: [true] }
 			}
 		}
 	},
@@ -99,6 +107,9 @@ export const schema = {
 				insert: { filter: [true] },
 				update: { filter: [['user_id', '=', '$role.userId']] },
 				delete: { filter: [['user_id', '=', '$role.userId']] }
+			},
+			anon: {
+				read: { filter: [true] }
 			}
 		}
 	},
@@ -136,6 +147,9 @@ export const schema = {
 					// Users can remove themselves from the event
 					filter: [['user_id', '=', '$role.userId']]
 				}
+			},
+			anon: {
+				read: { filter: [true] }
 			}
 		}
 	},

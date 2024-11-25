@@ -118,6 +118,7 @@
 {:else if event.error}
 	<p>Error: {event.error.message}</p>
 {:else if event.results}
+	{console.log(event)}
 	<div class="mx-4 flex flex-col items-center justify-center">
 		<section class="mt-8 w-full sm:w-[450px]">
 			{#if event.results[0].user_id == (userId as string)}
