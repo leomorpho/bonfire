@@ -1,7 +1,7 @@
 import { goto } from '$app/navigation';
 import { Status } from '$lib/enums';
 import { generateSignedUrl } from '$lib/filestorage.js';
-import { serverTriplitClient } from '$lib/triplit';
+import { serverTriplitClient } from '$lib/server/triplit';
 import { and } from '@triplit/client';
 
 export const trailingSlash = 'always';

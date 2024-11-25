@@ -1,4 +1,4 @@
-import { generateJWT, USER_ROLE } from '$lib/jwt';
+import { generateUserJWT, USER_ROLE } from '$lib/jwt';
 
 export const load = async (event) => {
 	// Get the user from locals
@@ -8,7 +8,7 @@ export const load = async (event) => {
 		return;
 	}
 
-	const jwt = generateJWT(user?.id as string, USER_ROLE);
+	const jwt = generateUserJWT(user?.id as string, USER_ROLE);
 	return {
 		user: user,
 		jwt: jwt

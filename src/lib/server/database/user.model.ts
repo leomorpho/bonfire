@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm';
 import { db } from './db';
 import { userTable } from './schema';
-import { serverTriplitClient } from '$lib/triplit';
+import { serverTriplitClient } from '$lib/server/triplit';
 
 export const getUserByEmail = async (email: string) => {
 	const user = await db.select().from(userTable).where(eq(userTable.email, email));

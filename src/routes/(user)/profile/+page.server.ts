@@ -1,5 +1,5 @@
 import { generateSignedUrl } from '$lib/filestorage.js';
-import { serverTriplitClient } from '$lib/triplit';
+import { serverTriplitClient } from '$lib/server/triplit';
 import { redirect } from '@sveltejs/kit';
 
 export const load = async (event) => {

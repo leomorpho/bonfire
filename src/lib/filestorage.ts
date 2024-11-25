@@ -10,9 +10,9 @@ import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { env } from '$env/dynamic/private';
 import sharp from 'sharp'; // For resizing images
-import { serverTriplitClient } from './triplit';
 import { dev } from '$app/environment';
 import { Readable } from 'stream';
+import { serverTriplitClient } from '$lib/server/triplit';
 
 // Create an S3 client
 const s3 = new S3Client({

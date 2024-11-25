@@ -4,7 +4,7 @@ import { env } from '$env/dynamic/private';
 export const USER_ROLE = 'user';
 export const ADMIN_ROLE = 'admin';
 
-export function generateJWT(userId: string, role: string) {
+export function generateUserJWT(userId: string, role: string) {
 	const payload = {
 		sub: userId,
 		type: role, // e.g., 'user' or 'admin'

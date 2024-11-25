@@ -2,7 +2,7 @@ import { uploadLargeFileToS3 } from '$lib/filestorage';
 import type { RequestEvent } from '@sveltejs/kit';
 import { Readable } from 'stream';
 import { error } from '@sveltejs/kit';
-import { serverTriplitClient } from '$lib/triplit';
+import { serverTriplitClient } from '$lib/server/triplit';
 
 export const POST = async (event: RequestEvent): Promise<Response> => {
 	try {

@@ -2,7 +2,7 @@ import { createNewUser } from '$lib/server/database/user.model';
 import { generateId } from 'lucia';
 import { faker } from '@faker-js/faker';
 import type { TriplitClient } from '@triplit/client';
-import { serverTriplitClient } from '$lib/triplit';
+import { serverTriplitClient } from '$lib/server/triplit';
 import { Status} from '$lib/enums';
 
 let client = serverTriplitClient as TriplitClient;
