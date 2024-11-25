@@ -88,6 +88,7 @@ export const load = async (event) => {
 	const eventFilesQuery = serverTriplitClient
 		.query('files')
 		.where(['event_id', '=', eventId as string])
+		.limit(3)
 		.build();
 
 	const eventFiles = await serverTriplitClient.fetch(eventFilesQuery);

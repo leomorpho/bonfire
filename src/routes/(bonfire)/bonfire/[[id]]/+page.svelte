@@ -17,6 +17,7 @@
 	import { Skeleton } from '$lib/components/ui/skeleton/index.js';
 	import { PUBLIC_ORIGIN } from '$env/static/public';
 	import { KeyRound } from 'lucide-svelte';
+	import { Image } from '@unpic/svelte';
 
 	let userId = $state('');
 
@@ -251,13 +252,30 @@
 							>
 						</a>
 						{#if $page.data.eventFiles}
-						<div class=" my-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-							{#each $page.data.eventFiles as file}
-								<img class="rounded-lg" src={file.URL} alt={file.file_name} />
-							{/each}
-						</div>
+							<div class=" my-5 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+								{#each $page.data.eventFiles as file}
+									<!-- <img class="rounded-lg" src={file.URL} alt={file.file_name} /> -->
+									<Image
+										class="rounded-lg"
+										src={file.URL}
+										layout="constrained"
+										aspectRatio={4 / 3}
+										alt="A lovely bath"
+									/>
+								{/each}
+								{#if $page.data.eventFiles.length > 2}
+									<!-- "See All" Image -->
+									<a href="media/gallery" class="block">
+										<div
+											class="flex items-center justify-center rounded-lg bg-gray-200 text-center text-lg font-semibold"
+											style="aspect-ratio: 4 / 3; width: 100%;"
+										>
+											See All
+										</div>
+									</a>
+								{/if}
+							</div>
 						{/if}
-
 					</div>
 					<div>Comments</div>
 				</div>
