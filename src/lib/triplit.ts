@@ -23,14 +23,14 @@ export async function waitForUserId() {
 let feTriplitClient: TriplitClient;
 
 export function getFeTriplitClient(jwt: string) {
+
 	if (!browser) {
 		throw new Error('TriplitClient can only be created in the browser.');
 	}
 
-	if (!feTriplitClient) {
+	if (feTriplitClient) {
 		return feTriplitClient;
 	}
-
 	feTriplitClient = new TriplitClient({
 		storage: 'indexeddb',
 		schema,
