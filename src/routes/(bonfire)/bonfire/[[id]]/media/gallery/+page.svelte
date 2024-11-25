@@ -6,9 +6,12 @@
 	import SelectionArea from '@viselect/vanilla';
 	import JSZip from 'jszip';
 	import { Download } from 'lucide-svelte';
+	import { SquareDashedMousePointer } from 'lucide-svelte';
+	import { Toggle } from '$lib/components/ui/toggle/index.js';
 
 	let selectedImages: any = $state([]);
 	let selection: any;
+	let selectionActive = $state(false);
 
 	function isMobile() {
 		return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -142,6 +145,7 @@
 				intersect: 'touch'
 			}
 		}).on('move', ({ store: { changed } }) => {
+			if (!selectionActive) return;
 			console.log('Added:', changed.added);
 			console.log('Removed:', changed.removed);
 
@@ -210,11 +214,22 @@
 		{/if}
 	</section>
 </div>
+<div class="fixed left-1/2 top-6 flex -translate-x-1/2 transform flex-col items-center">
+	<Toggle
+		aria-label="toggle selection"
+		onclick={() => (selectionActive = !selectionActive)}
+	>
+		<!-- Button Icon -->
+		<SquareDashedMousePointer class="h-6 w-6" />{selectionActive
+			? 'Disable Selection'
+			: 'Enable Selection'}
+	</Toggle>
+</div>
 
 {#if selectedImages.length > 0}
 	<div class="fixed bottom-6 left-1/2 flex -translate-x-1/2 transform flex-col items-center">
 		<button
-			on:click={handleDownload}
+			onclick={handleDownload}
 			class="rounded-full bg-blue-500 p-4 text-white shadow-lg transition hover:bg-blue-600"
 		>
 			<!-- Button Icon -->
