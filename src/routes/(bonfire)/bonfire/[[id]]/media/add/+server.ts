@@ -3,6 +3,7 @@ import type { RequestEvent } from '@sveltejs/kit';
 import { Readable } from 'stream';
 import { error } from '@sveltejs/kit';
 import { serverTriplitClient } from '$lib/server/triplit';
+import fs from 'fs';
 
 export const POST = async (event: RequestEvent): Promise<Response> => {
 	try {
@@ -38,10 +39,19 @@ export const POST = async (event: RequestEvent): Promise<Response> => {
 		const filetype = formData.get('type');
 		const fileSize = file.length; // Get the file size in bytes
 
-
 		const fileStream = Readable.from(file);
 
 		const fileKey = `events/eventid_${id}/userid_${user.id}/${filename}`;
+
+		// // Save the fileStream to a local file for debugging
+		// const debugFilePath = filename;
+		// const writable = fs.createWriteStream(debugFilePath);
+
+		// fileStream.pipe(writable);
+
+		// writable.on('finish', () => {
+		// 	console.log(`File saved locally for debugging: ${debugFilePath}`);
+		// });
 
 		await uploadLargeFileToS3({
 			fileStream,
@@ -71,30 +81,37 @@ export const POST = async (event: RequestEvent): Promise<Response> => {
 
 // Utility function to parse multipart form data
 async function parseMultipart(request: Request, boundary: string) {
-	const buffer = await request.arrayBuffer();
-	const data = Buffer.from(buffer); // Use Buffer for binary-safe handling
-	const parts = data.toString('utf-8').split(`--${boundary}`);
-	const formData = new Map<string, any>();
+    const buffer = await request.arrayBuffer();
+    const data = Buffer.from(buffer); // Use Buffer for binary-safe handling
+    const parts = data.toString('binary').split(`--${boundary}`);
+    const formData = new Map<string, any>();
 
-	for (const part of parts) {
-		const match = part.match(
-			/Content-Disposition: form-data; name="([^"]+)"(; filename="([^"]+)")?/
-		);
-		if (!match) continue;
-		const name = match[1];
-		const filename = match[3];
-		const contentIndex = part.indexOf('\r\n\r\n') + 4;
+    for (const part of parts) {
+        // Match the content-disposition header
+        const match = part.match(
+            /Content-Disposition: form-data; name="([^"]+)"(; filename="([^"]+)")?/i
+        );
+        if (!match) continue;
 
-		if (filename) {
-			// Extract the binary file content as a Buffer
-			const content = part.slice(contentIndex, part.lastIndexOf('\r\n--'));
-			formData.set(name, Buffer.from(content, 'binary'));
-		} else {
-			// Extract text content
-			const content = part.slice(contentIndex, part.length - 2).trim();
-			formData.set(name, content);
-		}
-	}
+        const name = match[1];
+        const filename = match[3];
+        const contentIndex = part.indexOf('\r\n\r\n') + 4;
 
-	return formData;
+        if (contentIndex < 4 || part.trim().endsWith('--')) {
+            continue; // Skip empty or incomplete parts
+        }
+
+        if (filename) {
+            // Binary file content
+            const content = part.slice(contentIndex, part.lastIndexOf('\r\n'));
+            formData.set(name, Buffer.from(content, 'binary'));
+            formData.set('name', filename);
+        } else {
+            // Text content
+            const content = part.slice(contentIndex, part.lastIndexOf('\r\n')).trim();
+            formData.set(name, content);
+        }
+    }
+
+    return formData;
 }

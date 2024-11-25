@@ -253,7 +253,7 @@
 						{#if $page.data.eventFiles}
 							{console.log($page.data.eventFiles)}
 							{#each $page.data.eventFiles as file}
-								{file}
+								<img src={file.URL} alt={file.file_name} />
 							{/each}
 						{/if}
 					</div>

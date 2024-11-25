@@ -14,6 +14,7 @@
 	let client: TriplitClient;
 
 	const full_image_url = $page.data.full_image_url;
+	console.log(full_image_url);
 	const small_image_url = $page.data.small_image_url;
 
 	onMount(() => {

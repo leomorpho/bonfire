@@ -92,6 +92,12 @@ export const load = async (event) => {
 
 	const eventFiles = await serverTriplitClient.fetch(eventFilesQuery);
 
+	for (const eventFile of eventFiles) {
+		const fileURL = await generateSignedUrl(eventFile.file_key);
+		// @ts-ignore
+		eventFile.URL = fileURL;
+	}
+
 	return {
 		profileImageMap: profileImageMap,
 		user: user,

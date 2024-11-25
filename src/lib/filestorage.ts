@@ -197,21 +197,21 @@ export async function uploadLargeFileToS3({
 	}
 }
 
-// Utility function to chunk the stream
+// Function to chunk a readable stream
 async function* chunkFileStream(fileStream: Readable, chunkSize: number): AsyncIterable<Buffer> {
 	let buffer = Buffer.alloc(0);
 
 	for await (const chunk of fileStream) {
 		buffer = Buffer.concat([buffer, chunk]);
+
 		while (buffer.length >= chunkSize) {
-			// Use Uint8Array.prototype.slice
-			const chunkToYield = buffer.subarray(0, chunkSize); // Use `subarray` instead of `slice`
-			yield Buffer.from(chunkToYield);
-			buffer = buffer.subarray(chunkSize); // Update the buffer with the remaining data
+			const chunkToYield = buffer.subarray(0, chunkSize); // Use subarray instead of slice
+			yield Buffer.from(chunkToYield); // Convert to Buffer
+			buffer = buffer.subarray(chunkSize); // Update buffer with remaining data
 		}
 	}
 
 	if (buffer.length > 0) {
-		yield buffer; // Yield any remaining data
+		yield Buffer.from(buffer); // Yield remaining data as a new Buffer
 	}
 }
