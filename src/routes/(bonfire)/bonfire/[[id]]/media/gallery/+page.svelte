@@ -26,13 +26,7 @@
 			await shareImages();
 		} else {
 			// Desktop: Download as ZIP or individually
-			if (selectedImages.length > 5) {
-				// For many images, use ZIP
-				await downloadAsZip();
-			} else {
-				// For few images, download individually
-				downloadEachImage();
-			}
+			await downloadAsZip();
 		}
 	}
 
@@ -45,18 +39,34 @@
 		// Fetch and prepare files
 		try {
 			const files = await Promise.all(
-				selectedImages.map(async (imgURL: string) => {
-					const response = await fetch(imgURL);
+				selectedImages.map(async ({ src, name }) => {
+					const response = await fetch(src);
+					if (!response.ok) {
+						console.error(`Failed to fetch ${src}: ${response.statusText}`);
+						return null;
+					}
 					const blob = await response.blob();
-					const fileName = imgURL.split('/').pop() || 'image';
-					return new File([blob], fileName, { type: blob.type });
+					console.log(`Blob type: ${blob.type}, Blob size: ${blob.size} bytes`);
+					if (blob.size === 0) {
+						console.error(`Blob is empty for ${src}`);
+						return null;
+					}
+					return new File([blob], name, { type: blob.type });
 				})
 			);
+
+			// Filter out any null files (failed fetches)
+			const validFiles = files.filter((file) => file !== null);
+
+			if (validFiles.length === 0) {
+				alert('No valid images to share.');
+				return;
+			}
 
 			// Trigger the native sharing sheet
 			await navigator.share({
 				title: 'Download Images',
-				files
+				files: validFiles
 			});
 		} catch (error) {
 			console.error('Sharing failed:', error);
@@ -72,47 +82,53 @@
 
 		const zip = new JSZip();
 		const folder = zip.folder('selected-images');
+		if (!folder) {
+			console.error('Failed to create ZIP folder.');
+			return;
+		}
 
 		// Add images to the ZIP
 		await Promise.all(
-			selectedImages.map(async (imgURL: string) => {
-				const response = await fetch(imgURL);
-				const blob = await response.blob();
-				const fileName = imgURL.split('/').pop() || 'image';
-				folder?.file(fileName, blob);
+			selectedImages.map(async ({ src, name }) => {
+				try {
+					const response = await fetch(src);
+					if (!response.ok) {
+						console.error(`Failed to fetch ${src}: ${response.statusText}`);
+						return;
+					}
+
+					const blob = await response.blob();
+					console.log(`Blob type: ${blob.type}, Blob size: ${blob.size} bytes`);
+					if (blob.size === 0) {
+						console.error(`Blob is empty for ${src}`);
+						return;
+					}
+
+					folder.file(name, blob);
+					console.log(`Added ${name} to folder`);
+				} catch (error) {
+					console.error(`Error fetching ${src}:`, error);
+				}
 			})
 		);
 
 		// Generate the ZIP and download
-		const content = await zip.generateAsync({ type: 'blob' });
-		const zipFileName = 'selected-images.zip';
-
-		const a = document.createElement('a');
-		a.href = URL.createObjectURL(content);
-		a.download = zipFileName;
-		document.body.appendChild(a);
-		a.click();
-		document.body.removeChild(a);
-	}
-
-	function downloadEachImage() {
-		if (selectedImages.length === 0) {
-			alert('No images selected!');
-			return;
-		}
-
-		selectedImages.forEach(async (imgURL: string) => {
-			const response = await fetch(imgURL);
-			const blob = await response.blob();
-			const fileName = imgURL.split('/').pop() || 'image';
+		try {
+			const content = await zip.generateAsync({ type: 'blob' });
+			const zipFileName = 'selected-images.zip';
 
 			const a = document.createElement('a');
-			a.href = URL.createObjectURL(blob);
-			a.download = fileName;
+			a.href = URL.createObjectURL(content);
+			a.download = zipFileName;
 			document.body.appendChild(a);
 			a.click();
 			document.body.removeChild(a);
-		});
+
+			console.log('ZIP download initiated successfully.');
+		} catch (error) {
+			console.error('Error generating ZIP:', error);
+			alert('Failed to generate ZIP file.');
+		}
 	}
 
 	onMount(() => {
@@ -130,16 +146,20 @@
 			console.log('Removed:', changed.removed);
 
 			// Add newly selected images
-			// Add 'selected' class to newly selected elements
 			changed.added.forEach((el) => {
 				el.classList.add('border-blue-400');
-				selectedImages.push(el.getAttribute('data-src'));
+				const src = el.getAttribute('data-src');
+				const name = el.getAttribute('data-name');
+				if (src && name && !selectedImages.find((img) => img.src === src)) {
+					selectedImages.push({ src, name });
+				}
 			});
 
-			// Remove 'selected' class from unselected elements
+			// Remove unselected images
 			changed.removed.forEach((el) => {
 				el.classList.remove('border-blue-400');
-				const index = selectedImages.indexOf(el.getAttribute('data-src'));
+				const src = el.getAttribute('data-src');
+				const index = selectedImages.findIndex((img) => img.src === src);
 				if (index > -1) selectedImages.splice(index, 1);
 			});
 
@@ -171,7 +191,11 @@
 				class="gallery-container selection-area my-5 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3"
 			>
 				{#each $page.data.eventFiles as file}
-					<div class="image-item rounded-xl border-2 border-transparent" data-src={file.URL}>
+					<div
+						class="image-item rounded-xl border-2 border-transparent"
+						data-src={file.URL}
+						data-name={file.file_name}
+					>
 						<Image
 							height={400}
 							class="rounded-lg"
