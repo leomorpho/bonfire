@@ -78,6 +78,9 @@ export const schema = {
 				delete: {
 					filter: [['user_id', '=', '$role.userId']] // Users can only delete their own profile images
 				}
+			},
+			anon: {
+				read: { filter: [true] }
 			}
 		}
 	},

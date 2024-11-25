@@ -16,6 +16,7 @@
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
 	import { Skeleton } from '$lib/components/ui/skeleton/index.js';
 	import { PUBLIC_ORIGIN } from '$env/static/public';
+	import { KeyRound } from 'lucide-svelte';
 
 	let userId = $state('');
 
@@ -220,9 +221,12 @@
 				</Dialog.Root>
 			</div>
 			{#if anonymousUser}
-				<div class="mt-4 flex justify-center text-yellow-600">
-					Log in or register to interact with event.
-				</div>
+				<a href="/login" class="mt-4 flex justify-center">
+					<Button class="bg-green-500 hover:bg-green-400 w-full py-8">
+						<KeyRound class="mr-2 size-4 " />
+						Log in or register to interact with event.
+					</Button>
+				</a>
 			{/if}
 			<Rsvp {rsvpStatus} {userId} eventId={event.results[0].id} rsvpCanBeChanged={!anonymousUser} />
 
