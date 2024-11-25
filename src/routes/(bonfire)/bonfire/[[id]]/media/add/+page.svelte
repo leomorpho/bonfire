@@ -16,6 +16,7 @@
 
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
+	import { goto } from '$app/navigation';
 
 	let uppy;
 
@@ -57,20 +58,17 @@
 			})
 			.on('upload-success', (file, response) => {
 				console.log('Upload successful:', file, response);
+				goto(`/bonfire/${$page.params.id}`)
 			})
 			.on('error', (error) => {
 				console.error('Upload error:', error);
-			}).setFileMeta(file.id, {
-				originalName: file.name,
-				mimeType: file.type,
-				size: file.size,
 			});
-			
+
 		uppy.on('file-added', (file) => {
 			uppy.setFileMeta(file.id, {
 				originalName: file.name,
 				mimeType: file.type,
-				size: file.size,
+				size: file.size
 			});
 		});
 	});

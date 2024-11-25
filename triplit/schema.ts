@@ -177,6 +177,7 @@ export const schema = {
 				delete: { filter: [true] } // Admins can delete files
 			},
 			user: {
+				read: { filter: [true] },
 				// No need to allow read and insert since we will do that in BE logic and
 				// triplit doesn't seem powerful enough to be able to set appropriate permissions (user
 				// is attending event).

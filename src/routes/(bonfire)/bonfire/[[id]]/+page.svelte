@@ -48,7 +48,7 @@
 		// Update event data based on the current page id
 		event = useQuery(client, client.query('events').where(['id', '=', $page.params.id]));
 
-		const unsubscribeAll = client.subscribe(
+		const unsubscribeAttendeesQuery = client.subscribe(
 			client
 				.query('attendees')
 				.where([['event_id', '=', $page.params.id]])
@@ -222,7 +222,7 @@
 			</div>
 			{#if anonymousUser}
 				<a href="/login" class="mt-4 flex justify-center">
-					<Button class="bg-green-500 hover:bg-green-400 w-full py-8">
+					<Button class="w-full bg-green-500 py-8 hover:bg-green-400">
 						<KeyRound class="mr-2 size-4 " />
 						Log in or register to interact with event.
 					</Button>
@@ -250,6 +250,12 @@
 								><ImagePlus />Add to gallery</Button
 							>
 						</a>
+						{#if $page.data.eventFiles}
+							{console.log($page.data.eventFiles)}
+							{#each $page.data.eventFiles as file}
+								{file}
+							{/each}
+						{/if}
 					</div>
 					<div>Comments</div>
 				</div>

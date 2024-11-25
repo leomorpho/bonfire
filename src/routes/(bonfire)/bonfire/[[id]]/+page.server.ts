@@ -85,8 +85,16 @@ export const load = async (event) => {
 		});
 	}
 
+	const eventFilesQuery = serverTriplitClient
+		.query('files')
+		.where(['event_id', '=', eventId as string])
+		.build();
+
+	const eventFiles = await serverTriplitClient.fetch(eventFilesQuery);
+
 	return {
 		profileImageMap: profileImageMap,
-		user: user
+		user: user,
+		eventFiles: eventFiles
 	};
 };
