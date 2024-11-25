@@ -8,10 +8,13 @@
 	import { Download } from 'lucide-svelte';
 	import { SquareDashedMousePointer } from 'lucide-svelte';
 	import { Toggle } from '$lib/components/ui/toggle/index.js';
+	import PhotoSwipeLightbox from 'photoswipe/lightbox';
+	import 'photoswipe/style.css';
 
 	let selectedImages: any = $state([]);
 	let selection: any;
 	let selectionActive = $state(false);
+	let lightbox: PhotoSwipeLightbox | null = $state(null);
 
 	function isMobile() {
 		return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -170,9 +173,19 @@
 			console.log('selectedImages', selectedImages);
 		});
 
+		lightbox = new PhotoSwipeLightbox({
+			gallery: '.gallery-container',
+			children: 'a', // Target that tag within the gallery container
+			pswpModule: () => import('photoswipe'),
+			showHideAnimationType: 'zoom' // Optional animation
+		});
+
+		lightbox.init();
+
 		return () => {
 			// Cleanup
 			selection.destroy();
+			lightbox?.destroy(); // Cleanup when the component is destroyed
 		};
 	});
 </script>
@@ -195,10 +208,13 @@
 				class="gallery-container selection-area my-5 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3"
 			>
 				{#each $page.data.eventFiles as file}
-					<div
+					<a
+						href={file.URL}
 						class="image-item rounded-xl border-2 border-transparent"
 						data-src={file.URL}
 						data-name={file.file_name}
+						data-pswp-width="1200"
+						data-pswp-height="800"
 					>
 						<Image
 							height={400}
@@ -208,17 +224,14 @@
 							aspectRatio={4 / 3}
 							alt={file.file_name}
 						/>
-					</div>
+					</a>
 				{/each}
 			</div>
 		{/if}
 	</section>
 </div>
 <div class="fixed left-1/2 top-6 flex -translate-x-1/2 transform flex-col items-center">
-	<Toggle
-		aria-label="toggle selection"
-		onclick={() => (selectionActive = !selectionActive)}
-	>
+	<Toggle aria-label="toggle selection" onclick={() => (selectionActive = !selectionActive)}>
 		<!-- Button Icon -->
 		<SquareDashedMousePointer class="h-6 w-6" />{selectionActive
 			? 'Disable Selection'
