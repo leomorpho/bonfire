@@ -14,7 +14,7 @@
 	import * as ContextMenu from '$lib/components/ui/context-menu/index.js';
 	import { SquareMousePointer } from 'lucide-svelte';
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
-	import * as AlertDialog from '$lib/components/ui/alert-dialog/index.ts';
+	import CustomAlertDialogue from '$lib/components/CustomAlertDialog.svelte';
 
 	let selectedImages: any = $state([]);
 	let selection: any;
@@ -305,10 +305,8 @@
 							</div></ContextMenu.Trigger
 						>
 						<ContextMenu.Content>
+							<ContextMenu.Item>Download</ContextMenu.Item>
 							<ContextMenu.Item>Delete</ContextMenu.Item>
-							<ContextMenu.Item>Billing</ContextMenu.Item>
-							<ContextMenu.Item>Team</ContextMenu.Item>
-							<ContextMenu.Item>Subscription</ContextMenu.Item>
 						</ContextMenu.Content>
 					</ContextMenu.Root>
 				{/each}
@@ -363,33 +361,19 @@
 			<Tooltip.Provider>
 				<Tooltip.Root>
 					<Tooltip.Trigger>
-						<AlertDialog.Root>
-							<AlertDialog.Trigger >
-								<button
+						<CustomAlertDialogue
+						dialogDescription='This action cannot be undone. This will permanently delete these files from our servers.'
+							><button
 								disabled={selectedImages.length == 0}
 								onclick={handleDelete}
 								class="rounded-full p-4 text-white shadow-lg transition
-								{selectedImages.length === 0 ? 'cursor-not-allowed bg-red-100' : 'bg-red-500 hover:bg-red-600'}"
+							{selectedImages.length === 0 ? 'cursor-not-allowed bg-red-100' : 'bg-red-500 hover:bg-red-600'}"
 							>
 								<!-- Button Icon -->
 								<Trash2 class="h-6 w-6" />
-							</button>
-							</AlertDialog.Trigger>
-							<AlertDialog.Content>
-							  <AlertDialog.Header>
-								<AlertDialog.Title>Are you absolutely sure?</AlertDialog.Title>
-								<AlertDialog.Description>
-								  This action cannot be undone. This will permanently delete these files from our servers.
-								</AlertDialog.Description>
-							  </AlertDialog.Header>
-							  <AlertDialog.Footer>
-								<AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
-								<AlertDialog.Action class="bg-red-500 hover:bg-red-400">Continue</AlertDialog.Action>
-							  </AlertDialog.Footer>
-							</AlertDialog.Content>
-						  </AlertDialog.Root>
-						</Tooltip.Trigger
-					>
+							</button></CustomAlertDialogue
+						>
+					</Tooltip.Trigger>
 					<Tooltip.Content>
 						<p>Delete</p>
 					</Tooltip.Content>
