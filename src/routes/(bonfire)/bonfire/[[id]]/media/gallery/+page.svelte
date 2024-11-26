@@ -10,6 +10,7 @@
 	import { Toggle } from '$lib/components/ui/toggle/index.js';
 	import PhotoSwipeLightbox from 'photoswipe/lightbox';
 	import 'photoswipe/style.css';
+	import { Button } from '$lib/components/ui/button/index.js';
 
 	let selectedImages: any = $state([]);
 	let selection: any;
@@ -42,6 +43,28 @@
 
 			lightbox.init();
 		}
+	}
+
+	function selectAll() {
+		const allImages = document.querySelectorAll('.image-item');
+		allImages.forEach((el) => {
+			const src = el.getAttribute('data-src');
+			const name = el.getAttribute('data-name');
+			if (src && name && !selectedImages.find((img) => img.src === src)) {
+				el.classList.add('border-blue-400');
+				selectedImages.push({ src, name });
+			}
+		});
+		console.log('All images selected:', selectedImages);
+	}
+
+	function selectNone() {
+		const selectedElements = document.querySelectorAll('.image-item.border-blue-400');
+		selectedElements.forEach((el) => {
+			el.classList.remove('border-blue-400');
+		});
+		selectedImages = [];
+		console.log('Selection cleared');
 	}
 
 	// Function to handle download
@@ -265,6 +288,12 @@
 			? 'Disable Selection'
 			: 'Enable Selection'}
 	</Toggle>
+	{#if selectionActive}
+		<div class="flex space-x-2 mt-2">
+			<Button onclick={selectAll} class="text-xs p-2">Select All</Button>
+			<Button onclick={selectNone} class="text-xs p-2">Select None</Button>
+		</div>
+	{/if}
 </div>
 
 {#if selectedImages.length > 0}
