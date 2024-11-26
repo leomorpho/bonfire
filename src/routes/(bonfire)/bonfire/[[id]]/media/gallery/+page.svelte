@@ -52,15 +52,8 @@
 
 	function selectAll() {
 		const allImages = document.querySelectorAll('.image-item');
-		allImages.forEach((el) => {
-			const src = el.getAttribute('data-src');
-			const name = el.getAttribute('data-name');
-			if (src && name && !selectedImages.find((img) => img.src === src)) {
-				el.classList.remove('border-transparent');
-				el.classList.add('border-blue-400');
-				selectedImages.push({ src, name });
-			}
-		});
+		handleSelectionChange(allImages, selectedImages);
+
 		console.log('All images selected:', selectedImages);
 	}
 
@@ -157,7 +150,7 @@
 		}
 
 		const zip = new JSZip();
-		const folder = zip.folder('selected-images');
+		const folder = zip.folder('bonfire-images');
 		if (!folder) {
 			console.error('Failed to create ZIP folder.');
 			return;
@@ -207,6 +200,25 @@
 		}
 	}
 
+	// handleSelectionChange is called on every selection change to update the selected list of items.
+	function handleSelectionChange(elements: Element[] | NodeListOf<Element>, targetArray: any[]) {
+		elements.forEach((el) => {
+			// Update element styles
+			el.classList.remove('border-transparent');
+			el.classList.add('border-blue-400');
+
+			// Extract attributes
+			const id = el.getAttribute('data-id');
+			const src = el.getAttribute('data-src');
+			const name = el.getAttribute('data-name');
+
+			// Add to the target array if it doesn't already exist
+			if (src && name && id && !targetArray.find((item) => item.id === id)) {
+				targetArray.push({ src, name, id });
+			}
+		});
+	}
+
 	onMount(() => {
 		// Initialize SelectionArea
 		selection = new SelectionArea({
@@ -222,23 +234,26 @@
 			console.log('Added:', changed.added);
 			console.log('Removed:', changed.removed);
 
-			// Add newly selected images
-			changed.added.forEach((el) => {
-				el.classList.remove('border-transparent');
-				el.classList.add('border-blue-400');
-				const src = el.getAttribute('data-src');
-				const name = el.getAttribute('data-name');
-				if (src && name && !selectedImages.find((img) => img.src === src)) {
-					selectedImages.push({ src, name });
-				}
-			});
+			// // Add newly selected images
+			// changed.added.forEach((el) => {
+			// 	el.classList.remove('border-transparent');
+			// 	el.classList.add('border-blue-400');
+			// 	const id = el.getAttribute('data-id');
+			// 	const src = el.getAttribute('data-src');
+			// 	const name = el.getAttribute('data-name');
+			// 	if (src && name && id && !selectedImages.find((img) => img.id === id)) {
+			// 		selectedImages.push({ src, name, id });
+			// 	}
+			// });
+
+			handleSelectionChange(changed.added, selectedImages);
 
 			// Remove unselected images
 			changed.removed.forEach((el) => {
 				el.classList.remove('border-blue-400');
 				el.classList.add('border-transparent');
-				const src = el.getAttribute('data-src');
-				const index = selectedImages.findIndex((img) => img.src === src);
+				const id = el.getAttribute('data-id');
+				const index = selectedImages.findIndex((img) => img.id === id);
 				if (index > -1) selectedImages.splice(index, 1);
 			});
 
@@ -284,6 +299,8 @@
 						<ContextMenu.Trigger
 							><div
 								class="image-item rounded-xl border-4 border-transparent"
+								data-id={file.id}
+								data-uploader-id={file.uploader_id}
 								data-src={file.URL}
 								data-name={file.file_name}
 							>
@@ -362,7 +379,8 @@
 				<Tooltip.Root>
 					<Tooltip.Trigger>
 						<CustomAlertDialogue
-						dialogDescription='This action cannot be undone. This will permanently delete these files from our servers.'
+							disabled={selectedImages.length == 0}
+							dialogDescription="This action cannot be undone. This will permanently delete these files from our servers."
 							><button
 								disabled={selectedImages.length == 0}
 								onclick={handleDelete}

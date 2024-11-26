@@ -3,6 +3,7 @@
 
 	let {
 		children,
+		disabled=false,
 		dialogHeader = 'Are you absolutely sure?',
 		dialogDescription = 'Explain what it does here',
 		cancelText = 'Cancel',
@@ -11,7 +12,7 @@
 </script>
 
 <AlertDialog.Root>
-	<AlertDialog.Trigger>
+	<AlertDialog.Trigger disabled={disabled}>
 		{@render children()}
 	</AlertDialog.Trigger>
 	<AlertDialog.Content>
