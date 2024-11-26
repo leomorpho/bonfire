@@ -105,6 +105,17 @@
 			const result = await response.json();
 			console.log('Files deleted:', result.deletedCount);
 
+			// Remove corresponding DOM elements
+			selectedFileIds.forEach((fileId) => {
+				const node = document.querySelector(`.image-item[data-id="${fileId}"]`);
+				if (node) {
+					node.remove(); // Remove the node from the DOM
+				}
+			});
+
+			// Update selectedImages array
+			selectedImages = selectedImages.filter((image) => !selectedFileIds.includes(image.id));
+
 			toast.success(`${id ? 'File' : 'Files'} deleted`);
 		} else {
 			toast.error('Failed to delete files, try again later');
