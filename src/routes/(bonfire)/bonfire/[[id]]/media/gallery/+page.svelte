@@ -326,18 +326,21 @@
 			<SquareMousePointer class="size-4" /> Select
 		</Toggle>
 	</div>
-
-	{#if selectionActive}
-		<div class="mt-2 flex space-x-2">
-			<Button onclick={selectAll} class="p-2 text-xs">Select All</Button>
-			<Button onclick={selectNone} class="p-2 text-xs">Select None</Button>
-		</div>
-	{/if}
 </div>
 
 {#if selectionActive}
 	<div class="fixed bottom-6 left-1/2 flex -translate-x-1/2 transform flex-col items-center">
-		<div class="flex space-x-2">
+		<div class="flex items-center space-x-2">
+			<div class="flex flex-col justify-center space-y-1">
+				<Button
+					disabled={$page.data.eventFiles.length == selectedImages.length}
+					onclick={selectAll}
+					class="p-1 text-xs">Select All</Button
+				>
+				<Button disabled={selectedImages.length == 0} onclick={selectNone} class="p-1 text-xs"
+					>Select None</Button
+				>
+			</div>
 			<Tooltip.Provider>
 				<Tooltip.Root>
 					<Tooltip.Trigger>
@@ -362,8 +365,9 @@
 						<button
 							disabled={selectedImages.length == 0}
 							onclick={handleDelete}
-							class="rounded-full p-4 text-white shadow-lg transition 
-							{selectedImages.length === 0 ? 'bg-red-100 cursor-not-allowed' : 'bg-red-500 hover:bg-red-600'}"						>
+							class="rounded-full p-4 text-white shadow-lg transition
+							{selectedImages.length === 0 ? 'cursor-not-allowed bg-red-100' : 'bg-red-500 hover:bg-red-600'}"
+						>
 							<!-- Button Icon -->
 							<Trash2 class="h-6 w-6" />
 						</button></Tooltip.Trigger
