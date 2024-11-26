@@ -32,6 +32,8 @@
 			const selectedElements = document.querySelectorAll('.image-item.border-blue-400');
 			selectedElements.forEach((el) => {
 				el.classList.remove('border-blue-400');
+				el.classList.add('border-transparent');
+
 			});
 
 			lightbox = new PhotoSwipeLightbox({
@@ -51,8 +53,8 @@
 			const src = el.getAttribute('data-src');
 			const name = el.getAttribute('data-name');
 			if (src && name && !selectedImages.find((img) => img.src === src)) {
-				el.classList.add('border-blue-400');
 				el.classList.remove('border-transparent');
+				el.classList.add('border-blue-400');
 				selectedImages.push({ src, name });
 			}
 		});
@@ -203,8 +205,8 @@
 
 			// Add newly selected images
 			changed.added.forEach((el) => {
-				el.classList.add('border-blue-400');
 				el.classList.remove('border-transparent');
+				el.classList.add('border-blue-400');
 				const src = el.getAttribute('data-src');
 				const name = el.getAttribute('data-name');
 				if (src && name && !selectedImages.find((img) => img.src === src)) {
@@ -288,9 +290,7 @@
 <div class="fixed left-1/2 top-14 flex -translate-x-1/2 transform flex-col items-center">
 	<Toggle aria-label="toggle selection" onclick={toggleSelection}>
 		<!-- Button Icon -->
-		<SquareDashedMousePointer class="h-6 w-6" />{selectionActive
-			? 'Disable Selection'
-			: 'Enable Selection'}
+		<SquareDashedMousePointer class="h-6 w-6" />Download
 	</Toggle>
 	{#if selectionActive}
 		<div class="mt-2 flex space-x-2">
