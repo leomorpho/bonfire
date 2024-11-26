@@ -5,12 +5,15 @@
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
 	import SelectionArea from '@viselect/vanilla';
 	import JSZip from 'jszip';
-	import { Download } from 'lucide-svelte';
+	import { Download, Trash2 } from 'lucide-svelte';
 	import { Toggle } from '$lib/components/ui/toggle/index.js';
 	import PhotoSwipeLightbox from 'photoswipe/lightbox';
 	import 'photoswipe/style.css';
-	import { Button } from '$lib/components/ui/button/index.js';
-	import { ImagePlus, ImageDown } from 'lucide-svelte';
+	import { Button, buttonVariants } from '$lib/components/ui/button/index.js';
+	import { ImagePlus } from 'lucide-svelte';
+	import * as ContextMenu from '$lib/components/ui/context-menu/index.js';
+	import { SquareMousePointer } from 'lucide-svelte';
+	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 
 	let selectedImages: any = $state([]);
 	let selection: any;
@@ -24,26 +27,26 @@
 	function toggleSelection() {
 		selectionActive = !selectionActive;
 
-		// if (!selectionActive) {
-		// 	lightbox?.destroy();
-		// } else {
-		// 	// Clear selectedImages and remove selection styling
-		// 	selectedImages = [];
-		// 	const selectedElements = document.querySelectorAll('.image-item.border-blue-400');
-		// 	selectedElements.forEach((el) => {
-		// 		el.classList.remove('border-blue-400');
-		// 		el.classList.add('border-transparent');
-		// 	});
+		if (selectionActive) {
+			lightbox?.destroy();
+		} else {
+			// Clear selectedImages and remove selection styling
+			selectedImages = [];
+			const selectedElements = document.querySelectorAll('.image-item.border-blue-400');
+			selectedElements.forEach((el) => {
+				el.classList.remove('border-blue-400');
+				el.classList.add('border-transparent');
+			});
 
-		// 	lightbox = new PhotoSwipeLightbox({
-		// 		gallery: '.gallery-container',
-		// 		children: 'a', // Target that tag within the gallery container
-		// 		pswpModule: () => import('photoswipe'),
-		// 		showHideAnimationType: 'zoom' // Optional animation
-		// 	});
+			lightbox = new PhotoSwipeLightbox({
+				gallery: '.gallery-container',
+				children: 'a', // Target that tag within the gallery container
+				pswpModule: () => import('photoswipe'),
+				showHideAnimationType: 'zoom' // Optional animation
+			});
 
-		// 	lightbox.init();
-		// }
+			lightbox.init();
+		}
 	}
 
 	function selectAll() {
@@ -84,6 +87,22 @@
 			// Desktop: Download as ZIP or individually
 			await downloadAsZip();
 		}
+	}
+
+	// Function to handle download
+	async function handleDelete() {
+		if (selectedImages.length === 0) {
+			alert('No images selected!');
+			return;
+		}
+
+		// if (isMobile() && navigator.canShare()) {
+		// 	// Mobile: Use Web Share API
+		// 	await shareImages();
+		// } else {
+		// 	// Desktop: Download as ZIP or individually
+		// 	await downloadAsZip();
+		// }
 	}
 
 	async function shareImages() {
@@ -260,27 +279,37 @@
 				class="gallery-container selection-area my-5 grid grid-cols-3 gap-1 sm:grid-cols-4 lg:grid-cols-5"
 			>
 				{#each $page.data.eventFiles as file}
-					<div
-						class="image-item rounded-xl border-4 border-transparent"
-						data-src={file.URL}
-						data-name={file.file_name}
-					>
-						<a
-							href={file.URL}
-							class={selectionActive ? 'disabled-link' : ''}
-							data-pswp-width={file.w_pixel}
-							data-pswp-height={file.h_pixel}
+					<ContextMenu.Root>
+						<ContextMenu.Trigger
+							><div
+								class="image-item rounded-xl border-4 border-transparent"
+								data-src={file.URL}
+								data-name={file.file_name}
+							>
+								<a
+									href={file.URL}
+									class={selectionActive ? 'disabled-link' : ''}
+									data-pswp-width={file.w_pixel}
+									data-pswp-height={file.h_pixel}
+								>
+									<Image
+										height={file.h_pixel}
+										class="rounded-lg"
+										src={file.URL}
+										layout="constrained"
+										aspectRatio={5 / 3}
+										alt={file.file_name}
+									/>
+								</a>
+							</div></ContextMenu.Trigger
 						>
-							<Image
-								height={file.h_pixel}
-								class="rounded-lg"
-								src={file.URL}
-								layout="constrained"
-								aspectRatio={5 / 3}
-								alt={file.file_name}
-							/>
-						</a>
-					</div>
+						<ContextMenu.Content>
+							<ContextMenu.Item>Delete</ContextMenu.Item>
+							<ContextMenu.Item>Billing</ContextMenu.Item>
+							<ContextMenu.Item>Team</ContextMenu.Item>
+							<ContextMenu.Item>Subscription</ContextMenu.Item>
+						</ContextMenu.Content>
+					</ContextMenu.Root>
 				{/each}
 			</div>
 		{/if}
@@ -294,7 +323,7 @@
 			</Toggle>
 		</a>
 		<Toggle aria-label="toggle selection" onclick={toggleSelection}>
-			<ImageDown class="size-4" /> Download
+			<SquareMousePointer class="size-4" /> Select
 		</Toggle>
 	</div>
 
@@ -306,16 +335,47 @@
 	{/if}
 </div>
 
-{#if selectedImages.length > 0}
+{#if selectionActive}
 	<div class="fixed bottom-6 left-1/2 flex -translate-x-1/2 transform flex-col items-center">
-		<button
-			onclick={handleDownload}
-			class="rounded-full bg-blue-500 p-4 text-white shadow-lg transition hover:bg-blue-600"
-		>
-			<!-- Button Icon -->
-			<Download class="h-6 w-6" />
-		</button>
-		<span class="mt-2">Download {selectedImages.length} files</span>
+		<div class="flex space-x-2">
+			<Tooltip.Provider>
+				<Tooltip.Root>
+					<Tooltip.Trigger>
+						<button
+							disabled={selectedImages.length == 0}
+							onclick={handleDownload}
+							class="rounded-full p-4 text-white shadow-lg transition
+							{selectedImages.length === 0 ? 'cursor-not-allowed bg-blue-300' : 'bg-blue-500 hover:bg-blue-600'}"
+						>
+							<!-- Button Icon -->
+							<Download class="h-6 w-6" />
+						</button></Tooltip.Trigger
+					>
+					<Tooltip.Content>
+						<p>Download</p>
+					</Tooltip.Content>
+				</Tooltip.Root>
+			</Tooltip.Provider>
+			<Tooltip.Provider>
+				<Tooltip.Root>
+					<Tooltip.Trigger>
+						<button
+							disabled={selectedImages.length == 0}
+							onclick={handleDelete}
+							class="rounded-full p-4 text-white shadow-lg transition 
+							{selectedImages.length === 0 ? 'bg-red-100 cursor-not-allowed' : 'bg-red-500 hover:bg-red-600'}"						>
+							<!-- Button Icon -->
+							<Trash2 class="h-6 w-6" />
+						</button></Tooltip.Trigger
+					>
+					<Tooltip.Content>
+						<p>Delete</p>
+					</Tooltip.Content>
+				</Tooltip.Root>
+			</Tooltip.Provider>
+
+			<!-- <span class="mt-2">Download {selectedImages.length} files</span> -->
+		</div>
 	</div>
 {/if}
 

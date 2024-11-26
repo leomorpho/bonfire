@@ -163,11 +163,11 @@
 							<Dialog.Content class="h-full">
 								<ScrollArea>
 									<Dialog.Header>
-										<Dialog.Title class="w-full flex justify-center">Attendees</Dialog.Title>
+										<Dialog.Title class="flex w-full justify-center">Attendees</Dialog.Title>
 										<Dialog.Description>
 											<div class="mb-3 mt-5">
 												{#if attendeesGoing.length > 0}
-													<h2 class="w-full flex justify-center font-semibold my-3">Going</h2>
+													<h2 class="my-3 flex w-full justify-center font-semibold">Going</h2>
 													<div class="mx-5 flex flex-wrap -space-x-4">
 														{#each attendeesGoing as attendee}
 															<ProfileAvatar
@@ -182,7 +182,7 @@
 											</div>
 											<div class="mb-3 mt-5">
 												{#if attendeesMaybeGoing.length > 0}
-													<h2 class="w-full flex justify-center font-semibold my-3">Maybe</h2>
+													<h2 class="my-3 flex w-full justify-center font-semibold">Maybe</h2>
 													<div class="mx-5 flex flex-wrap -space-x-4">
 														{#each attendeesMaybeGoing as attendee}
 															<ProfileAvatar
@@ -197,7 +197,7 @@
 											</div>
 											<div class="mb-3 mt-5">
 												{#if attendeesNotGoing.length > 0}
-													<h2 class="w-full flex justify-center font-semibold my-3">Not Going</h2>
+													<h2 class="my-3 flex w-full justify-center font-semibold">Not Going</h2>
 													<div class="mx-5 flex flex-wrap -space-x-4">
 														{#each attendeesNotGoing as attendee}
 															<ProfileAvatar
@@ -243,21 +243,21 @@
 				Share Bonfire</Button
 			>
 			<div class="my-10">
+				<div class="font-semibold">Description</div>
 				{event.results[0].description}
 			</div>
 			{#if !anonymousUser}
 				<hr class="my-10" />
-				<div>
-					<div class="my-10">
-						{#if $page.data.eventFiles && fileCount.results}
-							<MiniGallery
-								fileCount={fileCount.results.length - $page.data.eventFiles.length}
-								eventFiles={$page.data.eventFiles}
-							/>
-						{/if}
-					</div>
+				<div class="my-10"><div class="font-semibold">Announcements</div></div>
+				<hr class="my-10" />
 
-					<div>Comments</div>
+				<div class="my-10">
+					{#if $page.data.eventFiles && fileCount.results}
+						<MiniGallery
+							fileCount={fileCount.results.length - $page.data.eventFiles.length}
+							eventFiles={$page.data.eventFiles}
+						/>
+					{/if}
 				</div>
 			{/if}
 		</section>
