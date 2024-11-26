@@ -6,11 +6,11 @@
 	import SelectionArea from '@viselect/vanilla';
 	import JSZip from 'jszip';
 	import { Download } from 'lucide-svelte';
-	import { SquareDashedMousePointer } from 'lucide-svelte';
 	import { Toggle } from '$lib/components/ui/toggle/index.js';
 	import PhotoSwipeLightbox from 'photoswipe/lightbox';
 	import 'photoswipe/style.css';
 	import { Button } from '$lib/components/ui/button/index.js';
+	import { ImagePlus, ImageDown } from 'lucide-svelte';
 
 	let selectedImages: any = $state([]);
 	let selection: any;
@@ -24,27 +24,26 @@
 	function toggleSelection() {
 		selectionActive = !selectionActive;
 
-		if (selectionActive) {
-			lightbox?.destroy();
-		} else {
-			// Clear selectedImages and remove selection styling
-			selectedImages = [];
-			const selectedElements = document.querySelectorAll('.image-item.border-blue-400');
-			selectedElements.forEach((el) => {
-				el.classList.remove('border-blue-400');
-				el.classList.add('border-transparent');
+		// if (!selectionActive) {
+		// 	lightbox?.destroy();
+		// } else {
+		// 	// Clear selectedImages and remove selection styling
+		// 	selectedImages = [];
+		// 	const selectedElements = document.querySelectorAll('.image-item.border-blue-400');
+		// 	selectedElements.forEach((el) => {
+		// 		el.classList.remove('border-blue-400');
+		// 		el.classList.add('border-transparent');
+		// 	});
 
-			});
+		// 	lightbox = new PhotoSwipeLightbox({
+		// 		gallery: '.gallery-container',
+		// 		children: 'a', // Target that tag within the gallery container
+		// 		pswpModule: () => import('photoswipe'),
+		// 		showHideAnimationType: 'zoom' // Optional animation
+		// 	});
 
-			lightbox = new PhotoSwipeLightbox({
-				gallery: '.gallery-container',
-				children: 'a', // Target that tag within the gallery container
-				pswpModule: () => import('photoswipe'),
-				showHideAnimationType: 'zoom' // Optional animation
-			});
-
-			lightbox.init();
-		}
+		// 	lightbox.init();
+		// }
 	}
 
 	function selectAll() {
@@ -288,10 +287,17 @@
 	</section>
 </div>
 <div class="fixed left-1/2 top-14 flex -translate-x-1/2 transform flex-col items-center">
-	<Toggle aria-label="toggle selection" onclick={toggleSelection}>
-		<!-- Button Icon -->
-		<SquareDashedMousePointer class="h-6 w-6" />Download
-	</Toggle>
+	<div class="flex items-center justify-center space-x-2">
+		<a href="add">
+			<Toggle aria-label="toggle bold">
+				<ImagePlus class="size-4" />Upload
+			</Toggle>
+		</a>
+		<Toggle aria-label="toggle selection" onclick={toggleSelection}>
+			<ImageDown class="size-4" /> Download
+		</Toggle>
+	</div>
+
 	{#if selectionActive}
 		<div class="mt-2 flex space-x-2">
 			<Button onclick={selectAll} class="p-2 text-xs">Select All</Button>

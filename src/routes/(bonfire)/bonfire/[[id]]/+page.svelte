@@ -219,7 +219,7 @@
 				{:else}
 					<div class="flex flex-wrap items-center -space-x-3">
 						{#each Array(10).fill() as _, index}
-							<Skeleton class="size-10 rounded-full" />
+							<Skeleton class="size-12 rounded-full" />
 						{/each}
 					</div>
 				{/if}

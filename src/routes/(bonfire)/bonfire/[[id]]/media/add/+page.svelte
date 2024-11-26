@@ -17,6 +17,7 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
+	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
 
 	let uppy;
 
@@ -58,7 +59,7 @@
 			})
 			.on('upload-success', (file, response) => {
 				console.log('Upload successful:', file, response);
-				goto(`/bonfire/${$page.params.id}`)
+				goto(`/bonfire/${$page.params.id}/media/gallery`);
 			})
 			.on('error', (error) => {
 				console.error('Upload error:', error);
@@ -76,6 +77,21 @@
 
 <div class="mx-4 flex flex-col items-center justify-center">
 	<section class="mt-8 w-full sm:w-[450px]">
+		<Breadcrumb.Root class="mb-10">
+			<Breadcrumb.List>
+				<Breadcrumb.Item>
+					<Breadcrumb.Link href={`/bonfire/${$page.params.id}`}>Event</Breadcrumb.Link>
+				</Breadcrumb.Item>
+				<Breadcrumb.Separator />
+				<Breadcrumb.Item>
+					<Breadcrumb.Link href={`/bonfire/${$page.params.id}/media/gallery`}>Gallery</Breadcrumb.Link>
+				</Breadcrumb.Item>
+				<Breadcrumb.Separator />
+				<Breadcrumb.Item>
+					<Breadcrumb.Page>Upload</Breadcrumb.Page>
+				</Breadcrumb.Item>
+			</Breadcrumb.List>
+		</Breadcrumb.Root>
 		<div id="uppy-dashboard"></div>
 	</section>
 </div>
