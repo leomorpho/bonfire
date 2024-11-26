@@ -308,15 +308,15 @@
 				class="gallery-container selection-area my-5 grid grid-cols-3 gap-1 sm:grid-cols-4 lg:grid-cols-5"
 			>
 				{#each $page.data.eventFiles as file}
-					<ContextMenu.Root>
-						<ContextMenu.Trigger
-							><div
-								class="image-item rounded-xl border-4 border-transparent"
-								data-id={file.id}
-								data-uploader-id={file.uploader_id}
-								data-src={file.URL}
-								data-name={file.file_name}
-							>
+					<div
+						class="image-item rounded-xl border-4 border-transparent"
+						data-id={file.id}
+						data-uploader-id={file.uploader_id}
+						data-src={file.URL}
+						data-name={file.file_name}
+					>
+						<ContextMenu.Root>
+							<ContextMenu.Trigger>
 								<a
 									href={file.URL}
 									class={selectionActive ? 'disabled-link' : ''}
@@ -332,29 +332,29 @@
 										alt={file.file_name}
 									/>
 								</a>
-							</div></ContextMenu.Trigger
-						>
-						<ContextMenu.Content>
-							<ContextMenu.Item>Download</ContextMenu.Item>
-							{#if $page.data.isOwner || $page.data.user.id == file.uploader_id}
-								<CustomAlertDialogue
-									continueCallback={() => handleDelete(file.id)}
-									dialogDescription="This action cannot be undone. This will permanently delete this file from our servers."
-								>
-									<ContextMenu.Item>Delete this file</ContextMenu.Item></CustomAlertDialogue
-								>
-							{/if}
-							{#if $page.data.isOwner && selectedImages.length > 1}
-								<CustomAlertDialogue
-									continueCallback={() => handleDelete()}
-									dialogDescription="This action cannot be undone. This will permanently delete these files from our servers."
-								>
-									<ContextMenu.Item>Delete all selected files</ContextMenu.Item
-									></CustomAlertDialogue
-								>
-							{/if}
-						</ContextMenu.Content>
-					</ContextMenu.Root>
+							</ContextMenu.Trigger>
+							<ContextMenu.Content>
+								<ContextMenu.Item>Download</ContextMenu.Item>
+								{#if $page.data.isOwner || $page.data.user.id == file.uploader_id}
+									<CustomAlertDialogue
+										continueCallback={() => handleDelete(file.id)}
+										dialogDescription="This action cannot be undone. This will permanently delete this file from our servers."
+									>
+										<ContextMenu.Item>Delete this file</ContextMenu.Item></CustomAlertDialogue
+									>
+								{/if}
+								{#if $page.data.isOwner && selectedImages.length > 1}
+									<CustomAlertDialogue
+										continueCallback={() => handleDelete()}
+										dialogDescription="This action cannot be undone. This will permanently delete these files from our servers."
+									>
+										<ContextMenu.Item>Delete all selected files</ContextMenu.Item
+										></CustomAlertDialogue
+									>
+								{/if}
+							</ContextMenu.Content>
+						</ContextMenu.Root>
+					</div>
 				{/each}
 			</div>
 		{/if}

@@ -100,5 +100,5 @@
 		{$flash.message}
 	</div>
 {/if}
-<Toaster />
+<Toaster class="m-5"/>
 {@render children()}

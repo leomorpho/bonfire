@@ -10,9 +10,24 @@
 		cancelText = 'Cancel',
 		continueText = 'Continue'
 	} = $props();
+
+	let isOpen = $state(false);
+
+	async function handleContinue() {
+		if (typeof continueCallback === 'function') {
+			await continueCallback(); // Call the provided callback
+		}
+		isOpen = false;
+		console.log('Closed dialog');
+	}
 </script>
 
-<AlertDialog.Root>
+<AlertDialog.Root
+	open={isOpen}
+	onOpenChange={(open) => {
+		isOpen = open; // Synchronize dialog state
+	}}
+>
 	<AlertDialog.Trigger {disabled}>
 		{@render children()}
 	</AlertDialog.Trigger>
@@ -25,7 +40,7 @@
 		</AlertDialog.Header>
 		<AlertDialog.Footer>
 			<AlertDialog.Cancel>{cancelText}</AlertDialog.Cancel>
-			<AlertDialog.Action class="bg-red-500 hover:bg-red-400" onclick={continueCallback}
+			<AlertDialog.Action class="bg-red-500 hover:bg-red-400" onclick={handleContinue}
 				>{continueText}
 			</AlertDialog.Action>
 		</AlertDialog.Footer>
