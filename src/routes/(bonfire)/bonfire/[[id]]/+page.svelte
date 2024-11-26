@@ -143,17 +143,78 @@
 			<div class="font-light">{event.results[0].location}</div>
 			<div class="mx-3 mt-5 items-center">
 				{#if attendeesGoing.length > 0}
-					<div class="flex flex-wrap items-center">
-						<div class="-space-x-4">
-							{#each attendeesGoing.slice(0, showMaxNumPeople) as attendee}
-								<ProfileAvatar
-									url={profileImageMap.get(attendee.user_id)?.small_image_url}
-									fullsizeUrl={profileImageMap.get(attendee.user_id)?.full_image_url}
-									username={attendee.user?.username}
-									fallbackName={attendee.user?.username}
-								/>
-							{/each}
-						</div>
+					<div class="flex flex-wrap items-center -space-x-4">
+						{#each attendeesGoing.slice(0, showMaxNumPeople) as attendee}
+							<ProfileAvatar
+								url={profileImageMap.get(attendee.user_id)?.small_image_url}
+								fullsizeUrl={profileImageMap.get(attendee.user_id)?.full_image_url}
+								username={attendee.user?.username}
+								fallbackName={attendee.user?.username}
+							/>
+						{/each}
+						<Dialog.Root>
+							<Dialog.Trigger class="flex items-center pl-5 sm:pl-6"
+								>{#if attendeesGoing.length > showMaxNumPeople}
+									<div class="text-sm text-gray-500">
+										and {attendeesGoing.length - showMaxNumPeople} more
+									</div>
+								{/if}<Plus class="ml-1 h-4 w-4 sm:h-5 sm:w-5" /></Dialog.Trigger
+							>
+							<Dialog.Content class="h-full">
+								<ScrollArea>
+									<Dialog.Header>
+										<Dialog.Title class="w-full flex justify-center">Attendees</Dialog.Title>
+										<Dialog.Description>
+											<div class="mb-3 mt-5">
+												{#if attendeesGoing.length > 0}
+													<h2 class="w-full flex justify-center font-semibold my-3">Going</h2>
+													<div class="mx-5 flex flex-wrap -space-x-4">
+														{#each attendeesGoing as attendee}
+															<ProfileAvatar
+																url={profileImageMap.get(attendee.user_id)?.small_image_url}
+																fullsizeUrl={profileImageMap.get(attendee.user_id)?.full_image_url}
+																username={attendee.user?.username}
+																fallbackName={attendee.user?.username}
+															/>
+														{/each}
+													</div>
+												{/if}
+											</div>
+											<div class="mb-3 mt-5">
+												{#if attendeesMaybeGoing.length > 0}
+													<h2 class="w-full flex justify-center font-semibold my-3">Maybe</h2>
+													<div class="mx-5 flex flex-wrap -space-x-4">
+														{#each attendeesMaybeGoing as attendee}
+															<ProfileAvatar
+																url={profileImageMap.get(attendee.user_id)?.small_image_url}
+																fullsizeUrl={profileImageMap.get(attendee.user_id)?.full_image_url}
+																username={attendee.user?.username}
+																fallbackName={attendee.user?.username}
+															/>
+														{/each}
+													</div>
+												{/if}
+											</div>
+											<div class="mb-3 mt-5">
+												{#if attendeesNotGoing.length > 0}
+													<h2 class="w-full flex justify-center font-semibold my-3">Not Going</h2>
+													<div class="mx-5 flex flex-wrap -space-x-4">
+														{#each attendeesNotGoing as attendee}
+															<ProfileAvatar
+																url={profileImageMap.get(attendee.user_id)?.small_image_url}
+																fullsizeUrl={profileImageMap.get(attendee.user_id)?.full_image_url}
+																username={attendee.user?.username}
+																fallbackName={attendee.user?.username}
+															/>
+														{/each}
+													</div>
+												{/if}
+											</div>
+										</Dialog.Description>
+									</Dialog.Header>
+								</ScrollArea>
+							</Dialog.Content>
+						</Dialog.Root>
 					</div>
 				{:else}
 					<div class="flex flex-wrap items-center -space-x-3">
@@ -162,72 +223,6 @@
 						{/each}
 					</div>
 				{/if}
-
-				<Dialog.Root>
-					<Dialog.Trigger class="flex items-center"
-						>{#if attendeesGoing.length > showMaxNumPeople}
-							<div class="text-sm text-gray-500">
-								and {attendeesGoing.length - showMaxNumPeople} more
-							</div>
-						{:else}
-							see all
-						{/if}<Plus class="ml-1 h-4 w-4" /></Dialog.Trigger
-					>
-					<Dialog.Content class="h-full">
-						<ScrollArea>
-							<Dialog.Header>
-								<Dialog.Title>Attendees</Dialog.Title>
-								<Dialog.Description>
-									<div class="mb-3 mt-5">
-										{#if attendeesGoing.length > 0}
-											<h2>Going</h2>
-											<div class="mx-5 flex flex-wrap -space-x-4">
-												{#each attendeesGoing as attendee}
-													<ProfileAvatar
-														url={profileImageMap.get(attendee.user_id)?.small_image_url}
-														fullsizeUrl={profileImageMap.get(attendee.user_id)?.full_image_url}
-														username={attendee.user?.username}
-														fallbackName={attendee.user?.username}
-													/>
-												{/each}
-											</div>
-										{/if}
-									</div>
-									<div class="mb-3 mt-5">
-										{#if attendeesMaybeGoing.length > 0}
-											<h2>Maybe</h2>
-											<div class="mx-5 flex flex-wrap -space-x-4">
-												{#each attendeesMaybeGoing as attendee}
-													<ProfileAvatar
-														url={profileImageMap.get(attendee.user_id)?.small_image_url}
-														fullsizeUrl={profileImageMap.get(attendee.user_id)?.full_image_url}
-														username={attendee.user?.username}
-														fallbackName={attendee.user?.username}
-													/>
-												{/each}
-											</div>
-										{/if}
-									</div>
-									<div class="mb-3 mt-5">
-										{#if attendeesNotGoing.length > 0}
-											<h2>Not Going</h2>
-											<div class="mx-5 flex flex-wrap -space-x-4">
-												{#each attendeesNotGoing as attendee}
-													<ProfileAvatar
-														url={profileImageMap.get(attendee.user_id)?.small_image_url}
-														fullsizeUrl={profileImageMap.get(attendee.user_id)?.full_image_url}
-														username={attendee.user?.username}
-														fallbackName={attendee.user?.username}
-													/>
-												{/each}
-											</div>
-										{/if}
-									</div>
-								</Dialog.Description>
-							</Dialog.Header>
-						</ScrollArea>
-					</Dialog.Content>
-				</Dialog.Root>
 			</div>
 			{#if anonymousUser}
 				<a href="/login" class="mt-4 flex justify-center">
@@ -255,8 +250,6 @@
 				<div>
 					<div class="my-10">
 						{#if $page.data.eventFiles && fileCount.results}
-							{console.log(fileCount.results.length)}
-							{console.log($page.data.eventFiles.length)}
 							<MiniGallery
 								fileCount={fileCount.results.length - $page.data.eventFiles.length}
 								eventFiles={$page.data.eventFiles}
