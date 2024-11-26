@@ -12,6 +12,7 @@
 	} from '$env/static/public';
 	import Header from '$lib/components/Header.svelte';
 	import { getFlash } from 'sveltekit-flash-message';
+	import { Toaster } from '$lib/components/ui/sonner/index';
 
 	let { children } = $props();
 
@@ -82,17 +83,22 @@
 
 <Header></Header>
 {#if $flash}
-  <div
-    class={`m-2 sm:m-4 md:m-8 mb-4 rounded-lg p-4 text-sm ${
-      $flash.type === 'success' ? 'bg-green-50 text-green-800 dark:bg-gray-800 dark:text-green-400' :
-      $flash.type === 'error' ? 'bg-red-50 text-red-800 dark:bg-gray-800 dark:text-red-400' :
-      $flash.type === 'warning' ? 'bg-yellow-50 text-yellow-800 dark:bg-gray-800 dark:text-yellow-400' :
-      $flash.type === 'info' ? 'bg-blue-50 text-blue-800 dark:bg-gray-800 dark:text-blue-400' :
-      'bg-gray-50 text-gray-800 dark:bg-gray-800 dark:text-gray-400'
-    }`}
-    role="alert"
-  >
-    {$flash.message}
-  </div>
+	<div
+		class={`m-2 mb-4 rounded-lg p-4 text-sm sm:m-4 md:m-8 ${
+			$flash.type === 'success'
+				? 'bg-green-50 text-green-800 dark:bg-gray-800 dark:text-green-400'
+				: $flash.type === 'error'
+					? 'bg-red-50 text-red-800 dark:bg-gray-800 dark:text-red-400'
+					: $flash.type === 'warning'
+						? 'bg-yellow-50 text-yellow-800 dark:bg-gray-800 dark:text-yellow-400'
+						: $flash.type === 'info'
+							? 'bg-blue-50 text-blue-800 dark:bg-gray-800 dark:text-blue-400'
+							: 'bg-gray-50 text-gray-800 dark:bg-gray-800 dark:text-gray-400'
+		}`}
+		role="alert"
+	>
+		{$flash.message}
+	</div>
 {/if}
+<Toaster />
 {@render children()}

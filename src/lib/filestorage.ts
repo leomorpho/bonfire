@@ -4,7 +4,8 @@ import {
 	CreateMultipartUploadCommand,
 	UploadPartCommand,
 	CompleteMultipartUploadCommand,
-	AbortMultipartUploadCommand
+	AbortMultipartUploadCommand,
+	DeleteObjectCommand
 } from '@aws-sdk/client-s3';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
@@ -214,4 +215,56 @@ async function* chunkFileStream(fileStream: Readable, chunkSize: number): AsyncI
 	if (buffer.length > 0) {
 		yield Buffer.from(buffer); // Yield remaining data as a new Buffer
 	}
+}
+
+/**
+ * Deletes multiple files from S3 by their keys.
+ * 
+ * @param {string[]} fileKeys - Array of S3 object keys to delete.
+ * @returns {Promise<{ success: boolean; deleted: string[]; failed: string[] }>} - Result of the deletion.
+ */
+export async function deleteFilesFromS3(fileKeys: string[]): Promise<{
+	success: boolean;
+	deleted: string[];
+	failed: string[];
+}> {
+	if (fileKeys.length === 0) {
+		return { success: false, deleted: [], failed: ['No file keys provided.'] };
+	}
+
+	const results = await Promise.allSettled(
+		fileKeys.map(async (fileKey) => {
+			try {
+				const deleteCommand = new DeleteObjectCommand({
+					Bucket: bucketName,
+					Key: fileKey,
+				});
+
+				await s3.send(deleteCommand);
+				return { success: true, fileKey };
+			} catch (error) {
+				console.error(`Error deleting file ${fileKey}:`, error);
+				return { success: false, fileKey };
+			}
+		})
+	);
+
+	// Separate successful and failed operations
+	const deleted = results
+		.filter((result) => result.status === 'fulfilled' && result.value.success)
+		.map((result) => (result as PromiseFulfilledResult<{ success: boolean; fileKey: string }>).value.fileKey);
+
+	const failed = results
+		.filter((result) => result.status === 'fulfilled' && !result.value.success)
+		.map((result) => (result as PromiseFulfilledResult<{ success: boolean; fileKey: string }>).value.fileKey);
+
+	const failedDueToErrors = results
+		.filter((result) => result.status === 'rejected')
+		.map((result) => (result as PromiseRejectedResult).reason);
+
+	return {
+		success: failed.length === 0 && failedDueToErrors.length === 0,
+		deleted,
+		failed: [...failed, ...failedDueToErrors],
+	};
 }

@@ -15,11 +15,14 @@
 	import { SquareMousePointer } from 'lucide-svelte';
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 	import CustomAlertDialogue from '$lib/components/CustomAlertDialog.svelte';
+	import { toast } from 'svelte-sonner';
 
 	let selectedImages: any = $state([]);
 	let selection: any;
 	let selectionActive = $state(false);
 	let lightbox: PhotoSwipeLightbox | null = $state(null);
+
+	console.log('isOwner', $page.data.isOwner);
 
 	function isMobile() {
 		return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -83,20 +86,30 @@
 		}
 	}
 
-	// Function to handle download
-	async function handleDelete() {
-		if (selectedImages.length === 0) {
-			alert('No images selected!');
+	async function handleDelete(id = null) {
+		// Prepare the file IDs for deletion
+		const selectedFileIds = id ? [id] : selectedImages.map((image) => image.id);
+
+		if (!selectedFileIds || selectedFileIds.length === 0) {
+			alert('No files selected for deletion.');
 			return;
 		}
 
-		// if (isMobile() && navigator.canShare()) {
-		// 	// Mobile: Use Web Share API
-		// 	await shareImages();
-		// } else {
-		// 	// Desktop: Download as ZIP or individually
-		// 	await downloadAsZip();
-		// }
+		const response = await fetch(`delete`, {
+			method: 'DELETE',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ fileIds: selectedFileIds })
+		});
+
+		if (response.ok) {
+			const result = await response.json();
+			console.log('Files deleted:', result.deletedCount);
+
+			toast.success(`${id ? 'File' : 'Files'} deleted`);
+		} else {
+			toast.error('Failed to delete files, try again later');
+			console.error('Failed to delete files:', await response.text());
+		}
 	}
 
 	async function shareImages() {
@@ -323,7 +336,23 @@
 						>
 						<ContextMenu.Content>
 							<ContextMenu.Item>Download</ContextMenu.Item>
-							<ContextMenu.Item>Delete</ContextMenu.Item>
+							{#if $page.data.isOwner || $page.data.user.id == file.uploader_id}
+								<CustomAlertDialogue
+									continueCallback={() => handleDelete(file.id)}
+									dialogDescription="This action cannot be undone. This will permanently delete this file from our servers."
+								>
+									<ContextMenu.Item>Delete this file</ContextMenu.Item></CustomAlertDialogue
+								>
+							{/if}
+							{#if $page.data.isOwner && selectedImages.length > 1}
+								<CustomAlertDialogue
+									continueCallback={() => handleDelete()}
+									dialogDescription="This action cannot be undone. This will permanently delete these files from our servers."
+								>
+									<ContextMenu.Item>Delete all selected files</ContextMenu.Item
+									></CustomAlertDialogue
+								>
+							{/if}
 						</ContextMenu.Content>
 					</ContextMenu.Root>
 				{/each}
@@ -375,28 +404,30 @@
 					</Tooltip.Content>
 				</Tooltip.Root>
 			</Tooltip.Provider>
-			<Tooltip.Provider>
-				<Tooltip.Root>
-					<Tooltip.Trigger>
-						<CustomAlertDialogue
-							disabled={selectedImages.length == 0}
-							dialogDescription="This action cannot be undone. This will permanently delete these files from our servers."
-							><button
+			{#if $page.data.isOwner}
+				<Tooltip.Provider>
+					<Tooltip.Root>
+						<Tooltip.Trigger>
+							<CustomAlertDialogue
+								continueCallback={() => handleDelete()}
 								disabled={selectedImages.length == 0}
-								onclick={handleDelete}
-								class="rounded-full p-4 text-white shadow-lg transition
+								dialogDescription="This action cannot be undone. This will permanently delete these files from our servers."
+								><button
+									disabled={selectedImages.length == 0}
+									class="rounded-full p-4 text-white shadow-lg transition
 							{selectedImages.length === 0 ? 'cursor-not-allowed bg-red-100' : 'bg-red-500 hover:bg-red-600'}"
+								>
+									<!-- Button Icon -->
+									<Trash2 class="h-6 w-6" />
+								</button></CustomAlertDialogue
 							>
-								<!-- Button Icon -->
-								<Trash2 class="h-6 w-6" />
-							</button></CustomAlertDialogue
-						>
-					</Tooltip.Trigger>
-					<Tooltip.Content>
-						<p>Delete</p>
-					</Tooltip.Content>
-				</Tooltip.Root>
-			</Tooltip.Provider>
+						</Tooltip.Trigger>
+						<Tooltip.Content>
+							<p>Delete</p>
+						</Tooltip.Content>
+					</Tooltip.Root>
+				</Tooltip.Provider>
+			{/if}
 
 			<!-- <span class="mt-2">Download {selectedImages.length} files</span> -->
 		</div>

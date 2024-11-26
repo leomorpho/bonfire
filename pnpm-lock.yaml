@@ -210,6 +210,9 @@ importers:
       lucide-svelte:
         specifier: ^0.453.0
         version: 0.453.0(svelte@5.2.8)
+      mode-watcher:
+        specifier: ^0.5.0
+        version: 0.5.0(svelte@5.2.8)
       postcss:
         specifier: ^8.4.47
         version: 8.4.49
@@ -234,6 +237,9 @@ importers:
       svelte-radix:
         specifier: ^2.0.1
         version: 2.0.1(svelte@5.2.8)
+      svelte-sonner:
+        specifier: ^0.3.28
+        version: 0.3.28(svelte@5.2.8)
       sveltekit-flash-message:
         specifier: ^2.4.4
         version: 2.4.4(@sveltejs/kit@2.8.4(@sveltejs/vite-plugin-svelte@4.0.2(svelte@5.2.8)(vite@5.4.11(@types/node@22.10.0)))(svelte@5.2.8)(vite@5.4.11(@types/node@22.10.0)))(svelte@5.2.8)
@@ -3922,6 +3928,11 @@ packages:
   mnemonist@0.40.0-rc1:
     resolution: {integrity: sha512-38L0xGDezsPweee5i7duiaCRzlkkCJorozW6Rta60iel7ZkT4vF6jDIfr101NxE3rsAsumuOvc8yiTGZD5gG4w==}
 
+  mode-watcher@0.5.0:
+    resolution: {integrity: sha512-5E6fh/aXhAVv+U+DbeM0hCmskQE9u7WSmvnCRijJB/MJu7HtB73sjiCaZ9n1M8QHmzLrBFo8XBAUcWXkDm8Z9A==}
+    peerDependencies:
+      svelte: ^4.0.0 || ^5.0.0-next.1
+
   mri@1.2.0:
     resolution: {integrity: sha512-tzzskb3bG8LvYGFF/mDTpq3jpI6Q9wc3LEmBaghu+DdCssd1FakN7Bc0hVNmEyGq1bq3RgfkCb3cmQLpNPOroA==}
     engines: {node: '>=4'}
@@ -4665,6 +4676,11 @@ packages:
     engines: {node: '>=18.0.0', npm: '>=7.0.0'}
     peerDependencies:
       svelte: ^5.0.0
+
+  svelte-sonner@0.3.28:
+    resolution: {integrity: sha512-K3AmlySeFifF/cKgsYNv5uXqMVNln0NBAacOYgmkQStLa/UoU0LhfAACU6Gr+YYC8bOCHdVmFNoKuDbMEsppJg==}
+    peerDependencies:
+      svelte: ^3.0.0 || ^4.0.0 || ^5.0.0-next.1
 
   svelte-toolbelt@0.4.6:
     resolution: {integrity: sha512-k8OUvXBUifHZcAlWeY/HLg/4J0v5m2iOfOhn8fDmjt4AP8ZluaDh9eBFus9lFiLX6O5l6vKqI1dKL5wy7090NQ==}
@@ -8872,6 +8888,10 @@ snapshots:
     dependencies:
       obliterator: 2.0.4
 
+  mode-watcher@0.5.0(svelte@5.2.8):
+    dependencies:
+      svelte: 5.2.8
+
   mri@1.2.0: {}
 
   mrmime@2.0.0: {}
@@ -9553,6 +9573,10 @@ snapshots:
       svelte: 5.2.8
 
   svelte-radix@2.0.1(svelte@5.2.8):
+    dependencies:
+      svelte: 5.2.8
+
+  svelte-sonner@0.3.28(svelte@5.2.8):
     dependencies:
       svelte: 5.2.8
 

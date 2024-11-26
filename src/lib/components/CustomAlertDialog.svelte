@@ -3,7 +3,8 @@
 
 	let {
 		children,
-		disabled=false,
+		continueCallback,
+		disabled = false,
 		dialogHeader = 'Are you absolutely sure?',
 		dialogDescription = 'Explain what it does here',
 		cancelText = 'Cancel',
@@ -12,7 +13,7 @@
 </script>
 
 <AlertDialog.Root>
-	<AlertDialog.Trigger disabled={disabled}>
+	<AlertDialog.Trigger {disabled}>
 		{@render children()}
 	</AlertDialog.Trigger>
 	<AlertDialog.Content>
@@ -24,7 +25,9 @@
 		</AlertDialog.Header>
 		<AlertDialog.Footer>
 			<AlertDialog.Cancel>{cancelText}</AlertDialog.Cancel>
-			<AlertDialog.Action class="bg-red-500 hover:bg-red-400">{continueText}</AlertDialog.Action>
+			<AlertDialog.Action class="bg-red-500 hover:bg-red-400" onclick={continueCallback}
+				>{continueText}
+			</AlertDialog.Action>
 		</AlertDialog.Footer>
 	</AlertDialog.Content>
 </AlertDialog.Root>
