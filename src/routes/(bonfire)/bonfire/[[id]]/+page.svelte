@@ -5,12 +5,11 @@
 	import { getFeTriplitClient, waitForUserId } from '$lib/triplit';
 	import Loader from '$lib/components/Loader.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
-	import { Cog, Share, ImagePlus } from 'lucide-svelte';
+	import { Cog, Share, ImagePlus, Plus } from 'lucide-svelte';
 	import { formatHumanReadable } from '$lib/utils';
 	import Rsvp from '$lib/components/Rsvp.svelte';
 	import { onMount } from 'svelte';
 	import { Status } from '$lib/enums';
-	import { ChevronRight } from 'lucide-svelte';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import ProfileAvatar from '$lib/components/ProfileAvatar.svelte';
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
@@ -18,10 +17,13 @@
 	import { PUBLIC_ORIGIN } from '$env/static/public';
 	import { KeyRound } from 'lucide-svelte';
 	import { Image } from '@unpic/svelte';
+	import PhotoSwipeLightbox from 'photoswipe/lightbox';
+	import 'photoswipe/style.css';
 
 	let userId = $state('');
 
 	let event = $state();
+	let fileCount = $state();
 
 	let rsvpStatus = $state('');
 
@@ -34,6 +36,8 @@
 	let attendeesGoing = $state([]);
 	let attendeesMaybeGoing = $state([]);
 	let attendeesNotGoing = $state([]);
+
+	let lightbox: PhotoSwipeLightbox | null = $state(null);
 
 	const showMaxNumPeople = 50;
 
@@ -48,6 +52,11 @@
 
 		// Update event data based on the current page id
 		event = useQuery(client, client.query('events').where(['id', '=', $page.params.id]));
+
+		fileCount = useQuery(
+			client,
+			client.query('files').where(['event_id', '=', $page.params.id]).select(['id'])
+		);
 
 		const unsubscribeAttendeesQuery = client.subscribe(
 			client
@@ -70,6 +79,28 @@
 				console.error('Error fetching attendees:', error);
 			}
 		);
+
+		// Ensure lightbox initializes after DOM is rendered
+		setTimeout(() => {
+			lightbox = new PhotoSwipeLightbox({
+				gallery: '.lightbox-gallery-container',
+				children: 'a:not(.see-all-link)', // Exclude "See All" link
+				pswpModule: () => import('photoswipe'),
+				showHideAnimationType: 'zoom' // Optional animation
+			});
+
+			lightbox.on('itemClick', (e) => {
+				console.log('PhotoSwipe item clicked:', e);
+			});
+
+			lightbox.init();
+		}, 0);
+
+		return () => {
+			// Cleanup
+			unsubscribeAttendeesQuery();
+			lightbox?.destroy();
+		};
 	});
 
 	let allAttendees = $derived([
@@ -156,14 +187,14 @@
 				{/if}
 
 				<Dialog.Root>
-					<Dialog.Trigger class="flex"
+					<Dialog.Trigger class="flex items-center"
 						>{#if attendeesGoing.length > showMaxNumPeople}
 							<div class="text-sm text-gray-500">
 								and {attendeesGoing.length - showMaxNumPeople} more
 							</div>
 						{:else}
 							see all
-						{/if}<ChevronRight class="ml-1 h-4 w-4" /></Dialog.Trigger
+						{/if}<Plus class="ml-1 h-4 w-4" /></Dialog.Trigger
 					>
 					<Dialog.Content class="h-full">
 						<ScrollArea>
@@ -246,37 +277,44 @@
 				<hr class="my-10" />
 				<div>
 					<div class="my-10">
-						<a href="media/add"
-							><Button variant="outline" class="flex w-full items-center justify-center"
-								><ImagePlus />Add to gallery</Button
-							>
-						</a>
 						{#if $page.data.eventFiles}
-							<div class=" my-5 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-								{#each $page.data.eventFiles as file}
-									<!-- <img class="rounded-lg" src={file.URL} alt={file.file_name} /> -->
-									<Image
-										class="rounded-lg"
-										src={file.URL}
-										layout="constrained"
-										aspectRatio={4 / 3}
-										alt="A lovely bath"
-									/>
-								{/each}
-								{#if $page.data.eventFiles.length > 2}
-									<!-- "See All" Image -->
-									<a href="media/gallery" class="block">
-										<div
-											class="flex items-center justify-center rounded-lg bg-gray-200 text-center text-lg font-semibold"
-											style="aspect-ratio: 4 / 3; width: 100%;"
+							<div class="lightbox-gallery-container my-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
+									{#each $page.data.eventFiles as file}
+										<a
+											href={file.URL}
+											data-pswp-width={file.w_pixel}
+											data-pswp-height={file.h_pixel}
 										>
-											See All
+											<Image
+												class="rounded-lg"
+												height={file.h_pixel}
+												src={file.URL}
+												layout="constrained"
+												aspectRatio={5 / 3}
+												alt={file.file_name}
+											/>
+										</a>
+									{/each}
+								{#if $page.data.eventFiles.length > 2 && fileCount.results}
+									<!-- "See All" Image -->
+									<a href="media/gallery"  class="see-all-link block">
+										<div
+											class="flex items-center justify-center rounded-lg bg-gray-200 text-center font-semibold sm:text-lg"
+											style="aspect-ratio: 5 / 3; width: 100%;"
+										>
+											See {fileCount.results.length - $page.data.eventFiles.length} more
 										</div>
 									</a>
 								{/if}
 							</div>
 						{/if}
+						<a href="media/add"
+							><Button variant="outline" class="flex w-full items-center justify-center"
+								><ImagePlus />Add to gallery</Button
+							>
+						</a>
 					</div>
+
 					<div>Comments</div>
 				</div>
 			{/if}

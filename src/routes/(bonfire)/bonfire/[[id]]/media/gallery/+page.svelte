@@ -256,7 +256,7 @@
 		</Breadcrumb.Root>
 		{#if $page.data.eventFiles}
 			<div
-				class="gallery-container selection-area my-5 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3"
+				class="gallery-container selection-area my-5 grid grid-cols-3 gap-1 sm:grid-cols-4 lg:grid-cols-5"
 			>
 				{#each $page.data.eventFiles as file}
 					<div
@@ -275,7 +275,7 @@
 								class="rounded-lg"
 								src={file.URL}
 								layout="constrained"
-								aspectRatio={4 / 3}
+								aspectRatio={5 / 3}
 								alt={file.file_name}
 							/>
 						</a>
@@ -285,7 +285,7 @@
 		{/if}
 	</section>
 </div>
-<div class="fixed left-1/2 top-6 flex -translate-x-1/2 transform flex-col items-center">
+<div class="fixed left-1/2 top-14 flex -translate-x-1/2 transform flex-col items-center">
 	<Toggle aria-label="toggle selection" onclick={toggleSelection}>
 		<!-- Button Icon -->
 		<SquareDashedMousePointer class="h-6 w-6" />{selectionActive
