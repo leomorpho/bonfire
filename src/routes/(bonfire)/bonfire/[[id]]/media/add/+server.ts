@@ -3,7 +3,7 @@ import type { RequestEvent } from '@sveltejs/kit';
 import { Readable } from 'stream';
 import { error } from '@sveltejs/kit';
 import { serverTriplitClient } from '$lib/server/triplit';
-import fs from 'fs';
+import sharp from 'sharp';
 
 export const POST = async (event: RequestEvent): Promise<Response> => {
 	try {
@@ -38,10 +38,20 @@ export const POST = async (event: RequestEvent): Promise<Response> => {
 		const filename = formData.get('name');
 		const filetype = formData.get('type');
 		const fileSize = file.length; // Get the file size in bytes
-
 		const fileStream = Readable.from(file);
-
 		const fileKey = `events/eventid_${id}/userid_${user.id}/${filename}`;
+
+		// Initialize metadata
+		let h_pixel: number | null = null;
+		let w_pixel: number | null = null;
+
+		// Extract dimensions if applicable
+		if (filetype.startsWith('image/')) {
+			// Images: Use `sharp`
+			const metadata = await sharp(file).metadata();
+			h_pixel = metadata.height || null;
+			w_pixel = metadata.width || null;
+		}
 
 		// // Save the fileStream to a local file for debugging
 		// const debugFilePath = filename;
@@ -66,7 +76,9 @@ export const POST = async (event: RequestEvent): Promise<Response> => {
 			file_key: fileKey,
 			file_type: filetype,
 			file_name: filename,
-			size_in_bytes: fileSize
+			size_in_bytes: fileSize,
+			h_pixel: h_pixel,
+			w_pixel: w_pixel
 		});
 
 		return new Response(JSON.stringify({ message: 'File uploaded successfully', fileKey }), {
@@ -81,37 +93,37 @@ export const POST = async (event: RequestEvent): Promise<Response> => {
 
 // Utility function to parse multipart form data
 async function parseMultipart(request: Request, boundary: string) {
-    const buffer = await request.arrayBuffer();
-    const data = Buffer.from(buffer); // Use Buffer for binary-safe handling
-    const parts = data.toString('binary').split(`--${boundary}`);
-    const formData = new Map<string, any>();
+	const buffer = await request.arrayBuffer();
+	const data = Buffer.from(buffer); // Use Buffer for binary-safe handling
+	const parts = data.toString('binary').split(`--${boundary}`);
+	const formData = new Map<string, any>();
 
-    for (const part of parts) {
-        // Match the content-disposition header
-        const match = part.match(
-            /Content-Disposition: form-data; name="([^"]+)"(; filename="([^"]+)")?/i
-        );
-        if (!match) continue;
+	for (const part of parts) {
+		// Match the content-disposition header
+		const match = part.match(
+			/Content-Disposition: form-data; name="([^"]+)"(; filename="([^"]+)")?/i
+		);
+		if (!match) continue;
 
-        const name = match[1];
-        const filename = match[3];
-        const contentIndex = part.indexOf('\r\n\r\n') + 4;
+		const name = match[1];
+		const filename = match[3];
+		const contentIndex = part.indexOf('\r\n\r\n') + 4;
 
-        if (contentIndex < 4 || part.trim().endsWith('--')) {
-            continue; // Skip empty or incomplete parts
-        }
+		if (contentIndex < 4 || part.trim().endsWith('--')) {
+			continue; // Skip empty or incomplete parts
+		}
 
-        if (filename) {
-            // Binary file content
-            const content = part.slice(contentIndex, part.lastIndexOf('\r\n'));
-            formData.set(name, Buffer.from(content, 'binary'));
-            formData.set('name', filename);
-        } else {
-            // Text content
-            const content = part.slice(contentIndex, part.lastIndexOf('\r\n')).trim();
-            formData.set(name, content);
-        }
-    }
+		if (filename) {
+			// Binary file content
+			const content = part.slice(contentIndex, part.lastIndexOf('\r\n'));
+			formData.set(name, Buffer.from(content, 'binary'));
+			formData.set('name', filename);
+		} else {
+			// Text content
+			const content = part.slice(contentIndex, part.lastIndexOf('\r\n')).trim();
+			formData.set(name, content);
+		}
+	}
 
-    return formData;
+	return formData;
 }

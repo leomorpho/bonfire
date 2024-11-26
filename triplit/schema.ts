@@ -162,6 +162,8 @@ export const schema = {
 			file_key: S.String(), // S3 key for the file
 			file_type: S.String(), // e.g., 'image', 'video', 'gif'
 			file_name: S.String(),
+			h_pixel: S.Number({ nullable: true }),
+			w_pixel: S.Number({ nullable: true }),
 			size_in_bytes: S.Number(),
 			uploaded_at: S.Date({ default: S.Default.now() }),
 			uploader_id: S.String(), // ID of the attendee

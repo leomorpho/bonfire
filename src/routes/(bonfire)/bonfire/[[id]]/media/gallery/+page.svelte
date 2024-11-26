@@ -52,6 +52,7 @@
 			const name = el.getAttribute('data-name');
 			if (src && name && !selectedImages.find((img) => img.src === src)) {
 				el.classList.add('border-blue-400');
+				el.classList.remove('border-transparent');
 				selectedImages.push({ src, name });
 			}
 		});
@@ -62,6 +63,7 @@
 		const selectedElements = document.querySelectorAll('.image-item.border-blue-400');
 		selectedElements.forEach((el) => {
 			el.classList.remove('border-blue-400');
+			el.classList.add('border-transparent');
 		});
 		selectedImages = [];
 		console.log('Selection cleared');
@@ -202,6 +204,7 @@
 			// Add newly selected images
 			changed.added.forEach((el) => {
 				el.classList.add('border-blue-400');
+				el.classList.remove('border-transparent');
 				const src = el.getAttribute('data-src');
 				const name = el.getAttribute('data-name');
 				if (src && name && !selectedImages.find((img) => img.src === src)) {
@@ -212,6 +215,7 @@
 			// Remove unselected images
 			changed.removed.forEach((el) => {
 				el.classList.remove('border-blue-400');
+				el.classList.add('border-transparent');
 				const src = el.getAttribute('data-src');
 				const index = selectedImages.findIndex((img) => img.src === src);
 				if (index > -1) selectedImages.splice(index, 1);
@@ -256,18 +260,18 @@
 			>
 				{#each $page.data.eventFiles as file}
 					<div
-						class="image-item rounded-xl border-2 border-transparent"
+						class="image-item rounded-xl border-4 border-transparent"
 						data-src={file.URL}
 						data-name={file.file_name}
 					>
 						<a
 							href={file.URL}
 							class={selectionActive ? 'disabled-link' : ''}
-							data-pswp-width="1200"
-							data-pswp-height="800"
+							data-pswp-width={file.w_pixel}
+							data-pswp-height={file.h_pixel}
 						>
 							<Image
-								height={400}
+								height={file.h_pixel}
 								class="rounded-lg"
 								src={file.URL}
 								layout="constrained"
@@ -289,9 +293,9 @@
 			: 'Enable Selection'}
 	</Toggle>
 	{#if selectionActive}
-		<div class="flex space-x-2 mt-2">
-			<Button onclick={selectAll} class="text-xs p-2">Select All</Button>
-			<Button onclick={selectNone} class="text-xs p-2">Select None</Button>
+		<div class="mt-2 flex space-x-2">
+			<Button onclick={selectAll} class="p-2 text-xs">Select All</Button>
+			<Button onclick={selectNone} class="p-2 text-xs">Select None</Button>
 		</div>
 	{/if}
 </div>
