@@ -46,11 +46,7 @@
 			let futureEventsQuery = client
 				.query('events')
 				.where(['start_time', '>=', new Date().toISOString()]) // Filter out past events
-				.subquery(
-					'attendees',
-					client.query('attendees').where(['user_id', '=', userId]).build(),
-					'many'
-				)
+				.subquery('attendees', client.query('attendees').where(['user_id', '=', userId]).build())
 				.include('user') // Include the related user
 				.include('attendees', (rel) => rel('attendees').where(['user_id', '=', userId]).build())
 				.order('start_time', 'ASC'); // Order by start time, closest to today

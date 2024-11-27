@@ -67,7 +67,7 @@ export const actions = {
 
 		const ratelimit = env.SIGNIN_IP_RATELIMIT ? parseInt(env.SIGNIN_IP_RATELIMIT) : 20;
 
-		if (signins.length > ratelimit) {
+		if (signins.length > ratelimit && !dev) {
 			form.errors.email = [
 				'Too many signins from this IP address in the last hour, please try again later'
 			];

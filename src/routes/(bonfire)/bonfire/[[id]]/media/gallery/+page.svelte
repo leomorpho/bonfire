@@ -16,6 +16,7 @@
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 	import CustomAlertDialogue from '$lib/components/CustomAlertDialog.svelte';
 	import { toast } from 'svelte-sonner';
+	import { User, Users } from 'lucide-svelte';
 
 	let selectedImages: any = $state([]);
 	let selection: any;
@@ -27,6 +28,7 @@
 	let isDialogOpen = $state(false);
 	let dialogDescription = $state('');
 	let onConfirmCallback: (() => void) | null = null;
+	let showOnlyCurrentUserUploads = $state(false); // State to track images uploaded by user toggle
 
 	// Function to open the dialog
 	function openDialog(description: string, onConfirm: () => void) {
@@ -114,9 +116,16 @@
 		}
 	}
 
+	function canBulkDelete() {
+		if (selectedImages.length === 0) return false;
+
+		const userUploaderId = $page.data.user.id;
+		return selectedImages.every((image: any) => image.uploaderId === userUploaderId);
+	}
+
 	async function handleDelete(id: string | null = null) {
 		// Prepare the file IDs for deletion
-		const selectedFileIds = id ? [id] : selectedImages.map((image) => image.id);
+		const selectedFileIds = id ? [id] : selectedImages.map((image: any) => image.id);
 
 		if (!selectedFileIds || selectedFileIds.length === 0) {
 			alert('No files selected for deletion.');
@@ -263,12 +272,43 @@
 			const id = el.getAttribute('data-id');
 			const src = el.getAttribute('data-src');
 			const name = el.getAttribute('data-name');
+			const uploaderId = el.getAttribute('data-uploader-id');
 
 			// Add to the target array if it doesn't already exist
-			if (src && name && id && !targetArray.find((item) => item.id === id)) {
-				targetArray.push({ src, name, id });
+			if (src && name && id && uploaderId && !targetArray.find((item) => item.id === id)) {
+				targetArray.push({ src, name, id, uploaderId });
 			}
 		});
+	}
+
+	function filterByCurrentUserAsUploader() {
+		const userUploaderId = $page.data.user.id;
+
+		// Toggle filter state
+		showOnlyCurrentUserUploads = !showOnlyCurrentUserUploads;
+
+		const allImages = document.querySelectorAll('.image-item');
+		allImages.forEach((image) => {
+			const uploaderId = image.getAttribute('data-uploader-id');
+			if (showOnlyCurrentUserUploads) {
+				// Show only current user's uploads
+				if (uploaderId === userUploaderId) {
+					image.style.display = 'block'; // Show images uploaded by the user
+				} else {
+					image.style.display = 'none'; // Hide other images
+				}
+			} else {
+				// Show all images
+				image.style.display = 'block';
+			}
+		});
+
+		// Show toast message
+		if (showOnlyCurrentUserUploads) {
+			toast.info('Showing only images you uploaded');
+		} else {
+			toast.info('Showing all images');
+		}
 	}
 	function createPhotoSwipe() {
 		lightbox = new PhotoSwipeLightbox({
@@ -448,6 +488,14 @@
 			<Toggle aria-label="toggle selection" onclick={toggleSelection}>
 				<SquareMousePointer class="size-3" /> <span class="text-xs sm:text-sm">Select</span>
 			</Toggle>
+			<!-- Filter Button -->
+			<Toggle aria-label="toggle selection" onclick={filterByCurrentUserAsUploader}>
+				{#if showOnlyCurrentUserUploads}<Users class="size-3" />{:else}<User class="size-3" />{/if}
+				
+				<span class="text-xs sm:text-sm">
+					{showOnlyCurrentUserUploads ? 'Show All' : 'Show Mine'}
+				</span>
+			</Toggle>
 		</div>
 	</div>
 	<section class="w-full sm:w-[550px] md:w-[650px] lg:w-[950px]">
@@ -542,7 +590,7 @@
 					</Tooltip.Content>
 				</Tooltip.Root>
 			</Tooltip.Provider>
-			{#if $page.data.isOwner}
+			{#if $page.data.isOwner || canBulkDelete()}
 				<Tooltip.Provider>
 					<Tooltip.Root>
 						<Tooltip.Trigger>
