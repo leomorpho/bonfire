@@ -2,16 +2,15 @@
 	import * as AlertDialog from '$lib/components/ui/alert-dialog/index.ts';
 
 	let {
-		children,
+		children = null,
 		continueCallback,
+		isOpen = $bindable(false),
 		disabled = false,
 		dialogHeader = 'Are you absolutely sure?',
 		dialogDescription = 'Explain what it does here',
 		cancelText = 'Cancel',
 		continueText = 'Continue'
 	} = $props();
-
-	let isOpen = $state(false);
 
 	async function handleContinue() {
 		if (typeof continueCallback === 'function') {
@@ -29,7 +28,9 @@
 	}}
 >
 	<AlertDialog.Trigger {disabled}>
-		{@render children()}
+		{#if children}
+			{@render children()}
+		{/if}
 	</AlertDialog.Trigger>
 	<AlertDialog.Content>
 		<AlertDialog.Header>

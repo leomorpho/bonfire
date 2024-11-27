@@ -24,6 +24,17 @@
 
 	console.log('isOwner', $page.data.isOwner);
 
+	let isDialogOpen = $state(false);
+	let dialogDescription = $state('');
+	let onConfirmCallback: (() => void) | null = null;
+
+	// Function to open the dialog
+	function openDialog(description: string, onConfirm: () => void) {
+		dialogDescription = description;
+		onConfirmCallback = onConfirm;
+		isDialogOpen = true;
+	}
+
 	function isMobile() {
 		return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 	}
@@ -42,14 +53,7 @@
 				el.classList.add('border-transparent');
 			});
 
-			lightbox = new PhotoSwipeLightbox({
-				gallery: '.gallery-container',
-				children: 'a', // Target that tag within the gallery container
-				pswpModule: () => import('photoswipe'),
-				showHideAnimationType: 'zoom' // Optional animation
-			});
-
-			lightbox.init();
+			lightbox = createPhotoSwipe();
 		}
 	}
 
@@ -110,7 +114,7 @@
 		}
 	}
 
-	async function handleDelete(id = null) {
+	async function handleDelete(id: string | null = null) {
 		// Prepare the file IDs for deletion
 		const selectedFileIds = id ? [id] : selectedImages.map((image) => image.id);
 
@@ -266,7 +270,120 @@
 			}
 		});
 	}
+	function createPhotoSwipe() {
+		lightbox = new PhotoSwipeLightbox({
+			gallery: '.gallery-container',
+			children: 'a', // Target that tag within the gallery container
+			pswpModule: () => import('photoswipe'),
+			showHideAnimationType: 'zoom', // Optional animation
+			zoom: false,
+			close: false
+		});
 
+		lightbox.on('uiRegister', function () {
+			// Register the Download Button
+			lightbox.pswp.ui.registerElement({
+				name: 'download-button',
+				order: 8,
+				isButton: true,
+				tagName: 'button',
+				html: {
+					isCustomSVG: true,
+					inner:
+						'<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>',
+					outlineID: 'pswp__icn-download'
+				},
+				onClick: (event, el, pswp) => {
+					// Set selectedImages to the currently open image
+					const currentSlide = pswp.currSlide.data;
+					console.log('currentSlide', currentSlide);
+					selectedImages = [
+						{
+							src: currentSlide.src,
+							name: currentSlide.alt || 'image.jpg',
+							id: currentSlide.id
+						}
+					];
+
+					// Call handleDownload
+					handleDownload();
+					selectedImages = [];
+				}
+			});
+
+			// Register the Delete Button
+			lightbox.pswp.ui.registerElement({
+				name: 'delete-button',
+				order: 9,
+				isButton: true,
+				tagName: 'button',
+				html: {
+					isCustomSVG: true,
+					inner:
+						'<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>',
+					outlineID: 'pswp__icn-delete'
+				},
+				onClick: (event, el, pswp) => {
+					const currentSlide = pswp.currSlide.data;
+
+					// Find the corresponding <div> element
+					const imageDiv = document.querySelector(`.image-item[data-src="${currentSlide.src}"]`);
+
+					if (!imageDiv) {
+						alert('Error: Could not find the corresponding image element.');
+						return;
+					}
+
+					// Extract attributes for authorization
+					const dataId = imageDiv.getAttribute('data-id');
+					const dataUploaderId = imageDiv.getAttribute('data-uploader-id');
+
+					// Check if the user is authorized to delete
+					if (dataUploaderId === $page.data.user.id || $page.data.isOwner) {
+						// Close PhotoSwipe viewer
+						pswp.close();
+
+						// Open the dialog
+						openDialog(
+							'Are you sure you want to delete this image? This action cannot be undone.',
+							() => {
+								// Perform deletion
+								handleDelete(dataId);
+
+								// Remove the image from the DOM
+								imageDiv.remove();
+
+								// Optionally close the gallery
+								pswp.close();
+							}
+						);
+					} else {
+						alert('You are not authorized to delete this image.');
+					}
+				},
+				onInit: (el, pswp) => {
+					pswp.on('change', () => {
+						const currentSlide = pswp.currSlide.data;
+
+						// Find the corresponding <div> element
+						const imageDiv = document.querySelector(`.image-item[data-src="${currentSlide.src}"]`);
+
+						// Hide the button if the user is not authorized
+						if (imageDiv) {
+							const dataUploaderId = imageDiv.getAttribute('data-uploader-id');
+							el.style.display =
+								dataUploaderId === $page.data.user.id || $page.data.isOwner ? 'block' : 'none';
+						} else {
+							el.style.display = 'none';
+						}
+					});
+				}
+			});
+		});
+
+		lightbox.init();
+		return lightbox;
+	}
 	onMount(() => {
 		// Initialize SelectionArea
 		selection = new SelectionArea({
@@ -296,46 +413,7 @@
 			console.log('selectedImages', selectedImages);
 		});
 
-		lightbox = new PhotoSwipeLightbox({
-			gallery: '.gallery-container',
-			children: 'a', // Target that tag within the gallery container
-			pswpModule: () => import('photoswipe'),
-			showHideAnimationType: 'zoom' // Optional animation
-		});
-
-		lightbox.on('uiRegister', function () {
-			// Register the Download Button
-			lightbox.pswp.ui.registerElement({
-				name: 'download-button',
-				order: 8,
-				isButton: true,
-				tagName: 'button',
-				html: {
-					isCustomSVG: true,
-					inner:
-						'<path d="M20.5 14.3 17.1 18V10h-2.2v7.9l-3.4-3.6L10 16l6 6.1 6-6.1ZM23 23H9v2h14Z" id="pswp__icn-download"/>',
-					outlineID: 'pswp__icn-download'
-				},
-				onClick: (event, el, pswp) => {
-					// Set selectedImages to the currently open image
-					const currentSlide = pswp.currSlide.data;
-					console.log('currentSlide', currentSlide);
-					selectedImages = [
-						{
-							src: currentSlide.src,
-							name: currentSlide.alt || 'image.jpg',
-							id: currentSlide.id
-						}
-					];
-
-					// Call handleDownload
-					handleDownload();
-					selectedImages = [];
-				}
-			});
-		});
-
-		lightbox.init();
+		lightbox = createPhotoSwipe();
 
 		return () => {
 			// Cleanup
@@ -348,7 +426,7 @@
 <div class="mx-4 mb-48 flex flex-col items-center justify-center">
 	<!-- Breadcrumbs and Toggle Buttons -->
 	<div
-		class="sticky top-0 z-10 flex w-full flex-col items-center justify-between min-[320px]:flex-row bg-white bg-opacity-95"
+		class="sticky top-0 z-10 flex w-full flex-col items-center justify-between bg-white bg-opacity-95 min-[320px]:flex-row"
 	>
 		<Breadcrumb.Root>
 			<Breadcrumb.List class="text-xs sm:text-sm">
@@ -432,7 +510,9 @@
 </div>
 
 {#if selectionActive}
-	<div class="fixed bottom-0 left-1/2 flex -translate-x-1/2 transform flex-col items-center bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-slate-100 via-transparent to-transparent">
+	<div
+		class="fixed bottom-0 left-1/2 flex -translate-x-1/2 transform flex-col items-center bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-slate-100 via-transparent to-transparent"
+	>
 		<div class="flex items-center space-x-2 p-20">
 			<div class="flex flex-col justify-center space-y-1">
 				<Button
@@ -491,6 +571,16 @@
 		</div>
 	</div>
 {/if}
+
+<!-- This alert box is used from JS -->
+<CustomAlertDialogue
+	bind:isOpen={isDialogOpen}
+	{dialogDescription}
+	continueCallback={() => {
+		if (onConfirmCallback) onConfirmCallback();
+		isDialogOpen = false;
+	}}
+/>
 
 <style>
 	.selection-area {
