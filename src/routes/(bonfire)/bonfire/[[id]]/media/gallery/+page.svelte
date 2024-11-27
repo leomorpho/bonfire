@@ -302,9 +302,10 @@
 </script>
 
 <div class="mx-4 mb-48 flex flex-col items-center justify-center">
-	<section class="mt-8 w-full sm:w-[550px] md:w-[650px] lg:w-[950px]">
-		<Breadcrumb.Root class="mb-10">
-			<Breadcrumb.List>
+	<!-- Breadcrumbs and Toggle Buttons -->
+	<div class="flex flex-col min-[320px]:flex-row items-center justify-between sticky top-0 z-10 w-full">
+		<Breadcrumb.Root>
+			<Breadcrumb.List class="text-xs sm:text-sm">
 				<Breadcrumb.Item>
 					<Breadcrumb.Link href={`/bonfire/${$page.params.id}`}>Event</Breadcrumb.Link>
 				</Breadcrumb.Item>
@@ -314,6 +315,18 @@
 				</Breadcrumb.Item>
 			</Breadcrumb.List>
 		</Breadcrumb.Root>
+		<div class="flex py-1 sm:space-x-2">
+			<a href="add">
+				<Toggle aria-label="toggle bold">
+					<ImagePlus class="size-3" /><span class="text-xs sm:text-sm">Upload</span>
+				</Toggle>
+			</a>
+			<Toggle aria-label="toggle selection" onclick={toggleSelection}>
+				<SquareMousePointer class="size-3" /> <span class="text-xs sm:text-sm">Select</span>
+			</Toggle>
+		</div>
+	</div>
+	<section class="w-full sm:w-[550px] md:w-[650px] lg:w-[950px]">
 		{#if $page.data.eventFiles}
 			<div
 				class="gallery-container selection-area my-5 grid grid-cols-3 gap-1 sm:grid-cols-4 lg:grid-cols-5"
@@ -371,7 +384,7 @@
 		{/if}
 	</section>
 </div>
-<div class="fixed left-1/2 top-14 flex -translate-x-1/2 transform flex-col items-center">
+<!-- <div class="fixed left-1/2 top-14 flex -translate-x-1/2 transform flex-col items-center">
 	<div class="flex items-center justify-center space-x-2">
 		<a href="add">
 			<Toggle aria-label="toggle bold">
@@ -382,7 +395,7 @@
 			<SquareMousePointer class="size-4" /> Select
 		</Toggle>
 	</div>
-</div>
+</div> -->
 
 {#if selectionActive}
 	<div class="fixed bottom-6 left-1/2 flex -translate-x-1/2 transform flex-col items-center">
