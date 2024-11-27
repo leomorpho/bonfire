@@ -348,7 +348,7 @@
 <div class="mx-4 mb-48 flex flex-col items-center justify-center">
 	<!-- Breadcrumbs and Toggle Buttons -->
 	<div
-		class="sticky top-0 z-10 flex w-full flex-col items-center justify-between min-[320px]:flex-row"
+		class="sticky top-0 z-10 flex w-full flex-col items-center justify-between min-[320px]:flex-row bg-white bg-opacity-95"
 	>
 		<Breadcrumb.Root>
 			<Breadcrumb.List class="text-xs sm:text-sm">
@@ -432,8 +432,8 @@
 </div>
 
 {#if selectionActive}
-	<div class="fixed bottom-6 left-1/2 flex -translate-x-1/2 transform flex-col items-center">
-		<div class="flex items-center space-x-2">
+	<div class="fixed bottom-0 left-1/2 flex -translate-x-1/2 transform flex-col items-center bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-slate-100 via-transparent to-transparent">
+		<div class="flex items-center space-x-2 p-20">
 			<div class="flex flex-col justify-center space-y-1">
 				<Button
 					disabled={$page.data.eventFiles.length == selectedImages.length}
