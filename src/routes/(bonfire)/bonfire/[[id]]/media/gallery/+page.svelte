@@ -81,6 +81,30 @@
 			// Mobile: Use Web Share API
 			await shareImages();
 		} else {
+			if (selectedImages.length === 1) {
+				// Single image download
+				const image = selectedImages[0];
+				console.log(image);
+				try {
+					const response = await fetch(image.src);
+					if (!response.ok) {
+						alert(`Failed to download image: ${response.statusText}`);
+						return;
+					}
+					const blob = await response.blob();
+					const a = document.createElement('a');
+					a.href = URL.createObjectURL(blob);
+					a.download = image.name || 'image.jpg';
+					document.body.appendChild(a);
+					a.click();
+					document.body.removeChild(a);
+					console.log(`Downloaded single image: ${image.name}`);
+				} catch (error) {
+					console.error('Error downloading single image:', error);
+					alert('Failed to download the image. Please try again.');
+				}
+				return;
+			}
 			// Desktop: Download as ZIP or individually
 			await downloadAsZip();
 		}
@@ -258,18 +282,6 @@
 			console.log('Added:', changed.added);
 			console.log('Removed:', changed.removed);
 
-			// // Add newly selected images
-			// changed.added.forEach((el) => {
-			// 	el.classList.remove('border-transparent');
-			// 	el.classList.add('border-blue-400');
-			// 	const id = el.getAttribute('data-id');
-			// 	const src = el.getAttribute('data-src');
-			// 	const name = el.getAttribute('data-name');
-			// 	if (src && name && id && !selectedImages.find((img) => img.id === id)) {
-			// 		selectedImages.push({ src, name, id });
-			// 	}
-			// });
-
 			handleSelectionChange(changed.added, selectedImages);
 
 			// Remove unselected images
@@ -291,6 +303,38 @@
 			showHideAnimationType: 'zoom' // Optional animation
 		});
 
+		lightbox.on('uiRegister', function () {
+			// Register the Download Button
+			lightbox.pswp.ui.registerElement({
+				name: 'download-button',
+				order: 8,
+				isButton: true,
+				tagName: 'button',
+				html: {
+					isCustomSVG: true,
+					inner:
+						'<path d="M20.5 14.3 17.1 18V10h-2.2v7.9l-3.4-3.6L10 16l6 6.1 6-6.1ZM23 23H9v2h14Z" id="pswp__icn-download"/>',
+					outlineID: 'pswp__icn-download'
+				},
+				onClick: (event, el, pswp) => {
+					// Set selectedImages to the currently open image
+					const currentSlide = pswp.currSlide.data;
+					console.log('currentSlide', currentSlide);
+					selectedImages = [
+						{
+							src: currentSlide.src,
+							name: currentSlide.alt || 'image.jpg',
+							id: currentSlide.id
+						}
+					];
+
+					// Call handleDownload
+					handleDownload();
+					selectedImages = [];
+				}
+			});
+		});
+
 		lightbox.init();
 
 		return () => {
@@ -303,7 +347,9 @@
 
 <div class="mx-4 mb-48 flex flex-col items-center justify-center">
 	<!-- Breadcrumbs and Toggle Buttons -->
-	<div class="flex flex-col min-[320px]:flex-row items-center justify-between sticky top-0 z-10 w-full">
+	<div
+		class="sticky top-0 z-10 flex w-full flex-col items-center justify-between min-[320px]:flex-row"
+	>
 		<Breadcrumb.Root>
 			<Breadcrumb.List class="text-xs sm:text-sm">
 				<Breadcrumb.Item>
@@ -384,18 +430,6 @@
 		{/if}
 	</section>
 </div>
-<!-- <div class="fixed left-1/2 top-14 flex -translate-x-1/2 transform flex-col items-center">
-	<div class="flex items-center justify-center space-x-2">
-		<a href="add">
-			<Toggle aria-label="toggle bold">
-				<ImagePlus class="size-4" />Upload
-			</Toggle>
-		</a>
-		<Toggle aria-label="toggle selection" onclick={toggleSelection}>
-			<SquareMousePointer class="size-4" /> Select
-		</Toggle>
-	</div>
-</div> -->
 
 {#if selectionActive}
 	<div class="fixed bottom-6 left-1/2 flex -translate-x-1/2 transform flex-col items-center">
