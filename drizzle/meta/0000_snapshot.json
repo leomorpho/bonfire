@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "eba123a7-c5d2-4289-849d-998741687951",
+  "id": "187f0833-ca13-4ed0-ae5b-1c1721316eb3",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "email_verification_token": {
@@ -13,6 +13,14 @@
           "primaryKey": true,
           "notNull": true,
           "autoincrement": false
+        },
+        "timestamp": {
+          "name": "timestamp",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(current_timestamp)"
         },
         "user_id": {
           "name": "user_id",
@@ -42,6 +50,38 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
+    "eventTransactionLogs": {
+      "name": "eventTransactionLogs",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "timestamp": {
+          "name": "timestamp",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(current_timestamp)"
+        },
+        "num_logs_change": {
+          "name": "num_logs_change",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
     "session": {
       "name": "session",
       "columns": {
@@ -51,6 +91,14 @@
           "primaryKey": true,
           "notNull": true,
           "autoincrement": false
+        },
+        "timestamp": {
+          "name": "timestamp",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(current_timestamp)"
         },
         "user_id": {
           "name": "user_id",
@@ -135,6 +183,14 @@
           "notNull": true,
           "autoincrement": false
         },
+        "timestamp": {
+          "name": "timestamp",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(current_timestamp)"
+        },
         "email": {
           "name": "email",
           "type": "text",
@@ -149,15 +205,24 @@
           "notNull": false,
           "autoincrement": false
         },
-        "encryption_backup_up": {
-          "name": "encryption_backup_up",
+        "num_logs": {
+          "name": "num_logs",
           "type": "integer",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": 3
         }
       },
-      "indexes": {},
+      "indexes": {
+        "user_email_unique": {
+          "name": "user_email_unique",
+          "columns": [
+            "email"
+          ],
+          "isUnique": true
+        }
+      },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
