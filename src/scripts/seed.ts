@@ -27,6 +27,12 @@ const { output } = await client.insert('events', {
 	user_id: user.id
 });
 
+// await client.insert('attendees', {
+// 	event_id: output.id,
+// 	user_id: user?.id,
+// 	status: getRandomStatus()
+// });
+
 function getRandomStatus() {
 	const statuses = [Status.GOING, Status.NOT_GOING, Status.MAYBE];
 	return statuses[Math.floor(Math.random() * statuses.length)];
