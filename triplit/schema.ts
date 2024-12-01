@@ -106,6 +106,7 @@ export const schema = {
 				delete: { filter: [true] }
 			},
 			user: {
+				// read: { filter: [['$role.userId', 'in', ['attendees.user_id']]] },
 				read: { filter: [true] },
 				insert: { filter: [true] },
 				update: { filter: [['user_id', '=', '$role.userId']] },
@@ -138,6 +139,11 @@ export const schema = {
 			},
 			user: {
 				read: { filter: [true] },
+				// read: {
+				// 	filter: [
+				// 		['event.attendees.user_id', '=', '$role.userId'] // Users can only see attendees for events they are part of
+				// 	]
+				// },
 				insert: {
 					// Users can RSVP or add themselves as attendees
 					filter: [['user_id', '=', '$role.userId']]
@@ -152,7 +158,7 @@ export const schema = {
 				}
 			},
 			anon: {
-				read: { filter: [true] }
+				read: { filter: [false] }
 			}
 		}
 	},
@@ -180,6 +186,12 @@ export const schema = {
 			},
 			user: {
 				read: { filter: [true] },
+
+				// read: {
+				// 	filter: [
+				// 		['event.attendees.user_id', '=', '$role.userId'] // Check if user is an attendee of the event
+				// 	]
+				// },
 				// No need to allow read and insert since we will do that in BE logic and
 				// triplit doesn't seem powerful enough to be able to set appropriate permissions (user
 				// is attending event).

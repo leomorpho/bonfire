@@ -5,9 +5,8 @@
 	import { formatHumanReadable } from '$lib/utils';
 	import Rsvp from './Rsvp.svelte';
 
-	let { event, userId } = $props();
+	let { event, userId, eventCreatorName, rsvpStatus } = $props();
 	console.log('###### event', event);
-	let rsvpStatus = event.attendees[0] ? event.attendees[0].status : undefined;
 
 	let rsvpCanBeChanged = new Date(event.start_time) >= new Date();
 
@@ -19,7 +18,7 @@
 		<Card.Header>
 			<Card.Title class="text-lg">{event.title}</Card.Title>
 			<Card.Description>{formatHumanReadable(event.start_time)}</Card.Description>
-			<Card.Description>Hosted by {event.user?.username}</Card.Description>
+			<Card.Description>Hosted by {eventCreatorName}</Card.Description>
 		</Card.Header>
 		<Card.Content>
 			<Rsvp {rsvpStatus} {userId} eventId={event.id} {rsvpCanBeChanged} />

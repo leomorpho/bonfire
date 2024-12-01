@@ -50,16 +50,6 @@ export const load = async (event) => {
 
 	const attendeesResult = await serverTriplitClient.fetch(attendeesQuery);
 
-	// // Generate a Map of user IDs to image URLs
-	// const profileAttendanceMap = new Map();
-
-	// for (const attendance of attendeesResult) {
-	// 	// Add to the Map
-	// 	profileAttendanceMap.set(attendance.user_id, {
-	// 		status: attendance.status
-	// 	});
-	// }
-
 	// Create a Set of user IDs
 	const userIdList = attendeesResult.map((attendee) => attendee.user_id);
 

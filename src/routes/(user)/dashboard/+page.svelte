@@ -13,12 +13,20 @@
 	import EventCard from '$lib/components/EventCard.svelte';
 	import { page } from '$app/stores';
 
-	let events: any = null;
 	let client: TriplitClient;
 
 	let futureEvents = $state({});
 	let pastEvents = $state({});
 	let userId = $state('');
+
+	function createEventsQuery(client: TriplitClient, currUserID: string, future: boolean) {
+		let query = client
+			.query('attendees')
+			.where(['user_id', '=', currUserID])
+			.where('event.start_time', future ? '>=' : '<', new Date().toISOString());
+
+		return query.include('event').include('event.user').order('event.start_time', 'ASC');
+	}
 
 	onMount(() => {
 		client = getFeTriplitClient($page.data.jwt) as TriplitClient;
@@ -26,14 +34,8 @@
 		const initEvents = async () => {
 			userId = (await waitForUserId()) as string;
 
-			// let pastEventsQuery = client
-			// 	.query('events')
-			// 	.where(['start_time', '<', new Date().toISOString()]) // Filter out current and future events
-			// 	.subquery('attendees', client.query('attendees').where(['user_id', '=', userId]).build())
-			// 	.include('user') // Include the related user
-			// 	.include('attendees')
-			// 	.order('start_time', 'ASC'); // Order by start time, closest to today
-			// console.log(await client.fetch(pastEventsQuery.build()));
+			// let pastEventsQuery = createEventsQuery(client, userId, true);
+			// console.log('----> ??? ', await client.fetch(pastEventsQuery.build()));
 		};
 
 		initEvents().catch((error) => {
@@ -43,21 +45,9 @@
 
 	$effect(() => {
 		if (userId) {
-			let futureEventsQuery = client
-				.query('events')
-				.where(['start_time', '>=', new Date().toISOString()]) // Filter out past events
-				.subquery('attendees', client.query('attendees').where(['user_id', '=', userId]).build())
-				.include('user') // Include the related user
-				.include('attendees', (rel) => rel('attendees').where(['user_id', '=', userId]).build())
-				.order('start_time', 'ASC'); // Order by start time, closest to today
+			let futureEventsQuery = createEventsQuery(client, userId, true);
 
-			let pastEventsQuery = client
-				.query('events')
-				.where(['start_time', '<', new Date().toISOString()]) // Filter out current and future events
-				.subquery('attendees', client.query('attendees').where(['user_id', '=', userId]).build())
-				.include('user') // Include the related user
-				.include('attendees', (rel) => rel('attendees').where(['user_id', '=', userId]).build())
-				.order('start_time', 'ASC'); // Order by start time, closest to today
+			let pastEventsQuery = createEventsQuery(client, userId, false);
 
 			futureEvents = useQuery(client, futureEventsQuery);
 
@@ -80,8 +70,13 @@
 				</div>
 			{:else}
 				<div>
-					{#each futureEvents.results as event}
-						<EventCard {event} {userId} />
+					{#each futureEvents.results as attendance}
+						<EventCard
+							event={attendance.event}
+							{userId}
+							eventCreatorName={attendance.event.user}
+							rsvpStatus={attendance.status}
+						/>
 					{/each}
 				</div>
 			{/if}
@@ -104,8 +99,13 @@
 					</Collapsible.Trigger>
 				</div>
 				<Collapsible.Content class="space-y-2">
-					{#each pastEvents.results as event}
-						<EventCard {event} {userId} rsvpCanBeChanged={false} />
+					{#each pastEvents.results as attendance}
+						<EventCard
+							event={attendance.event}
+							{userId}
+							eventCreatorName={attendance.event.user}
+							rsvpStatus={attendance.status}
+						/>
 					{/each}
 				</Collapsible.Content>
 			</Collapsible.Root>
