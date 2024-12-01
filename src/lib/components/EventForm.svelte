@@ -164,6 +164,8 @@
 			} else {
 				console.log('Failed to create event object');
 			}
+			goto('/dashboard');
+
 		} else {
 			await client.update('events', event.id, async (entity) => {
 				entity.title = eventName;
@@ -172,8 +174,9 @@
 				entity.start_time = eventStartDatetime;
 				entity.end_time = eventEndDatetime;
 			});
+			goto(`/bonfire/${event.id}`);
+
 		}
-		goto('/dashboard');
 	};
 
 	const deleteEvent = async (e: Event) => {
