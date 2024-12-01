@@ -3,7 +3,7 @@ import { sqliteTable, text, integer, primaryKey, unique } from 'drizzle-orm/sqli
 
 export const userTable = sqliteTable('user', {
 	id: text('id').notNull().primaryKey(),
-	email: text('email').notNull(),
+	email: text('email').notNull().unique(),
 	email_verified: integer('email_verified', { mode: 'boolean' }),
 	encryption_backup_up: integer('encryption_backup_up', { mode: 'boolean' })
 });

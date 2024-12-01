@@ -243,7 +243,7 @@
 				Share Bonfire</Button
 			>
 			<div class="my-10">
-				<div class="font-semibold">Description</div>
+				<div class="font-semibold">Details</div>
 				{event.results[0].description}
 			</div>
 			{#if !anonymousUser}
