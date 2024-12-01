@@ -71,10 +71,10 @@
 			{:else}
 				<div>
 					{#each futureEvents.results as attendance}
-						<EventCard
+					<EventCard
 							event={attendance.event}
 							{userId}
-							eventCreatorName={attendance.event.user}
+							eventCreatorName={attendance['event.user'].username}
 							rsvpStatus={attendance.status}
 						/>
 					{/each}
@@ -103,7 +103,7 @@
 						<EventCard
 							event={attendance.event}
 							{userId}
-							eventCreatorName={attendance.event.user}
+							eventCreatorName={attendance['event.user'].username}
 							rsvpStatus={attendance.status}
 						/>
 					{/each}

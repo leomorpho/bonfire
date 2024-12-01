@@ -6,7 +6,6 @@
 	import Rsvp from './Rsvp.svelte';
 
 	let { event, userId, eventCreatorName, rsvpStatus } = $props();
-	console.log('###### event', event);
 
 	let rsvpCanBeChanged = new Date(event.start_time) >= new Date();
 
