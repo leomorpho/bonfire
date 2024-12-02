@@ -86,6 +86,21 @@
 			}
 		);
 
+		// Get the hash portion of the URL
+		const hash = window.location.hash.slice(1); // Remove the '#' from the hash
+		if (hash) {
+			const observer = new MutationObserver(() => {
+				const section = document.getElementById(hash);
+				if (section) {
+					section.scrollIntoView({ behavior: 'smooth' });
+					observer.disconnect(); // Stop observing once the section is found
+				}
+			});
+
+			// Observe changes in the entire body or a specific container
+			observer.observe(document.body, { childList: true, subtree: true });
+		}
+
 		return () => {
 			// Cleanup
 			unsubscribeAttendeesQuery();
@@ -250,7 +265,7 @@
 					</div>
 				{:else}
 					<div class="flex flex-wrap items-center -space-x-3">
-						{#each Array(10).fill() as _, index}
+						{#each Array(20).fill() as _, index}
 							<Skeleton class="size-12 rounded-full" />
 						{/each}
 					</div>
@@ -281,8 +296,15 @@
 			{#if !anonymousUser}
 				<hr class="my-10" />
 				<div class="my-10">
-					<div class="font-semibold">Announcements</div>
-					<div class="my-2"><Annoucements eventId={$page.params.id} currUserId={userId} maxCount={3} allAnnoucementsURL="announcement/all"/></div>
+					<div class="font-semibold" id="announcements">Announcements</div>
+					<div class="my-2">
+						<Annoucements
+							eventId={$page.params.id}
+							currUserId={userId}
+							maxCount={3}
+							allAnnoucementsURL="announcement/all"
+						/>
+					</div>
 					{#if event.results[0].user_id == userId}
 						<a href="announcement/create">
 							<Button class="mt-1 w-full">Create new announcement</Button>

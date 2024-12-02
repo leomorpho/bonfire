@@ -42,7 +42,7 @@
 			});
 
 			if (output) {
-				goto(`/bonfire/${eventId}`);
+				goto(`/bonfire/${eventId}#announcements`);
 			} else {
 				console.error('Failed to create announcement');
 			}
@@ -52,14 +52,14 @@
 				entity.content = content;
 				entity.event_id = eventId;
 			});
-			goto(`/bonfire/${eventId}`);
+			goto(`/bonfire/${eventId}#announcements`);
 		}
 	};
 
 	const deleteAnnouncement = async (e: Event) => {
 		try {
 			await client.delete('announcement', announcement.id);
-			goto(`/bonfire/${eventId}`);
+			goto(`/bonfire/${eventId}#announcements`);
 		} catch (error) {
 			console.error('Error deleting announcement:', error);
 		}
