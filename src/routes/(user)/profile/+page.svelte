@@ -21,6 +21,7 @@
 		client = getFeTriplitClient($page.data.jwt) as TriplitClient;
 
 		user = useQuery(client, client.query('user').where(['id', '=', $page.data.user.id]));
+		console.log('$page.data.user', $page.data.user);
 	});
 </script>
 
@@ -64,7 +65,7 @@
 				>
 			</div>
 			<div class="my-2">{$page.data.user.email}</div>
-			<div class="my-2 mt-5">You have 2 logs remaining</div>
+			<div class="my-2 mt-5">You have {$page.data.user.num_logs} logs remaining</div>
 			<Button class="my-2"><Plus />Add more logs</Button>
 			<!-- <Button class="my-2">Log out</Button> -->
 		{/if}
