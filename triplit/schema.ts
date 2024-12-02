@@ -96,6 +96,9 @@ export const schema = {
 			user: S.RelationById('user', '$user_id'),
 			attendees: S.RelationMany('attendees', {
 				where: [['event_id', '=', '$id']]
+			}),
+			annoucements : S.RelationMany('announcements', {
+				where: [['event_id', '=', '$id']]
 			})
 		}),
 		permissions: {
@@ -203,63 +206,32 @@ export const schema = {
 				}
 			}
 		}
-	}
-	// comments: {
-	// 	schema: S.Schema({
-	// 		id: S.Id(),
-	// 		content: S.String(),
-	// 		created_at: S.Date({ default: S.Default.now() }),
-	// 		user_id: S.String(),
-	// 		user: S.RelationById('user', '$user_id'),
-	// 		event_id: S.String(),
-	// 		event: S.RelationById('events', '$event_id'),
-	// 		parent_comment_id: S.String({ nullable: true }),
-	// 		parent_comment: S.RelationById('comments', '$parent_comment_id'),
-	// 		replies: S.RelationMany('comments', {
-	// 			where: [['parent_comment_id', '=', '$id']],
-	// 			limit: 2
-	// 		})
-	// 	}),
-	// 	permissions: {
-	// 		admin: {
-	// 			read: { filter: [true] },
-	// 			insert: { filter: [true] },
-	// 			update: { filter: [true] },
-	// 			delete: { filter: [true] }
-	// 		},
-	// 		user: {
-	// 			read: { filter: [true] },
-	// 			insert: { filter: [true] },
-	// 			update: { filter: [['user_id', '=', '$role.userId']] },
-	// 			delete: { filter: [['user_id', '=', '$role.userId']] }
-	// 		}
-	// 	}
-	// },
-	// images: {
-	// 	schema: S.Schema({
-	// 		id: S.Id(),
-	// 		url: S.String(),
-	// 		uploaded_at: S.Date({ default: S.Default.now() }),
-	// 		uploader_id: S.String(),
-	// 		uploader: S.RelationById('user', '$user_id'),
-	// 		event_id: S.String(),
-	// 		event: S.RelationById('events', '$event_id')
-	// 	}),
-	// 	permissions: {
-	// 		admin: {
-	// 			read: { filter: [true] },
-	// 			insert: { filter: [true] },
-	// 			update: { filter: [true] },
-	// 			delete: { filter: [true] }
-	// 		},
-	// 		user: {
-	// 			read: { filter: [true] },
-	// 			insert: { filter: [true] },
-	// 			update: { filter: [['uploader_id', '=', '$role.userId']] },
-	// 			delete: { filter: [['uploader_id', '=', '$role.userId']] }
-	// 		}
-	// 	}
-	// },
+	},
+	announcement: {
+		schema: S.Schema({
+			id: S.Id(),
+			content: S.String(),
+			created_at: S.Date({ default: S.Default.now() }),
+			user_id: S.String(),
+			user: S.RelationById('user', '$user_id'),
+			event_id: S.String(),
+			event: S.RelationById('events', '$event_id'),
+		}),
+		permissions: {
+			admin: {
+				read: { filter: [true] },
+				insert: { filter: [true] },
+				update: { filter: [true] },
+				delete: { filter: [true] }
+			},
+			user: {
+				read: { filter: [true] },
+				insert: { filter: [['event.user_id', '=', '$role.userId']] },
+				update: { filter: [['user_id', '=', '$role.userId']] },
+				delete: { filter: [['user_id', '=', '$role.userId']] }
+			}
+		}
+	},
 	// notifications: {
 	// 	schema: S.Schema({
 	// 		id: S.Id(),

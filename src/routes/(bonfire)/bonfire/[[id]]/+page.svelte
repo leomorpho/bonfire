@@ -5,7 +5,7 @@
 	import { getFeTriplitClient, waitForUserId } from '$lib/triplit';
 	import Loader from '$lib/components/Loader.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
-	import { Cog, Share, ImagePlus, Plus } from 'lucide-svelte';
+	import { Cog, Share, Plus } from 'lucide-svelte';
 	import { formatHumanReadable } from '$lib/utils';
 	import Rsvp from '$lib/components/Rsvp.svelte';
 	import { onMount } from 'svelte';
@@ -18,11 +18,13 @@
 	import { KeyRound } from 'lucide-svelte';
 	import MiniGallery from '$lib/components/MiniGallery.svelte';
 	import { toast } from 'svelte-sonner';
+	import Annoucements from '$lib/components/Annoucements.svelte';
 
 	let userId = $state('');
 
 	let event = $state();
 	let fileCount = $state();
+	let announcements = $state({});
 
 	let rsvpStatus = $state('');
 
@@ -51,6 +53,15 @@
 		fileCount = useQuery(
 			client,
 			client.query('files').where(['event_id', '=', $page.params.id]).select(['id'])
+		);
+
+		announcements = useQuery(
+			client,
+			client
+				.query('announcement')
+				.where(['event_id', '=', $page.params.id])
+				.order('created_at', 'DESC')
+				.limit(3)
 		);
 
 		const unsubscribeAttendeesQuery = client.subscribe(
@@ -117,7 +128,7 @@
 			url: `https://${PUBLIC_ORIGIN}/bonfire/${eventData.id}` // Use the event's unique ID in the URL
 		};
 
-		toast.success("Invitation copied to clipboard!")
+		toast.success('Invitation copied to clipboard!');
 
 		// Add data to clipboard
 		try {
@@ -143,7 +154,6 @@
 {:else if event.error}
 	<p>Error: {event.error.message}</p>
 {:else if event.results}
-	{console.log(event)}
 	<div class="mx-4 flex flex-col items-center justify-center">
 		<section class="mt-8 w-full sm:w-[450px] md:w-[550px] lg:w-[650px]">
 			{#if event.results[0].user_id == (userId as string)}
@@ -155,7 +165,14 @@
 			{/if}
 			<h1 class="my-5 text-xl">{event.results[0].title}</h1>
 			<div class="font-medium">{formatHumanReadable(event.results[0].start_time)}</div>
-			<div class="font-light">{event.results[0].location}</div>
+			<div class="font-light">
+				{#if !anonymousUser}
+					<div>{event.results[0].location}</div>
+				{:else}
+					Please log in to see location
+				{/if}
+			</div>
+
 			<div class="mx-3 mt-5 items-center">
 				{#if attendeesGoing.length > 0}
 					<div class="flex flex-wrap items-center -space-x-4">
@@ -263,7 +280,15 @@
 			</div>
 			{#if !anonymousUser}
 				<hr class="my-10" />
-				<div class="my-10"><div class="font-semibold">Announcements</div></div>
+				<div class="my-10">
+					<div class="font-semibold">Announcements</div>
+					<div class="my-2"><Annoucements eventId={$page.params.id} currUserId={userId} maxCount={3} allAnnoucementsURL="announcement/all"/></div>
+					{#if event.results[0].user_id == userId}
+						<a href="announcement/create">
+							<Button class="mt-1 w-full">Create new announcement</Button>
+						</a>
+					{/if}
+				</div>
 				<hr class="my-10" />
 
 				<div class="my-10">

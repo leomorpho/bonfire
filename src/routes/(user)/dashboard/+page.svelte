@@ -5,8 +5,6 @@
 	import { getFeTriplitClient, waitForUserId } from '$lib/triplit';
 	import { onMount } from 'svelte';
 	import type { TriplitClient } from '@triplit/client';
-	import { Cog } from 'lucide-svelte';
-	import { formatHumanReadable } from '$lib/utils';
 	import Loader from '$lib/components/Loader.svelte';
 	import { Frown } from 'lucide-svelte';
 	import { useQuery } from '@triplit/svelte';
