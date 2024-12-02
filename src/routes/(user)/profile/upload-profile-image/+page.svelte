@@ -3,7 +3,6 @@
 
 	import Uppy from '@uppy/core';
 	import Webcam from '@uppy/webcam';
-	import Audio from '@uppy/audio';
 	import XHR from '@uppy/xhr-upload';
 	import GoldenRetriever from '@uppy/golden-retriever';
 	import Compressor from '@uppy/compressor';
@@ -17,7 +16,6 @@
 	import '@uppy/image-editor/dist/style.min.css';
 
 	import { onMount } from 'svelte';
-	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 
 	let uppy;
@@ -48,7 +46,6 @@
 				mirror: true // Use mirror mode for webcam
 				// countdown: true // Add a countdown before capturing
 			})
-			.use(Audio)
 			.use(GoldenRetriever)
 			.use(ImageEditor, {
 				cropperOptions: {
