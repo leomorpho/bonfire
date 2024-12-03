@@ -19,20 +19,14 @@
 			.select(['style'])
 			.build();
 		styleData = await client.fetchOne(styleDataQuery);
-		console.log('styleData', styleData);
-		styles = styleData?.styles || {};
+		styles = styleData?.style || {};
+		console.log('styles', styles);
 	});
-
-	function generateDynamicStyle(styles) {
-		if (!styles) {
-			return;
-		}
-		return Object.entries(styles)
-			.map(([key, value]) => `${key}: ${value}`)
-			.join('; ');
-	}
 </script>
 
-<div class="bg-color min-h-screen w-full" style={generateDynamicStyle(styles)}>
+<div class="bg-color min-h-screen w-full">
 	{@render children()}
 </div>
+
+<!-- Dynamically inject the style tag -->
+{@html styles}
