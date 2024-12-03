@@ -26,8 +26,8 @@
 </script>
 
 <Hero />
-<FeatureCarousel />
 <About />
+<FeatureCarousel />
 <Pricing />
 <FAQ />
 <Footer></Footer>
