@@ -1,26 +1,38 @@
 <script lang="ts">
-	import type { Snippet } from 'svelte';
+	import { TriplitClient } from '@triplit/client';
+	import { onMount, type Snippet } from 'svelte';
 	import type { LayoutData } from './$types';
+	import { page } from '$app/stores';
+	import { getFeTriplitClient } from '$lib/triplit';
 
 	let { data, children }: { data: LayoutData; children: Snippet } = $props();
+
+	let styles = $state();
+	let client: TriplitClient = $state();
+	let styleData = $state();
+
+	onMount(async () => {
+		client = getFeTriplitClient($page.data.jwt);
+		const styleDataQuery = client
+			.query('events')
+			.where(['id', '=', $page.params.id])
+			.select(['style'])
+			.build();
+		styleData = await client.fetchOne(styleDataQuery);
+		console.log('styleData', styleData);
+		styles = styleData?.styles || {};
+	});
+
+	function generateDynamicStyle(styles) {
+		if (!styles) {
+			return;
+		}
+		return Object.entries(styles)
+			.map(([key, value]) => `${key}: ${value}`)
+			.join('; ');
+	}
 </script>
 
-<div class="bg-color min-h-screen w-full">
+<div class="bg-color min-h-screen w-full" style={generateDynamicStyle(styles)}>
 	{@render children()}
 </div>
-
-<style>
-	.bg-color {
-		--s: 75px; /* control the size*/
-		--c1: #c02942;
-		--c2: #53777a;
-		--c3: #ecd078;
-		--c4: #d95b43;
-
-		background:
-			radial-gradient(var(--c1) 24%, #0000 25%),
-			radial-gradient(var(--c2) 30%, #0000 32%) calc(var(--s) / 2) calc(var(--s) / 2),
-			repeating-conic-gradient(from 30deg, var(--c3) 0 30deg, var(--c4) 0 25%);
-		background-size: var(--s) var(--s);
-	}
-</style>
