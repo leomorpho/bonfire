@@ -1,4 +1,5 @@
 import { Schema as S, type Roles, type ClientSchema } from '@triplit/client';
+import type { nullable } from 'zod';
 
 // Define roles
 export const roles: Roles = {
@@ -99,7 +100,8 @@ export const schema = {
 			}),
 			annoucements : S.RelationMany('announcements', {
 				where: [['event_id', '=', '$id']]
-			})
+			}),
+			style: S.String({nullable:true})
 		}),
 		permissions: {
 			admin: {

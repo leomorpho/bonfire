@@ -4,13 +4,27 @@ import { faker } from '@faker-js/faker';
 import type { TriplitClient } from '@triplit/client';
 import { serverTriplitClient } from '$lib/server/triplit';
 import { Status} from '$lib/enums';
+import { execSync } from 'child_process';
+
+// // Step 1: Run CLI commands
+// try {
+//     console.log('Removing local.db...');
+//     execSync('rm local.db');
+//     console.log('Running migrations...');
+//     execSync('npm run migrate');
+//     console.log('Migrations completed.');
+// } catch (error) {
+//     console.error('Error during CLI commands:', error.message);
+//     process.exit(1); // Exit if the CLI commands fail
+// }
 
 let client = serverTriplitClient as TriplitClient;
 
 let user = await createNewUser({
 	id: generateId(15),
 	email: 'mike@test.com',
-	email_verified: true
+	email_verified: true,
+	num_logs: 3
 });
 
 await client.insert('user', { id: user.id, username: 'Mike' });
@@ -24,9 +38,11 @@ const { output } = await client.insert('events', {
 	location: '345 Cordova St, Vancouver',
 	start_time: fiveWeeksLater,
 	end_time: null,
-	user_id: user.id
+	user_id: user.id,
+	style: null,
 });
 
+// NOTE: BE should automatically create that missing `attendance` object.
 // await client.insert('attendees', {
 // 	event_id: output.id,
 // 	user_id: user?.id,
@@ -42,7 +58,8 @@ for (let i = 0; i < 100; i++) {
 	const user = await createNewUser({
 		id: generateId(15),
 		email: faker.internet.email(),
-		email_verified: true
+		email_verified: true,
+		num_logs: 3,
 	});
 
 	await client.insert('user', { id: user.id, username: faker.internet.username() });

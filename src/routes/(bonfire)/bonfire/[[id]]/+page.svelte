@@ -24,7 +24,6 @@
 
 	let event = $state();
 	let fileCount = $state();
-	let announcements = $state({});
 
 	let rsvpStatus = $state('');
 

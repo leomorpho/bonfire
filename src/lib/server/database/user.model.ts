@@ -35,6 +35,7 @@ type NewUser = {
 	id: string;
 	email: string;
 	email_verified: boolean;
+	num_logs: number,
 };
 
 export const createNewUser = async (user: NewUser) => {
