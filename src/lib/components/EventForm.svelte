@@ -192,7 +192,9 @@
 
 <div class="mx-4 flex flex-col items-center justify-center">
 	<section class="mt-8 w-full sm:w-[450px]">
-		<h2 class="mb-4 text-lg font-semibold">{mode === 'create' ? 'Create' : 'Update'} a Bonfire</h2>
+		<h2 class="mb-5 rounded-xl bg-white p-2 text-lg font-semibold">
+			{mode === 'create' ? 'Create' : 'Update'} a Bonfire
+		</h2>
 		<form class="space-y-2" onsubmit={handleSubmit}>
 			<Input type="text" placeholder="Event Name" bind:value={eventName} class="w-full bg-white" />
 			<Datepicker bind:value={dateValue} />

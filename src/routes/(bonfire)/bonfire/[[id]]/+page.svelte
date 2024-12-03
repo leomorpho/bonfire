@@ -19,6 +19,7 @@
 	import MiniGallery from '$lib/components/MiniGallery.svelte';
 	import { toast } from 'svelte-sonner';
 	import Annoucements from '$lib/components/Annoucements.svelte';
+	import HorizRule from '$lib/components/HorizRule.svelte';
 
 	let userId = $state('');
 
@@ -178,14 +179,16 @@
 					</Button>
 				</a>
 			{/if}
-			<h1 class="my-5 text-xl">{event.results[0].title}</h1>
-			<div class="font-medium">{formatHumanReadable(event.results[0].start_time)}</div>
-			<div class="font-light">
-				{#if !anonymousUser}
-					<div>{event.results[0].location}</div>
-				{:else}
-					Please log in to see location
-				{/if}
+			<div class="rounded-xl bg-white p-5">
+				<h1 class="text-xl">{event.results[0].title}</h1>
+				<div class="font-medium">{formatHumanReadable(event.results[0].start_time)}</div>
+				<div class="font-light">
+					{#if !anonymousUser}
+						<div>{event.results[0].location}</div>
+					{:else}
+						Please log in to see location
+					{/if}
+				</div>
 			</div>
 
 			<div class="mx-3 mt-5 items-center">
@@ -289,14 +292,15 @@
 				<Share class="h-5 w-5" />
 				Share Bonfire</Button
 			>
-			<div class="my-10">
+			<div class="my-10 rounded-xl bg-white p-5">
 				<div class="font-semibold">Details</div>
 				{event.results[0].description}
 			</div>
 			{#if !anonymousUser}
-				<hr class="my-10" />
+				<HorizRule />
 				<div class="my-10">
-					<div class="font-semibold" id="announcements">Announcements</div>
+					
+					<div class="font-semibold bg-white rounded-xl p-5" id="announcements">Announcements</div>
 					<div class="my-2">
 						<Annoucements
 							eventId={$page.params.id}
@@ -311,7 +315,7 @@
 						</a>
 					{/if}
 				</div>
-				<hr class="my-10" />
+				<HorizRule />
 
 				<div class="my-10">
 					{#if $page.data.eventFiles && fileCount.results}
@@ -325,4 +329,3 @@
 		</section>
 	</div>
 {/if}
-

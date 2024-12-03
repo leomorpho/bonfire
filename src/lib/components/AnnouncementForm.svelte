@@ -68,11 +68,11 @@
 
 <div class="mx-4 flex flex-col items-center justify-center">
 	<section class="mt-8 w-full sm:w-[450px]">
-		<h2 class="mb-4 text-lg font-semibold">
+		<h2 class="mb-4 text-lg font-semibold bg-white p-2 rounded-xl">
 			{mode === 'create' ? 'Create' : 'Update'} an Announcement
 		</h2>
 		<form class="space-y-4" onsubmit={handleSubmit}>
-			<Textarea placeholder="Announcement Content" bind:value={content} class="w-full" />
+			<Textarea placeholder="Announcement Content" bind:value={content} class="w-full bg-white" />
 
 			<Button disabled={submitDisabled} type="submit" class="w-full">
 				{mode === 'create' ? 'Create Announcement' : 'Update Announcement'}

@@ -30,3 +30,4 @@
 
 <!-- Dynamically inject the style tag -->
 {@html styles}
+
