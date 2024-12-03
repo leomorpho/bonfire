@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as Select from '$lib/components/ui/select/index.js';
-	let { onValueChange = $bindable(() => {}) } = $props();
+	let { onValueChange = $bindable(() => {}), styleClass="bg-white" } = $props();
 
 	// Options for AM/PM
 	const ampmOptions = [
@@ -17,11 +17,11 @@
 	$effect(() => onValueChange(value));
 </script>
 
-<Select.Root type="single" name="am/pm" bind:value>
-	<Select.Trigger class="w-full">
+<Select.Root type="single" name="am/pm" bind:value >
+	<Select.Trigger class={`w-full ${styleClass}`}>
 		{triggerContent}
 	</Select.Trigger>
-	<Select.Content>
+	<Select.Content class={styleClass}>
 		<Select.Group>
 			{#each ampmOptions as option}
 				<Select.Item value={option.value} label={option.label}>{option.label}</Select.Item>

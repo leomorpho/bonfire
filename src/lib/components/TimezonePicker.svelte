@@ -11,7 +11,7 @@
 	import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
 
 	// Timezone data and selection
-	let { onValueChange = $bindable(() => {}) } = $props();
+	let { onValueChange = $bindable(() => {}), styleClass="bg-white" } = $props();
 	let value = $state({})
 	let timezoneOptions: any = $state([]);
 
@@ -73,7 +73,7 @@
 </script>
 
 <Popover.Root bind:open>
-	<Popover.Trigger bind:ref={triggerRef}>
+	<Popover.Trigger bind:ref={triggerRef} class={styleClass}>
 		{#snippet child({ props })}
 			<Button
 				variant="outline"
@@ -83,7 +83,7 @@
 				aria-expanded={open}
 			>
 				<div class="flex w-full flex-row items-center justify-between font-normal">
-					<Earth class="h-4 w-4 text-slate-400" />
+					<Earth class="h-4 w-4 text-slate-400 mr-1" />
 					{selectedValue || 'Select a time zone...'}
 					<ChevronsUpDown class="ml-2 size-4 shrink-0 opacity-50" />
 				</div>

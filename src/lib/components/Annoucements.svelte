@@ -47,7 +47,7 @@
 	{console.log('announcements', announcements.results)}
 	<div class="space-y-3">
 		{#each announcements.results as announcement}
-			<Card.Root>
+			<Card.Root class="announcement">
 				<Card.Header>
 					<Card.Title>{announcement.content}</Card.Title>
 					<Card.Description

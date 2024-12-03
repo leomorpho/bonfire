@@ -4,16 +4,11 @@
 	import emblaCarouselSvelte from 'embla-carousel-svelte';
 
 	import {
-		Aperture,
 		BellRing,
-		Dice6,
-		Drama,
-		Factory,
 		Flame,
 		Images,
 		Link,
 		Music,
-		Smile,
 		Users
 	} from 'lucide-svelte';
 	import Container from './Container.svelte';

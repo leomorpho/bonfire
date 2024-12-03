@@ -165,7 +165,6 @@
 				console.log('Failed to create event object');
 			}
 			goto('/dashboard');
-
 		} else {
 			await client.update('events', event.id, async (entity) => {
 				entity.title = eventName;
@@ -175,7 +174,6 @@
 				entity.end_time = eventEndDatetime;
 			});
 			goto(`/bonfire/${event.id}`);
-
 		}
 	};
 
@@ -195,13 +193,13 @@
 	<section class="mt-8 w-full sm:w-[450px]">
 		<h2 class="mb-4 text-lg font-semibold">{mode === 'create' ? 'Create' : 'Update'} a Bonfire</h2>
 		<form class="space-y-2" onsubmit={handleSubmit}>
-			<Input type="text" placeholder="Event Name" bind:value={eventName} class="w-full" />
+			<Input type="text" placeholder="Event Name" bind:value={eventName} class="w-full bg-white" />
 			<Datepicker bind:value={dateValue} />
 
 			<div class="flex flex-row items-center justify-between space-x-4">
 				<!-- Start Time Inputs -->
 				<div class="grid grid-cols-4 items-center gap-2">
-					<Clock class="ml-4 mr-1 h-4 w-4 text-slate-500" />
+					<Clock class="ml-4 mr-1 h-4 w-4 rounded-xl bg-white text-slate-500" />
 					<div class="font-mono">
 						<DoubleDigitsPicker maxValue={12} bind:value={startHour} placeholder="HH" />
 					</div>
@@ -269,9 +267,9 @@
 			<TimezonePicker onValueChange={(newValue: any) => (timezone = newValue)} />
 
 			<div class="flex flex-row items-center">
-				<Input type="text" placeholder="Location" class="w-full" bind:value={location} />
+				<Input type="text" placeholder="Location" class="w-full bg-white" bind:value={location} />
 			</div>
-			<Textarea placeholder="Details" bind:value={details} />
+			<Textarea class="bg-white" placeholder="Details" bind:value={details} />
 			<Button disabled={submitDisabled} type="submit" class="w-full">
 				{#if mode == 'create'}
 					<Plus class="ml-1 mr-1 h-4 w-4" />

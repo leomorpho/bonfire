@@ -2,7 +2,12 @@
 	import { Input } from '$lib/components/ui/input/index.js';
 
 	// Bindable properties
-	let { value = $bindable<string>(), maxValue = 59, placeholder = 'HH' } = $props();
+	let {
+		value = $bindable<string>(),
+		styleClass = 'bg-white',
+		maxValue = 59,
+		placeholder = 'HH'
+	} = $props();
 	let inputRef: HTMLInputElement | null = null; // Reference for the input element
 
 	// Validate the input value
@@ -41,6 +46,6 @@
 	pattern="[0-9]*"
 	inputmode="numeric"
 	{placeholder}
-	class="w-16 text-center"
+	class={`w-16 text-center ${styleClass}`}
 	onblur={() => handleBlur()}
 />
