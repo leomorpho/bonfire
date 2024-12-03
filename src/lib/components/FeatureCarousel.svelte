@@ -48,7 +48,7 @@
 <Container>
 	<div class="py-24 md:py-32">
 		<h2 class="mb-16 text-center text-2xl font-bold md:text-4xl">
-			Everything you need to fix your problem right now
+			App Features
 		</h2>
 		<!-- on mobile show small icons without text -->
 		<div class="mx-auto mb-5 w-fit sm:hidden">
