@@ -273,7 +273,6 @@
 				<Input type="text" placeholder="Location" class="w-full bg-white" bind:value={location} />
 			</div>
 			<Textarea class="bg-white" placeholder="Details" bind:value={details} />
-			<EventStyler />
 			<Button disabled={submitDisabled} type="submit" class="w-full">
 				{#if mode == 'create'}
 					<Plus class="ml-1 mr-1 h-4 w-4" />
@@ -311,5 +310,8 @@
 				</Dialog.Content>
 			</Dialog.Root>
 		{/if}
+		<EventStyler />
+
 	</section>
 </div>
+

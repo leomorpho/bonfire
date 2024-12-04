@@ -21,5 +21,7 @@
 {:else if data.error}
 	<p>Error: {data.error.message}</p>
 {:else if data.results}
-	<EventForm mode={'update'} event={data.results[0]} />
+	<div class="bg-color-selector min-h-screen w-full">
+		<EventForm mode={'update'} event={data.results[0]} />
+	</div>
 {/if}

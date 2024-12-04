@@ -2,4 +2,6 @@
 	import EventForm from '$lib/components/EventForm.svelte';
 </script>
 
-<EventForm mode={'create'} />
+<div class="bg-color-selector min-h-screen w-full">
+	<EventForm mode={'create'} />
+</div>
