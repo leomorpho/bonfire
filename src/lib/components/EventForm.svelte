@@ -318,6 +318,6 @@
 				</Dialog.Content>
 			</Dialog.Root>
 		{/if}
-		<EventStyler bind:finalStyleCss />
 	</section>
+	<EventStyler bind:finalStyleCss />
 </div>

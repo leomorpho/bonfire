@@ -108,14 +108,17 @@
 
 	<div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
 		{#each stylesGallery as style}
+		<div class="h-40 bg-white bg-opacity-100 rounded-lg">
 			<button
-				class="h-40 max-w-full rounded-lg style-button-{style.id} select-bordered border-4"
+				class="h-full w-full max-w-full rounded-lg style-button-{style.id} select-bordered border-4 flex justify-center items-center"
 				class:selected={selectedStyle?.id === style.id}
 				style={style.cssTemplate}
 				onclick={() => applyStyle(style, 'bg-color-selector')}
 			>
-				{style.name}
+			<div class="bg-white p-1 rounded-lg text-xs sm:text-sm">{style.name}</div>
+				
 			</button>
+		</div>
 		{/each}
 	</div>
 </div>

@@ -1747,41 +1747,268 @@ export const stylesGallery = [
     },
     {
         id: 90,
-        name: '',
+        name: 'Wavy magicpattern',
         cssTemplate: `
-      
+    --background-color: #e5e5f7;
+    --secondary-color: #FDDA50FF;
+    --secondary-color-opacity: rgba(68, 76, 247, 1); /* Adjust opacity here */
+    --circle-size: 23px; /* Size of the radial pattern */
+
+    background-color: var(--background-color);
+    opacity: 1;
+    background-image: 
+        repeating-radial-gradient(circle at 0 0, transparent 0, var(--background-color) var(--circle-size)), 
+        repeating-linear-gradient(var(--secondary-color-opacity), var(--secondary-color));
         `
     },
     {
         id: 91,
-        name: '',
+        name: 'Circles magicpattern',
         cssTemplate: `
-      
+    --background-color: #e5e5f7;
+    --primary-color: #444cf7;
+    --circle-size: 15px; /* Size of the repeating radial pattern */
+    --opacity-level: 1;
+
+    background-color: var(--background-color);
+    opacity: var(--opacity-level);
+    background-image: 
+        radial-gradient(circle at center center, var(--primary-color), var(--background-color)),
+        repeating-radial-gradient(circle at center center, var(--primary-color), var(--primary-color), var(--circle-size), transparent calc(var(--circle-size) * 2), transparent var(--circle-size));
+    background-blend-mode: multiply;
         `
     },
     {
         id: 92,
-        name: '',
+        name: 'Fun party circles',
         cssTemplate: `
-      
+      --u: 0.375em; /* Base unit */
+  --s: calc(50 * var(--u)); /* Size */
+  --d: calc(0.25 * var(--s)); /* Derived size */
+
+  --l0: calc(100% - 1px), #fff;
+  --l1: 0% 25%, #0000 0% 50%;
+  --g: repeating-conic-gradient(#fff var(--l1));
+  background: 
+    var(--g),
+    radial-gradient(closest-side, transparent var(--l0)),
+    linear-gradient(90deg, #0000 0 25%, currentcolor 0 75%, #d6af46 0),
+    repeating-conic-gradient(#88b6b4 var(--l1)),
+    var(--g),
+    radial-gradient(closest-side, currentcolor var(--l0));
+  background-size: 
+    calc(2 * var(--d)) calc(2 * var(--d)),
+    var(--d) var(--d),
+    calc(0.5 * var(--s)),
+    var(--s) var(--s),
+    calc(2 * var(--u)) calc(2 * var(--u)),
+    var(--u) var(--u);
+  color: #31334a;
         `
     },
     {
         id: 93,
-        name: '',
+        name: 'Swirlings B&W',
         cssTemplate: `
-      
+       --d: 6em; /* Diameter */
+  --r: calc(0.5 * var(--d)); /* Radius */
+  --g: calc(var(--d) * (sqrt(2) - 1)); /* Gap */
+  --s: calc(var(--d) + var(--g)); /* Size */
+  --p: calc(var(--r) / 3); /* Inner radius */
+  --q: calc(2 * var(--p)); /* Outer radius */
+
+  --sl: calc(var(--q) + 1px) calc(var(--r) + -0.5px), 
+         transparent calc(var(--r) + 0.5px);
+  background: 
+    radial-gradient(#fff var(--p), 
+                    #000 calc(var(--p) + 1px) var(--q), 
+                    #fff var(--sl)) calc(0.5 * var(--s)) calc(0.5 * var(--s)), 
+    repeating-conic-gradient(#000 0% 25%, transparent 0% 50%) 
+                    calc(0.25 * var(--s)) calc(0.25 * var(--s)), 
+    radial-gradient(#000 var(--p), 
+                    #fff calc(var(--p) + 1px) var(--q), 
+                    #000 var(--sl));
+  background-size: var(--s) var(--s), calc(2 * var(--s)) calc(2 * var(--s));
+  background-blend-mode: lighten;
         `
     },
     {
         id: 94,
+        name: 'Repeating circles',
+        cssTemplate: `
+--primary-color: #ff9999; /* Main color for the radial gradient */
+--background-color: #ffffff; /* Background color */
+--size: 4em;
+
+background: repeating-radial-gradient(circle, var(--primary-color), var(--background-color) 20%);
+background-size: var(--size) var(--size);
+background-color: var(--background-color);
+opacity: 1;
+        `
+    },
+    {
+        id: 95,
+        name: 'Vertical gradient lines',
+        cssTemplate: `
+--primary-color: #f799ff; /* Main color for the gradient */
+--background-color: #fff1d5; /* Background color */
+--gradient-size: 3em; /* Size for the repeating gradient */
+
+background: repeating-linear-gradient(90deg, var(--background-color), var(--primary-color));
+background-size: var(--gradient-size) var(--gradient-size);
+background-color: var(--background-color);
+opacity: 1;
+        `
+    },
+    {
+        id: 96,
+        name: 'Horizontal gradient lines',
+        cssTemplate: `
+--primary-color: #99bcff; /* Main color for the gradient */
+    --background-color: #ffcbcb; /* Background color */
+    --gradient-size: 3em; /* Size for the repeating gradient */
+
+background: repeating-linear-gradient(0deg, var(--background-color), var(--primary-color));
+    background-size: var(--gradient-size) var(--gradient-size);
+    background-color: var(--background-color);
+    opacity: 1;
+        `
+    },
+    {
+        id: 97,
+        name: 'Seigaiha',
+        cssTemplate: `
+background-color:silver;
+background-image:
+radial-gradient(circle at 100% 150%, silver 24%, white 24%, white 28%, silver 28%, silver 36%, white 36%, white 40%, transparent 40%, transparent),
+radial-gradient(circle at 0    150%, silver 24%, white 24%, white 28%, silver 28%, silver 36%, white 36%, white 40%, transparent 40%, transparent),
+radial-gradient(circle at 50%  100%, white 10%, silver 10%, silver 23%, white 23%, white 30%, silver 30%, silver 43%, white 43%, white 50%, silver 50%, silver 63%, white 63%, white 71%, transparent 71%, transparent),
+radial-gradient(circle at 100% 50%, white 5%, silver 5%, silver 15%, white 15%, white 20%, silver 20%, silver 29%, white 29%, white 34%, silver 34%, silver 44%, white 44%, white 49%, transparent 49%, transparent),
+radial-gradient(circle at 0    50%, white 5%, silver 5%, silver 15%, white 15%, white 20%, silver 20%, silver 29%, white 29%, white 34%, silver 34%, silver 44%, white 44%, white 49%, transparent 49%, transparent);
+background-size: 100px 50px;
+`
+    },
+    {
+        id: 98,
         name: '',
         cssTemplate: `
       
         `
     },
     {
-        id: 95,
+        id: 99,
+        name: '',
+        cssTemplate: `
+      
+        `
+    },
+    {
+        id: 100,
+        name: '',
+        cssTemplate: `
+      
+        `
+    },
+    {
+        id: 101,
+        name: '',
+        cssTemplate: `
+      
+        `
+    },
+    {
+        id: 102,
+        name: '',
+        cssTemplate: `
+      
+        `
+    },
+    {
+        id: 103,
+        name: '',
+        cssTemplate: `
+      
+        `
+    },
+    {
+        id: 104,
+        name: '',
+        cssTemplate: `
+      
+        `
+    },
+    {
+        id: 105,
+        name: '',
+        cssTemplate: `
+      
+        `
+    },
+    {
+        id: 106,
+        name: '',
+        cssTemplate: `
+      
+        `
+    },
+    {
+        id: 107,
+        name: '',
+        cssTemplate: `
+      
+        `
+    },
+    {
+        id: 108,
+        name: '',
+        cssTemplate: `
+      
+        `
+    },
+    {
+        id: 109,
+        name: '',
+        cssTemplate: `
+      
+        `
+    },
+    {
+        id: 110,
+        name: '',
+        cssTemplate: `
+      
+        `
+    },
+    {
+        id: 111,
+        name: '',
+        cssTemplate: `
+      
+        `
+    },
+    {
+        id: 112,
+        name: '',
+        cssTemplate: `
+      
+        `
+    },
+    {
+        id: 113,
+        name: '',
+        cssTemplate: `
+      
+        `
+    },
+    {
+        id: 114,
+        name: '',
+        cssTemplate: `
+      
+        `
+    },
+    {
+        id: 115,
         name: '',
         cssTemplate: `
       
