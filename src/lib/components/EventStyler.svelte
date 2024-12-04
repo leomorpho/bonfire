@@ -12,23 +12,24 @@
 	let currentTargetSelector = 'bg-color-selector'; // Default to preview
 
 	/**
-	 * Apply a selected style dynamically.
+	 * Apply a selected style dynamically to the preview area.
 	 * @param style - The selected style object.
 	 * @param targetSelector - The target selector to replace in the CSS.
 	 */
 	function applyStyle(
 		style: { id: number; name: string; cssTemplate: string },
-		targetSelector: string
+		targetSelector: string,
+		cleanup = true
 	) {
-		if (styleElement) {
-			// Remove the previously applied style
+		if (styleElement && cleanup) {
+			// Remove the previously applied preview style
 			document.head.removeChild(styleElement);
 		}
 
 		// Replace the placeholder selector with the actual target
 		const finalCss = style.cssTemplate.replace(/{selector}/g, targetSelector);
 
-		// Create a new <style> tag for the selected style
+		// Create a new <style> tag for the selected preview style
 		styleElement = document.createElement('style');
 		styleElement.type = 'text/css';
 		styleElement.textContent = finalCss;
@@ -39,8 +40,39 @@
 		currentTargetSelector = targetSelector;
 	}
 
+	// DOM references for button-specific styles
+	let buttonStyleElements: Record<number, HTMLStyleElement> = {};
+
 	/**
-	 * Clear the applied style.
+	 * Apply a style dynamically to a button.
+	 * @param style - The style object for the button.
+	 * @param buttonId - The unique button ID.
+	 */
+	function applyButtonStyle(
+		style: { id: number; name: string; cssTemplate: string },
+		buttonId: number
+	) {
+		// Remove existing style for the button, if any
+		if (buttonStyleElements[buttonId]) {
+			document.head.removeChild(buttonStyleElements[buttonId]);
+			delete buttonStyleElements[buttonId];
+		}
+
+		// Replace the `{selector}` placeholder with the button-specific selector
+		const finalCss = style.cssTemplate.replace(/{selector}/g, `style-button-${buttonId}`);
+
+		// Create a new `<style>` tag for the button
+		const buttonStyleElement = document.createElement('style');
+		buttonStyleElement.type = 'text/css';
+		buttonStyleElement.textContent = finalCss;
+		document.head.appendChild(buttonStyleElement);
+
+		// Store the style element for cleanup later
+		buttonStyleElements[buttonId] = buttonStyleElement;
+	}
+
+	/**
+	 * Clear the preview style.
 	 */
 	function clearStyle() {
 		if (styleElement) {
@@ -51,18 +83,29 @@
 		currentTargetSelector = 'bg-color-selector';
 	}
 
+	/**
+	 * Apply styles to all buttons on load.
+	 */
+	function applyStylesToButtons() {
+		stylesGallery.forEach((style) => {
+			applyButtonStyle(style, style.id);
+		});
+	}
+
 	// Initial setup (no style applied by default)
 	onMount(() => {
+		applyStylesToButtons();
 		clearStyle();
 	});
 </script>
 
-<div class="gallery">
+<div class="gallery w-full">
 	<h2>Select a Style</h2>
-	<div class="gallery-items">
+
+	<div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
 		{#each stylesGallery as style}
 			<button
-				class="style-button"
+				class="h-40 max-w-full rounded-lg style-button-{style.id} select-bordered border-4"
 				class:selected={selectedStyle?.id === style.id}
 				on:click={() => applyStyle(style, 'bg-color-selector')}
 			>
@@ -70,13 +113,4 @@
 			</button>
 		{/each}
 	</div>
-	{#if selectedStyle}
-		<div class="selected-style">
-			<h3>Currently Applied Style: {selectedStyle.name}</h3>
-			<button on:click={() => applyStyle(selectedStyle, 'bg-color')}
-				>Apply to Final Container</button
-			>
-			<button on:click={clearStyle}>Clear Style</button>
-		</div>
-	{/if}
 </div>
