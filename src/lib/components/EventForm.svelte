@@ -41,6 +41,7 @@
 	let endHour = $state(''); // State for hour
 	let endMinute = $state(''); // State for minute
 	let ampmEnd = $state('PM'); // State for AM/PM
+	let finalStyleCss = $state(event?.style)
 
 	if (event) {
 		const startTime = parseDateTime(event.start_time);
@@ -310,8 +311,6 @@
 				</Dialog.Content>
 			</Dialog.Root>
 		{/if}
-		<EventStyler />
-
+		<EventStyler bind:finalStyleCss />
 	</section>
 </div>
-

@@ -2,23 +2,26 @@
 	import { stylesGallery } from '$lib/styles';
 	import { onMount } from 'svelte';
 
+	let {finalStyleCss = $bindable<string>()} = $props();
+
 	// Currently selected style
-	let selectedStyle: { id: number; name: string; cssTemplate: string } | null = null;
+	let selectedStyle: { id: number; name: string; cssTemplate: string } | null = $state(null);
 
 	// DOM reference to the injected style
 	let styleElement: HTMLStyleElement | null = null;
 
 	// Preview or final target
 	let currentTargetSelector = 'bg-color-selector'; // Default to preview
+	let finalTargetSelector = 'bg-color';
 
 	/**
 	 * Apply a selected style dynamically to the preview area.
 	 * @param style - The selected style object.
-	 * @param targetSelector - The target selector to replace in the CSS.
+	 * @param tempTargetSelector - The target selector to replace in the CSS.
 	 */
 	function applyStyle(
 		style: { id: number; name: string; cssTemplate: string },
-		targetSelector: string,
+		tempTargetSelector: string,
 		cleanup = true
 	) {
 		if (styleElement && cleanup) {
@@ -27,7 +30,8 @@
 		}
 
 		// Replace the placeholder selector with the actual target
-		const finalCss = style.cssTemplate.replace(/{selector}/g, targetSelector);
+		const finalCss = style.cssTemplate.replace(/{selector}/g, tempTargetSelector);
+		finalStyleCss = style.cssTemplate.replace(/{selector}/g, finalTargetSelector);
 
 		// Create a new <style> tag for the selected preview style
 		styleElement = document.createElement('style');
@@ -37,7 +41,7 @@
 
 		// Update the selected style and target
 		selectedStyle = style;
-		currentTargetSelector = targetSelector;
+		currentTargetSelector = tempTargetSelector;
 	}
 
 	// DOM references for button-specific styles
