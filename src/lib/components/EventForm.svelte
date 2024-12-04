@@ -16,6 +16,7 @@
 	import { Status } from '$lib/enums';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
+	import { styleStore } from '$lib/styles';
 
 	let { mode, event = null } = $props();
 
@@ -32,16 +33,16 @@
 	});
 
 	let dateValue: DateValue | undefined = $state<DateValue | undefined>();
-	let eventName = $state(event?.title ?? ''); // State for event name
-	let location = $state(event?.location ?? ''); // State for location
-	let details = $state(event?.description ?? ''); // State for event details
+	let eventName: string = $state(event?.title ?? ''); // State for event name
+	let location: string = $state(event?.location ?? ''); // State for location
+	let details: string = $state(event?.description ?? ''); // State for event details
 	let startHour = $state(''); // State for hour
 	let startMinute = $state(''); // State for minute
 	let ampmStart = $state('PM'); // State for AM/PM
 	let endHour = $state(''); // State for hour
 	let endMinute = $state(''); // State for minute
-	let ampmEnd = $state('PM'); // State for AM/PM
-	let finalStyleCss = $state(event?.style)
+	let ampmEnd: string = $state('PM'); // State for AM/PM
+	let finalStyleCss: string = $state(event?.style);
 
 	if (event) {
 		const startTime = parseDateTime(event.start_time);
@@ -154,8 +155,11 @@
 				location: location || null,
 				start_time: eventStartDatetime,
 				end_time: eventEndDatetime,
-				user_id: userId // Use the authenticated user's ID
+				user_id: userId,
+				style: finalStyleCss
 			});
+
+			styleStore.set(finalStyleCss);
 
 			if (output) {
 				await client.insert('attendees', {
@@ -174,7 +178,10 @@
 				entity.location = location;
 				entity.start_time = eventStartDatetime;
 				entity.end_time = eventEndDatetime;
+				entity.style = finalStyleCss;
 			});
+			styleStore.set(finalStyleCss);
+
 			goto(`/bonfire/${event.id}`);
 		}
 	};

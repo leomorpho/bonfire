@@ -2,7 +2,7 @@
 	import { stylesGallery } from '$lib/styles';
 	import { onMount } from 'svelte';
 
-	let {finalStyleCss = $bindable<string>()} = $props();
+	let { finalStyleCss = $bindable<string>() } = $props();
 
 	// Currently selected style
 	let selectedStyle: { id: number; name: string; cssTemplate: string } | null = $state(null);
@@ -30,8 +30,8 @@
 		}
 
 		// Replace the placeholder selector with the actual target
-		const finalCss = style.cssTemplate.replace(/{selector}/g, tempTargetSelector);
-		finalStyleCss = style.cssTemplate.replace(/{selector}/g, finalTargetSelector);
+		const finalCss = `.${tempTargetSelector} {${style.cssTemplate}}`
+		finalStyleCss = style.cssTemplate;
 
 		// Create a new <style> tag for the selected preview style
 		styleElement = document.createElement('style');
@@ -111,7 +111,8 @@
 			<button
 				class="h-40 max-w-full rounded-lg style-button-{style.id} select-bordered border-4"
 				class:selected={selectedStyle?.id === style.id}
-				on:click={() => applyStyle(style, 'bg-color-selector')}
+				style={style.cssTemplate}
+				onclick={() => applyStyle(style, 'bg-color-selector')}
 			>
 				{style.name}
 			</button>

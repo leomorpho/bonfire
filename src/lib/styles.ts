@@ -1,9 +1,13 @@
+import { writable } from 'svelte/store';
+
+// Create a writable store for the style
+export const styleStore = writable<string>('');
+
 export const stylesGallery = [
     {
         id: 1,
         name: 'Style 1',
         cssTemplate: `
-            .{selector} {
         --s: 40px; /* control the size*/
         --c1: #73c8a9;
         --c2: #dee1b6;
@@ -21,14 +25,12 @@ export const stylesGallery = [
             0 0/calc(2*var(--s)) calc(3*var(--s)),
             repeating-conic-gradient(var(--c3) 0 25%,var(--c4) 0 50%)
             0 0/calc(4*var(--s)) calc(6*var(--s));
-        }
         `
     },
     {
         id: 2,
         name: 'Multicolor Circles Pattern',
         cssTemplate: `
-            .{selector} {
                 --s: 80px; /* control the size*/
                 --c1: #f8ca00;
                 --c2: #8a9b0f;
@@ -47,14 +49,12 @@ export const stylesGallery = [
                     0 0 var(--_s),
                     linear-gradient(var(--c3) 50%,var(--c4) 0) 
                     0 0/1% var(--s);
-                }
         `
     },
     {
         id: 3,
         name: 'Pills Pattern',
         cssTemplate: `
-            .{selector} {
                 --s: 60px; /* control the size*/
                 --c1: #dcd1b4;
                 --c2: #5e9fa3;
@@ -66,14 +66,12 @@ export const stylesGallery = [
                     calc(var(--s)/2) 0/calc(2*var(--s)) 1%,
                     radial-gradient(var(--c2) 70%,var(--c1) 72%)
                     0 0/var(--s) var(--s);
-            }
         `
     },
     {
         id: 4,
         name: 'Mosaic Triangles Pattern',
         cssTemplate: `
-            .{selector} {
             --s: 70px; /* control the size*/
             --c1: #655643;
             --c2: #80bca3;
@@ -88,14 +86,12 @@ export const stylesGallery = [
                 conic-gradient(from 210deg at 25% 25%var(--g)),
                 repeating-conic-gradient(var(--c1) 0 30deg,var(--c2) 0 60deg);
             background-size: calc(3*var(--s)) calc(1.73*var(--s));
-            }
         `
     },
     {
         id: 5,
         name: 'Diagonal Wavy Lines & Squares Pattern',
         cssTemplate: `
-            .{selector} {
             --s: 40px; /* control the size*/
             --c1: #ab3e5b;
             --c2: #f9f2e7;
@@ -108,7 +104,6 @@ export const stylesGallery = [
                 calc(var(--s)/2) var(--s)/calc(2*var(--s)) calc(2*var(--s)),
                 conic-gradient(#0000 75%,var(--c1) 0) 0 0/var(--s) var(--s) 
                 var(--c2);
-            }
         `
     }
 ];

@@ -4,12 +4,19 @@
 	import type { LayoutData } from './$types';
 	import { page } from '$app/stores';
 	import { getFeTriplitClient } from '$lib/triplit';
+	import { styleStore } from '$lib/styles';
 
 	let { data, children }: { data: LayoutData; children: Snippet } = $props();
 
-	let styles = $state();
+	let styles: string = $state();
 	let client: TriplitClient = $state();
 	let styleData = $state();
+
+	// Subscribe to the store for reactive updates
+	styleStore.subscribe((value) => {
+		styles = value;
+	});
+
 
 	onMount(async () => {
 		client = getFeTriplitClient($page.data.jwt);
@@ -19,15 +26,12 @@
 			.select(['style'])
 			.build();
 		styleData = await client.fetchOne(styleDataQuery);
-		styles = styleData?.style || {};
+		styles = typeof styleData?.style === 'string' ? styleData.style : '';
+		styleStore.set(styleData?.style || '');
 		console.log('styles', styles);
 	});
 </script>
 
-<div class="bg-color min-h-screen w-full">
+<div class="bg-color min-h-screen w-full" style={styles}>
 	{@render children()}
 </div>
-
-<!-- Dynamically inject the style tag -->
-{@html styles}
-
