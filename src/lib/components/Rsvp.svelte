@@ -83,10 +83,10 @@
 			<Button
 				variant="outline"
 				class="mt-4 flex w-full items-center justify-center {rsvpStatus === Status.GOING
-					? 'bg-green-200 hover:bg-green-100'
+					? 'bg-green-400 hover:bg-green-100'
 					: ''} {rsvpStatus === Status.MAYBE
-					? 'bg-yellow-200 hover:bg-yellow-100'
-					: ''} {rsvpStatus === Status.NOT_GOING ? 'bg-red-200 hover:bg-red-100' : ''}"
+					? 'bg-yellow-400 hover:bg-yellow-100'
+					: ''} {rsvpStatus === Status.NOT_GOING ? 'bg-red-400 hover:bg-red-100' : ''}"
 			>
 				{getStrValueOfRSVP(rsvpStatus)}
 			</Button>
@@ -94,19 +94,19 @@
 		<DropdownMenu.Content class="w-full">
 			<DropdownMenu.Group>
 				<DropdownMenu.Item
-					class={rsvpStatus === Status.GOING ? 'bg-green-200' : ''}
+					class={rsvpStatus === Status.GOING ? 'bg-green-400' : ''}
 					onclick={(event) => updateRSVP(event, Status.GOING)}
 				>
 					<Smile /> Going
 				</DropdownMenu.Item>
 				<DropdownMenu.Item
-					class={rsvpStatus === Status.MAYBE ? 'bg-yellow-200' : ''}
+					class={rsvpStatus === Status.MAYBE ? 'bg-yellow-400' : ''}
 					onclick={(event) => updateRSVP(event, Status.MAYBE)}
 				>
 					<Meh /> Maybe
 				</DropdownMenu.Item>
 				<DropdownMenu.Item
-					class={rsvpStatus === Status.NOT_GOING ? 'bg-red-200' : ''}
+					class={rsvpStatus === Status.NOT_GOING ? 'bg-red-400' : ''}
 					onclick={(event) => updateRSVP(event, Status.NOT_GOING)}
 				>
 					<Frown /> Not going

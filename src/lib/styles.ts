@@ -9,7 +9,7 @@ export const stylesGallery = [
         name: 'Style 1',
         cssTemplate: `
         --s: 40px; /* control the size*/
-        --c1: #73c8a9;
+        --c1: #5E8275FF;
         --c2: #dee1b6;
         --c3: #bd5532;
         --c4: #373b44;
