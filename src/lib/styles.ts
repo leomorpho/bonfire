@@ -1892,7 +1892,7 @@ background-size: 100px 50px;
         id: 98,
         name: 'Retro furnish',
         cssTemplate: `
-      background-image: url('https://f002.backblazeb2.com/file/bonfire-public/retro-furnish.png'); /* Replace with the URL of your tileable image */
+    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/retro-furnish.png'); /* Replace with the URL of your tileable image */
     background-repeat: repeat; /* Tiles the image in both directions */
     background-size: auto; /* Ensures the image retains its original size */
     background-color: #ffffff; /* Fallback background color */
@@ -1902,121 +1902,439 @@ background-size: 100px 50px;
     },
     {
         id: 99,
-        name: '',
+        name: 'Ahoy',
         cssTemplate: `
-      
+    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/ahoy.jpg'); /* Replace with the URL of your tileable image */
+    background-repeat: repeat; /* Tiles the image in both directions */
+    background-size: auto; /* Ensures the image retains its original size */
+    background-color: #ffffff; /* Fallback background color */
+    width: 100%;
+    height: 100%; 
         `
     },
     {
         id: 100,
-        name: '',
+        name: 'Alchemy',
         cssTemplate: `
-      
+    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/alchemy.gif'); /* Replace with the URL of your tileable image */
+    background-repeat: repeat; /* Tiles the image in both directions */
+    background-size: auto; /* Ensures the image retains its original size */
+    background-color: #ffffff; /* Fallback background color */
+    width: 100%;
+    height: 100%; 
         `
     },
     {
         id: 101,
-        name: '',
+        name: 'Asteroids',
         cssTemplate: `
-      
+    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/asteroids.jpg'); /* Replace with the URL of your tileable image */
+    background-repeat: repeat; /* Tiles the image in both directions */
+    background-size: auto; /* Ensures the image retains its original size */
+    background-color: #ffffff; /* Fallback background color */
+    width: 100%;
+    height: 100%; 
         `
     },
     {
         id: 102,
-        name: '',
+        name: 'Bicycles',
         cssTemplate: `
-      
+    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/bicycles.png'); /* Replace with the URL of your tileable image */
+    background-repeat: repeat; /* Tiles the image in both directions */
+    background-size: auto; /* Ensures the image retains its original size */
+    background-color: #ffffff; /* Fallback background color */
+    width: 100%;
+    height: 100%; 
+    
         `
     },
     {
         id: 103,
-        name: '',
+        name: 'Brijan',
         cssTemplate: `
-      
+    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/brijan.gif'); /* Replace with the URL of your tileable image */
+    background-repeat: repeat; /* Tiles the image in both directions */
+    background-size: auto; /* Ensures the image retains its original size */
+    background-color: #ffffff; /* Fallback background color */
+    width: 100%;
+    height: 100%; 
+     
         `
     },
     {
         id: 104,
-        name: '',
+        name: 'Bunting flag',
         cssTemplate: `
-      
+    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/bunting-flag.png'); /* Replace with the URL of your tileable image */
+    background-repeat: repeat; /* Tiles the image in both directions */
+    background-size: auto; /* Ensures the image retains its original size */
+    background-color: #ffffff; /* Fallback background color */
+    width: 100%;
+    height: 100%; 
+    
         `
     },
     {
         id: 105,
-        name: '',
+        name: 'Celebration',
         cssTemplate: `
-      
+    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/celebration.png'); /* Replace with the URL of your tileable image */
+    background-repeat: repeat; /* Tiles the image in both directions */
+    background-size: auto; /* Ensures the image retains its original size */
+    background-color: #ffffff; /* Fallback background color */
+    width: 100%;
+    height: 100%; 
+  
         `
     },
     {
         id: 106,
-        name: '',
+        name: 'Chalkboard',
         cssTemplate: `
-      
+    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/chalkboard.jpg'); /* Replace with the URL of your tileable image */
+    background-repeat: repeat; /* Tiles the image in both directions */
+    background-size: auto; /* Ensures the image retains its original size */
+    background-color: #ffffff; /* Fallback background color */
+    width: 100%;
+    height: 100%; 
+    
         `
     },
     {
         id: 107,
-        name: '',
+        name: 'Cocina',
         cssTemplate: `
-      
+    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/cocina.gif'); /* Replace with the URL of your tileable image */
+    background-repeat: repeat; /* Tiles the image in both directions */
+    background-size: auto; /* Ensures the image retains its original size */
+    background-color: #ffffff; /* Fallback background color */
+    width: 100%;
+    height: 100%; 
         `
     },
     {
         id: 108,
-        name: '',
+        name: 'Cuadros',
         cssTemplate: `
-      
+    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/cuadros.png'); /* Replace with the URL of your tileable image */
+    background-repeat: repeat; /* Tiles the image in both directions */
+    background-size: auto; /* Ensures the image retains its original size */
+    background-color: #ffffff; /* Fallback background color */
+    width: 100%;
+    height: 100%;    
         `
     },
     {
         id: 109,
-        name: '',
+        name: 'Dark wood',
         cssTemplate: `
-      
+    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/dark-wood.jpg'); /* Replace with the URL of your tileable image */
+    background-repeat: repeat; /* Tiles the image in both directions */
+    background-size: auto; /* Ensures the image retains its original size */
+    background-color: #ffffff; /* Fallback background color */
+    width: 100%;
+    height: 100%;  
         `
     },
     {
         id: 110,
-        name: '',
+        name: 'Jade',
         cssTemplate: `
-      
+    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/jade.jpg'); /* Replace with the URL of your tileable image */
+    background-repeat: repeat; /* Tiles the image in both directions */
+    background-size: auto; /* Ensures the image retains its original size */
+    background-color: #ffffff; /* Fallback background color */
+    width: 100%;
+    height: 100%;      
         `
     },
     {
         id: 111,
-        name: '',
+        name: 'Design tools',
         cssTemplate: `
-      
+    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/design-tools.jpg'); /* Replace with the URL of your tileable image */
+    background-repeat: repeat; /* Tiles the image in both directions */
+    background-size: auto; /* Ensures the image retains its original size */
+    background-color: #ffffff; /* Fallback background color */
+    width: 100%;
+    height: 100%;   
         `
     },
     {
         id: 112,
-        name: '',
+        name: 'Escape flight',
         cssTemplate: `
-      
+    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/escape-flight.png'); /* Replace with the URL of your tileable image */
+    background-repeat: repeat; /* Tiles the image in both directions */
+    background-size: auto; /* Ensures the image retains its original size */
+    background-color: #ffffff; /* Fallback background color */
+    width: 100%;
+    height: 100%;    
         `
     },
     {
         id: 113,
-        name: '',
+        name: 'Fancy pants',
         cssTemplate: `
-      
+    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/fancy-pants.jpg'); /* Replace with the URL of your tileable image */
+    background-repeat: repeat; /* Tiles the image in both directions */
+    background-size: auto; /* Ensures the image retains its original size */
+    background-color: #ffffff; /* Fallback background color */
+    width: 100%;
+    height: 100%;   
         `
     },
     {
         id: 114,
-        name: '',
+        name: 'Fiesta',
         cssTemplate: `
-      
+    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/fiesta.jpg'); /* Replace with the URL of your tileable image */
+    background-repeat: repeat; /* Tiles the image in both directions */
+    background-size: auto; /* Ensures the image retains its original size */
+    background-color: #ffffff; /* Fallback background color */
+    width: 100%;
+    height: 100%;   
         `
     },
     {
-        id: 115,
-        name: '',
+        id: 116,
+        name: 'Flowers',
         cssTemplate: `
-      
+    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/flowers.jpg'); /* Replace with the URL of your tileable image */
+    background-repeat: repeat; /* Tiles the image in both directions */
+    background-size: auto; /* Ensures the image retains its original size */
+    background-color: #ffffff; /* Fallback background color */
+    width: 100%;
+    height: 100%;   
         `
-    }
+    },
+    {
+      id: 117,
+      name: 'Geometrica',
+      cssTemplate: `
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/geometrica.png'); /* Replace with the URL of your tileable image */
+  background-repeat: repeat; /* Tiles the image in both directions */
+  background-size: auto; /* Ensures the image retains its original size */
+  background-color: #ffffff; /* Fallback background color */
+  width: 100%;
+  height: 100%;   
+      `
+  },
+  {
+    id: 118,
+    name: 'Glitch',
+    cssTemplate: `
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/glitch.png'); /* Replace with the URL of your tileable image */
+  background-repeat: repeat; /* Tiles the image in both directions */
+  background-size: auto; /* Ensures the image retains its original size */
+  background-color: #ffffff; /* Fallback background color */
+  width: 100%;
+  height: 100%;   
+      `
+  },
+  {
+    id: 119,
+    name: 'Hodgepodge',
+    cssTemplate: `
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/hodgepodge.png'); /* Replace with the URL of your tileable image */
+  background-repeat: repeat; /* Tiles the image in both directions */
+  background-size: auto; /* Ensures the image retains its original size */
+  background-color: #ffffff; /* Fallback background color */
+  width: 100%;
+  height: 100%;   
+    `
+  },{
+    id: 120,
+    name: 'Green goblin',
+    cssTemplate: `
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/green-goblin.png'); /* Replace with the URL of your tileable image */
+  background-repeat: repeat; /* Tiles the image in both directions */
+  background-size: auto; /* Ensures the image retains its original size */
+  background-color: #ffffff; /* Fallback background color */
+  width: 100%;
+  height: 100%;   
+    `
+  },
+  {
+    id: 121,
+    name: 'Guglieri speciale',
+    cssTemplate: `
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/guglieri-speciale.jpg'); /* Replace with the URL of your tileable image */
+  background-repeat: repeat; /* Tiles the image in both directions */
+  background-size: auto; /* Ensures the image retains its original size */
+  background-color: #ffffff; /* Fallback background color */
+  width: 100%;
+  height: 100%;   
+    `
+  },
+  {
+    id: 122,
+    name: 'Hotdogs',
+    cssTemplate: `
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/hotdogs.jpg'); /* Replace with the URL of your tileable image */
+  background-repeat: repeat; /* Tiles the image in both directions */
+  background-size: auto; /* Ensures the image retains its original size */
+  background-color: #ffffff; /* Fallback background color */
+  width: 100%;
+  height: 100%;   
+    `
+  },
+  {
+    id: 123,
+    name: 'Isometropolis',
+    cssTemplate: `
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/isometropolis.jpg'); /* Replace with the URL of your tileable image */
+  background-repeat: repeat; /* Tiles the image in both directions */
+  background-size: auto; /* Ensures the image retains its original size */
+  background-color: #ffffff; /* Fallback background color */
+  width: 100%;
+  height: 100%;   
+    `
+  },
+  {
+    id: 124,
+    name: 'Junk mail',
+    cssTemplate: `
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/junk-mail.jpg'); /* Replace with the URL of your tileable image */
+  background-repeat: repeat; /* Tiles the image in both directions */
+  background-size: auto; /* Ensures the image retains its original size */
+  background-color: #ffffff; /* Fallback background color */
+  width: 100%;
+  height: 100%;   
+    `
+  },
+  {
+    id: 125,
+    name: 'Kale salad',
+    cssTemplate: `
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/kale-salad.jpg'); /* Replace with the URL of your tileable image */
+  background-repeat: repeat; /* Tiles the image in both directions */
+  background-size: auto; /* Ensures the image retains its original size */
+  background-color: #ffffff; /* Fallback background color */
+  width: 100%;
+  height: 100%;   
+    `
+  },
+  {
+    id: 126,
+    name: 'Kitty',
+    cssTemplate: `
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/kitty.png'); /* Replace with the URL of your tileable image */
+  background-repeat: repeat; /* Tiles the image in both directions */
+  background-size: auto; /* Ensures the image retains its original size */
+  background-color: #ffffff; /* Fallback background color */
+  width: 100%;
+  height: 100%;   
+    `
+  },
+  {
+    id: 127,
+    name: 'Kiwis',
+    cssTemplate: `
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/kiwis.png'); /* Replace with the URL of your tileable image */
+  background-repeat: repeat; /* Tiles the image in both directions */
+  background-size: auto; /* Ensures the image retains its original size */
+  background-color: #ffffff; /* Fallback background color */
+  width: 100%;
+  height: 100%;   
+    `
+  },
+  {
+    id: 128,
+    name: 'Knitting',
+    cssTemplate: `
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/knitting.jpg'); /* Replace with the URL of your tileable image */
+  background-repeat: repeat; /* Tiles the image in both directions */
+  background-size: auto; /* Ensures the image retains its original size */
+  background-color: #ffffff; /* Fallback background color */
+  width: 100%;
+  height: 100%;   
+    `
+  },
+  {
+    id: 129,
+    name: 'Leather nunchuck',
+    cssTemplate: `
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/leather-nunchuck.png'); /* Replace with the URL of your tileable image */
+  background-repeat: repeat; /* Tiles the image in both directions */
+  background-size: auto; /* Ensures the image retains its original size */
+  background-color: #ffffff; /* Fallback background color */
+  width: 100%;
+  height: 100%;   
+    `
+  },
+  {
+    id: 130,
+    name: 'Magnus 2050',
+    cssTemplate: `
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/magnus-2050.png'); /* Replace with the URL of your tileable image */
+  background-repeat: repeat; /* Tiles the image in both directions */
+  background-size: auto; /* Ensures the image retains its original size */
+  background-color: #ffffff; /* Fallback background color */
+  width: 100%;
+  height: 100%;   
+    `
+  },
+  {
+    id: 131,
+    name: 'Magnus 2051',
+    cssTemplate: `
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/magnus-2051.png'); /* Replace with the URL of your tileable image */
+  background-repeat: repeat; /* Tiles the image in both directions */
+  background-size: auto; /* Ensures the image retains its original size */
+  background-color: #ffffff; /* Fallback background color */
+  width: 100%;
+  height: 100%;   
+    `
+  },
+  {
+    id: 132,
+    name: 'Maze',
+    cssTemplate: `
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/maze.jpg'); /* Replace with the URL of your tileable image */
+  background-repeat: repeat; /* Tiles the image in both directions */
+  background-size: auto; /* Ensures the image retains its original size */
+  background-color: #ffffff; /* Fallback background color */
+  width: 100%;
+  height: 100%;   
+    `
+  },
+  {
+    id: 133,
+    name: 'Naranjas',
+    cssTemplate: `
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/naranjas.png'); /* Replace with the URL of your tileable image */
+  background-repeat: repeat; /* Tiles the image in both directions */
+  background-size: auto; /* Ensures the image retains its original size */
+  background-color: #ffffff; /* Fallback background color */
+  width: 100%;
+  height: 100%;   
+    `
+  },
+  {
+    id: 134,
+    name: 'Neon autumn',
+    cssTemplate: `
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/neon-autumn.gif'); /* Replace with the URL of your tileable image */
+  background-repeat: repeat; /* Tiles the image in both directions */
+  background-size: auto; /* Ensures the image retains its original size */
+  background-color: #ffffff; /* Fallback background color */
+  width: 100%;
+  height: 100%;   
+    `
+  },
+  {
+    id: 135,
+    name: 'NYC candy',
+    cssTemplate: `
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/nyc-candy.png'); /* Replace with the URL of your tileable image */
+  background-repeat: repeat; /* Tiles the image in both directions */
+  background-size: auto; /* Ensures the image retains its original size */
+  background-color: #ffffff; /* Fallback background color */
+  width: 100%;
+  height: 100%;   
+    `
+  },
+
 ];
