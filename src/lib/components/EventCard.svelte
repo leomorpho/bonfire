@@ -13,8 +13,8 @@
 </script>
 
 <a href={`/bonfire/${event.id}`}>
-	<Card.Root class="my-4 w-full bg-slate-100">
-		<Card.Header>
+	<Card.Root class="my-4 w-full bg-slate-100" style={event.style}>
+		<Card.Header class="bg-slate-100">
 			<Card.Title class="text-lg">{event.title}</Card.Title>
 			<Card.Description>{formatHumanReadable(event.start_time)}</Card.Description>
 			<Card.Description>Hosted by {eventCreatorName}</Card.Description>

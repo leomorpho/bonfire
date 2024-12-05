@@ -1890,9 +1890,14 @@ background-size: 100px 50px;
     },
     {
         id: 98,
-        name: '',
+        name: 'Retro furnish',
         cssTemplate: `
-      
+      background-image: url('https://f002.backblazeb2.com/file/bonfire-public/retro-furnish.png'); /* Replace with the URL of your tileable image */
+    background-repeat: repeat; /* Tiles the image in both directions */
+    background-size: auto; /* Ensures the image retains its original size */
+    background-color: #ffffff; /* Fallback background color */
+    width: 100%;
+    height: 100%; 
         `
     },
     {
