@@ -77,14 +77,16 @@
 
 <div class="mx-4 flex flex-col items-center justify-center">
 	<section class="mt-8 w-full sm:w-[450px]">
-		<Breadcrumb.Root class="mb-10">
+		<Breadcrumb.Root class="mb-10 mt-2 rounded-xl bg-white bg-opacity-95 p-2">
 			<Breadcrumb.List>
 				<Breadcrumb.Item>
 					<Breadcrumb.Link href={`/bonfire/${$page.params.id}`}>Event</Breadcrumb.Link>
 				</Breadcrumb.Item>
 				<Breadcrumb.Separator />
 				<Breadcrumb.Item>
-					<Breadcrumb.Link href={`/bonfire/${$page.params.id}/media/gallery`}>Gallery</Breadcrumb.Link>
+					<Breadcrumb.Link href={`/bonfire/${$page.params.id}/media/gallery`}
+						>Gallery</Breadcrumb.Link
+					>
 				</Breadcrumb.Item>
 				<Breadcrumb.Separator />
 				<Breadcrumb.Item>

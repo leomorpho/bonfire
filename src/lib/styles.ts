@@ -6,7 +6,7 @@ export const styleStore = writable<string>('');
 export const stylesGallery = [
     {
         id: 1,
-        name: 'Style 1',
+        name: 'Hip curves',
         cssTemplate: `
         --s: 40px; /* control the size*/
         --c1: #5E8275FF;
@@ -2329,6 +2329,282 @@ background-size: 100px 50px;
     name: 'NYC candy',
     cssTemplate: `
   background-image: url('https://f002.backblazeb2.com/file/bonfire-public/nyc-candy.png'); /* Replace with the URL of your tileable image */
+  background-repeat: repeat; /* Tiles the image in both directions */
+  background-size: auto; /* Ensures the image retains its original size */
+  background-color: #ffffff; /* Fallback background color */
+  width: 100%;
+  height: 100%;   
+    `
+  },
+  {
+    id: 136,
+    name: 'Ocean',
+    cssTemplate: `
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/ocean.jpg'); /* Replace with the URL of your tileable image */
+  background-repeat: repeat; /* Tiles the image in both directions */
+  background-size: auto; /* Ensures the image retains its original size */
+  background-color: #ffffff; /* Fallback background color */
+  width: 100%;
+  height: 100%;   
+    `
+  },
+  {
+    id: 137,
+    name: 'Plaid',
+    cssTemplate: `
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/plaid.jpg'); /* Replace with the URL of your tileable image */
+  background-repeat: repeat; /* Tiles the image in both directions */
+  background-size: auto; /* Ensures the image retains its original size */
+  background-color: #ffffff; /* Fallback background color */
+  width: 100%;
+  height: 100%;   
+    `
+  },
+  {
+    id: 138,
+    name: 'Quake',
+    cssTemplate: `
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/quake.png'); /* Replace with the URL of your tileable image */
+  background-repeat: repeat; /* Tiles the image in both directions */
+  background-size: auto; /* Ensures the image retains its original size */
+  background-color: #ffffff; /* Fallback background color */
+  width: 100%;
+  height: 100%;   
+    `
+  },
+  {
+    id: 139,
+    name: 'Raspberry lace',
+    cssTemplate: `
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/raspberry-lace.gif'); /* Replace with the URL of your tileable image */
+  background-repeat: repeat; /* Tiles the image in both directions */
+  background-size: auto; /* Ensures the image retains its original size */
+  background-color: #ffffff; /* Fallback background color */
+  width: 100%;
+  height: 100%;   
+    `
+  },
+  {
+    id: 140,
+    name: 'The illusionist',
+    cssTemplate: `
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/the-illusionist.png'); /* Replace with the URL of your tileable image */
+  background-repeat: repeat; /* Tiles the image in both directions */
+  background-size: auto; /* Ensures the image retains its original size */
+  background-color: #ffffff; /* Fallback background color */
+  width: 100%;
+  height: 100%;   
+    `
+  },
+  {
+    id: 141,
+    name: 'Kitty',
+    cssTemplate: `
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/science.png'); /* Replace with the URL of your tileable image */
+  background-repeat: repeat; /* Tiles the image in both directions */
+  background-size: auto; /* Ensures the image retains its original size */
+  background-color: #ffffff; /* Fallback background color */
+  width: 100%;
+  height: 100%;   
+    `
+  },
+  {
+    id: 142,
+    name: 'Shattered island',
+    cssTemplate: `
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/shattered-island.gif'); /* Replace with the URL of your tileable image */
+  background-repeat: repeat; /* Tiles the image in both directions */
+  background-size: auto; /* Ensures the image retains its original size */
+  background-color: #ffffff; /* Fallback background color */
+  width: 100%;
+  height: 100%;   
+    `
+  },
+  {
+    id: 143,
+    name: 'Special delivery',
+    cssTemplate: `
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/special-delivery.jpg'); /* Replace with the URL of your tileable image */
+  background-repeat: repeat; /* Tiles the image in both directions */
+  background-size: auto; /* Ensures the image retains its original size */
+  background-color: #ffffff; /* Fallback background color */
+  width: 100%;
+  height: 100%;   
+    `
+  },
+  {
+    id: 144,
+    name: 'Subway lines',
+    cssTemplate: `
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/subway-lines.png'); /* Replace with the URL of your tileable image */
+  background-repeat: repeat; /* Tiles the image in both directions */
+  background-size: auto; /* Ensures the image retains its original size */
+  background-color: #ffffff; /* Fallback background color */
+  width: 100%;
+  height: 100%;   
+    `
+  },
+  {
+    id: 145,
+    name: 'Sushi',
+    cssTemplate: `
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/sushi.png'); /* Replace with the URL of your tileable image */
+  background-repeat: repeat; /* Tiles the image in both directions */
+  background-size: auto; /* Ensures the image retains its original size */
+  background-color: #ffffff; /* Fallback background color */
+  width: 100%;
+  height: 100%;   
+    `
+  },
+  {
+    id: 146,
+    name: 'White wood',
+    cssTemplate: `
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/white-wood.jpg'); /* Replace with the URL of your tileable image */
+  background-repeat: repeat; /* Tiles the image in both directions */
+  background-size: auto; /* Ensures the image retains its original size */
+  background-color: #ffffff; /* Fallback background color */
+  width: 100%;
+  height: 100%;   
+    `
+  },
+  {
+    id: 147,
+    name: 'Wild sea',
+    cssTemplate: `
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/wild-sea.png'); /* Replace with the URL of your tileable image */
+  background-repeat: repeat; /* Tiles the image in both directions */
+  background-size: auto; /* Ensures the image retains its original size */
+  background-color: #ffffff; /* Fallback background color */
+  width: 100%;
+  height: 100%;   
+    `
+  },
+  {
+    id: 148,
+    name: '輪紋',
+    cssTemplate: `
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/輪紋.png'); /* Replace with the URL of your tileable image */
+  background-repeat: repeat; /* Tiles the image in both directions */
+  background-size: auto; /* Ensures the image retains its original size */
+  background-color: #ffffff; /* Fallback background color */
+  width: 100%;
+  height: 100%;   
+    `
+  },
+  {
+    id: 126,
+    name: 'Kitty',
+    cssTemplate: `
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/kitty.png'); /* Replace with the URL of your tileable image */
+  background-repeat: repeat; /* Tiles the image in both directions */
+  background-size: auto; /* Ensures the image retains its original size */
+  background-color: #ffffff; /* Fallback background color */
+  width: 100%;
+  height: 100%;   
+    `
+  },
+  {
+    id: 126,
+    name: 'Kitty',
+    cssTemplate: `
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/kitty.png'); /* Replace with the URL of your tileable image */
+  background-repeat: repeat; /* Tiles the image in both directions */
+  background-size: auto; /* Ensures the image retains its original size */
+  background-color: #ffffff; /* Fallback background color */
+  width: 100%;
+  height: 100%;   
+    `
+  },
+  {
+    id: 126,
+    name: 'Kitty',
+    cssTemplate: `
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/kitty.png'); /* Replace with the URL of your tileable image */
+  background-repeat: repeat; /* Tiles the image in both directions */
+  background-size: auto; /* Ensures the image retains its original size */
+  background-color: #ffffff; /* Fallback background color */
+  width: 100%;
+  height: 100%;   
+    `
+  },
+  {
+    id: 126,
+    name: 'Kitty',
+    cssTemplate: `
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/kitty.png'); /* Replace with the URL of your tileable image */
+  background-repeat: repeat; /* Tiles the image in both directions */
+  background-size: auto; /* Ensures the image retains its original size */
+  background-color: #ffffff; /* Fallback background color */
+  width: 100%;
+  height: 100%;   
+    `
+  },
+  {
+    id: 126,
+    name: 'Kitty',
+    cssTemplate: `
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/kitty.png'); /* Replace with the URL of your tileable image */
+  background-repeat: repeat; /* Tiles the image in both directions */
+  background-size: auto; /* Ensures the image retains its original size */
+  background-color: #ffffff; /* Fallback background color */
+  width: 100%;
+  height: 100%;   
+    `
+  },
+  {
+    id: 126,
+    name: 'Kitty',
+    cssTemplate: `
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/kitty.png'); /* Replace with the URL of your tileable image */
+  background-repeat: repeat; /* Tiles the image in both directions */
+  background-size: auto; /* Ensures the image retains its original size */
+  background-color: #ffffff; /* Fallback background color */
+  width: 100%;
+  height: 100%;   
+    `
+  },
+  {
+    id: 126,
+    name: 'Kitty',
+    cssTemplate: `
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/kitty.png'); /* Replace with the URL of your tileable image */
+  background-repeat: repeat; /* Tiles the image in both directions */
+  background-size: auto; /* Ensures the image retains its original size */
+  background-color: #ffffff; /* Fallback background color */
+  width: 100%;
+  height: 100%;   
+    `
+  },
+  {
+    id: 126,
+    name: 'Kitty',
+    cssTemplate: `
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/kitty.png'); /* Replace with the URL of your tileable image */
+  background-repeat: repeat; /* Tiles the image in both directions */
+  background-size: auto; /* Ensures the image retains its original size */
+  background-color: #ffffff; /* Fallback background color */
+  width: 100%;
+  height: 100%;   
+    `
+  },
+  {
+    id: 126,
+    name: 'Kitty',
+    cssTemplate: `
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/kitty.png'); /* Replace with the URL of your tileable image */
+  background-repeat: repeat; /* Tiles the image in both directions */
+  background-size: auto; /* Ensures the image retains its original size */
+  background-color: #ffffff; /* Fallback background color */
+  width: 100%;
+  height: 100%;   
+    `
+  },
+  {
+    id: 126,
+    name: 'Kitty',
+    cssTemplate: `
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/kitty.png'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
   background-color: #ffffff; /* Fallback background color */

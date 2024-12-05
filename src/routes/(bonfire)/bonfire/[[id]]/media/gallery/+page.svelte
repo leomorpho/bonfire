@@ -466,7 +466,7 @@
 <div class="mx-4 mb-48 flex flex-col items-center justify-center">
 	<!-- Breadcrumbs and Toggle Buttons -->
 	<div
-		class="sticky top-0 z-10 flex w-full flex-col items-center justify-between bg-white bg-opacity-95 min-[320px]:flex-row"
+		class="sticky top-0 z-10 mt-2 flex w-full flex-col items-center justify-between rounded-xl bg-white bg-opacity-95 px-2 min-[320px]:flex-row"
 	>
 		<Breadcrumb.Root>
 			<Breadcrumb.List class="text-xs sm:text-sm">
@@ -491,7 +491,7 @@
 			<!-- Filter Button -->
 			<Toggle aria-label="toggle selection" onclick={filterByCurrentUserAsUploader}>
 				{#if showOnlyCurrentUserUploads}<Users class="size-3" />{:else}<User class="size-3" />{/if}
-				
+
 				<span class="text-xs sm:text-sm">
 					{showOnlyCurrentUserUploads ? 'Show All' : 'Show Mine'}
 				</span>

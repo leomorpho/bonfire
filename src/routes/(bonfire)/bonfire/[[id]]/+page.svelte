@@ -5,7 +5,7 @@
 	import { getFeTriplitClient, waitForUserId } from '$lib/triplit';
 	import Loader from '$lib/components/Loader.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
-	import { Cog, Share, Plus } from 'lucide-svelte';
+	import { Cog, Share, Plus, Drum } from 'lucide-svelte';
 	import { formatHumanReadable } from '$lib/utils';
 	import Rsvp from '$lib/components/Rsvp.svelte';
 	import { onMount } from 'svelte';
@@ -203,12 +203,12 @@
 							/>
 						{/each}
 						<Dialog.Root>
-							<Dialog.Trigger class="flex items-center pl-5 sm:pl-6"
+							<Dialog.Trigger class="flex items-center pl-5 sm:pl-6 "
 								>{#if attendeesGoing.length > showMaxNumPeople}
-									<div class="text-sm text-gray-500">
+									<div class="text-sm text-gray-500 bg-white rounded-xl">
 										and {attendeesGoing.length - showMaxNumPeople} more
 									</div>
-								{/if}<Plus class="ml-1 h-4 w-4 sm:h-5 sm:w-5" /></Dialog.Trigger
+								{/if}<Plus class="ml-1 h-4 w-4 sm:h-5 sm:w-5 bg-white rounded-xl" /></Dialog.Trigger
 							>
 							<Dialog.Content class="h-full">
 								<ScrollArea>
@@ -311,7 +311,7 @@
 					</div>
 					{#if event.results[0].user_id == userId}
 						<a href="announcement/create">
-							<Button class="mt-1 w-full">Create new announcement</Button>
+							<Button class="mt-1 w-full"><Drum class="w-4 h-4 mr-1"/> Create new announcement</Button>
 						</a>
 					{/if}
 				</div>
