@@ -1,9 +1,19 @@
 import { fontFamily } from "tailwindcss/defaultTheme";
 
+const plugin = require('tailwindcss/plugin');
+
 /** @type {import('tailwindcss').Config} */
 const config = {
 	darkMode: ["class"],
-	plugins: [require('@tailwindcss/typography'), require('daisyui')],
+	plugins: [require('@tailwindcss/typography'), require('daisyui'),
+		plugin(function({ addUtilities }) {
+			addUtilities({
+			  '.ring-glow': {
+				'@apply ring-2 ring-white ring-opacity-50 hover:ring-opacity-75': {},
+			  },
+			});
+		  }),
+	],
 	content: ["./src/**/*.{html,js,svelte,ts}"],
 	safelist: ["dark"],
 	theme: {
@@ -57,7 +67,7 @@ const config = {
 			},
 			fontFamily: {
 				sans: [...fontFamily.sans]
-			}
+			},
 		}
 	},
 };

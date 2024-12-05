@@ -74,7 +74,7 @@
 		<form class="space-y-4" onsubmit={handleSubmit}>
 			<Textarea placeholder="Announcement Content" bind:value={content} class="w-full bg-white" />
 
-			<Button disabled={submitDisabled} type="submit" class="w-full">
+			<Button disabled={submitDisabled} type="submit" class="w-full ring-glow">
 				{mode === 'create' ? 'Create Announcement' : 'Update Announcement'}
 			</Button>
 		</form>

@@ -287,7 +287,7 @@
 			<Button
 				onclick={() => handleShare(event.results[0])}
 				disabled={anonymousUser}
-				class="mt-4 flex w-full items-center justify-center"
+				class="mt-4 flex w-full items-center justify-center ring-glow"
 			>
 				<Share class="h-5 w-5" />
 				Share Bonfire</Button
@@ -311,7 +311,7 @@
 					</div>
 					{#if event.results[0].user_id == userId}
 						<a href="announcement/create">
-							<Button class="mt-1 w-full"><Drum class="w-4 h-4 mr-1"/> Create new announcement</Button>
+							<Button class="mt-1 w-full ring-glow"><Drum class="w-4 h-4 mr-1"/> Create new announcement</Button>
 						</a>
 					{/if}
 				</div>

@@ -54,7 +54,7 @@
 	</div>
 {/if}
 <a href="media/add"
-	><Button variant="outline" class="flex w-full items-center justify-center"
+	><Button  class="flex w-full items-center justify-center ring-glow"
 		><ImagePlus />Add to gallery</Button
 	>
 </a>
