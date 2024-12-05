@@ -30,7 +30,7 @@
 		}
 
 		// Replace the placeholder selector with the actual target
-		const finalCss = `.${tempTargetSelector} {${style.cssTemplate}}`
+		const finalCss = `.${tempTargetSelector} {${style.cssTemplate}}`;
 		finalStyleCss = style.cssTemplate;
 
 		// Create a new <style> tag for the selected preview style
@@ -103,22 +103,19 @@
 	});
 </script>
 
-<div class="gallery w-full">
-	<h2>Select a Style</h2>
-
+<div class="gallery w-full mt-5">
 	<div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
 		{#each stylesGallery as style}
-		<div class="h-40 bg-white bg-opacity-100 rounded-lg">
-			<button
-				class="h-full w-full max-w-full rounded-lg style-button-{style.id} select-bordered border-4 flex justify-center items-center"
-				class:selected={selectedStyle?.id === style.id}
-				style={style.cssTemplate}
-				onclick={() => applyStyle(style, 'bg-color-selector')}
-			>
-			<div class="bg-white p-1 rounded-lg text-xs sm:text-sm">{style.name}</div>
-				
-			</button>
-		</div>
+			<div class="h-40 rounded-lg bg-white bg-opacity-100">
+				<button
+					class="h-full w-full max-w-full rounded-lg style-button-{style.id} select-bordered flex items-center justify-center border-4"
+					class:selected={selectedStyle?.id === style.id}
+					style={style.cssTemplate}
+					onclick={() => applyStyle(style, 'bg-color-selector')}
+				>
+					<div class="rounded-lg bg-white p-1 text-xs sm:text-sm">{style.name}</div>
+				</button>
+			</div>
 		{/each}
 	</div>
 </div>

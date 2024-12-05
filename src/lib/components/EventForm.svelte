@@ -203,14 +203,14 @@
 		<h2 class="mb-5 rounded-xl bg-white p-2 text-lg font-semibold">
 			{mode === 'create' ? 'Create' : 'Update'} a Bonfire
 		</h2>
-		<form class="space-y-2" onsubmit={handleSubmit}>
+		<form class="space-y-2" >
 			<Input type="text" placeholder="Event Name" bind:value={eventName} class="w-full bg-white" />
 			<Datepicker bind:value={dateValue} />
 
 			<div class="flex flex-row items-center justify-between space-x-4">
 				<!-- Start Time Inputs -->
 				<div class="grid grid-cols-4 items-center gap-2">
-					<Clock class="ml-4 mr-1 h-4 w-4 rounded-xl bg-white text-slate-500" />
+					<Clock class="ml-4 mr-1 h-4 w-4 rounded-xl bg-white text-slate-500 ring-glow" />
 					<div class="font-mono">
 						<DoubleDigitsPicker maxValue={12} bind:value={startHour} placeholder="HH" />
 					</div>
@@ -228,7 +228,7 @@
 						onclick={() => {
 							setEndTime = true;
 						}}
-						class="text-xs"
+						class="text-xs ring-glow"
 					>
 						<Plus class="ml-1 mr-1 h-2 w-2" />
 						to
@@ -238,7 +238,7 @@
 						onclick={() => {
 							setEndTime = false;
 						}}
-						class="text-xs"
+						class="text-xs ring-glow"
 					>
 						<Minus class="h-2 w-2" />
 						to
@@ -281,15 +281,6 @@
 				<Input type="text" placeholder="Location" class="w-full bg-white" bind:value={location} />
 			</div>
 			<Textarea class="bg-white" placeholder="Details" bind:value={details} />
-			<Button disabled={submitDisabled} type="submit" class="w-full">
-				{#if mode == 'create'}
-					<Plus class="ml-1 mr-1 h-4 w-4" />
-				{:else}
-					<ArrowDownToLine class="ml-1 mr-1 h-4 w-4" />
-				{/if}
-
-				{mode === 'create' ? 'Create' : 'Update'}
-			</Button>
 		</form>
 		{#if mode == 'update'}
 			<Dialog.Root>
@@ -317,7 +308,16 @@
 					>
 				</Dialog.Content>
 			</Dialog.Root>
-		{/if}
+		{/if} 
 	</section>
+	<Button disabled={submitDisabled} type="submit" class="w-full ring-glow sticky top-2 mt-2" onclick={handleSubmit}>
+		{#if mode == 'create'}
+			<Plus class="ml-1 mr-1 h-4 w-4" />
+		{:else}
+			<ArrowDownToLine class="ml-1 mr-1 h-4 w-4" />
+		{/if}
+
+		{mode === 'create' ? 'Create' : 'Update'}
+	</Button>
 	<EventStyler bind:finalStyleCss />
 </div>
