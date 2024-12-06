@@ -1,6 +1,9 @@
 <script lang="ts">
 	import { parseColor, stylesGallery } from '$lib/styles';
 	import { onMount } from 'svelte';
+	import * as Popover from '$lib/components/ui/popover/index.js';
+	import { Button } from '$lib/components/ui/button/index.js';
+	import { Slider } from '$lib/components/ui/slider/index.js';
 
 	let {
 		finalStyleCss = $bindable<string>(),
@@ -18,6 +21,12 @@
 	let currentTargetSelector = 'bg-color-selector'; // Default to preview
 	let bgOverlaySelector = 'bg-overlay';
 
+	let overlayForShadnSlider = $state([overlayOpacity]);
+
+	$effect(() => {
+		overlayOpacity = overlayForShadnSlider[0];
+		applyStyle();
+	});
 	/**
 	 * Apply a selected style dynamically to the preview area.
 	 * @param style - The selected style object.
@@ -116,34 +125,39 @@
 	});
 </script>
 
-<div class="flex items-center justify-center space-x-3">
-	<div class="mb-4">
-		<label for="overlay-color" class="block text-sm font-medium text-gray-700">Overlay Color</label>
-		<input
-			id="overlay-color"
-			type="color"
-			bind:value={overlayColor}
-			class="mt-1 block h-10 w-full rounded-md border border-gray-300"
-			oninput={() => applyStyle()}
-		/>
-	</div>
-
-	<div class="mb-4 flex flex-col items-center">
-		<label for="overlay-opacity" class="block text-sm font-medium text-gray-700"
-			>Overlay Opacity</label
+<div class="sticky top-10 flex justify-center">
+	<Popover.Root>
+		<Popover.Trigger class="mt-6 flex w-full justify-center sm:w-[450px]"
+			><Button class="w-full ring-glow">Edit overlay</Button></Popover.Trigger
 		>
-		<input
-			id="overlay-opacity"
-			type="range"
-			min="0"
-			max="1"
-			step="0.001"
-			bind:value={overlayOpacity}
-			class="mt-1 block w-full"
-			oninput={() => applyStyle()}
-		/>
-		<span class="text-sm text-gray-500">Current: {Math.round(overlayOpacity * 100)}%</span>
-	</div>
+		<Popover.Content class="bg-slate-200">
+			<div class="flex w-full justify-center">Overlay</div>
+			<div class="mt-7 flex w-full items-center justify-center space-x-5">
+				<div class="mb-4 flex items-center justify-center">
+					<input
+						type="color"
+						bind:value={overlayColor}
+						class="mt-1 block h-10 w-10 rounded-md border border-gray-300"
+						oninput={() => applyStyle()}
+					/>
+				</div>
+
+				<div class="mb-4 flex w-full flex-col items-center">
+					<label for="overlay-opacity" class="my-4 block text-sm font-medium text-gray-700"
+						>Opacity: {Math.round(overlayOpacity * 100)}%</label
+					>
+
+					<Slider
+						bind:value={overlayForShadnSlider}
+						min={0}
+						max={1}
+						step={0.001}
+						oninput={() => applyStyle()}
+					/>
+				</div>
+			</div>
+		</Popover.Content>
+	</Popover.Root>
 </div>
 
 <div class="gallery mt-5 w-full">

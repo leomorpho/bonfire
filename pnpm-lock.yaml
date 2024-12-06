@@ -178,8 +178,8 @@ importers:
         specifier: ^10.4.20
         version: 10.4.20(postcss@8.4.49)
       bits-ui:
-        specifier: 1.0.0-next.64
-        version: 1.0.0-next.64(svelte@5.4.0)
+        specifier: 1.0.0-next.66
+        version: 1.0.0-next.66(svelte@5.4.0)
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -2646,8 +2646,8 @@ packages:
     peerDependencies:
       svelte: ^4.0.0 || ^5.0.0-next.118
 
-  bits-ui@1.0.0-next.64:
-    resolution: {integrity: sha512-r1JThjUSKwTkaB1onwIs7ZQoqygSsWhjBaUElCS8m8CCbY1RxmTz0HnbN+Xp2oJgJ4YQgIfiXTG3170l80FEgg==}
+  bits-ui@1.0.0-next.66:
+    resolution: {integrity: sha512-2cvX2dhtlp79dq3D79sw/e/w2tib+ySI4RScXwSK9JLSOLVWgVM6XvnT3g8dYRSsSCnQ+hlTZ1ydJJc209HiZw==}
     engines: {node: '>=18', pnpm: '>=8.7.0'}
     peerDependencies:
       svelte: ^5.0.0-next.1
@@ -3772,7 +3772,6 @@ packages:
 
   libsql@0.4.7:
     resolution: {integrity: sha512-T9eIRCs6b0J1SHKYIvD8+KCJMcWZ900iZyxdnSCdqxN12Z1ijzT+jY5nrk72Jw4B0HGzms2NgpryArlJqvc3Lw==}
-    cpu: [x64, arm64, wasm32]
     os: [darwin, linux, win32]
 
   lie@3.3.0:
@@ -7620,7 +7619,7 @@ snapshots:
       nanoid: 5.0.9
       svelte: 5.4.0
 
-  bits-ui@1.0.0-next.64(svelte@5.4.0):
+  bits-ui@1.0.0-next.66(svelte@5.4.0):
     dependencies:
       '@floating-ui/core': 1.6.8
       '@floating-ui/dom': 1.6.12
