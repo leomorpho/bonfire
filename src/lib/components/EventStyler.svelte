@@ -54,7 +54,7 @@
 			}
 		`;
 
-		console.log('applying css', finalCss);
+		// console.log('applying css', finalCss);
 
 		// Create a new <style> tag for the selected preview style
 		styleElement = document.createElement('style');

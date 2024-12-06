@@ -9,9 +9,8 @@
 	let { event, userId, eventCreatorName, rsvpStatus } = $props();
 
 	let rsvpCanBeChanged = new Date(event.start_time) >= new Date();
-	let overlayColor = parseColor(event.overlay_color ?? '#000000');
+	let overlayColor = event.overlay_color ?? '#000000';
 	let overlayOpacity = event.overlay_opacity ?? 0.5;
-	console.log(event.start_time);
 
 	let overlayStyle = $derived(
 		`background-color: rgba(var(--overlay-color-rgb, ${parseColor(overlayColor)}), ${overlayOpacity});`
