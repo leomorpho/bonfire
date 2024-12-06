@@ -338,7 +338,7 @@
 
 		{mode === 'create' ? 'Create' : 'Update'}
 	</Button>
-	<div class="w-5/6 md:7/8" >
+	<div class="w-5/6 md:7/8 mb-10" >
 		<EventStyler bind:finalStyleCss bind:overlayColor bind:overlayOpacity />
 	</div>
 </div>

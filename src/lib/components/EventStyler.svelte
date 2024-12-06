@@ -11,6 +11,9 @@
 		overlayOpacity = $bindable<number>(0.5)
 	} = $props();
 
+	// Just sorting styles by name
+	stylesGallery.sort((a, b) => a.name.localeCompare(b.name));
+
 	// Currently selected style
 	let selectedStyle: { id: number; name: string; cssTemplate: string } | null = $state(null);
 
