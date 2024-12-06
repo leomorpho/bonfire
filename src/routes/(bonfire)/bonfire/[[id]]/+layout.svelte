@@ -9,6 +9,7 @@
 	let { data, children }: { data: LayoutData; children: Snippet } = $props();
 
 	let styles: string = $state();
+	let overlayStyles: string = $state();
 	let client: TriplitClient = $state();
 	let styleData = $state();
 
@@ -17,21 +18,23 @@
 		styles = value;
 	});
 
-
 	onMount(async () => {
 		client = getFeTriplitClient($page.data.jwt);
 		const styleDataQuery = client
 			.query('events')
 			.where(['id', '=', $page.params.id])
-			.select(['style'])
+			.select(['style', 'overlay_style'])
 			.build();
 		styleData = await client.fetchOne(styleDataQuery);
 		styles = typeof styleData?.style === 'string' ? styleData.style : '';
+		overlayStyles = typeof styleData?.overlay_style === 'string' ? styleData.overlay_style : '';
 		styleStore.set(styleData?.style || '');
 		console.log('styles', styles);
 	});
 </script>
 
 <div class="bg-color min-h-screen w-full" style={styles}>
-	{@render children()}
+	<div style={overlayStyles}>
+		{@render children()}
+	</div>
 </div>

@@ -100,7 +100,8 @@ export const schema = {
 			annoucements : S.RelationMany('announcements', {
 				where: [['event_id', '=', '$id']]
 			}),
-			style: S.String({nullable:true})
+			style: S.String({nullable: true}),
+			overlay_style: S.String({nullable: true}),
 		}),
 		permissions: {
 			admin: {
