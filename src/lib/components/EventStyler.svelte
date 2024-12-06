@@ -35,26 +35,26 @@
 		style: { id: number; name: string; cssTemplate: string } | null = null,
 		cleanup = true
 	) {
-		// TODO: is cleanup necessary? It introduces bugs that I need to fix....
-		// if (styleElement && cleanup) {
-		// 	// Remove the previously applied preview style
-		// 	document.head.removeChild(styleElement);
-		// }
+		console.log('applyStyle called');
 
 		let currentStyle = style ?? selectedStyle;
 
+		// TODO: is cleanup necessary? It introduces bugs that I need to fix....
+		if (styleElement && cleanup) {
+			// Remove the previously applied preview style
+			document.head.removeChild(styleElement);
+		}
+
 		// Replace the placeholder selector with the actual target
 		const finalCss = `
-		.${currentTargetSelector} {${currentStyle?.cssTemplate}}
+		.${currentTargetSelector} {${style ? style.cssTemplate : finalStyleCss}}
 
 		.${bgOverlaySelector} {
 				background-color: rgba(var(--overlay-color-rgb, ${parseColor(overlayColor)}), ${overlayOpacity});
 			}
 		`;
 
-		if (style?.cssTemplate) {
-			finalStyleCss = style?.cssTemplate;
-		}
+		console.log('applying css', finalCss);
 
 		// Create a new <style> tag for the selected preview style
 		styleElement = document.createElement('style');
@@ -63,7 +63,7 @@
 		document.head.appendChild(styleElement);
 
 		// Update the selected style and target
-		selectedStyle = style;
+		selectedStyle = currentStyle;
 	}
 
 	// DOM references for button-specific styles
@@ -109,6 +109,11 @@
 		currentTargetSelector = 'bg-color-selector';
 	}
 
+	function clearOverlay() {
+		overlayForShadnSlider[0] = 0;
+		applyStyle();
+	}
+
 	/**
 	 * Apply styles to all buttons on load.
 	 */
@@ -132,6 +137,7 @@
 		>
 		<Popover.Content class="bg-slate-200">
 			<div class="flex w-full justify-center">Overlay</div>
+			<Button class="mt-3 w-full" onclick={clearOverlay}>Clear</Button>
 			<div class="mt-7 flex w-full items-center justify-center space-x-5">
 				<div class="mb-4 flex items-center justify-center">
 					<input
