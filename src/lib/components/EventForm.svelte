@@ -43,8 +43,8 @@
 	let endMinute = $state(''); // State for minute
 	let ampmEnd: string = $state('PM'); // State for AM/PM
 	let finalStyleCss: string = $state(event?.style);
-	let overlayColor: string = $state('#000000');
-	let overlayOpacity: number = $state(0.5);
+	let overlayColor: string = $state(event.overlay_color);
+	let overlayOpacity: number = $state(event.overlay_opacity);
 
 	if (event) {
 		const startTime = parseDateTime(event.start_time);
@@ -193,6 +193,8 @@
 				entity.overlay_opacity = overlayOpacity;
 			});
 			styleStore.set(finalStyleCss);
+			overlayColorStore.set(overlayColor);
+			overlayOpacityStore.set(overlayOpacity);
 
 			goto(`/bonfire/${event.id}`);
 		}
