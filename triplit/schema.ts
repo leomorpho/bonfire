@@ -39,7 +39,6 @@ export const schema = {
 			},
 			user: {
 				read: { filter: [true] },
-				// Insertion only done in BE
 				update: {
 					filter: [['id', '=', '$role.userId']] // Users can only update their own profile images
 				},
@@ -70,13 +69,12 @@ export const schema = {
 			},
 			user: {
 				read: { filter: [true] },
-				// Insertion and update only done in BE
-				// insert: {
-				// 	filter: [['user_id', '=', '$role.userId']] // Users can only insert their own profile images
-				// },
-				// update: {
-				// 	filter: [['user_id', '=', '$role.userId']] // Users can only update their own profile images
-				// },
+				insert: {
+					filter: [['user_id', '=', '$role.userId']] // Users can only insert their own profile images
+				},
+				update: {
+					filter: [['user_id', '=', '$role.userId']] // Users can only update their own profile images
+				},
 				delete: {
 					filter: [['user_id', '=', '$role.userId']] // Users can only delete their own profile images
 				}
@@ -93,48 +91,18 @@ export const schema = {
 			description: S.String({ nullable: true }),
 			start_time: S.Date(),
 			end_time: S.Date({ nullable: true }),
+			location: S.String({ nullable: true }),
 			user_id: S.String(),
 			user: S.RelationById('user', '$user_id'),
-			style: S.String({ nullable: true }),
-			overlay_color: S.String({ nullable: true, optional: true }),
-			overlay_opacity: S.Number({ nullable: true, optional: true }),
-			event_private_data_id: S.String(),
-			event_private_data: S.RelationById('event_private_data', '$event_private_data_id') // Link to the event
-		}),
-		permissions: {
-			admin: {
-				read: { filter: [true] },
-				insert: { filter: [true] },
-				update: { filter: [true] },
-				delete: { filter: [true] }
-			},
-			user: {
-				read: {
-					filter: [['id', '=', '$query.id']] // Only allow read access if the query includes the event ID.
-				},
-				// Insertion should be done on BE to verify user has number of logs required.
-				update: { filter: [['user_id', '=', '$role.userId']] },
-				delete: { filter: [['user_id', '=', '$role.userId']] }
-			},
-			anon: {
-				read: {
-					filter: [['id', '=', '$query.id']] // Only allow read access if the query includes the event ID.
-				}
-			}
-		}
-	},
-	event_private_data: {
-		schema: S.Schema({
-			id: S.Id(),
-			event_id: S.String(),
-			event: S.RelationById('events', '$event_id'), // Link to the event
-			attendee_ids: S.Set(S.String()),
 			attendees: S.RelationMany('attendees', {
 				where: [['event_id', '=', '$id']]
 			}),
-			annoucements: S.RelationMany('announcements', {
+			annoucements : S.RelationMany('announcements', {
 				where: [['event_id', '=', '$id']]
-			})
+			}),
+			style: S.String({nullable: true}),
+			overlay_color: S.String({nullable: true, optional: true}),
+			overlay_opacity: S.Number({nullable: true, optional: true}),
 		}),
 		permissions: {
 			admin: {
@@ -145,8 +113,13 @@ export const schema = {
 			},
 			user: {
 				// read: { filter: [['$role.userId', 'in', ['attendees.user_id']]] },
-				// Insertion and update on BE to controll access
-				read: { filter: [['$role.userId', 'in', 'attendee_ids']] } // Only allow read if userId is in attendee_ids
+				read: { filter: [true] },
+				insert: { filter: [true] },
+				update: { filter: [['user_id', '=', '$role.userId']] },
+				delete: { filter: [['user_id', '=', '$role.userId']] }
+			},
+			anon: {
+				read: { filter: [true] }
 			}
 		}
 	},
@@ -171,17 +144,15 @@ export const schema = {
 				delete: { filter: [true] }
 			},
 			user: {
+				read: { filter: [true] },
 				// read: {
 				// 	filter: [
 				// 		['event.attendees.user_id', '=', '$role.userId'] // Users can only see attendees for events they are part of
 				// 	]
 				// },
-				read: {
-					filter: [['event_id', '=', '$query.query.event_id']] // Only allow read access if the query includes the event ID.
-				},
 				insert: {
 					// Users can RSVP or add themselves as attendees
-					filter: [['event_id', '=', '$query.query.event_id']] // Only allow insert access if the query includes the event ID.
+					filter: [['user_id', '=', '$role.userId']]
 				},
 				update: {
 					// Users can update their RSVP or attendance
@@ -191,6 +162,9 @@ export const schema = {
 					// Users can remove themselves from the event
 					filter: [['user_id', '=', '$role.userId']]
 				}
+			},
+			anon: {
+				read: { filter: [false] }
 			}
 		}
 	},
@@ -217,9 +191,8 @@ export const schema = {
 				delete: { filter: [true] } // Admins can delete files
 			},
 			user: {
-				read: {
-					filter: [['event_id', '=', '$query.query.event_id']] // Only allow read access if the query includes the event ID.
-				},
+				read: { filter: [true] },
+
 				// read: {
 				// 	filter: [
 				// 		['event.attendees.user_id', '=', '$role.userId'] // Check if user is an attendee of the event
@@ -245,7 +218,7 @@ export const schema = {
 			user_id: S.String(),
 			user: S.RelationById('user', '$user_id'),
 			event_id: S.String(),
-			event: S.RelationById('events', '$event_id')
+			event: S.RelationById('events', '$event_id'),
 		}),
 		permissions: {
 			admin: {
@@ -255,18 +228,13 @@ export const schema = {
 				delete: { filter: [true] }
 			},
 			user: {
-				read: {
-					filter: [
-						['event_id', '=', '$query.event_id'], // Only allow if the event_id matches the query
-						['$role.userId', 'in', 'event.attendees.user_id'] // Ensure the user is an attendee of the event]
-					]
-				},
+				read: { filter: [true] },
 				insert: { filter: [['event.user_id', '=', '$role.userId']] },
 				update: { filter: [['user_id', '=', '$role.userId']] },
 				delete: { filter: [['user_id', '=', '$role.userId']] }
 			}
 		}
-	}
+	},
 	// notifications: {
 	// 	schema: S.Schema({
 	// 		id: S.Id(),
