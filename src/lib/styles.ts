@@ -2,8 +2,8 @@ import { writable } from 'svelte/store';
 
 // Create a writable store for the style
 export const styleStore = writable<string>('');
-export const overlayColor = writable<string>('');
-export const overlayOpacity = writable<number>(0);
+export const overlayColorStore = writable<string>('');
+export const overlayOpacityStore = writable<number>(0);
 
 /**
 	 * Parse a hex color to RGB format.
