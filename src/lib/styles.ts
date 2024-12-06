@@ -12,7 +12,8 @@ export const overlayOpacityStore = writable<number>(0);
 	 */
 export function parseColor(hex: string): string {
   if (!hex.startsWith('#') || (hex.length !== 7 && hex.length !== 4)) {
-    throw new Error('Invalid hex color format');
+    hex = "#000000"
+    console.log('Invalid hex color format, setting a default');
   }
 
   // If shorthand (#rgb), expand it to full form (#rrggbb)

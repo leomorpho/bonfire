@@ -173,11 +173,13 @@
 	<div class="mx-4 flex flex-col items-center justify-center">
 		<section class="mt-8 w-full sm:w-[450px] md:w-[550px] lg:w-[650px]">
 			{#if event.results[0].user_id == (userId as string)}
-				<a class="flex w-full justify-center" href="update">
-					<Button variant="outline" class="m-2 rounded-full">
-						<Cog class="h-5 w-5" />
-					</Button>
-				</a>
+				<div class="w-full flex justify-center">
+					<a href="update">
+						<Button variant="outline" class="m-2 rounded-full">
+							<Cog class="h-5 w-5" />
+						</Button>
+					</a>
+				</div>
 			{/if}
 			<div class="rounded-xl bg-white p-5">
 				<h1 class="text-xl">{event.results[0].title}</h1>
@@ -205,10 +207,10 @@
 						<Dialog.Root>
 							<Dialog.Trigger class="flex items-center pl-5 sm:pl-6 "
 								>{#if attendeesGoing.length > showMaxNumPeople}
-									<div class="text-sm text-gray-500 bg-white rounded-xl">
+									<div class="rounded-xl bg-white text-sm text-gray-500">
 										and {attendeesGoing.length - showMaxNumPeople} more
 									</div>
-								{/if}<Plus class="ml-1 h-4 w-4 sm:h-5 sm:w-5 bg-white rounded-xl" /></Dialog.Trigger
+								{/if}<Plus class="ml-1 h-4 w-4 rounded-xl bg-white sm:h-5 sm:w-5" /></Dialog.Trigger
 							>
 							<Dialog.Content class="h-full">
 								<ScrollArea>
@@ -299,8 +301,7 @@
 			{#if !anonymousUser}
 				<HorizRule />
 				<div class="my-10">
-					
-					<div class="font-semibold bg-white rounded-xl p-5" id="announcements">Announcements</div>
+					<div class="rounded-xl bg-white p-5 font-semibold" id="announcements">Announcements</div>
 					<div class="my-2">
 						<Annoucements
 							eventId={$page.params.id}
@@ -311,7 +312,9 @@
 					</div>
 					{#if event.results[0].user_id == userId}
 						<a href="announcement/create">
-							<Button class="mt-1 w-full ring-glow"><Drum class="w-4 h-4 mr-1"/> Create new announcement</Button>
+							<Button class="mt-1 w-full ring-glow"
+								><Drum class="mr-1 h-4 w-4" /> Create new announcement</Button
+							>
 						</a>
 					{/if}
 				</div>

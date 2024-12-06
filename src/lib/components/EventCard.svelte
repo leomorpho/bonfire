@@ -4,30 +4,38 @@
 	import { Cog } from 'lucide-svelte';
 	import { formatHumanReadable } from '$lib/utils';
 	import Rsvp from './Rsvp.svelte';
+	import { parseColor } from '$lib/styles';
 
 	let { event, userId, eventCreatorName, rsvpStatus } = $props();
 
 	let rsvpCanBeChanged = new Date(event.start_time) >= new Date();
-
+	let overlayColor = parseColor(event.overlay_color ?? '#000000');
+	let overlayOpacity = event.overlay_opacity ?? 0.5;
 	console.log(event.start_time);
+
+	let overlayStyle = $derived(
+		`background-color: rgba(var(--overlay-color-rgb, ${parseColor(overlayColor)}), ${overlayOpacity});`
+	);
 </script>
 
 <a href={`/bonfire/${event.id}`}>
 	<Card.Root class="my-4 w-full bg-slate-100" style={event.style}>
-		<Card.Header class="bg-slate-100">
-			<Card.Title class="text-lg">{event.title}</Card.Title>
-			<Card.Description>{formatHumanReadable(event.start_time)}</Card.Description>
-			<Card.Description>Hosted by {eventCreatorName}</Card.Description>
-		</Card.Header>
-		<Card.Content>
-			<Rsvp {rsvpStatus} {userId} eventId={event.id} {rsvpCanBeChanged} />
-		</Card.Content>
-		{#if event.user_id == (userId as string)}
-			<a href={`/bonfire/${event.id}/update`}>
-				<Button variant="outline" class="m-2 rounded-full">
-					<Cog class="h-5 w-5" />
-				</Button>
-			</a>
-		{/if}
+		<div style={overlayStyle}>
+			<Card.Header class="bg-slate-100 pb-2">
+				<Card.Title class="text-lg">{event.title}</Card.Title>
+				<Card.Description>{formatHumanReadable(event.start_time)}</Card.Description>
+				<Card.Description>Hosted by {eventCreatorName}</Card.Description>
+			</Card.Header>
+			<Card.Content>
+				<Rsvp {rsvpStatus} {userId} eventId={event.id} {rsvpCanBeChanged} />
+			</Card.Content>
+			{#if event.user_id == (userId as string)}
+				<a href={`/bonfire/${event.id}/update`}>
+					<Button variant="outline" class="m-2 rounded-full">
+						<Cog class="h-5 w-5" />
+					</Button>
+				</a>
+			{/if}
+		</div>
 	</Card.Root>
 </a>

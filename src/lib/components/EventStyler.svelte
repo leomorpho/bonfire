@@ -43,7 +43,9 @@
 			}
 		`;
 
-		finalStyleCss = style?.cssTemplate;
+		if (style?.cssTemplate) {
+			finalStyleCss = style?.cssTemplate;
+		}
 
 		// Create a new <style> tag for the selected preview style
 		styleElement = document.createElement('style');
@@ -106,7 +108,6 @@
 			applyButtonStyle(style, style.id);
 		});
 	}
-
 
 	// Initial setup (no style applied by default)
 	onMount(() => {

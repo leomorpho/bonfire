@@ -10,13 +10,20 @@
 
 	let styles: string = $state('');
 	let overlayColor: string = $state('#000000');
-	let overlayOpacity: number = $state(0);
+	let overlayOpacity: number = $state(0.5);
 	let client: TriplitClient = $state();
 	let styleData = $state();
 
-	// Subscribe to the store for reactive updates
+	// Subscribe to the stores for reactive updates, this allows updating the styles 
+	// on the event page when redirected from the update page.
 	styleStore.subscribe((value) => {
 		styles = value;
+	});
+	overlayColorStore.subscribe((value) => {
+		overlayColor = value;
+	});
+	overlayOpacityStore.subscribe((value) => {
+		overlayOpacity = value;
 	});
 
 	onMount(async () => {
@@ -46,7 +53,7 @@
 </script>
 
 <div class="bg-color min-h-screen w-full" style={styles}>
-	<!-- <div style={overlayStyle}> -->
-	{@render children()}
-	<!-- </div> -->
+	<div style={overlayStyle}>
+		{@render children()}
+	</div>
 </div>

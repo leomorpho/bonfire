@@ -16,7 +16,7 @@
 	import { Status } from '$lib/enums';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
-	import { styleStore } from '$lib/styles';
+	import { overlayColorStore, overlayOpacityStore, styleStore } from '$lib/styles';
 
 	let { mode, event = null } = $props();
 
@@ -43,8 +43,8 @@
 	let endMinute = $state(''); // State for minute
 	let ampmEnd: string = $state('PM'); // State for AM/PM
 	let finalStyleCss: string = $state(event?.style);
-	let overlayColor: string = $state('#000000')
-	let overlayOpacity: number = $state(.5);
+	let overlayColor: string = $state('#000000');
+	let overlayOpacity: number = $state(0.5);
 
 	if (event) {
 		const startTime = parseDateTime(event.start_time);
@@ -146,7 +146,10 @@
 			start_time: eventStartDatetime,
 			end_time: eventEndDatetime,
 			user_id: userId, // Use the authenticated user's ID
-			timezone: timezone
+			timezone: timezone,
+			style: finalStyleCss,
+			overlay_color: overlayColor,
+			overlay_opacity: overlayOpacity
 		});
 
 		if (mode == 'create') {
@@ -158,10 +161,15 @@
 				start_time: eventStartDatetime,
 				end_time: eventEndDatetime,
 				user_id: userId,
-				style: finalStyleCss
+				style: finalStyleCss,
+				overlay_color: overlayColor,
+				overlay_opacity: overlayOpacity
 			});
 
+			// Set the stores so the event page updates with new style
 			styleStore.set(finalStyleCss);
+			overlayColorStore.set(overlayColor);
+			overlayOpacityStore.set(overlayOpacity);
 
 			if (output) {
 				await client.insert('attendees', {
@@ -181,6 +189,8 @@
 				entity.start_time = eventStartDatetime;
 				entity.end_time = eventEndDatetime;
 				entity.style = finalStyleCss;
+				entity.overlay_color = overlayColor;
+				entity.overlay_opacity = overlayOpacity;
 			});
 			styleStore.set(finalStyleCss);
 
@@ -205,7 +215,7 @@
 		<h2 class="mb-5 rounded-xl bg-white p-2 text-lg font-semibold">
 			{mode === 'create' ? 'Create' : 'Update'} a Bonfire
 		</h2>
-		<form class="space-y-2" >
+		<form class="space-y-2">
 			<Input type="text" placeholder="Event Name" bind:value={eventName} class="w-full bg-white" />
 			<Datepicker bind:value={dateValue} />
 
@@ -310,9 +320,14 @@
 					>
 				</Dialog.Content>
 			</Dialog.Root>
-		{/if} 
+		{/if}
 	</section>
-	<Button disabled={submitDisabled} type="submit" class="w-full sm:w-[450px] ring-glow sticky top-2 mt-2 bg-green-600 hover:bg-green-400" onclick={handleSubmit}>
+	<Button
+		disabled={submitDisabled}
+		type="submit"
+		class="sticky top-2 mt-2 w-full bg-green-600 ring-glow hover:bg-green-400 sm:w-[450px]"
+		onclick={handleSubmit}
+	>
 		{#if mode == 'create'}
 			<Plus class="ml-1 mr-1 h-4 w-4" />
 		{:else}
@@ -321,8 +336,7 @@
 
 		{mode === 'create' ? 'Create' : 'Update'}
 	</Button>
-	<div class="w-2/3 md:7/8">
+	<div class="md:7/8 w-2/3">
 		<EventStyler bind:finalStyleCss bind:overlayColor bind:overlayOpacity />
-
 	</div>
 </div>
