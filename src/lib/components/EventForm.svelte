@@ -43,6 +43,8 @@
 	let endMinute = $state(''); // State for minute
 	let ampmEnd: string = $state('PM'); // State for AM/PM
 	let finalStyleCss: string = $state(event?.style);
+	let overlayColor: string = $state('#000000')
+	let overlayOpacity: number = $state(.5);
 
 	if (event) {
 		const startTime = parseDateTime(event.start_time);
@@ -320,7 +322,7 @@
 		{mode === 'create' ? 'Create' : 'Update'}
 	</Button>
 	<div class="w-2/3 md:7/8">
-		<EventStyler bind:finalStyleCss />
+		<EventStyler bind:finalStyleCss bind:overlayColor bind:overlayOpacity />
 
 	</div>
 </div>

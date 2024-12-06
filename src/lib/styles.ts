@@ -2,6 +2,31 @@ import { writable } from 'svelte/store';
 
 // Create a writable store for the style
 export const styleStore = writable<string>('');
+export const overlayColor = writable<string>('');
+export const overlayOpacity = writable<number>(0);
+
+/**
+	 * Parse a hex color to RGB format.
+	 * @param hex - The hex color string.
+	 * @returns - The RGB values as a string (e.g., "255, 255, 255").
+	 */
+export function parseColor(hex: string): string {
+  if (!hex.startsWith('#') || (hex.length !== 7 && hex.length !== 4)) {
+    throw new Error('Invalid hex color format');
+  }
+
+  // If shorthand (#rgb), expand it to full form (#rrggbb)
+  if (hex.length === 4) {
+    hex = `#${hex[1]}${hex[1]}${hex[2]}${hex[2]}${hex[3]}${hex[3]}`;
+  }
+
+  const bigint = parseInt(hex.slice(1), 16);
+  const r = (bigint >> 16) & 255;
+  const g = (bigint >> 8) & 255;
+  const b = bigint & 255;
+
+  return `${r}, ${g}, ${b}`;
+}
 
 export const stylesGallery = [
     {

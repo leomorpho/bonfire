@@ -101,7 +101,8 @@ export const schema = {
 				where: [['event_id', '=', '$id']]
 			}),
 			style: S.String({nullable: true}),
-			overlay_style: S.String({nullable: true}),
+			overlay_color: S.String({nullable: true, optional: true}),
+			overlay_opacity: S.String({nullable: true, optional: true}),
 		}),
 		permissions: {
 			admin: {

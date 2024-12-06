@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { stylesGallery } from '$lib/styles';
+	import { parseColor, stylesGallery } from '$lib/styles';
 	import { onMount } from 'svelte';
 
 	let {
@@ -107,28 +107,6 @@
 		});
 	}
 
-	/**
-	 * Parse a hex color to RGB format.
-	 * @param hex - The hex color string.
-	 * @returns - The RGB values as a string (e.g., "255, 255, 255").
-	 */
-	function parseColor(hex: string): string {
-		if (!hex.startsWith('#') || (hex.length !== 7 && hex.length !== 4)) {
-			throw new Error('Invalid hex color format');
-		}
-
-		// If shorthand (#rgb), expand it to full form (#rrggbb)
-		if (hex.length === 4) {
-			hex = `#${hex[1]}${hex[1]}${hex[2]}${hex[2]}${hex[3]}${hex[3]}`;
-		}
-
-		const bigint = parseInt(hex.slice(1), 16);
-		const r = (bigint >> 16) & 255;
-		const g = (bigint >> 8) & 255;
-		const b = bigint & 255;
-
-		return `${r}, ${g}, ${b}`;
-	}
 
 	// Initial setup (no style applied by default)
 	onMount(() => {

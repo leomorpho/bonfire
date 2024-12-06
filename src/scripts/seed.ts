@@ -40,7 +40,8 @@ const { output } = await client.insert('events', {
 	end_time: null,
 	user_id: user.id,
 	style: null,
-	overlay_style: null,
+	overlay_color: null,
+	overlay_opacity: null,
 });
 
 // NOTE: BE should automatically create that missing `attendance` object.
