@@ -34,7 +34,7 @@
 </script>
 
 <div class="bg-color min-h-screen w-full" style={styles}>
-	<div style={overlayStyles}>
+	<div style="background-color: rgba(0, 0, 0, 0.5);">
 		{@render children()}
 	</div>
 </div>

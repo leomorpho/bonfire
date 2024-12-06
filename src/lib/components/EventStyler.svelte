@@ -2,7 +2,11 @@
 	import { stylesGallery } from '$lib/styles';
 	import { onMount } from 'svelte';
 
-	let { finalStyleCss = $bindable<string>() } = $props();
+	let {
+		finalStyleCss = $bindable<string>(),
+		overlayColor = $bindable<string>('#000000'),
+		overlayOpacity = $bindable<number>(0.5)
+	} = $props();
 
 	// Currently selected style
 	let selectedStyle: { id: number; name: string; cssTemplate: string } | null = $state(null);
@@ -12,26 +16,34 @@
 
 	// Preview or final target
 	let currentTargetSelector = 'bg-color-selector'; // Default to preview
-	let finalTargetSelector = 'bg-color';
+	let bgOverlaySelector = 'bg-overlay';
 
 	/**
 	 * Apply a selected style dynamically to the preview area.
 	 * @param style - The selected style object.
-	 * @param tempTargetSelector - The target selector to replace in the CSS.
 	 */
 	function applyStyle(
-		style: { id: number; name: string; cssTemplate: string },
-		tempTargetSelector: string,
+		style: { id: number; name: string; cssTemplate: string } | null = null,
 		cleanup = true
 	) {
-		if (styleElement && cleanup) {
-			// Remove the previously applied preview style
-			document.head.removeChild(styleElement);
-		}
+		// TODO: is cleanup necessary? It introduces bugs that I need to fix....
+		// if (styleElement && cleanup) {
+		// 	// Remove the previously applied preview style
+		// 	document.head.removeChild(styleElement);
+		// }
+
+		let currentStyle = style ?? selectedStyle;
 
 		// Replace the placeholder selector with the actual target
-		const finalCss = `.${tempTargetSelector} {${style.cssTemplate}}`;
-		finalStyleCss = style.cssTemplate;
+		const finalCss = `
+		.${currentTargetSelector} {${currentStyle?.cssTemplate}}
+
+		.${bgOverlaySelector} {
+				background-color: rgba(var(--overlay-color-rgb, ${parseColor(overlayColor)}), ${overlayOpacity});
+			}
+		`;
+
+		finalStyleCss = style?.cssTemplate;
 
 		// Create a new <style> tag for the selected preview style
 		styleElement = document.createElement('style');
@@ -41,7 +53,6 @@
 
 		// Update the selected style and target
 		selectedStyle = style;
-		currentTargetSelector = tempTargetSelector;
 	}
 
 	// DOM references for button-specific styles
@@ -96,6 +107,29 @@
 		});
 	}
 
+	/**
+	 * Parse a hex color to RGB format.
+	 * @param hex - The hex color string.
+	 * @returns - The RGB values as a string (e.g., "255, 255, 255").
+	 */
+	function parseColor(hex: string): string {
+		if (!hex.startsWith('#') || (hex.length !== 7 && hex.length !== 4)) {
+			throw new Error('Invalid hex color format');
+		}
+
+		// If shorthand (#rgb), expand it to full form (#rrggbb)
+		if (hex.length === 4) {
+			hex = `#${hex[1]}${hex[1]}${hex[2]}${hex[2]}${hex[3]}${hex[3]}`;
+		}
+
+		const bigint = parseInt(hex.slice(1), 16);
+		const r = (bigint >> 16) & 255;
+		const g = (bigint >> 8) & 255;
+		const b = bigint & 255;
+
+		return `${r}, ${g}, ${b}`;
+	}
+
 	// Initial setup (no style applied by default)
 	onMount(() => {
 		applyStylesToButtons();
@@ -103,7 +137,37 @@
 	});
 </script>
 
-<div class="gallery w-full mt-5">
+<div class="flex items-center justify-center space-x-3">
+	<div class="mb-4">
+		<label for="overlay-color" class="block text-sm font-medium text-gray-700">Overlay Color</label>
+		<input
+			id="overlay-color"
+			type="color"
+			bind:value={overlayColor}
+			class="mt-1 block h-10 w-full rounded-md border border-gray-300"
+			oninput={() => applyStyle()}
+		/>
+	</div>
+
+	<div class="mb-4 flex flex-col items-center">
+		<label for="overlay-opacity" class="block text-sm font-medium text-gray-700"
+			>Overlay Opacity</label
+		>
+		<input
+			id="overlay-opacity"
+			type="range"
+			min="0"
+			max="1"
+			step="0.001"
+			bind:value={overlayOpacity}
+			class="mt-1 block w-full"
+			oninput={() => applyStyle()}
+		/>
+		<span class="text-sm text-gray-500">Current: {Math.round(overlayOpacity * 100)}%</span>
+	</div>
+</div>
+
+<div class="gallery mt-5 w-full">
 	<div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
 		{#each stylesGallery as style}
 			<div class="h-40 rounded-lg bg-white bg-opacity-100">
@@ -111,7 +175,7 @@
 					class="h-full w-full max-w-full rounded-lg style-button-{style.id} select-bordered flex items-center justify-center border-4"
 					class:selected={selectedStyle?.id === style.id}
 					style={style.cssTemplate}
-					onclick={() => applyStyle(style, 'bg-color-selector')}
+					onclick={() => applyStyle(style)}
 				>
 					<div class="rounded-lg bg-white p-1 text-xs sm:text-sm">{style.name}</div>
 				</button>

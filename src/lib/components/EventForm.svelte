@@ -310,7 +310,7 @@
 			</Dialog.Root>
 		{/if} 
 	</section>
-	<Button disabled={submitDisabled} type="submit" class="w-full ring-glow sticky top-2 mt-2" onclick={handleSubmit}>
+	<Button disabled={submitDisabled} type="submit" class="w-full sm:w-[450px] ring-glow sticky top-2 mt-2 bg-green-600 hover:bg-green-400" onclick={handleSubmit}>
 		{#if mode == 'create'}
 			<Plus class="ml-1 mr-1 h-4 w-4" />
 		{:else}
@@ -319,5 +319,8 @@
 
 		{mode === 'create' ? 'Create' : 'Update'}
 	</Button>
-	<EventStyler bind:finalStyleCss />
+	<div class="w-2/3 md:7/8">
+		<EventStyler bind:finalStyleCss />
+
+	</div>
 </div>
