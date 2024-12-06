@@ -35,9 +35,7 @@
 		style: { id: number; name: string; cssTemplate: string } | null = null,
 		cleanup = true
 	) {
-		console.log('applyStyle called');
-
-		let currentStyle = style ?? selectedStyle;
+		finalStyleCss = style?.cssTemplate ?? finalStyleCss;
 
 		// TODO: is cleanup necessary? It introduces bugs that I need to fix....
 		if (styleElement && cleanup) {
@@ -46,24 +44,24 @@
 		}
 
 		// Replace the placeholder selector with the actual target
-		const finalCss = `
-		.${currentTargetSelector} {${style ? style.cssTemplate : finalStyleCss}}
+		const completeCss = `
+		.${currentTargetSelector} {${finalStyleCss}}
 
 		.${bgOverlaySelector} {
 				background-color: rgba(var(--overlay-color-rgb, ${parseColor(overlayColor)}), ${overlayOpacity});
 			}
 		`;
 
-		// console.log('applying css', finalCss);
+		console.log('applying css', completeCss);
 
 		// Create a new <style> tag for the selected preview style
 		styleElement = document.createElement('style');
 		styleElement.type = 'text/css';
-		styleElement.textContent = finalCss;
+		styleElement.textContent = completeCss;
 		document.head.appendChild(styleElement);
 
 		// Update the selected style and target
-		selectedStyle = currentStyle;
+		selectedStyle = style;
 	}
 
 	// DOM references for button-specific styles
@@ -133,11 +131,10 @@
 <div class="sticky top-10 flex justify-center">
 	<Popover.Root>
 		<Popover.Trigger class="mt-6 flex w-full justify-center sm:w-[450px]"
-			><Button class="w-full ring-glow">Edit overlay</Button></Popover.Trigger
+			><Button class="w-full rounded-full ring-glow">Edit overlay</Button></Popover.Trigger
 		>
 		<Popover.Content class="bg-slate-200">
 			<div class="flex w-full justify-center">Overlay</div>
-			<Button class="mt-3 w-full" onclick={clearOverlay}>Clear</Button>
 			<div class="mt-7 flex w-full items-center justify-center space-x-5">
 				<div class="mb-4 flex items-center justify-center">
 					<input
@@ -162,6 +159,7 @@
 					/>
 				</div>
 			</div>
+			<Button class="mt-3 w-full" onclick={clearOverlay}>Clear</Button>
 		</Popover.Content>
 	</Popover.Root>
 </div>
