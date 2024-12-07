@@ -1,5 +1,5 @@
 import { EventStatus, AttendanceStatus } from '$lib/enums';
-import { Schema as S, type Roles, type ClientSchema } from '@triplit/client';
+import { Schema as S, type Roles, type ClientSchema, or } from '@triplit/client';
 
 // Define roles
 export const roles: Roles = {
@@ -43,7 +43,29 @@ export const schema = {
 			},
 			user: {
 				read: {
-					filter: [true]
+					filter: [
+						or([
+							['id', '=', '$role.userId'], // Can read own profile
+							{
+								// User has an events they attend that this other user also attends
+								exists: {
+									collectionName: 'attendees',
+									where: [
+										['user_id', '=', '$role.userId'], // Current user is an attendee
+										{
+											exists: {
+												collectionName: 'attendees',
+												where: [
+													['event_id', '=', '$1.event_id'], // Same event
+													['user_id', '=', '$id'] // Other user's ID
+												]
+											}
+										}
+									]
+								}
+							}
+						])
+					]
 				},
 				// Insertion only done in BE
 				update: {
@@ -74,7 +96,29 @@ export const schema = {
 			},
 			user: {
 				read: {
-					filter: [true]
+					filter: [
+						or([
+							['user_id', '=', '$role.userId'], // Can read their own images
+							{
+								// User has an events they attend that this other user also attends
+								exists: {
+									collectionName: 'attendees',
+									where: [
+										['user_id', '=', '$role.userId'], // Current user is an attendee
+										{
+											exists: {
+												collectionName: 'attendees',
+												where: [
+													['event_id', '=', '$1.event_id'], // Same event
+													['user_id', '=', '$user_id'] // Profile owner is also an attendee
+												]
+											}
+										}
+									]
+								}
+							}
+						])
+					]
 				},
 				// Insertion and update only done in BE
 				delete: {
@@ -88,6 +132,7 @@ export const schema = {
 		schema: S.Schema({
 			id: S.Id(),
 			created_by_user_id: S.String(), // Creator of the event
+			created_by_user: S.RelationById('user', '$created_by_user_id'), // Relation to the user table
 			status: S.String({ default: EventStatus.ACTIVE }), // 'active', 'cancelled'
 			event_name: S.String(),
 			description: S.String({ nullable: true }),
@@ -122,8 +167,19 @@ export const schema = {
 			user: {
 				read: {
 					filter: [
-						['visibility', '=', 'public'],
-						['id', '=', '$query.id']
+						or([
+							['id', '=', '$query.id'], // User had direct ID of event
+							{
+								exists: {
+									// User has an attendance object for this event
+									collectionName: 'attendees',
+									where: [
+										['user_id', '=', '$role.userId'], // Current user is an attendee
+										['event_id', '=', '$id'] // Linked event
+									]
+								}
+							}
+						])
 					]
 				},
 				update: {
@@ -145,7 +201,20 @@ export const schema = {
 		permissions: {
 			user: {
 				read: {
-					filter: [['event_id', '=', '$query.event_id']]
+					filter: [
+						or([
+							['event_id', '=', '$query.event_id'], // Allow querying if event ID is passed
+							{
+								exists: {
+									collectionName: 'attendees',
+									where: [
+										['event_id', '=', '$event_id'], // Linked event
+										['user_id', '=', '$role.userId'] // User is an attendee
+									]
+								}
+							}
+						])
+					]
 				},
 				update: {
 					filter: [

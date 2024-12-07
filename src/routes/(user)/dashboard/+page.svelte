@@ -5,109 +5,85 @@
 	import { getFeTriplitClient, waitForUserId } from '$lib/triplit';
 	import { onMount } from 'svelte';
 	import type { TriplitClient } from '@triplit/client';
-	import Loader from '$lib/components/Loader.svelte';
 	import { Frown } from 'lucide-svelte';
-	import { useQuery } from '@triplit/svelte';
 	import EventCard from '$lib/components/EventCard.svelte';
 	import { page } from '$app/stores';
 
-	let client: TriplitClient;
+	let futureEvents = $page.data.futureEvents;
+	let pastEvents = $page.data.pastEvents;
 
-	let futureEvents = $state({});
-	let pastEvents = $state({});
+	console.log('futureEvents', futureEvents);
+	console.log('pastEvents', pastEvents);
+
 	let userId = $state('');
 
-	function createEventsQuery(client: TriplitClient, currUserID: string, future: boolean) {
-		let query = client
-			.query('attendees')
-			.where(['user_id', '=', currUserID])
-			.where('event.start_time', future ? '>=' : '<', new Date().toISOString());
-
-		return query.include('event').include('event.user').order('event.start_time', 'ASC');
-	}
-
 	onMount(() => {
-		client = getFeTriplitClient($page.data.jwt) as TriplitClient;
+		let client = getFeTriplitClient($page.data.jwt) as TriplitClient;
 
 		const initEvents = async () => {
 			userId = (await waitForUserId()) as string;
+			const attendancesQuery = client
+				.query('attendees')
+				.where(['user_id', '=', userId])
+				.include('event')
+				.include('event.created_by_user')
+				// .include('event.event_private')
+				.order('event.start_time', 'ASC')
+				.build();
 
-			// let pastEventsQuery = createEventsQuery(client, userId, true);
-			// console.log('----> ??? ', await client.fetch(pastEventsQuery.build()));
+			const attendances = await client.fetch(attendancesQuery);
+			console.log('attendances', attendances);
 		};
 
 		initEvents().catch((error) => {
 			console.error('Failed to get events:', error);
 		});
 	});
-
-	$effect(() => {
-		if (userId) {
-			let futureEventsQuery = createEventsQuery(client, userId, true);
-
-			let pastEventsQuery = createEventsQuery(client, userId, false);
-
-			futureEvents = useQuery(client, futureEventsQuery);
-
-			pastEvents = useQuery(client, pastEventsQuery);
-		}
-	});
 </script>
 
 <div class="mx-4 mb-48 flex flex-col items-center justify-center sm:mb-20">
 	<section class="mt-8 w-full sm:w-[450px]">
 		<h2 class="mb-4 text-lg font-semibold">Upcoming Bonfires</h2>
-		{#if futureEvents.fetching}
-			<Loader />
-		{:else if futureEvents.error}
-			<p>Error: {futureEvents.error.message}</p>
-		{:else if futureEvents.results}
-			{#if futureEvents.results.length == 0}
-				<div class="flex items-center justify-center rounded-lg bg-slate-100 p-4">
-					<Frown class="mr-2 h-4 w-4" />No events yet.
-				</div>
-			{:else}
-				<div>
-					{#each futureEvents.results as attendance}
+		{#if futureEvents.length == 0}
+			<div class="flex items-center justify-center rounded-lg bg-slate-100 p-4">
+				<Frown class="mr-2 h-4 w-4" />No events yet.
+			</div>
+		{:else}
+			<div>
+				{#each futureEvents as attendance}
 					<EventCard
-							event={attendance.event}
-							{userId}
-							eventCreatorName={attendance['event.user'].username}
-							rsvpStatus={attendance.status}
-						/>
-					{/each}
-				</div>
-			{/if}
+						event={attendance.event}
+						{userId}
+						eventCreatorName="aaa"
+						rsvpStatus={attendance.status}
+					/>
+				{/each}
+			</div>
 		{/if}
 	</section>
-	{#if pastEvents.fetching}
-		<Loader />
-	{:else if pastEvents.error}
-		<p>Error: {pastEvents.error.message}</p>
-	{:else if pastEvents.results}
-		{#if pastEvents.results.length > 0}
-			<Collapsible.Root class="w-full space-y-2 sm:w-[450px]">
-				<div class="flex items-center justify-between space-x-4 px-4">
-					<h4 class="text-sm font-semibold">{pastEvents.results.length} past events</h4>
-					<Collapsible.Trigger
-						class={buttonVariants({ variant: 'ghost', size: 'sm', class: 'w-9 p-0' })}
-					>
-						<ChevronsUpDown />
-						<span class="sr-only">Toggle</span>
-					</Collapsible.Trigger>
-				</div>
-				<Collapsible.Content class="space-y-2">
-					{#each pastEvents.results as attendance}
-						<EventCard
-							event={attendance.event}
-							{userId}
-							eventCreatorName={attendance['event.user'].username}
-							rsvpStatus={attendance.status}
-						/>
-					{/each}
-				</Collapsible.Content>
-			</Collapsible.Root>
-		{/if}
+
+	{#if pastEvents.length > 0}
+		<Collapsible.Root class="w-full space-y-2 sm:w-[450px]">
+			<div class="flex items-center justify-between space-x-4 px-4">
+				<h4 class="text-sm font-semibold">{pastEvents.length} past events</h4>
+				<Collapsible.Trigger
+					class={buttonVariants({ variant: 'ghost', size: 'sm', class: 'w-9 p-0' })}
+				>
+					<ChevronsUpDown />
+					<span class="sr-only">Toggle</span>
+				</Collapsible.Trigger>
+			</div>
+			<Collapsible.Content class="space-y-2">
+				{#each pastEvents as attendance}
+					<EventCard
+						event={attendance.event}
+						{userId}
+						eventCreatorName="aaa"
+						rsvpStatus={attendance.status}
+					/>
+				{/each}
+			</Collapsible.Content>
+		</Collapsible.Root>
 	{/if}
 </div>
 <div class="fixed bottom-6 left-1/2 flex -translate-x-1/2 transform flex-col items-center">

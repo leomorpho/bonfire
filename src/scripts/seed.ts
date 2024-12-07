@@ -4,7 +4,6 @@ import { faker } from '@faker-js/faker';
 import type { TriplitClient } from '@triplit/client';
 import { serverTriplitClient } from '$lib/server/triplit';
 import { AttendanceStatus } from '$lib/enums';
-import { error } from '@sveltejs/kit';
 
 const client = serverTriplitClient as TriplitClient;
 
@@ -15,7 +14,7 @@ const user = await createNewUser({
 	num_logs: 3
 });
 if (!user) {
-	throw Error("failed to create main user");
+	throw Error('failed to create main user');
 }
 
 await client.insert('user', {
@@ -28,7 +27,6 @@ const now = new Date(); // Current date and time
 const fiveWeeksLater = new Date(now.getTime() + 5 * 7 * 24 * 60 * 60 * 1000); // Add 5 weeks in milliseconds
 
 const { output } = await client.insert('events', {
-	id: generateId(15), // Generate a unique ID for the event
 	created_by_user_id: user.id,
 	event_name: "Mike's birthday party",
 	description: 'Bring your joy and party tricks',
@@ -45,9 +43,19 @@ const { output } = await client.insert('events', {
 	reminders: null
 });
 
+if (!output) {
+	throw Error('failed to create evvent');
+}
 
-if (!output){
-	throw Error("failed to create evvent")
+// Create private_details entry for the event
+const privateDetails = await client.insert('event_private', {
+	event_id: output.id, // Link to the event
+	location: '345 Cordova St, Vancouver', // Event location
+	attendance_limit: 50 // Example attendance limit
+});
+
+if (!privateDetails) {
+	throw Error('failed to create private details');
 }
 
 // NOTE: BE should automatically create that missing `attendance` object.
@@ -71,7 +79,7 @@ for (let i = 0; i < 100; i++) {
 	});
 
 	if (!user) {
-		throw Error("failed to create secondary user");
+		throw Error('failed to create secondary user');
 	}
 
 	await client.insert('user', {
@@ -81,7 +89,6 @@ for (let i = 0; i < 100; i++) {
 	});
 
 	await client.insert('attendees', {
-		id: generateId(15), // Generate unique ID for attendee
 		event_id: output.id,
 		user_id: user?.id,
 		status: getRandomStatus(),

@@ -13,9 +13,9 @@ export const load = async (event) => {
 	// Select all events created by the current user where they don't have an attendance object,
 	// and make sure to create one attendance for each of such events. This is a catch-all to make
 	// sure they show up on the dashboard since we list by attendance object.
-	const eventQuery = serverTriplitClient
+	const eventCreatedByUserQuery = serverTriplitClient
 		.query('events')
-		.where('user_id', '=', user.id)
+		.where('created_by_user_id', '=', user.id)
 		.subquery(
 			'self_attendance',
 			serverTriplitClient.query('attendees').where('user_id', '=', user.id).build()
@@ -23,11 +23,11 @@ export const load = async (event) => {
 		.include('attendees')
 		.build();
 
-	const events = await serverTriplitClient.fetch(eventQuery);
+	const eventsCreatedByUser = await serverTriplitClient.fetch(eventCreatedByUserQuery);
 
 	// Process each event and conditionally insert attendance
 	await Promise.all(
-		events.map(async (event) => {
+		eventsCreatedByUser.map(async (event) => {
 			// Check if self_attendance exists
 			if (!event.self_attendance || event.self_attendance.length === 0) {
 				await serverTriplitClient.insert('attendees', {
@@ -39,7 +39,29 @@ export const load = async (event) => {
 		})
 	);
 
+	const attendancesQuery = serverTriplitClient
+		.query('attendees')
+		.where(['user_id', '=', user.id])
+		.include('event')
+		.include('event.created_by_user')
+		.include('event.private_details')
+		.order('event.start_time', 'ASC')
+		.build();
+
+	const attendances = await serverTriplitClient.fetch(attendancesQuery);
+
+	// Divide into past and future events
+	const now = new Date();
+	const futureEvents = attendances.filter(
+		(attendance) => attendance.event && new Date(attendance.event.start_time) > now
+	);
+	const pastEvents = attendances.filter(
+		(attendance) => attendance.event && new Date(attendance.event.start_time) <= now
+	);
+
 	return {
-		user: user
+		user: user,
+		futureEvents,
+		pastEvents
 	};
 };
