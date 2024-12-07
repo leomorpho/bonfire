@@ -28,6 +28,9 @@ export const schema = {
 			username: S.String(),
 			profile_image: S.RelationOne('profile_images', {
 				where: [['user_id', '=', '$id']]
+			}),
+			events: S.RelationMany('events', {
+				where: [['attendees.user_id', '=', '$id']]
 			})
 		}),
 		permissions: {
@@ -38,7 +41,10 @@ export const schema = {
 				delete: { filter: [true] }
 			},
 			user: {
-				read: { filter: [true] },
+				read: {
+					filter: [true]
+				},
+				// Insertion only done in BE
 				update: {
 					filter: [['id', '=', '$role.userId']] // Users can only update their own profile images
 				},
@@ -46,9 +52,7 @@ export const schema = {
 					filter: [['id', '=', '$role.userId']] // Users can only delete their own profile images
 				}
 			},
-			anon: {
-				read: { filter: [true] }
-			}
+			anon: {}
 		}
 	},
 	profile_images: {
@@ -68,194 +72,210 @@ export const schema = {
 				delete: { filter: [true] } // Admins can delete profile images
 			},
 			user: {
-				read: { filter: [true] },
-				insert: {
-					filter: [['user_id', '=', '$role.userId']] // Users can only insert their own profile images
+				read: {
+					filter: [true]
 				},
-				update: {
-					filter: [['user_id', '=', '$role.userId']] // Users can only update their own profile images
-				},
+				// Insertion and update only done in BE
 				delete: {
 					filter: [['user_id', '=', '$role.userId']] // Users can only delete their own profile images
 				}
 			},
-			anon: {
-				read: { filter: [true] }
-			}
+			anon: {}
 		}
 	},
 	events: {
 		schema: S.Schema({
 			id: S.Id(),
-			title: S.String(),
+			created_by_user_id: S.String(), // Creator of the event
+			status: S.String(), // 'active', 'cancelled'
+			event_name: S.String(),
 			description: S.String({ nullable: true }),
 			start_time: S.Date(),
-			end_time: S.Date({ nullable: true }),
-			location: S.String({ nullable: true }),
-			user_id: S.String(),
-			user: S.RelationById('user', '$user_id'),
+			end_time: S.Date(),
+			style: S.String({ nullable: true }),
+			overlay_color: S.String({ nullable: true }),
+			overlay_opacity: S.Number({ nullable: true }),
+			visibility: S.String(), // 'public', 'private'
+			num_attendees: S.Number({ default: 0 }),
+			private_details: S.RelationOne('event_private', {
+				where: [['event_id', '=', '$id']]
+			}),
 			attendees: S.RelationMany('attendees', {
 				where: [['event_id', '=', '$id']]
 			}),
-			annoucements : S.RelationMany('announcements', {
+			announcements: S.RelationMany('announcements', {
 				where: [['event_id', '=', '$id']]
 			}),
-			style: S.String({nullable: true}),
-			overlay_color: S.String({nullable: true, optional: true}),
-			overlay_opacity: S.Number({nullable: true, optional: true}),
+			files: S.RelationMany('files', {
+				where: [['event_id', '=', '$id']]
+			}),
+			reminders: S.RelationMany('reminders', {
+				where: [['event_id', '=', '$id']]
+			})
 		}),
 		permissions: {
 			admin: {
 				read: { filter: [true] },
-				insert: { filter: [true] },
 				update: { filter: [true] },
 				delete: { filter: [true] }
 			},
 			user: {
-				// read: { filter: [['$role.userId', 'in', ['attendees.user_id']]] },
-				read: { filter: [true] },
-				insert: { filter: [true] },
-				update: { filter: [['user_id', '=', '$role.userId']] },
-				delete: { filter: [['user_id', '=', '$role.userId']] }
-			},
-			anon: {
-				read: { filter: [true] }
+				read: {
+					filter: [
+						['visibility', '=', 'public'],
+						['id', '=', '$query.id']
+					]
+				},
+				update: {
+					filter: [['created_by_user_id', '=', '$role.userId']] // Only creator can update
+				},
+				delete: {
+					filter: [['created_by_user_id', '=', '$role.userId']] // Only creator can delete
+				}
+			}
+		}
+	},
+	event_private: {
+		schema: S.Schema({
+			id: S.Id(),
+			event_id: S.String(), // Link to the event
+			location: S.String(),
+			attendance_limit: S.Number()
+		}),
+		permissions: {
+			user: {
+				read: {
+					filter: [['event_id', '=', '$query.event_id']]
+				},
+				update: {
+					filter: [
+						['event_id', '=', '$query.event_id'],
+						['created_by_user_id', '=', '$role.userId']
+					]
+				}
 			}
 		}
 	},
 	attendees: {
 		schema: S.Schema({
 			id: S.Id(),
-			event_id: S.String(), // ID of the event
-			event: S.RelationById('events', '$event_id'), // Link to the event
-			user_id: S.String(), // ID of the attendee
-			user: S.RelationById('user', '$user_id'), // Link to the user
-			status: S.String({ default: 'undecided' }), // RSVP status: attending, not attending, undecided
-			// guest_count: S.Number({ default: 0 }), // Number of additional guests
-			// special_requests: S.String({ nullable: true }), // Any special requests (e.g., dietary)
-			updated_at: S.Date({ default: S.Default.now() }) // Last updated timestamp
+			event_id: S.String(),
+			user_id: S.String(),
+			status: S.String(), // 'coming', 'not coming'
+			updated_at: S.Date({ default: S.Default.now() }),
+			seen_by_organizer: S.Boolean({ default: false }),
+			user: S.RelationById('users', '$user_id'),
+			event: S.RelationById('events', '$event_id')
 		}),
 		permissions: {
-			admin: {
-				// Admins can manage all attendance records
-				read: { filter: [true] },
-				insert: { filter: [true] },
-				update: { filter: [true] },
-				delete: { filter: [true] }
-			},
 			user: {
-				read: { filter: [true] },
-				// read: {
-				// 	filter: [
-				// 		['event.attendees.user_id', '=', '$role.userId'] // Users can only see attendees for events they are part of
-				// 	]
-				// },
+				read: {
+					filter: [['event_id', '=', '$query.event_id']]
+				},
 				insert: {
-					// Users can RSVP or add themselves as attendees
-					filter: [['user_id', '=', '$role.userId']]
+					filter: [['event_id', '=', '$query.event_id']] // Can RSVP
 				},
 				update: {
-					// Users can update their RSVP or attendance
-					filter: [['user_id', '=', '$role.userId']]
+					filter: [['user_id', '=', '$role.userId']] // Update own status
 				},
 				delete: {
-					// Users can remove themselves from the event
-					filter: [['user_id', '=', '$role.userId']]
+					filter: [['user_id', '=', '$role.userId']] // Remove themselves
 				}
-			},
-			anon: {
-				read: { filter: [false] }
+			}
+		}
+	},
+	announcements: {
+		schema: S.Schema({
+			id: S.Id(),
+			event_id: S.String(),
+			content: S.String(),
+			user_id: S.String(),
+			created_at: S.Date({ default: S.Default.now() }),
+			seen_by_user_ids: S.Array(S.String())
+		}),
+		permissions: {
+			user: {
+				read: {
+					filter: [['event_id', '=', '$query.event_id']]
+				},
+				insert: {
+					filter: [
+						['event_id', '=', '$query.event_id'],
+						['created_by_user_id', '=', '$role.userId']
+					]
+				},
+				update: {
+					filter: [
+						['event_id', '=', '$query.event_id'],
+						['created_by_user_id', '=', '$role.userId']
+					]
+				},
+				delete: {
+					filter: [
+						['event_id', '=', '$query.event_id'],
+						['created_by_user_id', '=', '$role.userId']
+					]
+				}
 			}
 		}
 	},
 	files: {
 		schema: S.Schema({
 			id: S.Id(),
-			file_key: S.String(), // S3 key for the file
-			file_type: S.String(), // e.g., 'image', 'video', 'gif'
+			event_id: S.String(),
+			file_key: S.String(),
+			file_type: S.String(),
 			file_name: S.String(),
 			h_pixel: S.Number({ nullable: true }),
 			w_pixel: S.Number({ nullable: true }),
 			size_in_bytes: S.Number(),
 			uploaded_at: S.Date({ default: S.Default.now() }),
-			uploader_id: S.String(), // ID of the attendee
-			uploader: S.RelationById('user', '$user_id'), // Link to the user
-			event_id: S.String(), // ID of the event
-			event: S.RelationById('events', '$event_id') // Link to the event
+			uploader_id: S.String(),
+			uploader: S.RelationById('users', '$uploader_id'),
+			event: S.RelationById('events', '$event_id')
 		}),
 		permissions: {
-			admin: {
-				read: { filter: [true] }, // Admins can read all files
-				insert: { filter: [true] }, // Admins can insert files
-				update: { filter: [true] }, // Admins can update files
-				delete: { filter: [true] } // Admins can delete files
-			},
 			user: {
-				read: { filter: [true] },
-
-				// read: {
-				// 	filter: [
-				// 		['event.attendees.user_id', '=', '$role.userId'] // Check if user is an attendee of the event
-				// 	]
-				// },
-				// No need to allow read and insert since we will do that in BE logic and
-				// triplit doesn't seem powerful enough to be able to set appropriate permissions (user
-				// is attending event).
-				update: {
-					filter: [['uploader_id', '=', '$role.userId']] // Users can only update their own files
+				read: {
+					filter: [['event_id', '=', '$query.event_id']]
 				},
+				// Insertion only on BE
 				delete: {
-					filter: [['uploader_id', '=', '$role.userId']] // Users can only delete their own files
+					filter: [['uploader_id', '=', '$role.userId']]
 				}
 			}
 		}
 	},
-	announcement: {
+	reminders: {
 		schema: S.Schema({
 			id: S.Id(),
-			content: S.String(),
-			created_at: S.Date({ default: S.Default.now() }),
-			user_id: S.String(),
-			user: S.RelationById('user', '$user_id'),
 			event_id: S.String(),
-			event: S.RelationById('events', '$event_id'),
+			outgoing_at: S.Date()
 		}),
 		permissions: {
-			admin: {
-				read: { filter: [true] },
-				insert: { filter: [true] },
-				update: { filter: [true] },
-				delete: { filter: [true] }
-			},
 			user: {
-				read: { filter: [true] },
-				insert: { filter: [['event.user_id', '=', '$role.userId']] },
-				update: { filter: [['user_id', '=', '$role.userId']] },
-				delete: { filter: [['user_id', '=', '$role.userId']] }
+				read: {
+					filter: [['event_id', '=', '$query.event_id']]
+				},
+				insert: {
+					filter: [
+						['event_id', '=', '$query.event_id'],
+						['created_by_user_id', '=', '$role.userId']
+					]
+				},
+				update: {
+					filter: [
+						['event_id', '=', '$query.event_id'],
+						['created_by_user_id', '=', '$role.userId']
+					]
+				},
+				delete: {
+					filter: [
+						['event_id', '=', '$query.event_id'],
+						['created_by_user_id', '=', '$role.userId']
+					]
+				}
 			}
 		}
-	},
-	// notifications: {
-	// 	schema: S.Schema({
-	// 		id: S.Id(),
-	// 		event_id: S.String({ nullable: true }), // Optional ID of the related event
-	// 		event: S.RelationById('events', '$event_id'), // Link to the event
-	// 		user_id: S.String({ nullable: true }), // Optional ID of the recipient
-	// 		user: S.RelationById('user', '$user_id'), // Link to the user
-	// 		type: S.String(), // Notification type: reminder, update, etc.
-	// 		message: S.String(), // Notification content
-	// 		sent_at: S.Date({ default: S.Default.now() }) // Timestamp of when the notification was sent
-	// 	}),
-	// 	permissions: {
-	// 		admin: {
-	// 			read: { filter: [true] },
-	// 			insert: { filter: [true] },
-	// 			update: { filter: [true] },
-	// 			delete: { filter: [true] }
-	// 		},
-	// 		user: {
-	// 			read: { filter: [['user_id', '=', '$role.userId']] } // Users can read their own notifications
-	// 		}
-	// 	}
-	// }
+	}
 } satisfies ClientSchema;
