@@ -3,7 +3,7 @@ import { generateId } from 'lucia';
 import { faker } from '@faker-js/faker';
 import type { TriplitClient } from '@triplit/client';
 import { serverTriplitClient } from '$lib/server/triplit';
-import { Status} from '$lib/enums';
+import { AttendanceStatus} from '$lib/enums';
 import { execSync } from 'child_process';
 
 // // Step 1: Run CLI commands
@@ -52,7 +52,7 @@ const { output } = await client.insert('events', {
 // });
 
 function getRandomStatus() {
-	const statuses = [Status.GOING, Status.NOT_GOING, Status.MAYBE];
+	const statuses = [AttendanceStatus.GOING, AttendanceStatus.NOT_GOING, AttendanceStatus.MAYBE];
 	return statuses[Math.floor(Math.random() * statuses.length)];
 }
 

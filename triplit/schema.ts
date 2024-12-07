@@ -1,3 +1,4 @@
+import { EventStatus, AttendanceStatus } from '$lib/enums';
 import { Schema as S, type Roles, type ClientSchema } from '@triplit/client';
 
 // Define roles
@@ -87,7 +88,7 @@ export const schema = {
 		schema: S.Schema({
 			id: S.Id(),
 			created_by_user_id: S.String(), // Creator of the event
-			status: S.String(), // 'active', 'cancelled'
+			status: S.String({ default: EventStatus.ACTIVE }), // 'active', 'cancelled'
 			event_name: S.String(),
 			description: S.String({ nullable: true }),
 			start_time: S.Date(),
@@ -95,7 +96,6 @@ export const schema = {
 			style: S.String({ nullable: true }),
 			overlay_color: S.String({ nullable: true }),
 			overlay_opacity: S.Number({ nullable: true }),
-			visibility: S.String(), // 'public', 'private'
 			num_attendees: S.Number({ default: 0 }),
 			private_details: S.RelationOne('event_private', {
 				where: [['event_id', '=', '$id']]
@@ -161,7 +161,7 @@ export const schema = {
 			id: S.Id(),
 			event_id: S.String(),
 			user_id: S.String(),
-			status: S.String(), // 'coming', 'not coming'
+			status: S.String({ default: AttendanceStatus.DEFAULT }), // 'coming', 'not coming'
 			updated_at: S.Date({ default: S.Default.now() }),
 			seen_by_organizer: S.Boolean({ default: false }),
 			user: S.RelationById('users', '$user_id'),
@@ -191,7 +191,7 @@ export const schema = {
 			content: S.String(),
 			user_id: S.String(),
 			created_at: S.Date({ default: S.Default.now() }),
-			seen_by_user_ids: S.Array(S.String())
+			seen_by_user_ids: S.Set(S.String())
 		}),
 		permissions: {
 			user: {

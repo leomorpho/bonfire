@@ -9,7 +9,7 @@
 	import { formatHumanReadable } from '$lib/utils';
 	import Rsvp from '$lib/components/Rsvp.svelte';
 	import { onMount } from 'svelte';
-	import { Status } from '$lib/enums';
+	import { AttendanceStatus } from '$lib/enums';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import ProfileAvatar from '$lib/components/ProfileAvatar.svelte';
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
@@ -73,9 +73,9 @@
 				.build(),
 			(results) => {
 				// Separate attendees into different variables by status
-				attendeesGoing = results.filter((attendee) => attendee.status === Status.GOING);
-				attendeesNotGoing = results.filter((attendee) => attendee.status === Status.NOT_GOING);
-				attendeesMaybeGoing = results.filter((attendee) => attendee.status === Status.MAYBE);
+				attendeesGoing = results.filter((attendee) => attendee.status === AttendanceStatus.GOING);
+				attendeesNotGoing = results.filter((attendee) => attendee.status === AttendanceStatus.NOT_GOING);
+				attendeesMaybeGoing = results.filter((attendee) => attendee.status === AttendanceStatus.MAYBE);
 
 				// Optionally log results for debugging
 				// console.log('Going:', attendeesGoing);

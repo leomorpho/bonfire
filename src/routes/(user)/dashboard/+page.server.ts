@@ -1,4 +1,4 @@
-import { Status } from '$lib/enums.js';
+import { AttendanceStatus } from '$lib/enums.js';
 import { serverTriplitClient } from '$lib/server/triplit.js';
 import { redirect } from '@sveltejs/kit';
 
@@ -33,7 +33,7 @@ export const load = async (event) => {
 				await serverTriplitClient.insert('attendees', {
 					event_id: event.id,
 					user_id: user?.id,
-					status: Status.GOING
+					status: AttendanceStatus.GOING
 				});
 			}
 		})

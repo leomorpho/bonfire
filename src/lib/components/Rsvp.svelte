@@ -4,13 +4,13 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import type { TriplitClient } from '@triplit/client';
 	import { getFeTriplitClient } from '$lib/triplit';
-	import { getStrValueOfRSVP, Status } from '$lib/enums';
+	import { getStrValueOfRSVP, AttendanceStatus } from '$lib/enums';
 	import { and } from '@triplit/client';
 	import AddToCalendar from './AddToCalendar.svelte';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 
-	let { rsvpStatus = Status.DEFAULT, userId, eventId, rsvpCanBeChanged } = $props();
+	let { rsvpStatus = AttendanceStatus.DEFAULT, userId, eventId, rsvpCanBeChanged } = $props();
 
 	// console.log('attendance', attendance);
 	console.log('userId', userId);
@@ -29,7 +29,7 @@
 	// 	rsvpStatus = attendance.status;
 	// }
 
-	let showAddToCalendarStatuses = new Set([Status.GOING, Status.MAYBE]);
+	let showAddToCalendarStatuses = new Set([AttendanceStatus.GOING, AttendanceStatus.MAYBE]);
 
 	$effect(() => {
 		showAddToCalendar = showAddToCalendarStatuses.has(rsvpStatus);
@@ -82,11 +82,11 @@
 		>
 			<Button
 				variant="outline"
-				class="mt-4 flex w-full items-center justify-center {rsvpStatus === Status.GOING
+				class="mt-4 flex w-full items-center justify-center {rsvpStatus === AttendanceStatus.GOING
 					? 'bg-green-400 hover:bg-green-100'
-					: ''} {rsvpStatus === Status.MAYBE
+					: ''} {rsvpStatus === AttendanceStatus.MAYBE
 					? 'bg-yellow-400 hover:bg-yellow-100'
-					: ''} {rsvpStatus === Status.NOT_GOING ? 'bg-red-400 hover:bg-red-100' : ''}"
+					: ''} {rsvpStatus === AttendanceStatus.NOT_GOING ? 'bg-red-400 hover:bg-red-100' : ''}"
 			>
 				{getStrValueOfRSVP(rsvpStatus)}
 			</Button>
@@ -94,20 +94,20 @@
 		<DropdownMenu.Content class="w-full">
 			<DropdownMenu.Group>
 				<DropdownMenu.Item
-					class={rsvpStatus === Status.GOING ? 'bg-green-400' : ''}
-					onclick={(event) => updateRSVP(event, Status.GOING)}
+					class={rsvpStatus === AttendanceStatus.GOING ? 'bg-green-400' : ''}
+					onclick={(event) => updateRSVP(event, AttendanceStatus.GOING)}
 				>
 					<Smile /> Going
 				</DropdownMenu.Item>
 				<DropdownMenu.Item
-					class={rsvpStatus === Status.MAYBE ? 'bg-yellow-400' : ''}
-					onclick={(event) => updateRSVP(event, Status.MAYBE)}
+					class={rsvpStatus === AttendanceStatus.MAYBE ? 'bg-yellow-400' : ''}
+					onclick={(event) => updateRSVP(event, AttendanceStatus.MAYBE)}
 				>
 					<Meh /> Maybe
 				</DropdownMenu.Item>
 				<DropdownMenu.Item
-					class={rsvpStatus === Status.NOT_GOING ? 'bg-red-400' : ''}
-					onclick={(event) => updateRSVP(event, Status.NOT_GOING)}
+					class={rsvpStatus === AttendanceStatus.NOT_GOING ? 'bg-red-400' : ''}
+					onclick={(event) => updateRSVP(event, AttendanceStatus.NOT_GOING)}
 				>
 					<Frown /> Not going
 				</DropdownMenu.Item>

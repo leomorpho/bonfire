@@ -13,7 +13,7 @@
 	import { goto } from '$app/navigation';
 	import type { TriplitClient } from '@triplit/client';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
-	import { Status } from '$lib/enums';
+	import { AttendanceStatus } from '$lib/enums';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 	import { overlayColorStore, overlayOpacityStore, styleStore } from '$lib/styles';
@@ -175,7 +175,7 @@
 				await client.insert('attendees', {
 					user_id: userId,
 					event_id: output.id as string,
-					status: Status.DEFAULT // Default status
+					status: AttendanceStatus.DEFAULT // Default status
 				});
 			} else {
 				console.log('Failed to create event object');
