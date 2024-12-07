@@ -18,6 +18,10 @@ define Comment
 endef
 
 
+.PHONY: clean
+clean: ## Clean db and reseed
+	 rm local.db && npm run migrate && npm run seed
+
 .PHONY: dev
 dev: ## Start the dev server
 	npm run dev

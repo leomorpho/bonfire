@@ -92,7 +92,7 @@ export const schema = {
 			event_name: S.String(),
 			description: S.String({ nullable: true }),
 			start_time: S.Date(),
-			end_time: S.Date(),
+			end_time: S.Date({ nullable: true }),
 			style: S.String({ nullable: true }),
 			overlay_color: S.String({ nullable: true }),
 			overlay_opacity: S.Number({ nullable: true }),
