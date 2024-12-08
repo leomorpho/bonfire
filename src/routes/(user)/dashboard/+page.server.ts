@@ -42,13 +42,30 @@ export const load = async (event) => {
 	const attendancesQuery = serverTriplitClient
 		.query('attendees')
 		.where(['user_id', '=', user.id])
-		.include('event')
-		.include('event.created_by_user')
-		.include('event.private_details')
+		.include('event', (rel) =>
+			rel('event').include('created_by_user').include('event_private').build()
+		)
 		.order('event.start_time', 'ASC')
 		.build();
 
 	const attendances = await serverTriplitClient.fetch(attendancesQuery);
+	console.log('attendances', attendances);
+
+	const aQuery = serverTriplitClient
+		.query('events')
+		.include('event_private')
+		.include('created_by_user')
+		.build();
+
+	const a = await serverTriplitClient.fetch(aQuery);
+	console.log('events', a);
+
+	const privateDetailsQuery = serverTriplitClient
+		.query('event_private')
+		.build();
+
+	const privateDetails = await serverTriplitClient.fetch(privateDetailsQuery);
+	console.log('privateDetails', privateDetails);
 
 	// Divide into past and future events
 	const now = new Date();

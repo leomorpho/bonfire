@@ -22,17 +22,17 @@
 
 		const initEvents = async () => {
 			userId = (await waitForUserId()) as string;
-			const attendancesQuery = client
-				.query('attendees')
-				.where(['user_id', '=', userId])
-				.include('event')
-				.include('event.created_by_user')
-				// .include('event.event_private')
-				.order('event.start_time', 'ASC')
-				.build();
+			// const attendancesQuery = client
+			// 	.query('attendees')
+			// 	.where(['user_id', '=', userId])
+			// 	.include('event')
+			// 	.include('event.created_by_user')
+			// 	// .include('event.event_private')
+			// 	.order('event.start_time', 'ASC')
+			// 	.build();
 
-			const attendances = await client.fetch(attendancesQuery);
-			console.log('attendances', attendances);
+			// const attendances = await client.fetch(attendancesQuery);
+			// console.log('attendances', attendances);
 		};
 
 		initEvents().catch((error) => {
@@ -104,3 +104,4 @@
 	</a>
 	<span class="mt-2">Create a Bonfire</span>
 </div>
+

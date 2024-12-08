@@ -26,7 +26,21 @@ await client.insert('user', {
 const now = new Date(); // Current date and time
 const fiveWeeksLater = new Date(now.getTime() + 5 * 7 * 24 * 60 * 60 * 1000); // Add 5 weeks in milliseconds
 
+// Create event_private entry for the event
+const privateEventId = generateId(15);
+const eventId = generateId(15);
+
+await client.insert('event_private', {
+	id: privateEventId,
+	event_id: eventId,
+	location: '345 Cordova St, Vancouver', // Event location
+	attendance_limit: 50 // Example attendance limit
+});
+
+
+
 const { output } = await client.insert('events', {
+	id: eventId,
 	created_by_user_id: user.id,
 	event_name: "Mike's birthday party",
 	description: 'Bring your joy and party tricks',
@@ -36,7 +50,7 @@ const { output } = await client.insert('events', {
 	overlay_color: null,
 	overlay_opacity: null,
 	status: 'active', // Default event status
-	private_details: null,
+	event_private_id: privateEventId,
 	attendees: null,
 	announcements: null,
 	files: null,
@@ -47,16 +61,7 @@ if (!output) {
 	throw Error('failed to create evvent');
 }
 
-// Create private_details entry for the event
-const privateDetails = await client.insert('event_private', {
-	event_id: output.id, // Link to the event
-	location: '345 Cordova St, Vancouver', // Event location
-	attendance_limit: 50 // Example attendance limit
-});
 
-if (!privateDetails) {
-	throw Error('failed to create private details');
-}
 
 // NOTE: BE should automatically create that missing `attendance` object.
 // await client.insert('attendees', {

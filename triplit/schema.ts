@@ -52,15 +52,7 @@ export const schema = {
 									collectionName: 'attendees',
 									where: [
 										['user_id', '=', '$role.userId'], // Current user is an attendee
-										{
-											exists: {
-												collectionName: 'attendees',
-												where: [
-													['event_id', '=', '$1.event_id'], // Same event
-													['user_id', '=', '$id'] // Other user's ID
-												]
-											}
-										}
+										['event_id', '=', '$1.event_id'] // Same event
 									]
 								}
 							}
@@ -105,15 +97,7 @@ export const schema = {
 									collectionName: 'attendees',
 									where: [
 										['user_id', '=', '$role.userId'], // Current user is an attendee
-										{
-											exists: {
-												collectionName: 'attendees',
-												where: [
-													['event_id', '=', '$1.event_id'], // Same event
-													['user_id', '=', '$user_id'] // Profile owner is also an attendee
-												]
-											}
-										}
+										['event_id', '=', '$1.event_id'] // Same event
 									]
 								}
 							}
@@ -132,7 +116,9 @@ export const schema = {
 		schema: S.Schema({
 			id: S.Id(),
 			created_by_user_id: S.String(), // Creator of the event
-			created_by_user: S.RelationById('user', '$created_by_user_id'), // Relation to the user table
+			created_by_user: S.RelationOne('user', {
+				where: [['id', '=', '$created_by_user_id']]
+			}), // Relation to the user table
 			status: S.String({ default: EventStatus.ACTIVE }), // 'active', 'cancelled'
 			event_name: S.String(),
 			description: S.String({ nullable: true }),
@@ -142,7 +128,8 @@ export const schema = {
 			overlay_color: S.String({ nullable: true }),
 			overlay_opacity: S.Number({ nullable: true }),
 			num_attendees: S.Number({ default: 0 }),
-			private_details: S.RelationOne('event_private', {
+			event_private_id: S.String(),
+			event_private: S.RelationOne('event_private', {
 				where: [['event_id', '=', '$id']]
 			}),
 			attendees: S.RelationMany('attendees', {
@@ -194,7 +181,8 @@ export const schema = {
 	event_private: {
 		schema: S.Schema({
 			id: S.Id(),
-			event_id: S.String(), // Link to the event
+			event_id: S.String({ default: null, nullable: true }), // Link to the event
+			event: S.RelationOne('events', { where: [['event_private_id', '=', '$id']] }),
 			location: S.String(),
 			attendance_limit: S.Number()
 		}),
