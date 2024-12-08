@@ -54,7 +54,9 @@
 					<EventCard
 						event={attendance.event}
 						{userId}
-						eventCreatorName="aaa"
+						eventCreatorName={attendance.event.created_by_user
+							? attendance.event.created_by_user.username
+							: '(please log in to see'}
 						rsvpStatus={attendance.status}
 					/>
 				{/each}
@@ -78,7 +80,9 @@
 					<EventCard
 						event={attendance.event}
 						{userId}
-						eventCreatorName="aaa"
+						eventCreatorName={attendance.event.created_by_user
+							? attendance.event.created_by_user.username
+							: '(please log in to see'}
 						rsvpStatus={attendance.status}
 					/>
 				{/each}
@@ -104,4 +108,3 @@
 	</a>
 	<span class="mt-2">Create a Bonfire</span>
 </div>
-

@@ -19,7 +19,7 @@
 
 <a href={`/bonfire/${event.id}`}>
 	<Card.Root class="my-4 w-full bg-slate-100" style={event.style}>
-		<div style={overlayStyle}>
+		<div class="rounded-xl" style={overlayStyle}>
 			<Card.Header class="bg-slate-100 pb-2">
 				<Card.Title class="text-lg">{event.title}</Card.Title>
 				<Card.Description>{formatHumanReadable(event.start_time)}</Card.Description>
@@ -28,7 +28,7 @@
 			<Card.Content>
 				<Rsvp {rsvpStatus} {userId} eventId={event.id} {rsvpCanBeChanged} />
 			</Card.Content>
-			{#if event.user_id == (userId as string)}
+			{#if event.created_by_user_id == (userId as string)}
 				<a href={`/bonfire/${event.id}/update`}>
 					<Button variant="outline" class="m-2 rounded-full">
 						<Cog class="h-5 w-5" />
