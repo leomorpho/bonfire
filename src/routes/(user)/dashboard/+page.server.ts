@@ -82,3 +82,4 @@ export const load = async (event) => {
 		pastEvents
 	};
 };
+

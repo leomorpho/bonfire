@@ -20,22 +20,15 @@ export async function waitForUserId() {
 	});
 }
 
-let feTriplitClient: TriplitClient;
-
 export function getFeTriplitClient(jwt: string) {
-
 	if (!browser) {
 		throw new Error('TriplitClient can only be created in the browser.');
 	}
 
-	if (feTriplitClient) {
-		return feTriplitClient;
-	}
-	feTriplitClient = new TriplitClient({
+	return new TriplitClient({
 		storage: 'indexeddb',
 		schema,
 		serverUrl: PUBLIC_TRIPLIT_URL,
 		token: jwt ? jwt : PUBLIC_TRIPLIT_ANONYMOUS_TOKEN
-	}) as TriplitClient;
-	return feTriplitClient;
+	});
 }
