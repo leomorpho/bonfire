@@ -53,7 +53,7 @@
 </script>
 
 <div class="bg-color min-h-screen w-full" style={styles}>
-	<div class="bg-overlay" style={overlayStyle}>
+	<div class="bg-overlay min-h-screen w-full" style={overlayStyle}>
 		{@render children()}
 	</div>
 </div>

@@ -21,7 +21,7 @@
 	<Card.Root class="my-4 w-full bg-slate-100" style={event.style}>
 		<div class="rounded-xl" style={overlayStyle}>
 			<Card.Header class="bg-slate-100 pb-2">
-				<Card.Title class="text-lg">{event.title}</Card.Title>
+				<Card.Title class="text-lg">{event.event_name}</Card.Title>
 				<Card.Description>{formatHumanReadable(event.start_time)}</Card.Description>
 				<Card.Description>Hosted by {eventCreatorName}</Card.Description>
 			</Card.Header>
