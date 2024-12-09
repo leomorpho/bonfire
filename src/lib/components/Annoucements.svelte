@@ -17,7 +17,7 @@
 	let totalCount = $state(0);
 
 	let announcementsQuery = client
-		.query('announcement')
+		.query('announcements')
 		.where(['event_id', '=', eventId])
 		.order('created_at', 'DESC');
 
@@ -30,7 +30,7 @@
 	onMount(() => {
 		const init = async () => {
 			let totalCountResults = await client.fetch(
-				client.query('announcement').where(['event_id', '=', eventId]).select(['id']).build()
+				client.query('announcements').where(['event_id', '=', eventId]).select(['id']).build()
 			);
 			totalCount = totalCountResults.length;
 		};
@@ -46,19 +46,19 @@
 {:else if announcements.results}
 	{console.log('announcements', announcements.results)}
 	<div class="space-y-3">
-		{#each announcements.results as announcement}
-			<Card.Root class="announcement">
+		{#each announcements.results as announcements}
+			<Card.Root class="announcements">
 				<Card.Header>
-					<Card.Title>{announcement.content}</Card.Title>
+					<Card.Title>{announcements.content}</Card.Title>
 					<Card.Description
 						><div class="font-medium">
-							{formatHumanReadable(announcement.created_at)}
+							{formatHumanReadable(announcements.created_at)}
 						</div></Card.Description
 					>
 				</Card.Header>
 				<Card.Footer>
-					{#if currUserId == announcement.user_id}
-						<a href={`/bonfire/${eventId}/announcement/${announcement.id}/update`}
+					{#if currUserId == announcements.user_id}
+						<a href={`/bonfire/${eventId}/announcements/${announcements.id}/update`}
 							><Button class="mt-2 rounded-xl" variant="outline"><Pencil class="h-4 w-4" /></Button
 							></a
 						>

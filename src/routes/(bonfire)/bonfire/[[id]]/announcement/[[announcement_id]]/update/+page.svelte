@@ -8,19 +8,19 @@
 	import SvgLoader from '$lib/components/SvgLoader.svelte';
 	import { onMount } from 'svelte';
 
-	let announcement = $state();
+	let announcements = $state();
 
 	onMount(() => {
 		const init = async () => {
 			let client = getFeTriplitClient($page.data.jwt) as TriplitClient;
 
 			let announcementQuery = client
-				.query('announcement')
+				.query('announcements')
 				.where(['id', '=', $page.params.announcement_id])
 				.order('created_at', 'DESC')
 				.build();
 
-			announcement = await client.fetchOne(announcementQuery);
+			announcements = await client.fetchOne(announcementQuery);
 		};
 
 		init();
@@ -36,15 +36,15 @@
 				</Breadcrumb.Item>
 				<Breadcrumb.Separator />
 				<Breadcrumb.Item>
-					<Breadcrumb.Page>Update announcement</Breadcrumb.Page>
+					<Breadcrumb.Page>Update announcements</Breadcrumb.Page>
 				</Breadcrumb.Item>
 			</Breadcrumb.List>
 		</Breadcrumb.Root>
-		{#if announcement}
+		{#if announcements}
 			<AnnouncementForm
 				mode="update"
 				eventId={$page.params.id}
-				announcement={announcement ? announcement : null}
+				announcements={announcements ? announcements : null}
 			/>
 		{:else}
 			<SvgLoader />

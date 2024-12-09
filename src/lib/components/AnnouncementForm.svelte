@@ -9,13 +9,13 @@
 	import { page } from '$app/stores';
 
 	// Props for the page
-	let { mode = 'update', announcement = null, eventId } = $props();
+	let { mode = 'update', announcements = null, eventId } = $props();
 
 	let client: TriplitClient = $state();
 	let userId = $state();
 
 	// States for form fields
-	let content = $state(announcement?.content ?? '');
+	let content = $state(announcements?.content ?? '');
 	let submitDisabled = $state(true);
 
 	onMount(async () => {
@@ -34,8 +34,8 @@
 		if (!content || !eventId) return;
 
 		if (mode === 'create') {
-			// Create a new announcement
-			const { output } = await client.insert('announcement', {
+			// Create a new announcements
+			const { output } = await client.insert('announcements', {
 				content,
 				event_id: eventId,
 				user_id: userId // Use the authenticated user's ID
@@ -44,11 +44,11 @@
 			if (output) {
 				goto(`/bonfire/${eventId}#announcements`);
 			} else {
-				console.error('Failed to create announcement');
+				console.error('Failed to create announcements');
 			}
-		} else if (mode === 'update' && announcement?.id) {
-			// Update the existing announcement
-			await client.update('announcement', announcement.id, async (entity) => {
+		} else if (mode === 'update' && announcements?.id) {
+			// Update the existing announcements
+			await client.update('announcements', announcements.id, async (entity) => {
 				entity.content = content;
 				entity.event_id = eventId;
 			});
@@ -58,10 +58,10 @@
 
 	const deleteAnnouncement = async (e: Event) => {
 		try {
-			await client.delete('announcement', announcement.id);
+			await client.delete('announcements', announcements.id);
 			goto(`/bonfire/${eventId}#announcements`);
 		} catch (error) {
-			console.error('Error deleting announcement:', error);
+			console.error('Error deleting announcements:', error);
 		}
 	};
 </script>
@@ -88,7 +88,7 @@
 					<Dialog.Header>
 						<Dialog.Title>Are you sure?</Dialog.Title>
 						<Dialog.Description>
-							This action cannot be undone. This will permanently delete the announcement.
+							This action cannot be undone. This will permanently delete the announcements.
 						</Dialog.Description>
 					</Dialog.Header>
 					<Dialog.Footer>

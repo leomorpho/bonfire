@@ -59,7 +59,7 @@
 		announcements = useQuery(
 			client,
 			client
-				.query('announcement')
+				.query('announcements')
 				.where(['event_id', '=', $page.params.id])
 				.order('created_at', 'DESC')
 				.limit(3)
@@ -307,13 +307,13 @@
 							eventId={$page.params.id}
 							currUserId={userId}
 							maxCount={3}
-							allAnnoucementsURL="announcement/all"
+							allAnnoucementsURL="announcements/all"
 						/>
 					</div>
 					{#if event.results[0].user_id == userId}
-						<a href="announcement/create">
+						<a href="announcements/create">
 							<Button class="mt-1 w-full ring-glow"
-								><Drum class="mr-1 h-4 w-4" /> Create new announcement</Button
+								><Drum class="mr-1 h-4 w-4" /> Create new announcements</Button
 							>
 						</a>
 					{/if}

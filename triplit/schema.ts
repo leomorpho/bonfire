@@ -226,7 +226,22 @@ export const schema = {
 		permissions: {
 			user: {
 				read: {
-					filter: [['user_id', '=', '$role.userId']]
+					filter: [
+						or([
+							// Case 1: Direct access by user ID if it exists
+							['user_id', '=', '$role.userId'],
+							// Case 2: User is an attendee and can thus see attendees for common events
+							{
+								exists: {
+									collectionName: 'attendees',
+									where: [
+										['user_id', '=', '$role.userId'], // Current user is an attendee
+										['event_id', '=', '$event_id']   // Same event
+									]
+								}
+							}
+						])
+					]
 				},
 				insert: {
 					filter: [['event_id', '=', '$query.event_id']] // Can RSVP
