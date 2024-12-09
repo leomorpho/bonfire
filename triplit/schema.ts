@@ -43,21 +43,21 @@ export const schema = {
 			},
 			user: {
 				read: {
-					filter: [true]
-					// 	or([
-					// 		['id', '=', '$role.userId'], // Can read own profile
-					// 		{
-					// 			// User has an events they attend that this other user also attends
-					// 			exists: {
-					// 				collectionName: 'attendees',
-					// 				where: [
-					// 					['user_id', '=', '$role.userId'], // Current user is an attendee
-					// 					['event_id', '=', '$1.event_id'] // Same event
-					// 				]
-					// 			}
-					// 		}
-					// 	])
-					// ]
+					filter: [
+						or([
+							['id', '=', '$role.userId'], // Can read own profile
+							{
+								// User has an events they attend that this other user also attends
+								exists: {
+									collectionName: 'attendees',
+									where: [
+										['user_id', '=', '$role.userId'], // Current user is an attendee
+										['event_id', '=', '$1.event_id'] // Same event
+									]
+								}
+							}
+						])
+					]
 				},
 				// Insertion only done in BE
 				update: {
@@ -88,21 +88,21 @@ export const schema = {
 			},
 			user: {
 				read: {
-					filter: [true]
-					// 	or([
-					// 		['user_id', '=', '$role.userId'], // Can read their own images
-					// 		{
-					// 			// User has an events they attend that this other user also attends
-					// 			exists: {
-					// 				collectionName: 'attendees',
-					// 				where: [
-					// 					['user_id', '=', '$role.userId'], // Current user is an attendee
-					// 					['event_id', '=', '$1.event_id'] // Same event
-					// 				]
-					// 			}
-					// 		}
-					// 	])
-					// ]
+					filter: [
+						or([
+							['user_id', '=', '$role.userId'], // Can read their own images
+							{
+								// User has an events they attend that this other user also attends
+								exists: {
+									collectionName: 'attendees',
+									where: [
+										['user_id', '=', '$role.userId'], // Current user is an attendee
+										['event_id', '=', '$1.event_id'] // Same event
+									]
+								}
+							}
+						])
+					]
 				},
 				// Insertion and update only done in BE
 				delete: {
@@ -153,21 +153,23 @@ export const schema = {
 			},
 			user: {
 				read: {
-					filter: [true]
-					// 	or([
-					// 		['id', '=', '$query.id'], // User had direct ID of event
-					// 		{
-					// 			exists: {
-					// 				// User has an attendance object for this event
-					// 				collectionName: 'attendees',
-					// 				where: [
-					// 					['user_id', '=', '$role.userId'], // Current user is an attendee
-					// 					['event_id', '=', '$id'] // Linked event
-					// 				]
-					// 			}
-					// 		}
-					// 	])
-					// ]
+					filter: [
+						or([
+							// Case 1: Direct access by event ID if it exists
+							['id', '=', '$id'],
+							// Case 2: User is an attendee
+							{
+								exists: {
+									// User has an attendance object for this event
+									collectionName: 'attendees',
+									where: [
+										['user_id', '=', '$role.userId'], // Current user is an attendee
+										['event_id', '=', '$id'] // Linked event
+									]
+								}
+							}
+						])
+					]
 				},
 				update: {
 					filter: [['created_by_user_id', '=', '$role.userId']] // Only creator can update
@@ -189,20 +191,17 @@ export const schema = {
 		permissions: {
 			user: {
 				read: {
-					filter: [true]
-					// 	or([
-					// 		['event_id', '=', '$query.event_id'], // Allow querying if event ID is passed
-					// 		{
-					// 			exists: {
-					// 				collectionName: 'attendees',
-					// 				where: [
-					// 					['event_id', '=', '$event_id'], // Linked event
-					// 					['user_id', '=', '$role.userId'] // User is an attendee
-					// 				]
-					// 			}
-					// 		}
-					// 	])
-					// ]
+					filter: [
+						{
+							exists: {
+								collectionName: 'attendees',
+								where: [
+									['event_id', '=', '$event_id'], // Linked event
+									['user_id', '=', '$role.userId'] // User is an attendee
+								]
+							}
+						}
+					]
 				},
 				update: {
 					filter: [
@@ -227,12 +226,7 @@ export const schema = {
 		permissions: {
 			user: {
 				read: {
-					filter: [true]
-					// 	or([
-					// 		['event_id', '=', '$query.event_id'], // Allow querying if event ID is passed
-					// 		['user_id', '=', '$role.userId'] // Allow querying if user ID is passed
-					// 	])
-					// ]
+					filter: [['user_id', '=', '$role.userId']]
 				},
 				insert: {
 					filter: [['event_id', '=', '$query.event_id']] // Can RSVP
