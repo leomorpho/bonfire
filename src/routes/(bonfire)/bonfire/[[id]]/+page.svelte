@@ -172,7 +172,7 @@
 {:else if event.results}
 	<div class="mx-4 flex flex-col items-center justify-center">
 		<section class="mt-8 w-full sm:w-[450px] md:w-[550px] lg:w-[650px]">
-			{#if event.results[0].user_id == (userId as string)}
+			{#if event.results[0].created_by_user_id == (userId as string)}
 				<div class="flex w-full justify-center">
 					<a href="update">
 						<Button variant="outline" class="m-2 rounded-full">
@@ -310,7 +310,7 @@
 							allAnnoucementsURL="announcements/all"
 						/>
 					</div>
-					{#if event.results[0].user_id == userId}
+					{#if event.results[0].created_by_user_id == userId}
 						<a href="announcements/create">
 							<Button class="mt-1 w-full ring-glow"
 								><Drum class="mr-1 h-4 w-4" /> Create new announcements</Button
