@@ -32,3 +32,4 @@ export function getFeTriplitClient(jwt: string) {
 		token: jwt ? jwt : PUBLIC_TRIPLIT_ANONYMOUS_TOKEN
 	});
 }
+

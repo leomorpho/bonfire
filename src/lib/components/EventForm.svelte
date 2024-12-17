@@ -33,7 +33,7 @@
 	});
 
 	let dateValue: DateValue | undefined = $state<DateValue | undefined>();
-	let eventName: string = $state(event?.title ?? ''); // State for event name
+	let eventName: string = $state(event?.event_name ?? ''); // State for event name
 	let location: string = $state(event?.location ?? ''); // State for location
 	let details: string = $state(event?.description ?? ''); // State for event details
 	let startHour = $state(''); // State for hour
@@ -140,7 +140,7 @@
 		}
 		const userId: string = (await waitForUserId()) as string;
 		console.log({
-			title: eventName,
+			event_name: eventName,
 			description: details || null,
 			location: location || null,
 			start_time: eventStartDatetime,
@@ -155,7 +155,7 @@
 		if (mode == 'create') {
 			// Save the event (uncomment in production)
 			const { output } = await client.insert('events', {
-				title: eventName,
+				event_name: eventName,
 				description: details || null,
 				location: location || null,
 				start_time: eventStartDatetime,
@@ -183,7 +183,7 @@
 			goto('/dashboard');
 		} else {
 			await client.update('events', event.id, async (entity) => {
-				entity.title = eventName;
+				entity.event_name = eventName;
 				entity.description = details || null;
 				entity.location = location;
 				entity.start_time = eventStartDatetime;

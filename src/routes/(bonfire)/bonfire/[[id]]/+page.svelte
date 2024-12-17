@@ -34,6 +34,7 @@
 	let client: TriplitClient;
 
 	let profileImageMap = $page.data.profileImageMap;
+	console.log('profileImageMap', profileImageMap);
 
 	let attendeesGoing: any = $state([]);
 	let attendeesMaybeGoing: any = $state([]);
@@ -51,11 +52,13 @@
 		// Update event data based on the current page id
 		event = useQuery(client, client.query('events').where(['id', '=', $page.params.id]));
 
+		// TODO: make subscribed query
 		fileCount = useQuery(
 			client,
 			client.query('files').where(['event_id', '=', $page.params.id]).select(['id'])
 		);
 
+		// TODO: make subscribed query
 		announcements = useQuery(
 			client,
 			client
@@ -74,13 +77,19 @@
 			(results) => {
 				// Separate attendees into different variables by status
 				attendeesGoing = results.filter((attendee) => attendee.status === AttendanceStatus.GOING);
-				attendeesNotGoing = results.filter((attendee) => attendee.status === AttendanceStatus.NOT_GOING);
-				attendeesMaybeGoing = results.filter((attendee) => attendee.status === AttendanceStatus.MAYBE);
+				attendeesNotGoing = results.filter(
+					(attendee) => attendee.status === AttendanceStatus.NOT_GOING
+				);
+				attendeesMaybeGoing = results.filter(
+					(attendee) => attendee.status === AttendanceStatus.MAYBE
+				);
+
+				// TODO: update profile pics by querying for all profile pics that are newer than the oldest pic
 
 				// Optionally log results for debugging
-				// console.log('Going:', attendeesGoing);
-				// console.log('Not Going:', attendeesNotGoing);
-				// console.log('Maybe:', attendeesMaybeGoing);
+				console.log('Going:', attendeesGoing);
+				console.log('Not Going:', attendeesNotGoing);
+				console.log('Maybe:', attendeesMaybeGoing);
 			},
 			(error) => {
 				console.error('Error fetching attendees:', error);
@@ -139,7 +148,7 @@
 
 		// Prepare shareable data
 		const shareData = {
-			title: `Hey! You're invited to ${eventData.title}!`, // Use the event title
+			title: `Hey! You're invited to ${eventData.event_name}!`, // Use the event name
 			text: `...Check out this awesome event at ${eventData.location}!`, // Use the event location
 			url: `https://${PUBLIC_ORIGIN}/bonfire/${eventData.id}` // Use the event's unique ID in the URL
 		};
@@ -182,7 +191,7 @@
 				</div>
 			{/if}
 			<div class="rounded-xl bg-white p-5">
-				<h1 class="text-xl">{event.results[0].title}</h1>
+				<h1 class="text-xl">{event.results[0].event_name}</h1>
 				<div class="font-medium">{formatHumanReadable(event.results[0].start_time)}</div>
 				<div class="font-light">
 					{#if !anonymousUser}

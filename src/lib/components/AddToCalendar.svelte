@@ -5,7 +5,7 @@
 
 	// Event details
 	let eventDetails = {
-		title: 'Event Title',
+		event_name: 'Event Title',
 		start: '2024-11-21T01:00:00.000Z',
 		end: '2024-11-21T03:00:00.000Z',
 		description: 'Event description goes here',
@@ -18,7 +18,7 @@
 
 		const baseUrl = 'https://www.google.com/calendar/render?action=TEMPLATE';
 		const params = new URLSearchParams({
-			text: event.title,
+			text: event.event_name,
 			dates: `${new Date(event.start).toISOString().replace(/[-:.]/g, '').slice(0, -4)}/${new Date(
 				event.end
 			)
@@ -40,7 +40,7 @@
 			path: '/calendar/action/compose',
 			startdt: event.start,
 			enddt: event.end,
-			subject: event.title,
+			subject: event.event_name,
 			body: event.description,
 			location: event.location
 		});
@@ -54,7 +54,7 @@
 		const icsContent = `BEGIN:VCALENDAR
 VERSION:2.0
 BEGIN:VEVENT
-SUMMARY:${event.title}
+SUMMARY:${event.event_name}
 DESCRIPTION:${event.description}
 LOCATION:${event.location}
 DTSTART:${new Date(event.start).toISOString().replace(/[-:.]/g, '').slice(0, -4)}Z
@@ -65,7 +65,7 @@ END:VCALENDAR`;
 		const blob = new Blob([icsContent], { type: 'text/calendar' });
 		const link = document.createElement('a');
 		link.href = URL.createObjectURL(blob);
-		link.download = `${event.title}.ics`;
+		link.download = `${event.event_name}.ics`;
 		link.click();
 	};
 </script>

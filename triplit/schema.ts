@@ -32,6 +32,9 @@ export const schema = {
 			}),
 			events: S.RelationMany('events', {
 				where: [['attendees.user_id', '=', '$id']]
+			}),
+			attendances: S.RelationMany('attendees', {
+				where: [['user_id', '=', '$id']]
 			})
 		}),
 		permissions: {
@@ -177,7 +180,8 @@ export const schema = {
 				delete: {
 					filter: [['created_by_user_id', '=', '$role.userId']] // Only creator can delete
 				}
-			}
+			},
+			anon:{}
 		}
 	},
 	event_private: {
@@ -209,7 +213,8 @@ export const schema = {
 						['created_by_user_id', '=', '$role.userId']
 					]
 				}
-			}
+			},
+			anon:{}
 		}
 	},
 	attendees: {
@@ -220,7 +225,7 @@ export const schema = {
 			status: S.String({ default: AttendanceStatus.DEFAULT }), // 'coming', 'not coming'
 			updated_at: S.Date({ default: S.Default.now() }),
 			seen_by_organizer: S.Boolean({ default: false }),
-			user: S.RelationById('users', '$user_id'),
+			user: S.RelationById('user', '$user_id'),
 			event: S.RelationById('events', '$event_id')
 		}),
 		permissions: {
@@ -252,7 +257,8 @@ export const schema = {
 				delete: {
 					filter: [['user_id', '=', '$role.userId']] // Remove themselves
 				}
-			}
+			},
+			anon:{}
 		}
 	},
 	announcements: {
@@ -287,7 +293,8 @@ export const schema = {
 						['created_by_user_id', '=', '$role.userId']
 					]
 				}
-			}
+			},
+			anon:{}
 		}
 	},
 	files: {
@@ -302,7 +309,7 @@ export const schema = {
 			size_in_bytes: S.Number(),
 			uploaded_at: S.Date({ default: S.Default.now() }),
 			uploader_id: S.String(),
-			uploader: S.RelationById('users', '$uploader_id'),
+			uploader: S.RelationById('user', '$uploader_id'),
 			event: S.RelationById('events', '$event_id')
 		}),
 		permissions: {
@@ -314,7 +321,8 @@ export const schema = {
 				delete: {
 					filter: [['uploader_id', '=', '$role.userId']]
 				}
-			}
+			},
+			anon:{}
 		}
 	},
 	reminders: {
@@ -346,7 +354,8 @@ export const schema = {
 						['created_by_user_id', '=', '$role.userId']
 					]
 				}
-			}
+			},
+			anon:{}
 		}
 	}
 } satisfies ClientSchema;
