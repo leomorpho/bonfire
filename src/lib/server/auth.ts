@@ -2,13 +2,13 @@ import { db } from './database/db';
 import { Google } from 'arctic';
 import { Lucia } from 'lucia';
 
-import { DrizzleSQLiteAdapter } from '@lucia-auth/adapter-drizzle';
+import {  DrizzlePostgreSQLAdapter } from '@lucia-auth/adapter-drizzle';
 import { dev } from '$app/environment';
 import { sessionTable, userTable } from './database/schema';
 import { GOOGLE_CLIENT_SECRET, GOOGLE_CLIENT_ID } from '$env/static/private';
 import { PUBLIC_ORIGIN } from '$env/static/public';
 
-const adapter = new DrizzleSQLiteAdapter(db, sessionTable, userTable);
+const adapter = new DrizzlePostgreSQLAdapter(db, sessionTable, userTable);
 
 export const lucia = new Lucia(adapter, {
 	sessionCookie: {

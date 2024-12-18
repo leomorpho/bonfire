@@ -1,17 +1,11 @@
-import { drizzle } from 'drizzle-orm/libsql';
-import { dev } from '$app/environment';
-import { createClient } from '@libsql/client';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import * as schema from '$lib/server/database/schema';
+import postgres from 'postgres';
 import { env } from '$env/dynamic/private';
-import * as schema from '$lib/server/database/schema'
 
-const url = dev ? 'file:local.db' : env.TURSO_DB_URL;
+const connectionString = env.SECRET_SUPABASE_URL ?? '';
 
-if (!url) {
-	throw new Error('TURSO_DB_URL is not set');
-}
-if (!dev && !env.TURSO_DB_AUTH_TOKEN) {
-	throw new Error('TURSO_DB_AUTH_TOKEN is not set');
-}
 
-const libsql = createClient({ url, authToken: env.TURSO_DB_AUTH_TOKEN });
-export const db = drizzle(libsql, { schema });
+// Disable prefetch as it is not supported for "Transaction" pool mode
+export const client = postgres(connectionString, { prepare: false });
+export const db = drizzle(client, { schema });
