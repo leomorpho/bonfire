@@ -17,8 +17,6 @@ import { createSignin, getSignins } from '$lib/server/database/signin.model';
 import { dev } from '$app/environment';
 import { LOGIN_TYPE_ACTIVATION, LOGIN_TYPE_MAGIC_LINK } from '$lib/enums';
 
-
-
 // Name has a default value just to display something in the form.
 const schema = z.object({
 	email: z.string().trim().email()
@@ -32,6 +30,8 @@ export const load = async (e) => {
 
 export const actions = {
 	login_with_email: async ({ request, getClientAddress }) => {
+		console.log('### validate');
+
 		const form = await superValidate(request, zod(schema));
 
 		if (!form.valid) {
@@ -41,17 +41,20 @@ export const actions = {
 		let user = await getUserByEmail(form.data.email);
 		let login_type = LOGIN_TYPE_MAGIC_LINK;
 
+		console.log('### abouyt to create user');
 		if (!user) {
 			user = await createNewUser({
 				id: generateId(15),
 				email: form.data.email,
-				email_verified: false
+				email_verified: false,
+				num_logs: 3
 			});
 			if (!user) {
 				throw error(500, 'Failed to create new user');
 			}
 			login_type = LOGIN_TYPE_ACTIVATION;
 		}
+		console.log('### created user');
 
 		let ip_address = getClientAddress();
 
@@ -73,12 +76,15 @@ export const actions = {
 			];
 			return fail(429, { form });
 		}
+		console.log('###### About to create signin');
 
 		await createSignin({
 			email: form.data.email,
 			ip_address,
 			logged_in_at: new Date()
 		});
+
+		console.log('###### created signin');
 
 		await deleteAllEmailTokensForUser(user.id);
 		const verification_token = await createEmailVerificationToken(user.id, user.email);

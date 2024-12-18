@@ -1,10 +1,10 @@
-import { pgTable, text, integer, timestamp, serial } from 'drizzle-orm/pg-core';
+import { pgTable, text, integer, boolean, timestamp, serial } from 'drizzle-orm/pg-core';
 
 export const userTable = pgTable('user', {
 	id: text('id').notNull().primaryKey(),
 	created_at: timestamp('created_at').notNull().defaultNow(),
 	email: text('email').notNull().unique(),
-	email_verified: timestamp('email_verified'),
+	email_verified: boolean('email_verified'),
 	num_logs: integer('num_logs').default(3)
 });
 

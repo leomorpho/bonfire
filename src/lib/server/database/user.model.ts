@@ -35,14 +35,18 @@ type NewUser = {
 	id: string;
 	email: string;
 	email_verified: boolean;
-	num_logs: number,
+	num_logs: number;
 };
 
 export const createNewUser = async (user: NewUser) => {
-	const result = await db.insert(userTable).values(user).onConflictDoNothing().returning();
-	if (result.length === 0) {
-		return null;
+	try {
+		const result = await db.insert(userTable).values(user).onConflictDoNothing().returning();
+		if (result.length === 0) {
+			return null;
+		}
+		return result[0];
+	} catch (err) {
+		console.error('Error creating user:', err);
+		throw error(500, 'Failed to create new user');
 	}
-	await serverTriplitClient.insert('user', { id: result[0].id, username: '' });
-	return result[0];
 };

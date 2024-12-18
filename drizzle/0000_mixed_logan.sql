@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS "user" (
 	"id" text PRIMARY KEY NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"email" text NOT NULL,
-	"email_verified" timestamp,
+	"email_verified" boolean,
 	"num_logs" integer DEFAULT 3,
 	CONSTRAINT "user_email_unique" UNIQUE("email")
 );
