@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS "session" (
 	"id" text PRIMARY KEY NOT NULL,
 	"timestamp" timestamp DEFAULT now() NOT NULL,
 	"user_id" text NOT NULL,
-	"expires_at" integer NOT NULL
+	"expires_at" timestamp NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "signin" (

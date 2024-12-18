@@ -30,8 +30,6 @@ export const load = async (e) => {
 
 export const actions = {
 	login_with_email: async ({ request, getClientAddress }) => {
-		console.log('### validate');
-
 		const form = await superValidate(request, zod(schema));
 
 		if (!form.valid) {
@@ -41,7 +39,6 @@ export const actions = {
 		let user = await getUserByEmail(form.data.email);
 		let login_type = LOGIN_TYPE_MAGIC_LINK;
 
-		console.log('### abouyt to create user');
 		if (!user) {
 			user = await createNewUser({
 				id: generateId(15),
@@ -54,7 +51,6 @@ export const actions = {
 			}
 			login_type = LOGIN_TYPE_ACTIVATION;
 		}
-		console.log('### created user');
 
 		let ip_address = getClientAddress();
 
@@ -76,15 +72,12 @@ export const actions = {
 			];
 			return fail(429, { form });
 		}
-		console.log('###### About to create signin');
 
 		await createSignin({
 			email: form.data.email,
 			ip_address,
 			logged_in_at: new Date()
 		});
-
-		console.log('###### created signin');
 
 		await deleteAllEmailTokensForUser(user.id);
 		const verification_token = await createEmailVerificationToken(user.id, user.email);

@@ -14,7 +14,7 @@ export const sessionTable = pgTable('session', {
 	userId: text('user_id')
 		.notNull()
 		.references(() => userTable.id),
-	expiresAt: integer('expires_at').notNull()
+	expiresAt: timestamp('expires_at').notNull()
 });
 
 export const emailVerificationTokenTable = pgTable('email_verification_token', {
