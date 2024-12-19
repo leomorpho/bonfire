@@ -22,7 +22,7 @@
 	<p>Error: {data.error.message}</p>
 {:else if data.results}
 	<div class="bg-color-selector min-h-screen w-full">
-		<div class="bg-overlay">
+		<div class="bg-overlay-selector">
 			<EventForm mode={'update'} event={data.results[0]} />
 		</div>
 	</div>

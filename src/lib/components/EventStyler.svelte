@@ -19,7 +19,7 @@
 
 	// Preview or final target
 	let currentTargetSelector = 'bg-color-selector'; // Default to preview
-	let bgOverlaySelector = 'bg-overlay';
+	let bgOverlaySelector = 'bg-overlay-selector';
 
 	let overlayForShadnSlider = $state([overlayOpacity]);
 
@@ -45,14 +45,16 @@
 
 		// Replace the placeholder selector with the actual target
 		const completeCss = `
-		.${currentTargetSelector} {${finalStyleCss}}
+		.${currentTargetSelector} {
+			${finalStyleCss}
+		}
 
 		.${bgOverlaySelector} {
 				background-color: rgba(var(--overlay-color-rgb, ${parseColor(overlayColor)}), ${overlayOpacity});
 			}
 		`;
 
-		// console.log('applying css', completeCss);
+		console.log('applying css', completeCss);
 
 		// Create a new <style> tag for the selected preview style
 		styleElement = document.createElement('style');
