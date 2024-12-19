@@ -31,12 +31,6 @@ export const schema = {
 			})
 		}),
 		permissions: {
-			admin: {
-				read: { filter: [true] },
-				insert: { filter: [true] },
-				update: { filter: [true] },
-				delete: { filter: [true] }
-			},
 			user: {
 				read: { filter: [true] },
 				update: {
@@ -61,12 +55,6 @@ export const schema = {
 			uploaded_at: S.Date({ default: S.Default.now() }) // Timestamp of upload
 		}),
 		permissions: {
-			admin: {
-				read: { filter: [true] }, // Admins can read all profile images
-				insert: { filter: [true] }, // Admins can insert new profile images
-				update: { filter: [true] }, // Admins can update profile images
-				delete: { filter: [true] } // Admins can delete profile images
-			},
 			user: {
 				read: { filter: [true] },
 				insert: {
@@ -97,30 +85,36 @@ export const schema = {
 			attendees: S.RelationMany('attendees', {
 				where: [['event_id', '=', '$id']]
 			}),
-			annoucements : S.RelationMany('announcements', {
+			annoucements: S.RelationMany('announcements', {
 				where: [['event_id', '=', '$id']]
 			}),
-			style: S.String({nullable: true}),
-			overlay_color: S.String({nullable: true, optional: true}),
-			overlay_opacity: S.Number({nullable: true, optional: true}),
+			style: S.String({ nullable: true }),
+			overlay_color: S.String({ nullable: true, optional: true }),
+			overlay_opacity: S.Number({ nullable: true, optional: true })
 		}),
 		permissions: {
-			admin: {
-				read: { filter: [true] },
-				insert: { filter: [true] },
-				update: { filter: [true] },
-				delete: { filter: [true] }
-			},
 			user: {
-				// read: { filter: [['$role.userId', 'in', ['attendees.user_id']]] },
-				read: { filter: [true] },
+				read: {
+					filter: [
+						{
+							exists: {
+								// User has an attendance object for this event
+								collectionName: 'attendees',
+								where: [
+									['user_id', '=', '$role.userId'], // Current user is an attendee
+									['event_id', '=', '$id'] // Linked event
+								]
+							}
+						}
+					]
+				},
 				insert: { filter: [true] },
 				update: { filter: [['user_id', '=', '$role.userId']] },
 				delete: { filter: [['user_id', '=', '$role.userId']] }
 			},
-			anon: {
-				read: { filter: [true] }
-			}
+			// anon: {
+			// 	read: { filter: [true] }
+			// }
 		}
 	},
 	attendees: {
@@ -136,13 +130,6 @@ export const schema = {
 			updated_at: S.Date({ default: S.Default.now() }) // Last updated timestamp
 		}),
 		permissions: {
-			admin: {
-				// Admins can manage all attendance records
-				read: { filter: [true] },
-				insert: { filter: [true] },
-				update: { filter: [true] },
-				delete: { filter: [true] }
-			},
 			user: {
 				read: { filter: [true] },
 				// read: {
@@ -184,12 +171,6 @@ export const schema = {
 			event: S.RelationById('events', '$event_id') // Link to the event
 		}),
 		permissions: {
-			admin: {
-				read: { filter: [true] }, // Admins can read all files
-				insert: { filter: [true] }, // Admins can insert files
-				update: { filter: [true] }, // Admins can update files
-				delete: { filter: [true] } // Admins can delete files
-			},
 			user: {
 				read: { filter: [true] },
 
@@ -218,15 +199,9 @@ export const schema = {
 			user_id: S.String(),
 			user: S.RelationById('user', '$user_id'),
 			event_id: S.String(),
-			event: S.RelationById('events', '$event_id'),
+			event: S.RelationById('events', '$event_id')
 		}),
 		permissions: {
-			admin: {
-				read: { filter: [true] },
-				insert: { filter: [true] },
-				update: { filter: [true] },
-				delete: { filter: [true] }
-			},
 			user: {
 				read: { filter: [true] },
 				insert: { filter: [['event.user_id', '=', '$role.userId']] },
@@ -234,7 +209,7 @@ export const schema = {
 				delete: { filter: [['user_id', '=', '$role.userId']] }
 			}
 		}
-	},
+	}
 	// notifications: {
 	// 	schema: S.Schema({
 	// 		id: S.Id(),

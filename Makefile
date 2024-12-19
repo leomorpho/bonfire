@@ -17,6 +17,9 @@ define Comment
 	- Run `make help` to see all the available options.
 endef
 
+.PHONY: clean
+clean: ## Clean db and reseed
+	 rm local.db && npm run migrate && npm run seed
 
 .PHONY: dev
 dev: ## Start the dev server

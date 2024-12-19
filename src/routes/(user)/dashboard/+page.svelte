@@ -34,6 +34,9 @@
 
 			// let pastEventsQuery = createEventsQuery(client, userId, true);
 			// console.log('----> ??? ', await client.fetch(pastEventsQuery.build()));
+
+			let query = client.query('events').build();
+			console.log('all events this user can see', await client.fetch(query));
 		};
 
 		initEvents().catch((error) => {
@@ -69,7 +72,7 @@
 			{:else}
 				<div>
 					{#each futureEvents.results as attendance}
-					<EventCard
+						<EventCard
 							event={attendance.event}
 							{userId}
 							eventCreatorName={attendance['event.user'].username}

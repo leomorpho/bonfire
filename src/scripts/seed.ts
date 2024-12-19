@@ -3,7 +3,7 @@ import { generateId } from 'lucia';
 import { faker } from '@faker-js/faker';
 import type { TriplitClient } from '@triplit/client';
 import { serverTriplitClient } from '$lib/server/triplit';
-import { Status} from '$lib/enums';
+import { Status } from '$lib/enums';
 import { execSync } from 'child_process';
 
 // // Step 1: Run CLI commands
@@ -18,16 +18,24 @@ import { execSync } from 'child_process';
 //     process.exit(1); // Exit if the CLI commands fail
 // }
 
-let client = serverTriplitClient as TriplitClient;
+const client = serverTriplitClient as TriplitClient;
 
-let user = await createNewUser({
+const user = await createNewUser({
 	id: generateId(15),
 	email: 'mike@test.com',
 	email_verified: true,
 	num_logs: 3
 });
 
+const user2 = await createNewUser({
+	id: generateId(15),
+	email: 'jo@test.com',
+	email_verified: true,
+	num_logs: 3
+});
+
 await client.insert('user', { id: user.id, username: 'Mike' });
+await client.insert('user', { id: user2.id, username: 'Jo' });
 
 const now = new Date(); // Current date and time
 const fiveWeeksLater = new Date(now.getTime() + 5 * 7 * 24 * 60 * 60 * 1000); // Add 5 weeks in milliseconds
@@ -41,7 +49,19 @@ const { output } = await client.insert('events', {
 	user_id: user.id,
 	style: null,
 	overlay_color: null,
-	overlay_opacity: null,
+	overlay_opacity: null
+});
+
+await client.insert('events', {
+	title: faker.company.name(),
+	description: faker.company.buzzNoun(),
+	location: faker.location.streetAddress(),
+	start_time: fiveWeeksLater,
+	end_time: null,
+	user_id: user2.id,
+	style: null,
+	overlay_color: null,
+	overlay_opacity: null
 });
 
 // NOTE: BE should automatically create that missing `attendance` object.
@@ -61,7 +81,7 @@ for (let i = 0; i < 100; i++) {
 		id: generateId(15),
 		email: faker.internet.email(),
 		email_verified: true,
-		num_logs: 3,
+		num_logs: 3
 	});
 
 	await client.insert('user', { id: user.id, username: faker.internet.username() });
