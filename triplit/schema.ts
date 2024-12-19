@@ -1,4 +1,4 @@
-import { Schema as S, type Roles, type ClientSchema } from '@triplit/client';
+import { Schema as S, type Roles, type ClientSchema, or, and } from '@triplit/client';
 
 // Define roles
 export const roles: Roles = {
@@ -32,7 +32,42 @@ export const schema = {
 		}),
 		permissions: {
 			user: {
-				read: { filter: [true] },
+				read: {
+					filter: [
+						or([
+							['id', '=', '$role.userId'],
+							{
+								exists: {
+									collectionName: 'events', // There exists an event where...
+									where: [
+										and([
+											// Current user is an attendee
+											{
+												exists: {
+													collectionName: 'attendees',
+													where: [
+														['event_id', '=', '$1.id'],
+														['user_id', '=', '$role.userId']
+													]
+												}
+											},
+											// AND other user is an attendee
+											{
+												exists: {
+													collectionName: 'attendees',
+													where: [
+														['event_id', '=', '$1.id'],
+														['user_id', '=', '$2.user_id']
+													]
+												}
+											}
+										])
+									]
+								}
+							}
+						])
+					]
+				},
 				update: {
 					filter: [['id', '=', '$role.userId']] // Users can only update their own profile images
 				},
@@ -111,7 +146,7 @@ export const schema = {
 				insert: { filter: [true] },
 				update: { filter: [['user_id', '=', '$role.userId']] },
 				delete: { filter: [['user_id', '=', '$role.userId']] }
-			},
+			}
 			// anon: {
 			// 	read: { filter: [true] }
 			// }
@@ -131,7 +166,24 @@ export const schema = {
 		}),
 		permissions: {
 			user: {
-				read: { filter: [true] },
+				read: {
+					filter: [
+						or([
+							// Case 1: Direct access by user ID if it exists
+							['user_id', '=', '$role.userId'],
+							// Case 2: User is an attendee and can thus see attendees for common events
+							{
+								exists: {
+									collectionName: 'attendees',
+									where: [
+										['user_id', '=', '$role.userId'], // Current user is an attendee
+										['event_id', '=', '$event_id'] // Same event
+									]
+								}
+							}
+						])
+					]
+				},
 				// read: {
 				// 	filter: [
 				// 		['event.attendees.user_id', '=', '$role.userId'] // Users can only see attendees for events they are part of
