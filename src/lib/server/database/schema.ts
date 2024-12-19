@@ -1,7 +1,7 @@
 import { AttendanceStatus } from '../../enums';
 import { pgTable, text, integer, boolean, timestamp, serial, pgEnum } from 'drizzle-orm/pg-core';
 
-const eventStatusEnum = pgEnum(
+export const eventStatusEnum = pgEnum(
 	'attendance_status',
 	Object.values(AttendanceStatus) as [string, ...string[]]
 );
@@ -75,8 +75,8 @@ export const publicEventsDataTable = pgTable('public_events_data', {
 });
 
 export const privateEventsDataTable = pgTable('private_events_data', {
-	id: text('id').notNull().primaryKey(),
-	event_id: integer('event_id')
+	id: serial().primaryKey(),
+	event_id: text('event_id')
 		.notNull()
 		.references(() => publicEventsDataTable.id),
 	location: text('location'),
@@ -86,7 +86,7 @@ export const privateEventsDataTable = pgTable('private_events_data', {
 export const attendeesTable = pgTable('attendees', {
 	id: serial().primaryKey(),
 	created_at: timestamp('timestamp').notNull().defaultNow(),
-	event_id: integer('event_id')
+	event_id: text('event_id')
 		.notNull()
 		.references(() => publicEventsDataTable.id),
 	user_id: text('user_id')
