@@ -111,6 +111,7 @@
 		"lucia": "^3.2.2",
 		"oslo": "^1.2.1",
 		"photoswipe": "^5.4.4",
+		"pocketbase": "^0.24.0",
 		"posthog-js": "^1.176.0",
 		"probe-image-size": "^7.2.3",
 		"resend": "4.0.1-alpha.0",

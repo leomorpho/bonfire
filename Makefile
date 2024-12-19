@@ -22,9 +22,17 @@ endef
 clean: ## Clean db and reseed
 	 rm local.db && npm run migrate && npm run seed
 
+.PHONY: pocketbase
+pocketbase: ## Start pocketbase BE
+	cd pocketbase && air
+
 .PHONY: dev
 dev: ## Start the dev server
-	npm run dev
+	npm run dev 
+
+.PHONY: watch
+watch: ## Start BE and FE
+	overmind start
 
 .PHONY: up
 up: ## Start the Docker containers

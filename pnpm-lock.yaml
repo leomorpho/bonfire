@@ -131,6 +131,9 @@ importers:
       photoswipe:
         specifier: ^5.4.4
         version: 5.4.4
+      pocketbase:
+        specifier: ^0.24.0
+        version: 0.24.0
       posthog-js:
         specifier: ^1.176.0
         version: 1.194.2
@@ -4167,6 +4170,9 @@ packages:
     resolution: {integrity: sha512-eKpmys0UFDnfNb3vfsf8Vx2LEOtflgRebl0Im2eQQnYMA4Aqd+Zw8bEOB+7ZKvN76901mRnqdsiOGKxzVTbi7A==}
     engines: {node: '>=18'}
     hasBin: true
+
+  pocketbase@0.24.0:
+    resolution: {integrity: sha512-zcmEUsXGRT+AqRHzEMlheglOiQnhYKRxT0ew164kx38/IGsE7MLmlmEaMSkm3tUwiZe5qC3RcA5+SX0lkDUSHA==}
 
   possible-typed-array-names@1.0.0:
     resolution: {integrity: sha512-d7Uw+eZoloe0EHDIYoe+bQ5WXnGMOpmiZFTuMWCwpjzzkL2nTjcKiAk4hh8TjnGye2TwWOk3UXucZ+3rbmBa8Q==}
@@ -9099,6 +9105,8 @@ snapshots:
       playwright-core: 1.49.0
     optionalDependencies:
       fsevents: 2.3.2
+
+  pocketbase@0.24.0: {}
 
   possible-typed-array-names@1.0.0: {}
 
