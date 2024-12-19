@@ -1,8 +1,7 @@
-import { LOGIN_TYPE_ACTIVATION } from '$lib/enums';
+// import { LOGIN_TYPE_ACTIVATION } from '$lib/enums';
 import { lucia } from '$lib/server/auth';
 import { deleteEmailToken, getEmailToken } from '$lib/server/database/emailtoken.model';
 import { getUserById, updateUser } from '$lib/server/database/user.model';
-import { serverTriplitClient } from '$lib/server/triplit.js';
 import { isWithinExpirationDate } from 'oslo';
 
 export async function GET({ request }): Promise<Response> {
@@ -24,9 +23,9 @@ export async function GET({ request }): Promise<Response> {
 		return new Response('error', { status: 400 });
 	}
 
-	const loginType = new URL(request.url).searchParams.get('login_type');
-	if (loginType == LOGIN_TYPE_ACTIVATION) {
-	}
+	// const loginType = new URL(request.url).searchParams.get('login_type');
+	// if (loginType == LOGIN_TYPE_ACTIVATION) {
+	// }
 
 	const user = await getUserById(email_token.user_id);
 	if (!user || user.email !== email_token.email) {
@@ -42,13 +41,10 @@ export async function GET({ request }): Promise<Response> {
 	const session = await lucia.createSession(user.id, {});
 	const sessionCookie = lucia.createSessionCookie(session.id);
 
-	const query = serverTriplitClient.query('user').where('id', '=', user.id).build();
-
-	let result = await serverTriplitClient.fetch(query);
 
 	let location = '/dashboard';
 
-	if (result.length == 0 || result[0].username.length == 0) {
+	if (!user.username) {
 		location = '/profile/username';
 	}
 
