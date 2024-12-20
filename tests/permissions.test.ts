@@ -1,0 +1,97 @@
+import { serverTriplitClient } from '$lib/server/triplit';
+import { describe, it, expect } from 'vitest';
+import { Status } from '$lib/enums';
+
+const db = serverTriplitClient;
+
+async function seedEventsData() {
+	await db.transact(
+		async (tx) => {
+			await tx.insert('user', {
+				id: 'user-1',
+				username: 'Alice'
+			});
+			await tx.insert('user', {
+				id: 'user-2',
+				username: 'Bob'
+			});
+			await tx.insert('user', {
+				id: 'user-3',
+				username: 'Charlie'
+			});
+
+			await tx.insert('events', {
+				id: 'event-1',
+				title: '',
+				description: '',
+				location: '',
+				start_time: new Date(),
+				end_time: new Date(),
+				user_id: 'user-1',
+				style: '',
+				overlay_color: '',
+				overlay_opacity: 0
+			});
+			await tx.insert('events', {
+				id: 'event-3',
+				title: '',
+				description: '',
+				location: '',
+				start_time: new Date(),
+				end_time: new Date(),
+				user_id: 'user-2',
+				style: '',
+				overlay_color: '',
+				overlay_opacity: 0
+			});
+			await tx.insert('events', {
+				id: 'event-3',
+				title: '',
+				description: '',
+				location: '',
+				start_time: new Date(),
+				end_time: new Date(),
+				user_id: 'user-2',
+				style: '',
+				overlay_color: '',
+				overlay_opacity: 0
+			});
+
+			await tx.insert('attendees', {
+				id: 'attendee-1',
+				event_id: 'event-1',
+				user_id: 'user-1',
+				status: Status.GOING
+			});
+			await tx.insert('attendees', {
+				id: 'attendee-2',
+				event_id: 'event-2',
+				user_id: 'user-2',
+				status: Status.GOING
+			});
+			await tx.insert('attendees', {
+				id: 'attendee-3',
+				event_id: 'event-3',
+				user_id: 'user-2',
+				status: Status.GOING
+			});
+		},
+		{ skipRules: true }
+	);
+}
+
+describe('Permissions Tests', () => {
+	it('Unauthenticated users cannot query for events', async () => {
+		const user1Token = {
+			role: 'user',
+			user_id: 'user-1'
+		};
+
+		const user1DB = db.withSessionVars(user1Token);
+
+		const users = await user1DB.fetch(db.query('user').build());
+		console.log('users', users);
+		expect(users).toHaveLength(0);
+		// expect(user1Messages[0].text).toBe('Hello, world!');
+	});
+});
