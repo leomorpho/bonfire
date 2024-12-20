@@ -35,8 +35,24 @@
 			// let pastEventsQuery = createEventsQuery(client, userId, true);
 			// console.log('----> ??? ', await client.fetch(pastEventsQuery.build()));
 
-			let query = client.query('events').build();
-			console.log('all events this user can see', await client.fetch(query));
+			console.log(
+				'all events this user can see',
+				await client.fetch(client.query('events').build())
+			);
+			console.log('all users this user can see', await client.fetch(client.query('user').build()));
+			console.log(
+				'all profile_images this user can see',
+				await client.fetch(client.query('profile_images').build())
+			);
+			console.log(
+				'all attendees this user can see',
+				await client.fetch(client.query('attendees').build())
+			);
+			console.log('all files this user can see', await client.fetch(client.query('files').build()));
+			console.log(
+				'all announcement this user can see',
+				await client.fetch(client.query('announcement').build())
+			);
 		};
 
 		initEvents().catch((error) => {

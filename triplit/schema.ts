@@ -32,42 +32,44 @@ export const schema = {
 		}),
 		permissions: {
 			user: {
-				read: {
-					filter: [
-						or([
-							['id', '=', '$role.userId'],
-							{
-								exists: {
-									collectionName: 'events', // There exists an event where...
-									where: [
-										and([
-											// Current user is an attendee
-											{
-												exists: {
-													collectionName: 'attendees',
-													where: [
-														['event_id', '=', '$1.id'],
-														['user_id', '=', '$role.userId']
-													]
-												}
-											},
-											// AND other user is an attendee
-											{
-												exists: {
-													collectionName: 'attendees',
-													where: [
-														['event_id', '=', '$1.id'],
-														['user_id', '=', '$2.user_id']
-													]
-												}
-											}
-										])
-									]
-								}
-							}
-						])
-					]
-				},
+				read: { filter: [true] },
+				// read: {
+				// 	filter: [
+				// 		or([
+				// 			['id', '=', '$role.userId'],
+
+				// 			{
+				// 				exists: {
+				// 					collectionName: 'events', // There exists an event where...
+				// 					where: [
+				// 						and([
+				// 							// Current user is an attendee
+				// 							{
+				// 								exists: {
+				// 									collectionName: 'attendees',
+				// 									where: [
+				// 										['event_id', '=', '$2.id'],
+				// 										['user_id', '=', '$role.userId']
+				// 									]
+				// 								}
+				// 							},
+				// 							// AND other user is an attendee
+				// 							{
+				// 								exists: {
+				// 									collectionName: 'attendees',
+				// 									where: [
+				// 										['event_id', '=', '$2.id'],
+				// 										['user_id', '=', '$1.user_id']
+				// 									]
+				// 								}
+				// 							}
+				// 						])
+				// 					]
+				// 				}
+				// 			}
+				// 		])
+				// 	]
+				// },
 				update: {
 					filter: [['id', '=', '$role.userId']] // Users can only update their own profile images
 				},
