@@ -61,19 +61,28 @@ async function seedEventsData() {
 				id: 'attendee-1',
 				event_id: 'event-1',
 				user_id: 'user-1',
-				status: Status.GOING
+				status: Status.GOING,
+				last_seen_announcement_timestamp: new Date(),
+				last_seen_gallery_timestamp: new Date(),
+				last_seen_reminder_timestamp: new Date()
 			});
 			await tx.insert('attendees', {
 				id: 'attendee-2',
 				event_id: 'event-2',
 				user_id: 'user-2',
-				status: Status.GOING
+				status: Status.GOING,
+				last_seen_announcement_timestamp: new Date(),
+				last_seen_gallery_timestamp: new Date(),
+				last_seen_reminder_timestamp: new Date()
 			});
 			await tx.insert('attendees', {
 				id: 'attendee-3',
 				event_id: 'event-3',
 				user_id: 'user-2',
-				status: Status.GOING
+				status: Status.GOING,
+				last_seen_announcement_timestamp: new Date(),
+				last_seen_gallery_timestamp: new Date(),
+				last_seen_reminder_timestamp: new Date()
 			});
 		},
 		{ skipRules: true }
@@ -82,14 +91,18 @@ async function seedEventsData() {
 
 describe('Permissions Tests', () => {
 	it('Unauthenticated users cannot query for events', async () => {
+		await seedEventsData();
+
 		const user1Token = {
-			role: 'user',
-			user_id: 'user-1'
+			// role: 'user',
+			// user_id: 'user-1'
 		};
 
 		const user1DB = db.withSessionVars(user1Token);
 
-		const users = await user1DB.fetch(db.query('user').build());
+		const query = db.query('user').build();
+
+		const users = await user1DB.fetch(query);
 		console.log('users', users);
 		expect(users).toHaveLength(0);
 		// expect(user1Messages[0].text).toBe('Hello, world!');

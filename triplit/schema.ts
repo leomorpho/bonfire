@@ -28,48 +28,30 @@ export const schema = {
 			username: S.String(),
 			profile_image: S.RelationOne('profile_images', {
 				where: [['user_id', '=', '$id']]
+			}),
+			attendances: S.RelationMany('attendees', {
+				where: [['user_id', '=', '$id']]
+			}),
+			events: S.RelationMany('events', {
+				where: [
+					or([
+						['user_id', '=', '$id'], // User is the creator
+						['attending_users.id', '=', '$id'] // User is an attendee
+					])
+				]
 			})
 		}),
 		permissions: {
 			user: {
-				read: { filter: [true] },
-				// read: {
-				// 	filter: [
-				// 		or([
-				// 			['id', '=', '$role.userId'],
-
-				// 			{
-				// 				exists: {
-				// 					collectionName: 'events', // There exists an event where...
-				// 					where: [
-				// 						and([
-				// 							// Current user is an attendee
-				// 							{
-				// 								exists: {
-				// 									collectionName: 'attendees',
-				// 									where: [
-				// 										['event_id', '=', '$2.id'],
-				// 										['user_id', '=', '$role.userId']
-				// 									]
-				// 								}
-				// 							},
-				// 							// AND other user is an attendee
-				// 							{
-				// 								exists: {
-				// 									collectionName: 'attendees',
-				// 									where: [
-				// 										['event_id', '=', '$2.id'],
-				// 										['user_id', '=', '$1.user_id']
-				// 									]
-				// 								}
-				// 							}
-				// 						])
-				// 					]
-				// 				}
-				// 			}
-				// 		])
-				// 	]
-				// },
+				read: {
+					filter: [true
+						// or([
+						// 	['id', '=', '$role.userId'], // User can read their own profile
+						// 	// A user should be able to only query for users and attendees who are attending a same event:
+						// 	['events.attending_users.id', '=', '$role.userId']
+						// ])
+					]
+				},
 				update: {
 					filter: [['id', '=', '$role.userId']] // Users can only update their own profile images
 				},
@@ -78,7 +60,7 @@ export const schema = {
 				}
 			},
 			anon: {
-				read: { filter: [true] }
+				read: { filter: [false] }
 			}
 		}
 	},
@@ -125,6 +107,12 @@ export const schema = {
 			annoucements: S.RelationMany('announcements', {
 				where: [['event_id', '=', '$id']]
 			}),
+			attending_users: S.RelationMany('user', {
+				where: [['events.id', '=', '$id']]
+			}),
+			viewers: S.RelationMany('user', {
+				where: [['events.id', '=', '$id']]
+			}),
 			style: S.String({ nullable: true }),
 			overlay_color: S.String({ nullable: true, optional: true }),
 			overlay_opacity: S.Number({ nullable: true, optional: true })
@@ -132,17 +120,12 @@ export const schema = {
 		permissions: {
 			user: {
 				read: {
-					filter: [
-						{
-							exists: {
-								// User has an attendance object for this event
-								collectionName: 'attendees',
-								where: [
-									['user_id', '=', '$role.userId'], // Current user is an attendee
-									['event_id', '=', '$id'] // Linked event
-								]
-							}
-						}
+					filter: [true
+						// or([
+						// 	['user_id', '=', '$role.userId'],
+						// 	['attendees.user_id', '=', '$role.userId'], // user is an attendee
+						// 	['viewers.id', '=', '$role.userId'] // user is a viewer
+						// ])
 					]
 				},
 				insert: { filter: [true] },
@@ -164,33 +147,23 @@ export const schema = {
 			status: S.String({ default: 'undecided' }), // RSVP status: attending, not attending, undecided
 			// guest_count: S.Number({ default: 0 }), // Number of additional guests
 			// special_requests: S.String({ nullable: true }), // Any special requests (e.g., dietary)
-			updated_at: S.Date({ default: S.Default.now() }) // Last updated timestamp
+			updated_at: S.Date({ default: S.Default.now() }), // Last updated timestamp
+			last_seen_announcement_timestamp: S.Date({default: S.Default.now()}), // The last seen announcement timestamp
+			last_seen_gallery_timestamp: S.Date({default: S.Default.now()}), // The last seen gallery timestamp
+			last_seen_reminder_timestamp: S.Date({default: S.Default.now()}) // The last seen reminder timestamp
+
 		}),
 		permissions: {
 			user: {
 				read: {
-					filter: [
-						or([
-							// Case 1: Direct access by user ID if it exists
-							['user_id', '=', '$role.userId'],
-							// Case 2: User is an attendee and can thus see attendees for common events
-							{
-								exists: {
-									collectionName: 'attendees',
-									where: [
-										['user_id', '=', '$role.userId'], // Current user is an attendee
-										['event_id', '=', '$event_id'] // Same event
-									]
-								}
-							}
-						])
+					filter: [true
+						// or([
+						// 	['user_id', '=', '$role.userId'],
+						// 	// ['event.attendees.user_id', '=', '$role.userId'], // user is an attendee
+						// 	// ['event.viewers.id', '=', '$role.userId'] // user is a viewer
+						// ])
 					]
 				},
-				// read: {
-				// 	filter: [
-				// 		['event.attendees.user_id', '=', '$role.userId'] // Users can only see attendees for events they are part of
-				// 	]
-				// },
 				insert: {
 					// Users can RSVP or add themselves as attendees
 					filter: [['user_id', '=', '$role.userId']]
@@ -227,12 +200,6 @@ export const schema = {
 		permissions: {
 			user: {
 				read: { filter: [true] },
-
-				// read: {
-				// 	filter: [
-				// 		['event.attendees.user_id', '=', '$role.userId'] // Check if user is an attendee of the event
-				// 	]
-				// },
 				// No need to allow read and insert since we will do that in BE logic and
 				// triplit doesn't seem powerful enough to be able to set appropriate permissions (user
 				// is attending event).
