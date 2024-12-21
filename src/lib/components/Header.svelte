@@ -6,6 +6,8 @@
 	import { LogOut, Menu, FlameKindling } from 'lucide-svelte';
 	import { page } from '$app/stores';
 	import { enhance } from '$app/forms';
+	import { Button } from '$lib/components/ui/button/index.js';
+	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 
 	const authLinks: Array<Link> = [
 		{ name: 'Dashboard', href: '/dashboard' },
@@ -24,6 +26,8 @@
 	if ($page.data.user) {
 		links = authLinks;
 	}
+
+	let showMenu = false;
 </script>
 
 <Container>
@@ -67,39 +71,59 @@
 			{:else}
 				<a href="/login" class="btn ml-auto mr-2 hidden sm:flex"> <FlameKindling />login</a>
 			{/if}
-			<!-- <a href="/" class="btn ml-auto">your call to action</a> -->
-			<div class="dropdown dropdown-end">
-				<div tabindex="0" role="button" class="btn btn-ghost m-1"><Menu /></div>
-				<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-				<ul
-					tabindex="0"
-					class="menu dropdown-content z-[1] w-52 rounded-box bg-base-100 p-2 shadow"
-				>
-					{#each links as link}
-						<li>
-							<a href={link.href}>{link.name}</a>
-						</li>
-					{/each}
+			<DropdownMenu.Root bind:open={showMenu}>
+				<DropdownMenu.Trigger><Menu /></DropdownMenu.Trigger>
+				<DropdownMenu.Content class="m-2">
+					<DropdownMenu.Group>
+						<!-- <DropdownMenu.Label>My Account</DropdownMenu.Label> -->
+						<!-- <DropdownMenu.Separator /> -->
 
-					{#if $page.data.user}
-						<form
-							method="post"
-							class="btn mx-2 mb-2 mt-5 sm:hidden"
-							action="/login?/signout"
-							use:enhance
-						>
-							<button type="submit">
-								<div class="flex items-center text-red-500">
-									<LogOut class="mr-2 h-4 w-4" />
-									<span>Log out</span>
-								</div>
-							</button>
-						</form>
-					{:else}
-						<a href="/login" class="btn mx-2 mb-2 mt-5 sm:hidden"> <FlameKindling />login</a>
-					{/if}
-				</ul>
-			</div>
+						{#each links as link}
+							<a
+								href={link.href}
+								on:click={() => {
+									showMenu = false;
+								}}
+							>
+								<DropdownMenu.Item class="cursor-pointer p-2 px-4">{link.name}</DropdownMenu.Item>
+							</a>
+						{/each}
+
+						{#if $page.data.user}
+							<form
+								method="post"
+								class="btn mx-2 mb-2 mt-5 sm:hidden"
+								action="/login?/signout"
+								use:enhance
+							>
+								<button
+									type="submit"
+									on:click={() => {
+										showMenu = false;
+									}}
+								>
+									<div class="flex items-center text-red-500">
+										<DropdownMenu.Item>
+											<LogOut class="mr-2 h-4 w-4" />
+											<span>Log out</span>
+										</DropdownMenu.Item>
+									</div>
+								</button>
+							</form>
+						{:else}
+							<a
+								href="/login"
+								on:click={() => {
+									showMenu = false;
+								}}
+								class="btn mx-2 mb-2 mt-5 sm:hidden"
+							>
+								<FlameKindling />login</a
+							>
+						{/if}
+					</DropdownMenu.Group>
+				</DropdownMenu.Content>
+			</DropdownMenu.Root>
 		</div>
 	</header>
 </Container>
