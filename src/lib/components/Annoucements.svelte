@@ -50,7 +50,7 @@
 		{#each announcements.results as announcement}
 			<Card.Root class="announcement bg-slate-200 bg-opacity-90">
 				<Card.Header>
-					<Card.Title>{announcement.content}</Card.Title>
+					<Card.Title class="font-normal">{announcement.content}</Card.Title>
 					<Card.Description
 						><div class="font-medium">
 							{formatHumanReadable(announcement.created_at)}
