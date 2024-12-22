@@ -44,7 +44,8 @@ export const schema = {
 		permissions: {
 			user: {
 				read: {
-					filter: [true
+					filter: [
+						true
 						// or([
 						// 	['id', '=', '$role.userId'], // User can read their own profile
 						// 	// A user should be able to only query for users and attendees who are attending a same event:
@@ -120,7 +121,8 @@ export const schema = {
 		permissions: {
 			user: {
 				read: {
-					filter: [true
+					filter: [
+						true
 						// or([
 						// 	['user_id', '=', '$role.userId'],
 						// 	['attendees.user_id', '=', '$role.userId'], // user is an attendee
@@ -148,15 +150,20 @@ export const schema = {
 			// guest_count: S.Number({ default: 0 }), // Number of additional guests
 			// special_requests: S.String({ nullable: true }), // Any special requests (e.g., dietary)
 			updated_at: S.Date({ default: S.Default.now() }), // Last updated timestamp
-			last_seen_announcement_timestamp: S.Date({default: S.Default.now()}), // The last seen announcement timestamp
-			last_seen_gallery_timestamp: S.Date({default: S.Default.now()}), // The last seen gallery timestamp
-			last_seen_reminder_timestamp: S.Date({default: S.Default.now()}) // The last seen reminder timestamp
 
+			// Foreign Key Relations
+			seen_announcements: S.RelationMany('seen_announcements', {
+				where: [['attendee_id', '=', '$id']] // Link to seen_announcements
+			}),
+			seen_gallery_items: S.RelationMany('seen_gallery_items', {
+				where: [['attendee_id', '=', '$id']] // Link to seen_gallery_items
+			})
 		}),
 		permissions: {
 			user: {
 				read: {
-					filter: [true
+					filter: [
+						true
 						// or([
 						// 	['user_id', '=', '$role.userId'],
 						// 	// ['event.attendees.user_id', '=', '$role.userId'], // user is an attendee
@@ -228,6 +235,48 @@ export const schema = {
 				insert: { filter: [['event.user_id', '=', '$role.userId']] },
 				update: { filter: [['user_id', '=', '$role.userId']] },
 				delete: { filter: [['user_id', '=', '$role.userId']] }
+			}
+		}
+	},
+	seen_announcements: {
+		schema: S.Schema({
+			id: S.Id(),
+			attendee_id: S.String(), // ID of the attendee
+			attendee: S.RelationById('attendees', '$attendee_id'), // Link to the attendee
+			announcement_id: S.String(), // ID of the seen announcement
+			announcement: S.RelationById('announcement', '$announcement_id'), // Link to the announcement
+			seen_at: S.Date({ default: S.Default.now() }) // Timestamp when the announcement was seen
+		}),
+		permissions: {
+			user: {
+				read: { filter: [['attendee.user_id', '=', '$role.userId']] }, // Only the user can read their seen announcements
+				insert: { filter: [['attendee.user_id', '=', '$role.userId']] }, // Only the user can mark an announcement as seen
+				update: { filter: [['attendee.user_id', '=', '$role.userId']] }, // Only the user can update their seen announcements
+				delete: { filter: [['attendee.user_id', '=', '$role.userId']] } // Only the user can delete their seen announcements
+			},
+			anon: {
+				read: { filter: [false] } // Anonymous users cannot access seen announcements
+			}
+		}
+	},
+	seen_gallery_items: {
+		schema: S.Schema({
+			id: S.Id(),
+			attendee_id: S.String(), // ID of the attendee
+			attendee: S.RelationById('attendees', '$attendee_id'), // Link to the attendee
+			gallery_item_id: S.String(), // ID of the seen gallery item
+			gallery_item: S.RelationById('files', '$gallery_item_id'), // Link to the gallery item
+			seen_at: S.Date({ default: S.Default.now() }) // Timestamp when the gallery item was seen
+		}),
+		permissions: {
+			user: {
+				read: { filter: [['attendee.user_id', '=', '$role.userId']] }, // Only the user can read their seen gallery items
+				insert: { filter: [['attendee.user_id', '=', '$role.userId']] }, // Only the user can mark a gallery item as seen
+				update: { filter: [['attendee.user_id', '=', '$role.userId']] }, // Only the user can update their seen gallery items
+				delete: { filter: [['attendee.user_id', '=', '$role.userId']] } // Only the user can delete their seen gallery items
+			},
+			anon: {
+				read: { filter: [false] } // Anonymous users cannot access seen gallery items
 			}
 		}
 	}
