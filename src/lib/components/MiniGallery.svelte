@@ -31,7 +31,7 @@
 		{#each eventFiles as file}
 			<a href={file.URL} data-pswp-width={file.w_pixel} data-pswp-height={file.h_pixel}>
 				<Image
-					class="rounded-lg"
+					class="rounded-lg border-2 border-white-500"
 					height={file.h_pixel}
 					src={file.URL}
 					layout="constrained"
@@ -50,11 +50,20 @@
 					See {fileCount} more
 				</div>
 			</a>
+		{:else}
+			<a href="media/gallery" class="see-all-link block">
+				<div
+					class="flex items-center justify-center rounded-lg bg-gray-200 text-center font-semibold sm:text-lg"
+					style="aspect-ratio: 5 / 3; width: 100%;"
+				>
+					See Gallery
+				</div>
+			</a>
 		{/if}
 	</div>
 {/if}
 <a href="media/add"
-	><Button  class="flex w-full items-center justify-center ring-glow"
+	><Button class="flex w-full items-center justify-center ring-glow"
 		><ImagePlus />Add to gallery</Button
 	>
 </a>

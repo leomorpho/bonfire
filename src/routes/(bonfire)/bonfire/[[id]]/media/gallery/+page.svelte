@@ -52,7 +52,7 @@
 			const selectedElements = document.querySelectorAll('.image-item.border-blue-400');
 			selectedElements.forEach((el) => {
 				el.classList.remove('border-blue-400');
-				el.classList.add('border-transparent');
+				el.classList.add('border-white');
 			});
 
 			lightbox = createPhotoSwipe();
@@ -70,7 +70,7 @@
 		const selectedElements = document.querySelectorAll('.image-item.border-blue-400');
 		selectedElements.forEach((el) => {
 			el.classList.remove('border-blue-400');
-			el.classList.add('border-transparent');
+			el.classList.add('border-white');
 		});
 		selectedImages = [];
 		console.log('Selection cleared');
@@ -265,7 +265,7 @@
 	function handleSelectionChange(elements: Element[] | NodeListOf<Element>, targetArray: any[]) {
 		elements.forEach((el) => {
 			// Update element styles
-			el.classList.remove('border-transparent');
+			el.classList.remove('border-white');
 			el.classList.add('border-blue-400');
 
 			// Extract attributes
@@ -444,7 +444,7 @@
 			// Remove unselected images
 			changed.removed.forEach((el) => {
 				el.classList.remove('border-blue-400');
-				el.classList.add('border-transparent');
+				el.classList.add('border-white');
 				const id = el.getAttribute('data-id');
 				const index = selectedImages.findIndex((img) => img.id === id);
 				if (index > -1) selectedImages.splice(index, 1);
@@ -505,7 +505,7 @@
 			>
 				{#each $page.data.eventFiles as file}
 					<div
-						class="image-item rounded-xl border-4 border-transparent"
+						class="image-item rounded-xl border-2 border-white"
 						data-id={file.id}
 						data-uploader-id={file.uploader_id}
 						data-src={file.URL}
