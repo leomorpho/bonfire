@@ -466,10 +466,10 @@
 <div class="mx-4 mb-48 flex flex-col items-center justify-center">
 	<!-- Breadcrumbs and Toggle Buttons -->
 	<div
-		class="sticky top-0 z-10 mt-2 flex w-full flex-col items-center justify-between rounded-xl bg-white bg-opacity-95 px-2 min-[320px]:flex-row"
+		class="sticky top-0 z-10 mt-2 flex sm:w-[550px] md:w-[650px] lg:w-[950px] flex-col items-center justify-between rounded-xl bg-white bg-opacity-95 px-2 min-[320px]:flex-row"
 	>
 		<Breadcrumb.Root>
-			<Breadcrumb.List class="text-xs sm:text-sm">
+			<Breadcrumb.List class="text-xs sm:text-sm ml-2 sm:ml-5">
 				<Breadcrumb.Item>
 					<Breadcrumb.Link href={`/bonfire/${$page.params.id}`}>Event</Breadcrumb.Link>
 				</Breadcrumb.Item>
