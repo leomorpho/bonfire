@@ -206,12 +206,12 @@
 							/>
 						{/each}
 						<Dialog.Root>
-							<Dialog.Trigger class="flex items-center pl-5 sm:pl-6 "
+							<Dialog.Trigger class="flex items-center"
 								>{#if attendeesGoing.length > showMaxNumPeople}
 									<div class="rounded-xl bg-white text-sm text-gray-500">
 										and {attendeesGoing.length - showMaxNumPeople} more
 									</div>
-								{/if}<Plus class="ml-1 h-4 w-4 rounded-xl bg-white sm:h-5 sm:w-5" /></Dialog.Trigger
+								{/if}<div class="w-12 h-12 sm:w-14 sm:h-14 flex justify-center items-center"><Plus class="ml-1 h-4 w-4 rounded-xl bg-white sm:h-5 sm:w-5" /></div></Dialog.Trigger
 							>
 							<Dialog.Content class="h-full">
 								<ScrollArea>
