@@ -76,14 +76,18 @@ function getRandomStatus() {
 	return statuses[Math.floor(Math.random() * statuses.length)];
 }
 
-// Create up to 5 announcements
+// Create 5 announcements
 const announcements = [];
+const daysBack = 5; // Start 5 days back
 
 for (let i = 0; i < 5; i++) {
+	const createdAt = new Date();
+	createdAt.setDate(createdAt.getDate() - (daysBack - i)); // Spread dates from 5 days back to today
+
 	const announcement = await client.insert('announcement', {
 		id: generateId(15),
 		content: faker.lorem.paragraph(),
-		created_at: new Date(),
+		created_at: createdAt,
 		user_id: user.id, // Event creator is making the announcement
 		event_id: output.id
 	});

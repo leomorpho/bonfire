@@ -12,22 +12,12 @@
 
 	let { eventId, currUserId, maxCount, allAnnoucementsURL = '' } = $props();
 
-	let client = getFeTriplitClient($page.data.jwt) as TriplitClient;
-
+	let announcements = $state();
 	let totalCount = $state(0);
 
-	let announcementsQuery = client
-		.query('announcement')
-		.where(['event_id', '=', eventId])
-		.order('created_at', 'DESC');
-
-	if (maxCount) {
-		announcementsQuery = announcementsQuery.limit(maxCount);
-	}
-
-	let announcements = useQuery(client, announcementsQuery);
-
 	onMount(() => {
+		let client = getFeTriplitClient($page.data.jwt) as TriplitClient;
+
 		const init = async () => {
 			let totalCountResults = await client.fetch(
 				client.query('announcement').where(['event_id', '=', eventId]).select(['id']).build()
@@ -36,6 +26,17 @@
 		};
 
 		init();
+
+		let announcementsQuery = client
+			.query('announcement')
+			.where(['event_id', '=', eventId])
+			.order('created_at', 'DESC');
+
+		if (maxCount) {
+			announcementsQuery = announcementsQuery.limit(maxCount);
+		}
+
+		announcements = useQuery(client, announcementsQuery);
 	});
 </script>
 
@@ -47,7 +48,7 @@
 	{console.log('announcements', announcements.results)}
 	<div class="space-y-3">
 		{#each announcements.results as announcement}
-			<Card.Root class="announcement">
+			<Card.Root class="announcement bg-slate-200 bg-opacity-90">
 				<Card.Header>
 					<Card.Title>{announcement.content}</Card.Title>
 					<Card.Description
@@ -68,7 +69,7 @@
 		{/each}
 		{#if totalCount > maxCount}
 			<a href={allAnnoucementsURL}>
-				<Button class="mt-3 w-full">See {totalCount - maxCount} more annoucements</Button>
+				<Button class="mt-3 w-full ring-glow">See {totalCount - maxCount} more annoucements</Button>
 			</a>
 		{/if}
 	</div>
