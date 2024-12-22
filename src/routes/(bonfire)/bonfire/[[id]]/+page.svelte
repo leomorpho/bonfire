@@ -72,7 +72,7 @@
 				.include('user')
 				.build(),
 			(results) => {
-				console.log("number users: ", results.length)
+				console.log('number users: ', results.length);
 				// Separate attendees into different variables by status
 				attendeesGoing = results.filter((attendee) => attendee.status === Status.GOING);
 				attendeesNotGoing = results.filter((attendee) => attendee.status === Status.NOT_GOING);
@@ -174,7 +174,7 @@
 	<div class="mx-4 flex flex-col items-center justify-center">
 		<section class="mt-8 w-full sm:w-[450px] md:w-[550px] lg:w-[650px]">
 			{#if event.results[0].user_id == (userId as string)}
-				<div class="w-full flex justify-center">
+				<div class="flex w-full justify-center">
 					<a href="update">
 						<Button variant="outline" class="m-2 rounded-full">
 							<Cog class="h-5 w-5" />

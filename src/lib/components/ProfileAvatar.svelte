@@ -9,7 +9,7 @@
 
 <Popover.Root>
 	<Popover.Trigger
-		><Avatar.Root class="w-12 h-12 sm:w-14 sm:h-14">
+		><Avatar.Root class="w-12 h-12 sm:w-14 sm:h-14 border-2 border-white">
 			<Avatar.Image src={url} alt={username} />
 			<Avatar.Fallback>{fallbackName.slice(0, 2)}</Avatar.Fallback>
 		</Avatar.Root>
