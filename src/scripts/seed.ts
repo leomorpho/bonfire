@@ -47,14 +47,21 @@ const { output } = await client.insert('events', {
 	start_time: fiveWeeksLater,
 	end_time: null,
 	user_id: user.id,
-	style: null,
+	style: `
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/subway-lines.png'); /* Replace with the URL of your tileable image */
+  background-repeat: repeat; /* Tiles the image in both directions */
+  background-size: auto; /* Ensures the image retains its original size */
+  background-color: #ffffff; /* Fallback background color */
+  width: 100%;
+  height: 100%;   
+    `,
 	overlay_color: null,
-	overlay_opacity: null
+	overlay_opacity: 0.526
 });
 
 await client.insert('events', {
-	title: faker.company.name(),
-	description: faker.company.buzzNoun(),
+	title: 'Hangout at Cactus',
+	description: 'Come and chill with friends and good food',
 	location: faker.location.streetAddress(),
 	start_time: fiveWeeksLater,
 	end_time: null,
@@ -64,35 +71,56 @@ await client.insert('events', {
 	overlay_opacity: null
 });
 
-// NOTE: BE should automatically create that missing `attendance` object.
-// await client.insert('attendees', {
-// 	event_id: output.id,
-// 	user_id: user?.id,
-// 	status: getRandomStatus()
-// });
-
 function getRandomStatus() {
 	const statuses = [Status.GOING, Status.NOT_GOING, Status.MAYBE];
 	return statuses[Math.floor(Math.random() * statuses.length)];
 }
 
+// Create up to 5 announcements
+const announcements = [];
+
+for (let i = 0; i < 5; i++) {
+	const announcement = await client.insert('announcement', {
+		id: generateId(15),
+		content: faker.lorem.paragraph(),
+		created_at: new Date(),
+		user_id: user.id, // Event creator is making the announcement
+		event_id: output.id
+	});
+
+	announcements.push(announcement.output.id);
+}
+
 for (let i = 0; i < 100; i++) {
-	const user = await createNewUser({
+	const attendeeUser = await createNewUser({
 		id: generateId(15),
 		email: faker.internet.email(),
 		email_verified: true,
 		num_logs: 3
 	});
 
-	await client.insert('user', { id: user.id, username: faker.internet.username() });
+	await client.insert('user', { id: attendeeUser.id, username: faker.internet.username() });
 
 	await client.insert('attendees', {
 		event_id: output.id,
-		user_id: user?.id,
+		user_id: attendeeUser.id,
 		status: getRandomStatus()
 	});
 
-	console.log(`User ${i + 1} and event created:`, {
-		user: user.email
+	// Randomly mark some users as having seen the announcements
+	announcements.forEach(async (announcementId) => {
+		const hasSeen = Math.random() < 0.7; // 70% chance a user has seen the announcement
+		if (hasSeen) {
+			await client.insert('seen_announcements', {
+				id: generateId(15),
+				announcement_id: announcementId,
+				attendee_id: attendeeUser.id,
+				seen_at: new Date()
+			});
+		}
+	});
+
+	console.log(`User ${i + 1} created and events/announcements seeded:`, {
+		user: attendeeUser.email
 	});
 }

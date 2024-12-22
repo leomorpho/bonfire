@@ -202,7 +202,10 @@ export const schema = {
 			uploader_id: S.String(), // ID of the attendee
 			uploader: S.RelationById('user', '$user_id'), // Link to the user
 			event_id: S.String(), // ID of the event
-			event: S.RelationById('events', '$event_id') // Link to the event
+			event: S.RelationById('events', '$event_id'), // Link to the event
+			seen_by: S.RelationMany('seen_gallery_items', {
+				where: [['gallery_item_id', '=', '$id']]
+			})
 		}),
 		permissions: {
 			user: {
@@ -227,7 +230,11 @@ export const schema = {
 			user_id: S.String(),
 			user: S.RelationById('user', '$user_id'),
 			event_id: S.String(),
-			event: S.RelationById('events', '$event_id')
+			event: S.RelationById('events', '$event_id'),
+
+			seen_by: S.RelationMany('seen_announcements', {
+				where: [['announcement_id', '=', '$id']]
+			})
 		}),
 		permissions: {
 			user: {
