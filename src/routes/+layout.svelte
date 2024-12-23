@@ -41,6 +41,21 @@
 	<meta name="description" content={meta.description} />
 	<link rel="canonical" href={meta.canonicalUrl} />
 
+	<!-- PWA -->
+	<meta name="application-name" content="Bonfire" />
+	<meta name="msapplication-starturl" content="https://todo.app" />
+	<meta name="mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+	<meta name="apple-mobile-web-app-title" content="Bonfire" />
+	<link rel="apple-touch-startup-image" href="ios-startup.png" />
+	<meta name="color-scheme" content="light dark" />
+
+	<script src="https://cdn.jsdelivr.net/npm/ios-pwa-splash@1.0.0/cdn.min.js"></script>
+	<script >
+		iosPWASplash("static/icon-192.png", "#000000");
+	</script>
+
 	<!--
 		  Icons
 		  - https://evilmartians.com/chronicles/how-to-favicon-in-2021-six-files-that-fit-most-needs

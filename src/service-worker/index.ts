@@ -60,3 +60,65 @@ self.addEventListener('fetch', (event) => {
 
     event.respondWith(respond());
 });
+
+self.addEventListener("push", (event) => {
+    try {
+      console.log("[Service Worker] Push Received.");
+  
+      const data = event.data.json();
+      const title = data.title || "Bonfire";
+      // Extract the unread count from the push message data.
+      const message = event.data.json();
+      const unreadCount = message.unreadCount;
+  
+      // Set or clear the badge on the app icon.
+      if (navigator.setAppBadge) {
+        if (unreadCount && unreadCount > 0) {
+          navigator.setAppBadge(unreadCount);
+        } else {
+          navigator.clearAppBadge();
+        }
+      }
+  
+      const options = {
+        body: data.body,
+        icon: "https://chatbond-static.s3.us-west-002.backblazeb2.com/cherie/pwa/manifest-icon-96.maskable.png",
+      };
+  
+      // It's obligatory to show the notification to the user.
+      event.waitUntil(self.registration.showNotification(title, options));
+    } catch (error) {
+      console.error("Error in push event:", error);
+    }
+  });
+  
+  self.addEventListener("notificationclick", function (event) {
+    // Close the notification when clicked
+    event.notification.close();
+  
+    // Retrieve dynamic URL from the notification data
+    const notificationData = event.notification.data;
+    const targetUrl = notificationData
+      ? notificationData.url
+      : "/dashboard";
+  
+    // This looks to see if the current is already open and focuses if it is
+    event.waitUntil(
+      clients
+        .matchAll({
+          type: "window",
+        })
+        .then(function (clientList) {
+          for (var i = 0; i < clientList.length; i++) {
+            var client = clientList[i];
+            if (client.url === targetUrl && "focus" in client) {
+              return client.focus();
+            }
+          }
+          if (clients.openWindow) {
+            return clients.openWindow(targetUrl);
+          }
+        })
+    );
+  });
+  
