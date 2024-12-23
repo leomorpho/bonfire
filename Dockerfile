@@ -22,6 +22,7 @@ ENV PORT 4000
 
 # Copy the necessary files from the build stage
 COPY --from=builder /app/build ./build
+COPY --from=builder /app/public ./public
 COPY --from=builder /app/package.json ./
 COPY --from=builder /app/node_modules ./node_modules
 
