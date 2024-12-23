@@ -25,7 +25,6 @@
 
 	let event = $state();
 	let fileCount = $state();
-	let announcements = $state({});
 
 	let rsvpStatus = $state('');
 
@@ -35,10 +34,11 @@
 
 	let profileImageMap = $page.data.profileImageMap;
 
-	let attendeesGoing = $state([]);
-	let attendeesMaybeGoing = $state([]);
-	let attendeesNotGoing = $state([]);
+	let attendeesGoing: any = $state([]);
+	let attendeesMaybeGoing: any = $state([]);
+	let attendeesNotGoing: any = $state([]);
 
+	let currentUserAttendee = $state();
 	const showMaxNumPeople = 50;
 
 	onMount(() => {
@@ -54,15 +54,6 @@
 		fileCount = useQuery(
 			client,
 			client.query('files').where(['event_id', '=', $page.params.id]).select(['id'])
-		);
-
-		announcements = useQuery(
-			client,
-			client
-				.query('announcement')
-				.where(['event_id', '=', $page.params.id])
-				.order('created_at', 'DESC')
-				.limit(3)
 		);
 
 		const unsubscribeAttendeesQuery = client.subscribe(
@@ -122,7 +113,7 @@
 			const attendees = allAttendees;
 
 			if (attendees && attendees.length > 0) {
-				const currentUserAttendee = attendees.find((attendee) => attendee.user_id == userId);
+				currentUserAttendee = attendees.find((attendee) => attendee.user_id == userId);
 
 				// Set RSVP status based on the attendee record, or keep it as default
 				rsvpStatus = currentUserAttendee ? currentUserAttendee.status : undefined;
@@ -211,7 +202,10 @@
 									<div class="rounded-xl bg-white text-sm text-gray-500">
 										and {attendeesGoing.length - showMaxNumPeople} more
 									</div>
-								{/if}<div class="w-12 h-12 sm:w-14 sm:h-14 flex justify-center items-center"><Plus class="ml-1 h-4 w-4 rounded-xl bg-white sm:h-5 sm:w-5" /></div></Dialog.Trigger
+								{/if}
+								<div class="flex h-12 w-12 items-center justify-center sm:h-14 sm:w-14">
+									<Plus class="ml-1 h-4 w-4 rounded-xl bg-white sm:h-5 sm:w-5" />
+								</div></Dialog.Trigger
 							>
 							<Dialog.Content class="h-full">
 								<ScrollArea>
@@ -304,12 +298,7 @@
 				<div class="my-10">
 					<div class="rounded-xl bg-white p-5 font-semibold" id="announcements">Announcements</div>
 					<div class="my-2">
-						<Annoucements
-							eventId={$page.params.id}
-							currUserId={userId}
-							maxCount={3}
-							allAnnoucementsURL="announcement/all"
-						/>
+						<Annoucements currUserId={userId} maxCount={3} allAnnoucementsURL="announcement/all" />
 					</div>
 					{#if event.results[0].user_id == userId}
 						<a href="announcement/create">
