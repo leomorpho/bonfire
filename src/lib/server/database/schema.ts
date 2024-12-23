@@ -59,3 +59,18 @@ export const pushSubscriptionTable = sqliteTable('push_subscription', {
 		.notNull()
 		.default(sql`(current_timestamp)`)
 });
+
+export const notificationPermissionTable = sqliteTable('notification_permission', {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	userId: text('user_id')
+		.notNull()
+		.references(() => userTable.id),
+	oneDayReminder: integer('one_day_reminder', { mode: 'boolean' }).notNull().default(false),
+	eventActivity: integer('event_activity', { mode: 'boolean' }).notNull().default(false),
+	created_at: text('timestamp')
+		.notNull()
+		.default(sql`(current_timestamp)`),
+	updated_at: text('timestamp')
+		.notNull()
+		.default(sql`(current_timestamp)`)
+});

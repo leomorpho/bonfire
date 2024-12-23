@@ -7,22 +7,22 @@
 	import { dev } from '$app/environment';
 
 	onMount(async () => {
-		if ('serviceWorker' in navigator) {
-			const registration = await navigator.serviceWorker.register('/service-worker.js');
+	if ('serviceWorker' in navigator) {
+		const registration = await navigator.serviceWorker.register('/service-worker.js');
 
-			const subscription = await registration.pushManager.subscribe({
-				userVisibleOnly: true,
-				applicationServerKey: dev ? PUBLIC_DEV_VAPID_PUBLIC_KEY : PUBLIC_VAPID_PUBLIC_KEY
-			});
+		const subscription = await registration.pushManager.subscribe({
+			userVisibleOnly: true,
+			applicationServerKey: dev ? PUBLIC_DEV_VAPID_PUBLIC_KEY : PUBLIC_VAPID_PUBLIC_KEY
+		});
 
-			// Send subscription to your backend
-			await fetch('/api/subscribe', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(subscription)
-			});
-		}
-	});
+		// Send subscription to the backend
+		await fetch('/settings/subscribe', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify(subscription)
+		});
+	}
+});
 </script>
 
 <div class="mx-2 flex flex-col items-center justify-center">

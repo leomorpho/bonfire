@@ -15,6 +15,13 @@
       "when": 1734996557426,
       "tag": "0001_even_masked_marvel",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1734996985668,
+      "tag": "0002_cultured_wallow",
+      "breakpoints": true
     }
   ]
 }
