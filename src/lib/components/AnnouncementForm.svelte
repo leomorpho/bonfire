@@ -58,7 +58,21 @@
 
 	const deleteAnnouncement = async (e: Event) => {
 		try {
-			await client.delete('announcement', announcement.id);
+			let seen_announcements = await client.fetch(
+				client
+					.query('seen_announcements')
+					.where(['announcement_id', '=', announcement.id])
+					.select(['id'])
+					.build()
+			);
+
+			await client.transact(async (tx) => {
+				await tx.delete('announcement', announcement.id);
+				// Delete all related seen_announcements
+				for (const seen of seen_announcements) {
+					await tx.delete('seen_announcements', seen.id);
+				}
+			});
 			goto(`/bonfire/${eventId}#announcements`);
 		} catch (error) {
 			console.error('Error deleting announcement:', error);
@@ -68,11 +82,15 @@
 
 <div class="mx-4 flex flex-col items-center justify-center">
 	<section class="mt-8 w-full sm:w-[450px]">
-		<h2 class="mb-4 text-lg font-semibold bg-white p-2 rounded-xl">
+		<h2 class="mb-4 rounded-xl bg-white p-2 text-lg font-semibold">
 			{mode === 'create' ? 'Create' : 'Update'} an Announcement
 		</h2>
 		<form class="space-y-4" onsubmit={handleSubmit}>
-			<Textarea placeholder="Type your announcement here" bind:value={content} class="w-full bg-white h-64" />
+			<Textarea
+				placeholder="Type your announcement here"
+				bind:value={content}
+				class="h-64 w-full bg-white"
+			/>
 
 			<Button disabled={submitDisabled} type="submit" class="w-full ring-glow">
 				{mode === 'create' ? 'Create Announcement' : 'Update Announcement'}
