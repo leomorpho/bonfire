@@ -1,6 +1,30 @@
 {
+	"name": "Bonfire",
+	"short_name": "Bonfire",
+	"description": "Re-ignite your social life",
+	"start_url": "/login",
+	"scope": "/",
+	"display": "standalone",
+	"id": "bonfire",
+	"lang": "en",
+	"dir": "ltr",
+	"background_color": "#000000",
+	"orientation": "portrait-primary",
+	"theme_color": "#4a90e2",
 	"icons": [
 		{ "src": "/icon-192.png", "type": "image/png", "sizes": "192x192" },
 		{ "src": "/icon-512.png", "type": "image/png", "sizes": "512x512" }
-	]
+	],
+	"shortcuts": [
+		{
+			"name": "Bonfire",
+			"url": "/dashboard",
+			"description": "Go to your home feed"
+		}
+	],
+	"display_override": ["standalone", "window-controls-overlay"],
+	"categories": ["social"],
+	"launch_handler": {
+		"client_mode": ["navigate-existing", "auto"]
+	}
 }
