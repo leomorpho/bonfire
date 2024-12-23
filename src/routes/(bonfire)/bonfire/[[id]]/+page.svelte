@@ -298,7 +298,7 @@
 				<div class="my-10">
 					<div class="rounded-xl bg-white p-5 font-semibold" id="announcements">Announcements</div>
 					<div class="my-2">
-						<Annoucements currUserId={userId} maxCount={3} allAnnoucementsURL="announcement/all" />
+						<Annoucements maxCount={3} />
 					</div>
 					{#if event.results[0].user_id == userId}
 						<a href="announcement/create">

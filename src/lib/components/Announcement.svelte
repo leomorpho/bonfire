@@ -16,7 +16,6 @@
 		const client = getFeTriplitClient($page.data.jwt);
 
 		try {
-			console.log('###-> currentUserAttendeeId ', currentUserAttendeeId);
 			// Insert new seen_announcements record
 			await client.insert('seen_announcements', {
 				attendee_id: currentUserAttendeeId,
@@ -55,7 +54,11 @@
 	});
 </script>
 
-<Card.Root class="announcement bg-slate-200 bg-opacity-90">
+<Card.Root
+	class="announcement bg-opacity-90 {announcement.seen_by.length == 0
+		? 'bg-yellow-200'
+		: 'bg-slate-200'}"
+>
 	<Card.Header>
 		<Card.Title class="font-normal">{announcement.content}</Card.Title>
 		<Card.Description

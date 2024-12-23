@@ -78,7 +78,7 @@
 <div class="mx-4 flex flex-col items-center justify-center">
 	<section class="mt-8 w-full sm:w-[450px]">
 		<Breadcrumb.Root class="mb-10 mt-2 rounded-xl bg-white bg-opacity-95 p-2">
-			<Breadcrumb.List>
+			<Breadcrumb.List class="ml-2 text-xs sm:ml-5 sm:text-sm">
 				<Breadcrumb.Item>
 					<Breadcrumb.Link href={`/bonfire/${$page.params.id}`}>Event</Breadcrumb.Link>
 				</Breadcrumb.Item>

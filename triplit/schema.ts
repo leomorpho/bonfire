@@ -266,6 +266,7 @@ export const schema = {
 			}
 		}
 	},
+	// TODO: nothing implemented for seen_gallery_items. It would also be useful to track which file was downloaded by who so they can quickly download any new diff.
 	seen_gallery_items: {
 		schema: S.Schema({
 			id: S.Id(),

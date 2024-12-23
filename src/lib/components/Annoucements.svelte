@@ -2,44 +2,57 @@
 	import { page } from '$app/stores';
 	import { getFeTriplitClient, waitForUserId } from '$lib/triplit';
 	import { TriplitClient } from '@triplit/client';
-	import { useQuery } from '@triplit/svelte';
 	import SvgLoader from './SvgLoader.svelte';
 	import Button from './ui/button/button.svelte';
 	import { onMount } from 'svelte';
 	import Announcement from './Announcement.svelte';
+	import * as Dialog from '$lib/components/ui/dialog/index.js';
+	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
 
-	let { maxCount = null, allAnnoucementsURL = '' } = $props();
+	let { maxCount = null } = $props();
 
 	const eventId = $page.params.id;
-	let announcements = $state([]);
+	let announcementsSubset = $state([]);
+	let allAnnouncements = $state();
 	let userId = $state('');
 	let announcementsLoading = $state(true);
 	let totalCount = $state(0);
 	let currentUserAttendeeId = $state(null);
+	let isDialogOpen = $state(false);
+
+	const createAnnouncementsQuery = (client: TriplitClient) => {
+		return client
+			.query('announcement')
+			.where(['event_id', '=', eventId])
+			.include('seen_by')
+			.order('created_at', 'DESC');
+	};
+
+	const getAllAnnouncements = async () => {
+		let client = getFeTriplitClient($page.data.jwt) as TriplitClient;
+
+		allAnnouncements = await client.fetch(createAnnouncementsQuery(client).build());
+		isDialogOpen = true;
+		console.log('getting all announcements', allAnnouncements);
+	};
 
 	onMount(() => {
 		let client = getFeTriplitClient($page.data.jwt) as TriplitClient;
 
 		const init = async () => {
-			console.log('in init');
 			userId = (await waitForUserId()) as string;
 
-			const currentUserAttendee = await client.fetch(
+			const currentUserAttendee = await client.fetchOne(
 				client
 					.query('attendees')
 					.where(['user_id', '=', userId], ['event_id', '=', eventId])
 					.select(['id'])
 					.build()
 			);
-			// if ('nNUhjlOr13pgCncyJQn0R' == eventId) {
-			// 	console.log('equal');
-			// } else {
-			// 	console.log('not equal');
-			// }
 
-			console.log('---- user_id', userId);
-			console.log('---- event_id', $page.params.id);
-			console.log('---- currentUserAttendee', currentUserAttendee);
+			// console.log('---- user_id', userId);
+			// console.log('---- event_id', $page.params.id);
+			// console.log('---- currentUserAttendee', currentUserAttendee);
 			currentUserAttendeeId = currentUserAttendee.id;
 
 			if (maxCount) {
@@ -53,11 +66,7 @@
 
 		init();
 
-		let announcementsQuery = client
-			.query('announcement')
-			.where(['event_id', '=', eventId])
-			.include('seen_by')
-			.order('created_at', 'DESC');
+		let announcementsQuery = createAnnouncementsQuery(client);
 
 		if (maxCount) {
 			announcementsQuery = announcementsQuery.limit(maxCount);
@@ -66,7 +75,7 @@
 		const unsubscribe = client.subscribe(
 			announcementsQuery.build(),
 			(results, info) => {
-				announcements = results;
+				announcementsSubset = results;
 				announcementsLoading = false;
 			},
 			(error) => {
@@ -87,19 +96,41 @@
 	});
 </script>
 
-{#if announcementsLoading}
-	<SvgLoader />
+{#if announcementsLoading || !currentUserAttendeeId}
+	<div class="flex w-full items-center justify-center">
+		<SvgLoader />
+	</div>
 {:else}
-	{console.log('sub announce', announcements)}
-	{console.log('# currentUserAttendeeId', currentUserAttendeeId)}
 	<div class="space-y-3">
-		{#each announcements as announcement}
+		{#each announcementsSubset as announcement}
 			<Announcement {eventId} currUserId={userId} {announcement} {currentUserAttendeeId} />
 		{/each}
 		{#if totalCount > maxCount}
-			<a href={allAnnoucementsURL}>
-				<Button class="mt-3 w-full ring-glow">See {totalCount - maxCount} more annoucements</Button>
-			</a>
+			<Button class="mt-3 w-full ring-glow" onclick={getAllAnnouncements}
+				>See {totalCount - maxCount} more annoucements</Button
+			>
+			<Dialog.Root bind:open={isDialogOpen}>
+				<Dialog.Content class="h-full">
+					<ScrollArea>
+						<Dialog.Header class="mx-4">
+							<Dialog.Title>All Announcements</Dialog.Title>
+
+							<Dialog.Description>
+								{#each allAnnouncements as announcement}
+									<div class="my-3">
+										<Announcement
+											{eventId}
+											currUserId={userId}
+											{announcement}
+											{currentUserAttendeeId}
+										/>
+									</div>
+								{/each}
+							</Dialog.Description>
+						</Dialog.Header>
+					</ScrollArea>
+				</Dialog.Content>
+			</Dialog.Root>
 		{/if}
 	</div>
 {/if}
