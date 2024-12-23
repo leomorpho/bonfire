@@ -1,7 +1,7 @@
 {
 	"name": "Bonfire",
 	"short_name": "Bonfire",
-	"description": "Re-ignite your social life",
+	"description": "Effortlessly organize your social gatherings with your friends and loved ones.",
 	"start_url": "/login",
 	"scope": "/",
 	"display": "standalone",

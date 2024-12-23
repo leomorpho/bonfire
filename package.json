@@ -33,9 +33,10 @@
 		"@triplit/cli": "^0.6.16",
 		"@types/better-sqlite3": "^7.6.11",
 		"@types/eslint": "^9.6.1",
+		"@types/web-push": "^3.6.4",
 		"@vitest/ui": "^2.1.8",
 		"autoprefixer": "^10.4.20",
-		"bits-ui": "1.0.0-next.66",
+		"bits-ui": "1.0.0-next.74",
 		"clsx": "^2.1.1",
 		"cmdk-sv": "^0.0.18",
 		"cross-env": "^7.0.3",
@@ -118,6 +119,7 @@
 		"probe-image-size": "^7.2.3",
 		"resend": "4.0.1-alpha.0",
 		"sharp": "^0.33.5",
-		"stripe": "^16.5.0"
+		"stripe": "^16.5.0",
+		"web-push": "^3.6.7"
 	}
 }
