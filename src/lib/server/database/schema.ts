@@ -64,6 +64,7 @@ export const notificationPermissionTable = sqliteTable('notification_permission'
 	id: integer('id').primaryKey({ autoIncrement: true }),
 	userId: text('user_id')
 		.notNull()
+		.unique()
 		.references(() => userTable.id),
 	oneDayReminder: integer('one_day_reminder', { mode: 'boolean' }).notNull().default(false),
 	eventActivity: integer('event_activity', { mode: 'boolean' }).notNull().default(false),

@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX `notification_permission_user_id_unique` ON `notification_permission` (`user_id`);
