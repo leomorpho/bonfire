@@ -1,31 +1,79 @@
 <script lang="ts">
-	import { Button } from '$lib/components/ui/button';
 	import { Label } from '$lib/components/ui/label/index.js';
 	import { Switch } from '$lib/components/ui/switch/index.js';
 	import { onMount, tick } from 'svelte';
 	import { PUBLIC_VAPID_PUBLIC_KEY, PUBLIC_DEV_VAPID_PUBLIC_KEY } from '$env/static/public';
 	import { dev } from '$app/environment';
 	import { toast } from 'svelte-sonner';
+	import PushSubscriptionPermission from './PushSubscriptionPermission.svelte';
 
 	let { subscriptions, permissions } = $props();
 
 	let oneDayReminder = $state(permissions.oneDayReminder);
 	let eventActivity = $state(permissions.eventActivity);
+	let currentPermissionType = $state('');
+	let isPushSubscriptionModalOpen = $state(false);
 
 	// Check if the current device is already subscribed
-	let isSubscribed = false;
+	let isDeviceSubscribed = $state(false);
+
+	const checkDeviceSupportsPushNotifications = () => {
+		function isBrowserOnIOS() {
+			var ua = window.navigator.userAgent;
+			var webkit = !!ua.match(/WebKit/i);
+			var iOS = !!ua.match(/iPad/i) || !!ua.match(/iPhone/i);
+
+			if (webkit && iOS) {
+				return true;
+			}
+			return false;
+		}
+
+		let isAppInstallable = false;
+		// Check for standalone mode in Safari on iOS
+		let isStandalone = window.navigator.standalone;
+
+		const isAppInstalled = isStandalone || window.matchMedia('(display-mode: standalone)').matches;
+
+		const privateBrowsing = !('serviceWorker' in navigator);
+
+		console.log('privateBrowsing', privateBrowsing);
+		console.log('isAppInstalled', isAppInstalled);
+
+		if (!isAppInstalled) {
+			isAppInstallable = !isBrowserOnIOS() && !isStandalone && !privateBrowsing;
+		}
+
+		if (!isAppInstallable) {
+			toast.warning('Sorry, your current platform does not support push notifications.');
+		}
+		console.log('isAppInstallable', isAppInstallable);
+		return isAppInstallable;
+	};
 
 	async function togglePermission(type: string) {
-		// Subscribe to push notifications if needed
-		if (!isSubscribed) {
-			await subscribeToPush();
+		currentPermissionType = type;
+
+		if (checkDeviceSupportsPushNotifications() == false) {
+			// Undo toggle
+			if (currentPermissionType == 'eventActivity') {
+				eventActivity = !eventActivity;
+			} else if ((currentPermissionType = 'oneDayReminder')) {
+				oneDayReminder = !oneDayReminder;
+			}
+			return;
 		}
 
 		try {
-			// Subscribe to push notifications if needed
-			if (!isSubscribed) {
-				await subscribeToPush();
+			isDeviceSubscribed = await isDeviceSubscribedToPush();
+			console.log('isDeviceSubscribed', isDeviceSubscribed);
+
+			// Show the modal before attempting to subscribe
+			if (!isDeviceSubscribed) {
+				isPushSubscriptionModalOpen = true;
+				return;
 			}
+
 			await fetch('/settings/toggle-permission', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
@@ -35,6 +83,37 @@
 		} catch (e) {
 			toast.error('Sorry, but we failed to update this permission, please try again later');
 		}
+	}
+
+	async function handleModalConfirm() {
+		isPushSubscriptionModalOpen = false;
+		console.log('handleModalConfirm called');
+
+		// Proceed with permission toggle after confirmation
+		await subscribeToPush();
+		await togglePermission(currentPermissionType);
+	}
+
+	function handleModalCancel() {
+		isPushSubscriptionModalOpen = false;
+		toast.info('Push notifications permission request canceled.');
+	}
+
+	async function isDeviceSubscribedToPush() {
+		if ('serviceWorker' in navigator) {
+			const registration = await navigator.serviceWorker.getRegistration();
+
+			if (registration) {
+				const existingSubscription = await registration.pushManager.getSubscription();
+				if (!existingSubscription) {
+					return false;
+				}
+				return true;
+			} else {
+				return false;
+			}
+		}
+		return false;
 	}
 
 	async function subscribeToPush() {
@@ -58,14 +137,16 @@
 						headers: { 'Content-Type': 'application/json' },
 						body: JSON.stringify(subscription)
 					});
-					isSubscribed = true;
+					isDeviceSubscribed = true;
 				} else {
 					console.log('Device is already subscribed to push notifications.');
-					isSubscribed = true;
+					isDeviceSubscribed = true;
 				}
 			} else {
 				console.error('No existing Service Worker registration found.');
 			}
+		} else {
+			console.log('subscribeToPush: cannot subscribe because there is no service worker');
 		}
 	}
 
@@ -75,9 +156,9 @@
 			const registration = await navigator.serviceWorker.getRegistration();
 			if (registration) {
 				const existingSubscription = await registration.pushManager.getSubscription();
-				isSubscribed = !!existingSubscription;
+				isDeviceSubscribed = !!existingSubscription;
 			}
-			console.log('isSubscribed?', isSubscribed);
+			console.log('isDeviceSubscribed?', isDeviceSubscribed);
 		}
 	});
 </script>
@@ -97,7 +178,13 @@
 		<Switch
 			id="event-activity"
 			bind:checked={eventActivity}
-			onchange={(e) => togglePermission('eventActivity')}
+			onclick={(e) => togglePermission('eventActivity')}
 		/>
 	</div>
 </div>
+
+<PushSubscriptionPermission
+	isOpen={isPushSubscriptionModalOpen}
+	onConfirm={handleModalConfirm}
+	onCancel={handleModalCancel}
+/>
