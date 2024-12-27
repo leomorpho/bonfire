@@ -287,28 +287,55 @@ export const schema = {
 				read: { filter: [false] } // Anonymous users cannot access seen gallery items
 			}
 		}
+	},
+	notifications_queue: {
+		schema: S.Schema({
+			id: S.Id(),
+			user_id: S.String(), // ID of the user creating the notification
+			user: S.RelationById('user', '$user_id'),
+			object_type: S.String(),
+			object_ids: S.String(),
+			created_at: S.Date({ default: S.Default.now() }), // Timestamp for creation
+			sent_at: S.Date({ nullable: true }) // Timestamp for when the notification was sent
+		}),
+		permissions: {
+			user: {
+				read: { filter: [['user_id', '=', '$role.userId']] }, // Users can read their own notifications
+				insert: { filter: [['user_id', '=', '$role.userId']] }, // Users can insert their own notifications (if needed)
+				update: { filter: [['user_id', '=', '$role.userId']] }, // Users can update their own notifications
+				delete: { filter: [['user_id', '=', '$role.userId']] } // Users can delete their own notifications
+			},
+			admin: {
+				read: { filter: [true] }, // Admins can read all notifications
+				insert: { filter: [true] }, // Admins can insert notifications
+				update: { filter: [true] }, // Admins can update notifications
+				delete: { filter: [true] } // Admins can delete notifications
+			}
+		}
+	},
+	notifications: {
+		schema: S.Schema({
+			id: S.Id(),
+			event_id: S.String({ nullable: true }), // Optional ID of the related event
+			event: S.RelationById('events', '$event_id'), // Link to the event
+			user_id: S.String({ nullable: true }), // Optional ID of the recipient
+			user: S.RelationById('user', '$user_id'), // Link to the user
+			message: S.String(), // Notification content
+			object_type: S.String(),
+			object_ids: S.String(),
+			created_at: S.Date({ default: S.Default.now() }), // Timestamp of when the notification was sent
+			seen_at: S.Date({ default: null })
+		}),
+		permissions: {
+			admin: {
+				read: { filter: [true] },
+				insert: { filter: [true] },
+				update: { filter: [true] },
+				delete: { filter: [true] }
+			},
+			user: {
+				read: { filter: [['user_id', '=', '$role.userId']] } // Users can read their own notifications
+			}
+		}
 	}
-	// notifications: {
-	// 	schema: S.Schema({
-	// 		id: S.Id(),
-	// 		event_id: S.String({ nullable: true }), // Optional ID of the related event
-	// 		event: S.RelationById('events', '$event_id'), // Link to the event
-	// 		user_id: S.String({ nullable: true }), // Optional ID of the recipient
-	// 		user: S.RelationById('user', '$user_id'), // Link to the user
-	// 		type: S.String(), // Notification type: reminder, update, etc.
-	// 		message: S.String(), // Notification content
-	// 		sent_at: S.Date({ default: S.Default.now() }) // Timestamp of when the notification was sent
-	// 	}),
-	// 	permissions: {
-	// 		admin: {
-	// 			read: { filter: [true] },
-	// 			insert: { filter: [true] },
-	// 			update: { filter: [true] },
-	// 			delete: { filter: [true] }
-	// 		},
-	// 		user: {
-	// 			read: { filter: [['user_id', '=', '$role.userId']] } // Users can read their own notifications
-	// 		}
-	// 	}
-	// }
 } satisfies ClientSchema;
