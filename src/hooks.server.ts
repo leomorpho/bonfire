@@ -1,3 +1,4 @@
+import { notificationSenderLoop } from '$lib/scheduler';
 import { lucia } from '$lib/server/auth';
 import type { Handle } from '@sveltejs/kit';
 
@@ -31,3 +32,6 @@ export const handle: Handle = async ({ event, resolve }) => {
 
 	return resolve(event);
 };
+
+// Start the scheduler when the server starts
+notificationSenderLoop();

@@ -1,5 +1,11 @@
 import { ToadScheduler, SimpleIntervalJob, Task } from 'toad-scheduler';
-import { getAttendeeUserIdsOfEvent, serverTriplitClient, validateAnnouncements, validateAttendees, validateFiles } from './server/triplit';
+import {
+	getAttendeeUserIdsOfEvent,
+	serverTriplitClient,
+	validateAnnouncements,
+	validateAttendees,
+	validateFiles
+} from './server/triplit';
 import { Status } from './enums';
 import type { TriplitClient } from '@triplit/client';
 
@@ -92,10 +98,11 @@ async function notifyAttendeesOfAnnouncements(
 ): Promise<void> {
 	if (!announcementIds.length) return;
 
-	const attendingUsers = await getAttendeeUserIdsOfEvent(serverTriplitClient as TriplitClient, eventId, [
-		Status.GOING,
-		Status.MAYBE
-	]);
+	const attendingUsers = await getAttendeeUserIdsOfEvent(
+		serverTriplitClient as TriplitClient,
+		eventId,
+		[Status.GOING, Status.MAYBE]
+	);
 
 	if (!attendingUsers.length) return;
 
@@ -119,10 +126,11 @@ async function notifyAttendeesOfAnnouncements(
 async function notifyAttendeesOfFiles(eventId: string, fileIds: string[]): Promise<void> {
 	if (!fileIds.length) return;
 
-	const attendingUsers = await getAttendeeUserIdsOfEvent(serverTriplitClient as TriplitClient, eventId, [
-		Status.GOING,
-		Status.MAYBE
-	]);
+	const attendingUsers = await getAttendeeUserIdsOfEvent(
+		serverTriplitClient as TriplitClient,
+		eventId,
+		[Status.GOING, Status.MAYBE]
+	);
 
 	if (!attendingUsers.length) return;
 
@@ -211,19 +219,22 @@ const notificationTask = new Task('Process Notifications Queue', async () => {
 	}
 });
 
-// Schedule the task
-const notificationJob = new SimpleIntervalJob({ seconds: 10 }, notificationTask);
+export const notificationSenderLoop = async () => {
+	// Schedule the task
+	const notificationJob = new SimpleIntervalJob({ seconds: 10 }, notificationTask);
 
-scheduler.addSimpleIntervalJob(notificationJob);
+	scheduler.addSimpleIntervalJob(notificationJob);
 
-// Graceful shutdown
-process.on('SIGTERM', () => {
-	console.log('Stopping scheduler...');
-	scheduler.stop();
-});
-process.on('SIGINT', () => {
-	console.log('Stopping scheduler...');
-	scheduler.stop();
-});
+	/// Graceful shutdown
+    process.on('SIGTERM', () => {
+        console.log('Stopping scheduler...');
+        scheduler.stop(); // Stops the scheduler
+        process.exit(0); // Exit the process cleanly
+    });
 
-module.exports = scheduler;
+    process.on('SIGINT', () => {
+        console.log('Stopping scheduler...');
+        scheduler.stop(); // Stops the scheduler
+        process.exit(0); // Exit the process cleanly
+    });
+};
