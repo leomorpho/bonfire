@@ -5,14 +5,13 @@
 	import { TriplitClient } from '@triplit/client';
 	import { updateNotificationsQuery } from '$lib/stores';
 
-	let userId = $state('');
 	const eventId = $page.params.id;
 
 	const createNotificationsQuery = (client: TriplitClient) => {
 		return client
 			.query('notifications')
 			.where([
-				['event_id', '=', eventId],
+				['user_id', '=', eventId],
 				['seen_at', '=', null]
 			])
 			.order('created_at', 'DESC');
@@ -22,7 +21,6 @@
 		let client = getFeTriplitClient($page.data.jwt) as TriplitClient;
 		console.log('loading notifications in NotificationsLoader');
 		const init = async () => {
-			userId = (await waitForUserId()) as string;
 
 			let notificationsQuery = createNotificationsQuery(client);
 
@@ -30,7 +28,7 @@
 				notificationsQuery.build(),
 				(results, info) => {
 					updateNotificationsQuery({
-						allNotifications: results,
+						allUnreadNotifications: results,
 						notificationsLoading: false,
 						totalCount: results.length
 					});

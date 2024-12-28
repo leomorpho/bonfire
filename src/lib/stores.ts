@@ -1,17 +1,17 @@
 import { writable } from 'svelte/store';
 
 export const announcementsStore = writable({
-	allNotifications: [],
+	allUnreadNotifications: [],
 	notificationsLoading: true,
 	totalCount: 0
 });
 
 export const updateNotificationsQuery = (newValues: {
-	allNotifications?: any[];
+	allUnreadNotifications?: any[];
 	notificationsLoading?: boolean;
 	totalCount?: number;
 }) => {
-	console.log('### Received allNotifications:', newValues.allNotifications);
+	console.log('### Received allUnreadNotifications:', newValues.allUnreadNotifications);
 	console.log('### Received notificationsLoading:', newValues.notificationsLoading);
 	console.log('### Received totalCount:', newValues.totalCount);
 

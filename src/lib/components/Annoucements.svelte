@@ -13,7 +13,7 @@
 
 	const eventId = $page.params.id;
 	let announcementsSubset = $state([]);
-	let allNotifications = $state();
+	let allUnreadNotifications = $state();
 	let userId = $state('');
 	let notificationsLoading = $state(true);
 	let totalCount = $state(0);
@@ -31,9 +31,9 @@
 	const getAllAnnouncements = async () => {
 		let client = getFeTriplitClient($page.data.jwt) as TriplitClient;
 
-		allNotifications = await client.fetch(createAnnouncementsQuery(client).build());
+		allUnreadNotifications = await client.fetch(createAnnouncementsQuery(client).build());
 		isDialogOpen = true;
-		console.log('getting all announcements', allNotifications);
+		console.log('getting all announcements', allUnreadNotifications);
 	};
 
 	onMount(() => {
@@ -116,7 +116,7 @@
 							<Dialog.Title>All Announcements</Dialog.Title>
 
 							<Dialog.Description>
-								{#each allNotifications as announcement}
+								{#each allUnreadNotifications as announcement}
 									<div class="my-3">
 										<Announcement
 											{eventId}
