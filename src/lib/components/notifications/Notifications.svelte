@@ -109,7 +109,7 @@
 
 <!-- Notifications Dialog -->
 <Dialog.Root bind:open={isDialogOpen}>
-	<Dialog.Content class="flex h-full items-center justify-center">
+	<Dialog.Content class="flex h-full sm:h-[90vh] items-center justify-center">
 		<ScrollArea>
 			<Dialog.Header class="mx-4">
 				<Dialog.Title>Your Notifications</Dialog.Title>

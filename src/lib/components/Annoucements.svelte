@@ -110,7 +110,7 @@
 				>See {totalCount - maxCount} more annoucements</Button
 			>
 			<Dialog.Root bind:open={isDialogOpen}>
-				<Dialog.Content class="h-full">
+				<Dialog.Content class="h-full sm:h-[90vh]">
 					<ScrollArea>
 						<Dialog.Header class="mx-4">
 							<Dialog.Title>All Announcements</Dialog.Title>

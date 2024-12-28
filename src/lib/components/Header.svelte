@@ -70,21 +70,8 @@
 				{/each}
 			</ul>
 		</div>
-		<div class="navbar-end hidden lg:flex">
-			{#if $page.data.user}
-				<form method="post" class="ml-auto" action="/login?/signout" use:enhance>
-					<button type="submit" class="btn">
-						<div class="flex items-center text-red-500">
-							<LogOut class="mr-2 h-4 w-4" />
-							<span>Log out</span>
-						</div>
-					</button>
-				</form>
-			{:else}
-				<a href="/login" class="btn ml-auto"> <FlameKindling />login</a>
-			{/if}
-		</div>
-		<div class="navbar-end lg:hidden">
+
+		<div class="navbar-end">
 			{#if $page.data.user}
 				<form method="post" class="ml-auto hidden sm:block" action="/login?/signout" use:enhance>
 					<button type="submit" class="btn mr-2">
@@ -121,54 +108,56 @@
 					{/if}
 				</div>
 			</Notifications>
-			<DropdownMenu.Root bind:open={showMenu}>
-				<DropdownMenu.Trigger>
-					<div
-						class="m-1 flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 sm:h-10 sm:w-10"
-					>
-						<Menu class="h-4 w-4 text-gray-600 sm:h-5 sm:w-5" />
-					</div>
-				</DropdownMenu.Trigger>
-				<DropdownMenu.Content class="m-2">
-					<DropdownMenu.Group>
-						<!-- <DropdownMenu.Label>My Account</DropdownMenu.Label> -->
-						<!-- <DropdownMenu.Separator /> -->
+			<div class="lg:hidden">
+				<DropdownMenu.Root bind:open={showMenu}>
+					<DropdownMenu.Trigger>
+						<div
+							class="m-1 flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 sm:h-10 sm:w-10"
+						>
+							<Menu class="h-4 w-4 text-gray-600 sm:h-5 sm:w-5" />
+						</div>
+					</DropdownMenu.Trigger>
+					<DropdownMenu.Content class="m-2">
+						<DropdownMenu.Group>
+							<!-- <DropdownMenu.Label>My Account</DropdownMenu.Label> -->
+							<!-- <DropdownMenu.Separator /> -->
 
-						{#each links as link}
-							<a href={link.href} onclick={toggleMenu}>
-								<DropdownMenu.Item class="cursor-pointer p-2 px-4">
-									{#if link.icon}
-										<link.icon class="mr-1 h-4 w-4" />
-									{/if}
-									{link.name}</DropdownMenu.Item
+							{#each links as link}
+								<a href={link.href} onclick={toggleMenu}>
+									<DropdownMenu.Item class="cursor-pointer p-2 px-4">
+										{#if link.icon}
+											<link.icon class="mr-1 h-4 w-4" />
+										{/if}
+										{link.name}</DropdownMenu.Item
+									>
+								</a>
+							{/each}
+
+							{#if $page.data.user}
+								<form
+									method="post"
+									class="btn mx-2 mb-2 mt-5 sm:hidden"
+									action="/login?/signout"
+									use:enhance
 								>
-							</a>
-						{/each}
-
-						{#if $page.data.user}
-							<form
-								method="post"
-								class="btn mx-2 mb-2 mt-5 sm:hidden"
-								action="/login?/signout"
-								use:enhance
-							>
-								<button type="submit" onclick={toggleMenu}>
-									<div class="flex items-center text-red-500">
-										<DropdownMenu.Item>
-											<LogOut class="mr-2 h-4 w-4" />
-											<span>Log out</span>
-										</DropdownMenu.Item>
-									</div>
-								</button>
-							</form>
-						{:else}
-							<a href="/login" onclick={toggleMenu} class="btn mx-2 mb-2 mt-5 sm:hidden">
-								<FlameKindling />login</a
-							>
-						{/if}
-					</DropdownMenu.Group>
-				</DropdownMenu.Content>
-			</DropdownMenu.Root>
+									<button type="submit" onclick={toggleMenu}>
+										<div class="flex items-center text-red-500">
+											<DropdownMenu.Item>
+												<LogOut class="mr-2 h-4 w-4" />
+												<span>Log out</span>
+											</DropdownMenu.Item>
+										</div>
+									</button>
+								</form>
+							{:else}
+								<a href="/login" onclick={toggleMenu} class="btn mx-2 mb-2 mt-5 sm:hidden">
+									<FlameKindling />login</a
+								>
+							{/if}
+						</DropdownMenu.Group>
+					</DropdownMenu.Content>
+				</DropdownMenu.Root>
+			</div>
 		</div>
 	</header>
 </Container>
