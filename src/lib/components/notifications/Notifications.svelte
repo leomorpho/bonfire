@@ -6,7 +6,7 @@
 	import { announcementsStore } from '$lib/stores';
 
 	let { children } = $props(); // Allow custom button text or children
-	let isDialogOpen = $state(true); // Dialog open state
+	let isDialogOpen = $state(false); // Dialog open state
 
 	// Read notifications and loading state from the store
 	let notifications = $state($announcementsStore.announcementsSubset);
@@ -14,7 +14,7 @@
 
 	function toggleDialog() {
 		isDialogOpen = !isDialogOpen;
-		console.log('Dialog state changed:', isDialogOpen);
+		console.log('*** Dialog state changed:', isDialogOpen);
 	}
 </script>
 
@@ -34,18 +34,23 @@
 
 <!-- Notifications Dialog -->
 <Dialog.Root bind:open={isDialogOpen}>
-	<Dialog.Content class="h-full">
+	<Dialog.Content class="flex h-full items-center justify-center">
 		<ScrollArea>
 			<Dialog.Header class="mx-4">
 				<Dialog.Title>Your Notifications</Dialog.Title>
 				<Dialog.Description>
 					{#if notificationsLoading}
+						<!-- Show loader while loading -->
 						<div class="flex w-full items-center justify-center">
 							<SvgLoader />
 						</div>
-					{:else if notifications.length === 0}
-						<p class="text-gray-400">You have no notifications.</p>
+					{:else if isDialogOpen && notifications.length === 0}
+						<!-- Center 'No notifications' vertically and horizontally -->
+						<div class="flex h-full w-full items-center justify-center text-center">
+							<p class="text-gray-400">You have no notifications.</p>
+						</div>
 					{:else}
+						<!-- Show notifications if available -->
 						{#each notifications as notification}
 							<div class="my-3">
 								<Notification {notification} />
