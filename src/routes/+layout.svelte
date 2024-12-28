@@ -13,6 +13,7 @@
 	import Header from '$lib/components/Header.svelte';
 	import { getFlash } from 'sveltekit-flash-message';
 	import { Toaster } from '$lib/components/ui/sonner/index';
+	import NotificationsLoader from '$lib/components/notifications/NotificationsLoader.svelte';
 
 	let { children } = $props();
 
@@ -117,3 +118,5 @@
 {/if}
 <Toaster richColors toastOptions={{}} />
 {@render children()}
+
+<NotificationsLoader />

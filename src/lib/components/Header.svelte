@@ -3,22 +3,34 @@
 	import { PUBLIC_PROJECT_NAME } from '$env/static/public';
 	import type { Link } from '$lib/types';
 	import Container from './Container.svelte';
-	import { LogOut, Menu, FlameKindling } from 'lucide-svelte';
+	import {
+		LogOut,
+		Menu,
+		FlameKindling,
+		Bell,
+		BookOpen,
+		DollarSign,
+		CircleHelp,
+		Cog,
+		CircleUser,
+		House
+	} from 'lucide-svelte';
 	import { page } from '$app/stores';
 	import { enhance } from '$app/forms';
-	import { Button } from '$lib/components/ui/button/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
+	import Notifications from './notifications/Notifications.svelte';
 
 	const authLinks: Array<Link> = [
-		{ name: 'Dashboard', href: '/dashboard' },
-		{ name: 'Profile', href: '/profile' },
-		{ name: 'Settings', href: '/settings' }
+		{ icon: House, name: 'Dashboard', href: '/dashboard' },
+		{ icon: Bell, name: 'Notifications', href: '' },
+		{ icon: CircleUser, name: 'Profile', href: '/profile' },
+		{ icon: Cog, name: 'Settings', href: '/settings' }
 	];
 
 	const unauthLinks: Array<Link> = [
-		{ name: 'About', href: '/#about' },
-		{ name: 'Pricing', href: '/#pricing' },
-		{ name: 'FAQ', href: '/#faq' }
+		{ icon: BookOpen, name: 'About', href: '/#about' },
+		{ icon: DollarSign, name: 'Pricing', href: '/#pricing' },
+		{ icon: CircleHelp, name: 'FAQ', href: '/#faq' }
 	];
 
 	let links = unauthLinks;
@@ -38,8 +50,12 @@
 		<div class="navbar-center hidden lg:flex">
 			<ul class="menu menu-horizontal px-1">
 				{#each links as link}
-					<li>
-						<a href={link.href}>{link.name}</a>
+					<li class="flex items-center">
+						<a href={link.href}>
+							{#if link.icon}
+								<svelte:component this={link.icon} class="h-4 w-4" />
+							{/if}{link.name}</a
+						>
 					</li>
 				{/each}
 			</ul>
@@ -85,7 +101,23 @@
 									showMenu = false;
 								}}
 							>
-								<DropdownMenu.Item class="cursor-pointer p-2 px-4">{link.name}</DropdownMenu.Item>
+								{#if link.name == 'Notifications'}
+									<Notifications>
+										<DropdownMenu.Item class="cursor-pointer p-2 px-4">
+											{#if link.icon}
+												<svelte:component this={link.icon} class="mr-1 h-4 w-4" />
+											{/if}
+											{link.name}</DropdownMenu.Item
+										>
+									</Notifications>
+								{:else}
+									<DropdownMenu.Item class="cursor-pointer p-2 px-4">
+										{#if link.icon}
+											<svelte:component this={link.icon} class="mr-1 h-4 w-4" />
+										{/if}
+										{link.name}</DropdownMenu.Item
+									>
+								{/if}
 							</a>
 						{/each}
 

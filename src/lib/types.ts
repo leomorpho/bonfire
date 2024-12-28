@@ -1,6 +1,7 @@
 import type { signinTable } from './server/database/schema';
 
 export type Link = {
+	icon: any;
 	name: string;
 	href: string;
 };

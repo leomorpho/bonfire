@@ -1,8 +1,6 @@
 <script lang="ts">
 	import PushPermissions from '$lib/components/PushPermissions.svelte';
 	import { Button } from '$lib/components/ui/button';
-	import { Label } from '$lib/components/ui/label/index.js';
-	import { Switch } from '$lib/components/ui/switch/index.js';
 	import { page } from '$app/stores';
 </script>
 
