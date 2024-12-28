@@ -1,6 +1,5 @@
 <script lang="ts">
 	import Logo from './Logo.svelte';
-	import { PUBLIC_PROJECT_NAME } from '$env/static/public';
 	import type { Link } from '$lib/types';
 	import Container from './Container.svelte';
 	import {
@@ -23,7 +22,6 @@
 
 	const authLinks: Array<Link> = [
 		{ icon: House, name: 'Dashboard', href: '/dashboard' },
-		// { icon: Bell, name: 'Notifications', href: '' },
 		{ icon: CircleUser, name: 'Profile', href: '/profile' },
 		{ icon: Cog, name: 'Settings', href: '/settings' }
 	];
@@ -34,20 +32,24 @@
 		{ icon: CircleHelp, name: 'FAQ', href: '/#faq' }
 	];
 
-	let links = unauthLinks;
+	let links = $state(unauthLinks);
 
 	if ($page.data.user) {
 		links = authLinks;
 	}
 
-	let showMenu = false;
+	let showMenu = $state(false);
 
 	function toggleMenu(e: Event) {
 		e.stopPropagation();
 		showMenu = !showMenu;
 	}
 
-	let notificationsCount = $state($announcementsStore.totalCount);
+	let notificationsCount = $state(0);
+
+	announcementsStore.subscribe((state) => {
+		notificationsCount = state.totalCount;
+	});
 </script>
 
 <Container>
@@ -61,7 +63,7 @@
 					<li class="flex items-center">
 						<a href={link.href}>
 							{#if link.icon}
-								<svelte:component this={link.icon} class="h-4 w-4" />
+								<link.icon class="h-4 w-4" />
 							{/if}{link.name}</a
 						>
 					</li>
@@ -133,10 +135,10 @@
 						<!-- <DropdownMenu.Separator /> -->
 
 						{#each links as link}
-							<a href={link.href} on:click={toggleMenu}>
+							<a href={link.href} onclick={toggleMenu}>
 								<DropdownMenu.Item class="cursor-pointer p-2 px-4">
 									{#if link.icon}
-										<svelte:component this={link.icon} class="mr-1 h-4 w-4" />
+										<link.icon class="mr-1 h-4 w-4" />
 									{/if}
 									{link.name}</DropdownMenu.Item
 								>
@@ -150,7 +152,7 @@
 								action="/login?/signout"
 								use:enhance
 							>
-								<button type="submit" on:click={toggleMenu}>
+								<button type="submit" onclick={toggleMenu}>
 									<div class="flex items-center text-red-500">
 										<DropdownMenu.Item>
 											<LogOut class="mr-2 h-4 w-4" />
@@ -160,7 +162,7 @@
 								</button>
 							</form>
 						{:else}
-							<a href="/login" on:click={toggleMenu} class="btn mx-2 mb-2 mt-5 sm:hidden">
+							<a href="/login" onclick={toggleMenu} class="btn mx-2 mb-2 mt-5 sm:hidden">
 								<FlameKindling />login</a
 							>
 						{/if}

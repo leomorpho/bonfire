@@ -9,12 +9,19 @@
 	let isDialogOpen = $state(false); // Dialog open state
 
 	// Read notifications and loading state from the store
-	let notifications = $state($announcementsStore.announcementsSubset);
-	let notificationsLoading = $state($announcementsStore.announcementsLoading);
+	let allNotifications = $state([]);
+	let notificationsLoading = $state();
+	let totalCount = $state();
+
+	// Subscribe to the store
+	announcementsStore.subscribe((state) => {
+		allNotifications = state.allNotifications;
+		notificationsLoading = state.notificationsLoading;
+		totalCount = state.totalCount;
+	});
 
 	function toggleDialog() {
 		isDialogOpen = !isDialogOpen;
-		console.log('*** Dialog state changed:', isDialogOpen);
 	}
 </script>
 
@@ -23,11 +30,11 @@
 	{@render children?.()}
 
 	<!-- Show a count if there are unseen notifications -->
-	{#if notifications.filter((n) => !n.seen_at).length > 0}
+	{#if allNotifications.filter((n) => !n.seen_at).length > 0}
 		<span
 			class="absolute right-0 top-0 inline-flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-xs font-bold text-white"
 		>
-			{notifications.filter((n) => !n.seen_at).length}
+			{allNotifications.filter((n) => !n.seen_at).length}
 		</span>
 	{/if}
 </button>
@@ -44,14 +51,14 @@
 						<div class="flex w-full items-center justify-center">
 							<SvgLoader />
 						</div>
-					{:else if isDialogOpen && notifications.length === 0}
+					{:else if isDialogOpen && allNotifications.length === 0}
 						<!-- Center 'No notifications' vertically and horizontally -->
 						<div class="flex h-full w-full items-center justify-center text-center">
 							<p class="text-gray-400">You have no notifications.</p>
 						</div>
 					{:else}
 						<!-- Show notifications if available -->
-						{#each notifications as notification}
+						{#each allNotifications as notification}
 							<div class="my-3">
 								<Notification {notification} />
 							</div>

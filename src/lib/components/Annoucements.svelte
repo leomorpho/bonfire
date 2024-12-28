@@ -13,9 +13,9 @@
 
 	const eventId = $page.params.id;
 	let announcementsSubset = $state([]);
-	let allAnnouncements = $state();
+	let allNotifications = $state();
 	let userId = $state('');
-	let announcementsLoading = $state(true);
+	let notificationsLoading = $state(true);
 	let totalCount = $state(0);
 	let currentUserAttendeeId = $state(null);
 	let isDialogOpen = $state(false);
@@ -31,9 +31,9 @@
 	const getAllAnnouncements = async () => {
 		let client = getFeTriplitClient($page.data.jwt) as TriplitClient;
 
-		allAnnouncements = await client.fetch(createAnnouncementsQuery(client).build());
+		allNotifications = await client.fetch(createAnnouncementsQuery(client).build());
 		isDialogOpen = true;
-		console.log('getting all announcements', allAnnouncements);
+		console.log('getting all announcements', allNotifications);
 	};
 
 	onMount(() => {
@@ -76,7 +76,7 @@
 			announcementsQuery.build(),
 			(results, info) => {
 				announcementsSubset = results;
-				announcementsLoading = false;
+				notificationsLoading = false;
 			},
 			(error) => {
 				// handle error
@@ -96,7 +96,7 @@
 	});
 </script>
 
-{#if announcementsLoading || !currentUserAttendeeId}
+{#if notificationsLoading || !currentUserAttendeeId}
 	<div class="flex w-full items-center justify-center">
 		<SvgLoader />
 	</div>
@@ -116,7 +116,7 @@
 							<Dialog.Title>All Announcements</Dialog.Title>
 
 							<Dialog.Description>
-								{#each allAnnouncements as announcement}
+								{#each allNotifications as announcement}
 									<div class="my-3">
 										<Announcement
 											{eventId}

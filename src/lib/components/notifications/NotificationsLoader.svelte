@@ -3,34 +3,36 @@
 	import { getFeTriplitClient, waitForUserId } from '$lib/triplit';
 	import { page } from '$app/stores';
 	import { TriplitClient } from '@triplit/client';
-	import { updateAnnouncementsStore } from '$lib/stores';
+	import { updateNotificationsQuery } from '$lib/stores';
 
 	let userId = $state('');
 	const eventId = $page.params.id;
 
-	const createAnnouncementsQuery = (client: TriplitClient) => {
+	const createNotificationsQuery = (client: TriplitClient) => {
 		return client
-			.query('announcement')
-			.where(['event_id', '=', eventId])
+			.query('notifications')
+			.where([
+				['event_id', '=', eventId],
+				['seen_at', '=', null]
+			])
 			.order('created_at', 'DESC');
 	};
 
 	onMount(() => {
 		let client = getFeTriplitClient($page.data.jwt) as TriplitClient;
-
+		console.log('loading notifications in NotificationsLoader');
 		const init = async () => {
 			userId = (await waitForUserId()) as string;
 
-			let announcementsQuery = createAnnouncementsQuery(client);
+			let notificationsQuery = createNotificationsQuery(client);
 
 			const unsubscribe = client.subscribe(
-				announcementsQuery.build(),
+				notificationsQuery.build(),
 				(results, info) => {
-					console.log('Current notifications :', results);
-					updateAnnouncementsStore((state) => {
-						state.announcementsSubset = results;
-						state.announcementsLoading = false;
-						return state;
+					updateNotificationsQuery({
+						allNotifications: results,
+						notificationsLoading: false,
+						totalCount: results.length
 					});
 				},
 				(error) => {
