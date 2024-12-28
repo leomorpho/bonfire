@@ -2,9 +2,12 @@ import { createNewUser } from '$lib/server/database/user.model';
 import { generateId } from 'lucia';
 import { faker } from '@faker-js/faker';
 import type { TriplitClient } from '@triplit/client';
-import { serverTriplitClient } from '$lib/server/triplit';
+import {
+	createNewAnnouncementNotificationQueueObject,
+	createNewAttendanceNotificationQueueObject,
+	serverTriplitClient
+} from '$lib/server/triplit';
 import { Status } from '$lib/enums';
-import { execSync } from 'child_process';
 
 // // Step 1: Run CLI commands
 // try {
@@ -34,8 +37,8 @@ const user2 = await createNewUser({
 	num_logs: 3
 });
 
-await client.insert('user', { id: user.id, username: 'Mike' });
-await client.insert('user', { id: user2.id, username: 'Jo' });
+await client.insert('user', { id: user?.id, username: 'Mike' });
+await client.insert('user', { id: user2?.id, username: 'Jo' });
 
 const now = new Date(); // Current date and time
 const fiveWeeksLater = new Date(now.getTime() + 5 * 7 * 24 * 60 * 60 * 1000); // Add 5 weeks in milliseconds
@@ -46,7 +49,7 @@ const { output } = await client.insert('events', {
 	location: '345 Cordova St, Vancouver',
 	start_time: fiveWeeksLater,
 	end_time: null,
-	user_id: user.id,
+	user_id: user?.id,
 	style: `
   background-image: url('https://f002.backblazeb2.com/file/bonfire-public/subway-lines.png'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
@@ -65,7 +68,7 @@ await client.insert('events', {
 	location: faker.location.streetAddress(),
 	start_time: fiveWeeksLater,
 	end_time: null,
-	user_id: user2.id,
+	user_id: user2?.id,
 	style: null,
 	overlay_color: null,
 	overlay_opacity: null
@@ -88,11 +91,14 @@ for (let i = 0; i < 5; i++) {
 		id: generateId(15),
 		content: faker.lorem.paragraph(),
 		created_at: createdAt,
-		user_id: user.id, // Event creator is making the announcement
-		event_id: output.id
+		user_id: user?.id, // Event creator is making the announcement
+		event_id: output?.id
 	});
+	const announcementId = announcement?.output?.id;
 
-	announcements.push(announcement.output.id);
+	await createNewAnnouncementNotificationQueueObject(client, user?.id as string, announcementId);
+
+	announcements.push(announcementId);
 }
 
 for (let i = 0; i < 100; i++) {
@@ -103,13 +109,17 @@ for (let i = 0; i < 100; i++) {
 		num_logs: 3
 	});
 
-	await client.insert('user', { id: attendeeUser.id, username: faker.internet.username() });
+	await client.insert('user', { id: attendeeUser?.id, username: faker.internet.username() });
 
-	await client.insert('attendees', {
-		event_id: output.id,
-		user_id: attendeeUser.id,
+	const { attendeeObj } = await client.insert('attendees', {
+		event_id: output?.id,
+		user_id: attendeeUser?.id,
 		status: getRandomStatus()
 	});
+
+	await createNewAttendanceNotificationQueueObject(client, attendeeUser?.id as string, [
+		attendeeObj.id
+	]);
 
 	// Randomly mark some users as having seen the announcements
 	announcements.forEach(async (announcementId) => {
@@ -118,13 +128,13 @@ for (let i = 0; i < 100; i++) {
 			await client.insert('seen_announcements', {
 				id: generateId(15),
 				announcement_id: announcementId,
-				attendee_id: attendeeUser.id,
+				attendee_id: attendeeUser?.id,
 				seen_at: new Date()
 			});
 		}
 	});
 
 	console.log(`User ${i + 1} created and events/announcements seeded:`, {
-		user: attendeeUser.email
+		user: attendeeUser?.email
 	});
 }

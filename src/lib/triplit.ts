@@ -39,3 +39,4 @@ export function getFeTriplitClient(jwt: string) {
 	}) as TriplitClient;
 	return feTriplitClient;
 }
+

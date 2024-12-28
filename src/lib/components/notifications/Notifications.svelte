@@ -7,6 +7,7 @@
 	import { getFeTriplitClient, waitForUserId } from '$lib/triplit';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
+	import type { NotificationTypescriptType } from '$lib/types';
 
 	let { children } = $props(); // Allow custom button text or children
 	let isDialogOpen = $state(false); // Dialog open state
@@ -98,18 +99,18 @@
 	{@render children?.()}
 
 	<!-- Show a count if there are unseen notifications -->
-	{#if allUnreadNotifications.filter((n) => !n.seen_at).length > 0}
+	{#if allUnreadNotifications.filter((n: NotificationTypescriptType) => !n.seen_at).length > 0}
 		<span
 			class="absolute right-0 top-0 inline-flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-xs font-bold text-white"
 		>
-			{allUnreadNotifications.filter((n) => !n.seen_at).length}
+			{allUnreadNotifications.filter((n: NotificationTypescriptType) => !n.seen_at).length}
 		</span>
 	{/if}
 </button>
 
 <!-- Notifications Dialog -->
 <Dialog.Root bind:open={isDialogOpen}>
-	<Dialog.Content class="flex h-full sm:h-[90vh] items-center justify-center">
+	<Dialog.Content class="flex h-full items-center justify-center sm:h-[90vh]">
 		<ScrollArea>
 			<Dialog.Header class="mx-4">
 				<Dialog.Title>Your Notifications</Dialog.Title>

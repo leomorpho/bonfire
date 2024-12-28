@@ -20,3 +20,9 @@ export const getStrValueOfRSVP = (status: string) => {
 			return 'RSVP';
 	}
 };
+
+export enum NotificationType {
+	ANNOUNCEMENT = 'announcement',
+	FILES = 'files',
+	ATTENDEES = 'attendees'
+}
