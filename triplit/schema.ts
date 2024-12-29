@@ -327,18 +327,19 @@ export const schema = {
 			object_type: S.String(),
 			object_ids: S.String(),
 			created_at: S.Date({ default: S.Default.now() }), // Timestamp of when the notification was sent
-			seen_at: S.Date({ nullable:true, default: null })
+			seen_at: S.Date({ nullable: true, default: null })
 		}),
 		permissions: {
 			user: {
-				read: { filter: [['user_id', '=', '$role.userId']] } // Users can read their own notifications
+				read: { filter: [['user_id', '=', '$role.userId']] }, // Users can read their own notifications
+				update: { filter: [['user_id', '=', '$role.userId']] } // Users can update their own notifications to mark them as read
 			},
 			admin: {
 				read: { filter: [true] },
 				insert: { filter: [true] },
 				update: { filter: [true] },
 				delete: { filter: [true] }
-			},
+			}
 		}
 	}
 } satisfies ClientSchema;

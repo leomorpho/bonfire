@@ -8,6 +8,7 @@
 
 	let linkedObjects = $state();
 	let isLoading = $state(true);
+	let cardRef: HTMLElement | null = $state(null); // Initialize as null to ensure proper type handling
 
 	const fetchLinkedObjects = async () => {
 		if (!notification.object_ids || !notification.object_type) return;
@@ -35,10 +36,47 @@
 		isLoading = false;
 	};
 
+	const markAsRead = async () => {
+		if (notification.seen_at) return;
+
+		const client = getFeTriplitClient($page.data.jwt) as TriplitClient;
+
+		try {
+			// Update the notification as read
+			await client.update('notifications', notification.id, async (entity) => {
+				entity.seen_at = new Date();
+			});
+			console.log(`Notification ${notification.id} marked as read.`);
+		} catch (err) {
+			console.error(`Error marking notification ${notification.id} as read:`, err);
+		}
+	};
+
 	onMount(fetchLinkedObjects);
+
+	onMount(() => {
+		const observer = new IntersectionObserver(
+			async ([entry]) => {
+				if (entry.isIntersecting) {
+					await markAsRead(); // Mark as read when visible
+					observer.disconnect(); // Disconnect observer after marking
+				}
+			},
+			{ threshold: 0.5 } // Trigger when at least 50% of the card is visible
+		);
+
+		if (cardRef instanceof HTMLElement) {
+			observer.observe(cardRef);
+		} else {
+			console.error('cardRef is not a valid HTMLElement:', cardRef);
+		}
+
+		// Cleanup observer
+		return () => observer.disconnect();
+	});
 </script>
 
-<div class="notification-item rounded border p-4">
+<div class="notification-item rounded border p-4" bind:this={cardRef}>
 	<!-- Display message -->
 	<p class="font-medium">{notification.message}</p>
 

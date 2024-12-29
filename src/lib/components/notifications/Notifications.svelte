@@ -103,7 +103,7 @@
 <Dialog.Root bind:open={isDialogOpen}>
 	<Dialog.Content class="flex h-full items-center justify-center sm:h-[90vh]">
 		<ScrollArea class="flex h-full items-center justify-center sm:h-[90vh]">
-			<Dialog.Header class="mx-4 my-4">
+			<Dialog.Header class="mx-4 my-8">
 				<Dialog.Title>Your Notifications</Dialog.Title>
 				<Dialog.Description>
 					{#if notificationsLoading}
@@ -113,8 +113,8 @@
 						</div>
 					{:else if isDialogOpen && allUnreadNotifications.length === 0}
 						<!-- Center 'No notifications' vertically and horizontally -->
-						<div class="flex h-full w-full items-center justify-center text-center">
-							<p class="text-gray-400">You have no notifications.</p>
+						<div class="flex h-full w-full items-center justify-center text-center mt-5 bg-slate-100 rounded-lg p-3">
+							<p class="text-gray-400">You have no new notifications.</p>
 						</div>
 					{:else}
 						<!-- Show unread notifications -->
@@ -124,19 +124,20 @@
 								<Notification {notification} />
 							</div>
 						{/each}
+					{/if}
 
-						<!-- Show seen notifications -->
-						<h3 class="text mt-6 font-bold">Seen</h3>
-						{#each allSeenNotifications as notification}
-							<div class="my-3">
-								<Notification {notification} />
-							</div>
-						{/each}
+					<!-- Show seen notifications -->
+					<h3 class="text mt-6 font-bold">Seen</h3>
+					{#each allSeenNotifications as notification}
+						{console.log('notification', notification)}
+						<div class="my-3">
+							<Notification {notification} />
+						</div>
+					{/each}
 
-						<!-- Load more seen notifications -->
-						{#if allSeenNotifications.length > 0}
-							<button onclick={loadMoreSeenNotifications} class="btn mt-4"> Load More </button>
-						{/if}
+					<!-- Load more seen notifications -->
+					{#if allSeenNotifications.length > 0}
+						<button onclick={loadMoreSeenNotifications} class="btn mt-4"> Load More </button>
 					{/if}
 				</Dialog.Description>
 			</Dialog.Header>
