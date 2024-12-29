@@ -8,7 +8,7 @@ import type {
 	FileTypescriptType,
 	NotificationQueueEntry
 } from '$lib/types';
-import { isNonEmptyArray, parseObjectIds } from '$lib/utils';
+import { arrayToStringRepresentation, isNonEmptyArray, stringRepresentationToArray } from '$lib/utils';
 
 export const serverTriplitClient = new TriplitClient({
 	schema,
@@ -84,7 +84,7 @@ export async function processNotificationQueue(notificationQueueEntry: Notificat
 	);
 
 	// Parse object_ids into an array
-	const objectIds = parseObjectIds(notificationQueueEntry.object_ids);
+	const objectIds = stringRepresentationToArray(notificationQueueEntry.object_ids);
 
 	// Validate the object IDs based on object_type
 	let validObjectIds: string[] = [];
@@ -112,10 +112,10 @@ export async function processNotificationQueue(notificationQueueEntry: Notificat
 	// Send notifications based on the type
 	switch (notificationQueueEntry.object_type) {
 		case NotificationType.ANNOUNCEMENT:
-			await notifyAttendeesOfAnnouncements(notificationQueueEntry.user_id, validObjectIds);
+			await notifyAttendeesOfAnnouncements(notificationQueueEntry.event_id, validObjectIds);
 			break;
 		case NotificationType.FILES:
-			await notifyAttendeesOfFiles(notificationQueueEntry.user_id, validObjectIds);
+			await notifyAttendeesOfFiles(notificationQueueEntry.event_id, validObjectIds);
 			break;
 		case NotificationType.ATTENDEES:
 			await notifyEventCreatorOfAttendees(notificationQueueEntry.event_id, validObjectIds);
@@ -145,6 +145,7 @@ async function notifyAttendeesOfAnnouncements(
 		eventId,
 		[Status.GOING, Status.MAYBE]
 	);
+	console.log('notifyAttendeesOfAnnouncements attendingUserIds', attendingUserIds);
 
 	if (!attendingUserIds.length) return;
 
@@ -157,7 +158,7 @@ async function notifyAttendeesOfAnnouncements(
 				user_id: attendeeUserId,
 				message,
 				object_type: NotificationType.ANNOUNCEMENT,
-				object_ids: announcementIds.join(',')
+				object_ids: arrayToStringRepresentation(announcementIds),
 			});
 		}
 	});
@@ -185,7 +186,7 @@ async function notifyAttendeesOfFiles(eventId: string, fileIds: string[]): Promi
 				user_id: attendeeUserId,
 				message,
 				object_type: NotificationType.FILES,
-				object_ids: fileIds.join(',')
+				object_ids: arrayToStringRepresentation(fileIds)
 			});
 		}
 	});
@@ -199,6 +200,8 @@ async function notifyEventCreatorOfAttendees(
 ): Promise<void> {
 	if (!attendeeIds.length) return;
 
+	console.log('notifyEventCreatorOfAttendees attendeeIds', attendeeIds);
+
 	// Fetch event details to identify the creator and event title
 	const creatorQuery = serverTriplitClient
 		.query('events')
@@ -207,6 +210,8 @@ async function notifyEventCreatorOfAttendees(
 		.build();
 
 	const [event] = await serverTriplitClient.fetch(creatorQuery);
+
+	console.log('notifyEventCreatorOfAttendees event', event);
 
 	if (!event) return;
 
@@ -221,7 +226,7 @@ async function notifyEventCreatorOfAttendees(
 		user_id: event.user_id, // Notification goes to the event creator
 		message,
 		object_type: NotificationType.ATTENDEES,
-		object_ids: attendeeIds.join(',')
+		object_ids: arrayToStringRepresentation(attendeeIds),
 	});
 
 	console.log(`Created a notification for event creator ${event.user_id}.`);
@@ -236,6 +241,7 @@ async function notifyEventCreatorOfAttendees(
 export async function createNewAttendanceNotificationQueueObject(
 	client: TriplitClient,
 	userId: string,
+	eventId: string,
 	attendeeIds: string[]
 ) {
 	if (!isNonEmptyArray(attendeeIds)) {
@@ -250,6 +256,7 @@ export async function createNewAttendanceNotificationQueueObject(
 	// Qeueue a notification to be processed
 	await client.insert('notifications_queue', {
 		user_id: userId,
+		event_id: eventId,
 		object_type: NotificationType.ATTENDEES,
 		object_ids: objectIds
 	});
@@ -264,6 +271,7 @@ export async function createNewAttendanceNotificationQueueObject(
 export async function createNewAnnouncementNotificationQueueObject(
 	client: TriplitClient,
 	userId: string,
+	eventId: string,
 	announcementIds: string[]
 ): Promise<void> {
 	if (!isNonEmptyArray(announcementIds)) {
@@ -279,6 +287,7 @@ export async function createNewAnnouncementNotificationQueueObject(
 
 	await client.insert('notifications_queue', {
 		user_id: userId,
+		event_id: eventId,
 		object_type: NotificationType.ANNOUNCEMENT,
 		object_ids: objectIds
 	});
@@ -293,6 +302,7 @@ export async function createNewAnnouncementNotificationQueueObject(
 export async function createNewFileNotificationQueueObject(
 	client: TriplitClient,
 	userId: string,
+	eventId: string,
 	fileIds: string[]
 ): Promise<void> {
 	if (!isNonEmptyArray(fileIds)) {
@@ -306,6 +316,7 @@ export async function createNewFileNotificationQueueObject(
 
 	await client.insert('notifications_queue', {
 		user_id: userId,
+		event_id: eventId,
 		object_type: NotificationType.FILES,
 		object_ids: objectIds
 	});

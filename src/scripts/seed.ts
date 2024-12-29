@@ -61,6 +61,7 @@ const { output } = await client.insert('events', {
 	overlay_color: null,
 	overlay_opacity: 0.526
 });
+const eventCreated = output;
 
 await client.insert('events', {
 	title: 'Hangout at Cactus',
@@ -92,11 +93,13 @@ for (let i = 0; i < 5; i++) {
 		content: faker.lorem.paragraph(),
 		created_at: createdAt,
 		user_id: user?.id, // Event creator is making the announcement
-		event_id: output?.id
+		event_id: eventCreated?.id
 	});
 	const announcementId = announcement?.output?.id;
 
-	await createNewAnnouncementNotificationQueueObject(client, user?.id as string, [announcementId]);
+	await createNewAnnouncementNotificationQueueObject(client, user?.id as string, eventCreated?.id, [
+		announcementId
+	]);
 
 	announcements.push(announcementId);
 }
@@ -111,15 +114,18 @@ for (let i = 0; i < 100; i++) {
 
 	await client.insert('user', { id: attendeeUser?.id, username: faker.internet.username() });
 
-	const result = await client.insert('attendees', {
-		event_id: output?.id,
+	const newAttendeeResult = await client.insert('attendees', {
+		event_id: eventCreated?.id, // TODO: rename to something sane, that's a shit name
 		user_id: attendeeUser?.id,
 		status: getRandomStatus()
 	});
 
-	await createNewAttendanceNotificationQueueObject(client, attendeeUser?.id as string, [
-		result.output?.id
-	]);
+	await createNewAttendanceNotificationQueueObject(
+		client,
+		attendeeUser?.id as string,
+		eventCreated?.id,
+		[newAttendeeResult.output?.id]
+	);
 
 	// Randomly mark some users as having seen the announcements
 	announcements.forEach(async (announcementId) => {

@@ -1,4 +1,5 @@
 import { Schema as S, type Roles, type ClientSchema, or } from '@triplit/client';
+import type { nullable } from 'zod';
 
 // Define roles
 export const roles: Roles = {
@@ -293,6 +294,8 @@ export const schema = {
 			id: S.Id(),
 			user_id: S.String(), // ID of the user creating the notification
 			user: S.RelationById('user', '$user_id'),
+			event_id: S.String(),
+			event: S.RelationById('events', '$event_id'),
 			object_type: S.String(),
 			object_ids: S.String(),
 			created_at: S.Date({ default: S.Default.now() }), // Timestamp for creation
@@ -318,24 +321,25 @@ export const schema = {
 			id: S.Id(),
 			event_id: S.String({ nullable: true }), // Optional ID of the related event
 			event: S.RelationById('events', '$event_id'), // Link to the event
-			user_id: S.String({ nullable: true }), // Optional ID of the recipient
+			user_id: S.String(), // Optional ID of the recipient
 			user: S.RelationById('user', '$user_id'), // Link to the user
 			message: S.String(), // Notification content
 			object_type: S.String(),
 			object_ids: S.String(),
 			created_at: S.Date({ default: S.Default.now() }), // Timestamp of when the notification was sent
-			seen_at: S.Date({ default: null })
+			seen_at: S.Date({ nullable:true, default: null })
 		}),
 		permissions: {
+			user: {
+				// read: { filter: [['user_id', '=', '$role.userId']] } // Users can read their own notifications
+				read: { filter: [true] } // Users can read their own notifications
+			},
 			admin: {
 				read: { filter: [true] },
 				insert: { filter: [true] },
 				update: { filter: [true] },
 				delete: { filter: [true] }
 			},
-			user: {
-				read: { filter: [['user_id', '=', '$role.userId']] } // Users can read their own notifications
-			}
 		}
 	}
 } satisfies ClientSchema;

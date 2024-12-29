@@ -46,7 +46,7 @@
 		const { unsubscribe, loadMore } = client.subscribeWithExpand(
 			query.build(),
 			(results) => {
-				console.log('Loaded more seen notifications');
+				console.log('Loaded more seen notifications', results);
 				allSeenNotifications = [...allSeenNotifications, ...results] as [];
 			},
 			(error) => {
