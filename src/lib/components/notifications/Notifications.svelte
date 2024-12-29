@@ -7,7 +7,6 @@
 	import { getFeTriplitClient, waitForUserId } from '$lib/triplit';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
-	import type { NotificationTypescriptType } from '$lib/types';
 
 	let { children } = $props(); // Allow custom button text or children
 	let isDialogOpen = $state(false); // Dialog open state
@@ -21,7 +20,10 @@
 	let totalCount = $state();
 
 	// Track pagination for seen notifications
-	let loadMoreSeen: ((pageSize?: number) => void) | undefined;
+	let loadMoreSeen: ((pageSize?: number) => void) | undefined = $state();
+	let lastNumSeenLoaded = $state(0);
+
+	const NUM_TO_LOAD = 20;
 
 	// Subscribe to the store
 	announcementsStore.subscribe((state) => {
@@ -40,14 +42,23 @@
 				['user_id', '=', userId],
 				['seen_at', '!=', null]
 			])
-			.limit(20) // Initial limit
+			.limit(NUM_TO_LOAD) // Initial limit
 			.order('created_at', 'DESC');
 
 		const { unsubscribe, loadMore } = client.subscribeWithExpand(
 			query.build(),
 			(results) => {
 				console.log('Loaded more seen notifications', results);
-				allSeenNotifications = [...allSeenNotifications, ...results] as [];
+
+				// Avoid duplicates by checking IDs
+				const existingIds = new Set(allSeenNotifications.map((notif) => notif.id));
+				const uniqueResults = results.filter((notif) => !existingIds.has(notif.id));
+
+				lastNumSeenLoaded = uniqueResults.length;
+
+				// Update with unique notifications only
+				allSeenNotifications = [...allSeenNotifications, ...uniqueResults] as [];
+				loadMoreSeen = loadMore; // Save the loadMore function for pagination
 			},
 			(error) => {
 				console.error('Error fetching seen notifications:', error);
@@ -59,8 +70,6 @@
 				}
 			}
 		);
-
-		loadMoreSeen = loadMore; // Save the loadMore function for pagination
 
 		// Ensure cleanup on component destruction
 		return () => unsubscribe();
@@ -113,7 +122,9 @@
 						</div>
 					{:else if isDialogOpen && allUnreadNotifications.length === 0}
 						<!-- Center 'No notifications' vertically and horizontally -->
-						<div class="flex h-full w-full items-center justify-center text-center mt-5 bg-slate-100 rounded-lg p-3">
+						<div
+							class="mt-5 flex h-full w-full items-center justify-center rounded-lg bg-slate-100 p-3 text-center"
+						>
 							<p class="text-gray-400">You have no new notifications.</p>
 						</div>
 					{:else}
@@ -136,8 +147,10 @@
 					{/each}
 
 					<!-- Load more seen notifications -->
-					{#if allSeenNotifications.length > 0}
-						<button onclick={loadMoreSeenNotifications} class="btn mt-4"> Load More </button>
+					{#if loadMoreSeen && lastNumSeenLoaded > NUM_TO_LOAD}
+						<div class="flex w-full justify-center">
+							<button onclick={loadMoreSeenNotifications} class="btn mt-4"> Load More </button>
+						</div>
 					{/if}
 				</Dialog.Description>
 			</Dialog.Header>
