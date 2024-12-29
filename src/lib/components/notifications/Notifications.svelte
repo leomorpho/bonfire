@@ -116,6 +116,11 @@
 			<Dialog.Header class="mx-4 my-8">
 				<Dialog.Title>Your Notifications</Dialog.Title>
 				<Dialog.Description>
+					{#if allUnreadNotifications.length == 0 && allSeenNotifications.length == 0}
+							<div class="flex items-center justify-center rounded-lg bg-slate-100 my-5 p-3">
+								No notifications
+						</div>
+					{/if}
 					{#if allUnreadNotifications.length > 0}
 						<!-- Show unread notifications -->
 						<h3 class="text font-bold">Unread</h3>

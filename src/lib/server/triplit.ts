@@ -19,15 +19,37 @@ export const serverTriplitClient = new TriplitClient({
 export async function getAttendeeUserIdsOfEvent(
 	client: TriplitClient,
 	eventId: string,
-	statuses: Status[]
+	statuses: Status[],
+	excludeCreator: boolean = false
 ): Promise<string[]> {
+	// Fetch the event to get the creator's user ID if excludeCreator is true
+	let creatorUserId: string | null = null;
+	if (excludeCreator) {
+		const eventQuery = client
+			.query('events')
+			.select(['user_id'])
+			.where([['id', '=', eventId]])
+			.build();
+
+		const [event] = await client.fetch(eventQuery);
+		creatorUserId = event?.user_id || null;
+	}
+
+	// Build the attendees query
+	const attendeeQueryConditions: any[] = [
+		['event_id', '=', eventId],
+		['status', 'in', statuses]
+	];
+
+	// Add condition to exclude the creator if applicable
+	if (excludeCreator && creatorUserId) {
+		attendeeQueryConditions.push(['user_id', '!=', creatorUserId]);
+	}
+
 	const query = client
 		.query('attendees')
 		.select(['user_id'])
-		.where([
-			['event_id', '=', eventId],
-			['status', 'in', statuses]
-		])
+		.where(attendeeQueryConditions)
 		.build();
 
 	const results = (await client.fetch(query)) as AttendeeTypescriptType[];
@@ -143,7 +165,8 @@ async function notifyAttendeesOfAnnouncements(
 	const attendingUserIds = await getAttendeeUserIdsOfEvent(
 		serverTriplitClient as TriplitClient,
 		eventId,
-		NOTIFY_OF_ATTENDING_STATUS_CHANGE
+		NOTIFY_OF_ATTENDING_STATUS_CHANGE,
+		true // Do not notify announcement creator, i.e. event creator
 	);
 	console.log('notifyAttendeesOfAnnouncements attendingUserIds', attendingUserIds);
 
@@ -199,6 +222,16 @@ async function notifyAttendeesOfAnnouncements(
 async function notifyAttendeesOfFiles(eventId: string, fileIds: string[]): Promise<void> {
 	if (!fileIds.length) return;
 
+	// Fetch file objects to get uploader IDs
+	const fileQuery = serverTriplitClient
+		.query('files')
+		.select(['id', 'uploader_id'])
+		.where([['id', 'in', fileIds]])
+		.build();
+
+	const files = await serverTriplitClient.fetch(fileQuery);
+	const fileUploaderMap = new Map(files.map((file) => [file.id, file.uploader_id]));
+
 	const attendingUserIds = await getAttendeeUserIdsOfEvent(
 		serverTriplitClient as TriplitClient,
 		eventId,
@@ -209,6 +242,13 @@ async function notifyAttendeesOfFiles(eventId: string, fileIds: string[]): Promi
 
 	await serverTriplitClient.transact(async (tx) => {
 		for (const attendeeUserId of attendingUserIds) {
+			// Exclude files uploaded by the current attendeeUserId
+			const filteredFileIds = fileIds.filter(
+				(fileId) => fileUploaderMap.get(fileId) !== attendeeUserId
+			);
+
+			if (!filteredFileIds.length) continue; // Skip if no relevant files
+
 			// Check if the user already has an unseen notification of this type for this event
 			const existingNotificationQuery = serverTriplitClient
 				.query('notifications')
@@ -225,7 +265,7 @@ async function notifyAttendeesOfFiles(eventId: string, fileIds: string[]): Promi
 			if (existingNotification) {
 				// Parse the existing object IDs and aggregate with the new file IDs
 				const existingObjectIds = stringRepresentationToArray(existingNotification.object_ids);
-				const updatedObjectIds = Array.from(new Set([...existingObjectIds, ...fileIds])); // Ensure uniqueness
+				const updatedObjectIds = Array.from(new Set([...existingObjectIds, ...filteredFileIds])); // Ensure uniqueness
 
 				// Update the existing notification with the aggregated file IDs
 				const updatedMessage = `You have ${updatedObjectIds.length} new files in an event you're attending!`;
@@ -238,14 +278,14 @@ async function notifyAttendeesOfFiles(eventId: string, fileIds: string[]): Promi
 				console.log(`Updated notification for user ${attendeeUserId}.`);
 			} else {
 				// Create a new notification
-				const message = `You have ${fileIds.length} new files in an event you're attending!`;
+				const message = `You have ${filteredFileIds.length} new files in an event you're attending!`;
 
 				await tx.insert('notifications', {
 					event_id: eventId,
 					user_id: attendeeUserId,
 					message,
 					object_type: NotificationType.FILES,
-					object_ids: arrayToStringRepresentation(fileIds)
+					object_ids: arrayToStringRepresentation(filteredFileIds)
 				});
 
 				console.log(`Created a new notification for user ${attendeeUserId}.`);

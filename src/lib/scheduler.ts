@@ -11,7 +11,7 @@ const notificationTask = new Task('Process Notifications Queue', async () => {
 	}
 
 	isProcessing = true; // Set flag to indicate the task is running
-	console.log('Starting notification processing task...');
+	// console.log('Starting notification processing task...');
 
 	try {
 		const query = serverTriplitClient
@@ -30,7 +30,7 @@ const notificationTask = new Task('Process Notifications Queue', async () => {
 			await processNotificationQueue(notification); // Custom logic for handling notifications
 		}
 
-		console.log('Notification processing complete.');
+		// console.log('Notification processing complete.');
 	} catch (error) {
 		console.error('Error while processing notifications:', error);
 	} finally {

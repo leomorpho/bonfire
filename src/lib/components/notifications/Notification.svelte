@@ -158,7 +158,7 @@
 	{:else}
 		<!-- Render linked objects -->
 		{#if notification.object_type === 'files'}
-			<a class="my-2" href={`/bonfire/${notification.event_id}`} onclick={toggleDialog}>
+			<a class="my-2" href={`/bonfire/${notification.event_id}/media/gallery`} onclick={toggleDialog}>
 				<Button class="mt-3">See event images</Button>
 			</a>
 		{/if}
