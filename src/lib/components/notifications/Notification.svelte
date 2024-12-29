@@ -165,16 +165,10 @@
 							/>
 						</a>
 					{/each}
-				{:else if notification.object_type === 'files'}
-					{#each linkedObjects as obj}
-						{console.log('---> obj', obj)}
-						<a
-							href={`/bonfire/${notification.event_id}/files/${obj.id}`}
-							class="text-green-500 underline"
-						>
-							📁 {obj.name || 'File'}
-						</a>
-					{/each}
+					<!-- {:else if notification.object_type === 'files'}
+					<a class="my-2" href={`/bonfire/${obj.event_id}`} onclick={toggleDialog}>
+						{notification.}
+					</a> -->
 				{:else if notification.object_type === 'attendees'}
 					{#if linkedObjects.length > maxNumAttendeesToShowInline}
 						<Collapsible.Root class="space-y-2">

@@ -2,17 +2,13 @@ import { TriplitClient } from '@triplit/client';
 import { schema } from '../../../triplit/schema';
 import { PUBLIC_TRIPLIT_URL } from '$env/static/public';
 import { TRIPLIT_SERVICE_TOKEN } from '$env/static/private';
-import { NotificationType, Status } from '$lib/enums';
+import { NotificationType, NOTIFY_OF_ATTENDING_STATUS_CHANGE, Status } from '$lib/enums';
 import type {
 	AttendeeTypescriptType,
 	FileTypescriptType,
 	NotificationQueueEntry
 } from '$lib/types';
-import {
-	arrayToStringRepresentation,
-	isNonEmptyArray,
-	stringRepresentationToArray
-} from '$lib/utils';
+import { arrayToStringRepresentation, stringRepresentationToArray } from '$lib/utils';
 
 export const serverTriplitClient = new TriplitClient({
 	schema,
@@ -147,7 +143,7 @@ async function notifyAttendeesOfAnnouncements(
 	const attendingUserIds = await getAttendeeUserIdsOfEvent(
 		serverTriplitClient as TriplitClient,
 		eventId,
-		[Status.GOING, Status.MAYBE]
+		NOTIFY_OF_ATTENDING_STATUS_CHANGE
 	);
 	console.log('notifyAttendeesOfAnnouncements attendingUserIds', attendingUserIds);
 
@@ -325,94 +321,4 @@ async function notifyEventCreatorOfAttendees(
 
 		console.log(`Created a new notification for event creator ${event.user_id}.`);
 	}
-}
-
-/**
- * Create a new notification queue object for attendance.
- * @param client - TriplitClient instance.
- * @param userId - The ID of the user creating the notification queue object.
- * @param attendeeIds - List of attendance IDs.
- */
-export async function createNewAttendanceNotificationQueueObject(
-	client: TriplitClient,
-	userId: string,
-	eventId: string,
-	attendeeIds: string[]
-) {
-	if (!isNonEmptyArray(attendeeIds)) {
-		throw new Error('attendeeIds in createNewAttendanceNotificationQueueObject cannot be empty.');
-	}
-
-	// TODO: check that attendeeIds points to real objects
-
-	// Stringify the list of IDs, even if it's a single item
-	const objectIds = JSON.stringify(attendeeIds);
-
-	// Qeueue a notification to be processed
-	await client.insert('notifications_queue', {
-		user_id: userId,
-		event_id: eventId,
-		object_type: NotificationType.ATTENDEES,
-		object_ids: objectIds
-	});
-}
-
-/**
- * Create a new notification queue object for announcements.
- * @param client - TriplitClient instance.
- * @param userId - The ID of the user creating the notification queue object.
- * @param announcementIds - List of announcement IDs.
- */
-export async function createNewAnnouncementNotificationQueueObject(
-	client: TriplitClient,
-	userId: string,
-	eventId: string,
-	announcementIds: string[]
-): Promise<void> {
-	if (!isNonEmptyArray(announcementIds)) {
-		throw new Error(
-			'announcementIds in createNewAnnouncementNotificationQueueObject cannot be empty.'
-		);
-	}
-
-	// TODO: check that announcementIds points to real objects
-
-	// Stringify the list of IDs, even if it's a single item
-	const objectIds = JSON.stringify(announcementIds);
-
-	await client.insert('notifications_queue', {
-		user_id: userId,
-		event_id: eventId,
-		object_type: NotificationType.ANNOUNCEMENT,
-		object_ids: objectIds
-	});
-}
-
-/**
- * Create a new notification queue object for files.
- * @param client - TriplitClient instance.
- * @param userId - The ID of the user creating the notification queue object.
- * @param fileIds - List of file IDs.
- */
-export async function createNewFileNotificationQueueObject(
-	client: TriplitClient,
-	userId: string,
-	eventId: string,
-	fileIds: string[]
-): Promise<void> {
-	if (!isNonEmptyArray(fileIds)) {
-		throw new Error('fileIds in createNewFileNotificationQueueObject cannot be empty.');
-	}
-
-	// TODO: check that fileIds points to real objects
-
-	// Stringify the list of IDs, even if it's a single item
-	const objectIds = JSON.stringify(fileIds);
-
-	await client.insert('notifications_queue', {
-		user_id: userId,
-		event_id: eventId,
-		object_type: NotificationType.FILES,
-		object_ids: objectIds
-	});
 }

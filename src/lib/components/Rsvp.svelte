@@ -3,8 +3,8 @@
 	import { Smile, Meh, Frown } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import type { TriplitClient } from '@triplit/client';
-	import { getFeTriplitClient } from '$lib/triplit';
-	import { getStrValueOfRSVP, Status } from '$lib/enums';
+	import { createNewAttendanceNotificationQueueObject, getFeTriplitClient } from '$lib/triplit';
+	import { getStrValueOfRSVP, NOTIFY_OF_ATTENDING_STATUS_CHANGE, Status } from '$lib/enums';
 	import { and } from '@triplit/client';
 	import AddToCalendar from './AddToCalendar.svelte';
 	import { page } from '$app/stores';
@@ -23,11 +23,6 @@
 	onMount(() => {
 		client = getFeTriplitClient($page.data.jwt) as TriplitClient;
 	});
-
-	// let rsvpStatus: string = $state(DEFAULT);
-	// if (attendance) {
-	// 	rsvpStatus = attendance.status;
-	// }
 
 	let showAddToCalendarStatuses = new Set([Status.GOING, Status.MAYBE]);
 
@@ -65,6 +60,11 @@
 			});
 
 			rsvpStatus = newValue; // Update the label
+
+			if (NOTIFY_OF_ATTENDING_STATUS_CHANGE.includes(rsvpStatus)) {
+				await createNewAttendanceNotificationQueueObject(client, userId, eventId, attendance.id);
+			}
+
 			// Perform any additional actions, e.g., API call to save the new RSVP status
 			console.log('RSVP updated to:', newValue);
 		} catch (error) {

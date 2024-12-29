@@ -2,7 +2,7 @@
 	import { TriplitClient } from '@triplit/client';
 	import { Textarea } from '$lib/components/ui/textarea/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
-	import { getFeTriplitClient, waitForUserId } from '$lib/triplit';
+	import { createNewAnnouncementNotificationQueueObject, getFeTriplitClient, waitForUserId } from '$lib/triplit';
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
@@ -40,6 +40,14 @@
 				event_id: eventId,
 				user_id: userId // Use the authenticated user's ID
 			});
+			console.log("output...", output)
+
+			await createNewAnnouncementNotificationQueueObject(
+				client,
+				userId as string,
+				eventId,
+				[output?.id]
+			);
 
 			if (output) {
 				goto(`/bonfire/${eventId}#announcements`);

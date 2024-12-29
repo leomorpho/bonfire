@@ -2,12 +2,9 @@ import { createNewUser } from '$lib/server/database/user.model';
 import { generateId } from 'lucia';
 import { faker } from '@faker-js/faker';
 import type { TriplitClient } from '@triplit/client';
-import {
-	createNewAnnouncementNotificationQueueObject,
-	createNewAttendanceNotificationQueueObject,
-	serverTriplitClient
-} from '$lib/server/triplit';
 import { Status } from '$lib/enums';
+import { serverTriplitClient } from '$lib/server/triplit';
+import { createNewAnnouncementNotificationQueueObject, createNewAttendanceNotificationQueueObject } from '$lib/triplit';
 
 // // Step 1: Run CLI commands
 // try {

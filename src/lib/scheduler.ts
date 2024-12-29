@@ -40,7 +40,7 @@ const notificationTask = new Task('Process Notifications Queue', async () => {
 
 export const notificationSenderLoop = async () => {
 	// Schedule the task
-	const notificationJob = new SimpleIntervalJob({ seconds: 10 }, notificationTask);
+	const notificationJob = new SimpleIntervalJob({ seconds: 1 }, notificationTask);
 
 	scheduler.addSimpleIntervalJob(notificationJob);
 

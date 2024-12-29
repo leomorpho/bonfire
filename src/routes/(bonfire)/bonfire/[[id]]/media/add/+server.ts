@@ -4,6 +4,8 @@ import { Readable } from 'stream';
 import { error } from '@sveltejs/kit';
 import { serverTriplitClient } from '$lib/server/triplit';
 import sharp from 'sharp';
+import type { TriplitClient } from '@triplit/client';
+import { createNewFileNotificationQueueObject } from '$lib/triplit';
 
 export const POST = async (event: RequestEvent): Promise<Response> => {
 	try {
@@ -70,7 +72,7 @@ export const POST = async (event: RequestEvent): Promise<Response> => {
 		});
 
 		// Create entry
-		await serverTriplitClient.insert('files', {
+		const fileInTriplit = await serverTriplitClient.insert('files', {
 			uploader_id: user.id,
 			event_id: id,
 			file_key: fileKey,
@@ -80,6 +82,10 @@ export const POST = async (event: RequestEvent): Promise<Response> => {
 			h_pixel: h_pixel,
 			w_pixel: w_pixel
 		});
+
+		await createNewFileNotificationQueueObject(serverTriplitClient as TriplitClient, user.id, id, [
+			fileInTriplit.id
+		]);
 
 		return new Response(JSON.stringify({ message: 'File uploaded successfully', fileKey }), {
 			status: 200,
