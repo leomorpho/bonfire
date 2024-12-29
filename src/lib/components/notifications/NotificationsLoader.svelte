@@ -14,6 +14,7 @@
 				['user_id', '=', userId],
 				['seen_at', '=', null]
 			])
+			.select(['id'])
 			.order('created_at', 'DESC');
 	};
 

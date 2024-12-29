@@ -2,8 +2,6 @@
 	import Notification from './Notification.svelte';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
-	import SvgLoader from '../SvgLoader.svelte';
-	import { announcementsStore } from '$lib/stores';
 	import { getFeTriplitClient, waitForUserId } from '$lib/triplit';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
@@ -17,8 +15,6 @@
 	// Read notifications and loading state from the store
 	let allUnreadNotifications = $state([]);
 	let allSeenNotifications = $state([]);
-	let notificationsLoading = $state();
-	let totalCount = $state();
 
 	// Track pagination for seen notifications
 	let loadMoreSeen: ((pageSize?: number) => void) | undefined = $state();
@@ -26,18 +22,21 @@
 
 	const NUM_TO_LOAD = 20;
 
-	// Subscribe to the store
-	announcementsStore.subscribe((state) => {
-		allUnreadNotifications = state.allUnreadNotifications;
-		notificationsLoading = state.notificationsLoading;
-		totalCount = state.totalCount;
-	});
-
 	// Initialize the seen notifications subscription
-	async function initSeenNotifications() {
+	async function initLoadNotifications() {
 		const client = getFeTriplitClient($page.data.jwt);
+		const unseenQuery = client
+			.query('notifications')
+			.where([
+				['user_id', '=', userId],
+				['seen_at', '=', null]
+			])
+			.order('created_at', 'DESC')
+			.build();
 
-		const query = client
+		allUnreadNotifications = await client.fetch(unseenQuery);
+
+		const seenQuery = client
 			.query('notifications')
 			.where([
 				['user_id', '=', userId],
@@ -50,7 +49,7 @@
 			.order('created_at', 'DESC');
 
 		const { unsubscribe, loadMore } = client.subscribeWithExpand(
-			query.build(),
+			seenQuery.build(),
 			(results) => {
 				console.log('Loaded more seen notifications', results);
 
@@ -90,8 +89,8 @@
 	// Watch for dialog state changes
 	$effect(() => {
 		if (isDialogOpen && userId) {
-			console.log('calling initSeenNotifications');
-			initSeenNotifications();
+			console.log('calling initLoadNotifications');
+			initLoadNotifications();
 		}
 	});
 
@@ -119,19 +118,7 @@
 			<Dialog.Header class="mx-4 my-8">
 				<Dialog.Title>Your Notifications</Dialog.Title>
 				<Dialog.Description>
-					{#if notificationsLoading}
-						<!-- Show loader while loading -->
-						<div class="flex w-full items-center justify-center">
-							<SvgLoader />
-						</div>
-					{:else if isDialogOpen && allUnreadNotifications.length === 0}
-						<!-- Center 'No notifications' vertically and horizontally -->
-						<div
-							class="mt-5 flex h-full w-full items-center justify-center rounded-lg bg-slate-100 p-3 text-center"
-						>
-							<p class="text-gray-400">You have no new notifications.</p>
-						</div>
-					{:else}
+					{#if allUnreadNotifications.length > 0}
 						<!-- Show unread notifications -->
 						<h3 class="text font-bold">Unread</h3>
 						{#each allUnreadNotifications as notification}
