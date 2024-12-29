@@ -24,7 +24,7 @@ const notificationTask = new Task('Process Notifications Queue', async () => {
 
 		// Fetch the notifications
 		const notifications = await serverTriplitClient.fetch(query);
-		
+
 		// Process each notification
 		for (const notification of notifications) {
 			await processNotificationQueue(notification); // Custom logic for handling notifications
@@ -38,11 +38,50 @@ const notificationTask = new Task('Process Notifications Queue', async () => {
 	}
 });
 
+const notificationQueueCleanupTask = new Task('Cleanup Old Notifications Queue', async () => {
+	try {
+		const thirtyDaysAgo = new Date();
+		thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+		// Query to find notifications older than 30 days
+		const oldNotificationsQuery = serverTriplitClient
+			.query('notifications_queue')
+			.where([
+				['created_at', '<', thirtyDaysAgo] // Compare with the 'created_at' field
+			])
+			.select(['id']) // Only fetch the IDs for deletion
+			.build();
+
+		const oldNotifications = await serverTriplitClient.fetch(oldNotificationsQuery);
+
+		if (oldNotifications.length === 0) {
+			console.log('No old notifications to delete.');
+			return;
+		}
+
+		// Extract the IDs of the notifications to be deleted
+		const notificationIds = oldNotifications.map((notif) => notif.id);
+
+		// Perform deletion in a transaction
+		await serverTriplitClient.transact(async (tx) => {
+			for (const id of notificationIds) {
+				await tx.delete('notifications_queue', id);
+			}
+		});
+
+		console.log(`Cleanup complete. Deleted ${notificationIds.length} old notifications.`);
+	} catch (error) {
+		console.error('Error during cleanup of old notifications:', error);
+	}
+});
+
 export const notificationSenderLoop = async () => {
 	// Schedule the task
 	const notificationJob = new SimpleIntervalJob({ seconds: 1 }, notificationTask);
+	const cleanupJob = new SimpleIntervalJob({ hours: 6 }, notificationQueueCleanupTask);
 
 	scheduler.addSimpleIntervalJob(notificationJob);
+	scheduler.addSimpleIntervalJob(cleanupJob);
 
 	/// Graceful shutdown
 	process.on('SIGTERM', () => {
