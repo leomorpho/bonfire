@@ -89,14 +89,12 @@
 	// Watch for dialog state changes
 	$effect(() => {
 		if (isDialogOpen && userId) {
-			console.log('calling initLoadNotifications');
 			initLoadNotifications();
 		}
 	});
 
 	function toggleDialog() {
 		isDialogOpen = !isDialogOpen;
-		// console.log('isDialogOpen', isDialogOpen);
 	}
 
 	function loadMoreSeenNotifications() {
@@ -132,7 +130,6 @@
 						<!-- Show seen notifications -->
 						<h3 class="text mt-6 font-bold">Seen</h3>
 						{#each allSeenNotifications as notification}
-							{console.log('notification', notification)}
 							<div class="my-3">
 								<Notification {notification} />
 							</div>

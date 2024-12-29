@@ -300,7 +300,7 @@ async function notifyEventCreatorOfAttendees(
 		// Update the existing notification with the aggregated attendee IDs
 		const attendeeCount = updatedObjectIds.length;
 		const attendeeWord = attendeeCount === 1 ? 'attendee' : 'attendees';
-		const updatedMessage = `${attendeeCount} ${attendeeWord} ${attendeeCount === 1 ? 'is' : 'are'} now attending your event "${event.title}".`;
+		const updatedMessage = `${attendeeCount} new ${attendeeWord} ${attendeeCount === 1 ? 'is' : 'are'} now attending your event "${event.title}".`;
 
 		await serverTriplitClient.update('notifications', existingNotification.id, (entity) => {
 			entity.object_ids = arrayToStringRepresentation(updatedObjectIds);
@@ -312,7 +312,7 @@ async function notifyEventCreatorOfAttendees(
 		// Construct the notification message with correct pluralization
 		const attendeeCount = attendeeIds.length;
 		const attendeeWord = attendeeCount === 1 ? 'attendee' : 'attendees';
-		const message = `${attendeeCount} ${attendeeWord} ${attendeeCount === 1 ? 'is' : 'are'} now attending your event "${event.title}".`;
+		const message = `${attendeeCount} new ${attendeeWord} ${attendeeCount === 1 ? 'is' : 'are'} now attending your event "${event.title}".`;
 
 		// Insert the notification directly
 		await serverTriplitClient.insert('notifications', {
