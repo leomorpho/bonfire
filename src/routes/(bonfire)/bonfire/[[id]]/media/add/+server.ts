@@ -72,7 +72,7 @@ export const POST = async (event: RequestEvent): Promise<Response> => {
 		});
 
 		// Create entry
-		const fileInTriplit = await serverTriplitClient.insert('files', {
+		const fileTx = await serverTriplitClient.insert('files', {
 			uploader_id: user.id,
 			event_id: id,
 			file_key: fileKey,
@@ -84,7 +84,7 @@ export const POST = async (event: RequestEvent): Promise<Response> => {
 		});
 
 		await createNewFileNotificationQueueObject(serverTriplitClient as TriplitClient, user.id, id, [
-			fileInTriplit.id
+			fileTx?.output?.id as string
 		]);
 
 		return new Response(JSON.stringify({ message: 'File uploaded successfully', fileKey }), {

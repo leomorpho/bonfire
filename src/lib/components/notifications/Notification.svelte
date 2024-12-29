@@ -9,6 +9,7 @@
 	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import Announcement from '../Announcement.svelte';
+	import { NotificationType } from '$lib/enums';
 
 	let { notification, toggleDialog } = $props();
 
@@ -20,6 +21,7 @@
 	const maxNumAttendeesToShowInline = 3;
 
 	const fetchLinkedObjects = async () => {
+		console.log('notification', notification);
 		if (!notification.object_ids || !notification.object_type) return;
 
 		const client = getFeTriplitClient($page.data.jwt) as TriplitClient;
@@ -27,17 +29,19 @@
 
 		let query;
 		switch (notification.object_type) {
-			case 'announcement':
+			case NotificationType.ANNOUNCEMENT:
 				query = client
 					.query('announcement')
 					.include('seen_by')
 					.where(['id', 'in', objectIds])
 					.build();
 				break;
-			case 'files':
-				query = client.query('files').where(['id', 'in', objectIds]).build();
-				break;
-			case 'attendees':
+			case NotificationType.FILES:
+				// Don't query the files, just redirect to event
+				isLoading = false;
+				// query = client.query('files').where(['id', 'in', objectIds]).build();
+				return;
+			case NotificationType.ATTENDEES:
 				query = client.query('attendees').include('user').where(['id', 'in', objectIds]).build();
 				break;
 			default:
@@ -137,20 +141,27 @@
 	});
 </script>
 
-<div class="notification-item rounded rounded-lg border p-4" bind:this={cardRef}>
+<div class="notification-item rounded-lg border p-4" bind:this={cardRef}>
 	<!-- Display message -->
 	<p class="font-medium">{notification.message}</p>
 
 	<!-- Display additional metadata -->
-	<p class="text-sm text-gray-500">
-		{formatHumanReadable(notification.created_at)}
-	</p>
+	{#if notification.object_type === 'attendees'}
+		<p class="text-sm text-gray-500">
+			{formatHumanReadable(notification.created_at)}
+		</p>
+	{/if}
 
 	<!-- Show loading indicator while fetching linked objects -->
 	{#if isLoading}
 		<p class="text-gray-400">Loading details...</p>
 	{:else}
 		<!-- Render linked objects -->
+		{#if notification.object_type === 'files'}
+			<a class="my-2" href={`/bonfire/${notification.event_id}`} onclick={toggleDialog}>
+				<Button class="mt-3">See event images</Button>
+			</a>
+		{/if}
 		{#if linkedObjects.length > 0}
 			<div class="mt-3">
 				<!-- Customize rendering for each object type -->
@@ -211,8 +222,6 @@
 					{/if}
 				{/if}
 			</div>
-		{:else}
-			<p class="text-gray-400">No linked objects found.</p>
 		{/if}
 	{/if}
 </div>
