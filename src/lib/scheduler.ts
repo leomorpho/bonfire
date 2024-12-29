@@ -1,10 +1,8 @@
 import { ToadScheduler, SimpleIntervalJob, Task } from 'toad-scheduler';
-import { processNotification, serverTriplitClient } from './server/triplit';
+import { processNotificationQueue, serverTriplitClient } from './server/triplit';
 
 const scheduler = new ToadScheduler();
 let isProcessing = false;
-
-
 
 const notificationTask = new Task('Process Notifications Queue', async () => {
 	if (isProcessing) {
@@ -18,7 +16,6 @@ const notificationTask = new Task('Process Notifications Queue', async () => {
 	try {
 		const query = serverTriplitClient
 			.query('notifications_queue')
-			.select(['id', 'object_type', 'object_type'])
 			.where([
 				['sent_at', '=', null] // Only fetch unsent notifications
 			])
@@ -27,9 +24,10 @@ const notificationTask = new Task('Process Notifications Queue', async () => {
 
 		// Fetch the notifications
 		const notifications = await serverTriplitClient.fetch(query);
+		
 		// Process each notification
 		for (const notification of notifications) {
-			await processNotification(notification); // Custom logic for handling notifications
+			await processNotificationQueue(notification); // Custom logic for handling notifications
 		}
 
 		console.log('Notification processing complete.');

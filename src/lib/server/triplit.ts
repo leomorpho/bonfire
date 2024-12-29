@@ -3,7 +3,12 @@ import { schema } from '../../../triplit/schema';
 import { PUBLIC_TRIPLIT_URL } from '$env/static/public';
 import { TRIPLIT_SERVICE_TOKEN } from '$env/static/private';
 import { NotificationType, Status } from '$lib/enums';
-import type { AttendeeTypescriptType, FileTypescriptType, NotificationQueueEntry } from '$lib/types';
+import type {
+	AttendeeTypescriptType,
+	FileTypescriptType,
+	NotificationQueueEntry
+} from '$lib/types';
+import { isNonEmptyArray, parseObjectIds } from '$lib/utils';
 
 export const serverTriplitClient = new TriplitClient({
 	schema,
@@ -25,129 +30,108 @@ export async function getAttendeeUserIdsOfEvent(
 		])
 		.build();
 
-	const results = await client.fetch(query) as AttendeeTypescriptType[];
+	const results = (await client.fetch(query)) as AttendeeTypescriptType[];
 	return results.map((attendee: AttendeeTypescriptType) => attendee.user_id);
 }
 
 export async function validateAnnouncements(
 	client: TriplitClient,
-	announcementIds: string[],
-	eventId: string
+	announcementIds: string[]
 ): Promise<string[]> {
 	const query = client
 		.query('announcement')
-		.select(['id', 'event_id'])
-		.where([
-			['id', 'in', announcementIds],
-			['event_id', '=', eventId]
-		])
+		.select(['id'])
+		.where([['id', 'in', announcementIds]])
 		.build();
 
 	// Fetch and return only the IDs
-	const results = await client.fetch(query) as AttendeeTypescriptType[];
+	const results = (await client.fetch(query)) as AttendeeTypescriptType[];
+
 	return results.map((announcement: AttendeeTypescriptType) => announcement.id);
 }
 
-export async function validateFiles(
-	client: TriplitClient,
-	fileIds: string[],
-	eventId: string
-): Promise<string[]> {
+export async function validateFiles(client: TriplitClient, fileIds: string[]): Promise<string[]> {
 	const query = client
 		.query('files')
-		.select(['id', 'event_id'])
-		.where([
-			['id', 'in', fileIds],
-			['event_id', '=', eventId]
-		])
+		.select(['id'])
+		.where([['id', 'in', fileIds]])
 		.build();
 
 	// Fetch and return only the IDs
-	const results = await client.fetch(query) as FileTypescriptType[];
+	const results = (await client.fetch(query)) as FileTypescriptType[];
 	return results.map((file: FileTypescriptType) => file.id);
 }
 
 export async function validateAttendees(
 	client: TriplitClient,
-	attendeeIds: string[],
-	eventId: string
+	attendeeIds: string[]
 ): Promise<string[]> {
 	const query = client
 		.query('attendees')
-		.select(['id', 'event_id'])
-		.where([
-			['id', 'in', attendeeIds],
-			['event_id', '=', eventId]
-		])
+		.select(['id'])
+		.where([['id', 'in', attendeeIds]])
 		.build();
 
 	// Fetch and return only the IDs
-	const results = await client.fetch(query) as AttendeeTypescriptType[];
+	const results = (await client.fetch(query)) as AttendeeTypescriptType[];
 	return results.map((attendee: AttendeeTypescriptType) => attendee.id);
 }
 
-export async function processNotification(notification: NotificationQueueEntry) {
+export async function processNotificationQueue(notificationQueueEntry: NotificationQueueEntry) {
 	console.log(
-		`Processing notification queue object created by user ${notification.user_id}:`,
-		notification
+		`Processing notification queue object created by user ${notificationQueueEntry.user_id}:`,
+		notificationQueueEntry
 	);
 
 	// Parse object_ids into an array
-	const objectIds = notification.object_ids.split(',');
+	const objectIds = parseObjectIds(notificationQueueEntry.object_ids);
 
 	// Validate the object IDs based on object_type
 	let validObjectIds: string[] = [];
-	switch (notification.object_type) {
+	switch (notificationQueueEntry.object_type) {
 		case NotificationType.ANNOUNCEMENT:
-			validObjectIds = await validateAnnouncements(
-				serverTriplitClient as TriplitClient,
-				objectIds,
-				notification.event_id
-			);
+			validObjectIds = await validateAnnouncements(serverTriplitClient as TriplitClient, objectIds);
 			break;
 		case NotificationType.FILES:
-			validObjectIds = await validateFiles(
-				serverTriplitClient as TriplitClient,
-				objectIds,
-				notification.event_id
-			);
+			validObjectIds = await validateFiles(serverTriplitClient as TriplitClient, objectIds);
 			break;
 		case NotificationType.ATTENDEES:
-			validObjectIds = await validateAttendees(
-				serverTriplitClient as TriplitClient,
-				objectIds,
-				notification.event_id
-			);
+			validObjectIds = await validateAttendees(serverTriplitClient as TriplitClient, objectIds);
 			break;
 		default:
-			console.error(`Unknown object_type: ${notification.object_type}`);
+			console.error(`Unknown object_type: ${notificationQueueEntry.object_type}`);
 			return;
 	}
 
 	if (validObjectIds.length === 0) {
-		console.warn(`No valid objects found for notification ${notification.id}`);
+		console.warn(`No valid objects found for queued notification ${notificationQueueEntry.id}`);
+		// TODO; delete objects
 		return;
 	}
 
 	// Send notifications based on the type
-	switch (notification.object_type) {
+	switch (notificationQueueEntry.object_type) {
 		case NotificationType.ANNOUNCEMENT:
-			await notifyAttendeesOfAnnouncements(notification.user_id, validObjectIds);
+			await notifyAttendeesOfAnnouncements(notificationQueueEntry.user_id, validObjectIds);
 			break;
 		case NotificationType.FILES:
-			await notifyAttendeesOfFiles(notification.user_id, validObjectIds);
+			await notifyAttendeesOfFiles(notificationQueueEntry.user_id, validObjectIds);
 			break;
 		case NotificationType.ATTENDEES:
-			await notifyEventCreatorOfAttendees(notification.event_id, validObjectIds);
+			await notifyEventCreatorOfAttendees(notificationQueueEntry.event_id, validObjectIds);
 			break;
 	}
 
 	// Mark the notification as sent
-	await serverTriplitClient.update('notifications_queue', notification.id, async (entity) => {
-		entity.sent_at = new Date();
-	});
+	await serverTriplitClient.update(
+		'notifications_queue',
+		notificationQueueEntry.id,
+		async (entity) => {
+			entity.sent_at = new Date();
+		}
+	);
 
-	console.log(`Notification ${notification.id} marked as sent.`);
+	console.log(`Notification ${notificationQueueEntry.id} marked as sent.`);
 }
 
 async function notifyAttendeesOfAnnouncements(
@@ -254,6 +238,12 @@ export async function createNewAttendanceNotificationQueueObject(
 	userId: string,
 	attendeeIds: string[]
 ) {
+	if (!isNonEmptyArray(attendeeIds)) {
+		throw new Error('attendeeIds in createNewAttendanceNotificationQueueObject cannot be empty.');
+	}
+
+	// TODO: check that attendeeIds points to real objects
+
 	// Stringify the list of IDs, even if it's a single item
 	const objectIds = JSON.stringify(attendeeIds);
 
@@ -276,6 +266,14 @@ export async function createNewAnnouncementNotificationQueueObject(
 	userId: string,
 	announcementIds: string[]
 ): Promise<void> {
+	if (!isNonEmptyArray(announcementIds)) {
+		throw new Error(
+			'announcementIds in createNewAnnouncementNotificationQueueObject cannot be empty.'
+		);
+	}
+
+	// TODO: check that announcementIds points to real objects
+
 	// Stringify the list of IDs, even if it's a single item
 	const objectIds = JSON.stringify(announcementIds);
 
@@ -297,6 +295,12 @@ export async function createNewFileNotificationQueueObject(
 	userId: string,
 	fileIds: string[]
 ): Promise<void> {
+	if (!isNonEmptyArray(fileIds)) {
+		throw new Error('fileIds in createNewFileNotificationQueueObject cannot be empty.');
+	}
+
+	// TODO: check that fileIds points to real objects
+
 	// Stringify the list of IDs, even if it's a single item
 	const objectIds = JSON.stringify(fileIds);
 

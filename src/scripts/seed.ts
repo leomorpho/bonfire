@@ -96,7 +96,7 @@ for (let i = 0; i < 5; i++) {
 	});
 	const announcementId = announcement?.output?.id;
 
-	await createNewAnnouncementNotificationQueueObject(client, user?.id as string, announcementId);
+	await createNewAnnouncementNotificationQueueObject(client, user?.id as string, [announcementId]);
 
 	announcements.push(announcementId);
 }
@@ -111,14 +111,14 @@ for (let i = 0; i < 100; i++) {
 
 	await client.insert('user', { id: attendeeUser?.id, username: faker.internet.username() });
 
-	const { attendeeObj } = await client.insert('attendees', {
+	const result = await client.insert('attendees', {
 		event_id: output?.id,
 		user_id: attendeeUser?.id,
 		status: getRandomStatus()
 	});
 
 	await createNewAttendanceNotificationQueueObject(client, attendeeUser?.id as string, [
-		attendeeObj.id
+		result.output?.id
 	]);
 
 	// Randomly mark some users as having seen the announcements
