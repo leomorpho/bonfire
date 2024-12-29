@@ -7,6 +7,7 @@
 	import { getFeTriplitClient, waitForUserId } from '$lib/triplit';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
+	import { and } from '@triplit/client';
 
 	let { children } = $props(); // Allow custom button text or children
 	let isDialogOpen = $state(false); // Dialog open state
@@ -40,7 +41,10 @@
 			.query('notifications')
 			.where([
 				['user_id', '=', userId],
-				['seen_at', '!=', null]
+				and([
+					['seen_at', '!=', null],
+					['seen_at', '<', new Date()]
+				])
 			])
 			.limit(NUM_TO_LOAD) // Initial limit
 			.order('created_at', 'DESC');
@@ -137,20 +141,22 @@
 						{/each}
 					{/if}
 
-					<!-- Show seen notifications -->
-					<h3 class="text mt-6 font-bold">Seen</h3>
-					{#each allSeenNotifications as notification}
-						{console.log('notification', notification)}
-						<div class="my-3">
-							<Notification {notification} />
-						</div>
-					{/each}
+					{#if allSeenNotifications.length > 0}
+						<!-- Show seen notifications -->
+						<h3 class="text mt-6 font-bold">Seen</h3>
+						{#each allSeenNotifications as notification}
+							{console.log('notification', notification)}
+							<div class="my-3">
+								<Notification {notification} />
+							</div>
+						{/each}
 
-					<!-- Load more seen notifications -->
-					{#if loadMoreSeen && lastNumSeenLoaded > NUM_TO_LOAD}
-						<div class="flex w-full justify-center">
-							<button onclick={loadMoreSeenNotifications} class="btn mt-4"> Load More </button>
-						</div>
+						<!-- Load more seen notifications, TODO: set up an intersection observer -->
+						{#if loadMoreSeen && lastNumSeenLoaded > NUM_TO_LOAD}
+							<div class="flex w-full justify-center">
+								<button onclick={loadMoreSeenNotifications} class="btn mt-4"> Load More </button>
+							</div>
+						{/if}
 					{/if}
 				</Dialog.Description>
 			</Dialog.Header>
