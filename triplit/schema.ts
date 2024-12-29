@@ -1,5 +1,4 @@
 import { Schema as S, type Roles, type ClientSchema, or } from '@triplit/client';
-import type { nullable } from 'zod';
 
 // Define roles
 export const roles: Roles = {

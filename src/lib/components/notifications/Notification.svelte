@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getFeTriplitClient } from '$lib/triplit';
+	import { getFeTriplitClient, waitForUserId } from '$lib/triplit';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 	import { TriplitClient } from '@triplit/client';
@@ -8,9 +8,11 @@
 	import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
 	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
+	import Announcement from '../Announcement.svelte';
 
 	let { notification } = $props();
 
+	let userId = $state('');
 	let linkedObjects = $state([]);
 	let isLoading = $state(true);
 	let cardRef: HTMLElement | null = $state(null); // Initialize as null to ensure proper type handling
@@ -26,7 +28,11 @@
 		let query;
 		switch (notification.object_type) {
 			case 'announcement':
-				query = client.query('announcement').where(['id', 'in', objectIds]).build();
+				query = client
+					.query('announcement')
+					.include('seen_by')
+					.where(['id', 'in', objectIds])
+					.build();
 				break;
 			case 'files':
 				query = client.query('files').where(['id', 'in', objectIds]).build();
@@ -54,6 +60,32 @@
 				attendee.profileImage = profileImageMap[attendee.user_id] || {};
 			});
 		}
+		// Fetch attendee ID
+		if (notification.object_type === 'announcement') {
+			// Collect unique event_ids from announcements
+			const eventIds = [...new Set(results.map((announcement) => announcement.event_id))];
+
+			// Query attendees table for all relevant event_id and user_id combinations
+			const attendeeQuery = client
+				.query('attendees')
+				.where([
+					['user_id', '=', userId],
+					['event_id', 'in', eventIds]
+				])
+				.build();
+
+			// Fetch all relevant attendees
+			const attendees = await client.fetch(attendeeQuery);
+
+			// Map event_id to attendeeId for quick lookup
+			const attendeeMap = new Map(attendees.map((attendee) => [attendee.event_id, attendee.id]));
+
+			// Assign attendeeId to each announcement object
+			results.forEach((announcement) => {
+				announcement.attendeeId = attendeeMap.get(announcement.event_id) || null;
+			});
+		}
+
 		console.log('results', results);
 
 		linkedObjects = results;
@@ -79,6 +111,11 @@
 	onMount(fetchLinkedObjects);
 
 	onMount(() => {
+		const init = async () => {
+			userId = (await waitForUserId()) as string;
+		};
+		init();
+
 		const observer = new IntersectionObserver(
 			async ([entry]) => {
 				if (entry.isIntersecting) {
@@ -100,7 +137,7 @@
 	});
 </script>
 
-<div class="notification-item rounded border p-4 rounded-lg" bind:this={cardRef}>
+<div class="notification-item rounded rounded-lg border p-4" bind:this={cardRef}>
 	<!-- Display message -->
 	<p class="font-medium">{notification.message}</p>
 
@@ -118,19 +155,26 @@
 			<div>
 				<!-- Customize rendering for each object type -->
 				{#if notification.object_type === 'announcement'}
-					<a
-						href={`/bonfire/${notification.event_id}/announcement/${obj.id}`}
-						class="text-blue-500 underline"
-					>
-						📢 {obj.title || 'Announcement'}
-					</a>
+					{#each linkedObjects as obj}
+						<div class="my-2">
+							<Announcement
+								eventId={obj.event_id}
+								currUserId={userId}
+								currentUserAttendeeId={obj.attendeeId}
+								announcement={obj}
+							/>
+						</div>
+					{/each}
 				{:else if notification.object_type === 'files'}
-					<a
-						href={`/bonfire/${notification.event_id}/files/${obj.id}`}
-						class="text-green-500 underline"
-					>
-						📁 {obj.name || 'File'}
-					</a>
+					{#each linkedObjects as obj}
+						{console.log('---> obj', obj)}
+						<a
+							href={`/bonfire/${notification.event_id}/files/${obj.id}`}
+							class="text-green-500 underline"
+						>
+							📁 {obj.name || 'File'}
+						</a>
+					{/each}
 				{:else if notification.object_type === 'attendees'}
 					{#if linkedObjects.length > maxNumAttendeesToShowInline}
 						<Collapsible.Root class="space-y-2">
