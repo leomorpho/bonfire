@@ -11,18 +11,16 @@ export function formatHumanReadable(date: Date): string {
 }
 
 /**
- * Converts a JavaScript array into a string representation.
+ * Converts a JavaScript array into a JSON string representation.
  * @param array - The array to be transformed.
- * @returns A string representation of the array.
+ * @returns A JSON string representation of the array.
  */
-export function arrayToStringRepresentation(array: string[]): string {
-	// Ensure the input is an array
+export function arrayToStringRepresentation(array: string[] | number[]): string {
 	if (!Array.isArray(array)) {
 		throw new Error('Input must be an array');
 	}
 
-	// Convert each element to a string and join with commas, wrapping with square brackets
-	return `[${array.map((item) => `'${item}'`).join(', ')}]`;
+	return JSON.stringify(array);
 }
 
 /**
