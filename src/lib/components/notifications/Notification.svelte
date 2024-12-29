@@ -10,7 +10,7 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import Announcement from '../Announcement.svelte';
 
-	let { notification } = $props();
+	let { notification, toggleDialog } = $props();
 
 	let userId = $state('');
 	let linkedObjects = $state([]);
@@ -152,18 +152,18 @@
 	{:else}
 		<!-- Render linked objects -->
 		{#if linkedObjects.length > 0}
-			<div>
+			<div class="mt-3">
 				<!-- Customize rendering for each object type -->
 				{#if notification.object_type === 'announcement'}
 					{#each linkedObjects as obj}
-						<div class="my-2">
+						<a class="my-2" href={`/bonfire/${obj.event_id}`} onclick={toggleDialog}>
 							<Announcement
 								eventId={obj.event_id}
 								currUserId={userId}
 								currentUserAttendeeId={obj.attendeeId}
 								announcement={obj}
 							/>
-						</div>
+						</a>
 					{/each}
 				{:else if notification.object_type === 'files'}
 					{#each linkedObjects as obj}

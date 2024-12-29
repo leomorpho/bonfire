@@ -121,7 +121,7 @@
 						<h3 class="text font-bold">Unread</h3>
 						{#each allUnreadNotifications as notification}
 							<div class="my-3">
-								<Notification {notification} />
+								<Notification {notification} {toggleDialog} />
 							</div>
 						{/each}
 					{/if}
@@ -131,7 +131,7 @@
 						<h3 class="text mt-6 font-bold">Seen</h3>
 						{#each allSeenNotifications as notification}
 							<div class="my-3">
-								<Notification {notification} />
+								<Notification {notification} {toggleDialog} />
 							</div>
 						{/each}
 
