@@ -101,8 +101,7 @@
 							{#if notificationsCount <= 5}
 								{notificationsCount}
 							{:else}
-								<!-- Show red circle if count > 5 -->
-								<span class="sr-only">More than 5 notifications</span>
+								<span class="sr-only"></span>
 							{/if}
 						</div>
 					{/if}

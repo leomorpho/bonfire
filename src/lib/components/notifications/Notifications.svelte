@@ -97,22 +97,13 @@
 <!-- Notifications Icon/Button -->
 <button onclick={toggleDialog} aria-label="Notifications">
 	{@render children?.()}
-
-	<!-- Show a count if there are unseen notifications -->
-	{#if allUnreadNotifications.filter((n: NotificationTypescriptType) => !n.seen_at).length > 0}
-		<span
-			class="absolute right-0 top-0 inline-flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-xs font-bold text-white"
-		>
-			{allUnreadNotifications.filter((n: NotificationTypescriptType) => !n.seen_at).length}
-		</span>
-	{/if}
 </button>
 
 <!-- Notifications Dialog -->
 <Dialog.Root bind:open={isDialogOpen}>
 	<Dialog.Content class="flex h-full items-center justify-center sm:h-[90vh]">
-		<ScrollArea>
-			<Dialog.Header class="mx-4">
+		<ScrollArea class="flex h-full items-center justify-center sm:h-[90vh]">
+			<Dialog.Header class="mx-4 my-4">
 				<Dialog.Title>Your Notifications</Dialog.Title>
 				<Dialog.Description>
 					{#if notificationsLoading}
@@ -127,7 +118,7 @@
 						</div>
 					{:else}
 						<!-- Show unread notifications -->
-						<h3 class="text-lg font-bold">Unread Notifications</h3>
+						<h3 class="text font-bold">Unread</h3>
 						{#each allUnreadNotifications as notification}
 							<div class="my-3">
 								<Notification {notification} />
@@ -135,7 +126,7 @@
 						{/each}
 
 						<!-- Show seen notifications -->
-						<h3 class="mt-6 text-lg font-bold">Seen Notifications</h3>
+						<h3 class="text mt-6 font-bold">Seen</h3>
 						{#each allSeenNotifications as notification}
 							<div class="my-3">
 								<Notification {notification} />
