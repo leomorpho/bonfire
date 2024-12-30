@@ -326,7 +326,8 @@ export const schema = {
 			object_type: S.String(),
 			object_ids: S.String(),
 			created_at: S.Date({ default: S.Default.now() }), // Timestamp of when the notification was sent
-			seen_at: S.Date({ nullable: true, default: null })
+			seen_at: S.Date({ nullable: true, default: null }),
+			num_push_notifications_sent: S.Number({ default: 0 })
 		}),
 		permissions: {
 			user: {

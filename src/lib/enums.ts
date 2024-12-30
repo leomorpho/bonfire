@@ -27,3 +27,5 @@ export enum NotificationType {
 	FILES = 'files',
 	ATTENDEES = 'attendees'
 }
+
+export const MAX_NUM_PUSH_NOTIF_PER_NOTIFICATION = 3;
