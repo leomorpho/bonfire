@@ -167,7 +167,7 @@
 				<!-- Customize rendering for each object type -->
 				{#if notification.object_type === 'announcement'}
 					{#each linkedObjects as obj}
-						<a class="my-2" href={`/bonfire/${obj.event_id}`} onclick={toggleDialog}>
+						<a class="m-1" href={`/bonfire/${obj.event_id}`} onclick={toggleDialog}>
 							<Announcement
 								eventId={obj.event_id}
 								currUserId={userId}
