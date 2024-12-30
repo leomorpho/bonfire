@@ -8,7 +8,7 @@
 	import PushSubscriptionPermission from './PushSubscriptionPermission.svelte';
 
 	let { subscriptions, permissions } = $props();
-
+	console.log('permissions', permissions);
 	let oneDayReminder = $state(permissions.oneDayReminder);
 	let eventActivity = $state(permissions.eventActivity);
 	let currentPermissionType = $state('');
@@ -30,6 +30,7 @@
 		}
 
 		let isAppInstallable = false;
+
 		// Check for standalone mode in Safari on iOS
 		let isStandalone = window.navigator.standalone;
 
@@ -56,11 +57,7 @@
 
 		if (checkDeviceSupportsPushNotifications() == false) {
 			// Undo toggle
-			if (currentPermissionType == 'eventActivity') {
-				eventActivity = !eventActivity;
-			} else if ((currentPermissionType = 'oneDayReminder')) {
-				oneDayReminder = !oneDayReminder;
-			}
+			restoreToggleState(type);
 			return;
 		}
 
@@ -70,7 +67,6 @@
 
 			// Show the modal before attempting to subscribe
 			if (!isDeviceSubscribed) {
-				isPushSubscriptionModalOpen = true;
 				return;
 			}
 
@@ -102,15 +98,9 @@
 	async function isDeviceSubscribedToPush() {
 		if ('serviceWorker' in navigator) {
 			const registration = await navigator.serviceWorker.getRegistration();
-
 			if (registration) {
-				const existingSubscription = await registration.pushManager.getSubscription();
-				if (!existingSubscription) {
-					return false;
-				}
-				return true;
-			} else {
-				return false;
+				const subscription = await registration.pushManager.getSubscription();
+				return !!subscription;
 			}
 		}
 		return false;
@@ -150,6 +140,48 @@
 		}
 	}
 
+	async function unsubscribeFromPush() {
+		if ('serviceWorker' in navigator) {
+			const registration = await navigator.serviceWorker.getRegistration();
+			if (registration) {
+				const subscription = await registration.pushManager.getSubscription();
+				if (subscription) {
+					// Unsubscribe from the browser
+					const success = await subscription.unsubscribe();
+					if (success) {
+						// Notify the server to remove the subscription
+						await fetch('/settings/unsubscribe', {
+							method: 'POST',
+							headers: { 'Content-Type': 'application/json' },
+							body: JSON.stringify({ endpoint: subscription.endpoint })
+						});
+						isDeviceSubscribed = false;
+						toast.success('You have unsubscribed from push notifications.');
+					} else {
+						toast.error('Failed to unsubscribe. Please try again later.');
+					}
+				}
+			}
+		}
+	}
+
+	async function toggleSubscription() {
+		if (isDeviceSubscribed) {
+			unsubscribeFromPush();
+		} else {
+			isPushSubscriptionModalOpen = true;
+			subscribeToPush();
+		}
+	}
+
+	function restoreToggleState(type: string) {
+		if (type === 'eventActivity') {
+			eventActivity = !eventActivity;
+		} else if (type === 'oneDayReminder') {
+			oneDayReminder = !oneDayReminder;
+		}
+	}
+
 	onMount(async () => {
 		// Check if the device is already subscribed on mount
 		if ('serviceWorker' in navigator) {
@@ -163,7 +195,13 @@
 	});
 </script>
 
-<h3 class="text-xl font-semibold">Push Notifications</h3>
+<h3 class="flex justify-between text-xl font-semibold">
+	Push Notifications <Switch
+		id="push-notifications-enabled"
+		bind:checked={isDeviceSubscribed}
+		onclick={toggleSubscription}
+	/>
+</h3>
 <div class="w-full space-y-5">
 	<div class="flex w-full items-center justify-between space-x-2">
 		<Label class="sm:text-base" for="1-day-reminder">1-day reminder</Label>
@@ -171,6 +209,7 @@
 			id="1-day-reminder"
 			bind:checked={oneDayReminder}
 			onclick={(e) => togglePermission('oneDayReminder')}
+			disabled={!isDeviceSubscribed}
 		/>
 	</div>
 	<div class="flex w-full items-center justify-between space-x-2">
@@ -179,6 +218,7 @@
 			id="event-activity"
 			bind:checked={eventActivity}
 			onclick={(e) => togglePermission('eventActivity')}
+			disabled={!isDeviceSubscribed}
 		/>
 	</div>
 </div>
