@@ -3,9 +3,12 @@ import webPush from 'web-push';
 import { env } from '$env/dynamic/private';
 import { dev } from '$app/environment';
 import { PUBLIC_DEV_VAPID_PUBLIC_KEY, PUBLIC_VAPID_PUBLIC_KEY } from '$env/static/public';
-import { pushSubscriptionTable } from './server/database/schema';
+import { notificationPermissionTable, pushSubscriptionTable } from './server/database/schema';
 import { eq } from 'drizzle-orm';
 import { db } from './server/database/db';
+import { arrayToStringRepresentation } from './utils';
+import { MAX_NUM_PUSH_NOTIF_PER_NOTIFICATION, PermissionType } from './enums';
+import type { NotificationTypescriptType, PushNotificationPayload } from './types';
 
 if (
 	(dev && (!PUBLIC_DEV_VAPID_PUBLIC_KEY || !env.DEV_VAPID_PRIVATE_KEY)) ||
@@ -27,8 +30,31 @@ webPush.setVapidDetails(`mailto:${env.FROM_EMAIL}`, publicKey as string, private
  */
 export async function sendPushNotification(
 	userId: string,
-	payload: { title: string; body: string; icon?: string; badge?: number }
+	payload: { title: string; body: string; icon?: string; badge?: number },
+	requiredPermissions: PermissionKey[] // Array of required permissions
 ): Promise<void> {
+	// Check user permissions
+	const userPermissions = await db
+		.select({
+			oneDayReminder: notificationPermissionTable.oneDayReminder,
+			eventActivity: notificationPermissionTable.eventActivity
+		})
+		.from(notificationPermissionTable)
+		.where(eq(notificationPermissionTable.userId, userId));
+
+	if (!userPermissions.length) {
+		console.debug(`No permissions found for user ID: ${userId}`);
+		return;
+	}
+
+	// Check if user has at least one required permission
+	const hasPermission = requiredPermissions.some((permission) => userPermissions[0][permission]);
+
+	if (!hasPermission) {
+		console.debug(`User ID: ${userId} does not have required permissions.`);
+		return;
+	}
+
 	// Fetch subscriptions for the given userId
 	const subscriptions = await db
 		.select({
@@ -83,4 +109,63 @@ export async function sendPushNotification(
 			}
 		})
 	);
+}
+
+type PermissionValue = (typeof PermissionType)[keyof typeof PermissionType];
+
+export async function handleNotification(
+	triplitTx: any,
+	existingNotification: NotificationTypescriptType | null,
+	recipientUserId: string,
+	eventId: string,
+	objectType: string,
+	updatedObjectIds: string[],
+	message: string,
+	pushNotificationPayload: PushNotificationPayload
+): Promise<void> {
+	let pushNotificationSent = false;
+
+	let requiredPermissions: PermissionValue[] = [];
+
+	// Set required permissions based on objectType
+	switch (objectType) {
+		case 'event':
+			requiredPermissions = [PermissionType.EVENT_ACTIVITY];
+			break;
+		case 'reminder':
+			requiredPermissions = [PermissionType.EVENT_ACTIVITY];
+			break;
+		default:
+			console.warn(`Unknown objectType: ${objectType}`);
+			return;
+	}
+
+	if (existingNotification) {
+		if (existingNotification.num_push_notifications_sent < MAX_NUM_PUSH_NOTIF_PER_NOTIFICATION) {
+			await sendPushNotification(recipientUserId, pushNotificationPayload, requiredPermissions);
+			pushNotificationSent = true;
+		}
+
+		await triplitTx.update('notifications', existingNotification.id, (entity: any) => {
+			entity.object_ids = arrayToStringRepresentation(updatedObjectIds);
+			entity.message = message;
+
+			if (pushNotificationSent) {
+				entity.num_push_notifications_sent = (entity.num_push_notifications_sent || 0) + 1;
+			}
+		});
+		console.log(`Updated notification for user ${recipientUserId}.`);
+	} else {
+		await triplitTx.insert('notifications', {
+			event_id: eventId,
+			user_id: recipientUserId,
+			message,
+			object_type: objectType,
+			object_ids: arrayToStringRepresentation(updatedObjectIds),
+			num_push_notifications_sent: 1
+		});
+
+		await sendPushNotification(recipientUserId, pushNotificationPayload, requiredPermissions);
+		console.log(`Created a new notification for user ${recipientUserId}.`);
+	}
 }

@@ -33,6 +33,7 @@ export type NotificationTypescriptType = {
 	object_ids: string; // Comma-separated list of IDs
 	created_at: Date | null;
 	seen_at: Date | null;
+	num_push_notifications_sent: number;
 };
 
 export type AttendeeTypescriptType = {
@@ -66,4 +67,11 @@ export type AnnouncementTypescriptType = {
 	user_id: string; // ID of the user who created the announcement
 	event_id: string; // ID of the associated event
 	seen_by?: Array<{ id: string; attendee_id: string }>; // Seen announcements linking to attendees
+};
+
+export type PushNotificationPayload = {
+	title: string;
+	body: string;
+	icon?: string;
+	badge?: number;
 };

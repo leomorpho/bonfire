@@ -3,9 +3,9 @@ import { schema } from '../../../triplit/schema';
 import { PUBLIC_TRIPLIT_URL } from '$env/static/public';
 import { TRIPLIT_SERVICE_TOKEN } from '$env/static/private';
 import {
-	MAX_NUM_PUSH_NOTIF_PER_NOTIFICATION,
 	NotificationType,
 	NOTIFY_OF_ATTENDING_STATUS_CHANGE,
+	PermissionType,
 	Status
 } from '$lib/enums';
 import type {
@@ -13,8 +13,8 @@ import type {
 	FileTypescriptType,
 	NotificationQueueEntry
 } from '$lib/types';
-import { arrayToStringRepresentation, stringRepresentationToArray } from '$lib/utils';
-import { sendPushNotification } from '$lib/webpush';
+import { stringRepresentationToArray } from '$lib/utils';
+import { handleNotification } from '$lib/webpush';
 
 export const serverTriplitClient = new TriplitClient({
 	schema,
@@ -162,47 +162,6 @@ export async function processNotificationQueue(notificationQueueEntry: Notificat
 	console.log(`Notification ${notificationQueueEntry.id} marked as sent.`);
 }
 
-async function handleNotification(
-	tx: any,
-	existingNotification: any,
-	recipientUserId: string,
-	eventId: string,
-	objectType: NotificationType,
-	updatedObjectIds: string[],
-	message: string,
-	pushNotificationPayload: { title: string; body: string }
-): Promise<void> {
-	let pushNotificationSent = false;
-
-	if (existingNotification) {
-		if (existingNotification.num_push_notifications_sent < MAX_NUM_PUSH_NOTIF_PER_NOTIFICATION) {
-			sendPushNotification(recipientUserId, pushNotificationPayload);
-			pushNotificationSent = true;
-		}
-
-		await tx.update('notifications', existingNotification.id, (entity) => {
-			entity.object_ids = arrayToStringRepresentation(updatedObjectIds);
-			entity.message = message;
-
-			if (pushNotificationSent) {
-				entity.num_push_notifications_sent = (entity.num_push_notifications_sent || 0) + 1;
-			}
-		});
-		console.log(`Updated notification for user ${recipientUserId}.`);
-	} else {
-		await tx.insert('notifications', {
-			event_id: eventId,
-			user_id: recipientUserId,
-			message,
-			object_type: objectType,
-			object_ids: arrayToStringRepresentation(updatedObjectIds),
-			num_push_notifications_sent: 1
-		});
-		sendPushNotification(recipientUserId, pushNotificationPayload);
-		console.log(`Created a new notification for user ${recipientUserId}.`);
-	}
-}
-
 async function notifyAttendeesOfAnnouncements(
 	eventId: string,
 	announcementIds: string[]
@@ -248,7 +207,8 @@ async function notifyAttendeesOfAnnouncements(
 				NotificationType.ANNOUNCEMENT,
 				updatedObjectIds,
 				message,
-				pushNotificationPayload
+				pushNotificationPayload,
+				[PermissionType.EVENT_ACTIVITY]
 			);
 		}
 	});

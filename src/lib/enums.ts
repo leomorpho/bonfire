@@ -29,3 +29,9 @@ export enum NotificationType {
 }
 
 export const MAX_NUM_PUSH_NOTIF_PER_NOTIFICATION = 3;
+
+// Define an enum for permission types
+export const PermissionType = {
+    ONE_DAY_REMINDER: 'oneDayReminder',
+    EVENT_ACTIVITY: 'eventActivity'
+} as const;
