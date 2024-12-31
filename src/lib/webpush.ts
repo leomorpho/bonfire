@@ -109,6 +109,9 @@ export async function sendPushNotification(
 			}
 		})
 	);
+	console.log(
+		'Push NOTIFICAITON ############################################################################'
+	);
 }
 
 type PermissionValue = (typeof PermissionType)[keyof typeof PermissionType];

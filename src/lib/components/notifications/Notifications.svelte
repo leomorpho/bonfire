@@ -45,8 +45,8 @@
 					['seen_at', '<', new Date()]
 				])
 			])
-			.limit(NUM_TO_LOAD) // Initial limit
-			.order('created_at', 'DESC');
+			.order('created_at', 'DESC')
+			.limit(NUM_TO_LOAD); // Initial limit
 
 		const { unsubscribe, loadMore } = client.subscribeWithExpand(
 			seenQuery.build(),
