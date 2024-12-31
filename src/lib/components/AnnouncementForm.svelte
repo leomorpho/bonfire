@@ -2,11 +2,12 @@
 	import { TriplitClient } from '@triplit/client';
 	import { Textarea } from '$lib/components/ui/textarea/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
-	import { createNewAnnouncementNotificationQueueObject, getFeTriplitClient, waitForUserId } from '$lib/triplit';
+	import {  getFeTriplitClient, waitForUserId } from '$lib/triplit';
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { page } from '$app/stores';
+	import { createNewAnnouncementNotificationQueueObject } from '$lib/notification';
 
 	// Props for the page
 	let { mode = 'update', announcement = null, eventId } = $props();

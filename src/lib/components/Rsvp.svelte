@@ -3,12 +3,13 @@
 	import { Smile, Meh, Frown } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import type { TriplitClient } from '@triplit/client';
-	import { createNewAttendanceNotificationQueueObject, getFeTriplitClient } from '$lib/triplit';
+	import {  getFeTriplitClient } from '$lib/triplit';
 	import { getStrValueOfRSVP, NOTIFY_OF_ATTENDING_STATUS_CHANGE, Status } from '$lib/enums';
 	import { and } from '@triplit/client';
 	import AddToCalendar from './AddToCalendar.svelte';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
+	import { createNewAttendanceNotificationQueueObject } from '$lib/notification';
 
 	let { rsvpStatus = Status.DEFAULT, userId, eventId, rsvpCanBeChanged } = $props();
 

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import NotificationsIndicator from './notifications/NotificationsIndicator.svelte';
 	import Logo from './Logo.svelte';
 	import type { Link } from '$lib/types';
 	import Container from './Container.svelte';
@@ -6,7 +7,6 @@
 		LogOut,
 		Menu,
 		FlameKindling,
-		Bell,
 		BookOpen,
 		DollarSign,
 		CircleHelp,
@@ -17,8 +17,6 @@
 	import { page } from '$app/stores';
 	import { enhance } from '$app/forms';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
-	import Notifications from './notifications/Notifications.svelte';
-	import { announcementsStore } from '$lib/stores';
 
 	const authLinks: Array<Link> = [
 		{ icon: House, name: 'Dashboard', href: '/dashboard' },
@@ -46,10 +44,6 @@
 	}
 
 	let notificationsCount = $state(0);
-
-	announcementsStore.subscribe((state) => {
-		notificationsCount = state.totalCount;
-	});
 </script>
 
 <Container>
@@ -84,29 +78,7 @@
 			{:else}
 				<a href="/login" class="btn ml-auto mr-2 hidden sm:flex"> <FlameKindling />login</a>
 			{/if}
-			<Notifications>
-				<div class="relative">
-					<!-- Notification Button -->
-					<div
-						class="m-1 flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 sm:h-10 sm:w-10"
-					>
-						<Bell class="h-4 w-4 text-gray-600 sm:h-5 sm:w-5" />
-					</div>
-
-					<!-- Notification Badge -->
-					{#if notificationsCount > 0}
-						<div
-							class="absolute right-0 top-0 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-xs font-bold text-white sm:h-5 sm:w-5 sm:text-sm"
-						>
-							{#if notificationsCount <= 5}
-								{notificationsCount}
-							{:else}
-								<span class="sr-only"></span>
-							{/if}
-						</div>
-					{/if}
-				</div>
-			</Notifications>
+			<NotificationsIndicator />
 			<div class="lg:hidden">
 				<DropdownMenu.Root bind:open={showMenu}>
 					<DropdownMenu.Trigger>

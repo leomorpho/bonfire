@@ -33,6 +33,7 @@
 		let isAppInstallable = false;
 
 		// Check for standalone mode in Safari on iOS
+		// @ts-ignore
 		let isStandalone = window.navigator.standalone;
 
 		const isAppInstalled = isStandalone || window.matchMedia('(display-mode: standalone)').matches;
@@ -101,7 +102,7 @@
 				if (subscription) {
 					// Check if the current subscription exists in the subscriptions prop
 					console.log('Verifying subscription is present', subscriptions);
-					const match = subscriptions.some((sub) => sub.endpoint === subscription.endpoint);
+					const match = subscriptions.some((sub: any) => sub.endpoint === subscription.endpoint);
 					return match;
 				}
 			}

@@ -4,7 +4,7 @@ import { faker } from '@faker-js/faker';
 import type { TriplitClient } from '@triplit/client';
 import { Status } from '$lib/enums';
 import { serverTriplitClient } from '$lib/server/triplit';
-import { createNewAnnouncementNotificationQueueObject, createNewAttendanceNotificationQueueObject } from '$lib/triplit';
+import { createNewAnnouncementNotificationQueueObject, createNewAttendanceNotificationQueueObject } from '$lib/notification';
 
 // // Step 1: Run CLI commands
 // try {
