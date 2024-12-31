@@ -13,12 +13,15 @@ export async function POST({ request, locals }) {
 		}
 
 		// Save the subscription to the database
-		await db.insert(pushSubscriptionTable).values({
-			userId,
-			endpoint: subscription.endpoint,
-			p256dh: subscription.keys.p256dh,
-			auth: subscription.keys.auth
-		});
+		await db
+			.insert(pushSubscriptionTable)
+			.values({
+				userId,
+				endpoint: subscription.endpoint,
+				p256dh: subscription.keys.p256dh,
+				auth: subscription.keys.auth
+			})
+			.execute();
 
 		return json({ success: true, message: 'Subscription saved successfully' });
 	} catch (error) {

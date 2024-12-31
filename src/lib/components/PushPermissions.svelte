@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Label } from '$lib/components/ui/label/index.js';
 	import { Switch } from '$lib/components/ui/switch/index.js';
-	import { onMount, tick } from 'svelte';
+	import { onMount } from 'svelte';
 	import { PUBLIC_VAPID_PUBLIC_KEY, PUBLIC_DEV_VAPID_PUBLIC_KEY } from '$env/static/public';
 	import { dev } from '$app/environment';
 	import { toast } from 'svelte-sonner';
@@ -9,6 +9,7 @@
 
 	let { subscriptions, permissions } = $props();
 	console.log('permissions', permissions);
+	console.log('subscriptions', subscriptions);
 	let oneDayReminder = $state(permissions.oneDayReminder);
 	let eventActivity = $state(permissions.eventActivity);
 	let currentPermissionType = $state('');
@@ -62,15 +63,7 @@
 		}
 
 		try {
-			isDeviceSubscribed = await isDeviceSubscribedToPush();
-			console.log('isDeviceSubscribed', isDeviceSubscribed);
-
-			// Show the modal before attempting to subscribe
-			if (!isDeviceSubscribed) {
-				return;
-			}
-
-			await fetch('/settings/toggle-permission', {
+			await fetch('/settings/push/toggle-permission', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ type })
@@ -91,16 +84,26 @@
 	}
 
 	function handleModalCancel() {
+		isDeviceSubscribed = !isDeviceSubscribed;
 		isPushSubscriptionModalOpen = false;
 		toast.info('Push notifications permission request canceled.');
 	}
 
 	async function isDeviceSubscribedToPush() {
+		if (!subscriptions || subscriptions.length === 0) {
+			return false;
+		}
+
 		if ('serviceWorker' in navigator) {
 			const registration = await navigator.serviceWorker.getRegistration();
 			if (registration) {
 				const subscription = await registration.pushManager.getSubscription();
-				return !!subscription;
+				if (subscription) {
+					// Check if the current subscription exists in the subscriptions prop
+					console.log('Verifying subscription is present', subscriptions);
+					const match = subscriptions.some((sub) => sub.endpoint === subscription.endpoint);
+					return match;
+				}
 			}
 		}
 		return false;
@@ -122,11 +125,12 @@
 					});
 
 					// Send the subscription to the backend
-					await fetch('/settings/subscribe', {
+					await fetch('/settings/push/subscribe', {
 						method: 'POST',
 						headers: { 'Content-Type': 'application/json' },
 						body: JSON.stringify(subscription)
 					});
+					console.log('subscribing to push with:', subscription);
 					isDeviceSubscribed = true;
 				} else {
 					console.log('Device is already subscribed to push notifications.');
@@ -150,11 +154,13 @@
 					const success = await subscription.unsubscribe();
 					if (success) {
 						// Notify the server to remove the subscription
-						await fetch('/settings/unsubscribe', {
+						await fetch('/settings/push/unsubscribe', {
 							method: 'POST',
 							headers: { 'Content-Type': 'application/json' },
 							body: JSON.stringify({ endpoint: subscription.endpoint })
 						});
+						console.log('unsubscribing to push with:', subscription);
+
 						isDeviceSubscribed = false;
 						toast.success('You have unsubscribed from push notifications.');
 					} else {
@@ -184,14 +190,8 @@
 
 	onMount(async () => {
 		// Check if the device is already subscribed on mount
-		if ('serviceWorker' in navigator) {
-			const registration = await navigator.serviceWorker.getRegistration();
-			if (registration) {
-				const existingSubscription = await registration.pushManager.getSubscription();
-				isDeviceSubscribed = !!existingSubscription;
-			}
-			console.log('isDeviceSubscribed?', isDeviceSubscribed);
-		}
+		isDeviceSubscribed = await isDeviceSubscribedToPush();
+		console.log('isDeviceSubscribed?', isDeviceSubscribed);
 	});
 </script>
 

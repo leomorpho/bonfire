@@ -1,5 +1,6 @@
 <script lang="ts">
 	import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
+	import { Button } from '$lib/components/ui/button/index.js';
 
 	let { isOpen, onConfirm, onCancel } = $props();
 
@@ -25,7 +26,8 @@
 			</AlertDialog.Description>
 		</AlertDialog.Header>
 		<AlertDialog.Footer>
-			<AlertDialog.Cancel onclick={handleCancel}>Cancel</AlertDialog.Cancel>
+			<Button  class="my-2" onclick={handleCancel} variant="outline">Cancel</Button>
+			<!-- Not using <AlertDialog.Cancel/> because the click event does not trigger handleCancel-->
 			<AlertDialog.Action onclick={handleConfirm}>Continue</AlertDialog.Action>
 		</AlertDialog.Footer>
 	</AlertDialog.Content>

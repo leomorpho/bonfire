@@ -22,7 +22,7 @@ export async function POST({ request, locals }) {
 			.delete(pushSubscriptionTable)
 			.where(
 				and(eq(pushSubscriptionTable.endpoint, endpoint), eq(pushSubscriptionTable.userId, userId))
-			);
+			).execute();
 
 		if (deleteResult.rowCount === 0) {
 			return json({ success: false, message: 'Subscription not found' }, { status: 404 });
