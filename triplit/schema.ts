@@ -1,4 +1,5 @@
 import { Schema as S, type Roles, type ClientSchema, or } from '@triplit/client';
+import { optional } from 'zod';
 
 // Define roles
 export const roles: Roles = {
@@ -327,7 +328,8 @@ export const schema = {
 			object_ids: S.String(),
 			created_at: S.Date({ default: S.Default.now() }), // Timestamp of when the notification was sent
 			seen_at: S.Date({ nullable: true, default: null }),
-			num_push_notifications_sent: S.Number({ default: 0 })
+			num_push_notifications_sent: S.Number({ default: 0 }),
+			last_push_notifications_sent_at: S.Date({ nullable: true, default: null, optional: true })
 		}),
 		permissions: {
 			user: {

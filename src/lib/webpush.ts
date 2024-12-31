@@ -7,7 +7,7 @@ import { notificationPermissionTable, pushSubscriptionTable } from './server/dat
 import { eq } from 'drizzle-orm';
 import { db } from './server/database/db';
 import { arrayToStringRepresentation } from './utils';
-import { MAX_NUM_PUSH_NOTIF_PER_NOTIFICATION, PermissionType } from './enums';
+import { MAX_NUM_PUSH_NOTIF_PER_NOTIFICATION, NotificationType, PermissionType } from './enums';
 import type { NotificationTypescriptType, PushNotificationPayload } from './types';
 
 if (
@@ -31,7 +31,7 @@ webPush.setVapidDetails(`mailto:${env.FROM_EMAIL}`, publicKey as string, private
 export async function sendPushNotification(
 	userId: string,
 	payload: { title: string; body: string; icon?: string; badge?: number },
-	requiredPermissions: PermissionKey[] // Array of required permissions
+	requiredPermissions: PermissionValue[] // Array of required permissions
 ): Promise<void> {
 	// Check user permissions
 	const userPermissions = await db
@@ -129,10 +129,13 @@ export async function handleNotification(
 
 	// Set required permissions based on objectType
 	switch (objectType) {
-		case 'event':
+		case NotificationType.ANNOUNCEMENT:
 			requiredPermissions = [PermissionType.EVENT_ACTIVITY];
 			break;
-		case 'reminder':
+		case NotificationType.ATTENDEES:
+			requiredPermissions = [PermissionType.EVENT_ACTIVITY];
+			break;
+		case NotificationType.FILES:
 			requiredPermissions = [PermissionType.EVENT_ACTIVITY];
 			break;
 		default:

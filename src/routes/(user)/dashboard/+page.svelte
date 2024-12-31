@@ -23,7 +23,14 @@
 			.where(['user_id', '=', currUserID])
 			.where('event.start_time', future ? '>=' : '<', new Date().toISOString());
 
-		return query.include('event').include('event.user').order('event.start_time', 'ASC');
+		return query
+			.subquery(
+				'organizer_name',
+				client.query('user').where(['id', '=', '$1.event.user_id']).select(['username']).build(),
+				'one'
+			)
+			.include('event')
+			.order('event.start_time', 'ASC');
 	}
 
 	onMount(() => {
@@ -88,10 +95,12 @@
 			{:else}
 				<div>
 					{#each futureEvents.results as attendance}
+						{console.log('&&&&&&&&&^^^^^^^ attendance -->', attendance)}
+
 						<EventCard
 							event={attendance.event}
 							{userId}
-							eventCreatorName={attendance['event.user'].username}
+							eventCreatorName={attendance.organizer_name['username']}
 							rsvpStatus={attendance.status}
 						/>
 					{/each}
@@ -120,7 +129,7 @@
 						<EventCard
 							event={attendance.event}
 							{userId}
-							eventCreatorName={attendance['event.user'].username}
+							eventCreatorName={attendance.organizer_name['username']}
 							rsvpStatus={attendance.status}
 						/>
 					{/each}
