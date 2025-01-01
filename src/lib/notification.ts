@@ -59,7 +59,7 @@ export async function createNewAnnouncementNotificationQueueObject(
 		user_id: userId,
 		event_id: eventId,
 		object_type: NotificationType.ANNOUNCEMENT,
-		object_ids: objectIds
+		object_ids: objectIds,
 	});
 }
 

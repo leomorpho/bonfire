@@ -47,7 +47,7 @@ export const runNotificationProcessor = async () => {
 
 		// Process each notification
 		for (const notification of notifications) {
-			await processNotificationQueue(notification); // Custom logic for handling notifications
+			await processNotificationQueue(notification as NotificationQueueEntry); // Custom logic for handling notifications
 		}
 	} catch (error) {
 		console.error('Error running notification processor:', error);
@@ -57,6 +57,10 @@ export const runNotificationProcessor = async () => {
 };
 
 export async function processNotificationQueue(notificationQueueEntry: NotificationQueueEntry) {
+	if (notificationQueueEntry.sent_at) {
+		return;
+	}
+    
 	console.debug(
 		`Processing notification queue object created by user ${notificationQueueEntry.user_id}:`,
 		notificationQueueEntry
@@ -132,10 +136,15 @@ async function getUnreadExistingNotification(
 				['seen_at', '=', null]
 			])
 		)
+		.order('created_at', 'DESC')
 		.build();
 
-	const [existingNotification] = await serverTriplitClient.fetch(query);
-	return existingNotification || null;
+	const notifs = await serverTriplitClient.http.fetch(query);
+
+	if (notifs.length > 0) {
+		return notifs[0];
+	}
+	return null;
 }
 
 async function notifyAttendeesOfAnnouncements(
@@ -160,7 +169,8 @@ async function notifyAttendeesOfAnnouncements(
 				eventId,
 				NotificationType.ANNOUNCEMENT
 			);
-			if (attendeeUserId == 'qgo0paa9qnfcnof') {
+
+			if (attendeeUserId == 'uclz7npcwxo7gec') {
 				console.log(
 					'-------------------------------------------------- WHHHHHHHHHAAAAAAAAAAAAAAT',
 					existingNotification

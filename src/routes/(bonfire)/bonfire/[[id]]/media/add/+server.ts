@@ -5,7 +5,7 @@ import { error } from '@sveltejs/kit';
 import { serverTriplitClient } from '$lib/server/triplit';
 import sharp from 'sharp';
 import type { TriplitClient } from '@triplit/client';
-import { createNewFileNotificationQueueObject } from '$lib/triplit';
+import { createNewFileNotificationQueueObject } from '$lib/notification';
 
 export const POST = async (event: RequestEvent): Promise<Response> => {
 	try {
