@@ -6,9 +6,6 @@ import { PUBLIC_DEV_VAPID_PUBLIC_KEY, PUBLIC_VAPID_PUBLIC_KEY } from '$env/stati
 import { notificationPermissionTable, pushSubscriptionTable } from './server/database/schema';
 import { eq } from 'drizzle-orm';
 import { db } from './server/database/db';
-import { arrayToStringRepresentation } from './utils';
-import { MAX_NUM_PUSH_NOTIF_PER_NOTIFICATION, NotificationType, PermissionType } from './enums';
-import type { NotificationTypescriptType, PushNotificationPayload } from './types';
 
 if (
 	(dev && (!PUBLIC_DEV_VAPID_PUBLIC_KEY || !env.DEV_VAPID_PRIVATE_KEY)) ||
@@ -112,66 +109,4 @@ export async function sendPushNotification(
 	console.log(
 		'Push NOTIFICAITON ############################################################################'
 	);
-}
-
-type PermissionValue = (typeof PermissionType)[keyof typeof PermissionType];
-
-export async function handleNotification(
-	triplitTx: any,
-	existingNotification: NotificationTypescriptType | null,
-	recipientUserId: string,
-	eventId: string,
-	objectType: string,
-	updatedObjectIds: string[],
-	message: string,
-	pushNotificationPayload: PushNotificationPayload
-): Promise<void> {
-	let pushNotificationSent = false;
-
-	let requiredPermissions: PermissionValue[] = [];
-
-	// Set required permissions based on objectType
-	switch (objectType) {
-		case NotificationType.ANNOUNCEMENT:
-			requiredPermissions = [PermissionType.EVENT_ACTIVITY];
-			break;
-		case NotificationType.ATTENDEES:
-			requiredPermissions = [PermissionType.EVENT_ACTIVITY];
-			break;
-		case NotificationType.FILES:
-			requiredPermissions = [PermissionType.EVENT_ACTIVITY];
-			break;
-		default:
-			console.warn(`Unknown objectType: ${objectType}`);
-			return;
-	}
-
-	if (existingNotification) {
-		if (existingNotification.num_push_notifications_sent < MAX_NUM_PUSH_NOTIF_PER_NOTIFICATION) {
-			await sendPushNotification(recipientUserId, pushNotificationPayload, requiredPermissions);
-			pushNotificationSent = true;
-		}
-
-		await triplitTx.update('notifications', existingNotification.id, (entity: any) => {
-			entity.object_ids = arrayToStringRepresentation(updatedObjectIds);
-			entity.message = message;
-
-			if (pushNotificationSent) {
-				entity.num_push_notifications_sent = (entity.num_push_notifications_sent || 0) + 1;
-			}
-		});
-		console.log(`Updated notification for user ${recipientUserId}.`);
-	} else {
-		await triplitTx.insert('notifications', {
-			event_id: eventId,
-			user_id: recipientUserId,
-			message,
-			object_type: objectType,
-			object_ids: arrayToStringRepresentation(updatedObjectIds),
-			num_push_notifications_sent: 1
-		});
-
-		await sendPushNotification(recipientUserId, pushNotificationPayload, requiredPermissions);
-		console.log(`Created a new notification for user ${recipientUserId}.`);
-	}
 }

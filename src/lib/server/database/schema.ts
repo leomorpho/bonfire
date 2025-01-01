@@ -39,6 +39,14 @@ export const signinTable = sqliteTable('signin', {
 	email: text('email').notNull()
 });
 
+export const taskLockTable = sqliteTable('task_locks', {
+	task_name: text('task_name').notNull().primaryKey(),
+	locked: integer('locked', { mode: 'boolean' }).notNull().default(false),
+	updated_at: text('timestamp')
+		.notNull()
+		.default(sql`(current_timestamp)`)
+});
+
 export const eventTransactionLogsTable = sqliteTable('eventTransactionLogs', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
 	created_at: text('timestamp')

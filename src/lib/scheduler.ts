@@ -3,25 +3,14 @@ import { serverTriplitClient } from './server/triplit';
 import { runNotificationProcessor } from './server/push';
 
 const scheduler = new ToadScheduler();
-let isProcessing = false;
 
 const notificationTask = new Task('Process Notifications Queue', async () => {
-	if (isProcessing) {
-		console.log('Task is already running, skipping this cycle.');
-		return;
-	}
-
-	isProcessing = true; // Set flag to indicate the task is running
-	// console.log('Starting notification processing task...');
-
 	try {
 		runNotificationProcessor();
 
 		// console.log('Notification processing complete.');
 	} catch (error) {
 		console.error('Error while processing notifications:', error);
-	} finally {
-		isProcessing = false; // Reset the flag
 	}
 });
 

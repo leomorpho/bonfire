@@ -5,6 +5,10 @@ export enum Status {
 	DEFAULT = 'RSVP'
 }
 
+export enum TaskName {
+	PROCESS_NOTIFICATION_QUEUE = 'process_notification_queue'
+}
+
 export const LOGIN_TYPE_MAGIC_LINK = 'magic';
 export const LOGIN_TYPE_ACTIVATION = 'activation';
 export const NOTIFY_OF_ATTENDING_STATUS_CHANGE: Array<Status> = [Status.GOING, Status.MAYBE];
@@ -32,6 +36,6 @@ export const MAX_NUM_PUSH_NOTIF_PER_NOTIFICATION = 3;
 
 // Define an enum for permission types
 export const PermissionType = {
-    ONE_DAY_REMINDER: 'oneDayReminder',
-    EVENT_ACTIVITY: 'eventActivity'
+	ONE_DAY_REMINDER: 'oneDayReminder',
+	EVENT_ACTIVITY: 'eventActivity'
 } as const;

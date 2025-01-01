@@ -1,8 +1,19 @@
-import { TriplitClient } from '@triplit/client';
-import { NotificationType, NOTIFY_OF_ATTENDING_STATUS_CHANGE, Status } from '$lib/enums';
-import type { NotificationQueueEntry, NotificationTypescriptType } from '$lib/types';
-import { stringRepresentationToArray } from '$lib/utils';
-import { handleNotification } from '$lib/webpush';
+import { TriplitClient, and } from '@triplit/client';
+import {
+	MAX_NUM_PUSH_NOTIF_PER_NOTIFICATION,
+	NotificationType,
+	NOTIFY_OF_ATTENDING_STATUS_CHANGE,
+	PermissionType,
+	Status,
+	TaskName
+} from '$lib/enums';
+import type {
+	NotificationQueueEntry,
+	NotificationTypescriptType,
+	PushNotificationPayload
+} from '$lib/types';
+import { arrayToStringRepresentation, stringRepresentationToArray } from '$lib/utils';
+import { sendPushNotification } from '$lib/webpush';
 import {
 	getAttendeeUserIdsOfEvent,
 	serverTriplitClient,
@@ -10,26 +21,43 @@ import {
 	validateAttendees,
 	validateFiles
 } from './triplit';
+import { getTaskLockState, updateTaskLockState } from './database/tasklock';
 
 export const runNotificationProcessor = async () => {
-	const query = serverTriplitClient
-		.query('notifications_queue')
-		.where([
-			['sent_at', '=', null] // Only fetch unsent notifications
-		])
-		.build();
+	const taskName = TaskName.PROCESS_NOTIFICATION_QUEUE;
+	const lockState = await getTaskLockState(taskName);
 
-	// Fetch the notifications
-	const notifications = await serverTriplitClient.fetch(query);
+	if (lockState?.locked) {
+		console.log('Task is already running. Skipping execution.');
+		return;
+	}
 
-	// Process each notification
-	for (const notification of notifications) {
-		await processNotificationQueue(notification); // Custom logic for handling notifications
+	try {
+		await updateTaskLockState(taskName, true);
+
+		const query = serverTriplitClient
+			.query('notifications_queue')
+			.where([
+				['sent_at', '=', null] // Only fetch unsent notifications
+			])
+			.build();
+
+		// Fetch the notifications
+		const notifications = await serverTriplitClient.fetch(query);
+
+		// Process each notification
+		for (const notification of notifications) {
+			await processNotificationQueue(notification); // Custom logic for handling notifications
+		}
+	} catch (error) {
+		console.error('Error running notification processor:', error);
+	} finally {
+		await updateTaskLockState(taskName, false);
 	}
 };
 
 export async function processNotificationQueue(notificationQueueEntry: NotificationQueueEntry) {
-	console.log(
+	console.debug(
 		`Processing notification queue object created by user ${notificationQueueEntry.user_id}:`,
 		notificationQueueEntry
 	);
@@ -56,7 +84,11 @@ export async function processNotificationQueue(notificationQueueEntry: Notificat
 
 	if (validObjectIds.length === 0) {
 		console.warn(`No valid objects found for queued notification ${notificationQueueEntry.id}`);
-		// TODO; delete objects
+		// Delete the notification queue entry
+		await serverTriplitClient.delete('notifications_queue', notificationQueueEntry.id);
+		console.log(
+			`Deleted notification queue entry ${notificationQueueEntry.id} due to no valid objects.`
+		);
 		return;
 	}
 
@@ -82,22 +114,24 @@ export async function processNotificationQueue(notificationQueueEntry: Notificat
 		}
 	);
 
-	console.log(`Notification ${notificationQueueEntry.id} marked as sent.`);
+	console.debug(`Notification ${notificationQueueEntry.id} marked as sent.`);
 }
 
-async function getExistingNotification(
+async function getUnreadExistingNotification(
 	attendeeUserId: string,
 	eventId: string,
 	object_type: NotificationType
 ) {
 	const query = serverTriplitClient
 		.query('notifications')
-		.where([
-			['user_id', '=', attendeeUserId],
-			['event_id', '=', eventId],
-			['object_type', '=', object_type],
-			['seen_at', '=', null]
-		])
+		.where(
+			and([
+				['user_id', '=', attendeeUserId],
+				['event_id', '=', eventId],
+				['object_type', '=', object_type],
+				['seen_at', '=', null]
+			])
+		)
 		.build();
 
 	const [existingNotification] = await serverTriplitClient.fetch(query);
@@ -121,11 +155,17 @@ async function notifyAttendeesOfAnnouncements(
 
 	await serverTriplitClient.transact(async (tx) => {
 		for (const attendeeUserId of attendingUserIds) {
-			const existingNotification = await getExistingNotification(
+			const existingNotification = await getUnreadExistingNotification(
 				attendeeUserId,
 				eventId,
 				NotificationType.ANNOUNCEMENT
 			);
+			if (attendeeUserId == 'qgo0paa9qnfcnof') {
+				console.log(
+					'-------------------------------------------------- WHHHHHHHHHAAAAAAAAAAAAAAT',
+					existingNotification
+				);
+			}
 
 			const existingObjectIds = existingNotification
 				? stringRepresentationToArray(existingNotification.object_ids)
@@ -177,7 +217,7 @@ async function notifyAttendeesOfFiles(eventId: string, fileIds: string[]): Promi
 
 			if (!filteredFileIds.length) continue;
 
-			const existingNotification = await getExistingNotification(
+			const existingNotification = await getUnreadExistingNotification(
 				attendeeUserId,
 				eventId,
 				NotificationType.FILES
@@ -221,11 +261,18 @@ async function notifyEventCreatorOfAttendees(
 
 	if (!event) return;
 
-	const existingNotification = await getExistingNotification(
+	const existingNotification = await getUnreadExistingNotification(
 		event.user_id,
 		eventId,
 		NotificationType.ATTENDEES
 	);
+
+	if (event.user_id == 'qgo0paa9qnfcnof') {
+		console.log(
+			'-------------------------------------------------- WHHHHHHHHHAAAAAAAAAAAAAAT',
+			existingNotification
+		);
+	}
 
 	const existingObjectIds = existingNotification
 		? stringRepresentationToArray(existingNotification.object_ids)
@@ -250,4 +297,66 @@ async function notifyEventCreatorOfAttendees(
 			pushNotificationPayload
 		);
 	});
+}
+
+type PermissionValue = (typeof PermissionType)[keyof typeof PermissionType];
+
+async function handleNotification(
+	triplitTx: any,
+	existingNotification: NotificationTypescriptType | null,
+	recipientUserId: string,
+	eventId: string,
+	objectType: string,
+	updatedObjectIds: string[],
+	message: string,
+	pushNotificationPayload: PushNotificationPayload
+): Promise<void> {
+	let pushNotificationSent = false;
+
+	let requiredPermissions: PermissionValue[] = [];
+
+	// Set required permissions based on objectType
+	switch (objectType) {
+		case NotificationType.ANNOUNCEMENT:
+			requiredPermissions = [PermissionType.EVENT_ACTIVITY];
+			break;
+		case NotificationType.ATTENDEES:
+			requiredPermissions = [PermissionType.EVENT_ACTIVITY];
+			break;
+		case NotificationType.FILES:
+			requiredPermissions = [PermissionType.EVENT_ACTIVITY];
+			break;
+		default:
+			console.warn(`Unknown objectType: ${objectType}`);
+			return;
+	}
+
+	if (existingNotification) {
+		if (existingNotification.num_push_notifications_sent < MAX_NUM_PUSH_NOTIF_PER_NOTIFICATION) {
+			await sendPushNotification(recipientUserId, pushNotificationPayload, requiredPermissions);
+			pushNotificationSent = true;
+		}
+
+		await triplitTx.update('notifications', existingNotification.id, (entity: any) => {
+			entity.object_ids = arrayToStringRepresentation(updatedObjectIds);
+			entity.message = message;
+
+			if (pushNotificationSent) {
+				entity.num_push_notifications_sent = (entity.num_push_notifications_sent || 0) + 1;
+			}
+		});
+		console.debug(`Updated notification for user ${recipientUserId}.`);
+	} else {
+		await triplitTx.insert('notifications', {
+			event_id: eventId,
+			user_id: recipientUserId,
+			message,
+			object_type: objectType,
+			object_ids: arrayToStringRepresentation(updatedObjectIds),
+			num_push_notifications_sent: 1
+		});
+
+		await sendPushNotification(recipientUserId, pushNotificationPayload, requiredPermissions);
+		console.debug(`Created a new notification for user ${recipientUserId}.`);
+	}
 }

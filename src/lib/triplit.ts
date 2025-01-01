@@ -3,8 +3,6 @@ import { schema } from '../../triplit/schema';
 import { PUBLIC_TRIPLIT_URL, PUBLIC_TRIPLIT_ANONYMOUS_TOKEN } from '$env/static/public';
 import { writable, get } from 'svelte/store';
 import { browser } from '$app/environment';
-import { isNonEmptyArray } from './utils';
-import { NotificationType } from './enums';
 
 export const userIdStore = writable(null);
 
