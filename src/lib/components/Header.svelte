@@ -78,7 +78,9 @@
 			{:else}
 				<a href="/login" class="btn ml-auto mr-2 hidden sm:flex"> <FlameKindling />login</a>
 			{/if}
-			<NotificationsIndicator />
+			{#if $page.data.user}
+				<NotificationsIndicator />
+			{/if}
 			<div class="lg:hidden">
 				<DropdownMenu.Root bind:open={showMenu}>
 					<DropdownMenu.Trigger>
