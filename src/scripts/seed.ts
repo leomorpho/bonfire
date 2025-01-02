@@ -1,24 +1,19 @@
 import { createNewUser } from '$lib/server/database/user.model';
 import { generateId } from 'lucia';
 import { faker } from '@faker-js/faker';
-import type { TriplitClient } from '@triplit/client';
+import { HttpClient } from '@triplit/client';
 import { Status } from '$lib/enums';
-import { serverTriplitClient } from '$lib/server/triplit';
-import { createNewAnnouncementNotificationQueueObject, createNewAttendanceNotificationQueueObject } from '$lib/notification';
+import {
+	createNewAnnouncementNotificationQueueObject,
+	createNewAttendanceNotificationQueueObject
+} from '$lib/notification';
+import { PUBLIC_TRIPLIT_URL } from '$env/static/public';
+import { TRIPLIT_SERVICE_TOKEN } from '$env/static/private';
 
-// // Step 1: Run CLI commands
-// try {
-//     console.log('Removing local.db...');
-//     execSync('rm local.db');
-//     console.log('Running migrations...');
-//     execSync('npm run migrate');
-//     console.log('Migrations completed.');
-// } catch (error) {
-//     console.error('Error during CLI commands:', error.message);
-//     process.exit(1); // Exit if the CLI commands fail
-// }
-
-const client = serverTriplitClient as TriplitClient;
+const client = new HttpClient({
+	serverUrl: PUBLIC_TRIPLIT_URL,
+	token: TRIPLIT_SERVICE_TOKEN
+});
 
 const user = await createNewUser({
 	id: generateId(15),

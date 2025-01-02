@@ -1,4 +1,4 @@
-import { TriplitClient, and } from '@triplit/client';
+import { and } from '@triplit/client';
 import {
 	MAX_NUM_PUSH_NOTIF_PER_NOTIFICATION,
 	NotificationType,
@@ -16,7 +16,7 @@ import { arrayToStringRepresentation, stringRepresentationToArray } from '$lib/u
 import { sendPushNotification } from '$lib/webpush';
 import {
 	getAttendeeUserIdsOfEvent,
-	serverTriplitClient,
+	triplitHttpClient,
 	validateAnnouncements,
 	validateAttendees,
 	validateFiles
@@ -35,7 +35,7 @@ export const runNotificationProcessor = async () => {
 	try {
 		await updateTaskLockState(taskName, true);
 
-		const query = serverTriplitClient
+		const query = triplitHttpClient
 			.query('notifications_queue')
 			.where([
 				['sent_at', '=', null] // Only fetch unsent notifications
@@ -43,11 +43,11 @@ export const runNotificationProcessor = async () => {
 			.build();
 
 		// Fetch the notifications
-		const notifications = await serverTriplitClient.fetch(query);
-
-		// Process each notification
+		const notifications = await triplitHttpClient.fetch(query);
+		// console.log('###', notifications);
+		// Process each notifications
 		for (const notification of notifications) {
-			await processNotificationQueue(notification as NotificationQueueEntry); // Custom logic for handling notifications
+			await processNotificationQueue(notification as NotificationQueueEntry);
 		}
 	} catch (error) {
 		console.error('Error running notification processor:', error);
@@ -60,11 +60,11 @@ export async function processNotificationQueue(notificationQueueEntry: Notificat
 	if (notificationQueueEntry.sent_at) {
 		return;
 	}
-    
-	console.debug(
-		`Processing notification queue object created by user ${notificationQueueEntry.user_id}:`,
-		notificationQueueEntry
-	);
+
+	// console.debug(
+	// 	`Processing notification queue object created by user ${notificationQueueEntry.user_id}:`,
+	// 	notificationQueueEntry
+	// );
 
 	// Parse object_ids into an array
 	const objectIds = stringRepresentationToArray(notificationQueueEntry.object_ids);
@@ -73,13 +73,13 @@ export async function processNotificationQueue(notificationQueueEntry: Notificat
 	let validObjectIds: string[] = [];
 	switch (notificationQueueEntry.object_type) {
 		case NotificationType.ANNOUNCEMENT:
-			validObjectIds = await validateAnnouncements(serverTriplitClient as TriplitClient, objectIds);
+			validObjectIds = await validateAnnouncements(objectIds);
 			break;
 		case NotificationType.FILES:
-			validObjectIds = await validateFiles(serverTriplitClient as TriplitClient, objectIds);
+			validObjectIds = await validateFiles(objectIds);
 			break;
 		case NotificationType.ATTENDEES:
-			validObjectIds = await validateAttendees(serverTriplitClient as TriplitClient, objectIds);
+			validObjectIds = await validateAttendees(objectIds);
 			break;
 		default:
 			console.error(`Unknown object_type: ${notificationQueueEntry.object_type}`);
@@ -89,36 +89,36 @@ export async function processNotificationQueue(notificationQueueEntry: Notificat
 	if (validObjectIds.length === 0) {
 		console.warn(`No valid objects found for queued notification ${notificationQueueEntry.id}`);
 		// Delete the notification queue entry
-		await serverTriplitClient.delete('notifications_queue', notificationQueueEntry.id);
+		await triplitHttpClient.delete('notifications_queue', notificationQueueEntry.id);
 		console.log(
 			`Deleted notification queue entry ${notificationQueueEntry.id} due to no valid objects.`
 		);
 		return;
 	}
 
-	// Send notifications based on the type
-	switch (notificationQueueEntry.object_type) {
-		case NotificationType.ANNOUNCEMENT:
-			await notifyAttendeesOfAnnouncements(notificationQueueEntry.event_id, validObjectIds);
-			break;
-		case NotificationType.FILES:
-			await notifyAttendeesOfFiles(notificationQueueEntry.event_id, validObjectIds);
-			break;
-		case NotificationType.ATTENDEES:
-			await notifyEventCreatorOfAttendees(notificationQueueEntry.event_id, validObjectIds);
-			break;
-	}
+	// // Send notifications based on the type
+	// switch (notificationQueueEntry.object_type) {
+	// 	case NotificationType.ANNOUNCEMENT:
+	// 		await notifyAttendeesOfAnnouncements(notificationQueueEntry.event_id, validObjectIds);
+	// 		break;
+	// 	case NotificationType.FILES:
+	// 		await notifyAttendeesOfFiles(notificationQueueEntry.event_id, validObjectIds);
+	// 		break;
+	// 	case NotificationType.ATTENDEES:
+	// 		await notifyEventCreatorOfAttendees(notificationQueueEntry.event_id, validObjectIds);
+	// 		break;
+	// }
 
-	// Mark the notification as sent
-	await serverTriplitClient.update(
-		'notifications_queue',
-		notificationQueueEntry.id,
-		async (entity) => {
-			entity.sent_at = new Date();
-		}
-	);
+	// // Mark the notification as sent
+	// await triplitHttpClient.update(
+	// 	'notifications_queue',
+	// 	notificationQueueEntry.id,
+	// 	async (entity) => {
+	// 		entity.sent_at = new Date();
+	// 	}
+	// );
 
-	console.debug(`Notification ${notificationQueueEntry.id} marked as sent.`);
+	// console.debug(`Notification ${notificationQueueEntry.id} marked as sent.`);
 }
 
 async function getUnreadExistingNotification(
@@ -126,7 +126,7 @@ async function getUnreadExistingNotification(
 	eventId: string,
 	object_type: NotificationType
 ) {
-	const query = serverTriplitClient
+	const query = triplitHttpClient
 		.query('notifications')
 		.where(
 			and([
@@ -139,7 +139,7 @@ async function getUnreadExistingNotification(
 		.order('created_at', 'DESC')
 		.build();
 
-	const notifs = await serverTriplitClient.http.fetch(query);
+	const notifs = await triplitHttpClient.fetch(query);
 
 	if (notifs.length > 0) {
 		return notifs[0];
@@ -154,7 +154,6 @@ async function notifyAttendeesOfAnnouncements(
 	if (!announcementIds.length) return;
 
 	const attendingUserIds = await getAttendeeUserIdsOfEvent(
-		serverTriplitClient as TriplitClient,
 		eventId,
 		NOTIFY_OF_ATTENDING_STATUS_CHANGE,
 		true // Do not notify announcement creator, i.e., event creator
@@ -162,97 +161,87 @@ async function notifyAttendeesOfAnnouncements(
 
 	if (!attendingUserIds.length) return;
 
-	await serverTriplitClient.transact(async (tx) => {
-		for (const attendeeUserId of attendingUserIds) {
-			const existingNotification = await getUnreadExistingNotification(
-				attendeeUserId,
-				eventId,
-				NotificationType.ANNOUNCEMENT
-			);
+	for (const attendeeUserId of attendingUserIds) {
+		const existingNotification = await getUnreadExistingNotification(
+			attendeeUserId,
+			eventId,
+			NotificationType.ANNOUNCEMENT
+		);
 
-			if (attendeeUserId == 'uclz7npcwxo7gec') {
-				console.log(
-					'-------------------------------------------------- WHHHHHHHHHAAAAAAAAAAAAAAT',
-					existingNotification
-				);
-			}
-
-			const existingObjectIds = existingNotification
-				? stringRepresentationToArray(existingNotification.object_ids)
-				: [];
-			const updatedObjectIds = Array.from(new Set([...existingObjectIds, ...announcementIds]));
-
-			const message = `You have ${updatedObjectIds.length} new announcements in an event you're attending!`;
-			const pushNotificationPayload = { title: 'New Announcements', body: message };
-
-			await handleNotification(
-				tx,
-				existingNotification as NotificationTypescriptType | null,
-				attendeeUserId,
-				eventId,
-				NotificationType.ANNOUNCEMENT,
-				updatedObjectIds,
-				message,
-				pushNotificationPayload
+		if (attendeeUserId == 'uclz7npcwxo7gec') {
+			console.log(
+				'-------------------------------------------------- WHHHHHHHHHAAAAAAAAAAAAAAT',
+				existingNotification
 			);
 		}
-	});
+
+		const existingObjectIds = existingNotification
+			? stringRepresentationToArray(existingNotification.object_ids)
+			: [];
+		const updatedObjectIds = Array.from(new Set([...existingObjectIds, ...announcementIds]));
+
+		const message = `You have ${updatedObjectIds.length} new announcements in an event you're attending!`;
+		const pushNotificationPayload = { title: 'New Announcements', body: message };
+
+		await handleNotification(
+			existingNotification as NotificationTypescriptType | null,
+			attendeeUserId,
+			eventId,
+			NotificationType.ANNOUNCEMENT,
+			updatedObjectIds,
+			message,
+			pushNotificationPayload
+		);
+	}
 }
 
 async function notifyAttendeesOfFiles(eventId: string, fileIds: string[]): Promise<void> {
 	if (!fileIds.length) return;
 
-	const fileQuery = serverTriplitClient
+	const fileQuery = triplitHttpClient
 		.query('files')
-		.select(['id', 'uploader_id'])
+		// .select(['id', 'uploader_id']) // TODO: triplit bug preventing select
 		.where([['id', 'in', fileIds]])
 		.build();
 
-	const files = await serverTriplitClient.fetch(fileQuery);
+	const files = await triplitHttpClient.fetch(fileQuery);
 	const fileUploaderMap = new Map(files.map((file) => [file.id, file.uploader_id]));
 
-	const attendingUserIds = await getAttendeeUserIdsOfEvent(
-		serverTriplitClient as TriplitClient,
-		eventId,
-		[Status.GOING, Status.MAYBE]
-	);
+	const attendingUserIds = await getAttendeeUserIdsOfEvent(eventId, [Status.GOING, Status.MAYBE]);
 
 	if (!attendingUserIds.length) return;
 
-	await serverTriplitClient.transact(async (tx) => {
-		for (const attendeeUserId of attendingUserIds) {
-			const filteredFileIds = fileIds.filter(
-				(fileId) => fileUploaderMap.get(fileId) !== attendeeUserId
-			);
+	for (const attendeeUserId of attendingUserIds) {
+		const filteredFileIds = fileIds.filter(
+			(fileId) => fileUploaderMap.get(fileId) !== attendeeUserId
+		);
 
-			if (!filteredFileIds.length) continue;
+		if (!filteredFileIds.length) continue;
 
-			const existingNotification = await getUnreadExistingNotification(
-				attendeeUserId,
-				eventId,
-				NotificationType.FILES
-			);
+		const existingNotification = await getUnreadExistingNotification(
+			attendeeUserId,
+			eventId,
+			NotificationType.FILES
+		);
 
-			const existingObjectIds = existingNotification
-				? stringRepresentationToArray(existingNotification.object_ids)
-				: [];
-			const updatedObjectIds = Array.from(new Set([...existingObjectIds, ...filteredFileIds]));
+		const existingObjectIds = existingNotification
+			? stringRepresentationToArray(existingNotification.object_ids)
+			: [];
+		const updatedObjectIds = Array.from(new Set([...existingObjectIds, ...filteredFileIds]));
 
-			const message = `You have ${updatedObjectIds.length} new files in an event you're attending!`;
-			const pushNotificationPayload = { title: 'New Files', body: message };
+		const message = `You have ${updatedObjectIds.length} new files in an event you're attending!`;
+		const pushNotificationPayload = { title: 'New Files', body: message };
 
-			await handleNotification(
-				tx,
-				existingNotification as NotificationTypescriptType | null,
-				attendeeUserId,
-				eventId,
-				NotificationType.FILES,
-				updatedObjectIds,
-				message,
-				pushNotificationPayload
-			);
-		}
-	});
+		await handleNotification(
+			existingNotification as NotificationTypescriptType | null,
+			attendeeUserId,
+			eventId,
+			NotificationType.FILES,
+			updatedObjectIds,
+			message,
+			pushNotificationPayload
+		);
+	}
 }
 
 async function notifyEventCreatorOfAttendees(
@@ -261,13 +250,13 @@ async function notifyEventCreatorOfAttendees(
 ): Promise<void> {
 	if (!attendeeIds.length) return;
 
-	const creatorQuery = serverTriplitClient
+	const creatorQuery = triplitHttpClient
 		.query('events')
-		.select(['user_id', 'title'])
+		// .select(['user_id', 'title']) // TODO: triplit bug preventing select
 		.where([['id', '=', eventId]])
 		.build();
 
-	const [event] = await serverTriplitClient.fetch(creatorQuery);
+	const [event] = await triplitHttpClient.fetch(creatorQuery);
 
 	if (!event) return;
 
@@ -295,24 +284,20 @@ async function notifyEventCreatorOfAttendees(
 
 	const pushNotificationPayload = { title: 'New Attendees', body: message };
 
-	await serverTriplitClient.transact(async (tx) => {
-		await handleNotification(
-			tx,
-			existingNotification as NotificationTypescriptType | null,
-			event.user_id,
-			eventId,
-			NotificationType.ATTENDEES,
-			updatedObjectIds,
-			message,
-			pushNotificationPayload
-		);
-	});
+	await handleNotification(
+		existingNotification as NotificationTypescriptType | null,
+		event.user_id,
+		eventId,
+		NotificationType.ATTENDEES,
+		updatedObjectIds,
+		message,
+		pushNotificationPayload
+	);
 }
 
-type PermissionValue = (typeof PermissionType)[keyof typeof PermissionType];
+export type PermissionValue = (typeof PermissionType)[keyof typeof PermissionType];
 
 async function handleNotification(
-	triplitTx: any,
 	existingNotification: NotificationTypescriptType | null,
 	recipientUserId: string,
 	eventId: string,
@@ -347,7 +332,7 @@ async function handleNotification(
 			pushNotificationSent = true;
 		}
 
-		await triplitTx.update('notifications', existingNotification.id, (entity: any) => {
+		await triplitHttpClient.update('notifications', existingNotification.id, (entity: any) => {
 			entity.object_ids = arrayToStringRepresentation(updatedObjectIds);
 			entity.message = message;
 
@@ -357,7 +342,7 @@ async function handleNotification(
 		});
 		console.debug(`Updated notification for user ${recipientUserId}.`);
 	} else {
-		await triplitTx.insert('notifications', {
+		await triplitHttpClient.insert('notifications', {
 			event_id: eventId,
 			user_id: recipientUserId,
 			message,

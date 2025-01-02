@@ -6,6 +6,7 @@ import { PUBLIC_DEV_VAPID_PUBLIC_KEY, PUBLIC_VAPID_PUBLIC_KEY } from '$env/stati
 import { notificationPermissionTable, pushSubscriptionTable } from './server/database/schema';
 import { eq } from 'drizzle-orm';
 import { db } from './server/database/db';
+import type { PermissionValue } from './server/push';
 
 if (
 	(dev && (!PUBLIC_DEV_VAPID_PUBLIC_KEY || !env.DEV_VAPID_PRIVATE_KEY)) ||
@@ -40,7 +41,7 @@ export async function sendPushNotification(
 		.where(eq(notificationPermissionTable.userId, userId));
 
 	if (!userPermissions.length) {
-		console.debug(`No permissions found for user ID: ${userId}`);
+		// console.debug(`No permissions found for user ID: ${userId}`);
 		return;
 	}
 
@@ -48,7 +49,7 @@ export async function sendPushNotification(
 	const hasPermission = requiredPermissions.some((permission) => userPermissions[0][permission]);
 
 	if (!hasPermission) {
-		console.debug(`User ID: ${userId} does not have required permissions.`);
+		// console.debug(`User ID: ${userId} does not have required permissions.`);
 		return;
 	}
 
@@ -63,7 +64,7 @@ export async function sendPushNotification(
 		.where(eq(pushSubscriptionTable.userId, userId));
 
 	if (!subscriptions.length) {
-		console.info(`No push subscriptions found for user ID: ${userId}`);
+		// console.info(`No push subscriptions found for user ID: ${userId}`);
 		return;
 	}
 
