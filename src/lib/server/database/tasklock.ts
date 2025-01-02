@@ -15,17 +15,27 @@ export async function getTaskLockState(taskName: TaskName) {
 }
 
 /**
- * Updates the state of a task lock.
+ * Updates or inserts the state of a task lock.
  * @param {string} taskName - The name of the task.
  * @param {boolean} locked - The new lock state.
- * @returns {Promise<void>} - Resolves when the lock state is updated.
+ * @returns {Promise<void>} - Resolves when the lock state is updated or inserted.
  */
 export async function updateTaskLockState(taskName: TaskName, locked: boolean) {
-	await db
-		.update(taskLockTable)
-		.set({
+	const result = await db
+		.insert(taskLockTable)
+		.values({
+			task_name: taskName,
 			locked,
 			updated_at: sql`(current_timestamp)`
 		})
-		.where(eq(taskLockTable.task_name, taskName));
+		.onConflictDoUpdate({
+			target: taskLockTable.task_name,
+			set: {
+				locked,
+				updated_at: sql`(current_timestamp)`
+			}
+		})
+		.returning();
+
+	console.log('result', result);
 }

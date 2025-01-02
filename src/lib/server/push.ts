@@ -38,12 +38,13 @@ export const runNotificationProcessor = async () => {
 		const query = triplitHttpClient
 			.query('notifications_queue')
 			.where([
-				['sent_at', '=', null] // Only fetch unsent notifications
+				['sent', '=', false] // Only fetch unsent notifications
 			])
 			.build();
 
 		// Fetch the notifications
 		const notifications = await triplitHttpClient.fetch(query);
+
 		// console.log('###', notifications);
 		// Process each notifications
 		for (const notification of notifications) {
@@ -114,7 +115,8 @@ export async function processNotificationQueue(notificationQueueEntry: Notificat
 		'notifications_queue',
 		notificationQueueEntry.id,
 		async (entity) => {
-			entity.sent_at = new Date().toISOString();
+			// entity.sent_at = new Date().toISOString();
+			entity.sent = true;
 		}
 	);
 
@@ -167,13 +169,6 @@ async function notifyAttendeesOfAnnouncements(
 			eventId,
 			NotificationType.ANNOUNCEMENT
 		);
-
-		if (attendeeUserId == 'uclz7npcwxo7gec') {
-			console.log(
-				'-------------------------------------------------- WHHHHHHHHHAAAAAAAAAAAAAAT',
-				existingNotification
-			);
-		}
 
 		const existingObjectIds = existingNotification
 			? stringRepresentationToArray(existingNotification.object_ids)
@@ -340,7 +335,7 @@ async function handleNotification(
 				entity.num_push_notifications_sent = (entity.num_push_notifications_sent || 0) + 1;
 			}
 		});
-		console.debug(`Updated notification for user ${recipientUserId}.`);
+		// console.debug(`Updated notification for user ${recipientUserId}.`);
 	} else {
 		await triplitHttpClient.insert('notifications', {
 			event_id: eventId,
@@ -352,6 +347,6 @@ async function handleNotification(
 		});
 
 		await sendPushNotification(recipientUserId, pushNotificationPayload, requiredPermissions);
-		console.debug(`Created a new notification for user ${recipientUserId}.`);
+		// console.debug(`Created a new notification for user ${recipientUserId}.`);
 	}
 }
