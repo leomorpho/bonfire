@@ -1,7 +1,7 @@
 <script lang="ts">
 	import PushPermissions from '$lib/components/PushPermissions.svelte';
-	import { Button } from '$lib/components/ui/button';
 	import { page } from '$app/stores';
+	import DeleteAccount from '$lib/components/settings/DeleteAccount.svelte';
 </script>
 
 <div class="mx-2 flex flex-col items-center justify-center">
@@ -20,7 +20,7 @@
 			<h3 class="text-xl font-semibold">Danger</h3>
 
 			<div class="flex flex-col justify-center space-y-3">
-				<Button class="bg-red-500 hover:bg-red-400">Delete Account</Button>
+				<DeleteAccount />
 			</div>
 		</div>
 	</section>
