@@ -96,27 +96,27 @@ export async function processNotificationQueue(notificationQueueEntry: Notificat
 		return;
 	}
 
-	// // Send notifications based on the type
-	// switch (notificationQueueEntry.object_type) {
-	// 	case NotificationType.ANNOUNCEMENT:
-	// 		await notifyAttendeesOfAnnouncements(notificationQueueEntry.event_id, validObjectIds);
-	// 		break;
-	// 	case NotificationType.FILES:
-	// 		await notifyAttendeesOfFiles(notificationQueueEntry.event_id, validObjectIds);
-	// 		break;
-	// 	case NotificationType.ATTENDEES:
-	// 		await notifyEventCreatorOfAttendees(notificationQueueEntry.event_id, validObjectIds);
-	// 		break;
-	// }
+	// Send notifications based on the type
+	switch (notificationQueueEntry.object_type) {
+		case NotificationType.ANNOUNCEMENT:
+			await notifyAttendeesOfAnnouncements(notificationQueueEntry.event_id, validObjectIds);
+			break;
+		case NotificationType.FILES:
+			await notifyAttendeesOfFiles(notificationQueueEntry.event_id, validObjectIds);
+			break;
+		case NotificationType.ATTENDEES:
+			await notifyEventCreatorOfAttendees(notificationQueueEntry.event_id, validObjectIds);
+			break;
+	}
 
-	// // Mark the notification as sent
-	// await triplitHttpClient.update(
-	// 	'notifications_queue',
-	// 	notificationQueueEntry.id,
-	// 	async (entity) => {
-	// 		entity.sent_at = new Date();
-	// 	}
-	// );
+	// Mark the notification as sent
+	await triplitHttpClient.update(
+		'notifications_queue',
+		notificationQueueEntry.id,
+		async (entity) => {
+			entity.sent_at = new Date().toISOString();
+		}
+	);
 
 	// console.debug(`Notification ${notificationQueueEntry.id} marked as sent.`);
 }
