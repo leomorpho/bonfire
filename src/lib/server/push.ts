@@ -25,9 +25,9 @@ import { getTaskLockState, updateTaskLockState } from './database/tasklock';
 
 export const runNotificationProcessor = async () => {
 	const taskName = TaskName.PROCESS_NOTIFICATION_QUEUE;
-	const lockState = await getTaskLockState(taskName);
+	const locked = await getTaskLockState(taskName);
 
-	if (lockState?.locked) {
+	if (locked) {
 		console.log('Task is already running. Skipping execution.');
 		return;
 	}
@@ -45,7 +45,6 @@ export const runNotificationProcessor = async () => {
 		// Fetch the notifications
 		const notifications = await triplitHttpClient.fetch(query);
 
-		// console.log('###', notifications);
 		// Process each notifications
 		for (const notification of notifications) {
 			await processNotificationQueue(notification as NotificationQueueEntry);

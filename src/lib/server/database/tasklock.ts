@@ -11,7 +11,7 @@ import { eq, sql } from 'drizzle-orm';
 export async function getTaskLockState(taskName: TaskName) {
 	const result = await db.select().from(taskLockTable).where(eq(taskLockTable.task_name, taskName));
 
-	return result.length > 0 ? result[0] : null;
+	return result.length > 0 ? result[0].locked : null;
 }
 
 /**
