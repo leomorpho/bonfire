@@ -83,3 +83,9 @@ export const notificationPermissionTable = sqliteTable('notification_permission'
 		.notNull()
 		.default(sql`(current_timestamp)`)
 });
+
+export const deletedUserTable = sqliteTable('deleted_user', {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	userId: text('user_id').notNull(),
+	deleted_at: text('deleted_at').notNull().default(sql`(current_timestamp)`)
+});

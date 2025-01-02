@@ -335,7 +335,8 @@ export const schema = {
 		permissions: {
 			user: {
 				read: { filter: [['user_id', '=', '$role.userId']] }, // Users can read their own notifications
-				update: { filter: [['user_id', '=', '$role.userId']] } // Users can update their own notifications to mark them as read
+				update: { filter: [['user_id', '=', '$role.userId']] }, // Users can update their own notifications to mark them as read
+				delete: { filter: [['user_id', '=', '$role.userId']] } // Users can update their own notifications to mark them as read
 			},
 			admin: {
 				read: { filter: [true] },

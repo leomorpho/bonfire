@@ -144,10 +144,30 @@
 				updateProgress();
 			});
 
+			if (REAL_DELETION) {
+				// Call DELETE endpoint to remove user and related data
+				const response = await fetch('/settings/account_deletion', {
+					method: 'DELETE',
+					headers: {
+						'Content-Type': 'application/json'
+					}
+				});
+
+				if (!response.ok) {
+					const errorResponse = await response.json();
+					throw new Error(errorResponse.message || 'Failed to delete account');
+				}
+
+				toast.success('Your account and data were successfully deleted');
+				await sleep(300);
+				await signOut(); // Sign out the user after successful deletion
+				return;
+			}
+
 			// Redirect after deletion
 			toast.success('Your account and data were successfully deleted');
-            await sleep(300);
-			signOut();
+			// await sleep(300);
+			// signOut();
 		} catch (error) {
 			toast.success('Failed to delete account. Please try again, or contact support.');
 
