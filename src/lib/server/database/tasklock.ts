@@ -21,7 +21,7 @@ export async function getTaskLockState(taskName: TaskName) {
  * @returns {Promise<void>} - Resolves when the lock state is updated or inserted.
  */
 export async function updateTaskLockState(taskName: TaskName, locked: boolean) {
-	const result = await db
+	await db
 		.insert(taskLockTable)
 		.values({
 			task_name: taskName,
@@ -36,6 +36,4 @@ export async function updateTaskLockState(taskName: TaskName, locked: boolean) {
 			}
 		})
 		.returning();
-
-	console.log('result', result);
 }

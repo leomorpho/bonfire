@@ -115,7 +115,7 @@ export async function processNotificationQueue(notificationQueueEntry: Notificat
 		'notifications_queue',
 		notificationQueueEntry.id,
 		async (entity) => {
-			// entity.sent_at = new Date().toISOString();
+			entity.sent_at = new Date().toISOString();
 			entity.sent = true;
 		}
 	);
@@ -335,7 +335,7 @@ async function handleNotification(
 				entity.num_push_notifications_sent = (entity.num_push_notifications_sent || 0) + 1;
 			}
 		});
-		// console.debug(`Updated notification for user ${recipientUserId}.`);
+		console.debug(`Updated notification for user ${recipientUserId}.`);
 	} else {
 		await triplitHttpClient.insert('notifications', {
 			event_id: eventId,
@@ -347,6 +347,6 @@ async function handleNotification(
 		});
 
 		await sendPushNotification(recipientUserId, pushNotificationPayload, requiredPermissions);
-		// console.debug(`Created a new notification for user ${recipientUserId}.`);
+		console.debug(`Created a new notification for user ${recipientUserId}.`);
 	}
 }
