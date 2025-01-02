@@ -1,13 +1,13 @@
 import { goto } from '$app/navigation';
-import { generateSignedUrl } from '$lib/filestorage.js';
+import { fetchAccessibleEventFiles } from '$lib/filestorage';
 import { serverTriplitClient } from '$lib/server/triplit';
 import { error } from '@sveltejs/kit';
 
 // Step 2: Implement the form load function
 export const load = async (e) => {
-	const eventId = e.params.id; // Get the event ID from the route parameters
+	const bonfireId = e.params.id; // Get the event ID from the route parameters
 
-	if (!eventId) {
+	if (!bonfireId) {
 		goto('/dashboard');
 	}
 
@@ -17,37 +17,21 @@ export const load = async (e) => {
 		goto('/login');
 	}
 
-	// NOTE: if we want to support multiple admins in the future this is where the query must be updated.
-	const eventQuery = serverTriplitClient
-		.query('events')
-		.where(['id', '=', eventId as string])
-		.select(['user_id'])
-		.build();
-	const event = await serverTriplitClient.fetch(eventQuery);
-
-	let isOwner = false;
-	if (event.user_id == user?.id) {
-		isOwner = true;
+	try {
+		const { files, isOwner } = await fetchAccessibleEventFiles(bonfireId as string, user);
+		return {
+			user: user,
+			eventFiles: files,
+			isOwner: isOwner
+		};
+	} catch (error) {
+		console.error(error.message);
+		return {
+			user: user,
+			eventFiles: [],
+			isOwner: false
+		};
 	}
-
-	const eventFilesQuery = serverTriplitClient
-		.query('files')
-		.where(['event_id', '=', eventId as string])
-		.build();
-
-	const eventFiles = await serverTriplitClient.fetch(eventFilesQuery);
-
-	for (const eventFile of eventFiles) {
-		const fileURL = await generateSignedUrl(eventFile.file_key);
-		// @ts-ignore
-		eventFile.URL = fileURL;
-	}
-
-	return {
-		user: user,
-		eventFiles: eventFiles,
-		isOwner: isOwner
-	};
 };
 
 export const actions = {
@@ -87,9 +71,7 @@ export const actions = {
 			.build();
 		const files = await serverTriplitClient.fetch(filesQuery);
 
-		const filesToDelete = files.filter(
-			(file) => isOwner || file.uploader_id === user.id
-		);
+		const filesToDelete = files.filter((file) => isOwner || file.uploader_id === user.id);
 
 		// Delete only files the user is allowed to delete
 		for (const file of filesToDelete) {

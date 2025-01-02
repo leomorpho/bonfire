@@ -219,7 +219,7 @@ async function* chunkFileStream(fileStream: Readable, chunkSize: number): AsyncI
 
 /**
  * Deletes multiple files from S3 by their keys.
- * 
+ *
  * @param {string[]} fileKeys - Array of S3 object keys to delete.
  * @returns {Promise<{ success: boolean; deleted: string[]; failed: string[] }>} - Result of the deletion.
  */
@@ -237,7 +237,7 @@ export async function deleteFilesFromS3(fileKeys: string[]): Promise<{
 			try {
 				const deleteCommand = new DeleteObjectCommand({
 					Bucket: bucketName,
-					Key: fileKey,
+					Key: fileKey
 				});
 
 				await s3.send(deleteCommand);
@@ -252,11 +252,17 @@ export async function deleteFilesFromS3(fileKeys: string[]): Promise<{
 	// Separate successful and failed operations
 	const deleted = results
 		.filter((result) => result.status === 'fulfilled' && result.value.success)
-		.map((result) => (result as PromiseFulfilledResult<{ success: boolean; fileKey: string }>).value.fileKey);
+		.map(
+			(result) =>
+				(result as PromiseFulfilledResult<{ success: boolean; fileKey: string }>).value.fileKey
+		);
 
 	const failed = results
 		.filter((result) => result.status === 'fulfilled' && !result.value.success)
-		.map((result) => (result as PromiseFulfilledResult<{ success: boolean; fileKey: string }>).value.fileKey);
+		.map(
+			(result) =>
+				(result as PromiseFulfilledResult<{ success: boolean; fileKey: string }>).value.fileKey
+		);
 
 	const failedDueToErrors = results
 		.filter((result) => result.status === 'rejected')
@@ -265,6 +271,52 @@ export async function deleteFilesFromS3(fileKeys: string[]): Promise<{
 	return {
 		success: failed.length === 0 && failedDueToErrors.length === 0,
 		deleted,
-		failed: [...failed, ...failedDueToErrors],
+		failed: [...failed, ...failedDueToErrors]
 	};
+}
+
+/**
+ * Fetches accessible event files for a user and bonfire ID, and checks ownership.
+ * @param {string} bonfireId - The ID of the bonfire/event.
+ * @param {Object} user - The user object from locals.
+ * @returns {Promise<{ files: Array, isOwner: boolean }>} - An object containing the event files with signed URLs and ownership status.
+ * @throws {Error} - If the user is unauthorized or the bonfire does not exist.
+ */
+export async function fetchAccessibleEventFiles(bonfireId: string, user: any) {
+	if (!user) {
+		throw new Error('Unauthorized'); // Explicitly handle unauthorized access
+	}
+
+	// Fetch event details to determine ownership
+	const eventQuery = serverTriplitClient
+		.query('events')
+		.where(['id', '=', bonfireId])
+		.select(['user_id'])
+		.build();
+	const event = await serverTriplitClient.fetch(eventQuery);
+
+	if (!event) {
+		throw new Error('Bonfire not found'); // Explicitly handle missing event
+	}
+
+	// Check if the user is the event owner
+	const isOwner = event.user_id === user.id;
+
+	// Fetch files related to the bonfire
+	const filesQuery = serverTriplitClient
+		.query('files')
+		.where(['event_id', '=', bonfireId])
+		.select(['id', 'file_key', 'uploader_id']) // Include necessary fields
+		.build();
+	const files = await serverTriplitClient.fetch(filesQuery);
+
+	// Generate signed URLs for the files
+	const filesWithUrls = await Promise.all(
+		files.map(async (file) => ({
+			...file,
+			URL: await generateSignedUrl(file.file_key)
+		}))
+	);
+
+	return { files: filesWithUrls, isOwner };
 }
