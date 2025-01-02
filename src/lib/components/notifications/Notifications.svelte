@@ -59,8 +59,10 @@
 
 				lastNumSeenLoaded = uniqueResults.length;
 
-				// Update with unique notifications only
-				allSeenNotifications = [...allSeenNotifications, ...uniqueResults] as [];
+				// Update with unique notifications only and sort by created_at
+				allSeenNotifications = [...allSeenNotifications, ...uniqueResults].sort(
+					(a, b) => new Date(b.created_at) - new Date(a.created_at)
+				) as [];
 				loadMoreSeen = loadMore; // Save the loadMore function for pagination
 			},
 			(error) => {
@@ -117,8 +119,8 @@
 				<Dialog.Title>Your Notifications</Dialog.Title>
 				<Dialog.Description>
 					{#if allUnreadNotifications.length == 0 && allSeenNotifications.length == 0}
-							<div class="flex items-center justify-center rounded-lg bg-slate-100 my-5 p-3">
-								No notifications
+						<div class="my-5 flex items-center justify-center rounded-lg bg-slate-100 p-3">
+							No notifications
 						</div>
 					{/if}
 					{#if allUnreadNotifications.length > 0}
