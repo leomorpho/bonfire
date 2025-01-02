@@ -17,12 +17,15 @@
 	import CustomAlertDialogue from '$lib/components/CustomAlertDialog.svelte';
 	import { toast } from 'svelte-sonner';
 	import { User, Users } from 'lucide-svelte';
+	import type { TriplitClient } from '@triplit/client';
+	import { getFeTriplitClient } from '$lib/triplit';
 
 	let selectedImages: any = $state([]);
 	let selection: any;
 	let selectionActive = $state(false);
 	let lightbox: PhotoSwipeLightbox | null = $state(null);
 
+	let eventFiles = $state($page.data.eventFiles);
 	console.log('isOwner', $page.data.isOwner);
 
 	let isDialogOpen = $state(false);
@@ -116,6 +119,7 @@
 		}
 	}
 
+	// TODO: unused?
 	function canBulkDelete() {
 		if (selectedImages.length === 0) return false;
 
@@ -281,6 +285,7 @@
 		});
 	}
 
+	// TODO: unused?
 	function filterByCurrentUserAsUploader() {
 		const userUploaderId = $page.data.user.id;
 
@@ -424,6 +429,22 @@
 		lightbox.init();
 		return lightbox;
 	}
+
+	const updateFilesWithLatest = async () => {
+		// Fetch updated files using your API endpoint
+		try {
+			const response = await fetch(`/bonfire/${$page.params.id}/media/gallery`);
+			if (response.ok) {
+				const data = await response.json();
+				eventFiles = data.files; // Update with the latest data
+			} else {
+				console.error('Failed to fetch updated files:', await response.json());
+			}
+		} catch (err) {
+			console.error('Error fetching updated files:', err);
+		}
+	};
+
 	onMount(() => {
 		// Initialize SelectionArea
 		selection = new SelectionArea({
@@ -455,10 +476,30 @@
 
 		lightbox = createPhotoSwipe();
 
+		let client = getFeTriplitClient($page.data.jwt) as TriplitClient;
+		const unsubscribeFromFileQuery = client.subscribe(
+			client.query('files').where(['event_id', '=', $page.params.id]).select(['id']).build(),
+			(results, info) => {
+				// handle results
+				updateFilesWithLatest();
+			},
+			(error) => {
+				// handle error
+			},
+			// Optional
+			{
+				localOnly: false,
+				onRemoteFulfilled: () => {
+					console.log('server has sent back results for the subscription');
+				}
+			}
+		);
+
 		return () => {
 			// Cleanup
 			selection.destroy();
 			lightbox?.destroy(); // Cleanup when the component is destroyed
+			unsubscribeFromFileQuery();
 		};
 	});
 </script>
@@ -499,11 +540,11 @@
 		</div>
 	</div>
 	<section class="w-full sm:w-[550px] md:w-[650px] lg:w-[950px]">
-		{#if $page.data.eventFiles.length > 0}
+		{#if eventFiles.length > 0}
 			<div
 				class="gallery-container selection-area my-5 grid grid-cols-3 gap-1 sm:grid-cols-4 lg:grid-cols-5"
 			>
-				{#each $page.data.eventFiles as file}
+				{#each eventFiles as file}
 					<div
 						class="image-item rounded-xl border-2 border-white"
 						data-id={file.id}
@@ -554,11 +595,13 @@
 				{/each}
 			</div>
 		{:else}
-		<div class="w-full h-full flex justify-center">
-			<div class="mt-20 rounded-xl bg-slate-200 flex justify-center items-center h-12 w-2/3 text-sm sm:text-base">
-				<div>No files yet</div>
+			<div class="flex h-full w-full justify-center">
+				<div
+					class="mt-20 flex h-12 w-2/3 items-center justify-center rounded-xl bg-slate-200 text-sm sm:text-base"
+				>
+					<div>No files yet</div>
+				</div>
 			</div>
-		</div>
 		{/if}
 	</section>
 </div>
@@ -570,7 +613,7 @@
 		<div class="flex items-center space-x-2 p-20">
 			<div class="flex flex-col justify-center space-y-1">
 				<Button
-					disabled={$page.data.eventFiles.length == selectedImages.length}
+					disabled={eventFiles.length == selectedImages.length}
 					onclick={selectAll}
 					class="p-1 text-xs">Select All</Button
 				>

@@ -306,7 +306,16 @@ export async function fetchAccessibleEventFiles(bonfireId: string, user: any) {
 	const filesQuery = serverTriplitClient
 		.query('files')
 		.where(['event_id', '=', bonfireId])
-		.select(['id', 'file_key', 'uploader_id']) // Include necessary fields
+		.select([
+			'id',
+			'file_key',
+			'file_type',
+			'uploader_id',
+			'h_pixel',
+			'w_pixel',
+			'size_in_bytes',
+			'uploaded_at'
+		]) // Include necessary fields
 		.build();
 	const files = await serverTriplitClient.fetch(filesQuery);
 
