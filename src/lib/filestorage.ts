@@ -13,7 +13,7 @@ import { env } from '$env/dynamic/private';
 import sharp from 'sharp'; // For resizing images
 import { dev } from '$app/environment';
 import { Readable } from 'stream';
-import { serverTriplitClient } from '$lib/server/triplit';
+import { triplitHttpClient } from '$lib/server/triplit';
 
 // Create an S3 client
 const s3 = new S3Client({
@@ -70,23 +70,23 @@ export async function uploadProfileImageToS3(file: File, userId: string) {
 	);
 
 	// Check if a profile image entry exists for the user
-	const query = serverTriplitClient
+	const query = triplitHttpClient
 		.query('profile_images')
 		.where(['user_id', '=', userId])
-		.select(['id'])
+		// .select(['id']) // TODO: bug with select for http client
 		.build();
 
-	let existingEntry = await serverTriplitClient.fetchOne(query);
+	let existingEntry = await triplitHttpClient.fetchOne(query);
 
 	if (existingEntry) {
 		// Update the existing entry
-		await serverTriplitClient.update('profile_images', existingEntry.id, async (e) => {
+		await triplitHttpClient.update('profile_images', existingEntry.id, async (e) => {
 			e.full_image_key = fullImageKey;
 			e.small_image_key = smallImageKey;
 		});
 	} else {
 		// Insert a new entry
-		await serverTriplitClient.insert('profile_images', {
+		await triplitHttpClient.insert('profile_images', {
 			user_id: userId,
 			full_image_key: fullImageKey,
 			small_image_key: smallImageKey
@@ -288,12 +288,12 @@ export async function fetchAccessibleEventFiles(bonfireId: string, user: any) {
 	}
 
 	// Fetch event details to determine ownership
-	const eventQuery = serverTriplitClient
+	const eventQuery = triplitHttpClient
 		.query('events')
 		.where(['id', '=', bonfireId])
-		.select(['user_id'])
+		// .select(['user_id']) // TODO: bug with select for http client
 		.build();
-	const event = await serverTriplitClient.fetch(eventQuery);
+	const event = await triplitHttpClient.fetch(eventQuery);
 
 	if (!event) {
 		throw new Error('Bonfire not found'); // Explicitly handle missing event
@@ -303,21 +303,21 @@ export async function fetchAccessibleEventFiles(bonfireId: string, user: any) {
 	const isOwner = event.user_id === user.id;
 
 	// Fetch files related to the bonfire
-	const filesQuery = serverTriplitClient
+	const filesQuery = triplitHttpClient
 		.query('files')
 		.where(['event_id', '=', bonfireId])
-		.select([
-			'id',
-			'file_key',
-			'file_type',
-			'uploader_id',
-			'h_pixel',
-			'w_pixel',
-			'size_in_bytes',
-			'uploaded_at'
-		]) // Include necessary fields
+		// .select([
+		// 	'id',
+		// 	'file_key',
+		// 	'file_type',
+		// 	'uploader_id',
+		// 	'h_pixel',
+		// 	'w_pixel',
+		// 	'size_in_bytes',
+		// 	'uploaded_at'
+		// ]) // Include necessary fields // TODO: bug with select for http client
 		.build();
-	const files = await serverTriplitClient.fetch(filesQuery);
+	const files = await triplitHttpClient.fetch(filesQuery);
 
 	// Generate signed URLs for the files
 	const filesWithUrls = await Promise.all(
