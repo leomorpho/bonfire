@@ -1,7 +1,7 @@
 import { goto } from '$app/navigation';
 import { Status } from '$lib/enums';
 import { generateSignedUrl } from '$lib/filestorage.js';
-import { serverTriplitClient } from '$lib/server/triplit';
+import { triplitHttpClient } from '$lib/server/triplit';
 import { and } from '@triplit/client';
 
 export const trailingSlash = 'always';
@@ -19,7 +19,7 @@ export const load = async (event) => {
 	if (user) {
 		// Below we create an attendance object for anyone visiting the bonfire if they don't yet have an attendance object.
 		// This allows them to keep track from their dashboard of events they've been invited to (and seen).
-		const currentUserAttendanceQuery = serverTriplitClient
+		const currentUserAttendanceQuery = triplitHttpClient
 			.query('attendees')
 			.where([
 				and([
@@ -29,11 +29,11 @@ export const load = async (event) => {
 			])
 			.build();
 
-		const result = await serverTriplitClient.fetch(currentUserAttendanceQuery);
+		const result = await triplitHttpClient.fetch(currentUserAttendanceQuery);
 
 		// Create an attendance record if it does not exist
 		if (result.length === 0) {
-			await serverTriplitClient.insert('attendees', {
+			await triplitHttpClient.insert('attendees', {
 				user_id: user.id,
 				event_id: eventId as string,
 				status: Status.DEFAULT // Default status
@@ -42,23 +42,23 @@ export const load = async (event) => {
 	}
 
 	// Get profile pics of all attendees
-	const attendeesQuery = serverTriplitClient
+	const attendeesQuery = triplitHttpClient
 		.query('attendees')
 		.where([['event_id', '=', eventId as string]])
-		.select(['user_id', 'status'])
+		// .select(['user_id', 'status']) // TODO: select bug in http client
 		.build();
 
-	const attendeesResult = await serverTriplitClient.fetch(attendeesQuery);
+	const attendeesResult = await triplitHttpClient.fetch(attendeesQuery);
 
 	// Create a Set of user IDs
 	const userIdList = attendeesResult.map((attendee) => attendee.user_id);
 
-	const profileImageQuery = serverTriplitClient
+	const profileImageQuery = triplitHttpClient
 		.query('profile_images')
 		.where('user_id', 'in', userIdList)
 		.build();
 
-	const profileImages = await serverTriplitClient.fetch(profileImageQuery);
+	const profileImages = await triplitHttpClient.fetch(profileImageQuery);
 	console.log('profileImages', profileImages);
 
 	// Generate a Map of user IDs to image URLs
@@ -75,13 +75,13 @@ export const load = async (event) => {
 		});
 	}
 
-	const eventFilesQuery = serverTriplitClient
+	const eventFilesQuery = triplitHttpClient
 		.query('files')
 		.where(['event_id', '=', eventId as string])
 		.limit(3)
 		.build();
 
-	const eventFiles = await serverTriplitClient.fetch(eventFilesQuery);
+	const eventFiles = await triplitHttpClient.fetch(eventFilesQuery);
 
 	for (const eventFile of eventFiles) {
 		const fileURL = await generateSignedUrl(eventFile.file_key);
