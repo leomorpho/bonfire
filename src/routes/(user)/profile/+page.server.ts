@@ -1,5 +1,5 @@
 import { generateSignedUrl } from '$lib/filestorage.js';
-import { serverTriplitClient } from '$lib/server/triplit';
+import { triplitHttpClient } from '$lib/server/triplit';
 import { redirect } from '@sveltejs/kit';
 
 export const load = async (event) => {
@@ -9,13 +9,13 @@ export const load = async (event) => {
 		throw redirect(302, '/login'); // Redirect to login if not authenticated
 	}
 
-	const query = serverTriplitClient
+	const query = triplitHttpClient
 		.query('profile_images')
 		.where('user_id', '=', user.id)
-		.select(['full_image_key', 'small_image_key'])
+		// .select(['full_image_key', 'small_image_key']) // TODO: select bug in http client
 		.build();
 
-	const profileImage = await serverTriplitClient.fetchOne(query);
+	const profileImage = await triplitHttpClient.fetchOne(query);
 
 	let full_image_url = '';
 	let small_image_url = '';
