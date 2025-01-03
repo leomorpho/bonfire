@@ -12,6 +12,10 @@ import {
 	userTable,
 	deletedUserTable
 } from '$lib/server/database/schema';
+import { triplitHttpClient } from '$lib/server/triplit';
+import { or } from '@triplit/client';
+
+const client = triplitHttpClient;
 
 export const DELETE = async (event: RequestEvent) => {
 	const user = event.locals.user;
@@ -40,6 +44,74 @@ export const DELETE = async (event: RequestEvent) => {
 			// Finally, delete the user
 			await tx.delete(userTable).where(eq(userTable.id, userId));
 		});
+
+		// Delete events user created
+		const eventsQuery = client
+			.query('events')
+			.where(['user_id', '=', userId])
+			.select(['id'])
+			.build();
+		const events = await client.fetch(eventsQuery);
+		const eventIds = events.map((event) => event.id);
+
+		for (const event of events) {
+			await client.delete('events', event.id);
+		}
+
+		// Delete files user uploaded
+		const filesQuery = client
+			.query('files')
+			.where(
+				or([
+					['uploader_id', '=', userId],
+					['event_id', 'in', eventIds]
+				])
+			)
+			.select(['id'])
+			.build();
+		const files = await client.fetch(filesQuery);
+		for (const file of files) {
+			await client.delete('files', file.id);
+		}
+
+		// Delete files uploaded to the user's events
+
+		const attendeesQuery = client
+			.query('attendees')
+			.where(
+				or([
+					['user_id', '=', userId],
+					['event_id', 'in', eventIds]
+				])
+			)
+			.select(['id'])
+			.build();
+		const attendees = await client.fetch(attendeesQuery);
+		for (const attendee of attendees) {
+			await client.delete('attendees', attendee.id);
+		}
+
+		const notificationsQuery = client
+			.query('notifications')
+			.where(['user_id', '=', userId])
+			.select(['id'])
+			.build();
+		const notifications = await client.fetch(notificationsQuery);
+		for (const notification of notifications) {
+			await client.delete('notifications', notification.id);
+		}
+
+		const profileImagesQuery = client
+			.query('profile_images')
+			.where(['user_id', '=', userId])
+			.select(['id'])
+			.build();
+		const profileImages = await client.fetch(profileImagesQuery);
+		for (const profileImage of profileImages) {
+			await client.delete('profile_images', profileImage.id);
+		}
+
+		await client.delete('user', userId);
 
 		// Return success response
 		return json({ success: true, message: `User ${userId} and related data deleted successfully` });

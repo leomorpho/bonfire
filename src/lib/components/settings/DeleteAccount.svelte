@@ -5,6 +5,7 @@
 	import { getFeTriplitClient } from '$lib/triplit';
 	import type { TriplitClient } from '@triplit/client';
 	import { page } from '$app/stores';
+	import Loader from '../Loader.svelte';
 
 	// Constant to toggle between real deletion and fake deletion for testing
 	const REAL_DELETION = true;
@@ -14,6 +15,7 @@
 	// Sleep function
 	const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
+	// TODO: create a triplit table where we upload the progress, or use a websocket or SSE
 	let isDeleting = $state(false);
 	let deletionProgress = $state(0);
 
@@ -27,122 +29,6 @@
 
 			isDeleting = true;
 			deletionProgress = 0;
-
-			// Construct queries
-			const filesQuery = client
-				.query('files')
-				.where(['uploader_id', '=', userId])
-				.select(['id'])
-				.build();
-			const attendeesQuery = client
-				.query('attendees')
-				.where(['user_id', '=', userId])
-				.select(['id'])
-				.build();
-			const eventsQuery = client
-				.query('events')
-				.where(['user_id', '=', userId])
-				.select(['id'])
-				.build();
-			const notificationsQuery = client
-				.query('notifications')
-				.where(['user_id', '=', userId])
-				.select(['id'])
-				.build();
-			const profileImagesQuery = client
-				.query('profile_images')
-				.where(['user_id', '=', userId])
-				.select(['id'])
-				.build();
-
-			// Fetch data for deletion
-			console.log('Fetching files for deletion...');
-			const files = await client.fetch(filesQuery);
-			console.log('Fetched files:', files);
-
-			console.log('Fetching attendees for deletion...');
-			const attendees = await client.fetch(attendeesQuery);
-			console.log('Fetched attendees:', attendees);
-
-			console.log('Fetching events for deletion...');
-			const events = await client.fetch(eventsQuery);
-			console.log('Fetched events:', events);
-
-			console.log('Fetching notifications for deletion...');
-			const notifications = await client.fetch(notificationsQuery);
-			console.log('Fetched notifications:', notifications);
-
-			console.log('Fetching profile images for deletion...');
-			const profileImages = await client.fetch(profileImagesQuery);
-			console.log('Fetched profile images:', profileImages);
-
-			// Total items to delete
-			const totalItems =
-				files.length +
-				attendees.length +
-				events.length +
-				notifications.length +
-				profileImages.length +
-				1; // +1 for user account
-
-			let deletedItems = 0;
-
-			const updateProgress = () => {
-				deletedItems += 1;
-				deletionProgress = (deletedItems / totalItems) * 100;
-			};
-
-			// Perform deletions
-			await client.transact(async (tx) => {
-				for (const file of files) {
-					if (REAL_DELETION) {
-						await tx.delete('files', file.id);
-					} else {
-						await sleep(300); // Simulate delete delay
-					}
-					updateProgress();
-				}
-				for (const attendee of attendees) {
-					if (REAL_DELETION) {
-						await tx.delete('attendees', attendee.id);
-					} else {
-						await sleep(300); // Simulate delete delay
-					}
-					updateProgress();
-				}
-				for (const event of events) {
-					if (REAL_DELETION) {
-						await tx.delete('events', event.id);
-					} else {
-						await sleep(300); // Simulate delete delay
-					}
-					updateProgress();
-				}
-				for (const notification of notifications) {
-					if (REAL_DELETION) {
-						await tx.delete('notifications', notification.id);
-					} else {
-						await sleep(300); // Simulate delete delay
-					}
-					updateProgress();
-				}
-				for (const profileImage of profileImages) {
-					if (REAL_DELETION) {
-						await tx.delete('profile_images', profileImage.id);
-					} else {
-						await sleep(300); // Simulate delete delay
-					}
-					updateProgress();
-				}
-
-				// Delete the user account
-				if (REAL_DELETION) {
-					await tx.delete('user', userId);
-				} else {
-					await sleep(300); // Simulate delete delay
-				}
-				updateProgress();
-			});
 
 			if (REAL_DELETION) {
 				// Call DELETE endpoint to remove user and related data
@@ -224,13 +110,14 @@
 	<div class="fixed inset-0 z-50 flex items-center justify-center bg-white bg-opacity-80">
 		<div class="w-1/2">
 			<p class="mb-4 text-center text-lg">Deleting account...</p>
-			<div class="h-2 rounded bg-gray-200">
+			<Loader/>
+			<!-- <div class="h-2 rounded bg-gray-200">
 				<div
 					class="h-full rounded bg-red-500 transition-all duration-300"
 					style="width: {deletionProgress}%"
 				></div>
 			</div>
-			<p class="mt-2 text-center text-sm">{deletionProgress.toFixed(0)}% complete</p>
+			<p class="mt-2 text-center text-sm">{deletionProgress.toFixed(0)}% complete</p> -->
 		</div>
 	</div>
 {/if}
