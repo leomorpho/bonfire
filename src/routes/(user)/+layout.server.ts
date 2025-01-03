@@ -1,5 +1,5 @@
 import { ANON_ROLE, generateJWT, USER_ROLE } from '$lib/jwt';
-import { serverTriplitClient } from '$lib/server/triplit';
+import {  triplitHttpClient } from '$lib/server/triplit';
 import { redirect } from '@sveltejs/kit';
 
 export const load = async (event) => {
@@ -11,7 +11,7 @@ export const load = async (event) => {
 
 	const jwt = generateJWT(user?.id, USER_ROLE);
 
-	let client = serverTriplitClient;
+	let client = triplitHttpClient;
 
 	const query = client.query('user').where('id', '=', user.id).build();
 	let result = await client.fetch(query);
