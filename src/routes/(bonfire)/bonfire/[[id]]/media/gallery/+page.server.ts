@@ -1,6 +1,6 @@
 import { goto } from '$app/navigation';
 import { fetchAccessibleEventFiles } from '$lib/filestorage';
-import { serverTriplitClient } from '$lib/server/triplit';
+import { triplitHttpClient } from '$lib/server/triplit';
 import { error } from '@sveltejs/kit';
 
 // Step 2: Implement the form load function
@@ -49,12 +49,12 @@ export const actions = {
 		}
 
 		// Fetch the event details
-		const eventQuery = serverTriplitClient
+		const eventQuery = triplitHttpClient
 			.query('events')
 			.where(['id', '=', params.id as string])
-			.select(['user_id'])
+			// .select(['user_id']) // TODO: select bug in http client
 			.build();
-		const event = await serverTriplitClient.fetch(eventQuery);
+		const event = await triplitHttpClient.fetch(eventQuery);
 
 		if (!event) {
 			throw error(404, 'Event not found');
@@ -64,18 +64,18 @@ export const actions = {
 		const isOwner = event.user_id === user.id;
 
 		// Fetch the file details and filter based on permissions
-		const filesQuery = serverTriplitClient
+		const filesQuery = triplitHttpClient
 			.query('files')
 			.where(['id', 'in', fileIds as string[]])
-			.select(['id', 'uploader_id'])
+			// .select(['id', 'uploader_id']) // TODO: select bug in http client
 			.build();
-		const files = await serverTriplitClient.fetch(filesQuery);
+		const files = await triplitHttpClient.fetch(filesQuery);
 
 		const filesToDelete = files.filter((file) => isOwner || file.uploader_id === user.id);
 
 		// Delete only files the user is allowed to delete
 		for (const file of filesToDelete) {
-			await serverTriplitClient.delete('files', file.id);
+			await triplitHttpClient.delete('files', file.id);
 		}
 
 		return {
