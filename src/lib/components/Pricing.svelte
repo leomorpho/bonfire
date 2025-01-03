@@ -7,16 +7,18 @@
 		included: [
 			"When you create an account, you'll get 3 free logs to create 3 different Bonfires",
 			'RSVP to any number of Bonfires for free, always',
-			'Referral program: Get 1 free log for every friend that creates an account using your referral link'
+			'Referral program: Get 1 free log for every friend that creates an account using your referral link',
+			'All bonfires get deleted 30 days after they happen'
 		]
 		// excluded: ['Feature 4', 'Feature 5', 'Feature 6']
 	};
 
 	const featuresPremium = {
 		included: [
-			'50% of payment goes to a charity of your choice',
+			'All free features',
+			'50% of payment goes to a charity ', //  TODO: add a way for user to choose
 			'Purchase logs in packs at a discounted rate. 1 log = 1 bonfire',
-			'Remaining funds go to support our small team at Bonfire to help keep the platform run smoothly',
+			'Remaining funds go to support our small team at Bonfire to help keep the platform run smoothly'
 		]
 	};
 </script>
@@ -56,7 +58,9 @@
 						</li>
 					{/each}
 				</ul>
-				<a class="mt-auto" href="/"><Button variant="secondary" class="w-full"><Bird /> Get Started</Button></a>
+				<a class="mt-auto" href="/"
+					><Button variant="secondary" class="w-full"><Bird /> Get Started</Button></a
+				>
 			</div>
 
 			<!-- Premium package -->
@@ -80,7 +84,8 @@
 					{/each}
 				</ul>
 				<a class="mt-auto" href="/">
-					<Button class="w-full bg-purple-500"><Flame /> Get Started</Button></a>
+					<Button class="w-full bg-purple-500"><Flame /> Get Started</Button></a
+				>
 			</div>
 		</div>
 	</div>
