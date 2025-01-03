@@ -37,3 +37,34 @@ stop: ## Stop the Docker containers
 .PHONY: down
 down: ## Stop the Docker containers
 	$(DCO_BIN) down
+
+#####################################
+# Docker testing area
+#####################################
+IMAGE_NAME = sveltekit-app
+CONTAINER_NAME = sveltekit-container
+PORT = 4000
+ENV_FILE = .env.prod
+
+# Build the Docker image
+builddocker:
+	docker build --build-arg ENV_FILE=$(ENV_FILE) -t $(IMAGE_NAME) .
+
+# Run the container locally
+run:
+	docker run --rm -it --env-file $(ENV_FILE) -p $(PORT):$(PORT) --name $(CONTAINER_NAME) $(IMAGE_NAME)
+
+# Stop the running container
+runstop:
+	docker stop $(CONTAINER_NAME) || true
+
+# Rebuild the app and restart the container
+rebuild: stop build run
+
+# Shell into the running container
+shell:
+	docker exec -it $(CONTAINER_NAME) /bin/sh
+
+# Clean up unused images and containers
+cleandocker:
+	docker system prune -f

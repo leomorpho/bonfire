@@ -5,10 +5,20 @@ import { runNotificationProcessor } from '$lib/server/push';
 import { serverTriplitClient } from '$lib/server/triplit';
 import { arrayToStringRepresentation, stringRepresentationToArray } from '$lib/utils';
 import { faker } from '@faker-js/faker';
-import type { TriplitClient } from '@triplit/client';
+import { TriplitClient } from '@triplit/client';
 import { and } from '@triplit/client';
 import { generateId } from 'lucia';
 import { describe, it, expect } from 'vitest';
+import { schema } from '../triplit/schema';
+import { PUBLIC_TRIPLIT_URL } from '$env/static/public';
+import { TRIPLIT_SERVICE_TOKEN } from '$env/static/private';
+
+
+ const serverTriplitClient = new TriplitClient({
+	schema,
+	serverUrl: PUBLIC_TRIPLIT_URL,
+	token: TRIPLIT_SERVICE_TOKEN
+});
 
 async function createNewTestUser(
 	email: string | null = null,
