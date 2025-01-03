@@ -1,4 +1,4 @@
-import { notificationSenderLoop } from '$lib/scheduler';
+import { taskRunner } from '$lib/scheduler';
 import { lucia } from '$lib/server/auth';
 import type { Handle } from '@sveltejs/kit';
 
@@ -34,4 +34,4 @@ export const handle: Handle = async ({ event, resolve }) => {
 };
 
 // Start the scheduler when the server starts
-notificationSenderLoop();
+taskRunner();

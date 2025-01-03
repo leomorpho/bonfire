@@ -51,7 +51,7 @@ const notificationQueueCleanupTask = new Task('Cleanup Old Notifications Queue',
 	}
 });
 
-export const notificationSenderLoop = async () => {
+export const taskRunner = async () => {
 	// Schedule the task
 	const notificationJob = new SimpleIntervalJob({ seconds: 1 }, notificationTask);
 	const cleanupJob = new SimpleIntervalJob({ hours: 6 }, notificationQueueCleanupTask);
