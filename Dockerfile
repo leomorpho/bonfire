@@ -10,6 +10,7 @@ RUN pnpm install --frozen-lockfile
 
 # Copy and build the app
 COPY . .
+COPY .env.prod .env
 RUN pnpm build
 
 # Stage 2: Create the final, minimal image
