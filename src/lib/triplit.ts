@@ -6,12 +6,16 @@ import { browser } from '$app/environment';
 
 export const userIdStore = writable(null);
 
-export async function waitForUserId() {
-	return new Promise((resolve) => {
+export async function waitForUserId(timeout = 5000) {
+	return new Promise((resolve, reject) => {
+		const start = Date.now();
+
 		const checkUserId = () => {
 			const value = get(userIdStore);
 			if (value) {
 				resolve(value);
+			} else if (Date.now() - start > timeout) {
+				reject(new Error('Timed out waiting for user ID'));
 			} else {
 				setTimeout(checkUserId, 100); // Check again after a short delay
 			}
@@ -36,6 +40,8 @@ export function getFeTriplitClient(jwt: string) {
 		serverUrl: PUBLIC_TRIPLIT_URL,
 		token: jwt ? jwt : PUBLIC_TRIPLIT_ANONYMOUS_TOKEN
 	}) as TriplitClient;
+
+	console.log('Frontend TriplitClient initialized');
+
 	return feTriplitClient;
 }
-

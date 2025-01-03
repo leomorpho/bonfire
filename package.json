@@ -83,7 +83,7 @@
 		"@lucia-auth/adapter-drizzle": "^1.1.0",
 		"@sveltejs/adapter-node": "^5.2.9",
 		"@tailwindcss/typography": "^0.5.15",
-		"@triplit/client": "^0.5.15",
+		"@triplit/client": "^0.5.17",
 		"@triplit/svelte": "^0.2.16",
 		"@unpic/svelte": "^0.0.56",
 		"@uppy/audio": "^2.0.1",
