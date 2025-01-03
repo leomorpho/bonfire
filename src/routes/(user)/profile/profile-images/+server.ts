@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit';
-import { serverTriplitClient } from '$lib/server/triplit';
+import { triplitHttpClient } from '$lib/server/triplit';
 import { generateSignedUrl } from '$lib/filestorage';
 
 export const GET = async ({ url }) => {
@@ -11,12 +11,12 @@ export const GET = async ({ url }) => {
 
 	try {
 		// Fetch profile images for the given user IDs
-		const profileImageQuery = serverTriplitClient
+		const profileImageQuery = triplitHttpClient
 			.query('profile_images')
 			.where('user_id', 'in', userIds)
 			.build();
 
-		const profileImages = await serverTriplitClient.fetch(profileImageQuery);
+		const profileImages = await triplitHttpClient.fetch(profileImageQuery);
 
 		// Generate signed URLs and construct the map
 		const profileImageMap = {};
