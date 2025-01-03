@@ -1,5 +1,5 @@
 import { error } from '@sveltejs/kit';
-import { serverTriplitClient } from '$lib/server/triplit';
+import { triplitHttpClient } from '$lib/server/triplit';
 import { deleteFilesFromS3 } from '$lib/filestorage';
 
 export const DELETE = async ({ request, locals, params }) => {
@@ -23,12 +23,12 @@ export const DELETE = async ({ request, locals, params }) => {
 	}
 
 	// Fetch the event details
-	const eventQuery = serverTriplitClient
+	const eventQuery = triplitHttpClient
 		.query('events')
 		.where(['id', '=', eventId])
-		.select(['user_id'])
+		// .select(['user_id']) // TODO: select bug in http client
 		.build();
-	const event = await serverTriplitClient.fetch(eventQuery);
+	const event = await triplitHttpClient.fetch(eventQuery);
 
 	if (!event) {
 		throw error(404, 'Event not found');
@@ -38,12 +38,12 @@ export const DELETE = async ({ request, locals, params }) => {
 	const isOwner = event.user_id === user.id;
 
 	// Fetch the file details and filter based on permissions
-	const filesQuery = serverTriplitClient
+	const filesQuery = triplitHttpClient
 		.query('files')
 		.where(['id', 'in', fileIds])
-		.select(['id', 'uploader_id', 'file_key']) // Include the S3 file key
+		// .select(['id', 'uploader_id', 'file_key']) // Include the S3 file key // TODO: select bug in http client
 		.build();
-	const files = await serverTriplitClient.fetch(filesQuery);
+	const files = await triplitHttpClient.fetch(filesQuery);
 
 	const filesToDelete = files.filter((file) => isOwner || file.uploader_id === user.id);
 
@@ -55,7 +55,7 @@ export const DELETE = async ({ request, locals, params }) => {
 
 	// Delete only files the user is allowed to delete from the database
 	for (const file of filesToDelete) {
-		await serverTriplitClient.delete('files', file.id);
+		await triplitHttpClient.delete('files', file.id);
 	}
 
 	return new Response(
