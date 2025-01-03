@@ -1,4 +1,4 @@
-import type { TriplitClient } from "@triplit/client";
+import type { HttpClient, TriplitClient } from "@triplit/client";
 import { isNonEmptyArray } from "./utils";
 import { NotificationType } from "./enums";
 
@@ -70,7 +70,7 @@ export async function createNewAnnouncementNotificationQueueObject(
  * @param fileIds - List of file IDs.
  */
 export async function createNewFileNotificationQueueObject(
-	client: TriplitClient,
+	client: TriplitClient | HttpClient,
 	userId: string,
 	eventId: string,
 	fileIds: string[]

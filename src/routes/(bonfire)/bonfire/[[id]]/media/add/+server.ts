@@ -2,9 +2,9 @@ import { uploadLargeFileToS3 } from '$lib/filestorage';
 import type { RequestEvent } from '@sveltejs/kit';
 import { Readable } from 'stream';
 import { error } from '@sveltejs/kit';
-import { serverTriplitClient } from '$lib/server/triplit';
+import { triplitHttpClient } from '$lib/server/triplit';
 import sharp from 'sharp';
-import type { TriplitClient } from '@triplit/client';
+import type { HttpClient, TriplitClient } from '@triplit/client';
 import { createNewFileNotificationQueueObject } from '$lib/notification';
 
 export const POST = async (event: RequestEvent): Promise<Response> => {
@@ -72,7 +72,7 @@ export const POST = async (event: RequestEvent): Promise<Response> => {
 		});
 
 		// Create entry
-		const fileTx = await serverTriplitClient.insert('files', {
+		const fileTx = await triplitHttpClient.insert('files', {
 			uploader_id: user.id,
 			event_id: id,
 			file_key: fileKey,
@@ -83,7 +83,7 @@ export const POST = async (event: RequestEvent): Promise<Response> => {
 			w_pixel: w_pixel
 		});
 
-		await createNewFileNotificationQueueObject(serverTriplitClient as TriplitClient, user.id, id, [
+		await createNewFileNotificationQueueObject(triplitHttpClient as HttpClient, user.id, id, [
 			fileTx?.output?.id as string
 		]);
 
