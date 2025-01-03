@@ -1,5 +1,5 @@
 import { ToadScheduler, SimpleIntervalJob, Task } from 'toad-scheduler';
-import { serverTriplitClient } from './server/triplit';
+import { triplitHttpClient } from './server/triplit';
 import { runNotificationProcessor } from './server/push';
 
 const scheduler = new ToadScheduler();
@@ -20,15 +20,15 @@ const notificationQueueCleanupTask = new Task('Cleanup Old Notifications Queue',
 		thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
 		// Query to find notifications older than 30 days
-		const oldNotificationsQuery = serverTriplitClient
+		const oldNotificationsQuery = triplitHttpClient
 			.query('notifications_queue')
 			.where([
 				['created_at', '<', thirtyDaysAgo] // Compare with the 'created_at' field
 			])
-			.select(['id']) // Only fetch the IDs for deletion
+			// .select(['id']) // Only fetch the IDs for deletion // TODO: select bug for http client
 			.build();
 
-		const oldNotifications = await serverTriplitClient.fetch(oldNotificationsQuery);
+		const oldNotifications = await triplitHttpClient.fetch(oldNotificationsQuery);
 
 		if (oldNotifications.length === 0) {
 			console.log('No old notifications to delete.');
@@ -39,7 +39,7 @@ const notificationQueueCleanupTask = new Task('Cleanup Old Notifications Queue',
 		const notificationIds = oldNotifications.map((notif) => notif.id);
 
 		// Perform deletion in a transaction
-		await serverTriplitClient.transact(async (tx) => {
+		await triplitHttpClient.transact(async (tx) => {
 			for (const id of notificationIds) {
 				await tx.delete('notifications_queue', id);
 			}
