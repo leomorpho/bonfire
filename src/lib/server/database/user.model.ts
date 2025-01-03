@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm';
 import { db } from './db';
 import { userTable } from './schema';
-import { serverTriplitClient } from '$lib/server/triplit';
+import { triplitHttpClient } from '$lib/server/triplit';
 
 export const getUserByEmail = async (email: string) => {
 	const user = await db.select().from(userTable).where(eq(userTable.email, email));
@@ -35,7 +35,7 @@ type NewUser = {
 	id: string;
 	email: string;
 	email_verified: boolean;
-	num_logs: number,
+	num_logs: number;
 };
 
 export const createNewUser = async (user: NewUser) => {
@@ -43,6 +43,6 @@ export const createNewUser = async (user: NewUser) => {
 	if (result.length === 0) {
 		return null;
 	}
-	await serverTriplitClient.insert('user', { id: result[0].id, username: '' });
+	await triplitHttpClient.insert('user', { id: result[0].id, username: '' });
 	return result[0];
 };
