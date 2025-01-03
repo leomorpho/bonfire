@@ -1,7 +1,15 @@
+import { TriplitClient } from '@triplit/client';
+import { schema } from '../../../triplit/schema';
 import { PUBLIC_TRIPLIT_URL } from '$env/static/public';
 import { TRIPLIT_SERVICE_TOKEN } from '$env/static/private';
 import { Status } from '$lib/enums';
 import type { AttendeeTypescriptType, FileTypescriptType } from '$lib/types';
+
+export const serverTriplitClient = new TriplitClient({
+	schema,
+	serverUrl: PUBLIC_TRIPLIT_URL,
+	token: TRIPLIT_SERVICE_TOKEN
+});
 
 import { HttpClient } from '@triplit/client';
 
