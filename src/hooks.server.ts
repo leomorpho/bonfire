@@ -2,6 +2,8 @@ import { taskRunner } from '$lib/scheduler';
 import { lucia } from '$lib/server/auth';
 import type { Handle } from '@sveltejs/kit';
 
+console.log('App started!');
+
 export const handle: Handle = async ({ event, resolve }) => {
 	const sessionId = event.cookies.get(lucia.sessionCookieName);
 	if (!sessionId) {

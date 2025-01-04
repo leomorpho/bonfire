@@ -1,5 +1,5 @@
 # Stage 1: Build the SvelteKit app
-FROM node:18 AS builder
+FROM node:22 AS builder
 
 WORKDIR /app
 
@@ -15,10 +15,11 @@ COPY .env.example .env
 # Generate type definitions for environment variables
 RUN npx @sveltejs/kit sync
 
+RUN pnpm update
 RUN pnpm build
 
 # Stage 2: Create the final, minimal image
-FROM node:18-slim AS runner
+FROM node:22-slim AS runner
 
 WORKDIR /app
 
@@ -35,4 +36,6 @@ COPY --from=builder /app/node_modules ./node_modules
 EXPOSE 4000
 
 # Start the SvelteKit app in production mode
-CMD ["node", "./build"]
+# CMD ["node", "./build"]
+CMD ["node", "--trace-uncaught", "./build"]
+
