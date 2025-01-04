@@ -10,6 +10,10 @@ RUN pnpm install --frozen-lockfile
 
 # Copy and build the app
 COPY . .
+
+# Generate type definitions for environment variables
+RUN npx @sveltejs/kit sync
+
 RUN pnpm build
 
 # Stage 2: Create the final, minimal image
