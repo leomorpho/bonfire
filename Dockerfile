@@ -10,6 +10,7 @@ RUN pnpm install --frozen-lockfile
 
 # Copy and build the app
 COPY . .
+COPY .env.example .env
 
 # Generate type definitions for environment variables
 RUN npx @sveltejs/kit sync
