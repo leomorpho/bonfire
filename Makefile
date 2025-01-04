@@ -41,18 +41,18 @@ down: ## Stop the Docker containers
 #####################################
 # Docker testing area
 #####################################
-IMAGE_NAME = sveltekit-app
-CONTAINER_NAME = sveltekit-container
+IMAGE_NAME = bonfire
+CONTAINER_NAME = bonfire-container
 PORT = 4000
 ENV_FILE = .env.prod
 
 # Build the Docker image
 builddocker:
-	docker build --build-arg ENV_FILE=$(ENV_FILE) -t $(IMAGE_NAME) .
+	docker build --tag $(IMAGE_NAME) .
 
 # Run the container locally
 run:
-	docker run --rm -it --env-file $(ENV_FILE) -p $(PORT):$(PORT) --name $(CONTAINER_NAME) $(IMAGE_NAME)
+	docker run --env-file $(ENV_FILE) -p $(PORT):$(PORT) --name $(CONTAINER_NAME) $(IMAGE_NAME)
 
 # Stop the running container
 runstop:

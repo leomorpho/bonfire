@@ -10,7 +10,7 @@ RUN pnpm install --frozen-lockfile
 
 # Copy and build the app
 COPY . .
-COPY .env.example .env
+COPY .env.prod .env
 
 # Generate type definitions for environment variables
 RUN npx @sveltejs/kit sync
@@ -24,7 +24,7 @@ FROM node:22-slim AS runner
 WORKDIR /app
 
 # Set the environment variable for port 4000
-ENV PORT 4000
+ENV PORT=4000
 
 # Copy the necessary files from the build stage
 COPY --from=builder /app/build ./build
