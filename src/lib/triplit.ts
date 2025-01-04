@@ -30,7 +30,7 @@ export function getFeTriplitClient(jwt: string) {
 	// if (!browser) {
 	// 	throw new Error('TriplitClient can only be created in the browser.');
 	// }
-
+	
 	if (feTriplitClient) {
 		return feTriplitClient;
 	}

@@ -52,23 +52,27 @@ const notificationQueueCleanupTask = new Task('Cleanup Old Notifications Queue',
 });
 
 export const taskRunner = async () => {
-	// Schedule the task
-	const notificationJob = new SimpleIntervalJob({ seconds: 1 }, notificationTask);
-	const cleanupJob = new SimpleIntervalJob({ hours: 6 }, notificationQueueCleanupTask);
+	try {
+		// Schedule the task
+		const notificationJob = new SimpleIntervalJob({ seconds: 1 }, notificationTask);
+		const cleanupJob = new SimpleIntervalJob({ hours: 6 }, notificationQueueCleanupTask);
 
-	scheduler.addSimpleIntervalJob(notificationJob);
-	scheduler.addSimpleIntervalJob(cleanupJob);
+		scheduler.addSimpleIntervalJob(notificationJob);
+		scheduler.addSimpleIntervalJob(cleanupJob);
 
-	/// Graceful shutdown
-	process.on('SIGTERM', () => {
-		console.log('Stopping scheduler...');
-		scheduler.stop(); // Stops the scheduler
-		process.exit(0); // Exit the process cleanly
-	});
+		/// Graceful shutdown
+		process.on('SIGTERM', () => {
+			console.log('Stopping scheduler...');
+			scheduler.stop(); // Stops the scheduler
+			process.exit(0); // Exit the process cleanly
+		});
 
-	process.on('SIGINT', () => {
-		console.log('Stopping scheduler...');
-		scheduler.stop(); // Stops the scheduler
-		process.exit(0); // Exit the process cleanly
-	});
+		process.on('SIGINT', () => {
+			console.log('Stopping scheduler...');
+			scheduler.stop(); // Stops the scheduler
+			process.exit(0); // Exit the process cleanly
+		});
+	} catch (error) {
+		console.log('an error occurred starting the taskRunner', error);
+	}
 };

@@ -54,6 +54,9 @@ builddocker:
 run:
 	docker run --env-file $(ENV_FILE) -p $(PORT):$(PORT) --name $(CONTAINER_NAME) $(IMAGE_NAME)
 
+runi:
+	docker run -it --env-file $(ENV_FILE) -p $(PORT):$(PORT) --name $(CONTAINER_NAME) $(IMAGE_NAME) sh
+
 # Stop the running container
 runstop:
 	docker stop $(CONTAINER_NAME) || true
@@ -68,3 +71,6 @@ shell:
 # Clean up unused images and containers
 cleandocker:
 	docker system prune -f
+
+localbuild:
+	npm run build && npm run preview 

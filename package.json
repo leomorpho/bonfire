@@ -5,7 +5,7 @@
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
-		"preview": "vite preview --port 4000",
+		"preview": "vite preview --port 3000",
 		"start": "node build/index.js",
 		"test": "npm run test:integration && npm run test:unit",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
@@ -74,6 +74,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@sveltejs/kit": "^2.7.2",
 		"@aws-sdk/client-s3": "^3.693.0",
 		"@aws-sdk/s3-request-presigner": "^3.693.0",
 		"@css-inline/css-inline": "^0.14.1",

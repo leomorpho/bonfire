@@ -17,8 +17,6 @@ if (
 
 const publicKey = dev ? PUBLIC_DEV_VAPID_PUBLIC_KEY : PUBLIC_VAPID_PUBLIC_KEY;
 const privateKey = dev ? env.DEV_VAPID_PRIVATE_KEY : env.VAPID_PRIVATE_KEY;
-console.log('publicKey', publicKey);
-console.log('privateKey', privateKey);
 
 webPush.setVapidDetails(`mailto:${env.FROM_EMAIL}`, publicKey as string, privateKey as string);
 

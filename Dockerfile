@@ -35,8 +35,10 @@ COPY --from=builder /app/package.json ./
 COPY --from=builder /app/node_modules ./node_modules
 
 
+ENV DEBUG=*
+
 # Expose the app on port 4000
-EXPOSE 4000
+EXPOSE 3000
 
 # Install `tsx` if not already available in the image
 RUN npm install -g tsx
