@@ -17,7 +17,6 @@ COPY .env.example .env
 
 # Generate type definitions for environment variables
 RUN npx @sveltejs/kit sync
-
 RUN pnpm update
 RUN pnpm build
 
@@ -35,10 +34,14 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/package.json ./
 COPY --from=builder /app/node_modules ./node_modules
 
+
 # Expose the app on port 4000
 EXPOSE 4000
 
+# Install `tsx` if not already available in the image
+RUN npm install -g tsx
+
+
 # Start the SvelteKit app in production mode
 # CMD ["node", "./build"]
-CMD ["node", "--trace-uncaught", "./build"]
-
+CMD ["sh", "-c", "tsx ./migrate.ts --prod && node ./build"]
