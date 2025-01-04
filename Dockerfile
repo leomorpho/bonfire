@@ -44,4 +44,5 @@ RUN npm install -g tsx
 
 # Start the SvelteKit app in production mode
 # CMD ["node", "./build"]
-CMD ["sh", "-c", "tsx ./migrate.ts --prod && node ./build"]
+CMD ["node", "--trace-uncaught", "./build"]
+

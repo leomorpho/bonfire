@@ -3,8 +3,8 @@ import * as dotenv from "dotenv";
 import { drizzle } from "drizzle-orm/libsql";
 import { migrate } from "drizzle-orm/libsql/migrator";
 
-// Load environment variables from .env file
-dotenv.config();
+// Load environment variables from .env.production file explicitly
+dotenv.config({ path: '.env.prod' });
 
 // Get the command-line arguments
 const args = process.argv.slice(2);
