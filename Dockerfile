@@ -13,6 +13,7 @@ COPY . .
 
 # NOTE: only for local testing
 # COPY .env.prod .env
+COPY .env.example .env
 
 # Generate type definitions for environment variables
 RUN npx @sveltejs/kit sync
