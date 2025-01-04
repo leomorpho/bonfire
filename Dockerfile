@@ -1,50 +1,40 @@
 # Stage 1: Build the SvelteKit app
-FROM node:22 AS builder
+FROM node:22 AS build
 
 WORKDIR /app
 
-# Install pnpm and dependencies
-RUN npm install -g pnpm
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
+# Copy package files and install dependencies
+COPY package*.json pnpm-lock.yaml ./
+RUN npm install -g pnpm && pnpm install --frozen-lockfile
 
-# Copy and build the app
+# Copy application source code and build the app
 COPY . .
-
-# NOTE: only for local testing
-# COPY .env.prod .env
-COPY .env.example .env
-
-# Generate type definitions for environment variables
 RUN npx @sveltejs/kit sync
-RUN pnpm update
 RUN pnpm build
 
-# Stage 2: Create the final, minimal image
-FROM node:22-slim AS runner
+# Prune devDependencies
+RUN pnpm prune --production
+
+# Stage 2: Run the SvelteKit app
+FROM node:22 AS run
+
+# Set the environment for production
+ENV NODE_ENV=production
+ENV PORT=4000
 
 WORKDIR /app
 
-# Set the environment variable for port 4000
-ENV PORT=4000
+# Copy build artifacts and necessary files from the build stage
+COPY --from=build /app/build ./build
+COPY --from=build /app/package.json ./package.json
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/public ./public
 
-# Copy the necessary files from the build stage
-COPY --from=builder /app/build ./build
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/package.json ./
-COPY --from=builder /app/node_modules ./node_modules
+# Increase core dump size if needed (optional, for debugging purposes)
+RUN ulimit -c unlimited
 
-
-ENV DEBUG=*
-
-# Expose the app on port 4000
+# Expose the app port
 EXPOSE 3000
 
-# Install `tsx` if not already available in the image
-RUN npm install -g tsx
-
-
-# Start the SvelteKit app in production mode
-# CMD ["node", "./build"]
-CMD ["node", "--trace-uncaught", "./build"]
-
+# Run the SvelteKit app
+ENTRYPOINT ["node", "build"]
