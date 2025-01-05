@@ -5,7 +5,7 @@ WORKDIR /app
 
 # Copy package files and install dependencies
 COPY package*.json pnpm-lock.yaml ./
-RUN npm install -g pnpm && pnpm install --frozen-lockfile
+RUN npm install -g pnpm && pnpm i
 
 COPY .env.example .env
 RUN npx @sveltejs/kit sync
@@ -19,7 +19,7 @@ RUN pnpm build
 RUN pnpm prune --production
 
 # Stage 2: Run the SvelteKit app
-FROM node:22 AS run
+FROM node:22-slim AS run
 
 # Set the environment for production
 ENV NODE_ENV=production
@@ -32,13 +32,6 @@ COPY --from=build /app/build ./build
 COPY --from=build /app/package.json ./package.json
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/public ./public
-
-# Increase core dump size if needed (optional, for debugging purposes)
-RUN ulimit -c unlimited
-
-# Debugging steps
-RUN echo "Environment Variables:" && env
-RUN echo "Build Directory Contents:" && ls -la build
 
 # Expose the app port
 EXPOSE 3000
