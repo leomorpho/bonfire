@@ -7,7 +7,6 @@ export const load = async (event) => {
 	if (!user) {
 		const jwt = generateJWT(undefined, ANON_ROLE);
 		return { jwt };
-		return;
 	}
 
 	const jwt = generateJWT(user?.id, USER_ROLE);
