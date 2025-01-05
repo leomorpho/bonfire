@@ -43,7 +43,7 @@ down: ## Stop the Docker containers
 #####################################
 IMAGE_NAME = bonfire
 CONTAINER_NAME = bonfire-container
-PORT = 4000
+PORT = 3000
 ENV_FILE = .env.prod
 
 # Build the Docker image
