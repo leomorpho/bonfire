@@ -36,6 +36,10 @@ COPY --from=build /app/public ./public
 # Increase core dump size if needed (optional, for debugging purposes)
 RUN ulimit -c unlimited
 
+# Debugging steps
+RUN echo "Environment Variables:" && env
+RUN echo "Build Directory Contents:" && ls -la build
+
 # Expose the app port
 EXPOSE 3000
 
