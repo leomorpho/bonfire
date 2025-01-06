@@ -39,10 +39,10 @@ importers:
         specifier: ^0.5.15
         version: 0.5.15(tailwindcss@3.4.17(ts-node@10.9.2(@types/node@22.10.5)(typescript@5.7.2)))
       '@triplit/client':
-        specifier: ^0.5.17
-        version: 0.5.17(react@19.0.0)
+        specifier: ^0.6.13
+        version: 0.6.13(react@19.0.0)
       '@triplit/svelte':
-        specifier: ^0.2.16
+        specifier: ^0.2.32
         version: 0.2.32(react@19.0.0)(svelte@5.16.1)
       '@unpic/svelte':
         specifier: ^0.0.56
@@ -2262,10 +2262,6 @@ packages:
     engines: {node: '>=16.0.0'}
     hasBin: true
 
-  '@triplit/client@0.5.17':
-    resolution: {integrity: sha512-Rl9F01r19sK7l749fzLFa3gvOGA36d7DucOy+qC1cx3hkXckZwN65dBVDxjalD695ksyTDgRvo7fJE+1IeWvpw==}
-    engines: {node: '>=18.0.0'}
-
   '@triplit/client@0.6.13':
     resolution: {integrity: sha512-xqKCOFibj4JaZNM+mCrLcq1kV+IoxhdTj9izW0uLGEzK9gaSwGEEHp5oH5R4zvsVTtTrcKIfvkxSJAPxgh33xA==}
     engines: {node: '>=18.0.0'}
@@ -2511,6 +2507,9 @@ packages:
 
   '@uppy/utils@6.0.6':
     resolution: {integrity: sha512-7/4jrJTSEth7DKCOZiOEY3JWGTUlwV9Gnrtlp25yJvJ7HbOVQ0ToJUuDz9wCZJ3V2++zfj30JbvBynbOH40WxA==}
+
+  '@uppy/utils@6.1.0':
+    resolution: {integrity: sha512-RNQgQ+Nrfi1vd2oMsK2zSQBgnVbHfqRhSDje7Yn2In5tP9tjtSbqL91Yz4azrq7IIL8ovyqpBYgDCrsYL7xWag==}
 
   '@uppy/webcam@4.0.3':
     resolution: {integrity: sha512-sXczLKE5bJhOTIUW7DSjTS7F7rpoz/LEFgdtVRPebAdPVMQ93Iw4S8THzGEb6LAj5JhbFjWa8eT+01jN4aS5EQ==}
@@ -6876,7 +6875,8 @@ snapshots:
   '@sideway/pinpoint@2.0.0':
     optional: true
 
-  '@sinclair/typebox@0.32.35': {}
+  '@sinclair/typebox@0.32.35':
+    optional: true
 
   '@sinclair/typebox@0.34.13': {}
 
@@ -7314,16 +7314,6 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.3
 
-  '@triplit/client@0.5.17(react@19.0.0)':
-    dependencies:
-      '@sinclair/typebox': 0.32.35
-      '@triplit/db': 0.5.20(react@19.0.0)
-      comlink: 4.4.2
-      rxjs: 7.8.1
-      superjson: 2.2.2
-    transitivePeerDependencies:
-      - react
-
   '@triplit/client@0.6.13(react@19.0.0)':
     dependencies:
       '@sinclair/typebox': 0.34.13
@@ -7592,7 +7582,7 @@ snapshots:
   '@uppy/drag-drop@4.0.5(@uppy/core@4.3.1)':
     dependencies:
       '@uppy/core': 4.3.1
-      '@uppy/utils': 6.0.6
+      '@uppy/utils': 6.1.0
       preact: 10.25.4
 
   '@uppy/golden-retriever@4.0.2(@uppy/core@4.3.1)':
@@ -7662,6 +7652,11 @@ snapshots:
       tus-js-client: 4.2.3
 
   '@uppy/utils@6.0.6':
+    dependencies:
+      lodash: 4.17.21
+      preact: 10.25.4
+
+  '@uppy/utils@6.1.0':
     dependencies:
       lodash: 4.17.21
       preact: 10.25.4

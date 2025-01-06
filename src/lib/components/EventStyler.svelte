@@ -53,7 +53,7 @@
 			}
 		`;
 
-		console.log('applying css', completeCss);
+		// console.log('applying css', completeCss);
 
 		// Create a new <style> tag for the selected preview style
 		styleElement = document.createElement('style');
@@ -124,7 +124,7 @@
 
 	// Initial setup (no style applied by default)
 	onMount(() => {
-		console.log('CREATE/UPDATE mode defaults:', { finalStyleCss, overlayColor, overlayOpacity });
+		// console.log('CREATE/UPDATE mode defaults:', { finalStyleCss, overlayColor, overlayOpacity });
 		applyStyle(); // Apply styles explicitly
 		applyStylesToButtons();
 		// clearStyle();

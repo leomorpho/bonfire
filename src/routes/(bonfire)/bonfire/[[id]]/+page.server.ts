@@ -16,30 +16,31 @@ export const load = async (event) => {
 
 	// Get the user from locals
 	const user = event.locals.user;
-	if (user) {
-		// Below we create an attendance object for anyone visiting the bonfire if they don't yet have an attendance object.
-		// This allows them to keep track from their dashboard of events they've been invited to (and seen).
-		const currentUserAttendanceQuery = triplitHttpClient
-			.query('attendees')
-			.where([
-				and([
-					['user_id', '=', user.id],
-					['event_id', '=', eventId as string]
-				])
-			])
-			.build();
+	// if (user) {
+	// 	// TODO: do that on FE or else it can end up with 2 objects as FE is not always realtime.
+	// 	// Below we create an attendance object for anyone visiting the bonfire if they don't yet have an attendance object.
+	// 	// This allows them to keep track from their dashboard of events they've been invited to (and seen).
+	// 	const currentUserAttendanceQuery = triplitHttpClient
+	// 		.query('attendees')
+	// 		.where([
+	// 			and([
+	// 				['user_id', '=', user.id],
+	// 				['event_id', '=', eventId as string]
+	// 			])
+	// 		])
+	// 		.build();
 
-		const result = await triplitHttpClient.fetch(currentUserAttendanceQuery);
+	// 	const result = await triplitHttpClient.fetch(currentUserAttendanceQuery);
 
-		// Create an attendance record if it does not exist
-		if (result.length === 0) {
-			await triplitHttpClient.insert('attendees', {
-				user_id: user.id,
-				event_id: eventId as string,
-				status: Status.DEFAULT // Default status
-			});
-		}
-	}
+	// 	// Create an attendance record if it does not exist
+	// 	if (result.length === 0) {
+	// 		await triplitHttpClient.insert('attendees', {
+	// 			user_id: user.id,
+	// 			event_id: eventId as string,
+	// 			status: Status.DEFAULT // Default status
+	// 		});
+	// 	}
+	// }
 
 	// Get profile pics of all attendees
 	const attendeesQuery = triplitHttpClient
