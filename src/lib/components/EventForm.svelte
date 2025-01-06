@@ -42,9 +42,33 @@
 	let endHour = $state(''); // State for hour
 	let endMinute = $state(''); // State for minute
 	let ampmEnd: string = $state('PM'); // State for AM/PM
-	let finalStyleCss: string = $state(event?.style);
-	let overlayColor: string = $state(event.overlay_color);
-	let overlayOpacity: number = $state(event.overlay_opacity);
+	let finalStyleCss: string = $state(
+		mode == 'create'
+			? `--s: 140px; /* control the size*/
+  --c1: #ab3e5b;
+  --c2: #ffbe40;
+  --c3: #accec0;
+  --c4: #61a6ab;
+  
+  --_g: 
+    #0000 25%,#0008 47%,var(--c1)  53% 147%,var(--c2) 153% 247%,
+    var(--c1) 253% 347%,var(--c2) 353% 447%,var(--c1) 453% 547%,#0008 553%,#0000 575%;
+  --_s: calc(25%/3) calc(25%/4) at 50%; 
+  background:
+    radial-gradient(var(--_s) 100%,var(--_g)),
+    radial-gradient(var(--_s) 100%,var(--_g)) calc(var(--s)/2) calc(3*var(--s)/4),
+    radial-gradient(var(--_s) 0   ,var(--_g)) calc(var(--s)/2) 0,
+    radial-gradient(var(--_s) 0   ,var(--_g)) 0                calc(3*var(--s)/4),
+    repeating-linear-gradient(90deg,var(--c3) calc(25%/-6) calc(25%/6),var(--c4) 0 calc(25%/2));
+  background-size: var(--s) calc(3*var(--s)/2)
+        
+		}`
+			: event?.style
+	);
+	let overlayColor: string = $state(
+		mode == 'create' ? '#000000' : (event?.overlay_color ?? '#000000')
+	);
+	let overlayOpacity: number = $state(mode == 'create' ? 40 : (event?.overlay_opacity ?? 40));
 
 	if (event) {
 		const startTime = parseDateTime(event.start_time);
@@ -338,7 +362,7 @@
 
 		{mode === 'create' ? 'Create' : 'Update'}
 	</Button>
-	<div class="w-5/6 md:7/8" >
+	<div class="md:7/8 w-5/6">
 		<EventStyler bind:finalStyleCss bind:overlayColor bind:overlayOpacity />
 	</div>
 </div>
