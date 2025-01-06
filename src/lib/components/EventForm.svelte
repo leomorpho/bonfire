@@ -45,25 +45,12 @@
 	let ampmEnd: string = $state('PM'); // State for AM/PM
 	let finalStyleCss: string = $state(
 		event?.style ??
-			`--s: 140px; /* control the size*/
-  --c1: #ab3e5b;
-  --c2: #ffbe40;
-  --c3: #accec0;
-  --c4: #61a6ab;
-  
-  --_g: 
-    #0000 25%,#0008 47%,var(--c1)  53% 147%,var(--c2) 153% 247%,
-    var(--c1) 253% 347%,var(--c2) 353% 447%,var(--c1) 453% 547%,#0008 553%,#0000 575%;
-  --_s: calc(25%/3) calc(25%/4) at 50%; 
-  background:
-    radial-gradient(var(--_s) 100%,var(--_g)),
-    radial-gradient(var(--_s) 100%,var(--_g)) calc(var(--s)/2) calc(3*var(--s)/4),
-    radial-gradient(var(--_s) 0   ,var(--_g)) calc(var(--s)/2) 0,
-    radial-gradient(var(--_s) 0   ,var(--_g)) 0                calc(3*var(--s)/4),
-    repeating-linear-gradient(90deg,var(--c3) calc(25%/-6) calc(25%/6),var(--c4) 0 calc(25%/2));
-  background-size: var(--s) calc(3*var(--s)/2)
-        
-		}`
+			`background-image: url('https://f002.backblazeb2.com/file/bonfire-public/kiwis.png'); /* Replace with the URL of your tileable image */
+  background-repeat: repeat; /* Tiles the image in both directions */
+  background-size: auto; /* Ensures the image retains its original size */
+  background-color: #ffffff; /* Fallback background color */
+  width: 100%;
+  height: 100%;`
 	);
 	let overlayColor: string = $state(event?.overlay_color ?? '#000000');
 	let overlayOpacity: number = $state(event?.overlay_opacity ?? 0.4);

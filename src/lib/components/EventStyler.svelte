@@ -7,8 +7,8 @@
 
 	let {
 		finalStyleCss = $bindable<string>(),
-		overlayColor = $bindable<string>('#000000'),
-		overlayOpacity = $bindable<number>(0.5)
+		overlayColor = $bindable<string>(),
+		overlayOpacity = $bindable<number>()
 	} = $props();
 
 	// Currently selected style
@@ -124,6 +124,8 @@
 
 	// Initial setup (no style applied by default)
 	onMount(() => {
+		console.log('CREATE/UPDATE mode defaults:', { finalStyleCss, overlayColor, overlayOpacity });
+		applyStyle(); // Apply styles explicitly
 		applyStylesToButtons();
 		// clearStyle();
 	});
