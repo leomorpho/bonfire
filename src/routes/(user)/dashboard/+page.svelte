@@ -10,6 +10,7 @@
 	import { useQuery } from '@triplit/svelte';
 	import EventCard from '$lib/components/EventCard.svelte';
 	import { page } from '$app/stores';
+	import { dev } from '$app/environment';
 
 	let client: TriplitClient;
 
@@ -42,24 +43,32 @@
 			// let pastEventsQuery = createEventsQuery(client, userId, true);
 			// console.log('----> ??? ', await client.fetch(pastEventsQuery.build()));
 
-			console.log(
-				'all events this user can see',
-				await client.fetch(client.query('events').build())
-			);
-			console.log('all users this user can see', await client.fetch(client.query('user').build()));
-			console.log(
-				'all profile_images this user can see',
-				await client.fetch(client.query('profile_images').build())
-			);
-			console.log(
-				'all attendees this user can see',
-				await client.fetch(client.query('attendees').build())
-			);
-			console.log('all files this user can see', await client.fetch(client.query('files').build()));
-			console.log(
-				'all announcement this user can see',
-				await client.fetch(client.query('announcement').build())
-			);
+			if (dev) {
+				console.log(
+					'all events this user can see',
+					await client.fetch(client.query('events').build())
+				);
+				console.log(
+					'all users this user can see',
+					await client.fetch(client.query('user').build())
+				);
+				console.log(
+					'all profile_images this user can see',
+					await client.fetch(client.query('profile_images').build())
+				);
+				console.log(
+					'all attendees this user can see',
+					await client.fetch(client.query('attendees').build())
+				);
+				console.log(
+					'all files this user can see',
+					await client.fetch(client.query('files').build())
+				);
+				console.log(
+					'all announcement this user can see',
+					await client.fetch(client.query('announcement').build())
+				);
+			}
 		};
 
 		initEvents().catch((error) => {
@@ -95,8 +104,6 @@
 			{:else}
 				<div>
 					{#each futureEvents.results as attendance}
-						{console.log('&&&&&&&&&^^^^^^^ attendance -->', attendance)}
-
 						<EventCard
 							event={attendance.event}
 							{userId}

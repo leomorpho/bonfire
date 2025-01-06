@@ -490,7 +490,7 @@
 			{
 				localOnly: false,
 				onRemoteFulfilled: () => {
-					console.log('server has sent back results for the subscription');
+					// console.log('server has sent back results for the subscription');
 				}
 			}
 		);

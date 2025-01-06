@@ -37,7 +37,6 @@
 	) {
 		finalStyleCss = style?.cssTemplate ?? finalStyleCss;
 
-		// TODO: is cleanup necessary? It introduces bugs that I need to fix....
 		if (styleElement && cleanup) {
 			// Remove the previously applied preview style
 			document.head.removeChild(styleElement);
@@ -126,7 +125,7 @@
 	// Initial setup (no style applied by default)
 	onMount(() => {
 		applyStylesToButtons();
-		clearStyle();
+		// clearStyle();
 	});
 </script>
 

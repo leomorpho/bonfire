@@ -43,8 +43,8 @@
 	let endMinute = $state(''); // State for minute
 	let ampmEnd: string = $state('PM'); // State for AM/PM
 	let finalStyleCss: string = $state(
-		mode == 'create'
-			? `--s: 140px; /* control the size*/
+		event?.style ??
+			`--s: 140px; /* control the size*/
   --c1: #ab3e5b;
   --c2: #ffbe40;
   --c3: #accec0;
@@ -63,12 +63,9 @@
   background-size: var(--s) calc(3*var(--s)/2)
         
 		}`
-			: event?.style
 	);
-	let overlayColor: string = $state(
-		mode == 'create' ? '#000000' : (event?.overlay_color ?? '#000000')
-	);
-	let overlayOpacity: number = $state(mode == 'create' ? 40 : (event?.overlay_opacity ?? 40));
+	let overlayColor: string = $state(event?.overlay_color ?? '#000000');
+	let overlayOpacity: number = $state(event?.overlay_opacity ?? 40);
 
 	if (event) {
 		const startTime = parseDateTime(event.start_time);
@@ -288,7 +285,8 @@
 				<div class="flex flex-row items-center justify-between space-x-4">
 					<!-- End Time Inputs -->
 					<div class="grid grid-cols-4 items-center gap-2">
-						<Clock8 class="ml-4 mr-1 h-4 w-4 text-slate-500" />
+						<Clock8 class="ml-4 mr-1 h-4 w-4 rounded-xl bg-white text-slate-500 ring-glow" />
+
 						<div class="font-mono">
 							<DoubleDigitsPicker maxValue={12} bind:value={endHour} placeholder="HH" />
 						</div>

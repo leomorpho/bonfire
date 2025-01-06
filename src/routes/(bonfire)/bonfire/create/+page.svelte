@@ -3,5 +3,7 @@
 </script>
 
 <div class="bg-color-selector min-h-screen w-full">
-	<EventForm mode={'create'} />
+	<div class="bg-overlay-selector">
+		<EventForm mode={'create'} />
+	</div>
 </div>
