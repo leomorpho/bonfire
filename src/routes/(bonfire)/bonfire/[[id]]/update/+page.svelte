@@ -6,6 +6,7 @@
 	import { onMount } from 'svelte';
 	import { getFeTriplitClient } from '$lib/triplit';
 	import Loader from '$lib/components/Loader.svelte';
+	import { EventFormType } from '$lib/enums';
 
 	let data;
 	let client: TriplitClient;
@@ -23,7 +24,7 @@
 {:else if data.results}
 	<div class="bg-color-selector min-h-screen w-full">
 		<div class="bg-overlay-selector">
-			<EventForm mode={'update'} event={data.results[0]} />
+			<EventForm mode={EventFormType.UPDATE} event={data.results[0]} />
 		</div>
 	</div>
 {/if}

@@ -9,6 +9,11 @@ export enum TaskName {
 	PROCESS_NOTIFICATION_QUEUE = 'process_notification_queue'
 }
 
+export enum EventFormType {
+	CREATE = 'create',
+	UPDATE = 'update'
+}
+
 export const LOGIN_TYPE_MAGIC_LINK = 'magic';
 export const LOGIN_TYPE_ACTIVATION = 'activation';
 export const NOTIFY_OF_ATTENDING_STATUS_CHANGE: Array<Status> = [Status.GOING, Status.MAYBE];

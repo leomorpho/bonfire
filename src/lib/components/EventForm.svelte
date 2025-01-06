@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { EventFormType } from './../enums.ts';
 	import EventStyler from './EventStyler.svelte';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { DateFormatter, CalendarDate, type DateValue } from '@internationalized/date';
@@ -236,7 +237,7 @@
 <div class="mx-4 flex flex-col items-center justify-center">
 	<section class="mt-8 w-full sm:w-[450px]">
 		<h2 class="mb-5 rounded-xl bg-white p-2 text-lg font-semibold">
-			{mode === 'create' ? 'Create' : 'Update'} a Bonfire
+			{mode === EventFormType.CREATE ? 'Create' : 'Update'} a Bonfire
 		</h2>
 		<form class="space-y-2">
 			<Input type="text" placeholder="Event Name" bind:value={eventName} class="w-full bg-white" />
@@ -318,7 +319,7 @@
 			</div>
 			<Textarea class="bg-white" placeholder="Details" bind:value={details} />
 		</form>
-		{#if mode == 'update'}
+		{#if mode == EventFormType.UPDATE}
 			<Dialog.Root>
 				<Dialog.Trigger class="w-full"
 					><Button disabled={submitDisabled} class="mt-2 w-full bg-red-500 hover:bg-red-400">
@@ -358,7 +359,7 @@
 			<ArrowDownToLine class="ml-1 mr-1 h-4 w-4" />
 		{/if}
 
-		{mode === 'create' ? 'Create' : 'Update'}
+		{mode === EventFormType.CREATE ? 'Create' : 'Update'}
 	</Button>
 	<div class="md:7/8 w-5/6">
 		<EventStyler bind:finalStyleCss bind:overlayColor bind:overlayOpacity />
