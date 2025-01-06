@@ -55,7 +55,7 @@
 				<a href="profile/upload-profile-image"> <Button variant="link">Edit Avatar</Button></a>
 			</div>
 			<div class="mt-10 flex items-center justify-center text-xl font-semibold">
-				{user.results[0].username ? user.results[0].username : ''}
+				{user.results[0].username ? user.results[0].username : 'Click here to set profile name'}
 				<a href="profile/username"
 					><div
 						class="ml-1 flex items-center justify-center p-1 hover:rounded-lg hover:bg-slate-200"

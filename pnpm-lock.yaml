@@ -178,7 +178,7 @@ importers:
         specifier: ^5.2.6
         version: 5.2.6(svelte@5.16.1)(vite@5.4.11(@types/node@22.10.5))(vitest@2.1.8)
       '@triplit/cli':
-        specifier: ^0.6.16
+        specifier: ^0.6.35
         version: 0.6.35
       '@types/better-sqlite3':
         specifier: ^7.6.11
