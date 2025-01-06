@@ -66,7 +66,7 @@
 		}`
 	);
 	let overlayColor: string = $state(event?.overlay_color ?? '#000000');
-	let overlayOpacity: number = $state(event?.overlay_opacity ?? 40);
+	let overlayOpacity: number = $state(event?.overlay_opacity ?? 0.4);
 
 	if (event) {
 		const startTime = parseDateTime(event.start_time);
