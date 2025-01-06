@@ -30,10 +30,10 @@
 </script>
 
 <svelte:head>
-	<title>Svelte Saas Boilerplate</title>
+	<title>Bonfire</title>
 	<meta
 		name="description"
-		content="The free and open-source Svelte 5 and SvelteKit SaaS boilerplate that gets you shipping fast. Includes authentication with magic link and Google, email, styling with Tailwind CSS and DaisyUI, and Turso for the database."
+		content="Effortlessly organize your social gatherings with your friends and loved ones."
 	/>
 </svelte:head>
 

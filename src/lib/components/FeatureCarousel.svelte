@@ -226,7 +226,7 @@
 								/>Ephemeral
 							</div>
 							<p class="text-xs sm:text-sm md:text-base">
-								All bonfires are deleted 30 days after they start. You can back up the uploaded
+								All bonfires are deleted 30 days after they start, but don't worry we'll warn you. You can back up the uploaded
 								media with a single click download!
 							</p>
 						</div>
