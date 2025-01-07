@@ -31,7 +31,7 @@ export const schema = {
 			}),
 			attendances: S.RelationMany('attendees', {
 				where: [['user_id', '=', '$id']]
-			}),
+			})
 			// // TODO: remove events field
 			// events: S.RelationMany('events', {
 			// 	where: [
@@ -60,9 +60,6 @@ export const schema = {
 					filter: [['id', '=', '$role.userId']] // Users can only delete their own profile images
 				}
 			},
-			anon: {
-				read: { filter: [false] }
-			}
 		}
 	},
 	profile_images: {
@@ -76,13 +73,15 @@ export const schema = {
 		}),
 		permissions: {
 			user: {
-				read: { filter: [
-					or([
-						['user_id', '=', '$role.userId'], // User can read their own profile
-						// A user should be able to only query for users and attendees who are attending a same event:
-						['user.attendances.event.attendees.user_id', '=', '$role.userId']
-					])
-				] },
+				read: {
+					filter: [
+						or([
+							['user_id', '=', '$role.userId'], // User can read their own profile
+							// A user should be able to only query for users and attendees who are attending a same event:
+							['user.attendances.event.attendees.user_id', '=', '$role.userId']
+						])
+					]
+				},
 				insert: {
 					filter: [['user_id', '=', '$role.userId']] // Users can only insert their own profile images
 				},
@@ -94,7 +93,7 @@ export const schema = {
 				}
 			},
 			anon: {
-				read: { filter: [true] }
+				read: { filter: [false] }
 			}
 		}
 	},
@@ -114,9 +113,9 @@ export const schema = {
 			annoucements: S.RelationMany('announcement', {
 				where: [['event_id', '=', '$id']]
 			}),
-			attending_users: S.RelationMany('user', {
-				where: [['events.id', '=', '$id']]
-			}),
+			// attending_users: S.RelationMany('user', {
+			// 	where: [['events.id', '=', '$id']]
+			// }),
 			viewers: S.RelationMany('user', {
 				where: [['events.id', '=', '$id']]
 			}),
@@ -128,21 +127,18 @@ export const schema = {
 			user: {
 				read: {
 					filter: [
-						true
-						// or([
-						// 	['user_id', '=', '$role.userId'],
-						// 	['attendees.user_id', '=', '$role.userId'], // user is an attendee
-						// 	['viewers.id', '=', '$role.userId'] // user is a viewer
-						// ])
+						or([
+							['user_id', '=', '$role.userId'], // User can read their own profile
+							// A user should be able to only query for users and attendees who are attending a same event:
+							['attendees.user_id', '=', '$role.userId']
+							// 	['viewers.id', '=', '$role.userId'] // user is a viewer
+						])
 					]
 				},
 				insert: { filter: [true] },
 				update: { filter: [['user_id', '=', '$role.userId']] },
 				delete: { filter: [['user_id', '=', '$role.userId']] }
 			}
-			// anon: {
-			// 	read: { filter: [true] }
-			// }
 		}
 	},
 	attendees: {
@@ -169,12 +165,12 @@ export const schema = {
 			user: {
 				read: {
 					filter: [
-						true
-						// or([
-						// 	['user_id', '=', '$role.userId'],
-						// 	// ['event.attendees.user_id', '=', '$role.userId'], // user is an attendee
-						// 	// ['event.viewers.id', '=', '$role.userId'] // user is a viewer
-						// ])
+						or([
+							['user_id', '=', '$role.userId'], // User can read their own profile
+							// A user should be able to only query for users and attendees who are attending a same event:
+							['event.attendees.user_id', '=', '$role.userId']
+							// 	['viewers.id', '=', '$role.userId'] // user is a viewer
+						])
 					]
 				},
 				insert: {
@@ -215,7 +211,15 @@ export const schema = {
 		}),
 		permissions: {
 			user: {
-				read: { filter: [true] },
+				read: {
+					filter: [
+						or([
+							['uploader_id', '=', '$role.userId'], // User can read their own profile
+							// A user should be able to only query for files of events they are attending:
+							['event.attendees.user_id', '=', '$role.userId']
+						])
+					]
+				},
 				// No need to allow insert since we will do that in BE logic and
 				// triplit doesn't seem powerful enough to be able to set appropriate permissions (user
 				// is attending event). Read is only used to count files as S3 URL is generated in BE.
@@ -244,7 +248,13 @@ export const schema = {
 		}),
 		permissions: {
 			user: {
-				read: { filter: [true] },
+				read: {
+					filter: [
+						['user_id', '=', '$role.userId'], // User can read their own profile
+						// A user should be able to only query for files of events they are attending:
+						['event.attendees.user_id', '=', '$role.userId']
+					]
+				},
 				insert: { filter: [['event.user_id', '=', '$role.userId']] },
 				update: { filter: [['user_id', '=', '$role.userId']] },
 				delete: { filter: [['user_id', '=', '$role.userId']] }
@@ -314,12 +324,7 @@ export const schema = {
 				update: { filter: [['user_id', '=', '$role.userId']] }, // Users can update their own notifications
 				delete: { filter: [['user_id', '=', '$role.userId']] } // Users can delete their own notifications
 			},
-			admin: {
-				read: { filter: [true] }, // Admins can read all notifications
-				insert: { filter: [true] }, // Admins can insert notifications
-				update: { filter: [true] }, // Admins can update notifications
-				delete: { filter: [true] } // Admins can delete notifications
-			}
+			anon: {}
 		}
 	},
 	notifications: {
@@ -342,12 +347,6 @@ export const schema = {
 				read: { filter: [['user_id', '=', '$role.userId']] }, // Users can read their own notifications
 				update: { filter: [['user_id', '=', '$role.userId']] }, // Users can update their own notifications to mark them as read
 				delete: { filter: [['user_id', '=', '$role.userId']] } // Users can update their own notifications to mark them as read
-			},
-			admin: {
-				read: { filter: [true] },
-				insert: { filter: [true] },
-				update: { filter: [true] },
-				delete: { filter: [true] }
 			}
 		}
 	}

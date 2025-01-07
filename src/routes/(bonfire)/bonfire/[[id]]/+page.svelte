@@ -32,7 +32,13 @@
 
 	let client: TriplitClient;
 
-	let profileImageMap = $page.data.profileImageMap;
+	let profileImageMap: Map<string, { full_image_url: string; small_image_url: string }> = $state(
+		new Map()
+	);
+	let loadingProfileImageMap = $state(false);
+
+	let eventFiles: any[] = $state([]);
+	let loadEventFiles = $state(true);
 
 	let attendeesGoing: any = $state([]);
 	let attendeesMaybeGoing: any = $state([]);
@@ -41,15 +47,55 @@
 	let currentUserAttendee = $state();
 	const showMaxNumPeople = 50;
 
+	const fetchProfileImageMap = async (userIds: string[]) => {
+		try {
+			loadingProfileImageMap = true;
+			const response = await fetch(
+				`/profile/profile-images?${userIds.map((id) => `userIds=${id}`).join('&')}`
+			);
+			if (!response.ok) throw new Error(`Failed to fetch profileImageMap: ${response.statusText}`);
+
+			// Transform the fetched data into a Map
+			const fetchedData: Record<string, { full_image_url: string; small_image_url: string }> =
+				await response.json();
+			profileImageMap = new Map(
+				Object.entries(fetchedData) // Convert the plain object into Map entries
+			);
+		} catch (error) {
+			console.error('Error fetching profile image map:', error);
+		} finally {
+			loadingProfileImageMap = false;
+		}
+	};
+
+	const fetchEventFiles = async (eventId: string) => {
+		try {
+			loadEventFiles = true;
+			const response = await fetch(`/bonfire/${eventId}/media/mini-gallery`);
+			if (!response.ok) throw new Error(`Failed to fetch eventFiles: ${response.statusText}`);
+			eventFiles = await response.json();
+		} catch (error) {
+			console.error('Error fetching event files:', error);
+		} finally {
+			loadEventFiles = false;
+		}
+	};
+
 	onMount(() => {
 		client = getFeTriplitClient($page.data.jwt) as TriplitClient;
 
-		(async () => {
-			userId = (await waitForUserId()) as string;
-		})();
-
 		// Update event data based on the current page id
 		event = useQuery(client, client.query('events').where(['id', '=', $page.params.id]));
+
+		if (anonymousUser) {
+			return;
+		}
+
+		(async () => {
+			userId = (await waitForUserId()) as string;
+			// Fetch event files
+			await fetchEventFiles($page.params.id);
+		})();
 
 		fileCount = useQuery(
 			client,
@@ -68,6 +114,12 @@
 				attendeesGoing = results.filter((attendee) => attendee.status === Status.GOING);
 				attendeesNotGoing = results.filter((attendee) => attendee.status === Status.NOT_GOING);
 				attendeesMaybeGoing = results.filter((attendee) => attendee.status === Status.MAYBE);
+
+				// Fetch profile image map for attendees
+				const userIds = results.map((attendee) => attendee.user_id);
+				(async () => {
+					await fetchProfileImageMap(userIds);
+				})();
 
 				// Optionally log results for debugging
 				// console.log('Going:', attendeesGoing);
@@ -164,7 +216,7 @@
 {:else if event.results}
 	<div class="mx-4 flex flex-col items-center justify-center">
 		<section class="mt-8 w-full sm:w-[450px] md:w-[550px] lg:w-[650px]">
-			{#if event.results[0].user_id == (userId as string)}
+			{#if !anonymousUser && event.results[0].user_id == (userId as string)}
 				<div class="flex w-full justify-center">
 					<a href="update">
 						<Button variant="outline" class="m-2 rounded-full">
@@ -311,11 +363,10 @@
 				<HorizRule />
 
 				<div class="my-10">
-					{#if $page.data.eventFiles && fileCount.results}
-						<MiniGallery
-							fileCount={fileCount.results.length - $page.data.eventFiles.length}
-							eventFiles={$page.data.eventFiles}
-						/>
+					{#if eventFiles && fileCount.results}
+						<MiniGallery fileCount={fileCount.results.length - eventFiles.length} {eventFiles} />
+					{:else if loadEventFiles}
+						<Loader />
 					{/if}
 				</div>
 			{/if}

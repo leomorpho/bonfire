@@ -53,7 +53,7 @@
 
 	<script src="https://cdn.jsdelivr.net/npm/ios-pwa-splash@1.0.0/cdn.min.js"></script>
 	<script >
-		iosPWASplash("icon-192.png", "#000000");
+		iosPWASplash("/icon-192.png", "#000000");
 	</script>
 
 	<!--
