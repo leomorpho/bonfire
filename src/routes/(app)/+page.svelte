@@ -9,6 +9,7 @@
 	import type { TriplitClient } from '@triplit/client';
 	import { getFeTriplitClient } from '$lib/triplit';
 	import { page } from '$app/stores';
+	import AboutUs from '$lib/components/AboutUs.svelte';
 
 	let client: TriplitClient;
 
@@ -29,5 +30,6 @@
 <About />
 <FeatureCarousel />
 <Pricing />
+<AboutUs />
 <FAQ />
 <Footer></Footer>
