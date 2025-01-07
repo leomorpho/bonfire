@@ -20,14 +20,16 @@
 	import { toast } from 'svelte-sonner';
 	import Annoucements from '$lib/components/Annoucements.svelte';
 	import HorizRule from '$lib/components/HorizRule.svelte';
+	import EventDoesNotExist from '$lib/components/EventDoesNotExist.svelte';
+	import CenterScreenMessage from '$lib/components/CenterScreenMessage.svelte';
 
 	let userId = $state('');
 
 	let event = $state();
+	let eventLoading = $state(true);
+	let eventFailedLoading = $state(false);
 	let fileCount = $state();
-
 	let rsvpStatus = $state('');
-
 	let anonymousUser = $state(!$page.data.user);
 
 	let client: TriplitClient;
@@ -83,13 +85,26 @@
 
 	onMount(() => {
 		client = getFeTriplitClient($page.data.jwt) as TriplitClient;
-
-		// Update event data based on the current page id
-		event = useQuery(client, client.query('events').where(['id', '=', $page.params.id]));
-
+		console.log('in mount');
 		if (anonymousUser) {
+			// If user is anonymous, load event data from page data. It will contain limited data.
+			event = $page.data.event;
+			eventLoading = false;
 			return;
 		}
+		// Fetch event data from triplit DB
+		(async () => {
+			try {
+				eventLoading = true;
+				// Update event data based on the current page id
+				event = await client.fetchById('events', $page.params.id);
+				console.log('Got event!!!!!', event);
+			} catch (e) {
+				eventFailedLoading = true;
+			} finally {
+				eventLoading = false;
+			}
+		})();
 
 		(async () => {
 			userId = (await waitForUserId()) as string;
@@ -209,167 +224,179 @@
 	};
 </script>
 
-{#if !event || event.fetching}
+{#if !anonymousUser && eventLoading}
 	<Loader />
-{:else if event.error}
-	<p>Error: {event.error.message}</p>
-{:else if event.results}
-	<div class="mx-4 flex flex-col items-center justify-center">
-		<section class="mt-8 w-full sm:w-[450px] md:w-[550px] lg:w-[650px]">
-			{#if !anonymousUser && event.results[0].user_id == (userId as string)}
-				<div class="flex w-full justify-center">
-					<a href="update">
-						<Button variant="outline" class="m-2 rounded-full">
-							<Cog class="h-5 w-5" />
-						</Button>
-					</a>
-				</div>
-			{/if}
-			<div class="rounded-xl bg-white p-5">
-				<h1 class="text-xl">{event.results[0].title}</h1>
-				<div class="font-medium">{formatHumanReadable(event.results[0].start_time)}</div>
-				<div class="font-light">
-					{#if !anonymousUser}
-						<div>{event.results[0].location}</div>
-					{:else}
-						Please log in to see location
-					{/if}
-				</div>
-			</div>
-
-			<div class="mx-3 mt-5 items-center">
-				{#if attendeesGoing.length > 0}
-					<div class="flex flex-wrap items-center -space-x-4">
-						{#each attendeesGoing.slice(0, showMaxNumPeople) as attendee}
-							<ProfileAvatar
-								url={profileImageMap.get(attendee.user_id)?.small_image_url}
-								fullsizeUrl={profileImageMap.get(attendee.user_id)?.full_image_url}
-								username={attendee.user?.username}
-								fallbackName={attendee.user?.username}
-							/>
-						{/each}
-						<Dialog.Root>
-							<Dialog.Trigger class="flex items-center"
-								>{#if attendeesGoing.length > showMaxNumPeople}
-									<div class="rounded-xl bg-white text-sm text-gray-500">
-										and {attendeesGoing.length - showMaxNumPeople} more
-									</div>
-								{/if}
-								<div class="flex h-12 w-12 items-center justify-center sm:h-14 sm:w-14">
-									<Plus class="ml-1 h-4 w-4 rounded-xl bg-white sm:h-5 sm:w-5" />
-								</div></Dialog.Trigger
-							>
-							<Dialog.Content class="h-full">
-								<ScrollArea>
-									<Dialog.Header>
-										<Dialog.Title class="flex w-full justify-center">Attendees</Dialog.Title>
-										<Dialog.Description>
-											<div class="mb-3 mt-5">
-												{#if attendeesGoing.length > 0}
-													<h2 class="my-3 flex w-full justify-center font-semibold">Going</h2>
-													<div class="mx-5 flex flex-wrap -space-x-4">
-														{#each attendeesGoing as attendee}
-															<ProfileAvatar
-																url={profileImageMap.get(attendee.user_id)?.small_image_url}
-																fullsizeUrl={profileImageMap.get(attendee.user_id)?.full_image_url}
-																username={attendee.user?.username}
-																fallbackName={attendee.user?.username}
-															/>
-														{/each}
-													</div>
-												{/if}
-											</div>
-											<div class="mb-3 mt-5">
-												{#if attendeesMaybeGoing.length > 0}
-													<h2 class="my-3 flex w-full justify-center font-semibold">Maybe</h2>
-													<div class="mx-5 flex flex-wrap -space-x-4">
-														{#each attendeesMaybeGoing as attendee}
-															<ProfileAvatar
-																url={profileImageMap.get(attendee.user_id)?.small_image_url}
-																fullsizeUrl={profileImageMap.get(attendee.user_id)?.full_image_url}
-																username={attendee.user?.username}
-																fallbackName={attendee.user?.username}
-															/>
-														{/each}
-													</div>
-												{/if}
-											</div>
-											<div class="mb-3 mt-5">
-												{#if attendeesNotGoing.length > 0}
-													<h2 class="my-3 flex w-full justify-center font-semibold">Not Going</h2>
-													<div class="mx-5 flex flex-wrap -space-x-4">
-														{#each attendeesNotGoing as attendee}
-															<ProfileAvatar
-																url={profileImageMap.get(attendee.user_id)?.small_image_url}
-																fullsizeUrl={profileImageMap.get(attendee.user_id)?.full_image_url}
-																username={attendee.user?.username}
-																fallbackName={attendee.user?.username}
-															/>
-														{/each}
-													</div>
-												{/if}
-											</div>
-										</Dialog.Description>
-									</Dialog.Header>
-								</ScrollArea>
-							</Dialog.Content>
-						</Dialog.Root>
-					</div>
-				{:else if anonymousUser}{:else}
-					<div class="flex flex-wrap items-center -space-x-3">
-						{#each Array(20).fill() as _, index}
-							<Skeleton class="size-12 rounded-full" />
-						{/each}
+{:else if eventFailedLoading}
+	<CenterScreenMessage
+		message={'Oups, we apologize but the event failed to load, please try again later 😓'}
+	/>
+{:else if !eventLoading}
+	{#if anonymousUser && !event}
+		<EventDoesNotExist />
+	{:else}
+		{console.log('--> event', event)}
+		<div class="mx-4 flex flex-col items-center justify-center">
+			<section class="mt-8 w-full sm:w-[450px] md:w-[550px] lg:w-[650px]">
+				{#if !anonymousUser && event.user_id == (userId as string)}
+					<div class="flex w-full justify-center">
+						<a href="update">
+							<Button variant="outline" class="m-2 rounded-full">
+								<Cog class="h-5 w-5" />
+							</Button>
+						</a>
 					</div>
 				{/if}
-			</div>
-			{#if anonymousUser}
-				<a href="/login" class="mt-4 flex justify-center">
-					<Button class="w-full bg-green-500 py-8 hover:bg-green-400">
-						<KeyRound class="mr-2 size-4 " />
-						Log in or register to interact with event.
-					</Button>
-				</a>
-			{/if}
-			<Rsvp {rsvpStatus} {userId} eventId={event.results[0].id} rsvpCanBeChanged={!anonymousUser} />
-
-			<Button
-				onclick={() => handleShare(event.results[0])}
-				disabled={anonymousUser}
-				class="mt-4 flex w-full items-center justify-center ring-glow"
-			>
-				<Share class="h-5 w-5" />
-				Share Bonfire</Button
-			>
-			<div class="my-10 rounded-xl bg-white p-5">
-				<div class="font-semibold">Details</div>
-				{event.results[0].description}
-			</div>
-			{#if !anonymousUser}
-				<HorizRule />
-				<div class="my-10">
-					<div class="rounded-xl bg-white p-5 font-semibold" id="announcements">Announcements</div>
-					<div class="my-2">
-						<Annoucements maxCount={3} />
+				<div class="rounded-xl bg-white p-5">
+					<h1 class="text-xl">{anonymousUser ? $page.data.event.title : event.title}</h1>
+					<div class="font-medium">{formatHumanReadable(event.start_time)}</div>
+					<div class="font-light">
+						{#if !anonymousUser}
+							<div>{event.location}</div>
+						{:else}
+							Please log in to see location
+						{/if}
 					</div>
-					{#if event.results[0].user_id == userId}
-						<a href="announcement/create">
-							<Button class="mt-1 w-full ring-glow"
-								><Drum class="mr-1 h-4 w-4" /> Create new announcement</Button
-							>
-						</a>
-					{/if}
 				</div>
-				<HorizRule />
 
-				<div class="my-10">
-					{#if eventFiles && fileCount.results}
-						<MiniGallery fileCount={fileCount.results.length - eventFiles.length} {eventFiles} />
-					{:else if loadEventFiles}
-						<Loader />
+				<div class="mx-3 mt-5 items-center">
+					{#if attendeesGoing.length > 0}
+						<div class="flex flex-wrap items-center -space-x-4">
+							{#each attendeesGoing.slice(0, showMaxNumPeople) as attendee}
+								<ProfileAvatar
+									url={profileImageMap.get(attendee.user_id)?.small_image_url}
+									fullsizeUrl={profileImageMap.get(attendee.user_id)?.full_image_url}
+									username={attendee.user?.username}
+									fallbackName={attendee.user?.username}
+								/>
+							{/each}
+							<Dialog.Root>
+								<Dialog.Trigger class="flex items-center"
+									>{#if attendeesGoing.length > showMaxNumPeople}
+										<div class="rounded-xl bg-white text-sm text-gray-500">
+											and {attendeesGoing.length - showMaxNumPeople} more
+										</div>
+									{/if}
+									<div class="flex h-12 w-12 items-center justify-center sm:h-14 sm:w-14">
+										<Plus class="ml-1 h-4 w-4 rounded-xl bg-white sm:h-5 sm:w-5" />
+									</div></Dialog.Trigger
+								>
+								<Dialog.Content class="h-full">
+									<ScrollArea>
+										<Dialog.Header>
+											<Dialog.Title class="flex w-full justify-center">Attendees</Dialog.Title>
+											<Dialog.Description>
+												<div class="mb-3 mt-5">
+													{#if attendeesGoing.length > 0}
+														<h2 class="my-3 flex w-full justify-center font-semibold">Going</h2>
+														<div class="mx-5 flex flex-wrap -space-x-4">
+															{#each attendeesGoing as attendee}
+																<ProfileAvatar
+																	url={profileImageMap.get(attendee.user_id)?.small_image_url}
+																	fullsizeUrl={profileImageMap.get(attendee.user_id)
+																		?.full_image_url}
+																	username={attendee.user?.username}
+																	fallbackName={attendee.user?.username}
+																/>
+															{/each}
+														</div>
+													{/if}
+												</div>
+												<div class="mb-3 mt-5">
+													{#if attendeesMaybeGoing.length > 0}
+														<h2 class="my-3 flex w-full justify-center font-semibold">Maybe</h2>
+														<div class="mx-5 flex flex-wrap -space-x-4">
+															{#each attendeesMaybeGoing as attendee}
+																<ProfileAvatar
+																	url={profileImageMap.get(attendee.user_id)?.small_image_url}
+																	fullsizeUrl={profileImageMap.get(attendee.user_id)
+																		?.full_image_url}
+																	username={attendee.user?.username}
+																	fallbackName={attendee.user?.username}
+																/>
+															{/each}
+														</div>
+													{/if}
+												</div>
+												<div class="mb-3 mt-5">
+													{#if attendeesNotGoing.length > 0}
+														<h2 class="my-3 flex w-full justify-center font-semibold">Not Going</h2>
+														<div class="mx-5 flex flex-wrap -space-x-4">
+															{#each attendeesNotGoing as attendee}
+																<ProfileAvatar
+																	url={profileImageMap.get(attendee.user_id)?.small_image_url}
+																	fullsizeUrl={profileImageMap.get(attendee.user_id)
+																		?.full_image_url}
+																	username={attendee.user?.username}
+																	fallbackName={attendee.user?.username}
+																/>
+															{/each}
+														</div>
+													{/if}
+												</div>
+											</Dialog.Description>
+										</Dialog.Header>
+									</ScrollArea>
+								</Dialog.Content>
+							</Dialog.Root>
+						</div>
+					{:else if anonymousUser}{:else}
+						<div class="flex flex-wrap items-center -space-x-3">
+							{#each Array(20).fill() as _, index}
+								<Skeleton class="size-12 rounded-full" />
+							{/each}
+						</div>
 					{/if}
 				</div>
-			{/if}
-		</section>
-	</div>
+				{#if anonymousUser}
+					<a href="/login" class="mt-4 flex justify-center">
+						<Button class="w-full bg-green-500 py-8 hover:bg-green-400">
+							<KeyRound class="mr-2 size-4 " />
+							Log in or register to interact with event.
+						</Button>
+					</a>
+				{/if}
+				<Rsvp {rsvpStatus} {userId} eventId={event.id} rsvpCanBeChanged={!anonymousUser} />
+
+				<Button
+					onclick={() => handleShare(event)}
+					disabled={anonymousUser}
+					class="mt-4 flex w-full items-center justify-center ring-glow"
+				>
+					<Share class="h-5 w-5" />
+					Share Bonfire</Button
+				>
+				<div class="my-10 rounded-xl bg-white p-5">
+					<div class="font-semibold">Details</div>
+					{event.description}
+				</div>
+				{#if !anonymousUser}
+					<HorizRule />
+					<div class="my-10">
+						<div class="rounded-xl bg-white p-5 font-semibold" id="announcements">
+							Announcements
+						</div>
+						<div class="my-2">
+							<Annoucements maxCount={3} />
+						</div>
+						{#if event.user_id == userId}
+							<a href="announcement/create">
+								<Button class="mt-1 w-full ring-glow"
+									><Drum class="mr-1 h-4 w-4" /> Create new announcement</Button
+								>
+							</a>
+						{/if}
+					</div>
+					<HorizRule />
+
+					<div class="my-10">
+						{#if eventFiles && fileCount.results}
+							<MiniGallery fileCount={fileCount.results.length - eventFiles.length} {eventFiles} />
+						{:else if loadEventFiles}
+							<Loader />
+						{/if}
+					</div>
+				{/if}
+			</section>
+		</div>
+	{/if}
 {/if}

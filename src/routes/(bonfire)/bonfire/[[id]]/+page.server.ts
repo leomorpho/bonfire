@@ -4,15 +4,17 @@ import { triplitHttpClient } from '$lib/server/triplit';
 export const trailingSlash = 'always';
 
 // Step 2: Implement the form load function
-export const load = async (event) => {
-	const eventId = event.params.id; // Get the event ID from the route parameters
+export const load = async (e) => {
+	const eventId = e.params.id; // Get the event ID from the route parameters
 
 	if (!eventId) {
 		goto('/dashboard');
 	}
 
 	// Get the user from locals
-	const user = event.locals.user;
+	const user = e.locals.user;
+	console.log('logged in user', user);
+	let event = null;
 
 	if (user) {
 		try {
@@ -26,9 +28,20 @@ export const load = async (event) => {
 		} catch (e) {
 			console.log(e);
 		}
+	} else {
+		try {
+			event = await triplitHttpClient.fetchOne(
+				triplitHttpClient
+					.query('events')
+					.where(['id', '=', eventId as string])
+					.build()
+			);
+		} catch (e) {
+			console.debug(`failed to fetch event with id ${eventId}`, e);
+		}
 	}
-
 	return {
-		user: user
+		user: user,
+		event: event
 	};
 };
