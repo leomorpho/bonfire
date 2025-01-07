@@ -4,9 +4,13 @@ node_modules
 /.svelte-kit
 /package
 .env
-.env.*
+.env.prod
 !.env.example
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 local.db
 data/mailpit.db*
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

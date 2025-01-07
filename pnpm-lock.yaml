@@ -163,7 +163,7 @@ importers:
         specifier: ^3.5.6
         version: 3.6.0
       '@playwright/test':
-        specifier: ^1.48.1
+        specifier: ^1.49.1
         version: 1.49.1
       '@sveltejs/adapter-auto':
         specifier: ^3.3.0
@@ -189,6 +189,9 @@ importers:
       '@types/jsonwebtoken':
         specifier: ^9.0.7
         version: 9.0.7
+      '@types/node':
+        specifier: ^22.10.5
+        version: 22.10.5
       '@types/web-push':
         specifier: ^3.6.4
         version: 3.6.4
