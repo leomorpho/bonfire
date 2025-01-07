@@ -315,7 +315,7 @@
 							</Dialog.Content>
 						</Dialog.Root>
 					</div>
-				{:else}
+				{:else if anonymousUser}{:else}
 					<div class="flex flex-wrap items-center -space-x-3">
 						{#each Array(20).fill() as _, index}
 							<Skeleton class="size-12 rounded-full" />

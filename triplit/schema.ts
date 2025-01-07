@@ -59,7 +59,7 @@ export const schema = {
 				delete: {
 					filter: [['id', '=', '$role.userId']] // Users can only delete their own profile images
 				}
-			},
+			}
 		}
 	},
 	profile_images: {
@@ -116,8 +116,8 @@ export const schema = {
 			// attending_users: S.RelationMany('user', {
 			// 	where: [['events.id', '=', '$id']]
 			// }),
-			viewers: S.RelationMany('user', {
-				where: [['events.id', '=', '$id']]
+			viewers: S.RelationMany('event_viewers', {
+				where: [['event_id', '=', '$id']]
 			}),
 			style: S.String({ nullable: true }),
 			overlay_color: S.String({ nullable: true, optional: true }),
@@ -130,14 +130,32 @@ export const schema = {
 						or([
 							['user_id', '=', '$role.userId'], // User can read their own profile
 							// A user should be able to only query for users and attendees who are attending a same event:
-							['attendees.user_id', '=', '$role.userId']
-							// 	['viewers.id', '=', '$role.userId'] // user is a viewer
+							['attendees.user_id', '=', '$role.userId'],
+							['viewers.user_id', '=', '$role.userId'] // user is a viewer
 						])
 					]
 				},
 				insert: { filter: [true] },
 				update: { filter: [['user_id', '=', '$role.userId']] },
 				delete: { filter: [['user_id', '=', '$role.userId']] }
+			}
+		}
+	},
+	event_viewers: {
+		schema: S.Schema({
+			id: S.Id(),
+			event_id: S.String(), // ID of the event
+			event: S.RelationById('events', '$event_id'), // Link to the event
+			user_id: S.String(),
+			user: S.RelationById('user', '$user_id')
+		}),
+		permissions: {
+			user: {
+				read: {
+					filter: [
+						['user_id', '=', '$role.userId'] // User can read their view objects
+					]
+				}
 			}
 		}
 	},

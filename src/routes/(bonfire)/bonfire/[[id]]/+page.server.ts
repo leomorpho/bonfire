@@ -1,8 +1,5 @@
 import { goto } from '$app/navigation';
-import { Status } from '$lib/enums';
-import { generateSignedUrl } from '$lib/filestorage.js';
 import { triplitHttpClient } from '$lib/server/triplit';
-import { and } from '@triplit/client';
 
 export const trailingSlash = 'always';
 
@@ -16,6 +13,20 @@ export const load = async (event) => {
 
 	// Get the user from locals
 	const user = event.locals.user;
+
+	if (user) {
+		try {
+			// Add viewer object so user is in the event viewer list else
+			// they won't be able to query for that event in FE
+			await triplitHttpClient.insert('event_viewers', {
+				id: `${eventId}-${user.id}`,
+				event_id: eventId,
+				user_id: user.id
+			});
+		} catch (e) {
+			console.log(e);
+		}
+	}
 
 	return {
 		user: user
