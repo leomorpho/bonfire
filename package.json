@@ -18,7 +18,8 @@
 		"migrate": "tsx ./migrate.ts",
 		"migrate:prod": "tsx ./migrate.ts --prod",
 		"seed": "vite-node --options.transformMode.ssr='/.*/' src/scripts/seed.ts",
-		"triplit": "npx triplit dev"
+		"triplit": "npx @triplit/cli@latest dev",
+		"schema": "npx @triplit/cli@latest schema push"
 	},
 	"devDependencies": {
 		"@faker-js/faker": "^9.2.0",

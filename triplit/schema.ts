@@ -1,5 +1,4 @@
 import { Schema as S, type Roles, type ClientSchema, or } from '@triplit/client';
-import { optional } from 'zod';
 
 // Define roles
 export const roles: Roles = {
@@ -33,25 +32,25 @@ export const schema = {
 			attendances: S.RelationMany('attendees', {
 				where: [['user_id', '=', '$id']]
 			}),
-			events: S.RelationMany('events', {
-				where: [
-					or([
-						['user_id', '=', '$id'], // User is the creator
-						['attending_users.id', '=', '$id'] // User is an attendee
-					])
-				]
-			})
+			// // TODO: remove events field
+			// events: S.RelationMany('events', {
+			// 	where: [
+			// 		or([
+			// 			['user_id', '=', '$id'], // User is the creator
+			// 			['attending_users.id', '=', '$id'] // User is an attendee
+			// 		])
+			// 	]
+			// })
 		}),
 		permissions: {
 			user: {
 				read: {
 					filter: [
-						true
-						// or([
-						// 	['id', '=', '$role.userId'], // User can read their own profile
-						// 	// A user should be able to only query for users and attendees who are attending a same event:
-						// 	['events.attending_users.id', '=', '$role.userId']
-						// ])
+						or([
+							['id', '=', '$role.userId'], // User can read their own profile
+							// A user should be able to only query for users and attendees who are attending a same event:
+							['attendances.event.attendees.user_id', '=', '$role.userId']
+						])
 					]
 				},
 				update: {
@@ -77,7 +76,13 @@ export const schema = {
 		}),
 		permissions: {
 			user: {
-				read: { filter: [true] },
+				read: { filter: [
+					or([
+						['user_id', '=', '$role.userId'], // User can read their own profile
+						// A user should be able to only query for users and attendees who are attending a same event:
+						['user.attendances.event.attendees.user_id', '=', '$role.userId']
+					])
+				] },
 				insert: {
 					filter: [['user_id', '=', '$role.userId']] // Users can only insert their own profile images
 				},
@@ -211,9 +216,9 @@ export const schema = {
 		permissions: {
 			user: {
 				read: { filter: [true] },
-				// No need to allow read and insert since we will do that in BE logic and
+				// No need to allow insert since we will do that in BE logic and
 				// triplit doesn't seem powerful enough to be able to set appropriate permissions (user
-				// is attending event).
+				// is attending event). Read is only used to count files as S3 URL is generated in BE.
 				update: {
 					filter: [['uploader_id', '=', '$role.userId']] // Users can only update their own files
 				},
