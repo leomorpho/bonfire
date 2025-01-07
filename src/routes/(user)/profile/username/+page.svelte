@@ -29,7 +29,7 @@
 			userId = (await waitForUserId()) as string;
 			console.log(userId);
 			const query = client.query('user').where('id', '=', userId).build();
-			let result = await client.fetch(query, { policy: 'local-and-remote' });
+			let result = await client.fetch(query);
 			if (result.length == 1) {
 				username = result[0].username;
 			}
