@@ -85,7 +85,6 @@
 
 	onMount(() => {
 		client = getFeTriplitClient($page.data.jwt) as TriplitClient;
-		console.log('in mount');
 		if (anonymousUser) {
 			// If user is anonymous, load event data from page data. It will contain limited data.
 			event = $page.data.event;
@@ -93,18 +92,48 @@
 			return;
 		}
 		// Fetch event data from triplit DB
-		(async () => {
-			try {
-				eventLoading = true;
-				// Update event data based on the current page id
-				event = await client.fetchById('events', $page.params.id);
-				console.log('Got event!!!!!', event);
-			} catch (e) {
-				eventFailedLoading = true;
-			} finally {
+		// (async () => {
+		// 	try {
+		// 		eventLoading = true;
+		// 		// Update event data based on the current page id
+		// 		event = await client.fetchById('events', $page.params.id);
+		// 		const unsubscribeFromEventQuery = client.subscribe(
+		// 			client
+		// 				.query('events')
+		// 				.where([['event_id', '=', $page.params.id]])
+		// 				.build(),
+		// 			(results) => {
+		// 				event = results;
+		// 			},
+		// 			(error) => {
+		// 				console.error('Error fetching event:', error);
+		// 			}
+		// 		);
+		// 	} catch (e) {
+		// 		eventFailedLoading = true;
+		// 	} finally {
+		// 		eventLoading = false;
+		// 	}
+		// })();
+		eventLoading = true;
+		// Update event data based on the current page id
+		const unsubscribeFromEventQuery = client.subscribe(
+			client
+				.query('events')
+				.where([['id', '=', $page.params.id]])
+				.build(),
+			(results) => {
+				console.log('results', results);
+				if (results.length == 1) {
+					event = results[0];
+				}
 				eventLoading = false;
+			},
+			(error) => {
+				console.error('Error fetching event:', error);
+				eventFailedLoading = true;
 			}
-		})();
+		);
 
 		(async () => {
 			userId = (await waitForUserId()) as string;
@@ -164,6 +193,7 @@
 		return () => {
 			// Cleanup
 			unsubscribeAttendeesQuery();
+			unsubscribeFromEventQuery();
 		};
 	});
 
