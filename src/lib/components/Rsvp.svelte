@@ -3,7 +3,7 @@
 	import { Smile, Meh, Frown } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import type { TriplitClient } from '@triplit/client';
-	import {  getFeTriplitClient } from '$lib/triplit';
+	import { getFeTriplitClient } from '$lib/triplit';
 	import { getStrValueOfRSVP, NOTIFY_OF_ATTENDING_STATUS_CHANGE, Status } from '$lib/enums';
 	import { and } from '@triplit/client';
 	import AddToCalendar from './AddToCalendar.svelte';
@@ -11,7 +11,7 @@
 	import { onMount } from 'svelte';
 	import { createNewAttendanceNotificationQueueObject } from '$lib/notification';
 
-	let { rsvpStatus = Status.DEFAULT, userId, eventId, rsvpCanBeChanged } = $props();
+	let { rsvpStatus = Status.DEFAULT, userId, eventId, isAnonymousUser } = $props();
 
 	// console.log('attendance', attendance);
 	console.log('userId', userId);
@@ -38,6 +38,17 @@
 	const updateRSVP = async (event: Event, newValue: string) => {
 		event.preventDefault();
 
+		if (isAnonymousUser) {
+		} else {
+			await updateRSVPForLoggedInUser(newValue);
+		}
+		dropdownOpen = false;
+	};
+	const updateRSVPForAnonymousUser = async (newValue: string) => {
+		// TODO: capture a username in a dialog, then save it to DB and show user a URL to re-access with that identity
+	};
+
+	const updateRSVPForLoggedInUser = async (newValue: string) => {
 		try {
 			const query = client
 				.query('attendees')
@@ -71,16 +82,12 @@
 		} catch (error) {
 			console.log('failed to update RSVP status to:', newValue, error);
 		}
-		dropdownOpen = false;
 	};
 </script>
 
 <div class="flex">
 	<DropdownMenu.Root bind:open={dropdownOpen}>
-		<DropdownMenu.Trigger
-			class="w-full {rsvpCanBeChanged ? '' : 'pointer-events-none opacity-50'}"
-			disabled={!rsvpCanBeChanged}
-		>
+		<DropdownMenu.Trigger class="w-full">
 			<Button
 				variant="outline"
 				class="mt-4 flex w-full items-center justify-center {rsvpStatus === Status.GOING

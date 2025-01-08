@@ -91,30 +91,7 @@
 			eventLoading = false;
 			return;
 		}
-		// Fetch event data from triplit DB
-		// (async () => {
-		// 	try {
-		// 		eventLoading = true;
-		// 		// Update event data based on the current page id
-		// 		event = await client.fetchById('events', $page.params.id);
-		// 		const unsubscribeFromEventQuery = client.subscribe(
-		// 			client
-		// 				.query('events')
-		// 				.where([['event_id', '=', $page.params.id]])
-		// 				.build(),
-		// 			(results) => {
-		// 				event = results;
-		// 			},
-		// 			(error) => {
-		// 				console.error('Error fetching event:', error);
-		// 			}
-		// 		);
-		// 	} catch (e) {
-		// 		eventFailedLoading = true;
-		// 	} finally {
-		// 		eventLoading = false;
-		// 	}
-		// })();
+
 		eventLoading = true;
 		// Update event data based on the current page id
 		const unsubscribeFromEventQuery = client.subscribe(
@@ -385,7 +362,7 @@
 						</Button>
 					</a>
 				{/if}
-				<Rsvp {rsvpStatus} {userId} eventId={event.id} rsvpCanBeChanged={!anonymousUser} />
+				<Rsvp {rsvpStatus} {userId} eventId={event.id} isAnonymousUser={anonymousUser} />
 
 				<Button
 					onclick={() => handleShare(event)}
