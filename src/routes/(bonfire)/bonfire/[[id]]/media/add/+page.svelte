@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { Dashboard } from '@uppy/svelte';
+	// import { Dashboard } from '@uppy/svelte';
 	import Uppy from '@uppy/core';
 	import Webcam from '@uppy/webcam';
-	import Audio from '@uppy/audio';
+	// import Audio from '@uppy/audio';
 	import XHR from '@uppy/xhr-upload';
 	import GoldenRetriever from '@uppy/golden-retriever';
 	import Compressor from '@uppy/compressor';
@@ -44,7 +44,7 @@
 				mirror: true // Use mirror mode for webcam
 				// countdown: true // Add a countdown before capturing
 			})
-			.use(Audio)
+			// .use(Audio)
 			.use(GoldenRetriever)
 			.use(Compressor)
 			.use(XHR, {

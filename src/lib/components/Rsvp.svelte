@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
-	import { Smile, Meh, Frown } from 'lucide-svelte';
+	import { Smile, Meh, Frown, HandMetal } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import type { TriplitClient } from '@triplit/client';
 	import { getFeTriplitClient } from '$lib/triplit';
@@ -12,6 +12,10 @@
 	import { createNewAttendanceNotificationQueueObject } from '$lib/notification';
 
 	let { rsvpStatus = Status.DEFAULT, userId, eventId, isAnonymousUser } = $props();
+
+	if (!rsvpStatus) {
+		rsvpStatus = Status.DEFAULT;
+	}
 
 	// console.log('attendance', attendance);
 	console.log('userId', userId);
@@ -94,8 +98,13 @@
 					? 'bg-green-400 hover:bg-green-100'
 					: ''} {rsvpStatus === Status.MAYBE
 					? 'bg-yellow-400 hover:bg-yellow-100'
-					: ''} {rsvpStatus === Status.NOT_GOING ? 'bg-red-400 hover:bg-red-100' : ''}"
+					: ''} {rsvpStatus === Status.NOT_GOING
+					? 'bg-red-400 hover:bg-red-100'
+					: ''} {rsvpStatus === Status.DEFAULT ? 'bg-purple-300 hover:bg-purple-100' : ''}"
 			>
+				{#if rsvpStatus === Status.DEFAULT || rsvpStatus == null}
+					<HandMetal class="mr-2" />
+				{/if}
 				{getStrValueOfRSVP(rsvpStatus)}
 			</Button>
 		</DropdownMenu.Trigger>

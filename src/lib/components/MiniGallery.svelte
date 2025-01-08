@@ -5,6 +5,7 @@
 	import { Image } from '@unpic/svelte';
 	import { ImagePlus } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
+	import BonfireNoInfoCard from './BonfireNoInfoCard.svelte';
 
 	let { fileCount, eventFiles } = $props();
 	let lightbox: PhotoSwipeLightbox | null = $state(null);
@@ -27,40 +28,46 @@
 </script>
 
 {#if eventFiles}
-	<div class="lightbox-gallery-container my-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
-		{#each eventFiles as file}
-			<a href={file.URL} data-pswp-width={file.w_pixel} data-pswp-height={file.h_pixel}>
-				<Image
-					class="rounded-lg border-2 border-white-500"
-					height={file.h_pixel}
-					src={file.URL}
-					layout="constrained"
-					aspectRatio={5 / 3}
-					alt={file.file_name}
-				/>
-			</a>
-		{/each}
-		{#if eventFiles.length > 2 && fileCount}
-			<!-- "See All" Image -->
-			<a href="media/gallery" class="see-all-link block">
-				<div
-					class="flex items-center justify-center rounded-lg bg-gray-200 text-center font-semibold sm:text-lg"
-					style="aspect-ratio: 5 / 3; width: 100%;"
-				>
-					See {fileCount} more
-				</div>
-			</a>
-		{:else}
-			<a href="media/gallery" class="see-all-link block">
-				<div
-					class="flex items-center justify-center rounded-lg bg-gray-200 text-center font-semibold sm:text-lg"
-					style="aspect-ratio: 5 / 3; width: 100%;"
-				>
-					See Gallery
-				</div>
-			</a>
-		{/if}
-	</div>
+	{#if eventFiles.length > 0}
+		<div class="lightbox-gallery-container my-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
+			{#each eventFiles as file}
+				<a href={file.URL} data-pswp-width={file.w_pixel} data-pswp-height={file.h_pixel}>
+					<Image
+						class="border-white-500 rounded-lg border-2"
+						height={file.h_pixel}
+						src={file.URL}
+						layout="constrained"
+						aspectRatio={5 / 3}
+						alt={file.file_name}
+					/>
+				</a>
+			{/each}
+			{#if eventFiles.length > 2 && fileCount}
+				<!-- "See All" Image -->
+				<a href="media/gallery" class="see-all-link block">
+					<div
+						class="flex items-center justify-center rounded-lg bg-gray-200 text-center font-semibold sm:text-lg"
+						style="aspect-ratio: 5 / 3; width: 100%;"
+					>
+						See {fileCount} more
+					</div>
+				</a>
+			{:else}
+				<a href="media/gallery" class="see-all-link block">
+					<div
+						class="flex items-center justify-center rounded-lg bg-gray-200 text-center font-semibold sm:text-lg"
+						style="aspect-ratio: 5 / 3; width: 100%;"
+					>
+						See Gallery
+					</div>
+				</a>
+			{/if}
+		</div>
+	{:else}
+		<div class="my-2">
+			<BonfireNoInfoCard text={'No photos/videos yet'} />
+		</div>
+	{/if}
 {/if}
 <a href="media/add"
 	><Button class="flex w-full items-center justify-center ring-glow"

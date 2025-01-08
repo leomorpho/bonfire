@@ -8,6 +8,7 @@
 	import Announcement from './Announcement.svelte';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
+	import BonfireNoInfoCard from './BonfireNoInfoCard.svelte';
 
 	let { maxCount = null } = $props();
 
@@ -102,35 +103,39 @@
 	</div>
 {:else}
 	<div class="space-y-3">
-		{#each announcementsSubset as announcement}
-			<Announcement {eventId} currUserId={userId} {announcement} {currentUserAttendeeId} />
-		{/each}
-		{#if totalCount > maxCount}
-			<Button class="mt-3 w-full ring-glow" onclick={getAllAnnouncements}
-				>See {totalCount - maxCount} more annoucements</Button
-			>
-			<Dialog.Root bind:open={isDialogOpen}>
-				<Dialog.Content class="h-full sm:h-[90vh]">
-					<ScrollArea>
-						<Dialog.Header class="mx-4">
-							<Dialog.Title>All Announcements</Dialog.Title>
+		{#if totalCount > 3}
+			{#each announcementsSubset as announcement}
+				<Announcement {eventId} currUserId={userId} {announcement} {currentUserAttendeeId} />
+			{/each}
+			{#if totalCount > maxCount}
+				<Button class="mt-3 w-full ring-glow" onclick={getAllAnnouncements}
+					>See {totalCount - maxCount} more annoucements</Button
+				>
+				<Dialog.Root bind:open={isDialogOpen}>
+					<Dialog.Content class="h-full sm:h-[90vh]">
+						<ScrollArea>
+							<Dialog.Header class="mx-4">
+								<Dialog.Title>All Announcements</Dialog.Title>
 
-							<Dialog.Description>
-								{#each allUnreadNotifications as announcement}
-									<div class="my-3">
-										<Announcement
-											{eventId}
-											currUserId={userId}
-											{announcement}
-											{currentUserAttendeeId}
-										/>
-									</div>
-								{/each}
-							</Dialog.Description>
-						</Dialog.Header>
-					</ScrollArea>
-				</Dialog.Content>
-			</Dialog.Root>
+								<Dialog.Description>
+									{#each allUnreadNotifications as announcement}
+										<div class="my-3">
+											<Announcement
+												{eventId}
+												currUserId={userId}
+												{announcement}
+												{currentUserAttendeeId}
+											/>
+										</div>
+									{/each}
+								</Dialog.Description>
+							</Dialog.Header>
+						</ScrollArea>
+					</Dialog.Content>
+				</Dialog.Root>
+			{/if}
+		{:else}
+			<BonfireNoInfoCard text={'No announcements yet'} />
 		{/if}
 	</div>
 {/if}
