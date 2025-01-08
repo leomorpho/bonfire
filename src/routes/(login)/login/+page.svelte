@@ -4,6 +4,7 @@
 	import Google from '$lib/components/icons/Google.svelte';
 	import { superForm } from 'sveltekit-superforms';
 	import { Mail, Laugh } from 'lucide-svelte';
+	import { Image } from '@unpic/svelte';
 
 	const { data } = $props();
 
@@ -37,40 +38,44 @@
 	/>
 </svelte:head>
 
-<div class="flex p-5 items-center justify-center h-screen">
-	<div class="card p-5 flex flex-col w-full max-w-[470px]">
+<div class="flex h-screen items-center justify-center p-5">
+	<div class="card flex w-full max-w-[470px] flex-col p-5">
 		{#if email_sent}
 			<div class="text-center">
 				<Mail size="40" class="mx-auto my-4" />
 				<div class="text-3xl font-bold leading-none tracking-tight">Check your inbox</div>
-				<div class="mt-4 text-muted-primary text-lg opacity-80 max-w-[32ch] mx-auto">
+				<div class="text-muted-primary mx-auto mt-4 max-w-[32ch] text-lg opacity-80">
 					We've sent you a login link. Please be sure to check your spam folder too.
 				</div>
 			</div>
 		{:else}
-			<div class="my-4 flex flex-col space-y-1.5 text-center w-full">
-				<div class="mx-auto w-fit">
-					<Laugh class="h-12 w-12 my-4" />
-				</div>
-				<div class="mx-auto text-3xl font-semibold leading-none tracking-tight">
-					Welcome to {PUBLIC_PROJECT_NAME}
+			<div class="my-4 flex w-full flex-col space-y-1.5 text-center">
+				<div class="mx-auto w-fit max-w-64">
+					<Image
+						class="max-w-64 rounded-lg"
+						height={834}
+						width={1000}
+						src="https://f002.backblazeb2.com/file/bonfire-public/logo/Bonfire_logo_vert_color.png"
+						layout="constrained"
+						alt="Bonfire logo with name"
+					/>
 				</div>
 			</div>
 			{#if data.user}
-				<a href="/" class="btn btn-primary font-semibold text-md md:text-lg mt-4 w-full"
+				<a href="/" class="text-md btn btn-primary mt-4 w-full font-semibold md:text-lg"
 					>Continue with current account
 				</a>
-				<p class="opacity-70 text-center text-sm my-3">
+				<p class="my-3 text-center text-sm opacity-70">
 					Signed in as {data.user.email}
 				</p>
 			{:else}
-				<a href="/login/google" class="btn btn-primary font-semibold text-md md:text-lg mt-4 w-full"
-					><Google class="w-4 mr-3" />Continue with Google
+				<a href="/login/google" class="text-md btn btn-primary mt-4 w-full font-semibold md:text-lg"
+					><Google class="mr-3 w-4" />Continue with Google
 				</a>{/if}
 
 			{#if data.user}
 				<form method="post" action="/login?/signout">
-					<button type="submit" class="btn btn-ghost font-semibold text-md sm:text-lg mt-2 w-full"
+					<button type="submit" class="text-md btn btn-ghost mt-2 w-full font-semibold sm:text-lg"
 						>Sign in with a different account
 					</button>
 				</form>
@@ -81,18 +86,18 @@
 						placeholder="Email"
 						type="email"
 						name="email"
-						class="input w-full my-5"
+						class="input my-5 w-full"
 						class:hidden={!show_email_input}
 					/>
 					{#if $errors.email}
-						<span class="text-red-500 text-xs mt-2 ml-1">{$errors.email}</span>
+						<span class="ml-1 mt-2 text-xs text-red-500">{$errors.email}</span>
 					{/if}
 
 					{#if show_email_input}
 						<button
 							type="submit"
 							disabled={$submitting}
-							class="btn font-semibold text-md sm:text-lg w-full"
+							class="text-md btn w-full font-semibold sm:text-lg"
 						>
 							{#if $submitting}
 								<span class="loading loading-spinner loading-xs mr-2"></span>
@@ -103,7 +108,7 @@
 						<button
 							onclick={handleEmail}
 							type="button"
-							class="btn font-semibold text-md sm:text-lg mt-4 w-full"
+							class="text-md btn mt-4 w-full font-semibold sm:text-lg"
 							>Continue with email
 						</button>{/if}
 				</form>
