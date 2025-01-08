@@ -15,7 +15,6 @@
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
 	import { Skeleton } from '$lib/components/ui/skeleton/index.js';
 	import { PUBLIC_ORIGIN } from '$env/static/public';
-	import { KeyRound } from 'lucide-svelte';
 	import MiniGallery from '$lib/components/MiniGallery.svelte';
 	import { toast } from 'svelte-sonner';
 	import Annoucements from '$lib/components/Annoucements.svelte';
@@ -32,7 +31,8 @@
 	let eventFailedLoading = $state(false);
 	let fileCount = $state();
 	let rsvpStatus = $state('');
-	let anonymousUser = $state(!$page.data.user);
+	let isAnonymousUser = $state(!$page.data.user);
+	let isUnverifiedUser = $state(false);
 
 	let client: TriplitClient;
 
@@ -88,7 +88,7 @@
 
 	onMount(() => {
 		client = getFeTriplitClient($page.data.jwt) as TriplitClient;
-		if (anonymousUser) {
+		if (isAnonymousUser || isUnverifiedUser) {
 			// If user is anonymous, load event data from page data. It will contain limited data.
 			event = $page.data.event;
 			eventLoading = false;
@@ -235,20 +235,20 @@
 	};
 </script>
 
-{#if !anonymousUser && eventLoading}
+{#if !isAnonymousUser && !isUnverifiedUser && eventLoading}
 	<Loader />
 {:else if eventFailedLoading}
 	<CenterScreenMessage
 		message={'Oups, we apologize but the event failed to load, please try again later 😓'}
 	/>
 {:else if !eventLoading}
-	{#if anonymousUser && !event}
+	{#if !event}
 		<EventDoesNotExist />
 	{:else}
 		{console.log('--> event', event)}
 		<div class="mx-4 flex flex-col items-center justify-center">
 			<section class="mt-8 w-full sm:w-[450px] md:w-[550px] lg:w-[650px]">
-				{#if !anonymousUser && event.user_id == (userId as string)}
+				{#if !isAnonymousUser && !isUnverifiedUser && event.user_id == (userId as string)}
 					<div class="flex w-full justify-center">
 						<a href="update">
 							<Button variant="outline" class="m-2 rounded-full">
@@ -258,10 +258,10 @@
 					</div>
 				{/if}
 				<div class="rounded-xl bg-white p-5">
-					<h1 class="text-xl">{anonymousUser ? $page.data.event.title : event.title}</h1>
+					<h1 class="text-xl">{isAnonymousUser || isUnverifiedUser ? $page.data.event.title : event.title}</h1>
 					<div class="font-medium">{formatHumanReadable(event.start_time)}</div>
 					<div class="font-light">
-						{#if !anonymousUser}
+						{#if !isAnonymousUser}
 							<div>{event.location}</div>
 						{:else}
 							Set RSVP status to see location
@@ -276,7 +276,7 @@
 								<Skeleton class="size-12 rounded-full" />
 							{/each}
 						</div>
-					{:else if attendeesGoing.length > 0}
+					{:else if !isAnonymousUser && attendeesGoing.length > 0}
 						<div class="flex flex-wrap items-center -space-x-4">
 							{#each attendeesGoing.slice(0, showMaxNumPeople) as attendee}
 								<ProfileAvatar
@@ -356,7 +356,7 @@
 								</Dialog.Content>
 							</Dialog.Root>
 						</div>
-					{:else if attendeesGoing.length == 0}
+					{:else if !isAnonymousUser && attendeesGoing.length == 0}
 						<div class="flex justify-center">
 							<div
 								class="flex w-full items-center justify-center rounded-lg bg-slate-500 bg-opacity-75 p-2 text-sm text-white ring-glow sm:w-2/3"
@@ -367,7 +367,7 @@
 								</Avatar.Root> No attendees yet
 							</div>
 						</div>
-					{:else if anonymousUser}
+					{:else if isAnonymousUser}
 						<div class="flex justify-center">
 							<div
 								class="flex w-full items-center justify-center rounded-lg bg-purple-500 bg-opacity-75 p-2 text-sm text-white ring-glow sm:w-2/3"
@@ -381,7 +381,7 @@
 						</div>
 					{/if}
 				</div>
-				<!-- {#if anonymousUser}
+				<!-- {#if isAnonymousUser}
 					<a href="/login" class="mt-4 flex justify-center">
 						<Button class="w-full bg-green-500 py-8 hover:bg-green-400">
 							<KeyRound class="mr-2 size-4 " />
@@ -389,11 +389,10 @@
 						</Button>
 					</a>
 				{/if} -->
-				<Rsvp {rsvpStatus} {userId} eventId={event.id} isAnonymousUser={anonymousUser} />
+				<Rsvp {rsvpStatus} {userId} eventId={event.id} {isAnonymousUser} />
 
 				<Button
 					onclick={() => handleShare(event)}
-					disabled={anonymousUser}
 					class="mt-4 flex w-full items-center justify-center ring-glow"
 				>
 					<Share class="h-5 w-5" />
@@ -412,7 +411,7 @@
 					<div class=" rounded-xl bg-white p-5">
 						<div class="font-semibold">Announcements</div>
 					</div>
-					{#if anonymousUser && $page.data.numAnnouncements != null}
+					{#if isAnonymousUser && $page.data.numAnnouncements != null}
 						<div class="my-2">
 							<BonfireNoInfoCard text={$page.data.numAnnouncements + ' announcements'} />
 						</div>
@@ -434,12 +433,12 @@
 					<div class=" rounded-xl bg-white p-5">
 						<div class="font-semibold">Gallery</div>
 					</div>
-					{#if anonymousUser && $page.data.numFiles != null}
+					{#if (isAnonymousUser || isUnverifiedUser) && $page.data.numFiles != null}
 						<div class="my-2">
 							<BonfireNoInfoCard text={$page.data.numFiles + ' files'} />
 						</div>
 					{:else}
-						<div class="my-10">
+						<div class="mb-10">
 							{#if eventFiles && fileCount.results}
 								<MiniGallery
 									fileCount={fileCount.results.length - eventFiles.length}

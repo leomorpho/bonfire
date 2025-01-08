@@ -43,7 +43,6 @@ export const load = async (e) => {
 					.include('files')
 					.build()
 			);
-			console.log('fetched event', event);
 			if (event != null) {
 				if (event.attendees != null) {
 					numAttendees = event.attendees.length;
@@ -55,9 +54,9 @@ export const load = async (e) => {
 					numFiles = event.files.length;
 				}
 
-				console.log("numAttendees", numAttendees)
-				console.log("numAnnouncements", numAnnouncements)
-				console.log("numFiles", numFiles)
+				// console.log("numAttendees", numAttendees)
+				// console.log("numAnnouncements", numAnnouncements)
+				// console.log("numFiles", numFiles)
 			}
 		} catch (e) {
 			console.debug(`### failed to fetch event with id ${eventId}`, e);

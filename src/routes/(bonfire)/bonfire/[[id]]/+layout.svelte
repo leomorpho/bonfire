@@ -14,7 +14,7 @@
 	let client: TriplitClient = $state();
 	let styleData = $state();
 
-	// Subscribe to the stores for reactive updates, this allows updating the styles 
+	// Subscribe to the stores for reactive updates, this allows updating the styles
 	// on the event page when redirected from the update page.
 	styleStore.subscribe((value) => {
 		styles = value;
@@ -27,16 +27,25 @@
 	});
 
 	onMount(async () => {
-		client = getFeTriplitClient($page.data.jwt);
-		const styleDataQuery = client
-			.query('events')
-			.where(['id', '=', $page.params.id])
-			.select(['style', 'overlay_color', 'overlay_opacity'])
-			.build();
-		styleData = await client.fetchOne(styleDataQuery);
-		styles = typeof styleData?.style === 'string' ? styleData.style : '';
-		overlayColor = styleData?.overlay_color ?? '#000000';
-		overlayOpacity = styleData?.overlay_opacity ?? 0.5;
+		if ($page.data.user) {
+			// User is logged in
+			client = getFeTriplitClient($page.data.jwt);
+			const styleDataQuery = client
+				.query('events')
+				.where(['id', '=', $page.params.id])
+				.select(['style', 'overlay_color', 'overlay_opacity'])
+				.build();
+
+			styleData = await client.fetchOne(styleDataQuery);
+			styles = typeof styleData?.style === 'string' ? styleData.style : '';
+			overlayColor = styleData?.overlay_color ?? '#000000';
+			overlayOpacity = styleData?.overlay_opacity ?? 0.5;
+		} else if ($page.data.event) {
+			// If user is not logged in, it's the responsibility of BE to return the proper event object for anonymous and unverified users
+			styles = typeof $page.data.event?.style === 'string' ? $page.data.event.style : '';
+			overlayColor = $page.data.event?.overlay_color ?? '#000000';
+			overlayOpacity = $page.data.event?.overlay_opacity ?? 0.5;
+		}
 
 		styleStore.set(styleData?.style || '');
 		overlayColorStore.set(overlayColor);
