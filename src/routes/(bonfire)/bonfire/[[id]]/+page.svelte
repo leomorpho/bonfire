@@ -23,6 +23,7 @@
 	import EventDoesNotExist from '$lib/components/EventDoesNotExist.svelte';
 	import CenterScreenMessage from '$lib/components/CenterScreenMessage.svelte';
 	import * as Avatar from '$lib/components/ui/avatar/index.js';
+	import BonfireNoInfoCard from '$lib/components/BonfireNoInfoCard.svelte';
 
 	let userId = $state('');
 
@@ -263,7 +264,7 @@
 						{#if !anonymousUser}
 							<div>{event.location}</div>
 						{:else}
-							Please log in to see location
+							Set RSVP status to see location
 						{/if}
 					</div>
 				</div>
@@ -358,7 +359,7 @@
 					{:else if attendeesGoing.length == 0}
 						<div class="flex justify-center">
 							<div
-								class="flex w-full items-center justify-center rounded-lg bg-slate-500 p-2 text-sm text-white ring-glow sm:w-2/3 bg-opacity-75"
+								class="flex w-full items-center justify-center rounded-lg bg-slate-500 bg-opacity-75 p-2 text-sm text-white ring-glow sm:w-2/3"
 							>
 								<Avatar.Root class="mr-2 h-12 w-12 border-2 border-white bg-white sm:h-14 sm:w-14">
 									<Avatar.Image src={'/icon-128.png'} alt={''} />
@@ -369,7 +370,7 @@
 					{:else if anonymousUser}
 						<div class="flex justify-center">
 							<div
-								class="flex w-full items-center justify-center rounded-lg bg-purple-500 p-2 text-sm text-white ring-glow sm:w-2/3 bg-opacity-75"
+								class="flex w-full items-center justify-center rounded-lg bg-purple-500 bg-opacity-75 p-2 text-sm text-white ring-glow sm:w-2/3"
 							>
 								<Avatar.Root class="mr-2 h-12 w-12 border-2 border-white bg-white sm:h-14 sm:w-14">
 									<Avatar.Image src={'/icon-128.png'} alt={''} />
@@ -380,14 +381,14 @@
 						</div>
 					{/if}
 				</div>
-				{#if anonymousUser}
+				<!-- {#if anonymousUser}
 					<a href="/login" class="mt-4 flex justify-center">
 						<Button class="w-full bg-green-500 py-8 hover:bg-green-400">
 							<KeyRound class="mr-2 size-4 " />
 							Log in or register to interact with event.
 						</Button>
 					</a>
-				{/if}
+				{/if} -->
 				<Rsvp {rsvpStatus} {userId} eventId={event.id} isAnonymousUser={anonymousUser} />
 
 				<Button
@@ -403,15 +404,19 @@
 					{#if event.description}
 						{event.description}
 					{:else}
-					{'No details yet...'}
+						{'No details yet...'}
 					{/if}
 				</div>
-				{#if !anonymousUser}
-					<HorizRule />
-					<div class="my-10">
-						<div class="rounded-xl bg-white p-5 font-semibold" id="announcements">
-							Announcements
+				<HorizRule />
+				<div class="my-10">
+					<div class=" rounded-xl bg-white p-5">
+						<div class="font-semibold">Announcements</div>
+					</div>
+					{#if anonymousUser && $page.data.numAnnouncements != null}
+						<div class="my-2">
+							<BonfireNoInfoCard text={$page.data.numAnnouncements + ' announcements'} />
 						</div>
+					{:else}
 						<div class="my-2">
 							<Annoucements maxCount={3} />
 						</div>
@@ -422,9 +427,10 @@
 								>
 							</a>
 						{/if}
-					</div>
-					<HorizRule />
-
+					{/if}
+				</div>
+				<HorizRule />
+				{#if !anonymousUser}
 					<div class="my-10">
 						{#if eventFiles && fileCount.results}
 							<MiniGallery fileCount={fileCount.results.length - eventFiles.length} {eventFiles} />

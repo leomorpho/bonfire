@@ -16,6 +16,7 @@ export const load = async (e) => {
 	console.log('logged in user', user);
 	let event = null;
 	let numAttendees = null;
+	let numAnnouncements = null;
 
 	if (user) {
 		try {
@@ -51,10 +52,23 @@ export const load = async (e) => {
 		} catch (e) {
 			console.debug(`failed to fetch attendees for event with id ${eventId}`, e);
 		}
+		try {
+			const announcements = await triplitHttpClient.fetch(
+				triplitHttpClient
+					.query('announcement')
+					.where(['event_id', '=', eventId as string])
+					.order('created_at', 'DESC')
+					.build()
+			);
+			numAnnouncements = announcements.length;
+		} catch (e) {
+			console.debug(`failed to fetch attendees for event with id ${eventId}`, e);
+		}
 	}
 	return {
 		user: user,
 		event: event,
-		numAttendees:numAttendees
+		numAttendees: numAttendees,
+		numAnnouncements: numAnnouncements
 	};
 };
