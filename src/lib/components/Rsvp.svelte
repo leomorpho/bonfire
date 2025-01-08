@@ -1,17 +1,22 @@
 <script lang="ts">
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import { Smile, Meh, Frown, HandMetal } from 'lucide-svelte';
-	import { Button } from '$lib/components/ui/button/index.js';
 	import type { TriplitClient } from '@triplit/client';
+	import { and } from '@triplit/client';
 	import { getFeTriplitClient } from '$lib/triplit';
 	import { getStrValueOfRSVP, NOTIFY_OF_ATTENDING_STATUS_CHANGE, Status } from '$lib/enums';
-	import { and } from '@triplit/client';
 	import AddToCalendar from './AddToCalendar.svelte';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 	import { createNewAttendanceNotificationQueueObject } from '$lib/notification';
+	import { Button, buttonVariants } from '$lib/components/ui/button/index.js';
+	import * as Dialog from '$lib/components/ui/dialog/index.js';
+	import { Input } from '$lib/components/ui/input/index.js';
+	import { Label } from '$lib/components/ui/label/index.js';
 
 	let { rsvpStatus = Status.DEFAULT, userId, eventId, isAnonymousUser } = $props();
+
+	let isAnonRsvpDialogOpen = $state(false);
 
 	if (!rsvpStatus) {
 		rsvpStatus = Status.DEFAULT;
@@ -41,8 +46,12 @@
 	// Function to handle RSVP updates
 	const updateRSVP = async (event: Event, newValue: string) => {
 		event.preventDefault();
-
+		console.log('updating RSVP status');
 		if (isAnonymousUser) {
+			isAnonRsvpDialogOpen = true;
+			// Show modal to either
+			// (a) log in with magic link and have that event be linked to their account right away
+			// (b) enter a name and generate a unique link to access the event with their temporary identity
 		} else {
 			await updateRSVPForLoggedInUser(newValue);
 		}
@@ -135,3 +144,37 @@
 		<span class="ml-1"> <AddToCalendar /> </span>
 	{/if}
 </div>
+
+<Dialog.Root bind:open={isAnonRsvpDialogOpen}>
+	<Dialog.Content class="sm:max-w-[425px]">
+		<Dialog.Header>
+			<Dialog.Title>Hey There!</Dialog.Title>
+			<Dialog.Description>There are two ways to set your RSVP status.</Dialog.Description>
+		</Dialog.Header>
+		<div class="space-y-3">
+			<a href="/login">
+				<Button class="w-full bg-green-500 text-lg">Login with magic link</Button>
+			</a>
+		</div>
+
+		<div class="inline-flex w-full items-center justify-center">
+			<hr class="my-8 h-px w-64 border-0 bg-gray-200 dark:bg-gray-700" />
+			<span
+				class="absolute left-1/2 -translate-x-1/2 bg-white px-3 font-medium text-gray-900 dark:bg-gray-900 dark:text-white"
+				>or</span
+			>
+		</div>
+		<div class="space-y-3">
+			<div class="mb-2 text-lg">Generate unique URL</div>
+			<p class="text-sm text-slate-600">
+				A unique URL that connects your actions to this event. Keep it open in a tab or save it for
+				future access—don’t lose it! This link serves as your identity for this event.
+			</p>
+			<div class="mb-2 grid grid-cols-4 items-center gap-4">
+				<Label for="username" class="text-right">Name</Label>
+				<Input id="username" value="Tony Garfunkel" class="col-span-3" />
+			</div>
+			<Button type="submit" class="w-full">Generate URL</Button>
+		</div>
+	</Dialog.Content>
+</Dialog.Root>

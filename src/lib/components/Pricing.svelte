@@ -8,7 +8,7 @@
 			"When you create an account, you'll get 3 free logs to create 3 different Bonfires",
 			'RSVP to any number of Bonfires for free, always',
 			'Referral program: Get 1 free log for every friend that creates an account using your referral link',
-			'All bonfires get deleted 30 days after they happen'
+			'All bonfires get deleted 14 days after they happen'
 		]
 		// excluded: ['Feature 4', 'Feature 5', 'Feature 6']
 	};
