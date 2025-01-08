@@ -17,6 +17,7 @@ export const load = async (e) => {
 	let event = null;
 	let numAttendees = null;
 	let numAnnouncements = null;
+	let numFiles = null;
 
 	if (user) {
 		try {
@@ -31,6 +32,7 @@ export const load = async (e) => {
 			console.log(e);
 		}
 	} else {
+		// TODO: flatten into single query
 		try {
 			event = await triplitHttpClient.fetchOne(
 				triplitHttpClient
@@ -62,13 +64,25 @@ export const load = async (e) => {
 			);
 			numAnnouncements = announcements.length;
 		} catch (e) {
-			console.debug(`failed to fetch attendees for event with id ${eventId}`, e);
+			console.debug(`failed to fetch announcements for event with id ${eventId}`, e);
+		}
+		try {
+			const files = await triplitHttpClient.fetch(
+				triplitHttpClient
+					.query('files')
+					.where('event_id', '=', eventId as string)
+					.build()
+			);
+			numFiles = files.length;
+		} catch (e) {
+			console.debug(`failed to fetch files for event with id ${eventId}`, e);
 		}
 	}
 	return {
 		user: user,
 		event: event,
 		numAttendees: numAttendees,
-		numAnnouncements: numAnnouncements
+		numAnnouncements: numAnnouncements,
+		numFiles: numFiles
 	};
 };

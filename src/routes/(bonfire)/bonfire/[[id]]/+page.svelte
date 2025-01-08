@@ -430,15 +430,27 @@
 					{/if}
 				</div>
 				<HorizRule />
-				{#if !anonymousUser}
-					<div class="my-10">
-						{#if eventFiles && fileCount.results}
-							<MiniGallery fileCount={fileCount.results.length - eventFiles.length} {eventFiles} />
-						{:else if loadEventFiles}
-							<Loader />
-						{/if}
+				<div class="my-5">
+					<div class=" rounded-xl bg-white p-5">
+						<div class="font-semibold">Gallery</div>
 					</div>
-				{/if}
+					{#if anonymousUser && $page.data.numFiles != null}
+						<div class="my-2">
+							<BonfireNoInfoCard text={$page.data.numFiles + ' files'} />
+						</div>
+					{:else}
+						<div class="my-10">
+							{#if eventFiles && fileCount.results}
+								<MiniGallery
+									fileCount={fileCount.results.length - eventFiles.length}
+									{eventFiles}
+								/>
+							{:else if loadEventFiles}
+								<Loader />
+							{/if}
+						</div>
+					{/if}
+				</div>
 			</section>
 		</div>
 	{/if}
