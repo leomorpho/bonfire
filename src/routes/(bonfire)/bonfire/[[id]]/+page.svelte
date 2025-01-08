@@ -22,6 +22,7 @@
 	import HorizRule from '$lib/components/HorizRule.svelte';
 	import EventDoesNotExist from '$lib/components/EventDoesNotExist.svelte';
 	import CenterScreenMessage from '$lib/components/CenterScreenMessage.svelte';
+	import * as Avatar from '$lib/components/ui/avatar/index.js';
 
 	let userId = $state('');
 
@@ -45,6 +46,7 @@
 	let attendeesGoing: any = $state([]);
 	let attendeesMaybeGoing: any = $state([]);
 	let attendeesNotGoing: any = $state([]);
+	let attendeesLoading = $state(false);
 
 	let currentUserAttendee = $state();
 	const showMaxNumPeople = 50;
@@ -89,6 +91,7 @@
 			// If user is anonymous, load event data from page data. It will contain limited data.
 			event = $page.data.event;
 			eventLoading = false;
+			attendeesLoading = false;
 			return;
 		}
 
@@ -135,12 +138,12 @@
 				attendeesGoing = results.filter((attendee) => attendee.status === Status.GOING);
 				attendeesNotGoing = results.filter((attendee) => attendee.status === Status.NOT_GOING);
 				attendeesMaybeGoing = results.filter((attendee) => attendee.status === Status.MAYBE);
-
 				// Fetch profile image map for attendees
 				const userIds = results.map((attendee) => attendee.user_id);
 				(async () => {
 					await fetchProfileImageMap(userIds);
 				})();
+				attendeesLoading = false;
 
 				// Optionally log results for debugging
 				// console.log('Going:', attendeesGoing);
@@ -266,7 +269,13 @@
 				</div>
 
 				<div class="mx-3 mt-5 items-center">
-					{#if attendeesGoing.length > 0}
+					{#if attendeesLoading}
+						<div class="flex flex-wrap items-center -space-x-3">
+							{#each Array(20).fill() as _, index}
+								<Skeleton class="size-12 rounded-full" />
+							{/each}
+						</div>
+					{:else if attendeesGoing.length > 0}
 						<div class="flex flex-wrap items-center -space-x-4">
 							{#each attendeesGoing.slice(0, showMaxNumPeople) as attendee}
 								<ProfileAvatar
@@ -346,13 +355,16 @@
 								</Dialog.Content>
 							</Dialog.Root>
 						</div>
-					{:else if anonymousUser}{:else}
-						<div class="flex flex-wrap items-center -space-x-3">
-							{#each Array(20).fill() as _, index}
-								<Skeleton class="size-12 rounded-full" />
-							{/each}
+					{:else if attendeesGoing.length == 0}
+						<div class="flex justify-center">
+							<div class="flex w-full sm:w-2/3 justify-center items-center rounded-lg bg-purple-500 p-2 text-sm text-white ring-glow">
+								<Avatar.Root class="w-12 h-12 sm:w-14 sm:h-14 border-2 border-white mr-2 bg-white">
+									<Avatar.Image src={"/icon-128.png"} alt={""} />
+									<Avatar.Fallback>{"BO"}</Avatar.Fallback>
+								</Avatar.Root> No attendees yet
+							</div>
 						</div>
-					{/if}
+					{:else if anonymousUser}{/if}
 				</div>
 				{#if anonymousUser}
 					<a href="/login" class="mt-4 flex justify-center">
