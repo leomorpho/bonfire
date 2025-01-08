@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { EventFormType } from './../enums.ts';
 	import EventStyler from './EventStyler.svelte';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { DateFormatter, CalendarDate, type DateValue } from '@internationalized/date';
@@ -14,10 +13,12 @@
 	import { goto } from '$app/navigation';
 	import type { TriplitClient } from '@triplit/client';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
-	import { Status } from '$lib/enums';
+	import { EventFormType, Status } from '$lib/enums';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 	import { overlayColorStore, overlayOpacityStore, styleStore } from '$lib/styles';
+	import { generateId } from 'lucia';
+	import { generateEventId, loadScript } from '$lib/utils';
 
 	let { mode, event = null } = $props();
 
@@ -27,10 +28,10 @@
 
 	onMount(() => {
 		client = getFeTriplitClient($page.data.jwt) as TriplitClient;
-	});
-
-	const df = new DateFormatter('en-US', {
-		dateStyle: 'long'
+		(async () => {
+			// NOTE: for testing
+			console.log('generateEventId()', await generateEventId());
+		})();
 	});
 
 	let dateValue: DateValue | undefined = $state<DateValue | undefined>();
@@ -164,6 +165,7 @@
 		if (mode == 'create') {
 			// Save the event (uncomment in production)
 			const { output } = await client.insert('events', {
+				id: await generateEventId(),
 				title: eventName,
 				description: details || null,
 				location: location || null,

@@ -1,6 +1,7 @@
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { format } from 'date-fns';
+import { generateId } from 'lucia';
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
@@ -56,3 +57,63 @@ export function stringRepresentationToArray(objectIdsStr: string): string[] {
 export function isNonEmptyArray(param: unknown): param is unknown[] {
 	return Array.isArray(param) && param.length > 0;
 }
+
+export function loadScript(src: string) {
+	return new Promise((resolve, reject) => {
+		const script = document.createElement('script');
+		script.src = src;
+		script.async = true;
+		script.onload = () => resolve();
+		script.onerror = () => reject(new Error(`Failed to load script: ${src}`));
+		document.head.appendChild(script);
+	});
+}
+
+export const loadPassphraseScript = () => {
+	return new Promise((resolve, reject) => {
+		if (window.Passphrase) {
+			// Passphrase is already available
+			resolve();
+			return;
+		}
+
+		const script = document.createElement('script');
+		script.src = 'https://unpkg.com/@root/passphrase';
+		script.async = true;
+		script.onload = () => {
+			if (window.Passphrase) {
+				resolve();
+			} else {
+				reject(new Error('Passphrase script loaded but not available.'));
+			}
+		};
+		script.onerror = () => reject(new Error('Failed to load Passphrase script.'));
+		document.head.appendChild(script);
+	});
+};
+
+export const generateEventId = async () => {
+	try {
+		// Ensure the Passphrase script is loaded
+		await loadPassphraseScript();
+
+		const Passphrase = window.Passphrase;
+
+		// Generate passphrase
+		const passphrase = await Passphrase.generate(24);
+
+		// Split passphrase into words and join with '-'
+		const passphrasePart = passphrase.split(' ').join('-');
+
+		// Generate random ID
+		const randomId = generateId(7);
+
+		// Combine passphrase and random ID
+		const combined = `${passphrasePart}-${randomId}`;
+
+		return combined;
+	} catch (error) {
+		console.error('Error generating event ID:', error);
+		return null;
+	}
+};
