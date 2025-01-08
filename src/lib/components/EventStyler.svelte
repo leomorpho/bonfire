@@ -14,6 +14,9 @@
 	// Currently selected style
 	let selectedStyle: { id: number; name: string; cssTemplate: string } | null = $state(null);
 
+	const randomSort = (array) => array.sort(() => Math.random() - 0.5);
+
+	const randomStylesGallery = randomSort(stylesGallery)
 	// DOM reference to the injected style
 	let styleElement: HTMLStyleElement | null = null;
 
@@ -167,9 +170,9 @@
 	</Popover.Root>
 </div>
 
-<div class="gallery mt-5 w-full">
+<div class="gallery my-5 w-full">
 	<div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-		{#each stylesGallery as style}
+		{#each randomStylesGallery as style}
 			<div class="h-40 rounded-lg bg-white bg-opacity-100">
 				<button
 					class="h-full w-full max-w-full rounded-lg style-button-{style.id} select-bordered flex items-center justify-center border-4"

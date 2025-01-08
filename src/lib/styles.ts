@@ -6,34 +6,34 @@ export const overlayColorStore = writable<string>('');
 export const overlayOpacityStore = writable<number>(0);
 
 /**
-	 * Parse a hex color to RGB format.
-	 * @param hex - The hex color string.
-	 * @returns - The RGB values as a string (e.g., "255, 255, 255").
-	 */
+ * Parse a hex color to RGB format.
+ * @param hex - The hex color string.
+ * @returns - The RGB values as a string (e.g., "255, 255, 255").
+ */
 export function parseColor(hex: string): string {
-  if (!hex || !hex.startsWith('#') || (hex.length !== 7 && hex.length !== 4)) {
-    hex = "#000000"
-    console.log('Invalid hex color format, setting a default');
-  }
+	if (!hex || !hex.startsWith('#') || (hex.length !== 7 && hex.length !== 4)) {
+		hex = '#000000';
+		console.log('Invalid hex color format, setting a default');
+	}
 
-  // If shorthand (#rgb), expand it to full form (#rrggbb)
-  if (hex.length === 4) {
-    hex = `#${hex[1]}${hex[1]}${hex[2]}${hex[2]}${hex[3]}${hex[3]}`;
-  }
+	// If shorthand (#rgb), expand it to full form (#rrggbb)
+	if (hex.length === 4) {
+		hex = `#${hex[1]}${hex[1]}${hex[2]}${hex[2]}${hex[3]}${hex[3]}`;
+	}
 
-  const bigint = parseInt(hex.slice(1), 16);
-  const r = (bigint >> 16) & 255;
-  const g = (bigint >> 8) & 255;
-  const b = bigint & 255;
+	const bigint = parseInt(hex.slice(1), 16);
+	const r = (bigint >> 16) & 255;
+	const g = (bigint >> 8) & 255;
+	const b = bigint & 255;
 
-  return `${r}, ${g}, ${b}`;
+	return `${r}, ${g}, ${b}`;
 }
 
 export const stylesGallery = [
-    {
-        id: 1,
-        name: 'Hip curves',
-        cssTemplate: `
+	{
+		id: 1,
+		name: 'Hip curves',
+		cssTemplate: `
         --s: 40px; /* control the size*/
         --c1: #5E8275FF;
         --c2: #dee1b6;
@@ -52,11 +52,11 @@ export const stylesGallery = [
             repeating-conic-gradient(var(--c3) 0 25%,var(--c4) 0 50%)
             0 0/calc(4*var(--s)) calc(6*var(--s));
         `
-    },
-    {
-        id: 2,
-        name: 'Multicolor Circles Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 2,
+		name: 'Multicolor Circles Pattern',
+		cssTemplate: `
                 --s: 80px; /* control the size*/
                 --c1: #f8ca00;
                 --c2: #8a9b0f;
@@ -76,11 +76,11 @@ export const stylesGallery = [
                     linear-gradient(var(--c3) 50%,var(--c4) 0) 
                     0 0/1% var(--s);
         `
-    },
-    {
-        id: 3,
-        name: 'Pills Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 3,
+		name: 'Pills Pattern',
+		cssTemplate: `
                 --s: 60px; /* control the size*/
                 --c1: #dcd1b4;
                 --c2: #5e9fa3;
@@ -93,11 +93,11 @@ export const stylesGallery = [
                     radial-gradient(var(--c2) 70%,var(--c1) 72%)
                     0 0/var(--s) var(--s);
         `
-    },
-    {
-        id: 4,
-        name: 'Mosaic Triangles Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 4,
+		name: 'Mosaic Triangles Pattern',
+		cssTemplate: `
             --s: 70px; /* control the size*/
             --c1: #655643;
             --c2: #80bca3;
@@ -113,11 +113,11 @@ export const stylesGallery = [
                 repeating-conic-gradient(var(--c1) 0 30deg,var(--c2) 0 60deg);
             background-size: calc(3*var(--s)) calc(1.73*var(--s));
         `
-    },
-    {
-        id: 5,
-        name: 'Overlapping Cubes Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 5,
+		name: 'Overlapping Cubes Pattern',
+		cssTemplate: `
             --s: 84px; /* control the size*/
             --c1: #fefcdd;
             --c2: #cdcbcc;
@@ -134,11 +134,11 @@ export const stylesGallery = [
                 conic-gradient(from  -60deg at 50% calc(100%/3),var(--c1) 120deg,var(--c2) 0 240deg,var(--c3) 0);
             background-size: calc(var(--s)*sqrt(3)) var(--s);
         `
-    },
-    {
-        id: 6,
-        name: 'Diagonal Wavy Lines & Squares Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 6,
+		name: 'Diagonal Wavy Lines & Squares Pattern',
+		cssTemplate: `
             --s: 40px; /* control the size*/
             --c1: #ab3e5b;
             --c2: #f9f2e7;
@@ -152,11 +152,11 @@ export const stylesGallery = [
                 conic-gradient(#0000 75%,var(--c1) 0) 0 0/var(--s) var(--s) 
                 var(--c2);
         `
-    },
-    {
-        id: 7,
-        name: 'Curved Lines Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 7,
+		name: 'Curved Lines Pattern',
+		cssTemplate: `
             --s: 100px; /* control the size*/
     --c1: #fff0e5;
     --c2: #025d8c;
@@ -175,11 +175,11 @@ export const stylesGallery = [
       var(--c2);
     background-size: var(--s) var(--s);
         `
-    },
-    {
-        id: 7,
-        name: 'Geometric Flowers Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 7,
+		name: 'Geometric Flowers Pattern',
+		cssTemplate: `
   --s: 69px; /* control the size*/
   --c1: #c02942;
   --c2: #53777a;
@@ -192,11 +192,11 @@ export const stylesGallery = [
     repeating-conic-gradient(from 30deg,var(--c3) 0 30deg,var(--c4) 0 25%);
   background-size: var(--s) var(--s);
         `
-    },
-    {
-        id: 8,
-        name: 'Overlapping Circles Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 8,
+		name: 'Overlapping Circles Pattern',
+		cssTemplate: `
   --s: 150px; /* control the size*/
   --c1: #f7d2a1;
   --c2: #05057e;
@@ -213,11 +213,11 @@ export const stylesGallery = [
     var(--c1);
   background-size: var(--s) var(--s);
         `
-    },
-    {
-        id: 9,
-        name: 'Triangles Pattern With 3D Effect',
-        cssTemplate: `
+	},
+	{
+		id: 9,
+		name: 'Triangles Pattern With 3D Effect',
+		cssTemplate: `
   --s: 105px; /* control the size*/
   --c1: #b9b9b9;
   --c2: #dcdcdc;
@@ -232,11 +232,11 @@ export const stylesGallery = [
                    var(--c2) 0 270deg,var(--c1) 0 286deg,var(--c2) 0 331deg,var(--c3) 0);
   background-size: var(--s) calc(var(--s)/tan(30deg));
         `
-    },
-    {
-        id: 10,
-        name: 'Equilateral Triangles Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 10,
+		name: 'Equilateral Triangles Pattern',
+		cssTemplate: `
   --s: 120px; /* control the size*/
   --c1: #fa6900;
   --c2: #d95b43;
@@ -248,11 +248,11 @@ export const stylesGallery = [
     conic-gradient(from -30deg at 50% 66%,#0000,var(--c2) .5deg 60deg,var(--c3) 60.5deg);
   background-size: var(--s) calc(.5*var(--s)/tan(30deg));
         `
-    },
-    {
-        id: 11,
-        name: 'Parallelograms Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 11,
+		name: 'Parallelograms Pattern',
+		cssTemplate: `
   --s: 100px; /* control the size*/
   --c1: #4ecdc4;
   --c2: #556270;
@@ -261,11 +261,11 @@ export const stylesGallery = [
     linear-gradient(atan(-.5),var(--c1) 33%,var(--c2) 33.5% 66.5%,var(--c1) 67%) 
     0/var(--s) var(--s);
         `
-    },
-    {
-        id: 12,
-        name: 'Distorted Mesh Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 12,
+		name: 'Distorted Mesh Pattern',
+		cssTemplate: `
   --s: 140px; /* control the size*/
   --c1: #170409;
   --c2: #67917a;
@@ -279,11 +279,11 @@ export const stylesGallery = [
    var(--c2);
   background-size: calc(var(--s)/4.667) var(--s),var(--s) calc(var(--s)/4.667);
         `
-    },
-    {
-        id: 13,
-        name: 'Diagonal Squares Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 13,
+		name: 'Diagonal Squares Pattern',
+		cssTemplate: `
   --s: 100px; /* control the size*/
   --c1: #00a0b0;
   --c2: #eb6841;
@@ -295,11 +295,11 @@ export const stylesGallery = [
    var(--c2); 
   background-size: var(--s) var(--s); 
         `
-    },
-    {
-        id: 14,
-        name: 'Hearts Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 14,
+		name: 'Hearts Pattern',
+		cssTemplate: `
         --s: 120px; /* control the size*/
   --c1: #e7525b;
   --c2: #78dbf0;
@@ -312,11 +312,11 @@ export const stylesGallery = [
       calc(var(--s)/2) 0;
   background-size: var(--s) var(--s);
         `
-    },
-    {
-        id: 15,
-        name: 'Zig-Zag Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 15,
+		name: 'Zig-Zag Pattern',
+		cssTemplate: `
   --s: 100px; /* control the size*/
   --c1: #eceddc;
   --c2: #29ab87;
@@ -328,11 +328,11 @@ export const stylesGallery = [
    var(--c2);
   background-size: var(--s) var(--s)
         `
-    },
-    {
-        id: 16,
-        name: 'Stars Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 16,
+		name: 'Stars Pattern',
+		cssTemplate: `
   --s: 90px; /* control the size*/
   --c1: #fff220;
   --c2: #a8c6fe;
@@ -348,11 +348,11 @@ export const stylesGallery = [
   background-position: 0 calc(var(--s) * 0.35);
   background-size: calc(var(--s) + var(--d)) calc(var(--s) + var(--d));
         `
-    },
-    {
-        id: 17,
-        name: 'Rectangles & Parallelograms Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 17,
+		name: 'Rectangles & Parallelograms Pattern',
+		cssTemplate: `
   --s: 150px; /* control the size*/
   --c1: #ff847c;
   --c2: #e84a5f;
@@ -366,11 +366,11 @@ export const stylesGallery = [
     conic-gradient(from -45deg,var(--c1) 90deg, var(--c2) 0 225deg,var(--c4) 0);
   background-size: var(--s) var(--s); 
         `
-    },
-    {
-        id: 18,
-        name: 'Squares Pattern With 3D Effect',
-        cssTemplate: `
+	},
+	{
+		id: 18,
+		name: 'Squares Pattern With 3D Effect',
+		cssTemplate: `
   --s: 222px; /* control the size*/
   --c1: #7f727b;
   --c2: #d6b4c2;
@@ -388,11 +388,11 @@ export const stylesGallery = [
     linear-gradient(90deg,var(--c3) 38%,var(--c1) 0 50%,var(--c3) 0 62%,var(--c1) 0);
   background-size: var(--s) calc(2*var(--s)/3);
         `
-    },
-    {
-        id: 19,
-        name: 'Equal Sign (Rotated Rectangles) Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 19,
+		name: 'Equal Sign (Rotated Rectangles) Pattern',
+		cssTemplate: `
   --s: 200px; /* control the size*/
   --c1: #ffffff;
   --c2: #1095c1;
@@ -406,11 +406,11 @@ export const stylesGallery = [
     var(--c2); 
   background-size: var(--s) var(--s);
         `
-    },
-    {
-        id: 20,
-        name: 'Triangles & Chevrons Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 20,
+		name: 'Triangles & Chevrons Pattern',
+		cssTemplate: `
   --s: 64px; /* control the size*/
   --c1: #e0e4cc;
   --c2: #69d2e7;
@@ -422,11 +422,11 @@ export const stylesGallery = [
     conic-gradient(from 135deg at 50% 0,var(--c1) var(--_g)) var(--c2); 
   background-size: calc(2*var(--s)) var(--s);
         `
-    },
-    {
-        id: 21,
-        name: 'Rhombus & Stripes Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 21,
+		name: 'Rhombus & Stripes Pattern',
+		cssTemplate: `
   --s: 64px; /* control the size*/
   --c1: #eb6841;
   --c2: #edc951;
@@ -437,11 +437,11 @@ export const stylesGallery = [
     conic-gradient(from 135deg at 50% 0,var(--c1) 90deg,var(--c2) 0)  
       0 0/calc(2*var(--s)) var(--s);
         `
-    },
-    {
-        id: 22,
-        name: 'Mosaic Triangles Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 22,
+		name: 'Mosaic Triangles Pattern',
+		cssTemplate: `
   --s: 36px; /* control the size*/
   --c1: #b62f31;
   --c2: #ecdacb;
@@ -457,11 +457,11 @@ export const stylesGallery = [
     repeating-conic-gradient(from 60deg,var(--c1) 0 60deg,var(--c2) 0 180deg) 
        0 0/calc(var(--s)*1.732) var(--s);
         `
-    },
-    {
-        id: 23,
-        name: 'Mosaic Parallelograms & Squares Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 23,
+		name: 'Mosaic Parallelograms & Squares Pattern',
+		cssTemplate: `
   --s: 125px; /* control the size*/
   --c1: #ffd877;
   --c2: #b92d5d;
@@ -474,11 +474,11 @@ export const stylesGallery = [
     conic-gradient(from   45deg at calc(2*100%/3) calc(100%/3)  ,var(--_g),var(--c1) 0 225deg,var(--c2) 0);
   background-size: var(--s) var(--s);
         `
-    },
-    {
-        id: 24,
-        name: 'Rhombus & Rectangles Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 24,
+		name: 'Rhombus & Rectangles Pattern',
+		cssTemplate: `
   --s: 170px; /* control the size*/
   --c1: #3b8686;
   --c2: #cff09e;
@@ -494,11 +494,11 @@ export const stylesGallery = [
     var(--c2);
   background-size: var(--s) var(--s), var(--s) var(--s), calc(var(--s)/2) calc(var(--s)/2);
         `
-    },
-    {
-        id: 25,
-        name: 'Diamond Pattern With 3D Effect',
-        cssTemplate: `
+	},
+	{
+		id: 25,
+		name: 'Diamond Pattern With 3D Effect',
+		cssTemplate: `
   --s: 65px; /* control the size*/
   --c1: #dadee1;
   --c2: #4a99b4;
@@ -516,11 +516,11 @@ export const stylesGallery = [
       var(--c2) 0 296.15deg,var(--c1) 0);
   background-size: calc(2*var(--s)) var(--s);
         `
-    },
-    {
-        id: 26,
-        name: 'Cube Columns Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 26,
+		name: 'Cube Columns Pattern',
+		cssTemplate: `
   --s: 82px; /* control the size*/
   --c1: #b2b2b2;
   --c2: #ffffff;
@@ -536,11 +536,11 @@ export const stylesGallery = [
                           var(--c1) 0 calc(500%/6),var(--c2) 0);
   background-size: calc(1.732*var(--s)) var(--s);
         `
-    },
-    {
-        id: 27,
-        name: 'Triangles Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 27,
+		name: 'Triangles Pattern',
+		cssTemplate: `
   --s: 76px; /* control the size*/
   --c1: #f6d86b;
   --c2: #ff8c82;
@@ -552,11 +552,11 @@ export const stylesGallery = [
       var(--c2) 0 calc(360deg - atan(2)),var(--c1) 0);
   background-size: calc(2*var(--s)) var(--s);
         `
-    },
-    {
-        id: 28,
-        name: 'Z Shape Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 28,
+		name: 'Z Shape Pattern',
+		cssTemplate: `
   --s: 106px; /* control the size*/
   --c1: #eafde6;
   --c2: #b1dd8c;
@@ -569,11 +569,11 @@ export const stylesGallery = [
     conic-gradient(from  90deg at 37.5% 50%,var(--c2) 120deg,var(--c1) 0 180deg,var(--c2) 0 240deg,var(--c1) 0);
   background-size: var(--s) calc(.866*var(--s));
         `
-    },
-    {
-        id: 29,
-        name: 'Nested Rhombus Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 29,
+		name: 'Nested Rhombus Pattern',
+		cssTemplate: `
   --s: 100px; /* control the size*/
   --c1: #caf0fe;
   --c2: #dad6ca;
@@ -596,11 +596,11 @@ export const stylesGallery = [
 
 
         `
-    },
-    {
-        id: 30,
-        name: 'Three Braided Lines Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 30,
+		name: 'Three Braided Lines Pattern',
+		cssTemplate: `
   --s: 30px; /* control the size*/
   --c1: #5e9fa3;
   --c2: #b05574;
@@ -616,11 +616,11 @@ export const stylesGallery = [
     repeating-linear-gradient(-30deg, var(--c3) 0 calc(100%/6),var(--c4) 0 50%);
   background-size: calc(6*.866*var(--s)) calc(3*var(--s))
         `
-    },
-    {
-        id: 31,
-        name: 'Quatrefoils Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 31,
+		name: 'Quatrefoils Pattern',
+		cssTemplate: `
   --s: 60px; /* control the size*/
   --c1: #b09f79;
   --c2: #476074;
@@ -634,11 +634,11 @@ export const stylesGallery = [
     var(--c2);
   background-size: calc(2*var(--s)) calc(2*var(--s));
         `
-    },
-    {
-        id: 32,
-        name: 'Curvy Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 32,
+		name: 'Curvy Pattern',
+		cssTemplate: `
   --s: 80px; /* control the size*/
   --c1: #5e8c6a;
   --c2: #bfb35a;
@@ -655,11 +655,11 @@ export const stylesGallery = [
     radial-gradient(var(--_c)) 0 calc(var(--s)/2)/var(--s) var(--s)
     var(--c1);
         `
-    },
-    {
-        id: 33,
-        name: 'Loop Circles Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 33,
+		name: 'Loop Circles Pattern',
+		cssTemplate: `
   --s: 150px; /* control the size*/
   --c1: #ccbf82;
   --c2: #604848;
@@ -673,11 +673,11 @@ export const stylesGallery = [
     radial-gradient(var(--s) at 100% 100%,var(--_g)) var(--c1);
   background-size: var(--s) var(--s);
         `
-    },
-    {
-        id: 34,
-        name: 'Rotated Squares Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 34,
+		name: 'Rotated Squares Pattern',
+		cssTemplate: `
   --s: 150px; /* control the size*/
   --c1: #046d8b;
   --c2: #2fb8ac;
@@ -689,11 +689,11 @@ export const stylesGallery = [
     var(--c2);
   background-size: var(--s) var(--s);
         `
-    },
-    {
-        id: 35,
-        name: 'Diagonal Zig-Zag Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 35,
+		name: 'Diagonal Zig-Zag Pattern',
+		cssTemplate: `
   --s: 60px; /* control the size*/
   --c1: #d6d6d6;
   --c2: #ffa57d;
@@ -709,11 +709,11 @@ export const stylesGallery = [
     linear-gradient(var(--c1) calc(100%/3),var(--c2) 0 calc(200%/3),var(--c3) 0)
      0 0/var(--s) var(--s);
         `
-    },
-    {
-        id: 36,
-        name: 'Stairs Pattern With 3D Effect',
-        cssTemplate: `
+	},
+	{
+		id: 36,
+		name: 'Stairs Pattern With 3D Effect',
+		cssTemplate: `
   --s: 50px; /* control the size*/
   --c1: #f4a4c0;
   --c2: #000000;
@@ -727,11 +727,11 @@ export const stylesGallery = [
     repeating-linear-gradient(135deg,var(--c2) 0 12.5%,var(--c3) 0 25%);
   background-size: calc(4*var(--s)) calc(4*var(--s))
         `
-    },
-    {
-        id: 37,
-        name: 'Nested Diamond Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 37,
+		name: 'Nested Diamond Pattern',
+		cssTemplate: `
   --s: 100px; /* control the size*/
   --c1: #668284;
   --c2: #b6d8c0;
@@ -746,11 +746,11 @@ export const stylesGallery = [
     var(--c3);
   background-size: var(--s) var(--s);
         `
-    },
-    {
-        id: 38,
-        name: 'Circles & Squares Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 38,
+		name: 'Circles & Squares Pattern',
+		cssTemplate: `
   --s: 100px; /* control the size*/
   --c1: #fecb3e;
   --c2: #987f69;
@@ -765,11 +765,11 @@ export const stylesGallery = [
     var(--c2);
   background-size: var(--s) var(--s);
         `
-    },
-    {
-        id: 39,
-        name: 'Triangles & Trapezoids Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 39,
+		name: 'Triangles & Trapezoids Pattern',
+		cssTemplate: `
   --s: 76px; /* control the size*/
   --c1: #f77825;
   --c2: #60b99a;
@@ -783,11 +783,11 @@ export const stylesGallery = [
                                var(--c2) 0 240deg,var(--c3) 0 300deg,var(--c4) 0);
   background-size: calc(2*var(--s)) var(--s);
         `
-    },
-    {
-        id: 40,
-        name: 'Striped Circles Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 40,
+		name: 'Striped Circles Pattern',
+		cssTemplate: `
   --s: 76px; /* control the size*/
   --c1: #1a144a;
   --c2: #2eb044;
@@ -801,11 +801,11 @@ export const stylesGallery = [
     radial-gradient(50% 50%,var(--c2) 98%,var(--c1)) 
      0 0/var(--s) var(--s);
         `
-    },
-    {
-        id: 41,
-        name: 'Nested Triangles Pattern With 3D Effect',
-        cssTemplate: `
+	},
+	{
+		id: 41,
+		name: 'Nested Triangles Pattern With 3D Effect',
+		cssTemplate: `
   --s: 162px; /* control the size*/
   --c1: #cd2942;
   --c2: #62928c;
@@ -822,11 +822,11 @@ export const stylesGallery = [
     repeating-conic-gradient(var(--c4) 0 60deg,var(--c2) 0 120deg,var(--c5) 0 180deg);
   background-size: calc(0.577*var(--s)) var(--s);
         `
-    },
-    {
-        id: 42,
-        name: 'Triangles Grid Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 42,
+		name: 'Triangles Grid Pattern',
+		cssTemplate: `
   --s: 200px; /* control the size*/
   --c1: #dc9d37;
   --c2: #fed450;
@@ -849,11 +849,11 @@ export const stylesGallery = [
     repeating-conic-gradient(var(--c3) 0 45deg,var(--c4) 0 90deg);  
   background-size: var(--s) var(--s);
         `
-    },
-    {
-        id: 43,
-        name: 'Flower Petals Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 43,
+		name: 'Flower Petals Pattern',
+		cssTemplate: `
   --s: 60px; /* control the size*/
   --c1: #f2b4a8;
   --c2: #91204d;
@@ -866,11 +866,11 @@ export const stylesGallery = [
    repeating-conic-gradient(var(--c2) 0 25%,var(--c1) 0 50%) 
      calc(.5*var(--s)) 0/calc(2*var(--s)) var(--s);
         `
-    },
-    {
-        id: 44,
-        name: 'Circles & Curved Lines Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 44,
+		name: 'Circles & Curved Lines Pattern',
+		cssTemplate: `
   --s: 70px; /* control the size*/
   --c1: #6b5344;
   --c2: #f8ecc9;
@@ -883,11 +883,11 @@ export const stylesGallery = [
     var(--c2);
   background-size: calc(var(--s)*2) calc(var(--s)*2);
         `
-    },
-    {
-        id: 45,
-        name: 'Wavy Pattern With 3D Effect',
-        cssTemplate: `
+	},
+	{
+		id: 45,
+		name: 'Wavy Pattern With 3D Effect',
+		cssTemplate: `
   --s: 100px; /* control the size*/
   --c1: #f8b195;
   --c2: #355c7d;
@@ -901,11 +901,11 @@ export const stylesGallery = [
     var(--c1);
   background-size: var(--s) var(--s);
         `
-    },
-    {
-        id: 46,
-        name: 'Multicolor Wavy Lines Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 46,
+		name: 'Multicolor Wavy Lines Pattern',
+		cssTemplate: `
   --s: 140px; /* control the size*/
   --c1: #ab3e5b;
   --c2: #ffbe40;
@@ -924,11 +924,11 @@ export const stylesGallery = [
     repeating-linear-gradient(90deg,var(--c3) calc(25%/-6) calc(25%/6),var(--c4) 0 calc(25%/2));
   background-size: var(--s) calc(3*var(--s)/2)
         `
-    },
-    {
-        id: 47,
-        name: 'Citrus Shapes Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 47,
+		name: 'Citrus Shapes Pattern',
+		cssTemplate: `
   --s: 55px; /* control the size*/
   --c1: #f9f2e7;
   --c2: #88a65e;
@@ -949,11 +949,11 @@ export const stylesGallery = [
     linear-gradient(90deg,var(--c2) 50%,var(--c3) 0);
   background-size: var(--_s) calc(4*var(--s));
         `
-    },
-    {
-        id: 48,
-        name: 'Quarter Circles Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 48,
+		name: 'Quarter Circles Pattern',
+		cssTemplate: `
   --s: 89px; /* control the size*/
   --c1: #00807f;
   --c2: #e8ddcb;
@@ -965,11 +965,11 @@ export const stylesGallery = [
     var(--c2);
   background-size: var(--s) var(--s);
         `
-    },
-    {
-        id: 49,
-        name: 'Lollipop Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 49,
+		name: 'Lollipop Pattern',
+		cssTemplate: `
   --s: 56px; /* control the size*/
   --c1: #3fb8af;
   --c2: #ff9e9d;
@@ -1001,11 +1001,11 @@ export const stylesGallery = [
     var(--c2);
   background-size: calc(4*var(--r)) calc(6*var(--s));
         `
-    },
-    {
-        id: 50,
-        name: 'Semi Circles & Full Circles Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 50,
+		name: 'Semi Circles & Full Circles Pattern',
+		cssTemplate: `
   --s: 53px; /* control the size*/
   --c1: #cff09e;
   --c2: #0b486b;
@@ -1018,11 +1018,11 @@ export const stylesGallery = [
    var(--_g),var(--_g) var(--s) var(--s) var(--c1);
   background-size: calc(2*var(--s)) calc(2*var(--s));
         `
-    },
-    {
-        id: 51,
-        name: 'Christmas Tree Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 51,
+		name: 'Christmas Tree Pattern',
+		cssTemplate: `
   --s: 75px; /* control the size*/
   --c1: #ffffff;
   --c2: #a31e39;
@@ -1042,11 +1042,11 @@ export const stylesGallery = [
     repeating-conic-gradient(from 45deg,var(--c2) 0 25%,var(--c3) 0 50%);
   background-size: calc(2*var(--s)) calc(2*var(--s));
         `
-    },
-    {
-        id: 52,
-        name: 'Christmas Style Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 52,
+		name: 'Christmas Style Pattern',
+		cssTemplate: `
   --s: 48px; /* control the size*/
   --c1: #d8d8d8;
   --c2: #bb2528;
@@ -1067,11 +1067,11 @@ export const stylesGallery = [
     linear-gradient(var(--c2) 50%,var(--c3) 0);
   background-size: calc(4*var(--s)) var(--_s);
         `
-    },
-    {
-        id: 53,
-        name: 'Diagonal Rectangles Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 53,
+		name: 'Diagonal Rectangles Pattern',
+		cssTemplate: `
   --s: 150px; /* control the size*/
   --c1: #5e412f;
   --c2: #fcebb6;
@@ -1082,11 +1082,11 @@ export const stylesGallery = [
   background-size: var(--s) var(--s); 
 
         `
-    },
-    {
-        id: 54,
-        name: 'Colorful Overlapping Circles Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 54,
+		name: 'Colorful Overlapping Circles Pattern',
+		cssTemplate: `
   --s: 120px; /* control the size*/
   --c1: #1a2030;
   --c2: #0f9177;
@@ -1100,11 +1100,11 @@ export const stylesGallery = [
     conic-gradient(var(--c2) 25%,var(--c3) 0 50%,var(--c4) 0 75%,var(--c5) 0);
   background-size: var(--s) var(--s);
         `
-    },
-    {
-        id: 55,
-        name: 'Pill Shapes Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 55,
+		name: 'Pill Shapes Pattern',
+		cssTemplate: `
   --s: 34px; /* control the size*/
   --c1: #ecbe13;
   --c2: #309292;
@@ -1116,11 +1116,11 @@ export const stylesGallery = [
     repeating-linear-gradient(135deg,var(--c1) calc(var(--s)/-2) calc(var(--s)/2),var(--c2) 0 calc(2.328*var(--s)));
   background-size: calc(4*var(--s)) calc(4*var(--s));
         `
-    },
-    {
-        id: 56,
-        name: 'Curved Segments Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 56,
+		name: 'Curved Segments Pattern',
+		cssTemplate: `
   --s: 60px; /* control the size*/
   --c1: #7bb0a8;
   --c2: #a7dbab;
@@ -1136,11 +1136,11 @@ export const stylesGallery = [
     calc(2*var(--s)) calc(9*var(--s)/4),
     calc(2*var(--s)) calc(3*var(--s)/4);
         `
-    },
-    {
-        id: 57,
-        name: 'Waves Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 57,
+		name: 'Waves Pattern',
+		cssTemplate: `
   --s: 30px; /* control the size*/
   --c1: #e5fcc2;
   --c2: #45ada8;
@@ -1163,11 +1163,11 @@ export const stylesGallery = [
     repeating-linear-gradient(var(--c1) 0 25%,var(--c2) 0 50%);
   background-size: calc(4*var(--s)) calc(12*var(--s));
         `
-    },
-    {
-        id: 58,
-        name: 'Chevron Stripes Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 58,
+		name: 'Chevron Stripes Pattern',
+		cssTemplate: `
   --s: 65px; /* control the size*/
   --c1: #ffd9a8;
   --c2: #d9cafe;
@@ -1182,11 +1182,11 @@ export const stylesGallery = [
     var(--c2);
   background-size: var(--s) calc(3.466*var(--s))
         `
-    },
-    {
-        id: 59,
-        name: 'Wavy Pattern With 3D Effect',
-        cssTemplate: `
+	},
+	{
+		id: 59,
+		name: 'Wavy Pattern With 3D Effect',
+		cssTemplate: `
   --s: 100px; /* control the size*/
   --c1: #e1f5c4;
   --c2: #3b8183;
@@ -1201,11 +1201,11 @@ export const stylesGallery = [
     radial-gradient(100% 50% at 100% 100%,var(--_g));
   background-size: var(--s) calc(2*var(--s));
         `
-    },
-    {
-        id: 60,
-        name: 'Arrows Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 60,
+		name: 'Arrows Pattern',
+		cssTemplate: `
   --s: 100px; /* control the size*/
   --c1: #cff09e;
   --c2: #3b8686;
@@ -1215,11 +1215,11 @@ export const stylesGallery = [
     conic-gradient(from 45deg,var(--c1) 25%,var(--c2) 0);
   background-size: var(--s) var(--s);
         `
-    },
-    {
-        id: 61,
-        name: 'Irregular Zig-Zag Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 61,
+		name: 'Irregular Zig-Zag Pattern',
+		cssTemplate: `
   --s: 66px; /* control the size*/
   --c1: #b38184;
   --c2: #413e4a;
@@ -1234,11 +1234,11 @@ export const stylesGallery = [
      0 calc(var(--s)/2) var(--c2);
   background-size: var(--s) calc(2*var(--s));
         `
-    },
-    {
-        id: 62,
-        name: 'Zig-Zag Pattern With 3D Effect',
-        cssTemplate: `
+	},
+	{
+		id: 62,
+		name: 'Zig-Zag Pattern With 3D Effect',
+		cssTemplate: `
   --s: 36px; /* control the size*/
   --c1: #000000;
   --c2: #d2d3d5;
@@ -1258,11 +1258,11 @@ export const stylesGallery = [
     var(--g5) calc(3*var(--s)) 0,var(--g5) 0 var(--_p) var(--c3);
   background-size: calc(6*var(--s)) calc(2*var(--_p))
         `
-    },
-    {
-        id: 63,
-        name: 'Outline Circles Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 63,
+		name: 'Outline Circles Pattern',
+		cssTemplate: `
   --s: 220px; /* control the size*/
   --c1: #774f38;
   --c2: #f1d4af;
@@ -1277,11 +1277,11 @@ export const stylesGallery = [
     var(--_g),var(--_g) calc(var(--s)/2) calc(var(--s)/2) var(--c2);
   background-size: var(--s) var(--s);
         `
-    },
-    {
-        id: 64,
-        name: 'Right Triangles Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 64,
+		name: 'Right Triangles Pattern',
+		cssTemplate: `
   --s: 70px; /* control the size*/
   --c1: #f67280;
   --c2: #355c7d;
@@ -1293,11 +1293,11 @@ export const stylesGallery = [
      0 calc(var(--s)/2) var(--c2);
   background-size: var(--s) var(--s);
         `
-    },
-    {
-        id: 65,
-        name: 'Optical Illusion Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 65,
+		name: 'Optical Illusion Pattern',
+		cssTemplate: `
   --s: 50px; /* control the size*/
   --c1: #5e412f;
   --c2: #fcebb6;
@@ -1310,11 +1310,11 @@ export const stylesGallery = [
     repeating-conic-gradient(var(--c1) 0 25%,var(--c2) 0 50%) 
      0 0/calc(2*var(--s)) calc(2*var(--s));
         `
-    },
-    {
-        id: 66,
-        name: 'Thick Wavy Lines Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 66,
+		name: 'Thick Wavy Lines Pattern',
+		cssTemplate: `
   --s: 50px; /* control the size*/
   --c1: #d9ceb2;
   --c2: #948c75;
@@ -1328,11 +1328,11 @@ export const stylesGallery = [
     linear-gradient(90deg,var(--c1) 50%,var(--c2) 0) 
      0 0/calc(2*var(--s));
         `
-    },
-    {
-        id: 67,
-        name: 'Two Color Circles Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 67,
+		name: 'Two Color Circles Pattern',
+		cssTemplate: `
   --s: 100px; /* control the size*/
   --c1: #5a3d31;
   --c2: #e5edb8;
@@ -1343,11 +1343,11 @@ export const stylesGallery = [
     repeating-linear-gradient(45deg,var(--c1) 0 25%,var(--c2) 0 50%)
     0 0/calc(2*var(--s)) calc(2*var(--s))
         `
-    },
-    {
-        id: 68,
-        name: 'Folded Zig-Zag Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 68,
+		name: 'Folded Zig-Zag Pattern',
+		cssTemplate: `
   --s: 84px; /* control the size*/
   --c1: #ffffff;
   --c2: #71e9a0;
@@ -1362,11 +1362,11 @@ export const stylesGallery = [
     conic-gradient(var(--a) 40%,var(--c1) 240deg,var(--c3) 0);
   background-size: calc(1.5*var(--s)) var(--s);
         `
-    },
-    {
-        id: 69,
-        name: 'Diagonal Wavy Lines Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 69,
+		name: 'Diagonal Wavy Lines Pattern',
+		cssTemplate: `
   --s: 100px; /* control the size*/
   --c1: #cc2a41;
   --c2: #351330;
@@ -1382,11 +1382,11 @@ export const stylesGallery = [
      calc(var(--s)/2) calc(var(--s)/2);
   background-size: var(--s) var(--s);
         `
-    },
-    {
-        id: 70,
-        name: 'Wave & Circles Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 70,
+		name: 'Wave & Circles Pattern',
+		cssTemplate: `
   --s: 160px; /* control the size*/
   --c1: #a14016;
   --c2: #cfc89a;
@@ -1401,11 +1401,11 @@ export const stylesGallery = [
     repeating-linear-gradient(45deg,var(--c1) -12.5% 12.5%,var(--c2) 0 37.5%)
      0 0/var(--s) var(--s);
         `
-    },
-    {
-        id: 71,
-        name: 'Retro Style Circles Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 71,
+		name: 'Retro Style Circles Pattern',
+		cssTemplate: `
   --s: 100px; /* control the size*/
   --c1: #80bca3;
   --c2: #655643;
@@ -1420,11 +1420,11 @@ export const stylesGallery = [
     repeating-conic-gradient(var(--c2) 0 25%,var(--c1) 0 50%)
      0 0/calc(2*var(--s)) calc(2*var(--s));
         `
-    },
-    {
-        id: 72,
-        name: 'Honeycomb Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 72,
+		name: 'Honeycomb Pattern',
+		cssTemplate: `
   --s: 37px; /* control the size*/
   --c1: #1c6761;
   --c2: #ecbe13;
@@ -1440,11 +1440,11 @@ export const stylesGallery = [
     var(--c2);
   background-size: calc(2*var(--s)) calc(3.46*var(--s));
         `
-    },
-    {
-        id: 73,
-        name: 'Two Color Spheres Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 73,
+		name: 'Two Color Spheres Pattern',
+		cssTemplate: `
   --s: 90px; /* control the size*/
   --c1: #dad8a7;
   --c2: #ff3d7f;
@@ -1457,11 +1457,11 @@ export const stylesGallery = [
     repeating-conic-gradient(var(--c2) 0 25%,var(--c3) 0 50%)
      0 0/calc(2*var(--s)) calc(2*var(--s));
         `
-    },
-    {
-        id: 74,
-        name: 'Intersecting Wavy Lines Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 74,
+		name: 'Intersecting Wavy Lines Pattern',
+		cssTemplate: `
   --s: 6px; /* control the size*/
   --c1: #3b2d38;
   --c2: #ffb5af;
@@ -1478,11 +1478,11 @@ export const stylesGallery = [
      var(--c2);
   background-size: calc(20*var(--s)) calc(20*var(--s));
         `
-    },
-    {
-        id: 75,
-        name: 'Rectanges Pattern With 3D Effect',
-        cssTemplate: `
+	},
+	{
+		id: 75,
+		name: 'Rectanges Pattern With 3D Effect',
+		cssTemplate: `
   --s: 194px; /* control the size*/
   --c1: #f6edb3;
   --c2: #acc4a3;
@@ -1499,11 +1499,11 @@ export const stylesGallery = [
     linear-gradient(-150deg,var(--_l)) var(--c3);
   background-size: calc(0.866*var(--s)) var(--s);
         `
-    },
-    {
-        id: 76,
-        name: 'Triangles & Squares Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 76,
+		name: 'Triangles & Squares Pattern',
+		cssTemplate: `
   --s: 160px; /* control the size*/
   --c1: #e08e79;
   --c2: #f1d4af;
@@ -1520,11 +1520,11 @@ export const stylesGallery = [
      var(--c1) 0 210deg,var(--c2) 0 75%,var(--c3) 0);
   background-size: var(--s) var(--s);
         `
-    },
-    {
-        id: 77,
-        name: 'Hexagons, Squares & Triangles Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 77,
+		name: 'Hexagons, Squares & Triangles Pattern',
+		cssTemplate: `
   --s: 41px; /* control the size*/
   --c1: #f2c45a;
   --c2: #5e8c6a;
@@ -1547,11 +1547,11 @@ export const stylesGallery = [
     conic-gradient(from -30deg at calc(2.866*var(--s))var(--_g)) var(--c3);
   background-size: calc(4.732*var(--s)) calc(2.732*var(--s));
         `
-    },
-    {
-        id: 78,
-        name: 'Zig-Zag Pattern With 3D Effect',
-        cssTemplate: `
+	},
+	{
+		id: 78,
+		name: 'Zig-Zag Pattern With 3D Effect',
+		cssTemplate: `
   --s: 90px; /* control the size*/
   --c1: #78c0a8;
   --c2: #add8e6;
@@ -1568,11 +1568,11 @@ export const stylesGallery = [
     linear-gradient(var(--c1) 50%,var(--c2) 0) 
      0 var(--s)/var(--_s);
         `
-    },
-    {
-        id: 79,
-        name: 'Zig-Zag Stripes Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 79,
+		name: 'Zig-Zag Stripes Pattern',
+		cssTemplate: `
   --s: 120px; /* control the size*/
   --c1: #403b33;
   --c2: #e3ad40;
@@ -1586,11 +1586,11 @@ export const stylesGallery = [
     repeating-conic-gradient(from -45deg,var(--c1) 0 45deg,var(--c2) 0 50%);
   background-size: var(--s) var(--s);
         `
-    },
-    {
-        id: 80,
-        name: 'Chevrons Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 80,
+		name: 'Chevrons Pattern',
+		cssTemplate: `
   --s: 150px; /* control the size*/
   --c1: #633d2e;
   --c2: #f7af63;
@@ -1603,11 +1603,11 @@ export const stylesGallery = [
     linear-gradient(45deg,var(--c1) var(--g));
   background-size: var(--s) var(--s);
         `
-    },
-    {
-        id: 81,
-        name: 'Two Color Diagonal Arrows Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 81,
+		name: 'Two Color Diagonal Arrows Pattern',
+		cssTemplate: `
   --s: 85px; /* control the size*/
   --c1: #339194;
   --c2: #f6d86b;
@@ -1624,11 +1624,11 @@ export const stylesGallery = [
     repeating-linear-gradient(135deg,var(--c2) 0 12.5%,var(--c1) 0 25%);
   background-size: calc(2*var(--s)) calc(2*var(--s))
         `
-    },
-    {
-        id: 82,
-        name: 'Lines & Dots Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 82,
+		name: 'Lines & Dots Pattern',
+		cssTemplate: `
   --s: 60px; /* control the size*/
   --c1: #dee8be;
   --c2: #cd8c52;
@@ -1643,11 +1643,11 @@ export const stylesGallery = [
     radial-gradient(var(--c1) 35%,var(--c2) 37%)
      0 0/var(--s) var(--s);
         `
-    },
-    {
-        id: 83,
-        name: 'Outline Triangles Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 83,
+		name: 'Outline Triangles Pattern',
+		cssTemplate: `
   --s: 112px; /* control the size*/
   --c1: #490a3d;
   --c2: #ffdad8;
@@ -1659,11 +1659,11 @@ export const stylesGallery = [
     var(--g1),var(--g1) calc(var(--s)/2) var(--s) var(--c2);
   background-size: var(--s) calc(2*var(--s));
         `
-    },
-    {
-        id: 84,
-        name: 'Rhombus Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 84,
+		name: 'Rhombus Pattern',
+		cssTemplate: `
   --s: 100px; /* control the size*/
   --c1: #f8edd1;
   --c2: #d88a8a;
@@ -1675,11 +1675,11 @@ export const stylesGallery = [
     repeating-conic-gradient(from 45deg,var(--c2) 0 25%,var(--c3) 0 50%);
   background-size: var(--s) var(--s);
         `
-    },
-    {
-        id: 85,
-        name: 'Pixelated Zig-Zag Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 85,
+		name: 'Pixelated Zig-Zag Pattern',
+		cssTemplate: `
   --s: 60px; /* control the size*/
   --c1: #1c2130;
   --c2: #d14334;
@@ -1692,11 +1692,11 @@ export const stylesGallery = [
     repeating-conic-gradient(from 90deg,var(--c),var(--c2) 0 50%)
      0 0/var(--s) var(--s);
         `
-    },
-    {
-        id: 86,
-        name: 'Herringbone Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 86,
+		name: 'Herringbone Pattern',
+		cssTemplate: `
   --s: 50px; /* control the size*/
   --c1: #f8e4c1;
   --c2: #2b4e72;
@@ -1716,11 +1716,11 @@ export const stylesGallery = [
     var(--c2);
   background-size: calc(4*var(--s)) calc(4*var(--s));
         `
-    },
-    {
-        id: 87,
-        name: 'Checkerboard Optical Illusion Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 87,
+		name: 'Checkerboard Optical Illusion Pattern',
+		cssTemplate: `
   --s: 80px; /* control the size*/
   --c1: #6b5344;
   --c2: #f8ecc9;
@@ -1733,11 +1733,11 @@ export const stylesGallery = [
     var(--g) calc(var(--s)/2) var(--s) var(--c2);
   background-size: var(--s) var(--s),var(--s) calc(2*var(--s));
         `
-    },
-    {
-        id: 88,
-        name: 'Outline Leafs Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 88,
+		name: 'Outline Leafs Pattern',
+		cssTemplate: `
   --s: 50px; /* control the size*/
   --c1: #f2f26f;
   --c2: #a0c55f;
@@ -1753,11 +1753,11 @@ export const stylesGallery = [
       var(--c1) 0 30%,#0000 0 50%) calc(var(--s)/-5) 0 var(--c2);
   background-size: calc(3*var(--s)) calc(5*var(--s)/2);
         `
-    },
-    {
-        id: 89,
-        name: 'Tiny Squares Pattern',
-        cssTemplate: `
+	},
+	{
+		id: 89,
+		name: 'Tiny Squares Pattern',
+		cssTemplate: `
   --s: 30px; /* control the size*/
   --c1: #8c2318;
   --c2: #f2c45a;
@@ -1770,11 +1770,11 @@ export const stylesGallery = [
     repeating-conic-gradient(var(--c2) 0 25%,var(--c1) 0 50%)
      0 0/var(--s) var(--s);
         `
-    },
-    {
-        id: 90,
-        name: 'Wavy magicpattern',
-        cssTemplate: `
+	},
+	{
+		id: 90,
+		name: 'Wavy magicpattern',
+		cssTemplate: `
     --background-color: #e5e5f7;
     --secondary-color: #FDDA50FF;
     --secondary-color-opacity: rgba(68, 76, 247, 1); /* Adjust opacity here */
@@ -1786,11 +1786,11 @@ export const stylesGallery = [
         repeating-radial-gradient(circle at 0 0, transparent 0, var(--background-color) var(--circle-size)), 
         repeating-linear-gradient(var(--secondary-color-opacity), var(--secondary-color));
         `
-    },
-    {
-        id: 91,
-        name: 'Circles magicpattern',
-        cssTemplate: `
+	},
+	{
+		id: 91,
+		name: 'Circles magicpattern',
+		cssTemplate: `
     --background-color: #e5e5f7;
     --primary-color: #444cf7;
     --circle-size: 15px; /* Size of the repeating radial pattern */
@@ -1803,11 +1803,11 @@ export const stylesGallery = [
         repeating-radial-gradient(circle at center center, var(--primary-color), var(--primary-color), var(--circle-size), transparent calc(var(--circle-size) * 2), transparent var(--circle-size));
     background-blend-mode: multiply;
         `
-    },
-    {
-        id: 92,
-        name: 'Fun party circles',
-        cssTemplate: `
+	},
+	{
+		id: 92,
+		name: 'Fun party circles',
+		cssTemplate: `
       --u: 0.375em; /* Base unit */
   --s: calc(50 * var(--u)); /* Size */
   --d: calc(0.25 * var(--s)); /* Derived size */
@@ -1831,11 +1831,11 @@ export const stylesGallery = [
     var(--u) var(--u);
   color: #31334a;
         `
-    },
-    {
-        id: 93,
-        name: 'Swirlings B&W',
-        cssTemplate: `
+	},
+	{
+		id: 93,
+		name: 'Swirlings B&W',
+		cssTemplate: `
        --d: 6em; /* Diameter */
   --r: calc(0.5 * var(--d)); /* Radius */
   --g: calc(var(--d) * (sqrt(2) - 1)); /* Gap */
@@ -1857,11 +1857,11 @@ export const stylesGallery = [
   background-size: var(--s) var(--s), calc(2 * var(--s)) calc(2 * var(--s));
   background-blend-mode: lighten;
         `
-    },
-    {
-        id: 94,
-        name: 'Repeating circles',
-        cssTemplate: `
+	},
+	{
+		id: 94,
+		name: 'Repeating circles',
+		cssTemplate: `
 --primary-color: #ff9999; /* Main color for the radial gradient */
 --background-color: #ffffff; /* Background color */
 --size: 4em;
@@ -1871,11 +1871,11 @@ background-size: var(--size) var(--size);
 background-color: var(--background-color);
 opacity: 1;
         `
-    },
-    {
-        id: 95,
-        name: 'Vertical gradient lines',
-        cssTemplate: `
+	},
+	{
+		id: 95,
+		name: 'Vertical gradient lines',
+		cssTemplate: `
 --primary-color: #f799ff; /* Main color for the gradient */
 --background-color: #fff1d5; /* Background color */
 --gradient-size: 3em; /* Size for the repeating gradient */
@@ -1885,11 +1885,11 @@ background-size: var(--gradient-size) var(--gradient-size);
 background-color: var(--background-color);
 opacity: 1;
         `
-    },
-    {
-        id: 96,
-        name: 'Horizontal gradient lines',
-        cssTemplate: `
+	},
+	{
+		id: 96,
+		name: 'Horizontal gradient lines',
+		cssTemplate: `
 --primary-color: #99bcff; /* Main color for the gradient */
     --background-color: #ffcbcb; /* Background color */
     --gradient-size: 3em; /* Size for the repeating gradient */
@@ -1899,11 +1899,11 @@ background: repeating-linear-gradient(0deg, var(--background-color), var(--prima
     background-color: var(--background-color);
     opacity: 1;
         `
-    },
-    {
-        id: 97,
-        name: 'Seigaiha',
-        cssTemplate: `
+	},
+	{
+		id: 97,
+		name: 'Seigaiha',
+		cssTemplate: `
 background-color:silver;
 background-image:
 radial-gradient(circle at 100% 150%, silver 24%, white 24%, white 28%, silver 28%, silver 36%, white 36%, white 40%, transparent 40%, transparent),
@@ -1913,11 +1913,11 @@ radial-gradient(circle at 100% 50%, white 5%, silver 5%, silver 15%, white 15%, 
 radial-gradient(circle at 0    50%, white 5%, silver 5%, silver 15%, white 15%, white 20%, silver 20%, silver 29%, white 29%, white 34%, silver 34%, silver 44%, white 44%, white 49%, transparent 49%, transparent);
 background-size: 100px 50px;
 `
-    },
-    {
-        id: 98,
-        name: 'Retro furnish',
-        cssTemplate: `
+	},
+	{
+		id: 98,
+		name: 'Retro furnish',
+		cssTemplate: `
     background-image: url('https://f002.backblazeb2.com/file/bonfire-public/retro-furnish.png'); /* Replace with the URL of your tileable image */
     background-repeat: repeat; /* Tiles the image in both directions */
     background-size: auto; /* Ensures the image retains its original size */
@@ -1925,11 +1925,11 @@ background-size: 100px 50px;
     width: 100%;
     height: 100%; 
         `
-    },
-    {
-        id: 99,
-        name: 'Ahoy',
-        cssTemplate: `
+	},
+	{
+		id: 99,
+		name: 'Ahoy',
+		cssTemplate: `
     background-image: url('https://f002.backblazeb2.com/file/bonfire-public/ahoy.jpg'); /* Replace with the URL of your tileable image */
     background-repeat: repeat; /* Tiles the image in both directions */
     background-size: auto; /* Ensures the image retains its original size */
@@ -1937,11 +1937,11 @@ background-size: 100px 50px;
     width: 100%;
     height: 100%; 
         `
-    },
-    {
-        id: 100,
-        name: 'Alchemy',
-        cssTemplate: `
+	},
+	{
+		id: 100,
+		name: 'Alchemy',
+		cssTemplate: `
     background-image: url('https://f002.backblazeb2.com/file/bonfire-public/alchemy.gif'); /* Replace with the URL of your tileable image */
     background-repeat: repeat; /* Tiles the image in both directions */
     background-size: auto; /* Ensures the image retains its original size */
@@ -1949,11 +1949,11 @@ background-size: 100px 50px;
     width: 100%;
     height: 100%; 
         `
-    },
-    {
-        id: 101,
-        name: 'Asteroids',
-        cssTemplate: `
+	},
+	{
+		id: 101,
+		name: 'Asteroids',
+		cssTemplate: `
     background-image: url('https://f002.backblazeb2.com/file/bonfire-public/asteroids.jpg'); /* Replace with the URL of your tileable image */
     background-repeat: repeat; /* Tiles the image in both directions */
     background-size: auto; /* Ensures the image retains its original size */
@@ -1961,11 +1961,11 @@ background-size: 100px 50px;
     width: 100%;
     height: 100%; 
         `
-    },
-    {
-        id: 102,
-        name: 'Bicycles',
-        cssTemplate: `
+	},
+	{
+		id: 102,
+		name: 'Bicycles',
+		cssTemplate: `
     background-image: url('https://f002.backblazeb2.com/file/bonfire-public/bicycles.png'); /* Replace with the URL of your tileable image */
     background-repeat: repeat; /* Tiles the image in both directions */
     background-size: auto; /* Ensures the image retains its original size */
@@ -1974,11 +1974,11 @@ background-size: 100px 50px;
     height: 100%; 
     
         `
-    },
-    {
-        id: 103,
-        name: 'Brijan',
-        cssTemplate: `
+	},
+	{
+		id: 103,
+		name: 'Brijan',
+		cssTemplate: `
     background-image: url('https://f002.backblazeb2.com/file/bonfire-public/brijan.gif'); /* Replace with the URL of your tileable image */
     background-repeat: repeat; /* Tiles the image in both directions */
     background-size: auto; /* Ensures the image retains its original size */
@@ -1987,11 +1987,11 @@ background-size: 100px 50px;
     height: 100%; 
      
         `
-    },
-    {
-        id: 104,
-        name: 'Bunting flag',
-        cssTemplate: `
+	},
+	{
+		id: 104,
+		name: 'Bunting flag',
+		cssTemplate: `
     background-image: url('https://f002.backblazeb2.com/file/bonfire-public/bunting-flag.png'); /* Replace with the URL of your tileable image */
     background-repeat: repeat; /* Tiles the image in both directions */
     background-size: auto; /* Ensures the image retains its original size */
@@ -2000,11 +2000,11 @@ background-size: 100px 50px;
     height: 100%; 
     
         `
-    },
-    {
-        id: 105,
-        name: 'Celebration',
-        cssTemplate: `
+	},
+	{
+		id: 105,
+		name: 'Celebration',
+		cssTemplate: `
     background-image: url('https://f002.backblazeb2.com/file/bonfire-public/celebration.png'); /* Replace with the URL of your tileable image */
     background-repeat: repeat; /* Tiles the image in both directions */
     background-size: auto; /* Ensures the image retains its original size */
@@ -2013,11 +2013,11 @@ background-size: 100px 50px;
     height: 100%; 
   
         `
-    },
-    {
-        id: 106,
-        name: 'Chalkboard',
-        cssTemplate: `
+	},
+	{
+		id: 106,
+		name: 'Chalkboard',
+		cssTemplate: `
     background-image: url('https://f002.backblazeb2.com/file/bonfire-public/chalkboard.jpg'); /* Replace with the URL of your tileable image */
     background-repeat: repeat; /* Tiles the image in both directions */
     background-size: auto; /* Ensures the image retains its original size */
@@ -2026,11 +2026,11 @@ background-size: 100px 50px;
     height: 100%; 
     
         `
-    },
-    {
-        id: 107,
-        name: 'Cocina',
-        cssTemplate: `
+	},
+	{
+		id: 107,
+		name: 'Cocina',
+		cssTemplate: `
     background-image: url('https://f002.backblazeb2.com/file/bonfire-public/cocina.gif'); /* Replace with the URL of your tileable image */
     background-repeat: repeat; /* Tiles the image in both directions */
     background-size: auto; /* Ensures the image retains its original size */
@@ -2038,11 +2038,11 @@ background-size: 100px 50px;
     width: 100%;
     height: 100%; 
         `
-    },
-    {
-        id: 108,
-        name: 'Cuadros',
-        cssTemplate: `
+	},
+	{
+		id: 108,
+		name: 'Cuadros',
+		cssTemplate: `
     background-image: url('https://f002.backblazeb2.com/file/bonfire-public/cuadros.png'); /* Replace with the URL of your tileable image */
     background-repeat: repeat; /* Tiles the image in both directions */
     background-size: auto; /* Ensures the image retains its original size */
@@ -2050,11 +2050,11 @@ background-size: 100px 50px;
     width: 100%;
     height: 100%;    
         `
-    },
-    {
-        id: 109,
-        name: 'Dark wood',
-        cssTemplate: `
+	},
+	{
+		id: 109,
+		name: 'Dark wood',
+		cssTemplate: `
     background-image: url('https://f002.backblazeb2.com/file/bonfire-public/dark-wood.jpg'); /* Replace with the URL of your tileable image */
     background-repeat: repeat; /* Tiles the image in both directions */
     background-size: auto; /* Ensures the image retains its original size */
@@ -2062,11 +2062,11 @@ background-size: 100px 50px;
     width: 100%;
     height: 100%;  
         `
-    },
-    {
-        id: 110,
-        name: 'Jade',
-        cssTemplate: `
+	},
+	{
+		id: 110,
+		name: 'Jade',
+		cssTemplate: `
     background-image: url('https://f002.backblazeb2.com/file/bonfire-public/jade.jpg'); /* Replace with the URL of your tileable image */
     background-repeat: repeat; /* Tiles the image in both directions */
     background-size: auto; /* Ensures the image retains its original size */
@@ -2074,11 +2074,11 @@ background-size: 100px 50px;
     width: 100%;
     height: 100%;      
         `
-    },
-    {
-        id: 111,
-        name: 'Design tools',
-        cssTemplate: `
+	},
+	{
+		id: 111,
+		name: 'Design tools',
+		cssTemplate: `
     background-image: url('https://f002.backblazeb2.com/file/bonfire-public/design-tools.jpg'); /* Replace with the URL of your tileable image */
     background-repeat: repeat; /* Tiles the image in both directions */
     background-size: auto; /* Ensures the image retains its original size */
@@ -2086,11 +2086,11 @@ background-size: 100px 50px;
     width: 100%;
     height: 100%;   
         `
-    },
-    {
-        id: 112,
-        name: 'Escape flight',
-        cssTemplate: `
+	},
+	{
+		id: 112,
+		name: 'Escape flight',
+		cssTemplate: `
     background-image: url('https://f002.backblazeb2.com/file/bonfire-public/escape-flight.png'); /* Replace with the URL of your tileable image */
     background-repeat: repeat; /* Tiles the image in both directions */
     background-size: auto; /* Ensures the image retains its original size */
@@ -2098,11 +2098,11 @@ background-size: 100px 50px;
     width: 100%;
     height: 100%;    
         `
-    },
-    {
-        id: 113,
-        name: 'Fancy pants',
-        cssTemplate: `
+	},
+	{
+		id: 113,
+		name: 'Fancy pants',
+		cssTemplate: `
     background-image: url('https://f002.backblazeb2.com/file/bonfire-public/fancy-pants.jpg'); /* Replace with the URL of your tileable image */
     background-repeat: repeat; /* Tiles the image in both directions */
     background-size: auto; /* Ensures the image retains its original size */
@@ -2110,11 +2110,11 @@ background-size: 100px 50px;
     width: 100%;
     height: 100%;   
         `
-    },
-    {
-        id: 114,
-        name: 'Fiesta',
-        cssTemplate: `
+	},
+	{
+		id: 114,
+		name: 'Fiesta',
+		cssTemplate: `
     background-image: url('https://f002.backblazeb2.com/file/bonfire-public/fiesta.jpg'); /* Replace with the URL of your tileable image */
     background-repeat: repeat; /* Tiles the image in both directions */
     background-size: auto; /* Ensures the image retains its original size */
@@ -2122,11 +2122,11 @@ background-size: 100px 50px;
     width: 100%;
     height: 100%;   
         `
-    },
-    {
-        id: 116,
-        name: 'Flowers',
-        cssTemplate: `
+	},
+	{
+		id: 116,
+		name: 'Flowers',
+		cssTemplate: `
     background-image: url('https://f002.backblazeb2.com/file/bonfire-public/flowers.jpg'); /* Replace with the URL of your tileable image */
     background-repeat: repeat; /* Tiles the image in both directions */
     background-size: auto; /* Ensures the image retains its original size */
@@ -2134,11 +2134,11 @@ background-size: 100px 50px;
     width: 100%;
     height: 100%;   
         `
-    },
-    {
-      id: 117,
-      name: 'Geometrica',
-      cssTemplate: `
+	},
+	{
+		id: 117,
+		name: 'Geometrica',
+		cssTemplate: `
   background-image: url('https://f002.backblazeb2.com/file/bonfire-public/geometrica.png'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
@@ -2146,11 +2146,11 @@ background-size: 100px 50px;
   width: 100%;
   height: 100%;   
       `
-  },
-  {
-    id: 118,
-    name: 'Glitch',
-    cssTemplate: `
+	},
+	{
+		id: 118,
+		name: 'Glitch',
+		cssTemplate: `
   background-image: url('https://f002.backblazeb2.com/file/bonfire-public/glitch.png'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
@@ -2158,11 +2158,11 @@ background-size: 100px 50px;
   width: 100%;
   height: 100%;   
       `
-  },
-  {
-    id: 119,
-    name: 'Hodgepodge',
-    cssTemplate: `
+	},
+	{
+		id: 119,
+		name: 'Hodgepodge',
+		cssTemplate: `
   background-image: url('https://f002.backblazeb2.com/file/bonfire-public/hodgepodge.png'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
@@ -2170,10 +2170,11 @@ background-size: 100px 50px;
   width: 100%;
   height: 100%;   
     `
-  },{
-    id: 120,
-    name: 'Green goblin',
-    cssTemplate: `
+	},
+	{
+		id: 120,
+		name: 'Green goblin',
+		cssTemplate: `
   background-image: url('https://f002.backblazeb2.com/file/bonfire-public/green-goblin.png'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
@@ -2181,11 +2182,11 @@ background-size: 100px 50px;
   width: 100%;
   height: 100%;   
     `
-  },
-  {
-    id: 121,
-    name: 'Guglieri speciale',
-    cssTemplate: `
+	},
+	{
+		id: 121,
+		name: 'Guglieri speciale',
+		cssTemplate: `
   background-image: url('https://f002.backblazeb2.com/file/bonfire-public/guglieri-speciale.jpg'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
@@ -2193,11 +2194,11 @@ background-size: 100px 50px;
   width: 100%;
   height: 100%;   
     `
-  },
-  {
-    id: 122,
-    name: 'Hotdogs',
-    cssTemplate: `
+	},
+	{
+		id: 122,
+		name: 'Hotdogs',
+		cssTemplate: `
   background-image: url('https://f002.backblazeb2.com/file/bonfire-public/hotdogs.jpg'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
@@ -2205,11 +2206,11 @@ background-size: 100px 50px;
   width: 100%;
   height: 100%;   
     `
-  },
-  {
-    id: 123,
-    name: 'Isometropolis',
-    cssTemplate: `
+	},
+	{
+		id: 123,
+		name: 'Isometropolis',
+		cssTemplate: `
   background-image: url('https://f002.backblazeb2.com/file/bonfire-public/isometropolis.jpg'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
@@ -2217,11 +2218,11 @@ background-size: 100px 50px;
   width: 100%;
   height: 100%;   
     `
-  },
-  {
-    id: 124,
-    name: 'Junk mail',
-    cssTemplate: `
+	},
+	{
+		id: 124,
+		name: 'Junk mail',
+		cssTemplate: `
   background-image: url('https://f002.backblazeb2.com/file/bonfire-public/junk-mail.jpg'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
@@ -2229,11 +2230,11 @@ background-size: 100px 50px;
   width: 100%;
   height: 100%;   
     `
-  },
-  {
-    id: 125,
-    name: 'Kale salad',
-    cssTemplate: `
+	},
+	{
+		id: 125,
+		name: 'Kale salad',
+		cssTemplate: `
   background-image: url('https://f002.backblazeb2.com/file/bonfire-public/kale-salad.jpg'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
@@ -2241,11 +2242,11 @@ background-size: 100px 50px;
   width: 100%;
   height: 100%;   
     `
-  },
-  {
-    id: 126,
-    name: 'Kitty',
-    cssTemplate: `
+	},
+	{
+		id: 126,
+		name: 'Kitty',
+		cssTemplate: `
   background-image: url('https://f002.backblazeb2.com/file/bonfire-public/kitty.png'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
@@ -2253,11 +2254,11 @@ background-size: 100px 50px;
   width: 100%;
   height: 100%;   
     `
-  },
-  {
-    id: 127,
-    name: 'Kiwis',
-    cssTemplate: `
+	},
+	{
+		id: 127,
+		name: 'Kiwis',
+		cssTemplate: `
   background-image: url('https://f002.backblazeb2.com/file/bonfire-public/kiwis.png'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
@@ -2265,11 +2266,11 @@ background-size: 100px 50px;
   width: 100%;
   height: 100%;   
     `
-  },
-  {
-    id: 128,
-    name: 'Knitting',
-    cssTemplate: `
+	},
+	{
+		id: 128,
+		name: 'Knitting',
+		cssTemplate: `
   background-image: url('https://f002.backblazeb2.com/file/bonfire-public/knitting.jpg'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
@@ -2277,11 +2278,11 @@ background-size: 100px 50px;
   width: 100%;
   height: 100%;   
     `
-  },
-  {
-    id: 129,
-    name: 'Leather nunchuck',
-    cssTemplate: `
+	},
+	{
+		id: 129,
+		name: 'Leather nunchuck',
+		cssTemplate: `
   background-image: url('https://f002.backblazeb2.com/file/bonfire-public/leather-nunchuck.png'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
@@ -2289,11 +2290,11 @@ background-size: 100px 50px;
   width: 100%;
   height: 100%;   
     `
-  },
-  {
-    id: 130,
-    name: 'Magnus 2050',
-    cssTemplate: `
+	},
+	{
+		id: 130,
+		name: 'Magnus 2050',
+		cssTemplate: `
   background-image: url('https://f002.backblazeb2.com/file/bonfire-public/magnus-2050.png'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
@@ -2301,11 +2302,11 @@ background-size: 100px 50px;
   width: 100%;
   height: 100%;   
     `
-  },
-  {
-    id: 131,
-    name: 'Magnus 2051',
-    cssTemplate: `
+	},
+	{
+		id: 131,
+		name: 'Magnus 2051',
+		cssTemplate: `
   background-image: url('https://f002.backblazeb2.com/file/bonfire-public/magnus-2051.png'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
@@ -2313,11 +2314,11 @@ background-size: 100px 50px;
   width: 100%;
   height: 100%;   
     `
-  },
-  {
-    id: 132,
-    name: 'Maze',
-    cssTemplate: `
+	},
+	{
+		id: 132,
+		name: 'Maze',
+		cssTemplate: `
   background-image: url('https://f002.backblazeb2.com/file/bonfire-public/maze.jpg'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
@@ -2325,11 +2326,11 @@ background-size: 100px 50px;
   width: 100%;
   height: 100%;   
     `
-  },
-  {
-    id: 133,
-    name: 'Naranjas',
-    cssTemplate: `
+	},
+	{
+		id: 133,
+		name: 'Naranjas',
+		cssTemplate: `
   background-image: url('https://f002.backblazeb2.com/file/bonfire-public/naranjas.png'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
@@ -2337,11 +2338,11 @@ background-size: 100px 50px;
   width: 100%;
   height: 100%;   
     `
-  },
-  {
-    id: 134,
-    name: 'Neon autumn',
-    cssTemplate: `
+	},
+	{
+		id: 134,
+		name: 'Neon autumn',
+		cssTemplate: `
   background-image: url('https://f002.backblazeb2.com/file/bonfire-public/neon-autumn.gif'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
@@ -2349,11 +2350,11 @@ background-size: 100px 50px;
   width: 100%;
   height: 100%;   
     `
-  },
-  {
-    id: 135,
-    name: 'NYC candy',
-    cssTemplate: `
+	},
+	{
+		id: 135,
+		name: 'NYC candy',
+		cssTemplate: `
   background-image: url('https://f002.backblazeb2.com/file/bonfire-public/nyc-candy.png'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
@@ -2361,11 +2362,11 @@ background-size: 100px 50px;
   width: 100%;
   height: 100%;   
     `
-  },
-  {
-    id: 136,
-    name: 'Ocean',
-    cssTemplate: `
+	},
+	{
+		id: 136,
+		name: 'Ocean',
+		cssTemplate: `
   background-image: url('https://f002.backblazeb2.com/file/bonfire-public/ocean.jpg'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
@@ -2373,11 +2374,11 @@ background-size: 100px 50px;
   width: 100%;
   height: 100%;   
     `
-  },
-  {
-    id: 137,
-    name: 'Plaid',
-    cssTemplate: `
+	},
+	{
+		id: 137,
+		name: 'Plaid',
+		cssTemplate: `
   background-image: url('https://f002.backblazeb2.com/file/bonfire-public/plaid.jpg'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
@@ -2385,11 +2386,11 @@ background-size: 100px 50px;
   width: 100%;
   height: 100%;   
     `
-  },
-  {
-    id: 138,
-    name: 'Quake',
-    cssTemplate: `
+	},
+	{
+		id: 138,
+		name: 'Quake',
+		cssTemplate: `
   background-image: url('https://f002.backblazeb2.com/file/bonfire-public/quake.png'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
@@ -2397,11 +2398,11 @@ background-size: 100px 50px;
   width: 100%;
   height: 100%;   
     `
-  },
-  {
-    id: 139,
-    name: 'Raspberry lace',
-    cssTemplate: `
+	},
+	{
+		id: 139,
+		name: 'Raspberry lace',
+		cssTemplate: `
   background-image: url('https://f002.backblazeb2.com/file/bonfire-public/raspberry-lace.gif'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
@@ -2409,11 +2410,11 @@ background-size: 100px 50px;
   width: 100%;
   height: 100%;   
     `
-  },
-  {
-    id: 140,
-    name: 'The illusionist',
-    cssTemplate: `
+	},
+	{
+		id: 140,
+		name: 'The illusionist',
+		cssTemplate: `
   background-image: url('https://f002.backblazeb2.com/file/bonfire-public/the-illusionist.png'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
@@ -2421,11 +2422,11 @@ background-size: 100px 50px;
   width: 100%;
   height: 100%;   
     `
-  },
-  {
-    id: 141,
-    name: 'Kitty',
-    cssTemplate: `
+	},
+	{
+		id: 141,
+		name: 'Kitty',
+		cssTemplate: `
   background-image: url('https://f002.backblazeb2.com/file/bonfire-public/science.png'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
@@ -2433,11 +2434,11 @@ background-size: 100px 50px;
   width: 100%;
   height: 100%;   
     `
-  },
-  {
-    id: 142,
-    name: 'Shattered island',
-    cssTemplate: `
+	},
+	{
+		id: 142,
+		name: 'Shattered island',
+		cssTemplate: `
   background-image: url('https://f002.backblazeb2.com/file/bonfire-public/shattered-island.gif'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
@@ -2445,11 +2446,11 @@ background-size: 100px 50px;
   width: 100%;
   height: 100%;   
     `
-  },
-  {
-    id: 143,
-    name: 'Special delivery',
-    cssTemplate: `
+	},
+	{
+		id: 143,
+		name: 'Special delivery',
+		cssTemplate: `
   background-image: url('https://f002.backblazeb2.com/file/bonfire-public/special-delivery.jpg'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
@@ -2457,11 +2458,11 @@ background-size: 100px 50px;
   width: 100%;
   height: 100%;   
     `
-  },
-  {
-    id: 144,
-    name: 'Subway lines',
-    cssTemplate: `
+	},
+	{
+		id: 144,
+		name: 'Subway lines',
+		cssTemplate: `
   background-image: url('https://f002.backblazeb2.com/file/bonfire-public/subway-lines.png'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
@@ -2469,11 +2470,11 @@ background-size: 100px 50px;
   width: 100%;
   height: 100%;   
     `
-  },
-  {
-    id: 145,
-    name: 'Sushi',
-    cssTemplate: `
+	},
+	{
+		id: 145,
+		name: 'Sushi',
+		cssTemplate: `
   background-image: url('https://f002.backblazeb2.com/file/bonfire-public/sushi.png'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
@@ -2481,11 +2482,11 @@ background-size: 100px 50px;
   width: 100%;
   height: 100%;   
     `
-  },
-  {
-    id: 146,
-    name: 'White wood',
-    cssTemplate: `
+	},
+	{
+		id: 146,
+		name: 'White wood',
+		cssTemplate: `
   background-image: url('https://f002.backblazeb2.com/file/bonfire-public/white-wood.jpg'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
@@ -2493,11 +2494,11 @@ background-size: 100px 50px;
   width: 100%;
   height: 100%;   
     `
-  },
-  {
-    id: 147,
-    name: 'Wild sea',
-    cssTemplate: `
+	},
+	{
+		id: 147,
+		name: 'Wild sea',
+		cssTemplate: `
   background-image: url('https://f002.backblazeb2.com/file/bonfire-public/wild-sea.png'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
@@ -2505,11 +2506,11 @@ background-size: 100px 50px;
   width: 100%;
   height: 100%;   
     `
-  },
-  {
-    id: 148,
-    name: '輪紋',
-    cssTemplate: `
+	},
+	{
+		id: 148,
+		name: '輪紋',
+		cssTemplate: `
   background-image: url('https://f002.backblazeb2.com/file/bonfire-public/輪紋.png'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
@@ -2517,126 +2518,5 @@ background-size: 100px 50px;
   width: 100%;
   height: 100%;   
     `
-  },
-  {
-    id: 126,
-    name: 'Kitty',
-    cssTemplate: `
-  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/kitty.png'); /* Replace with the URL of your tileable image */
-  background-repeat: repeat; /* Tiles the image in both directions */
-  background-size: auto; /* Ensures the image retains its original size */
-  background-color: #ffffff; /* Fallback background color */
-  width: 100%;
-  height: 100%;   
-    `
-  },
-  {
-    id: 126,
-    name: 'Kitty',
-    cssTemplate: `
-  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/kitty.png'); /* Replace with the URL of your tileable image */
-  background-repeat: repeat; /* Tiles the image in both directions */
-  background-size: auto; /* Ensures the image retains its original size */
-  background-color: #ffffff; /* Fallback background color */
-  width: 100%;
-  height: 100%;   
-    `
-  },
-  {
-    id: 126,
-    name: 'Kitty',
-    cssTemplate: `
-  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/kitty.png'); /* Replace with the URL of your tileable image */
-  background-repeat: repeat; /* Tiles the image in both directions */
-  background-size: auto; /* Ensures the image retains its original size */
-  background-color: #ffffff; /* Fallback background color */
-  width: 100%;
-  height: 100%;   
-    `
-  },
-  {
-    id: 126,
-    name: 'Kitty',
-    cssTemplate: `
-  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/kitty.png'); /* Replace with the URL of your tileable image */
-  background-repeat: repeat; /* Tiles the image in both directions */
-  background-size: auto; /* Ensures the image retains its original size */
-  background-color: #ffffff; /* Fallback background color */
-  width: 100%;
-  height: 100%;   
-    `
-  },
-  {
-    id: 126,
-    name: 'Kitty',
-    cssTemplate: `
-  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/kitty.png'); /* Replace with the URL of your tileable image */
-  background-repeat: repeat; /* Tiles the image in both directions */
-  background-size: auto; /* Ensures the image retains its original size */
-  background-color: #ffffff; /* Fallback background color */
-  width: 100%;
-  height: 100%;   
-    `
-  },
-  {
-    id: 126,
-    name: 'Kitty',
-    cssTemplate: `
-  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/kitty.png'); /* Replace with the URL of your tileable image */
-  background-repeat: repeat; /* Tiles the image in both directions */
-  background-size: auto; /* Ensures the image retains its original size */
-  background-color: #ffffff; /* Fallback background color */
-  width: 100%;
-  height: 100%;   
-    `
-  },
-  {
-    id: 126,
-    name: 'Kitty',
-    cssTemplate: `
-  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/kitty.png'); /* Replace with the URL of your tileable image */
-  background-repeat: repeat; /* Tiles the image in both directions */
-  background-size: auto; /* Ensures the image retains its original size */
-  background-color: #ffffff; /* Fallback background color */
-  width: 100%;
-  height: 100%;   
-    `
-  },
-  {
-    id: 126,
-    name: 'Kitty',
-    cssTemplate: `
-  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/kitty.png'); /* Replace with the URL of your tileable image */
-  background-repeat: repeat; /* Tiles the image in both directions */
-  background-size: auto; /* Ensures the image retains its original size */
-  background-color: #ffffff; /* Fallback background color */
-  width: 100%;
-  height: 100%;   
-    `
-  },
-  {
-    id: 126,
-    name: 'Kitty',
-    cssTemplate: `
-  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/kitty.png'); /* Replace with the URL of your tileable image */
-  background-repeat: repeat; /* Tiles the image in both directions */
-  background-size: auto; /* Ensures the image retains its original size */
-  background-color: #ffffff; /* Fallback background color */
-  width: 100%;
-  height: 100%;   
-    `
-  },
-  {
-    id: 126,
-    name: 'Kitty',
-    cssTemplate: `
-  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/kitty.png'); /* Replace with the URL of your tileable image */
-  background-repeat: repeat; /* Tiles the image in both directions */
-  background-size: auto; /* Ensures the image retains its original size */
-  background-color: #ffffff; /* Fallback background color */
-  width: 100%;
-  height: 100%;   
-    `
-  },
-
+	}
 ];
