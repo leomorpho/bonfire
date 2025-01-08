@@ -38,44 +38,29 @@ export const load = async (e) => {
 				triplitHttpClient
 					.query('events')
 					.where(['id', '=', eventId as string])
+					.include('announcements')
+					.include('attendees')
+					.include('files')
 					.build()
 			);
+			console.log('fetched event', event);
+			if (event != null) {
+				if (event.attendees != null) {
+					numAttendees = event.attendees.length;
+				}
+				if (event.announcements != null) {
+					numAnnouncements = event.announcements.length;
+				}
+				if (event.files != null) {
+					numFiles = event.files.length;
+				}
+
+				console.log("numAttendees", numAttendees)
+				console.log("numAnnouncements", numAnnouncements)
+				console.log("numFiles", numFiles)
+			}
 		} catch (e) {
-			console.debug(`failed to fetch event with id ${eventId}`, e);
-		}
-		try {
-			const attendees = await triplitHttpClient.fetch(
-				triplitHttpClient
-					.query('attendees')
-					.where([['event_id', '=', eventId as string]])
-					.build()
-			);
-			numAttendees = attendees.length;
-		} catch (e) {
-			console.debug(`failed to fetch attendees for event with id ${eventId}`, e);
-		}
-		try {
-			const announcements = await triplitHttpClient.fetch(
-				triplitHttpClient
-					.query('announcement')
-					.where(['event_id', '=', eventId as string])
-					.order('created_at', 'DESC')
-					.build()
-			);
-			numAnnouncements = announcements.length;
-		} catch (e) {
-			console.debug(`failed to fetch announcements for event with id ${eventId}`, e);
-		}
-		try {
-			const files = await triplitHttpClient.fetch(
-				triplitHttpClient
-					.query('files')
-					.where('event_id', '=', eventId as string)
-					.build()
-			);
-			numFiles = files.length;
-		} catch (e) {
-			console.debug(`failed to fetch files for event with id ${eventId}`, e);
+			console.debug(`### failed to fetch event with id ${eventId}`, e);
 		}
 	}
 	return {

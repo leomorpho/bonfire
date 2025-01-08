@@ -110,7 +110,10 @@ export const schema = {
 			attendees: S.RelationMany('attendees', {
 				where: [['event_id', '=', '$id']]
 			}),
-			annoucements: S.RelationMany('announcement', {
+			announcements: S.RelationMany('announcement', {
+				where: [['event_id', '=', '$id']]
+			}),
+			files: S.RelationMany('files', {
 				where: [['event_id', '=', '$id']]
 			}),
 			// attending_users: S.RelationMany('user', {
