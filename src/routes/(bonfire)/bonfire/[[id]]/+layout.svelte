@@ -44,7 +44,7 @@
 	});
 
 	onMount(async () => {
-		if ($page.data.user) {
+		if ($page.data.user || tempAttendeeId) {
 			// User is logged in
 			client = getFeTriplitClient($page.data.jwt);
 			const styleDataQuery = client

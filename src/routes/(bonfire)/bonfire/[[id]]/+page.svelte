@@ -9,7 +9,7 @@
 	import { formatHumanReadable } from '$lib/utils';
 	import Rsvp from '$lib/components/Rsvp.svelte';
 	import { onMount } from 'svelte';
-	import { Status, tempAttendeeIdUrlParam } from '$lib/enums';
+	import { Status, tempAttendeeIdStore, tempAttendeeIdUrlParam } from '$lib/enums';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import ProfileAvatar from '$lib/components/ProfileAvatar.svelte';
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
@@ -23,7 +23,6 @@
 	import CenterScreenMessage from '$lib/components/CenterScreenMessage.svelte';
 	import * as Avatar from '$lib/components/ui/avatar/index.js';
 	import BonfireNoInfoCard from '$lib/components/BonfireNoInfoCard.svelte';
-	import { get } from 'svelte/store';
 
 	let userId = $state('');
 
@@ -35,9 +34,11 @@
 
 	let isUnverifiedUser = $state($page.data.tempAttendeeExists);
 	const tempAttendeeId = $page.url.searchParams.get(tempAttendeeIdUrlParam);
+
 	console.log('tempAttendeeId', tempAttendeeId);
 	if ($page.data.tempAttendeeExists && tempAttendeeId) {
 		isUnverifiedUser = true;
+		tempAttendeeIdStore.set(tempAttendeeId)
 	}
 
 	let isAnonymousUser = $state(!$page.data.user);
