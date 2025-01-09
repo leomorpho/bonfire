@@ -276,6 +276,13 @@ export const schema = {
 							['event.temporary_attendees.id', '=', '$role.temporaryAttendeeId']
 						])
 					]
+				},
+				update: {
+					filter: [
+						or([
+							['id', '=', '$role.temporaryAttendeeId'], // User can read their own profile
+						])
+					]
 				}
 			}
 		}

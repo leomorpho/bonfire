@@ -9,6 +9,7 @@
 		NOTIFY_OF_ATTENDING_STATUS_CHANGE,
 		Status,
 		TEMP_ATTENDEE_MIN_NAME_LEN,
+		tempAttendeeIdUrlParam,
 		TempNameCheckingState
 	} from '$lib/enums';
 	import AddToCalendar from './AddToCalendar.svelte';
@@ -82,15 +83,20 @@
 	// Function to handle RSVP updates
 	const updateRSVP = async (event: Event, newValue: string) => {
 		event.preventDefault();
-		console.log('updating RSVP status');
 		if (isAnonymousUser) {
+			// Brand new temporary user, still an anonymous user at this point
 			tempRsvpStatus = newValue;
-			isAnonRsvpDialogOpen = true;
+
 			// Show modal to either
 			// (a) log in with magic link and have that event be linked to their account right away
 			// (b) enter a name and generate a unique link to access the event with their temporary identity
-		} else {
+			isAnonRsvpDialogOpen = true;
+		} else if ($page.data.user) {
+			console.log('updating RSVP status for logged in user');
 			await updateRSVPForLoggedInUser(newValue);
+		} else {
+			console.log('updating RSVP status for temporary user');
+			await updateRSVPForTempUser(newValue);
 		}
 		dropdownOpen = false;
 	};
@@ -187,6 +193,39 @@
 			toast.error('Sorry, an error occurred while creating your attendee, please try again later');
 		} finally {
 			isGeneratingTempLink = false;
+		}
+	};
+
+	const updateRSVPForTempUser = async (newValue: string) => {
+		const tempAttendeeId = $page.url.searchParams.get(tempAttendeeIdUrlParam);
+
+		if (!tempAttendeeId) {
+			toast.error("You don't have a valid identity, please create a new one");
+		}
+		try {
+			const attendance = client.fetchById('temporary_attendees', tempAttendeeId as string);
+
+			if (!attendance) {
+				throw new Error('no temp attendance object exists for that temp user and ID');
+			}
+
+			rsvpStatus = newValue; // Update the label
+
+			// NOTE that we automatically create a RSVP status attendance object
+			// upon navigation to an event if the user does not have an attendance object for it.
+			await client.update('temporary_attendees', tempAttendeeId as string, async (entity) => {
+				entity.status = newValue;
+			});
+
+			// if (NOTIFY_OF_ATTENDING_STATUS_CHANGE.includes(rsvpStatus)) {
+			// 	await createNewAttendanceNotificationQueueObject(client, userId, eventId, attendance.id);
+			// }
+
+			// Perform any additional actions, e.g., API call to save the new RSVP status
+			console.log('RSVP updated to:', newValue);
+		} catch (error) {
+			console.log('failed to update RSVP status to:', newValue, error);
+			toast.error('Sorry but we failed to update your RSVP status, please try again later.');
 		}
 	};
 
