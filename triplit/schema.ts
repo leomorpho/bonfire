@@ -249,8 +249,7 @@ export const schema = {
 			event_id: S.String(), // ID of the event
 			event: S.RelationById('events', '$event_id'), // Link to the event
 			status: S.String({ default: 'undecided' }), // RSVP status: attending, not attending, undecided
-			// guest_count: S.Number({ default: 0 }), // Number of additional guests
-			// special_requests: S.String({ nullable: true }), // Any special requests (e.g., dietary)
+			name: S.String(),
 			updated_at: S.Date({ default: S.Default.now() }) // Last updated timestamp
 		}),
 		permissions: {

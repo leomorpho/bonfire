@@ -1,0 +1,69 @@
+import { error, json, redirect } from '@sveltejs/kit';
+import { triplitHttpClient } from '$lib/server/triplit'; // Assuming you have Triplit client configured
+import { tempAttendeeIdUrlParam } from '$lib/enums';
+import { dev } from '$app/environment';
+import { and } from '@triplit/client';
+
+export async function POST({ request, params }) {
+	const { id: eventId } = params;
+
+	if (!eventId) {
+		throw error(400, 'Missing event ID');
+	}
+	try {
+		// Extract attendee data from the request body
+		const { id, status, name }: { id?: string; event_id: string; status?: string; name: string } =
+			await request.json();
+
+		if (!id) {
+			throw error(400, 'Missing temporary attendance ID');
+		}
+		if (!name) {
+			throw error(400, 'Name is required');
+		}
+		if (!status) {
+			throw error(400, 'Satus is required');
+		}
+
+		if (dev) {
+			console.log('temp id', id);
+			console.log('event_id', eventId);
+			console.log('status', status);
+			console.log('name', name);
+		}
+
+		// Check if an attendee with the same name already exists for this event
+		const existingAttendee = await triplitHttpClient.fetchOne(
+			triplitHttpClient
+				.query('temporary_attendees')
+				.where(
+					and([
+						['event_id', '=', eventId],
+						['name', '=', name]
+					])
+				)
+				.build()
+		);
+		if (existingAttendee) {
+			return json(
+				{ success: false, message: 'A temporary attendee with this name already exists.' },
+				{ status: 409 } // Conflict HTTP status code
+			);
+		}
+
+		// Use Triplit to insert the temporary attendee record
+		await triplitHttpClient.insert('temporary_attendees', {
+			id: id, // Allow Triplit to generate the ID if not provided
+			event_id: eventId,
+			status: status || 'undecided', // Default status if not provided
+			name
+		});
+
+		// Return the URL the FE can redirect to
+		const redirectUrl = `/bonfire/${eventId}?${tempAttendeeIdUrlParam}=${id}`;
+		return json({ success: true, redirectUrl });
+	} catch (err) {
+		console.error('Error creating temporary attendee:', err);
+		return error(500, 'Failed to create temporary attendee');
+	}
+}

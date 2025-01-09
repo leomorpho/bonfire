@@ -18,7 +18,7 @@
 	import { onMount } from 'svelte';
 	import { overlayColorStore, overlayOpacityStore, styleStore } from '$lib/styles';
 	import { generateId } from 'lucia';
-	import { generateEventId, loadScript } from '$lib/utils';
+	import { generatePassphraseId, loadScript } from '$lib/utils';
 
 	let { mode, event = null } = $props();
 
@@ -30,7 +30,7 @@
 		client = getFeTriplitClient($page.data.jwt) as TriplitClient;
 		(async () => {
 			// NOTE: for testing
-			console.log('generateEventId()', await generateEventId());
+			console.log('generatePassphraseId()', await generatePassphraseId());
 		})();
 	});
 
@@ -165,7 +165,7 @@
 		if (mode == 'create') {
 			// Save the event (uncomment in production)
 			const { output } = await client.insert('events', {
-				id: await generateEventId(),
+				id: await generatePassphraseId(),
 				title: eventName,
 				description: details || null,
 				location: location || null,

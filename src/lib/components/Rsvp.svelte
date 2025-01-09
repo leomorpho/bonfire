@@ -4,23 +4,59 @@
 	import type { TriplitClient } from '@triplit/client';
 	import { and } from '@triplit/client';
 	import { getFeTriplitClient } from '$lib/triplit';
-	import { getStrValueOfRSVP, NOTIFY_OF_ATTENDING_STATUS_CHANGE, Status } from '$lib/enums';
+	import {
+		getStrValueOfRSVP,
+		NOTIFY_OF_ATTENDING_STATUS_CHANGE,
+		Status,
+		TEMP_ATTENDEE_MIN_NAME_LEN,
+		TempNameCheckingState
+	} from '$lib/enums';
 	import AddToCalendar from './AddToCalendar.svelte';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 	import { createNewAttendanceNotificationQueueObject } from '$lib/notification';
-	import { Button, buttonVariants } from '$lib/components/ui/button/index.js';
+	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Label } from '$lib/components/ui/label/index.js';
+	import { generatePassphraseId } from '$lib/utils';
+	import { toast } from 'svelte-sonner';
 
 	let { rsvpStatus = Status.DEFAULT, userId, eventId, isAnonymousUser } = $props();
 
-	let isAnonRsvpDialogOpen = $state(true);
+	let isAnonRsvpDialogOpen = $state(false);
 
 	if (!rsvpStatus) {
 		rsvpStatus = Status.DEFAULT;
 	}
+
+	let tempRsvpStatus: null | string = $state(null);
+	let tempName: null | string = $state(null);
+	let tempMinNameLenReached = $state(false);
+	let isNameAvailable = $state(false);
+	let generateTempURLBtnEnabled: boolean = $state(false);
+	let isGeneratingTempLink: boolean = $state(false);
+	let tempNameCheckingState: string | null = $state(null);
+
+	$effect(() => {
+		if (tempName && tempName.length >= TEMP_ATTENDEE_MIN_NAME_LEN) {
+			tempMinNameLenReached = true;
+		} else {
+			tempMinNameLenReached = false;
+		}
+	});
+
+	$effect(() => {
+		if (tempMinNameLenReached && tempRsvpStatus && isNameAvailable) {
+			generateTempURLBtnEnabled = true;
+		} else {
+			generateTempURLBtnEnabled = false;
+		}
+	});
+
+	$effect(() => {
+		console.log(tempNameCheckingState);
+	});
 
 	// console.log('attendance', attendance);
 	console.log('userId', userId);
@@ -48,6 +84,7 @@
 		event.preventDefault();
 		console.log('updating RSVP status');
 		if (isAnonymousUser) {
+			tempRsvpStatus = newValue;
 			isAnonRsvpDialogOpen = true;
 			// Show modal to either
 			// (a) log in with magic link and have that event be linked to their account right away
@@ -57,8 +94,100 @@
 		}
 		dropdownOpen = false;
 	};
-	const updateRSVPForAnonymousUser = async (newValue: string) => {
-		// TODO: capture a username in a dialog, then save it to DB and show user a URL to re-access with that identity
+
+	function debounce(func, delay = 300) {
+		let timeoutId;
+
+		return function (...args) {
+			// Clear the previous timeout
+			clearTimeout(timeoutId);
+
+			// Set a new timeout to call the function after the delay
+			return new Promise((resolve, reject) => {
+				timeoutId = setTimeout(async () => {
+					try {
+						const result = await func(...args);
+						resolve(result);
+					} catch (error) {
+						reject(error);
+					}
+				}, delay);
+			});
+		};
+	}
+
+	const checkNameAvailability = debounce(async function () {
+		try {
+			console.log('checking name availability');
+			tempNameCheckingState = TempNameCheckingState.CHECKING;
+
+			const response = await fetch(`/bonfire/${eventId}/temp/check-name`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ name: tempName })
+			});
+
+			const result = await response.json();
+
+			if (!response.ok) {
+				// Handle 409 Conflict (Name already taken)
+				if (response.status === 409) {
+					tempNameCheckingState = TempNameCheckingState.NAME_TAKEN;
+					isNameAvailable = false;
+					return;
+				}
+
+				// Handle other errors
+				tempNameCheckingState = TempNameCheckingState.ERROR;
+			} else {
+				// Success (Name is available)
+				isNameAvailable = true;
+				tempNameCheckingState = TempNameCheckingState.AVAILABLE;
+				return result;
+			}
+		} catch (error) {
+			console.error('Error checking name availability:', error.message || error);
+			throw error;
+		}
+	}, 250); // Debounce delay is set to 500ms
+
+	const createTemporaryAttendee = async () => {
+		isGeneratingTempLink = true;
+		const id = await generatePassphraseId('u');
+		try {
+			if (!tempRsvpStatus) {
+				throw new Error('rsvp status is not set');
+			}
+			// Make a POST request to the backend endpoint
+			const response = await fetch(`/bonfire/${eventId}/temp/generate`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ id, eventId, status: tempRsvpStatus, name: tempName })
+			});
+
+			// Parse the response JSON
+			const result = await response.json();
+
+			if (!response.ok) {
+				throw new Error(result.message || 'Failed to create temporary attendee');
+			}
+
+			// Redirect if the attendee was created successfully
+			if (result.success && result.redirectUrl) {
+				window.location.href = result.redirectUrl;
+			} else {
+				throw new Error('Unexpected response from the server');
+			}
+		} catch (error) {
+			console.error('Error creating temporary attendee:', error);
+			toast.error('Sorry, an error occurred while creating your attendee, please try again later');
+		} finally {
+			isGeneratingTempLink = false;
+		}
 	};
 
 	const updateRSVPForLoggedInUser = async (newValue: string) => {
@@ -170,18 +299,53 @@
 				A unique URL that connects your actions to this event. Keep it open in a tab or save it for
 				future access—don’t lose it! This link serves as your identity for this event.
 			</p>
-			<div class="text-regular font-semibold mt-3 mb-1">Downsides</div>
+			<!-- <div class="text-regular mb-1 mt-3 font-semibold">Downsides</div>
 			<ul class="list-disc space-y-2 pl-6">
 				<li>No push notifications or email updates.</li>
 				<li>Limited access to event's sensitive data.</li>
 				<li>No permanent account.</li>
-			</ul>
+			</ul> -->
 		</div>
 
-		<div class="mb-2 grid grid-cols-4 items-center gap-4 mt-3">
+		<div class="mb-2 mt-3 grid grid-cols-4 items-center gap-4">
 			<Label for="username" class="text-right">Name</Label>
-			<Input id="username" value="Tony Garfunkel" class="col-span-3" />
+			<Input
+				oninput={checkNameAvailability}
+				bind:value={tempName}
+				id="username"
+				placeholder="Tony Garfunkel"
+				class="col-span-3"
+			/>
 		</div>
-		<Button type="submit" class="w-full">Generate URL</Button>
+		<div class="mb-4 flex w-full justify-center">
+			<ul class="list-disc space-y-2 pl-6 text-xs text-yellow-400">
+				{#if tempName && !tempMinNameLenReached}
+					<li>At least {TEMP_ATTENDEE_MIN_NAME_LEN} characters</li>
+				{/if}
+				{#if tempNameCheckingState === TempNameCheckingState.NAME_TAKEN}
+					<li>This name is already taken by someone in this event</li>
+				{/if}
+			</ul>
+		</div>
+		<Button
+			type="submit"
+			class="w-full"
+			onclick={createTemporaryAttendee}
+			disabled={!generateTempURLBtnEnabled}
+		>
+			{#if isGeneratingTempLink}
+				<div class="flex items-center justify-between">
+					<div>Generating...</div>
+					<span class="loading loading-spinner loading-xs ml-2"> </span>
+				</div>
+			{:else if tempNameCheckingState === TempNameCheckingState.CHECKING}
+				<div class="flex items-center justify-between">
+					<div>Checking name availability...</div>
+					<span class="loading loading-spinner loading-xs ml-2"> </span>
+				</div>
+			{:else}
+				Generate URL
+			{/if}
+		</Button>
 	</Dialog.Content>
 </Dialog.Root>

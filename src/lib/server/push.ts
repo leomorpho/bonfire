@@ -28,7 +28,7 @@ export const runNotificationProcessor = async () => {
 	const locked = await getTaskLockState(taskName);
 
 	if (locked) {
-		console.log('Task is already running. Skipping execution.');
+		// console.debug('Task is already running. Skipping execution.');
 		return;
 	}
 

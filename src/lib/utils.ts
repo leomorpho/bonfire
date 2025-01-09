@@ -92,7 +92,7 @@ export const loadPassphraseScript = () => {
 	});
 };
 
-export const generateEventId = async () => {
+export const generatePassphraseId = async (prefix: string | null = null) => {
 	try {
 		// Ensure the Passphrase script is loaded
 		await loadPassphraseScript();
@@ -109,11 +109,16 @@ export const generateEventId = async () => {
 		const randomId = generateId(7);
 
 		// Combine passphrase and random ID
-		const combined = `${passphrasePart}-${randomId}`;
+		let combined = `${passphrasePart}-${randomId}`;
 
+		if (prefix) {
+			combined = `${prefix}-${combined}`;
+		}
 		return combined;
 	} catch (error) {
 		console.error('Error generating event ID:', error);
-		return null;
+
+		// Return fallback value...just a regular crypto generated value
+		return generateId(20);
 	}
 };
