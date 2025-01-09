@@ -7,10 +7,20 @@
 	import { getFeTriplitClient } from '$lib/triplit';
 	import { page } from '$app/stores';
 
-	let { eventId, currUserId, currentUserAttendeeId, announcement } = $props();
+	let {
+		eventId,
+		currUserId,
+		currentUserAttendeeId,
+		announcement,
+		isUnverifiedUser = false
+	} = $props();
 	let cardRef: HTMLElement | null = $state(null); // Initialize as null to ensure proper type handling
 
 	async function markAsSeen() {
+		if (isUnverifiedUser) {
+			return;
+		}
+
 		if (announcement.seen_by.length != 0) return;
 
 		const client = getFeTriplitClient($page.data.jwt);
@@ -55,7 +65,7 @@
 </script>
 
 <Card.Root
-	class="announcement bg-opacity-90 {announcement.seen_by.length == 0
+	class="announcement bg-opacity-90 {announcement.seen_by.length == 0 && !isUnverifiedUser
 		? 'bg-yellow-200'
 		: 'bg-slate-200'}"
 >

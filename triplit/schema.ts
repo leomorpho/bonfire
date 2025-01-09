@@ -317,7 +317,6 @@ export const schema = {
 			user: S.RelationById('user', '$user_id'),
 			event_id: S.String(),
 			event: S.RelationById('events', '$event_id'),
-
 			seen_by: S.RelationMany('seen_announcements', {
 				where: [['announcement_id', '=', '$id']]
 			})
@@ -334,6 +333,14 @@ export const schema = {
 				insert: { filter: [['event.user_id', '=', '$role.userId']] },
 				update: { filter: [['user_id', '=', '$role.userId']] },
 				delete: { filter: [['user_id', '=', '$role.userId']] }
+			},
+			temp: {
+				read: {
+					filter: [
+						// A user should be able to only query for announcements of events they are attending:
+						['event.temporary_attendees.id', '=', '$role.temporaryAttendeeId']
+					]
+				}
 			}
 		}
 	},

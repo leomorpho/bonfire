@@ -10,7 +10,7 @@
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
 	import BonfireNoInfoCard from './BonfireNoInfoCard.svelte';
 
-	let { maxCount = null } = $props();
+	let { maxCount = null, isUnverifiedUser = false } = $props();
 
 	const eventId = $page.params.id;
 	let announcementsSubset = $state([]);
@@ -41,20 +41,25 @@
 		let client = getFeTriplitClient($page.data.jwt) as TriplitClient;
 
 		const init = async () => {
-			userId = (await waitForUserId()) as string;
+			if ($page.data.user) {
+				userId = (await waitForUserId()) as string;
 
-			const currentUserAttendee = await client.fetchOne(
-				client
-					.query('attendees')
-					.where(['user_id', '=', userId], ['event_id', '=', eventId])
-					.select(['id'])
-					.build()
-			);
+				const currentUserAttendee = await client.fetchOne(
+					client
+						.query('attendees')
+						.where(['user_id', '=', userId], ['event_id', '=', eventId])
+						.select(['id'])
+						.build()
+				);
 
-			// console.log('---- user_id', userId);
-			// console.log('---- event_id', $page.params.id);
-			// console.log('---- currentUserAttendee', currentUserAttendee);
-			currentUserAttendeeId = currentUserAttendee.id;
+				// console.log('---- user_id', userId);
+				// console.log('---- event_id', $page.params.id);
+				// console.log('---- currentUserAttendee', currentUserAttendee);
+
+				if (currentUserAttendee) {
+					currentUserAttendeeId = currentUserAttendee.id;
+				}
+			}
 
 			if (maxCount) {
 				// Only get total count when a subset is queried from bonfire main view
@@ -97,15 +102,15 @@
 	});
 </script>
 
-{#if notificationsLoading || !currentUserAttendeeId}
+{#if notificationsLoading}
 	<div class="flex w-full items-center justify-center">
 		<SvgLoader />
 	</div>
 {:else}
 	<div class="space-y-3">
-		{#if totalCount > 3}
+		{#if totalCount > 0}
 			{#each announcementsSubset as announcement}
-				<Announcement {eventId} currUserId={userId} {announcement} {currentUserAttendeeId} />
+				<Announcement {eventId} currUserId={userId} {announcement} {currentUserAttendeeId} {isUnverifiedUser} />
 			{/each}
 			{#if totalCount > maxCount}
 				<Button class="mt-3 w-full ring-glow" onclick={getAllAnnouncements}
@@ -125,6 +130,7 @@
 												currUserId={userId}
 												{announcement}
 												{currentUserAttendeeId}
+												{isUnverifiedUser}
 											/>
 										</div>
 									{/each}

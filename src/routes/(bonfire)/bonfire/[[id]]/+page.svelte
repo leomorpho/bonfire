@@ -146,9 +146,11 @@
 			}
 		);
 
-		if (!isAnonymousUser && !isUnverifiedUser) {
+		if (!isAnonymousUser) {
 			(async () => {
-				userId = (await waitForUserId()) as string;
+				if (!isUnverifiedUser) {
+					userId = (await waitForUserId()) as string;
+				}
 				// Fetch event files
 				await fetchEventFiles($page.params.id);
 			})();
@@ -451,7 +453,7 @@
 						</div>
 					{:else}
 						<div class="my-2">
-							<Annoucements maxCount={3} />
+							<Annoucements maxCount={3} {isUnverifiedUser}/>
 						</div>
 						{#if event.user_id == userId}
 							<a href="announcement/create">
