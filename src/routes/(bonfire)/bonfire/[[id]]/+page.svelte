@@ -9,7 +9,7 @@
 	import { formatHumanReadable } from '$lib/utils';
 	import Rsvp from '$lib/components/Rsvp.svelte';
 	import { onMount } from 'svelte';
-	import { Status } from '$lib/enums';
+	import { Status, tempAttendeeIdStore, tempAttendeeIdUrlParam } from '$lib/enums';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import ProfileAvatar from '$lib/components/ProfileAvatar.svelte';
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
@@ -23,6 +23,7 @@
 	import CenterScreenMessage from '$lib/components/CenterScreenMessage.svelte';
 	import * as Avatar from '$lib/components/ui/avatar/index.js';
 	import BonfireNoInfoCard from '$lib/components/BonfireNoInfoCard.svelte';
+	import { get } from 'svelte/store';
 
 	let userId = $state('');
 
@@ -31,8 +32,27 @@
 	let eventFailedLoading = $state(false);
 	let fileCount = $state();
 	let rsvpStatus = $state('');
-	let isAnonymousUser = $state(!$page.data.user);
+
 	let isUnverifiedUser = $state(false);
+	const tempAttendeeId = $page.url.searchParams.get(tempAttendeeIdUrlParam);
+	console.log('tempAttendeeId', tempAttendeeId);
+	if (tempAttendeeId) {
+		isUnverifiedUser = true;
+	}
+
+	let isAnonymousUser = $state(!$page.data.user);
+
+	$effect(() => {
+		if (isUnverifiedUser) {
+			isAnonymousUser = false;
+		}
+	});
+
+	$effect(() => {
+		console.log(
+			`isAnonymousUser: ${isAnonymousUser}, isUnverifiedUser: ${isUnverifiedUser}, $page.data.user: ${$page.data.user}`
+		);
+	});
 
 	let client: TriplitClient;
 
@@ -55,11 +75,17 @@
 	const fetchProfileImageMap = async (userIds: string[]) => {
 		try {
 			loadingProfileImageMap = true;
-			const response = await fetch(
-				`/profile/profile-images?${userIds.map((id) => `userIds=${id}`).join('&')}`
-			);
-			if (!response.ok) throw new Error(`Failed to fetch profileImageMap: ${response.statusText}`);
 
+			// Construct the query string with comma-separated user IDs
+			let queryString = `userIds=${userIds.join(',')}`;
+			if (isUnverifiedUser) {
+				queryString = `${queryString}&${tempAttendeeIdUrlParam}=${tempAttendeeId}`;
+			}
+			const response = await fetch(`/profile/profile-images?${queryString}`);
+
+			if (!response.ok) {
+				throw new Error(`Failed to fetch profileImageMap: ${response.statusText}`);
+			}
 			// Transform the fetched data into a Map
 			const fetchedData: Record<string, { full_image_url: string; small_image_url: string }> =
 				await response.json();
@@ -76,7 +102,11 @@
 	const fetchEventFiles = async (eventId: string) => {
 		try {
 			loadEventFiles = true;
-			const response = await fetch(`/bonfire/${eventId}/media/mini-gallery`);
+			let url = `/bonfire/${eventId}/media/mini-gallery`;
+			if (isUnverifiedUser) {
+				url = `${url}?${tempAttendeeIdUrlParam}=${tempAttendeeId}`;
+			}
+			const response = await fetch(url);
 			if (!response.ok) throw new Error(`Failed to fetch eventFiles: ${response.statusText}`);
 			eventFiles = await response.json();
 		} catch (error) {
@@ -88,7 +118,7 @@
 
 	onMount(() => {
 		client = getFeTriplitClient($page.data.jwt) as TriplitClient;
-		if (isAnonymousUser || isUnverifiedUser) {
+		if (isAnonymousUser) {
 			// If user is anonymous, load event data from page data. It will contain limited data.
 			event = $page.data.event;
 			eventLoading = false;
@@ -104,7 +134,7 @@
 				.where([['id', '=', $page.params.id]])
 				.build(),
 			(results) => {
-				console.log('results', results);
+				console.log('event results', results);
 				if (results.length == 1) {
 					event = results[0];
 				}
@@ -116,11 +146,13 @@
 			}
 		);
 
-		(async () => {
-			userId = (await waitForUserId()) as string;
-			// Fetch event files
-			await fetchEventFiles($page.params.id);
-		})();
+		if (!isAnonymousUser && !isUnverifiedUser) {
+			(async () => {
+				userId = (await waitForUserId()) as string;
+				// Fetch event files
+				await fetchEventFiles($page.params.id);
+			})();
+		}
 
 		fileCount = useQuery(
 			client,
@@ -186,7 +218,7 @@
 
 	$effect(() => {
 		// Ensure event data and userId are available
-		if (allAttendees && userId) {
+		if ($page.data.user && allAttendees && userId) {
 			// Find the current user's RSVP status in the attendees list
 			const attendees = allAttendees;
 
@@ -258,7 +290,9 @@
 					</div>
 				{/if}
 				<div class="rounded-xl bg-white p-5">
-					<h1 class="text-xl">{isAnonymousUser || isUnverifiedUser ? $page.data.event.title : event.title}</h1>
+					<h1 class="text-xl">
+						{isAnonymousUser ? $page.data.event.title : event.title}
+					</h1>
 					<div class="font-medium">{formatHumanReadable(event.start_time)}</div>
 					<div class="font-light">
 						{#if !isAnonymousUser}

@@ -1,4 +1,4 @@
-import { error, json, redirect } from '@sveltejs/kit';
+import { error, json } from '@sveltejs/kit';
 import { triplitHttpClient } from '$lib/server/triplit'; // Assuming you have Triplit client configured
 import { tempAttendeeIdUrlParam } from '$lib/enums';
 import { dev } from '$app/environment';

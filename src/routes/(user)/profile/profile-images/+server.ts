@@ -1,9 +1,34 @@
-import { json } from '@sveltejs/kit';
+import { error, json } from '@sveltejs/kit';
 import { triplitHttpClient } from '$lib/server/triplit';
 import { generateSignedUrl } from '$lib/filestorage';
+import { tempAttendeeIdUrlParam } from '$lib/enums';
 
-export const GET = async ({ url }) => {
-	const userIds = url.searchParams.getAll('userIds'); // Get user IDs from query params
+export const GET = async ({ locals, url }) => {
+	// Only temp users and logged in users can query this endpoint
+	let tempAttendeeExists: boolean = false;
+	const tempAttendeeId = url.searchParams.get(tempAttendeeIdUrlParam);
+	if (tempAttendeeId) {
+		try {
+			const existingAttendee = await triplitHttpClient.fetchById(
+				'temporary_attendees',
+				tempAttendeeId
+			);
+			if (existingAttendee) {
+				tempAttendeeExists = true;
+			}
+		} catch (e) {
+			console.debug('failed to find temp attendee because it does not exist', e);
+		}
+	}
+
+	const user = locals.user;
+	if ((!user || !user.id) && !tempAttendeeExists) {
+		throw error(401, 'Unauthorized'); // Return 401 if user is not logged in
+	}
+
+	// Extract and parse userIds from query params (comma-separated string)
+	const userIdsParam = url.searchParams.get('userIds'); // Expect a single string
+	const userIds = userIdsParam?.split(',').map((id) => id.trim()) || []; // Convert to an array
 
 	if (!userIds || userIds.length === 0) {
 		return json({ error: 'No user IDs provided' }, { status: 400 });

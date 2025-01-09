@@ -5,6 +5,8 @@
 	import { page } from '$app/stores';
 	import { getFeTriplitClient } from '$lib/triplit';
 	import { overlayColorStore, overlayOpacityStore, parseColor, styleStore } from '$lib/styles';
+	import { tempAttendeeIdStore, tempAttendeeIdUrlParam } from '$lib/enums';
+	import { get } from 'svelte/store';
 
 	let { data, children }: { data: LayoutData; children: Snippet } = $props();
 
@@ -24,6 +26,21 @@
 	});
 	overlayOpacityStore.subscribe((value) => {
 		overlayOpacity = value;
+	});
+
+	// Access the `temp` parameter from the query string
+	let tempAttendeeId: string | null = $state(null);
+
+	// Use a reactive statement to react to changes in the `$page` store
+	$effect(() => {
+		const url = $page.url;
+		tempAttendeeId = url.searchParams.get(tempAttendeeIdUrlParam);
+
+		if (tempAttendeeId) {
+			tempAttendeeIdStore.set(tempAttendeeId);
+		} else {
+			tempAttendeeId = get(tempAttendeeIdStore);
+		}
 	});
 
 	onMount(async () => {
