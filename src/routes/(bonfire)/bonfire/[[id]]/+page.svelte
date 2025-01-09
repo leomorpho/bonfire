@@ -5,7 +5,7 @@
 	import { getFeTriplitClient, waitForUserId } from '$lib/triplit';
 	import Loader from '$lib/components/Loader.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
-	import { Cog, Share, Plus, Drum } from 'lucide-svelte';
+	import { Cog, Share, Plus, Drum, Copy } from 'lucide-svelte';
 	import { formatHumanReadable } from '$lib/utils';
 	import Rsvp from '$lib/components/Rsvp.svelte';
 	import { onMount } from 'svelte';
@@ -23,6 +23,7 @@
 	import CenterScreenMessage from '$lib/components/CenterScreenMessage.svelte';
 	import * as Avatar from '$lib/components/ui/avatar/index.js';
 	import BonfireNoInfoCard from '$lib/components/BonfireNoInfoCard.svelte';
+	import { dev } from '$app/environment';
 
 	let userId = $state('');
 
@@ -34,11 +35,12 @@
 
 	let isUnverifiedUser = $state($page.data.tempAttendeeExists);
 	const tempAttendeeId = $page.url.searchParams.get(tempAttendeeIdUrlParam);
+	let tempAttendee = $state(null);
 
 	console.log('tempAttendeeId', tempAttendeeId);
 	if ($page.data.tempAttendeeExists && tempAttendeeId) {
 		isUnverifiedUser = true;
-		tempAttendeeIdStore.set(tempAttendeeId)
+		tempAttendeeIdStore.set(tempAttendeeId);
 	}
 
 	let isAnonymousUser = $state(!$page.data.user);
@@ -193,6 +195,25 @@
 			}
 		);
 
+		let unsubscribeTemporaryUserQuery = null;
+		if (isUnverifiedUser) {
+			unsubscribeTemporaryUserQuery = client.subscribe(
+				client
+					.query('temporary_attendees')
+					.where([['id', '=', tempAttendeeId]])
+					.build(),
+				(results) => {
+					if (results.length == 1) {
+						tempAttendee = results[0];
+						rsvpStatus = tempAttendee.status;
+					}
+				},
+				(error) => {
+					console.error('Error fetching temporary attendee:', error);
+				}
+			);
+		}
+
 		// Get the hash portion of the URL
 		const hash = window.location.hash.slice(1); // Remove the '#' from the hash
 		if (hash) {
@@ -212,6 +233,9 @@
 			// Cleanup
 			unsubscribeAttendeesQuery();
 			unsubscribeFromEventQuery();
+			if (unsubscribeTemporaryUserQuery) {
+				unsubscribeTemporaryUserQuery();
+			}
 		};
 	});
 
@@ -270,6 +294,25 @@
 				console.error('Error sharing content:', error);
 			});
 	};
+
+	const handleCopyingTempAccountUrl = async (eventData: any) => {
+		// Prepare shareable data
+		let url = '';
+		if (dev) {
+			url = `http://${PUBLIC_ORIGIN}/bonfire/${eventData.id}?${tempAttendeeIdUrlParam}=${tempAttendeeId}`;
+		} else {
+			url = `https://${PUBLIC_ORIGIN}/bonfire/${eventData.id}?${tempAttendeeIdUrlParam}=${tempAttendeeId}`;
+		}
+
+		// Add data to clipboard
+		try {
+			await navigator.clipboard.writeText(url);
+			toast.success('URL copied to clipboard');
+		} catch (error) {
+			console.error('Error copying to clipboard:', error);
+			toast.success('Sorry, an error occurred, please try again later or contact support');
+		}
+	};
 </script>
 
 {#if !isAnonymousUser && !isUnverifiedUser && eventLoading}
@@ -282,9 +325,34 @@
 	{#if !event}
 		<EventDoesNotExist />
 	{:else}
-		{console.log('--> event', event)}
 		<div class="mx-4 flex flex-col items-center justify-center">
 			<section class="mt-8 w-full sm:w-[450px] md:w-[550px] lg:w-[650px]">
+				{#if isUnverifiedUser}
+					<div class="my-4 flex flex-col items-center justify-center rounded-lg bg-gradient-to-r from-violet-200 to-pink-200 p-3 space-y-2">
+						
+						{#if tempAttendee}
+						<p class="font-semibold">Hi {tempAttendee.name}! This is a temporary account</p>
+
+						{:else}
+						<p class="font-semibold">Hi! This is a temporary account</p>
+
+						{/if}
+						<p class="text-sm">
+							Leave this tab open to continue accessing it seamlessly, or click the below button to
+							copy the URL and save it somewhere safe.
+						</p>
+						<p class="text-sm">
+							This URL will allow you to access this event with your current temporary identity.
+						</p>
+						<Button
+							onclick={() => handleCopyingTempAccountUrl(event)}
+							class="mt-4 flex w-full items-center justify-center ring-glow"
+						>
+							<Copy class="h-5 w-5" />
+							Copy Link</Button
+						>
+					</div>
+				{/if}
 				{#if !isAnonymousUser && !isUnverifiedUser && event.user_id == (userId as string)}
 					<div class="flex w-full justify-center">
 						<a href="update">
