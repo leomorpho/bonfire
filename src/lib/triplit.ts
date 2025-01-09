@@ -4,7 +4,7 @@ import { PUBLIC_TRIPLIT_URL, PUBLIC_TRIPLIT_ANONYMOUS_TOKEN } from '$env/static/
 import { writable, get } from 'svelte/store';
 import { browser } from '$app/environment';
 
-export const userIdStore = writable(null);
+export const userIdStore = writable<string | null>(null);
 
 export async function waitForUserId(timeout = 5000) {
 	return new Promise((resolve, reject) => {
@@ -30,7 +30,7 @@ export function getFeTriplitClient(jwt: string) {
 	// if (!browser) {
 	// 	throw new Error('TriplitClient can only be created in the browser.');
 	// }
-	
+
 	if (feTriplitClient) {
 		return feTriplitClient;
 	}

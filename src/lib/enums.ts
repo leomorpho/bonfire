@@ -1,3 +1,7 @@
+import { writable } from 'svelte/store';
+
+export const tempAttendeeIdStore = writable<string | null>(null);
+
 export enum Status {
 	GOING = 'going',
 	NOT_GOING = 'not_going',
@@ -45,4 +49,4 @@ export const PermissionType = {
 	EVENT_ACTIVITY: 'eventActivity'
 } as const;
 
-export const tempAttendeeIdUrlParam = "temp-attendee-id"
+export const tempAttendeeIdUrlParam = 'temp-attendee-id';
