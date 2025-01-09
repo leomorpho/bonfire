@@ -211,10 +211,12 @@ export const schema = {
 				read: {
 					filter: [
 						or([
-							['user_id', '=', '$role.userId'], // User can read their own profile
+							// Event creator can see anyone attending
+							['event.user_id', '=', '$role.userId'],
+							// User can read their own profile
+							['user_id', '=', '$role.userId'], 
 							// A user should be able to only query for users and attendees who are attending a same event:
 							['event.attendees.user_id', '=', '$role.userId']
-							// 	['viewers.id', '=', '$role.userId'] // user is a viewer
 						])
 					]
 				},
@@ -253,6 +255,18 @@ export const schema = {
 			updated_at: S.Date({ default: S.Default.now() }) // Last updated timestamp
 		}),
 		permissions: {
+			user: {
+				read: {
+					filter: [
+						or([
+							// Event creator can see anyone attending
+							['event.user_id', '=', '$role.userId'],
+							// A user should be able to only query for users and attendees who are attending a same event:
+							['event.attendees.user_id', '=', '$role.userId']
+						])
+					]
+				}
+			},
 			temp: {
 				read: {
 					filter: [
@@ -260,7 +274,6 @@ export const schema = {
 							['id', '=', '$role.temporaryAttendeeId'], // User can read their own profile
 							// A user should be able to only query for users and attendees who are attending a same event:
 							['event.temporary_attendees.id', '=', '$role.temporaryAttendeeId']
-							// 	['viewers.id', '=', '$role.userId'] // user is a viewer
 						])
 					]
 				}

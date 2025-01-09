@@ -70,7 +70,12 @@
 	let attendeesGoing: any = $state([]);
 	let attendeesMaybeGoing: any = $state([]);
 	let attendeesNotGoing: any = $state([]);
-	let attendeesLoading = $state(false);
+	let attendeesLoading = $state(true);
+
+	let tempAttendeesGoing: any = $state([]);
+	let tempAttendeesMaybeGoing: any = $state([]);
+	let tempAttendeesNotGoing: any = $state([]);
+	let tempAttendeesLoading = $state(true);
 
 	let currentUserAttendee = $state();
 	const showMaxNumPeople = 50;
@@ -112,7 +117,6 @@
 			const response = await fetch(url);
 			if (!response.ok) throw new Error(`Failed to fetch eventFiles: ${response.statusText}`);
 			eventFiles = await response.json();
-			console.log('eventFiles', eventFiles);
 		} catch (error) {
 			console.error('Error fetching event files:', error);
 		} finally {
@@ -138,7 +142,6 @@
 				.where([['id', '=', $page.params.id]])
 				.build(),
 			(results) => {
-				console.log('event results', results);
 				if (results.length == 1) {
 					event = results[0];
 				}
@@ -173,7 +176,6 @@
 				.include('user')
 				.build(),
 			(results) => {
-				console.log('number users: ', results.length);
 				// Separate attendees into different variables by status
 				attendeesGoing = results.filter((attendee) => attendee.status === Status.GOING);
 				attendeesNotGoing = results.filter((attendee) => attendee.status === Status.NOT_GOING);
@@ -184,11 +186,28 @@
 					await fetchProfileImageMap(userIds);
 				})();
 				attendeesLoading = false;
+			},
+			(error) => {
+				console.error('Error fetching attendees:', error);
+			}
+		);
 
-				// Optionally log results for debugging
-				// console.log('Going:', attendeesGoing);
-				// console.log('Not Going:', attendeesNotGoing);
-				// console.log('Maybe:', attendeesMaybeGoing);
+		const unsubscribeTempAttendeesQuery = client.subscribe(
+			client
+				.query('temporary_attendees')
+				.where([['event_id', '=', $page.params.id]])
+				.build(),
+			(results) => {
+				// // Separate attendees into different variables by status
+				tempAttendeesGoing = results.filter((attendee) => attendee.status === Status.GOING);
+				tempAttendeesNotGoing = results.filter((attendee) => attendee.status === Status.NOT_GOING);
+				tempAttendeesMaybeGoing = results.filter((attendee) => attendee.status === Status.MAYBE);
+				// Fetch profile image map for attendees
+				const userIds = results.map((attendee) => attendee.user_id);
+				(async () => {
+					await fetchProfileImageMap(userIds);
+				})();
+				tempAttendeesLoading = false;
 			},
 			(error) => {
 				console.error('Error fetching attendees:', error);
@@ -233,6 +252,7 @@
 			// Cleanup
 			unsubscribeAttendeesQuery();
 			unsubscribeFromEventQuery();
+			unsubscribeTempAttendeesQuery();
 			if (unsubscribeTemporaryUserQuery) {
 				unsubscribeTemporaryUserQuery();
 			}
@@ -244,6 +264,10 @@
 		...(attendeesNotGoing || []),
 		...(attendeesMaybeGoing || [])
 	]);
+
+	let allAttendeesGoing = $derived([...(attendeesGoing || []), ...(tempAttendeesGoing || [])]);
+	let allAttendeesNotGoing = $derived([...(attendeesNotGoing || []), ...(tempAttendeesNotGoing || [])]);
+	let allAttendeesMaybeGoing = $derived([...(attendeesMaybeGoing || []), ...(tempAttendeesMaybeGoing || [])]);
 
 	$effect(() => {
 		// Ensure event data and userId are available
@@ -328,14 +352,13 @@
 		<div class="mx-4 flex flex-col items-center justify-center">
 			<section class="mt-8 w-full sm:w-[450px] md:w-[550px] lg:w-[650px]">
 				{#if isUnverifiedUser}
-					<div class="my-4 flex flex-col items-center justify-center rounded-lg bg-gradient-to-r from-violet-200 to-pink-200 p-3 space-y-2">
-						
+					<div
+						class="my-4 flex flex-col items-center justify-center space-y-2 rounded-lg bg-gradient-to-r from-violet-200 to-pink-200 p-3"
+					>
 						{#if tempAttendee}
-						<p class="font-semibold">Hi {tempAttendee.name}! This is a temporary account</p>
-
+							<p class="font-semibold">Hi {tempAttendee.name}! This is a temporary account</p>
 						{:else}
-						<p class="font-semibold">Hi! This is a temporary account</p>
-
+							<p class="font-semibold">Hi! This is a temporary account</p>
 						{/if}
 						<p class="text-sm">
 							Leave this tab open to continue accessing it seamlessly, or click the below button to
@@ -385,19 +408,19 @@
 						</div>
 					{:else if !isAnonymousUser && attendeesGoing.length > 0}
 						<div class="flex flex-wrap items-center -space-x-4">
-							{#each attendeesGoing.slice(0, showMaxNumPeople) as attendee}
+							{#each allAttendeesGoing.slice(0, showMaxNumPeople) as attendee}
 								<ProfileAvatar
 									url={profileImageMap.get(attendee.user_id)?.small_image_url}
 									fullsizeUrl={profileImageMap.get(attendee.user_id)?.full_image_url}
-									username={attendee.user?.username}
-									fallbackName={attendee.user?.username}
+									username={attendee.user?.username || attendee.name}
+									fallbackName={attendee.user?.username || attendee.name}
 								/>
 							{/each}
 							<Dialog.Root>
 								<Dialog.Trigger class="flex items-center"
-									>{#if attendeesGoing.length > showMaxNumPeople}
+									>{#if allAttendeesGoing.length > showMaxNumPeople}
 										<div class="rounded-xl bg-white text-sm text-gray-500">
-											and {attendeesGoing.length - showMaxNumPeople} more
+											and {allAttendeesGoing.length - showMaxNumPeople} more
 										</div>
 									{/if}
 									<div class="flex h-12 w-12 items-center justify-center sm:h-14 sm:w-14">
@@ -410,7 +433,7 @@
 											<Dialog.Title class="flex w-full justify-center">Attendees</Dialog.Title>
 											<Dialog.Description>
 												<div class="mb-3 mt-5">
-													{#if attendeesGoing.length > 0}
+													{#if allAttendeesGoing.length > 0}
 														<h2 class="my-3 flex w-full justify-center font-semibold">Going</h2>
 														<div class="mx-5 flex flex-wrap -space-x-4">
 															{#each attendeesGoing as attendee}
@@ -418,40 +441,40 @@
 																	url={profileImageMap.get(attendee.user_id)?.small_image_url}
 																	fullsizeUrl={profileImageMap.get(attendee.user_id)
 																		?.full_image_url}
-																	username={attendee.user?.username}
-																	fallbackName={attendee.user?.username}
+																	username={attendee.user?.username || attendee.name}
+																	fallbackName={attendee.user?.username || attendee.name}
 																/>
 															{/each}
 														</div>
 													{/if}
 												</div>
 												<div class="mb-3 mt-5">
-													{#if attendeesMaybeGoing.length > 0}
+													{#if allAttendeesMaybeGoing.length > 0}
 														<h2 class="my-3 flex w-full justify-center font-semibold">Maybe</h2>
 														<div class="mx-5 flex flex-wrap -space-x-4">
-															{#each attendeesMaybeGoing as attendee}
+															{#each allAttendeesMaybeGoing as attendee}
 																<ProfileAvatar
 																	url={profileImageMap.get(attendee.user_id)?.small_image_url}
 																	fullsizeUrl={profileImageMap.get(attendee.user_id)
 																		?.full_image_url}
-																	username={attendee.user?.username}
-																	fallbackName={attendee.user?.username}
+																	username={attendee.user?.username || attendee.name}
+																	fallbackName={attendee.user?.username || attendee.name}
 																/>
 															{/each}
 														</div>
 													{/if}
 												</div>
 												<div class="mb-3 mt-5">
-													{#if attendeesNotGoing.length > 0}
+													{#if allAttendeesNotGoing.length > 0}
 														<h2 class="my-3 flex w-full justify-center font-semibold">Not Going</h2>
 														<div class="mx-5 flex flex-wrap -space-x-4">
-															{#each attendeesNotGoing as attendee}
+															{#each allAttendeesNotGoing as attendee}
 																<ProfileAvatar
 																	url={profileImageMap.get(attendee.user_id)?.small_image_url}
 																	fullsizeUrl={profileImageMap.get(attendee.user_id)
 																		?.full_image_url}
-																	username={attendee.user?.username}
-																	fallbackName={attendee.user?.username}
+																	username={attendee.user?.username || attendee.name}
+																	fallbackName={attendee.user?.username || attendee.name}
 																/>
 															{/each}
 														</div>
@@ -463,7 +486,7 @@
 								</Dialog.Content>
 							</Dialog.Root>
 						</div>
-					{:else if !isAnonymousUser && attendeesGoing.length == 0}
+					{:else if !isAnonymousUser && allAttendeesGoing.length == 0}
 						<div class="flex justify-center">
 							<div
 								class="flex w-full items-center justify-center rounded-lg bg-slate-500 bg-opacity-75 p-2 text-sm text-white ring-glow sm:w-2/3"
