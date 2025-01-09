@@ -359,7 +359,7 @@
 			<section class="mt-8 w-full sm:w-[450px] md:w-[550px] lg:w-[650px]">
 				{#if isUnverifiedUser}
 					<div
-						class="my-4 flex flex-col items-center justify-center space-y-2 rounded-lg bg-gradient-to-r from-violet-200 to-pink-200 p-3"
+						class="my-4 flex flex-col items-center justify-center space-y-2 rounded-lg bg-gradient-to-r from-violet-200 to-pink-200 p-5"
 					>
 						{#if tempAttendee}
 							<p class="font-semibold">Hi {tempAttendee.name}! This is a temporary account</p>
@@ -372,6 +372,9 @@
 						</p>
 						<p class="text-sm">
 							This URL will allow you to access this event with your current temporary identity.
+						</p>
+						<p class="text-sm">
+							You can sign up at any moment to link up your events to your email (only info needed!)
 						</p>
 						<Button
 							onclick={() => handleCopyingTempAccountUrl(event)}
