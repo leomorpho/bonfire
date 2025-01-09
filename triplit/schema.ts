@@ -305,6 +305,13 @@ export const schema = {
 				delete: {
 					filter: [['uploader_id', '=', '$role.userId']] // Users can only delete their own files
 				}
+			},
+			temp: {
+				read: {
+					filter: [
+						['event.temporary_attendees.id', '=', '$role.temporaryAttendeeId']
+					]
+				}
 			}
 		}
 	},
