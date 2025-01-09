@@ -44,3 +44,5 @@ export const PermissionType = {
 	ONE_DAY_REMINDER: 'oneDayReminder',
 	EVENT_ACTIVITY: 'eventActivity'
 } as const;
+
+export const tempAttendeeIdUrlParam = "temp-attendee-id"

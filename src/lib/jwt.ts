@@ -4,10 +4,11 @@ import { env } from '$env/dynamic/private';
 export const USER_ROLE = 'user';
 export const ADMIN_ROLE = 'admin';
 export const ANON_ROLE = 'anon';
+export const TEMP_ROLE = 'temp';
 
 export function generateJWT(userId?: string, role: string = USER_ROLE) {
 	const payload: Record<string, any> = {
-		type: role, // e.g., 'user' or 'admin'
+		type: role // e.g., 'user' or 'admin'
 	};
 
 	// Conditionally add `userId`-related fields if `userId` is provided

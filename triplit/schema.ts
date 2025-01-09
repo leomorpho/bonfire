@@ -13,6 +13,12 @@ export const roles: Roles = {
 			uid: '$userId'
 		}
 	},
+	temp: {
+		match: {
+			type: 'temp',
+			uid: '$temporaryAttendeeId'
+		}
+	},
 	anon: {
 		match: {
 			type: 'anon'
@@ -32,15 +38,6 @@ export const schema = {
 			attendances: S.RelationMany('attendees', {
 				where: [['user_id', '=', '$id']]
 			})
-			// // TODO: remove events field
-			// events: S.RelationMany('events', {
-			// 	where: [
-			// 		or([
-			// 			['user_id', '=', '$id'], // User is the creator
-			// 			['attending_users.id', '=', '$id'] // User is an attendee
-			// 		])
-			// 	]
-			// })
 		}),
 		permissions: {
 			user: {
@@ -58,6 +55,16 @@ export const schema = {
 				},
 				delete: {
 					filter: [['id', '=', '$role.userId']] // Users can only delete their own profile images
+				}
+			},
+			temp: {
+				read: {
+					filter: [
+						or([
+							// A user should be able to only query for users and attendees who are attending a same event:
+							['attendances.event.temporary_attendees.id', '=', '$role.temporaryAttendeeId']
+						])
+					]
 				}
 			}
 		}
@@ -92,8 +99,15 @@ export const schema = {
 					filter: [['user_id', '=', '$role.userId']] // Users can only delete their own profile images
 				}
 			},
-			anon: {
-				read: { filter: [false] }
+			temp: {
+				read: {
+					filter: [
+						or([
+							// A user should be able to only query for users and attendees who are attending a same event:
+							['user.attendances.event.temporary_attendees.id', '=', '$role.temporaryAttendeeId']
+						])
+					]
+				}
 			}
 		}
 	},
@@ -110,15 +124,15 @@ export const schema = {
 			attendees: S.RelationMany('attendees', {
 				where: [['event_id', '=', '$id']]
 			}),
+			temporary_attendees: S.RelationMany('temporary_attendees', {
+				where: [['event_id', '=', '$id']]
+			}),
 			announcements: S.RelationMany('announcement', {
 				where: [['event_id', '=', '$id']]
 			}),
 			files: S.RelationMany('files', {
 				where: [['event_id', '=', '$id']]
 			}),
-			// attending_users: S.RelationMany('user', {
-			// 	where: [['events.id', '=', '$id']]
-			// }),
 			viewers: S.RelationMany('event_viewers', {
 				where: [['event_id', '=', '$id']]
 			}),
@@ -141,6 +155,16 @@ export const schema = {
 				insert: { filter: [true] },
 				update: { filter: [['user_id', '=', '$role.userId']] },
 				delete: { filter: [['user_id', '=', '$role.userId']] }
+			},
+			temp: {
+				read: {
+					filter: [
+						or([
+							// A user should be able to only query for users and attendees who are attending a same event:
+							['temporary_attendees.id', '=', '$role.temporaryAttendeeId']
+						])
+					]
+				}
 			}
 		}
 	},
@@ -207,8 +231,40 @@ export const schema = {
 					filter: [['user_id', '=', '$role.userId']]
 				}
 			},
-			anon: {
-				read: { filter: [false] }
+			temp: {
+				read: {
+					filter: [
+						or([
+							// A user should be able to only query for users and attendees who are attending a same event:
+							['event.temporary_attendees.id', '=', '$role.temporaryAttendeeId']
+						])
+					]
+				}
+			}
+		}
+	},
+	temporary_attendees: {
+		schema: S.Schema({
+			id: S.Id(),
+			event_id: S.String(), // ID of the event
+			event: S.RelationById('events', '$event_id'), // Link to the event
+			status: S.String({ default: 'undecided' }), // RSVP status: attending, not attending, undecided
+			// guest_count: S.Number({ default: 0 }), // Number of additional guests
+			// special_requests: S.String({ nullable: true }), // Any special requests (e.g., dietary)
+			updated_at: S.Date({ default: S.Default.now() }) // Last updated timestamp
+		}),
+		permissions: {
+			temp: {
+				read: {
+					filter: [
+						or([
+							['id', '=', '$role.temporaryAttendeeId'], // User can read their own profile
+							// A user should be able to only query for users and attendees who are attending a same event:
+							['event.temporary_attendees.id', '=', '$role.temporaryAttendeeId']
+							// 	['viewers.id', '=', '$role.userId'] // user is a viewer
+						])
+					]
+				}
 			}
 		}
 	},

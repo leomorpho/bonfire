@@ -16,7 +16,7 @@
 
 	let { rsvpStatus = Status.DEFAULT, userId, eventId, isAnonymousUser } = $props();
 
-	let isAnonRsvpDialogOpen = $state(false);
+	let isAnonRsvpDialogOpen = $state(true);
 
 	if (!rsvpStatus) {
 		rsvpStatus = Status.DEFAULT;
@@ -152,7 +152,7 @@
 			<Dialog.Description>There are two ways to set your RSVP status.</Dialog.Description>
 		</Dialog.Header>
 		<div class="space-y-3">
-			<a href="/login">
+			<a href={`/login/?event_id=${eventId}`}>
 				<Button class="w-full bg-green-500 text-lg">Login with magic link</Button>
 			</a>
 		</div>
@@ -164,17 +164,24 @@
 				>or</span
 			>
 		</div>
-		<div class="space-y-3">
-			<div class="mb-2 text-lg">Generate unique URL</div>
-			<p class="text-sm text-slate-600">
+		<div class="mb-2 text-lg">Generate unique URL</div>
+		<div class="text-sm text-slate-500">
+			<p>
 				A unique URL that connects your actions to this event. Keep it open in a tab or save it for
 				future access—don’t lose it! This link serves as your identity for this event.
 			</p>
-			<div class="mb-2 grid grid-cols-4 items-center gap-4">
-				<Label for="username" class="text-right">Name</Label>
-				<Input id="username" value="Tony Garfunkel" class="col-span-3" />
-			</div>
-			<Button type="submit" class="w-full">Generate URL</Button>
+			<div class="text-regular font-semibold mt-3 mb-1">Downsides</div>
+			<ul class="list-disc space-y-2 pl-6">
+				<li>No push notifications or email updates.</li>
+				<li>Limited access to event's sensitive data.</li>
+				<li>No permanent account.</li>
+			</ul>
 		</div>
+
+		<div class="mb-2 grid grid-cols-4 items-center gap-4 mt-3">
+			<Label for="username" class="text-right">Name</Label>
+			<Input id="username" value="Tony Garfunkel" class="col-span-3" />
+		</div>
+		<Button type="submit" class="w-full">Generate URL</Button>
 	</Dialog.Content>
 </Dialog.Root>
