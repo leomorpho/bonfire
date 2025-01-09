@@ -48,7 +48,7 @@ export const load = async ({ params, locals, url }) => {
 		} catch (e) {
 			console.log(e);
 		}
-	} else if (!tempAttendeeExists){
+	} else if (!tempAttendeeExists) {
 		// TODO: flatten into single query
 		try {
 			event = await triplitHttpClient.fetchOne(
@@ -84,6 +84,7 @@ export const load = async ({ params, locals, url }) => {
 		event: event,
 		numAttendees: numAttendees,
 		numAnnouncements: numAnnouncements,
-		numFiles: numFiles
+		numFiles: numFiles,
+		tempAttendeeExists: tempAttendeeExists
 	};
 };

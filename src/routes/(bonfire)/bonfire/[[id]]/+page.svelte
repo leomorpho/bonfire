@@ -9,7 +9,7 @@
 	import { formatHumanReadable } from '$lib/utils';
 	import Rsvp from '$lib/components/Rsvp.svelte';
 	import { onMount } from 'svelte';
-	import { Status, tempAttendeeIdStore, tempAttendeeIdUrlParam } from '$lib/enums';
+	import { Status, tempAttendeeIdUrlParam } from '$lib/enums';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import ProfileAvatar from '$lib/components/ProfileAvatar.svelte';
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
@@ -33,10 +33,10 @@
 	let fileCount = $state();
 	let rsvpStatus = $state('');
 
-	let isUnverifiedUser = $state(false);
+	let isUnverifiedUser = $state($page.data.tempAttendeeExists);
 	const tempAttendeeId = $page.url.searchParams.get(tempAttendeeIdUrlParam);
 	console.log('tempAttendeeId', tempAttendeeId);
-	if (tempAttendeeId) {
+	if ($page.data.tempAttendeeExists && tempAttendeeId) {
 		isUnverifiedUser = true;
 	}
 
@@ -152,6 +152,7 @@
 				if (!isUnverifiedUser) {
 					userId = (await waitForUserId()) as string;
 				}
+
 				// Fetch event files
 				await fetchEventFiles($page.params.id);
 			})();
