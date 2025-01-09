@@ -1,7 +1,7 @@
 import { error, json } from '@sveltejs/kit';
 import { triplitHttpClient } from '$lib/server/triplit';
 import { generateSignedUrl } from '$lib/filestorage';
-import { tempAttendeeIdUrlParam } from '$lib/enums';
+import { MAX_NUM_IMAGES_IN_MINI_GALLERY, tempAttendeeIdUrlParam } from '$lib/enums';
 
 export const GET = async ({ locals, url, params }) => {
 	// Extract eventId from URL params
@@ -35,7 +35,12 @@ export const GET = async ({ locals, url, params }) => {
 
 	try {
 		// Fetch files for the given event ID
-		const eventFilesQuery = triplitHttpClient.query('files').where('event_id', '=', id).build();
+		const eventFilesQuery = triplitHttpClient
+			.query('files')
+			.where('event_id', '=', id)
+			.order('uploaded_at', 'DESC')
+			.limit(MAX_NUM_IMAGES_IN_MINI_GALLERY)
+			.build();
 
 		const eventFiles = await triplitHttpClient.fetch(eventFilesQuery);
 

@@ -4,6 +4,7 @@ export const tempAttendeeIdStore = writable<string | null>(null);
 export const tempAttendeeIdUrlParam = 'temp-attendee-id';
 
 export const TEMP_ATTENDEE_MIN_NAME_LEN = 2;
+export const MAX_NUM_IMAGES_IN_MINI_GALLERY = 3;
 
 export enum Status {
 	GOING = 'going',

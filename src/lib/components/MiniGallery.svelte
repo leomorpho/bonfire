@@ -31,11 +31,11 @@
 	{#if eventFiles.length > 0}
 		<div class="lightbox-gallery-container my-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
 			{#each eventFiles as file}
-				<a href={file.URL} data-pswp-width={file.w_pixel} data-pswp-height={file.h_pixel}>
+				<a href={file.signed_url} data-pswp-width={file.w_pixel} data-pswp-height={file.h_pixel}>
 					<Image
 						class="border-white-500 rounded-lg border-2"
 						height={file.h_pixel}
-						src={file.URL}
+						src={file.signed_url}
 						layout="constrained"
 						aspectRatio={5 / 3}
 						alt={file.file_name}

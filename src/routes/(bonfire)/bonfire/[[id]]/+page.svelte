@@ -109,6 +109,7 @@
 			const response = await fetch(url);
 			if (!response.ok) throw new Error(`Failed to fetch eventFiles: ${response.statusText}`);
 			eventFiles = await response.json();
+			console.log('eventFiles', eventFiles);
 		} catch (error) {
 			console.error('Error fetching event files:', error);
 		} finally {
@@ -453,7 +454,7 @@
 						</div>
 					{:else}
 						<div class="my-2">
-							<Annoucements maxCount={3} {isUnverifiedUser}/>
+							<Annoucements maxCount={3} {isUnverifiedUser} />
 						</div>
 						{#if event.user_id == userId}
 							<a href="announcement/create">
