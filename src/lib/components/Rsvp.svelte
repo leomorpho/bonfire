@@ -15,7 +15,10 @@
 	import AddToCalendar from './AddToCalendar.svelte';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
-	import { createNewAttendanceNotificationQueueObject } from '$lib/notification';
+	import {
+		createNewAttendanceNotificationQueueObject,
+		createNewTemporaryAttendanceNotificationQueueObject
+	} from '$lib/notification';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
@@ -203,7 +206,7 @@
 			toast.error("You don't have a valid identity, please create a new one");
 		}
 		try {
-			const attendance = client.fetchById('temporary_attendees', tempAttendeeId as string);
+			let attendance = client.fetchById('temporary_attendees', tempAttendeeId as string);
 
 			if (!attendance) {
 				throw new Error('no temp attendance object exists for that temp user and ID');
@@ -213,13 +216,22 @@
 
 			// NOTE that we automatically create a RSVP status attendance object
 			// upon navigation to an event if the user does not have an attendance object for it.
-			await client.update('temporary_attendees', tempAttendeeId as string, async (entity) => {
-				entity.status = newValue;
-			});
+			attendance = await client.update(
+				'temporary_attendees',
+				tempAttendeeId as string,
+				async (entity) => {
+					entity.status = newValue;
+				}
+			);
 
-			// if (NOTIFY_OF_ATTENDING_STATUS_CHANGE.includes(rsvpStatus)) {
-			// 	await createNewAttendanceNotificationQueueObject(client, userId, eventId, attendance.id);
-			// }
+			if (NOTIFY_OF_ATTENDING_STATUS_CHANGE.includes(rsvpStatus)) {
+				await createNewTemporaryAttendanceNotificationQueueObject(
+					client,
+					userId,
+					eventId,
+					attendance.id
+				);
+			}
 
 			// Perform any additional actions, e.g., API call to save the new RSVP status
 			console.log('RSVP updated to:', newValue);

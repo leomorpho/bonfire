@@ -107,6 +107,9 @@ export async function processNotificationQueue(notificationQueueEntry: Notificat
 		case NotificationType.ATTENDEES:
 			await notifyEventCreatorOfAttendees(notificationQueueEntry.event_id, validObjectIds);
 			break;
+		case NotificationType.TEMP_ATTENDEES:
+			await notifyEventCreatorOfTemporaryAttendees(notificationQueueEntry.event_id, validObjectIds);
+			break;
 	}
 
 	// Mark the notification as sent
@@ -260,13 +263,6 @@ async function notifyEventCreatorOfAttendees(
 		NotificationType.ATTENDEES
 	);
 
-	if (event.user_id == 'qgo0paa9qnfcnof') {
-		console.log(
-			'-------------------------------------------------- WHHHHHHHHHAAAAAAAAAAAAAAT',
-			existingNotification
-		);
-	}
-
 	const existingObjectIds = existingNotification
 		? stringRepresentationToArray(existingNotification.object_ids)
 		: [];
@@ -283,6 +279,50 @@ async function notifyEventCreatorOfAttendees(
 		event.user_id,
 		eventId,
 		NotificationType.ATTENDEES,
+		updatedObjectIds,
+		message,
+		pushNotificationPayload
+	);
+}
+
+async function notifyEventCreatorOfTemporaryAttendees(
+	eventId: string,
+	attendeeIds: string[]
+): Promise<void> {
+	if (!attendeeIds.length) return;
+
+	const creatorQuery = triplitHttpClient
+		.query('events')
+		// .select(['user_id', 'title']) // TODO: triplit bug preventing select
+		.where([['id', '=', eventId]])
+		.build();
+
+	const [event] = await triplitHttpClient.fetch(creatorQuery);
+
+	if (!event) return;
+
+	const existingNotification = await getUnreadExistingNotification(
+		event.user_id,
+		eventId,
+		NotificationType.TEMP_ATTENDEES
+	);
+
+	const existingObjectIds = existingNotification
+		? stringRepresentationToArray(existingNotification.object_ids)
+		: [];
+	const updatedObjectIds = Array.from(new Set([...existingObjectIds, ...attendeeIds]));
+
+	const attendeeCount = updatedObjectIds.length;
+	const attendeeWord = attendeeCount === 1 ? 'attendee' : 'attendees';
+	const message = `${attendeeCount} new temporary account ${attendeeWord} ${attendeeCount === 1 ? 'is' : 'are'} now attending your event "${event.title}".`;
+
+	const pushNotificationPayload = { title: 'New Temporary Account Attendees', body: message };
+
+	await handleNotification(
+		existingNotification as NotificationTypescriptType | null,
+		event.user_id,
+		eventId,
+		NotificationType.TEMP_ATTENDEES,
 		updatedObjectIds,
 		message,
 		pushNotificationPayload

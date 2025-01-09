@@ -42,7 +42,8 @@ export const getStrValueOfRSVP = (status: string) => {
 export enum NotificationType {
 	ANNOUNCEMENT = 'announcement',
 	FILES = 'files',
-	ATTENDEES = 'attendees'
+	ATTENDEES = 'attendees',
+	TEMP_ATTENDEES = 'temp_attendees'
 }
 
 export const MAX_NUM_PUSH_NOTIF_PER_NOTIFICATION = 3;

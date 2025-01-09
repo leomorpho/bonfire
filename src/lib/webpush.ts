@@ -107,7 +107,9 @@ export async function sendPushNotification(
 			}
 		})
 	);
-	console.log(
-		'Push NOTIFICAITON ############################################################################'
-	);
+	if (dev) {
+		console.log(
+			'Push NOTIFICAITON ############################################################################'
+		);
+	}
 }
