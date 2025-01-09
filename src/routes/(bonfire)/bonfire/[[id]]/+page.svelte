@@ -266,8 +266,14 @@
 	]);
 
 	let allAttendeesGoing = $derived([...(attendeesGoing || []), ...(tempAttendeesGoing || [])]);
-	let allAttendeesNotGoing = $derived([...(attendeesNotGoing || []), ...(tempAttendeesNotGoing || [])]);
-	let allAttendeesMaybeGoing = $derived([...(attendeesMaybeGoing || []), ...(tempAttendeesMaybeGoing || [])]);
+	let allAttendeesNotGoing = $derived([
+		...(attendeesNotGoing || []),
+		...(tempAttendeesNotGoing || [])
+	]);
+	let allAttendeesMaybeGoing = $derived([
+		...(attendeesMaybeGoing || []),
+		...(tempAttendeesMaybeGoing || [])
+	]);
 
 	$effect(() => {
 		// Ensure event data and userId are available
@@ -414,6 +420,8 @@
 									fullsizeUrl={profileImageMap.get(attendee.user_id)?.full_image_url}
 									username={attendee.user?.username || attendee.name}
 									fallbackName={attendee.user?.username || attendee.name}
+									isTempUser={!!attendee.name}
+									lastUpdatedAt={attendee.updated_at}
 								/>
 							{/each}
 							<Dialog.Root>
@@ -443,6 +451,8 @@
 																		?.full_image_url}
 																	username={attendee.user?.username || attendee.name}
 																	fallbackName={attendee.user?.username || attendee.name}
+																	isTempUser={!!attendee.name}
+																	lastUpdatedAt={attendee.updated_at}
 																/>
 															{/each}
 														</div>
@@ -459,6 +469,8 @@
 																		?.full_image_url}
 																	username={attendee.user?.username || attendee.name}
 																	fallbackName={attendee.user?.username || attendee.name}
+																	isTempUser={!!attendee.name}
+																	lastUpdatedAt={attendee.updated_at}
 																/>
 															{/each}
 														</div>
@@ -475,6 +487,8 @@
 																		?.full_image_url}
 																	username={attendee.user?.username || attendee.name}
 																	fallbackName={attendee.user?.username || attendee.name}
+																	isTempUser={!!attendee.name}
+																	lastUpdatedAt={attendee.updated_at}
 																/>
 															{/each}
 														</div>
