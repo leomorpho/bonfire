@@ -362,6 +362,9 @@ async function handleNotification(
 		case NotificationType.ATTENDEES:
 			requiredPermissions = [PermissionType.EVENT_ACTIVITY];
 			break;
+		case NotificationType.TEMP_ATTENDEES:
+			requiredPermissions = [PermissionType.EVENT_ACTIVITY];
+			break;
 		case NotificationType.FILES:
 			requiredPermissions = [PermissionType.EVENT_ACTIVITY];
 			break;
