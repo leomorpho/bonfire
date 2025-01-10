@@ -30,7 +30,7 @@
 	let event = $state();
 	let eventLoading = $state(true);
 	let eventFailedLoading = $state(false);
-	let fileCount = $state();
+	let fileCount = $state(0);
 	let rsvpStatus = $state('');
 
 	let isUnverifiedUser = $state($page.data.tempAttendeeExists);
@@ -164,11 +164,6 @@
 			})();
 		}
 
-		fileCount = useQuery(
-			client,
-			client.query('files').where(['event_id', '=', $page.params.id]).select(['id'])
-		);
-
 		const unsubscribeAttendeesQuery = client.subscribe(
 			client
 				.query('attendees')
@@ -233,6 +228,24 @@
 			);
 		}
 
+		const unsubscribeFromFilesQuery = client.subscribe(
+			client
+				.query('files')
+				.where([['event_id', '=', $page.params.id]])
+				.select(['id'])
+				.build(),
+			(results) => {
+				// If there are less than 3 files in the events eventFiles, fetch the latest 3
+				(async () => {
+					await fetchEventFiles($page.params.id);
+				})();
+				fileCount = results.length;
+			},
+			(error) => {
+				console.error('Error fetching files:', error);
+			}
+		);
+
 		// Get the hash portion of the URL
 		const hash = window.location.hash.slice(1); // Remove the '#' from the hash
 		if (hash) {
@@ -256,6 +269,7 @@
 			if (unsubscribeTemporaryUserQuery) {
 				unsubscribeTemporaryUserQuery();
 			}
+			unsubscribeFromFilesQuery();
 		};
 	});
 
@@ -586,11 +600,8 @@
 						</div>
 					{:else}
 						<div class="mb-10">
-							{#if eventFiles && fileCount.results}
-								<MiniGallery
-									fileCount={fileCount.results.length - eventFiles.length}
-									{eventFiles}
-								/>
+							{#if eventFiles && fileCount}
+								<MiniGallery fileCount={fileCount - eventFiles.length} {eventFiles} />
 							{:else if loadEventFiles}
 								<Loader />
 							{/if}
