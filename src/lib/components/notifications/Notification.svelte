@@ -45,6 +45,9 @@
 			case NotificationType.ATTENDEES:
 				query = client.query('attendees').include('user').where(['id', 'in', objectIds]).build();
 				break;
+			case NotificationType.TEMP_ATTENDEES:
+				query = client.query('temporary_attendees').where(['id', 'in', objectIds]).build();
+				break;
 			default:
 				console.error(`Unknown object_type: ${notification.object_type}`);
 				return;
@@ -53,7 +56,7 @@
 		const results = await client.fetch(query);
 
 		// Fetch profile images for attendees
-		if (notification.object_type === 'attendees') {
+		if (notification.object_type === NotificationType.ATTENDEES) {
 			const userIds = results.map((attendee) => attendee.user_id);
 			const profileResponse = await fetch(
 				`/profile/profile-images?${new URLSearchParams({ userIds })}`
@@ -65,8 +68,9 @@
 				attendee.profileImage = profileImageMap[attendee.user_id] || {};
 			});
 		}
+
 		// Fetch attendee ID
-		if (notification.object_type === 'announcement') {
+		if (notification.object_type === NotificationType.ANNOUNCEMENT) {
 			// Collect unique event_ids from announcements
 			const eventIds = [...new Set(results.map((announcement) => announcement.event_id))];
 
@@ -170,7 +174,7 @@
 		{#if linkedObjects.length > 0}
 			<div class="mt-3">
 				<!-- Customize rendering for each object type -->
-				{#if notification.object_type === 'announcement'}
+				{#if notification.object_type === NotificationType.ANNOUNCEMENT}
 					{#each linkedObjects as obj}
 						<a class="m-1" href={`/bonfire/${obj.event_id}`} onclick={toggleDialog}>
 							<Announcement
@@ -185,7 +189,7 @@
 					<a class="my-2" href={`/bonfire/${obj.event_id}`} onclick={toggleDialog}>
 						{notification.}
 					</a> -->
-				{:else if notification.object_type === 'attendees'}
+				{:else if notification.object_type === NotificationType.ATTENDEES}
 					{#if linkedObjects.length > maxNumAttendeesToShowInline}
 						<Collapsible.Root class="space-y-2">
 							<div class="flex items-center justify-between space-x-4 px-4">
@@ -225,7 +229,46 @@
 							{/each}
 						</div>
 					{/if}
-				{/if}
+				{:else if notification.object_type === NotificationType.TEMP_ATTENDEES}
+					{#if linkedObjects.length > maxNumAttendeesToShowInline}
+						<Collapsible.Root class="space-y-2">
+							<div class="flex items-center justify-between space-x-4 px-4">
+								<h4 class="text-sm font-semibold">
+									See {linkedObjects.length} attendees
+								</h4>
+								<Collapsible.Trigger>
+									{#snippet child({ props })}
+										<Button variant="ghost" size="sm" class="w-9 p-0" {...props}>
+											<ChevronsUpDown />
+											<span class="sr-only">Toggle</span>
+										</Button>
+									{/snippet}
+								</Collapsible.Trigger>
+							</div>
+							<!-- Show the rest in the collapsible content -->
+							<Collapsible.Content>
+								{#each linkedObjects as attendee}
+									<ProfileAvatar
+										url=""
+										username={attendee.name}
+										fallbackName={attendee.name}
+										isTempUser={true}
+									/>
+								{/each}
+							</Collapsible.Content>
+						</Collapsible.Root>
+					{:else}
+						<div class="grid grid-cols-4 gap-2">
+							{#each linkedObjects as attendee}
+								<ProfileAvatar
+									url=""
+									username={attendee.name}
+									fallbackName={attendee.name}
+									isTempUser={true}
+								/>
+							{/each}
+						</div>
+					{/if}{/if}
 			</div>
 		{/if}
 	{/if}
