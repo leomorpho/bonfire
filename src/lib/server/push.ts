@@ -29,8 +29,10 @@ export const runNotificationProcessor = async () => {
 	const locked = await getTaskLockState(taskName);
 
 	if (locked) {
-		// console.debug('Task is already running. Skipping execution.');
+		console.debug('Task is already running. Skipping execution.');
 		return;
+	} else {
+		console.debug('Start notification processing task.');
 	}
 
 	try {
@@ -62,10 +64,10 @@ export async function processNotificationQueue(notificationQueueEntry: Notificat
 		return;
 	}
 
-	// console.debug(
-	// 	`Processing notification queue object created by user ${notificationQueueEntry.user_id}:`,
-	// 	notificationQueueEntry
-	// );
+	console.debug(
+		`Processing notification queue object created by user ${notificationQueueEntry.user_id}:`,
+		notificationQueueEntry
+	);
 
 	// Parse object_ids into an array
 	const objectIds = stringRepresentationToArray(notificationQueueEntry.object_ids);
@@ -82,9 +84,9 @@ export async function processNotificationQueue(notificationQueueEntry: Notificat
 		case NotificationType.ATTENDEES:
 			validObjectIds = await validateAttendees(objectIds);
 			break;
-			case NotificationType.TEMP_ATTENDEES:
-				validObjectIds = await validateTempAttendees(objectIds);
-				break;
+		case NotificationType.TEMP_ATTENDEES:
+			validObjectIds = await validateTempAttendees(objectIds);
+			break;
 		default:
 			console.error(`Unknown object_type: ${notificationQueueEntry.object_type}`);
 			return;
@@ -114,6 +116,9 @@ export async function processNotificationQueue(notificationQueueEntry: Notificat
 		case NotificationType.TEMP_ATTENDEES:
 			await notifyEventCreatorOfTemporaryAttendees(notificationQueueEntry.event_id, validObjectIds);
 			break;
+		default:
+			console.error(`Unknown object_type: ${notificationQueueEntry.object_type}`);
+			return;
 	}
 
 	// Mark the notification as sent
@@ -322,6 +327,7 @@ async function notifyEventCreatorOfTemporaryAttendees(
 
 	const pushNotificationPayload = { title: 'New Temporary Account Attendees', body: message };
 
+	console.log('########## UPDATE NOTIOF!!!!', pushNotificationPayload);
 	await handleNotification(
 		existingNotification as NotificationTypescriptType | null,
 		event.user_id,

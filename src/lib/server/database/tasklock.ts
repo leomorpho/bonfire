@@ -37,3 +37,11 @@ export async function updateTaskLockState(taskName: TaskName, locked: boolean) {
 		})
 		.returning();
 }
+
+export async function unlockAllTasks() {
+    await db
+        .update(taskLockTable)
+        .set({
+            locked: false,
+        });
+}

@@ -1,6 +1,7 @@
 import { ToadScheduler, SimpleIntervalJob, Task } from 'toad-scheduler';
 import { triplitHttpClient } from './server/triplit';
 import { runNotificationProcessor } from './server/push';
+import { unlockAllTasks } from './server/database/tasklock';
 
 const scheduler = new ToadScheduler();
 
@@ -60,18 +61,23 @@ export const taskRunner = async () => {
 		scheduler.addSimpleIntervalJob(notificationJob);
 		scheduler.addSimpleIntervalJob(cleanupJob);
 
-		/// Graceful shutdown
-		process.on('SIGTERM', () => {
+		// Graceful shutdown handler
+		const handleShutdown = async () => {
 			console.log('Stopping scheduler...');
 			scheduler.stop(); // Stops the scheduler
-			process.exit(0); // Exit the process cleanly
-		});
+			try {
+				await unlockAllTasks();
+				console.log('All tasks unlocked successfully.');
+			} catch (error) {
+				console.error('Error unlocking tasks:', error);
+			} finally {
+				process.exit(0); // Exit the process cleanly
+			}
+		};
 
-		process.on('SIGINT', () => {
-			console.log('Stopping scheduler...');
-			scheduler.stop(); // Stops the scheduler
-			process.exit(0); // Exit the process cleanly
-		});
+		// Graceful shutdown
+		process.on('SIGTERM', handleShutdown);
+		process.on('SIGINT', handleShutdown);
 	} catch (error) {
 		console.log('an error occurred starting the taskRunner', error);
 	}
