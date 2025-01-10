@@ -214,7 +214,7 @@ export const schema = {
 							// Event creator can see anyone attending
 							['event.user_id', '=', '$role.userId'],
 							// User can read their own profile
-							['user_id', '=', '$role.userId'], 
+							['user_id', '=', '$role.userId'],
 							// A user should be able to only query for users and attendees who are attending a same event:
 							['event.attendees.user_id', '=', '$role.userId']
 						])
@@ -280,7 +280,7 @@ export const schema = {
 				update: {
 					filter: [
 						or([
-							['id', '=', '$role.temporaryAttendeeId'], // User can read their own profile
+							['id', '=', '$role.temporaryAttendeeId'] // User can read their own profile
 						])
 					]
 				}
@@ -328,9 +328,7 @@ export const schema = {
 			},
 			temp: {
 				read: {
-					filter: [
-						['event.temporary_attendees.id', '=', '$role.temporaryAttendeeId']
-					]
+					filter: [['event.temporary_attendees.id', '=', '$role.temporaryAttendeeId']]
 				}
 			}
 		}
@@ -434,7 +432,9 @@ export const schema = {
 				update: { filter: [['user_id', '=', '$role.userId']] }, // Users can update their own notifications
 				delete: { filter: [['user_id', '=', '$role.userId']] } // Users can delete their own notifications
 			},
-			anon: {}
+			temp: {
+				insert: { filter: [['user_id', '=', '$role.temporaryAttendeeId']] } // Users can read their own notifications
+			}
 		}
 	},
 	notifications: {

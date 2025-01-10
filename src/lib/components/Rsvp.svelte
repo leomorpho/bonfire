@@ -224,13 +224,14 @@
 				}
 			);
 
-			if (NOTIFY_OF_ATTENDING_STATUS_CHANGE.includes(rsvpStatus)) {
-				await createNewTemporaryAttendanceNotificationQueueObject(
-					client,
-					userId,
-					eventId,
-					attendance.id
-				);
+			try {
+				if (NOTIFY_OF_ATTENDING_STATUS_CHANGE.includes(rsvpStatus)) {
+					await createNewTemporaryAttendanceNotificationQueueObject(client, attendance.id, eventId, [
+						attendance.id
+					]);
+				}
+			} catch (e) {
+				console.log('failed to create attendance notifiations:', newValue, e);
 			}
 
 			// Perform any additional actions, e.g., API call to save the new RSVP status
@@ -258,16 +259,20 @@
 				return;
 			}
 
-			// NOTE that we automatically create a RSVP status attendance object
-			// upon navigation to an event if the user does not have an attendance object for it.
-			attendance = await client.update('attendees', attendance.id, async (entity) => {
-				entity.status = newValue;
-			});
+			try {
+				// NOTE that we automatically create a RSVP status attendance object
+				// upon navigation to an event if the user does not have an attendance object for it.
+				attendance = await client.update('attendees', attendance.id, async (entity) => {
+					entity.status = newValue;
+				});
+			} catch (e) {
+				console.log('failed to create attendance notifiations:', newValue, e);
+			}
 
 			rsvpStatus = newValue; // Update the label
 
 			if (NOTIFY_OF_ATTENDING_STATUS_CHANGE.includes(rsvpStatus)) {
-				await createNewAttendanceNotificationQueueObject(client, userId, eventId, attendance.id);
+				await createNewAttendanceNotificationQueueObject(client, userId, eventId, [attendance.id]);
 			}
 
 			// Perform any additional actions, e.g., API call to save the new RSVP status
