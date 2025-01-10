@@ -40,6 +40,7 @@
 	let isNameAvailable = $state(false);
 	let generateTempURLBtnEnabled: boolean = $state(false);
 	let isGeneratingTempLink: boolean = $state(false);
+	let loadingGeneratedTempLink: boolean = $state(false);
 	let tempNameCheckingState: string | null = $state(null);
 
 	$effect(() => {
@@ -196,6 +197,7 @@
 			toast.error('Sorry, an error occurred while creating your attendee, please try again later');
 		} finally {
 			isGeneratingTempLink = false;
+			loadingGeneratedTempLink = true;
 		}
 	};
 
@@ -216,19 +218,19 @@
 
 			// NOTE that we automatically create a RSVP status attendance object
 			// upon navigation to an event if the user does not have an attendance object for it.
-			attendance = await client.update(
-				'temporary_attendees',
-				tempAttendeeId as string,
-				async (entity) => {
-					entity.status = newValue;
-				}
-			);
+			await client.update('temporary_attendees', tempAttendeeId as string, async (entity) => {
+				entity.status = newValue;
+			});
 
 			try {
 				if (NOTIFY_OF_ATTENDING_STATUS_CHANGE.includes(rsvpStatus)) {
-					await createNewTemporaryAttendanceNotificationQueueObject(client, attendance.id, eventId, [
-						attendance.id
-					]);
+					console.log();
+					await createNewTemporaryAttendanceNotificationQueueObject(
+						client,
+						tempAttendeeId as string,
+						eventId,
+						[tempAttendeeId as string]
+					);
 				}
 			} catch (e) {
 				console.log('failed to create attendance notifiations:', newValue, e);
@@ -397,6 +399,11 @@
 			{:else if tempNameCheckingState === TempNameCheckingState.CHECKING}
 				<div class="flex items-center justify-between">
 					<div>Checking name availability...</div>
+					<span class="loading loading-spinner loading-xs ml-2"> </span>
+				</div>
+			{:else if loadingGeneratedTempLink}
+				<div class="flex items-center justify-between">
+					<div>Loading...</div>
 					<span class="loading loading-spinner loading-xs ml-2"> </span>
 				</div>
 			{:else}

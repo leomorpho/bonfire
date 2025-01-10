@@ -85,3 +85,15 @@ export async function validateAttendees(attendeeIds: string[]): Promise<string[]
 	const results = (await triplitHttpClient.fetch(query)) as AttendeeTypescriptType[];
 	return results.map((attendee: AttendeeTypescriptType) => attendee.id);
 }
+
+export async function validateTempAttendees(attendeeIds: string[]): Promise<string[]> {
+	const query = triplitHttpClient
+		.query('temporary_attendees')
+		.where([['id', 'in', attendeeIds]])
+		// .select(['id']) // TODO: triplit bug preventing select
+		.build();
+
+	// Fetch and return only the IDs
+	const results = (await triplitHttpClient.fetch(query)) as AttendeeTypescriptType[];
+	return results.map((attendee: AttendeeTypescriptType) => attendee.id);
+}

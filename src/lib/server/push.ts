@@ -19,7 +19,8 @@ import {
 	triplitHttpClient,
 	validateAnnouncements,
 	validateAttendees,
-	validateFiles
+	validateFiles,
+	validateTempAttendees
 } from './triplit';
 import { getTaskLockState, updateTaskLockState } from './database/tasklock';
 
@@ -81,6 +82,9 @@ export async function processNotificationQueue(notificationQueueEntry: Notificat
 		case NotificationType.ATTENDEES:
 			validObjectIds = await validateAttendees(objectIds);
 			break;
+			case NotificationType.TEMP_ATTENDEES:
+				validObjectIds = await validateTempAttendees(objectIds);
+				break;
 		default:
 			console.error(`Unknown object_type: ${notificationQueueEntry.object_type}`);
 			return;
