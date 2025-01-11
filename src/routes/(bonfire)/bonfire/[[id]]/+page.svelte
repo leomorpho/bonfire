@@ -1,11 +1,10 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { useQuery } from '@triplit/svelte';
 	import { TriplitClient } from '@triplit/client';
 	import { getFeTriplitClient, waitForUserId } from '$lib/triplit';
 	import Loader from '$lib/components/Loader.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
-	import { Cog, Share, Plus, Drum, Copy } from 'lucide-svelte';
+	import { Cog, Share, Plus, Drum, Copy, MapPin, UserRound, Calendar } from 'lucide-svelte';
 	import { formatHumanReadable } from '$lib/utils';
 	import Rsvp from '$lib/components/Rsvp.svelte';
 	import { onMount } from 'svelte';
@@ -140,6 +139,11 @@
 			client
 				.query('events')
 				.where([['id', '=', $page.params.id]])
+				.subquery(
+					'organizer',
+					client.query('user').where(['id', '=', '$1.user_id']).select(['username', 'id']).build(),
+					'one'
+				)
 				.build(),
 			(results) => {
 				if (results.length == 1) {
@@ -297,7 +301,6 @@
 
 			if (attendees && attendees.length > 0) {
 				currentUserAttendee = attendees.find((attendee) => attendee.user_id == userId);
-
 				// Set RSVP status based on the attendee record, or keep it as default
 				rsvpStatus = currentUserAttendee ? currentUserAttendee.status : undefined;
 				$inspect('### rsvpStatus', rsvpStatus);
@@ -409,13 +412,31 @@
 					</div>
 				{/if}
 				<div class="rounded-xl bg-white p-5">
-					<h1 class="text-xl">
+					<h1 class="mb-4 flex justify-center text-xl sm:text-2xl">
 						{isAnonymousUser ? $page.data.event.title : event.title}
 					</h1>
-					<div class="font-medium">{formatHumanReadable(event.start_time)}</div>
-					<div class="font-light">
+					<div class="flex items-center font-medium">
+						<Calendar class="mr-2 h-4 w-4" />{formatHumanReadable(event.start_time)}
+					</div>
+					{console.log('EVENT', event)}
+					<div class="flex items-center font-light">
+						<UserRound class="mr-2 h-4 w-4" />Hosted by <ProfileAvatar
+							url={profileImageMap.get(event.organizer['user_id'])?.small_image_url}
+							fullsizeUrl={profileImageMap.get(event.organizer['user_id'])?.full_image_url}
+							username={event.organizer['username']}
+							fallbackName={event.organizer['username']}
+							isTempUser={false}
+							lastUpdatedAt=""
+						/>
+					</div>
+					<div class="flex items-center font-light">
+						<MapPin class="mr-2 h-4 w-4" />
 						{#if !isAnonymousUser}
-							<div>{event.location}</div>
+							{#if event.location}
+								<div>{event.location}</div>
+							{:else}
+								<div>No location set</div>
+							{/if}
 						{:else}
 							Set RSVP status to see location
 						{/if}
