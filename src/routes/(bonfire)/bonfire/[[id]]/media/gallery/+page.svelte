@@ -6,7 +6,7 @@
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
 	import SelectionArea from '@viselect/vanilla';
 	import JSZip from 'jszip';
-	import { Download, Trash2 } from 'lucide-svelte';
+	import { Download, LockOpen, Trash2 } from 'lucide-svelte';
 	import { Toggle } from '$lib/components/ui/toggle/index.js';
 	import PhotoSwipeLightbox from 'photoswipe/lightbox';
 	import 'photoswipe/style.css';
@@ -14,12 +14,12 @@
 	import { ImagePlus } from 'lucide-svelte';
 	import * as ContextMenu from '$lib/components/ui/context-menu/index.js';
 	import { SquareMousePointer } from 'lucide-svelte';
-	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 	import CustomAlertDialogue from '$lib/components/CustomAlertDialog.svelte';
 	import { toast } from 'svelte-sonner';
 	import { User, Users } from 'lucide-svelte';
 	import type { TriplitClient } from '@triplit/client';
 	import { getFeTriplitClient } from '$lib/triplit';
+	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 
 	let selectedImages: any = $state([]);
 	let selection: any;
@@ -28,8 +28,9 @@
 
 	let eventFiles = $state($page.data.eventFiles);
 	console.log('isOwner', $page.data.isOwner);
- 
-	console.log("+++++++++---> ", tempAttendeeIdStore.get())
+
+	const tempAttendeeId = tempAttendeeIdStore.get();
+
 	let isDialogOpen = $state(false);
 	let dialogDescription = $state('');
 	let onConfirmCallback: (() => void) | null = null;
@@ -528,17 +529,62 @@
 					<ImagePlus class="size-3" /><span class="text-xs sm:text-sm">Upload</span>
 				</Toggle>
 			</a>
-			<Toggle aria-label="toggle selection" onclick={toggleSelection}>
-				<SquareMousePointer class="size-3" /> <span class="text-xs sm:text-sm">Select</span>
-			</Toggle>
-			<!-- Filter Button -->
-			<Toggle aria-label="toggle selection" onclick={filterByCurrentUserAsUploader}>
-				{#if showOnlyCurrentUserUploads}<Users class="size-3" />{:else}<User class="size-3" />{/if}
+			{#if tempAttendeeId}
+				<Tooltip.Provider>
+					<Tooltip.Root>
+						<Tooltip.Trigger
+							><Toggle
+								aria-label="toggle selection"
+								onclick={toggleSelection}
+								disabled={!!tempAttendeeId}
+							>
+								<SquareMousePointer class="size-3" /> <span class="text-xs sm:text-sm">Select</span>
+							</Toggle></Tooltip.Trigger
+						>
+						<Tooltip.Content class="flex items-center">
+							<LockOpen class="mr-1 h-3 w-3" />Login to enable feature
+						</Tooltip.Content>
+					</Tooltip.Root>
+				</Tooltip.Provider>
+				<Tooltip.Provider>
+					<Tooltip.Root>
+						<Tooltip.Trigger>
+							<Toggle aria-label="toggle selection" disabled={!!tempAttendeeId}
+								><Toggle aria-label="toggle selection" disabled={!!tempAttendeeId}>
+									{#if showOnlyCurrentUserUploads}<Users class="size-3" />{:else}<User
+											class="size-3"
+										/>{/if}
 
-				<span class="text-xs sm:text-sm">
-					{showOnlyCurrentUserUploads ? 'Show All' : 'Show Mine'}
-				</span>
-			</Toggle>
+									<span class="text-xs sm:text-sm">
+										{showOnlyCurrentUserUploads ? 'Show All' : 'Show Mine'}
+									</span>
+								</Toggle></Toggle
+							>
+						</Tooltip.Trigger>
+						<Tooltip.Content class="flex items-center">
+							<LockOpen class="mr-1 h-3 w-3" /> Login to enable feature
+						</Tooltip.Content>
+					</Tooltip.Root>
+				</Tooltip.Provider>
+			{:else}
+				<Toggle aria-label="toggle selection" onclick={toggleSelection} disabled={!!tempAttendeeId}>
+					<SquareMousePointer class="size-3" /> <span class="text-xs sm:text-sm">Select</span>
+				</Toggle>
+				<!-- Filter Button -->
+				<Toggle
+					aria-label="toggle selection"
+					onclick={filterByCurrentUserAsUploader}
+					disabled={!!tempAttendeeId}
+				>
+					{#if showOnlyCurrentUserUploads}<Users class="size-3" />{:else}<User
+							class="size-3"
+						/>{/if}
+
+					<span class="text-xs sm:text-sm">
+						{showOnlyCurrentUserUploads ? 'Show All' : 'Show Mine'}
+					</span>
+				</Toggle>
+			{/if}
 		</div>
 	</div>
 	<section class="w-full sm:w-[550px] md:w-[650px] lg:w-[950px]">
