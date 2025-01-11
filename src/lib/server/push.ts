@@ -327,7 +327,6 @@ async function notifyEventCreatorOfTemporaryAttendees(
 
 	const pushNotificationPayload = { title: 'New Temporary Account Attendees', body: message };
 
-	console.log('########## UPDATE NOTIOF!!!!', pushNotificationPayload);
 	await handleNotification(
 		existingNotification as NotificationTypescriptType | null,
 		event.user_id,
@@ -387,7 +386,7 @@ async function handleNotification(
 				entity.num_push_notifications_sent = (entity.num_push_notifications_sent || 0) + 1;
 			}
 		});
-		console.debug(`Updated notification for user ${recipientUserId}.`);
+		// console.debug(`Updated notification for user ${recipientUserId}.`);
 	} else {
 		await triplitHttpClient.insert('notifications', {
 			event_id: eventId,

@@ -36,6 +36,7 @@ function createPersistentStore<T>(
 export const tempAttendeeIdStore = createPersistentStore<string | null>('tempAttendeeId', null);
 
 export const tempAttendeeIdUrlParam = 'temp-attendee-id';
+export const tempAttendeeIdFormName = 'tempAttendeeIdFormName';
 
 export const TEMP_ATTENDEE_MIN_NAME_LEN = 2;
 export const MAX_NUM_IMAGES_IN_MINI_GALLERY = 3;
@@ -59,6 +60,7 @@ export enum EventFormType {
 export const LOGIN_TYPE_MAGIC_LINK = 'magic';
 export const LOGIN_TYPE_ACTIVATION = 'activation';
 export const NOTIFY_OF_ATTENDING_STATUS_CHANGE: Array<Status> = [Status.GOING, Status.MAYBE];
+export const NUM_DEFAULT_LOGS_NEW_SIGNUP = 3;
 
 export const getStrValueOfRSVP = (status: string) => {
 	switch (status) {

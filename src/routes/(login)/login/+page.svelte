@@ -1,10 +1,11 @@
 <script lang="ts">
-	import { PUBLIC_PROJECT_NAME } from '$env/static/public';
 	import { tick } from 'svelte';
 	import Google from '$lib/components/icons/Google.svelte';
 	import { superForm } from 'sveltekit-superforms';
-	import { Mail, Laugh } from 'lucide-svelte';
+	import { Mail } from 'lucide-svelte';
 	import { Image } from '@unpic/svelte';
+	import { tempAttendeeIdFormName, tempAttendeeIdUrlParam } from '$lib/enums.js';
+	import { page } from '$app/stores';
 
 	const { data } = $props();
 
@@ -28,6 +29,9 @@
 			email_input.focus();
 		}
 	};
+
+	const tempAttendeeId = $page.url.searchParams.get(tempAttendeeIdUrlParam);
+	console.log('tempAttendeeId', tempAttendeeId);
 </script>
 
 <svelte:head>
@@ -81,6 +85,11 @@
 				</form>
 			{:else}
 				<form method="post" action="/login?/login_with_email" use:enhance>
+					<!-- Add tempAttendeeId as a hidden input -->
+					{#if tempAttendeeId}
+						<input type="hidden" name={tempAttendeeIdFormName} value={tempAttendeeId} />
+					{/if}
+
 					<input
 						bind:this={email_input}
 						placeholder="Email"

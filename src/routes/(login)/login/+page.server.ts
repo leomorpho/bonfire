@@ -15,13 +15,17 @@ import { lucia } from '$lib/server/auth';
 import { PUBLIC_ORIGIN } from '$env/static/public';
 import { createSignin, getSignins } from '$lib/server/database/signin.model';
 import { dev } from '$app/environment';
-import { LOGIN_TYPE_ACTIVATION, LOGIN_TYPE_MAGIC_LINK } from '$lib/enums';
-
-
+import {
+	LOGIN_TYPE_ACTIVATION,
+	LOGIN_TYPE_MAGIC_LINK,
+	NUM_DEFAULT_LOGS_NEW_SIGNUP,
+	tempAttendeeIdUrlParam
+} from '$lib/enums';
 
 // Name has a default value just to display something in the form.
 const schema = z.object({
-	email: z.string().trim().email()
+	email: z.string().trim().email(),
+	tempAttendeeIdFormName: z.string().optional()
 });
 
 export const load = async (e) => {
@@ -40,12 +44,13 @@ export const actions = {
 
 		let user = await getUserByEmail(form.data.email);
 		let login_type = LOGIN_TYPE_MAGIC_LINK;
-
+		console.log('form', form);
 		if (!user) {
 			user = await createNewUser({
 				id: generateId(15),
 				email: form.data.email,
-				email_verified: false
+				email_verified: false,
+				num_logs: NUM_DEFAULT_LOGS_NEW_SIGNUP
 			});
 			if (!user) {
 				throw error(500, 'Failed to create new user');
@@ -53,7 +58,7 @@ export const actions = {
 			login_type = LOGIN_TYPE_ACTIVATION;
 		}
 
-		let ip_address = getClientAddress();
+		const ip_address = getClientAddress();
 
 		const signins = await getSignins({
 			email: form.data.email,
@@ -83,12 +88,17 @@ export const actions = {
 		await deleteAllEmailTokensForUser(user.id);
 		const verification_token = await createEmailVerificationToken(user.id, user.email);
 		const origin = new URL(request.url).origin;
-		const verificationLink =
+		let verificationLink =
 			origin +
 			'/login/email-verification?verification_token=' +
 			verification_token +
 			'&login_type=' +
 			login_type;
+
+		// If user has a temp attendee, link up to verification email in order to link them up on login
+		if (form.data.tempAttendeeIdFormName) {
+			verificationLink = `${verificationLink}&${tempAttendeeIdUrlParam}=${form.data.tempAttendeeIdFormName}`;
+		}
 
 		await sendEmail({
 			from: `${public_env.PUBLIC_PROJECT_NAME} <${env.FROM_EMAIL}>`,

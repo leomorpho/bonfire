@@ -299,6 +299,8 @@ export const schema = {
 			uploaded_at: S.Date({ default: S.Default.now() }),
 			uploader_id: S.String(), // ID of the attendee
 			uploader: S.RelationById('user', '$user_id'), // Link to the user
+			temp_uploader_id: S.String(), // ID of the attendee
+			temp_uploader: S.RelationById('temporary_attendees', '$id'), // Link to the user
 			event_id: S.String(), // ID of the event
 			event: S.RelationById('events', '$event_id'), // Link to the event
 			seen_by: S.RelationMany('seen_gallery_items', {
