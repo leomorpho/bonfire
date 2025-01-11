@@ -32,18 +32,16 @@
 	let tempAttendeeId: string | null = $state(null);
 
 	// Use a reactive statement to react to changes in the `$page` store
-	$effect(() => {
-		const url = $page.url;
-		tempAttendeeId = url.searchParams.get(tempAttendeeIdUrlParam);
+	const url = $page.url;
+	tempAttendeeId = url.searchParams.get(tempAttendeeIdUrlParam);
 
+	onMount(async () => {
 		if (tempAttendeeId) {
 			tempAttendeeIdStore.set(tempAttendeeId);
 		} else {
 			tempAttendeeId = get(tempAttendeeIdStore);
 		}
-	});
 
-	onMount(async () => {
 		if ($page.data.user || tempAttendeeId) {
 			// User is logged in
 			client = getFeTriplitClient($page.data.jwt);
