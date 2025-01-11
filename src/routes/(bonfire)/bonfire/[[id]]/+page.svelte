@@ -80,6 +80,7 @@
 	const showMaxNumPeople = 50;
 
 	const fetchProfileImageMap = async (userIds: string[]) => {
+		// This function never removes any profile pic entry, only upserts them.
 		try {
 			loadingProfileImageMap = true;
 
@@ -93,12 +94,18 @@
 			if (!response.ok) {
 				throw new Error(`Failed to fetch profileImageMap: ${response.statusText}`);
 			}
-			// Transform the fetched data into a Map
+
+			// Transform the fetched data into a plain object
 			const fetchedData: Record<string, { full_image_url: string; small_image_url: string }> =
 				await response.json();
-			profileImageMap = new Map(
-				Object.entries(fetchedData) // Convert the plain object into Map entries
-			);
+
+			// Update the existing profileImageMap without removing old entries
+			if (!profileImageMap) {
+				profileImageMap = new Map(); // Initialize if not already a Map
+			}
+			for (const [key, value] of Object.entries(fetchedData)) {
+				profileImageMap.set(key, value); // Update or add new entries
+			}
 		} catch (error) {
 			console.error('Error fetching profile image map:', error);
 		} finally {
@@ -420,14 +427,17 @@
 					</div>
 					{console.log('EVENT', event)}
 					<div class="flex items-center font-light">
-						<UserRound class="mr-2 h-4 w-4" />Hosted by <ProfileAvatar
-							url={profileImageMap.get(event.organizer['user_id'])?.small_image_url}
-							fullsizeUrl={profileImageMap.get(event.organizer['user_id'])?.full_image_url}
-							username={event.organizer['username']}
-							fallbackName={event.organizer['username']}
-							isTempUser={false}
-							lastUpdatedAt=""
-						/>
+						<UserRound class="mr-2 h-4 w-4" />Hosted by {event.organizer['username']}
+						<div class="ml-2">
+							<ProfileAvatar
+								url={profileImageMap.get(event.organizer['id'])?.small_image_url}
+								fullsizeUrl={profileImageMap.get(event.organizer['id'])?.full_image_url}
+								username={event.organizer['username']}
+								fallbackName={event.organizer['username']}
+								isTempUser={false}
+								lastUpdatedAt=""
+							/>
+						</div>
 					</div>
 					<div class="flex items-center font-light">
 						<MapPin class="mr-2 h-4 w-4" />
