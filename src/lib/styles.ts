@@ -1918,7 +1918,7 @@ background-size: 100px 50px;
 		id: 98,
 		name: 'Retro furnish',
 		cssTemplate: `
-    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/retro-furnish.png'); /* Replace with the URL of your tileable image */
+    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/retro-furnish.png'); /* Replace with the URL of your tileable image */
     background-repeat: repeat; /* Tiles the image in both directions */
     background-size: auto; /* Ensures the image retains its original size */
     background-color: #ffffff; /* Fallback background color */
@@ -1930,7 +1930,7 @@ background-size: 100px 50px;
 		id: 99,
 		name: 'Ahoy',
 		cssTemplate: `
-    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/ahoy.jpg'); /* Replace with the URL of your tileable image */
+    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/ahoy.jpg'); /* Replace with the URL of your tileable image */
     background-repeat: repeat; /* Tiles the image in both directions */
     background-size: auto; /* Ensures the image retains its original size */
     background-color: #ffffff; /* Fallback background color */
@@ -1942,7 +1942,7 @@ background-size: 100px 50px;
 		id: 100,
 		name: 'Alchemy',
 		cssTemplate: `
-    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/alchemy.gif'); /* Replace with the URL of your tileable image */
+    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/alchemy.gif'); /* Replace with the URL of your tileable image */
     background-repeat: repeat; /* Tiles the image in both directions */
     background-size: auto; /* Ensures the image retains its original size */
     background-color: #ffffff; /* Fallback background color */
@@ -1954,7 +1954,7 @@ background-size: 100px 50px;
 		id: 101,
 		name: 'Asteroids',
 		cssTemplate: `
-    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/asteroids.jpg'); /* Replace with the URL of your tileable image */
+    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/asteroids.jpg'); /* Replace with the URL of your tileable image */
     background-repeat: repeat; /* Tiles the image in both directions */
     background-size: auto; /* Ensures the image retains its original size */
     background-color: #ffffff; /* Fallback background color */
@@ -1966,7 +1966,7 @@ background-size: 100px 50px;
 		id: 102,
 		name: 'Bicycles',
 		cssTemplate: `
-    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/bicycles.png'); /* Replace with the URL of your tileable image */
+    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/bicycles.png'); /* Replace with the URL of your tileable image */
     background-repeat: repeat; /* Tiles the image in both directions */
     background-size: auto; /* Ensures the image retains its original size */
     background-color: #ffffff; /* Fallback background color */
@@ -1979,7 +1979,7 @@ background-size: 100px 50px;
 		id: 103,
 		name: 'Brijan',
 		cssTemplate: `
-    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/brijan.gif'); /* Replace with the URL of your tileable image */
+    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/brijan.gif'); /* Replace with the URL of your tileable image */
     background-repeat: repeat; /* Tiles the image in both directions */
     background-size: auto; /* Ensures the image retains its original size */
     background-color: #ffffff; /* Fallback background color */
@@ -1992,7 +1992,7 @@ background-size: 100px 50px;
 		id: 104,
 		name: 'Bunting flag',
 		cssTemplate: `
-    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/bunting-flag.png'); /* Replace with the URL of your tileable image */
+    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/bunting-flag.png'); /* Replace with the URL of your tileable image */
     background-repeat: repeat; /* Tiles the image in both directions */
     background-size: auto; /* Ensures the image retains its original size */
     background-color: #ffffff; /* Fallback background color */
@@ -2005,7 +2005,7 @@ background-size: 100px 50px;
 		id: 105,
 		name: 'Celebration',
 		cssTemplate: `
-    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/celebration.png'); /* Replace with the URL of your tileable image */
+    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/celebration.png'); /* Replace with the URL of your tileable image */
     background-repeat: repeat; /* Tiles the image in both directions */
     background-size: auto; /* Ensures the image retains its original size */
     background-color: #ffffff; /* Fallback background color */
@@ -2018,7 +2018,7 @@ background-size: 100px 50px;
 		id: 106,
 		name: 'Chalkboard',
 		cssTemplate: `
-    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/chalkboard.jpg'); /* Replace with the URL of your tileable image */
+    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/chalkboard.jpg'); /* Replace with the URL of your tileable image */
     background-repeat: repeat; /* Tiles the image in both directions */
     background-size: auto; /* Ensures the image retains its original size */
     background-color: #ffffff; /* Fallback background color */
@@ -2031,7 +2031,7 @@ background-size: 100px 50px;
 		id: 107,
 		name: 'Cocina',
 		cssTemplate: `
-    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/cocina.gif'); /* Replace with the URL of your tileable image */
+    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/cocina.gif'); /* Replace with the URL of your tileable image */
     background-repeat: repeat; /* Tiles the image in both directions */
     background-size: auto; /* Ensures the image retains its original size */
     background-color: #ffffff; /* Fallback background color */
@@ -2043,7 +2043,7 @@ background-size: 100px 50px;
 		id: 108,
 		name: 'Cuadros',
 		cssTemplate: `
-    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/cuadros.png'); /* Replace with the URL of your tileable image */
+    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/cuadros.png'); /* Replace with the URL of your tileable image */
     background-repeat: repeat; /* Tiles the image in both directions */
     background-size: auto; /* Ensures the image retains its original size */
     background-color: #ffffff; /* Fallback background color */
@@ -2055,7 +2055,7 @@ background-size: 100px 50px;
 		id: 109,
 		name: 'Dark wood',
 		cssTemplate: `
-    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/dark-wood.jpg'); /* Replace with the URL of your tileable image */
+    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/dark-wood.jpg'); /* Replace with the URL of your tileable image */
     background-repeat: repeat; /* Tiles the image in both directions */
     background-size: auto; /* Ensures the image retains its original size */
     background-color: #ffffff; /* Fallback background color */
@@ -2067,7 +2067,7 @@ background-size: 100px 50px;
 		id: 110,
 		name: 'Jade',
 		cssTemplate: `
-    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/jade.jpg'); /* Replace with the URL of your tileable image */
+    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/jade.jpg'); /* Replace with the URL of your tileable image */
     background-repeat: repeat; /* Tiles the image in both directions */
     background-size: auto; /* Ensures the image retains its original size */
     background-color: #ffffff; /* Fallback background color */
@@ -2079,7 +2079,7 @@ background-size: 100px 50px;
 		id: 111,
 		name: 'Design tools',
 		cssTemplate: `
-    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/design-tools.jpg'); /* Replace with the URL of your tileable image */
+    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/design-tools.jpg'); /* Replace with the URL of your tileable image */
     background-repeat: repeat; /* Tiles the image in both directions */
     background-size: auto; /* Ensures the image retains its original size */
     background-color: #ffffff; /* Fallback background color */
@@ -2091,7 +2091,7 @@ background-size: 100px 50px;
 		id: 112,
 		name: 'Escape flight',
 		cssTemplate: `
-    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/escape-flight.png'); /* Replace with the URL of your tileable image */
+    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/escape-flight.png'); /* Replace with the URL of your tileable image */
     background-repeat: repeat; /* Tiles the image in both directions */
     background-size: auto; /* Ensures the image retains its original size */
     background-color: #ffffff; /* Fallback background color */
@@ -2103,7 +2103,7 @@ background-size: 100px 50px;
 		id: 113,
 		name: 'Fancy pants',
 		cssTemplate: `
-    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/fancy-pants.jpg'); /* Replace with the URL of your tileable image */
+    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/fancy-pants.jpg'); /* Replace with the URL of your tileable image */
     background-repeat: repeat; /* Tiles the image in both directions */
     background-size: auto; /* Ensures the image retains its original size */
     background-color: #ffffff; /* Fallback background color */
@@ -2115,7 +2115,7 @@ background-size: 100px 50px;
 		id: 114,
 		name: 'Fiesta',
 		cssTemplate: `
-    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/fiesta.jpg'); /* Replace with the URL of your tileable image */
+    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/fiesta.jpg'); /* Replace with the URL of your tileable image */
     background-repeat: repeat; /* Tiles the image in both directions */
     background-size: auto; /* Ensures the image retains its original size */
     background-color: #ffffff; /* Fallback background color */
@@ -2127,7 +2127,7 @@ background-size: 100px 50px;
 		id: 116,
 		name: 'Flowers',
 		cssTemplate: `
-    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/flowers.jpg'); /* Replace with the URL of your tileable image */
+    background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/flowers.jpg'); /* Replace with the URL of your tileable image */
     background-repeat: repeat; /* Tiles the image in both directions */
     background-size: auto; /* Ensures the image retains its original size */
     background-color: #ffffff; /* Fallback background color */
@@ -2139,7 +2139,7 @@ background-size: 100px 50px;
 		id: 117,
 		name: 'Geometrica',
 		cssTemplate: `
-  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/geometrica.png'); /* Replace with the URL of your tileable image */
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/geometrica.png'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
   background-color: #ffffff; /* Fallback background color */
@@ -2151,7 +2151,7 @@ background-size: 100px 50px;
 		id: 118,
 		name: 'Glitch',
 		cssTemplate: `
-  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/glitch.png'); /* Replace with the URL of your tileable image */
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/glitch.png'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
   background-color: #ffffff; /* Fallback background color */
@@ -2163,7 +2163,7 @@ background-size: 100px 50px;
 		id: 119,
 		name: 'Hodgepodge',
 		cssTemplate: `
-  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/hodgepodge.png'); /* Replace with the URL of your tileable image */
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/hodgepodge.png'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
   background-color: #ffffff; /* Fallback background color */
@@ -2175,7 +2175,7 @@ background-size: 100px 50px;
 		id: 120,
 		name: 'Green goblin',
 		cssTemplate: `
-  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/green-goblin.png'); /* Replace with the URL of your tileable image */
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/green-goblin.png'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
   background-color: #ffffff; /* Fallback background color */
@@ -2187,7 +2187,7 @@ background-size: 100px 50px;
 		id: 121,
 		name: 'Guglieri speciale',
 		cssTemplate: `
-  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/guglieri-speciale.jpg'); /* Replace with the URL of your tileable image */
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/guglieri-speciale.jpg'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
   background-color: #ffffff; /* Fallback background color */
@@ -2199,7 +2199,7 @@ background-size: 100px 50px;
 		id: 122,
 		name: 'Hotdogs',
 		cssTemplate: `
-  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/hotdogs.jpg'); /* Replace with the URL of your tileable image */
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/hotdogs.jpg'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
   background-color: #ffffff; /* Fallback background color */
@@ -2211,7 +2211,7 @@ background-size: 100px 50px;
 		id: 123,
 		name: 'Isometropolis',
 		cssTemplate: `
-  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/isometropolis.jpg'); /* Replace with the URL of your tileable image */
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/isometropolis.jpg'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
   background-color: #ffffff; /* Fallback background color */
@@ -2223,7 +2223,7 @@ background-size: 100px 50px;
 		id: 124,
 		name: 'Junk mail',
 		cssTemplate: `
-  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/junk-mail.jpg'); /* Replace with the URL of your tileable image */
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/junk-mail.jpg'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
   background-color: #ffffff; /* Fallback background color */
@@ -2235,7 +2235,7 @@ background-size: 100px 50px;
 		id: 125,
 		name: 'Kale salad',
 		cssTemplate: `
-  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/kale-salad.jpg'); /* Replace with the URL of your tileable image */
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/kale-salad.jpg'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
   background-color: #ffffff; /* Fallback background color */
@@ -2247,7 +2247,7 @@ background-size: 100px 50px;
 		id: 126,
 		name: 'Kitty',
 		cssTemplate: `
-  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/kitty.png'); /* Replace with the URL of your tileable image */
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/kitty.png'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
   background-color: #ffffff; /* Fallback background color */
@@ -2259,7 +2259,7 @@ background-size: 100px 50px;
 		id: 127,
 		name: 'Kiwis',
 		cssTemplate: `
-  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/kiwis.png'); /* Replace with the URL of your tileable image */
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/kiwis.png'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
   background-color: #ffffff; /* Fallback background color */
@@ -2271,7 +2271,7 @@ background-size: 100px 50px;
 		id: 128,
 		name: 'Knitting',
 		cssTemplate: `
-  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/knitting.jpg'); /* Replace with the URL of your tileable image */
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/knitting.jpg'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
   background-color: #ffffff; /* Fallback background color */
@@ -2283,7 +2283,7 @@ background-size: 100px 50px;
 		id: 129,
 		name: 'Leather nunchuck',
 		cssTemplate: `
-  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/leather-nunchuck.png'); /* Replace with the URL of your tileable image */
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/leather-nunchuck.png'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
   background-color: #ffffff; /* Fallback background color */
@@ -2295,7 +2295,7 @@ background-size: 100px 50px;
 		id: 130,
 		name: 'Magnus 2050',
 		cssTemplate: `
-  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/magnus-2050.png'); /* Replace with the URL of your tileable image */
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/magnus-2050.png'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
   background-color: #ffffff; /* Fallback background color */
@@ -2307,7 +2307,7 @@ background-size: 100px 50px;
 		id: 131,
 		name: 'Magnus 2051',
 		cssTemplate: `
-  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/magnus-2051.png'); /* Replace with the URL of your tileable image */
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/magnus-2051.png'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
   background-color: #ffffff; /* Fallback background color */
@@ -2319,7 +2319,7 @@ background-size: 100px 50px;
 		id: 132,
 		name: 'Maze',
 		cssTemplate: `
-  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/maze.jpg'); /* Replace with the URL of your tileable image */
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/maze.jpg'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
   background-color: #ffffff; /* Fallback background color */
@@ -2331,7 +2331,7 @@ background-size: 100px 50px;
 		id: 133,
 		name: 'Naranjas',
 		cssTemplate: `
-  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/naranjas.png'); /* Replace with the URL of your tileable image */
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/naranjas.png'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
   background-color: #ffffff; /* Fallback background color */
@@ -2343,7 +2343,7 @@ background-size: 100px 50px;
 		id: 134,
 		name: 'Neon autumn',
 		cssTemplate: `
-  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/neon-autumn.gif'); /* Replace with the URL of your tileable image */
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/neon-autumn.gif'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
   background-color: #ffffff; /* Fallback background color */
@@ -2355,7 +2355,7 @@ background-size: 100px 50px;
 		id: 135,
 		name: 'NYC candy',
 		cssTemplate: `
-  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/nyc-candy.png'); /* Replace with the URL of your tileable image */
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/nyc-candy.png'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
   background-color: #ffffff; /* Fallback background color */
@@ -2367,7 +2367,7 @@ background-size: 100px 50px;
 		id: 136,
 		name: 'Ocean',
 		cssTemplate: `
-  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/ocean.jpg'); /* Replace with the URL of your tileable image */
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/ocean.jpg'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
   background-color: #ffffff; /* Fallback background color */
@@ -2379,7 +2379,7 @@ background-size: 100px 50px;
 		id: 137,
 		name: 'Plaid',
 		cssTemplate: `
-  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/plaid.jpg'); /* Replace with the URL of your tileable image */
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/plaid.jpg'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
   background-color: #ffffff; /* Fallback background color */
@@ -2391,7 +2391,7 @@ background-size: 100px 50px;
 		id: 138,
 		name: 'Quake',
 		cssTemplate: `
-  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/quake.png'); /* Replace with the URL of your tileable image */
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/quake.png'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
   background-color: #ffffff; /* Fallback background color */
@@ -2403,7 +2403,7 @@ background-size: 100px 50px;
 		id: 139,
 		name: 'Raspberry lace',
 		cssTemplate: `
-  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/raspberry-lace.gif'); /* Replace with the URL of your tileable image */
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/raspberry-lace.gif'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
   background-color: #ffffff; /* Fallback background color */
@@ -2415,7 +2415,7 @@ background-size: 100px 50px;
 		id: 140,
 		name: 'The illusionist',
 		cssTemplate: `
-  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/the-illusionist.png'); /* Replace with the URL of your tileable image */
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/the-illusionist.png'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
   background-color: #ffffff; /* Fallback background color */
@@ -2427,7 +2427,7 @@ background-size: 100px 50px;
 		id: 141,
 		name: 'Kitty',
 		cssTemplate: `
-  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/science.png'); /* Replace with the URL of your tileable image */
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/science.png'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
   background-color: #ffffff; /* Fallback background color */
@@ -2439,7 +2439,7 @@ background-size: 100px 50px;
 		id: 142,
 		name: 'Shattered island',
 		cssTemplate: `
-  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/shattered-island.gif'); /* Replace with the URL of your tileable image */
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/shattered-island.gif'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
   background-color: #ffffff; /* Fallback background color */
@@ -2451,7 +2451,7 @@ background-size: 100px 50px;
 		id: 143,
 		name: 'Special delivery',
 		cssTemplate: `
-  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/special-delivery.jpg'); /* Replace with the URL of your tileable image */
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/special-delivery.jpg'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
   background-color: #ffffff; /* Fallback background color */
@@ -2463,7 +2463,7 @@ background-size: 100px 50px;
 		id: 144,
 		name: 'Subway lines',
 		cssTemplate: `
-  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/subway-lines.png'); /* Replace with the URL of your tileable image */
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/subway-lines.png'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
   background-color: #ffffff; /* Fallback background color */
@@ -2475,7 +2475,7 @@ background-size: 100px 50px;
 		id: 145,
 		name: 'Sushi',
 		cssTemplate: `
-  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/sushi.png'); /* Replace with the URL of your tileable image */
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/sushi.png'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
   background-color: #ffffff; /* Fallback background color */
@@ -2487,7 +2487,7 @@ background-size: 100px 50px;
 		id: 146,
 		name: 'White wood',
 		cssTemplate: `
-  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/white-wood.jpg'); /* Replace with the URL of your tileable image */
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/white-wood.jpg'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
   background-color: #ffffff; /* Fallback background color */
@@ -2499,7 +2499,7 @@ background-size: 100px 50px;
 		id: 147,
 		name: 'Wild sea',
 		cssTemplate: `
-  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/wild-sea.png'); /* Replace with the URL of your tileable image */
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/wild-sea.png'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
   background-color: #ffffff; /* Fallback background color */
@@ -2511,7 +2511,7 @@ background-size: 100px 50px;
 		id: 148,
 		name: '輪紋',
 		cssTemplate: `
-  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/輪紋.png'); /* Replace with the URL of your tileable image */
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/輪紋.png'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
   background-color: #ffffff; /* Fallback background color */
