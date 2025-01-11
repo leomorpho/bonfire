@@ -18,12 +18,22 @@
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
+	import { tempAttendeeIdUrlParam } from '$lib/enums';
 
 	let uppy;
 
 	const maxMbSize = 100;
 
 	onMount(() => {
+		let imageUploadEndpoint = `/bonfire/${$page.params.id}/media/add`;
+		let onSuccessEndpoint = `/bonfire/${$page.params.id}/media/gallery`;
+
+		const tempAttendeeId = $page.url.searchParams.get(tempAttendeeIdUrlParam);
+		if (tempAttendeeId) {
+			imageUploadEndpoint = imageUploadEndpoint + `?${tempAttendeeIdUrlParam}=${tempAttendeeId}`;
+			onSuccessEndpoint = onSuccessEndpoint + `?${tempAttendeeIdUrlParam}=${tempAttendeeId}`;
+		}
+
 		// Initialize Uppy instance with Tus for resumable uploads
 		uppy = new Uppy({
 			debug: false, // Enable debug logs (optional)
@@ -48,7 +58,7 @@
 			.use(GoldenRetriever)
 			.use(Compressor)
 			.use(XHR, {
-				endpoint: `/bonfire/${$page.params.id}/media/add`, // Your SvelteKit endpoint
+				endpoint: imageUploadEndpoint, // Your SvelteKit endpoint
 				method: 'POST',
 				formData: true,
 				fieldName: 'file', // Ensure this matches the backend expectation
@@ -59,7 +69,7 @@
 			})
 			.on('upload-success', (file, response) => {
 				console.log('Upload successful:', file, response);
-				goto(`/bonfire/${$page.params.id}/media/gallery`);
+				goto(onSuccessEndpoint);
 			})
 			.on('error', (error) => {
 				console.error('Upload error:', error);

@@ -297,9 +297,9 @@ export const schema = {
 			w_pixel: S.Number({ nullable: true }),
 			size_in_bytes: S.Number(),
 			uploaded_at: S.Date({ default: S.Default.now() }),
-			uploader_id: S.String(), // ID of the attendee
+			uploader_id: S.String({ nullable: true, default: true, optional: true }), // ID of the attendee
 			uploader: S.RelationById('user', '$user_id'), // Link to the user
-			temp_uploader_id: S.String(), // ID of the attendee
+			temp_uploader_id: S.String({ nullable: true, default: null, optional: true }), // ID of the attendee
 			temp_uploader: S.RelationById('temporary_attendees', '$id'), // Link to the user
 			event_id: S.String(), // ID of the event
 			event: S.RelationById('events', '$event_id'), // Link to the event

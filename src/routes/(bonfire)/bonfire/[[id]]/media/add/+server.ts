@@ -1,26 +1,48 @@
 import { uploadLargeFileToS3 } from '$lib/filestorage';
-import type { RequestEvent } from '@sveltejs/kit';
 import { Readable } from 'stream';
-import { error } from '@sveltejs/kit';
+import { error, redirect } from '@sveltejs/kit';
 import { triplitHttpClient } from '$lib/server/triplit';
 import sharp from 'sharp';
-import type { HttpClient, TriplitClient } from '@triplit/client';
+import type { HttpClient } from '@triplit/client';
 import { createNewFileNotificationQueueObject } from '$lib/notification';
+import { tempAttendeeIdUrlParam } from '$lib/enums';
 
-export const POST = async (event: RequestEvent): Promise<Response> => {
+export const POST = async ({ url, locals, params, request }): Promise<Response> => {
+	const tempAttendeeId = url.searchParams.get(tempAttendeeIdUrlParam);
+
+	let tempAttendeeExists: boolean = false;
+	let existingAttendee = null;
+
 	try {
-		const user = event.locals.user;
-		if (!user || !user.id) {
-			throw error(401, 'Unauthorized'); // Return 401 if user is not logged in
+		if (tempAttendeeId) {
+			try {
+				existingAttendee = await triplitHttpClient.fetchById('temporary_attendees', tempAttendeeId);
+				if (existingAttendee) {
+					tempAttendeeExists = true;
+				}
+			} catch (e) {
+				console.debug('failed to find temp attendee because it does not exist', e);
+			}
+		}
+	} catch (error) {
+		console.error(`Error checking for temp attendee with id ${tempAttendeeId}:`, error);
+		return new Response('Internal Server Error', { status: 500 });
+	}
+
+	try {
+		const user = locals.user;
+
+		if (!user && !tempAttendeeExists) {
+			redirect(302, '/login');
 		}
 
-		const { id } = event.params;
+		const { id } = params;
 
 		if (!id) {
 			throw error(400, 'Missing ID parameter'); // Return 400 if `id` is not provided
 		}
 
-		const contentType = event.request.headers.get('content-type') || '';
+		const contentType = request.headers.get('content-type') || '';
 		const boundaryMatch = contentType.match(/boundary=(.+)$/);
 
 		if (!boundaryMatch) {
@@ -28,7 +50,7 @@ export const POST = async (event: RequestEvent): Promise<Response> => {
 		}
 
 		const boundary = boundaryMatch[1];
-		const formData = await parseMultipart(event.request, boundary);
+		const formData = await parseMultipart(request, boundary);
 
 		const file = formData.get('file');
 
@@ -36,12 +58,15 @@ export const POST = async (event: RequestEvent): Promise<Response> => {
 			throw new TypeError('No valid file uploaded');
 		}
 
+		// Get user-like ID for either user or tempUserAttendee
+		const userIdForCurrentUserType = user ? user.id : tempAttendeeId;
+
 		// Extract file from formData
 		const filename = formData.get('name');
 		const filetype = formData.get('type');
 		const fileSize = file.length; // Get the file size in bytes
 		const fileStream = Readable.from(file);
-		const fileKey = `events/eventid_${id}/userid_${user.id}/${filename}`;
+		const fileKey = `events/eventid_${id}/userid_${userIdForCurrentUserType}/${filename}`;
 
 		// Initialize metadata
 		let h_pixel: number | null = null;
@@ -73,7 +98,8 @@ export const POST = async (event: RequestEvent): Promise<Response> => {
 
 		// Create entry
 		const fileTx = await triplitHttpClient.insert('files', {
-			uploader_id: user.id,
+			uploader_id: user?.id ?? null,
+			temp_uploader_id: tempAttendeeId ?? null,
 			event_id: id,
 			file_key: fileKey,
 			file_type: filetype,
@@ -83,9 +109,12 @@ export const POST = async (event: RequestEvent): Promise<Response> => {
 			w_pixel: w_pixel
 		});
 
-		await createNewFileNotificationQueueObject(triplitHttpClient as HttpClient, user.id, id, [
-			fileTx?.output?.id as string
-		]);
+		await createNewFileNotificationQueueObject(
+			triplitHttpClient as HttpClient,
+			userIdForCurrentUserType as string,
+			id,
+			[fileTx?.output?.id as string]
+		);
 
 		return new Response(JSON.stringify({ message: 'File uploaded successfully', fileKey }), {
 			status: 200,

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { tempAttendeeIdStore } from '$lib/enums';
+	import { tempAttendeeIdStore, tempAttendeeIdUrlParam } from '$lib/enums';
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import { Image } from '@unpic/svelte';
@@ -434,9 +434,15 @@
 	}
 
 	const updateFilesWithLatest = async () => {
+		const tempAttendeeId = $page.url.searchParams.get(tempAttendeeIdUrlParam);
+
 		// Fetch updated files using your API endpoint
 		try {
-			const response = await fetch(`/bonfire/${$page.params.id}/media/gallery`);
+			let url = `/bonfire/${$page.params.id}/media/gallery`;
+			if (tempAttendeeId) {
+				url = url + `?${tempAttendeeIdUrlParam}=${tempAttendeeId}`;
+			}
+			const response = await fetch(url);
 			if (response.ok) {
 				const data = await response.json();
 				eventFiles = data.files; // Update with the latest data
