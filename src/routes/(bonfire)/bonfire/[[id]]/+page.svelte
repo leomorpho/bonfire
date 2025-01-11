@@ -427,17 +427,20 @@
 					</div>
 					<div class="flex items-center font-light">
 						<UserRound class="mr-2 h-4 w-4" />Hosted by {event.organizer['username']}
-						<div class="ml-2">
-							<ProfileAvatar
-								url={profileImageMap.get(event.organizer['id'])?.small_image_url}
-								fullsizeUrl={profileImageMap.get(event.organizer['id'])?.full_image_url}
-								username={event.organizer['username']}
-								fallbackName={event.organizer['username']}
-								isTempUser={false}
-								lastUpdatedAt=""
-							/>
-						</div>
+						{#if !isAnonymousUser}
+							<div class="ml-2">
+								<ProfileAvatar
+									url={profileImageMap.get(event.organizer['id'])?.small_image_url}
+									fullsizeUrl={profileImageMap.get(event.organizer['id'])?.full_image_url}
+									username={event.organizer['username']}
+									fallbackName={event.organizer['username']}
+									isTempUser={false}
+									lastUpdatedAt=""
+								/>
+							</div>
+						{/if}
 					</div>
+
 					<div class="flex items-center font-light">
 						<MapPin class="mr-2 h-4 w-4" />
 						{#if !isAnonymousUser}

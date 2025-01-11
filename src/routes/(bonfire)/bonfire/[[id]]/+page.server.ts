@@ -58,6 +58,15 @@ export const load = async ({ params, locals, url }) => {
 					.include('announcements')
 					.include('attendees')
 					.include('files')
+					.subquery(
+						'organizer',
+						triplitHttpClient
+							.query('user')
+							.where(['id', '=', '$1.user_id'])
+							.select(['username', 'id'])
+							.build(),
+						'one'
+					)
 					.build()
 			);
 			if (event != null) {
