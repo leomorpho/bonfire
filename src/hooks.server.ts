@@ -1,6 +1,13 @@
+import { sequence } from '@sveltejs/kit/hooks';
+import * as Sentry from '@sentry/sveltekit';
 import { taskRunner } from '$lib/scheduler';
 import { lucia } from '$lib/server/auth';
 import type { Handle } from '@sveltejs/kit';
+
+Sentry.init({
+	dsn: 'https://3b8c1776298855f9184a78a5d271ec6d@o4505031789314048.ingest.us.sentry.io/4508626481774592',
+	tracesSampleRate: 1
+});
 
 console.log('App started!');
 
@@ -12,7 +19,7 @@ process.on('unhandledRejection', (reason, promise) => {
 	console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });
 
-export const handle: Handle = async ({ event, resolve }) => {
+export const handle: Handle = sequence(Sentry.sentryHandle(), async ({ event, resolve }) => {
 	try {
 		const sessionId = event.cookies.get(lucia.sessionCookieName);
 		if (!sessionId) {
@@ -46,7 +53,8 @@ export const handle: Handle = async ({ event, resolve }) => {
 		console.error('Error in handle:', error);
 		throw error;
 	}
-};
+});
 
 // Start the scheduler when the server starts
 taskRunner();
+export const handleError = Sentry.handleErrorWithSentry();
