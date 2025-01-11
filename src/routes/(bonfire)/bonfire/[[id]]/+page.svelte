@@ -425,7 +425,6 @@
 					<div class="flex items-center font-medium">
 						<Calendar class="mr-2 h-4 w-4" />{formatHumanReadable(event.start_time)}
 					</div>
-					{console.log('EVENT', event)}
 					<div class="flex items-center font-light">
 						<UserRound class="mr-2 h-4 w-4" />Hosted by {event.organizer['username']}
 						<div class="ml-2">

@@ -9,9 +9,17 @@
 
 	let { fileCount, eventFiles } = $props();
 	let lightbox: PhotoSwipeLightbox | null = $state(null);
+	let lightboxInitialized = false;
+	let previousEventFiles: any[] = $state([]); // Track the previous `eventFiles`
 
-	onMount(() => {
-		// Ensure lightbox initializes after DOM is rendered
+	const initializeLightbox = () => {
+		// Clean up any existing lightbox instance
+		if (lightbox) {
+			lightbox.destroy();
+			lightbox = null;
+		}
+
+		// Initialize a new lightbox instance
 		lightbox = new PhotoSwipeLightbox({
 			gallery: '.lightbox-gallery-container',
 			children: 'a:not(.see-all-link)', // Exclude "See All" link
@@ -24,6 +32,33 @@
 		});
 
 		lightbox.init();
+		lightboxInitialized = true; // Mark as initialized
+		console.log('lightbox initialized', lightbox);
+	};
+
+	const cleanupLightbox = () => {
+		if (lightbox) {
+			lightbox.destroy();
+			lightbox = null;
+			lightboxInitialized = false;
+		}
+	};
+
+	onMount(() => {
+		console.log('mounting lightbox');
+		initializeLightbox();
+
+		// Cleanup lightbox on component destroy
+		return cleanupLightbox;
+	});
+
+	$effect(() => {
+		console.log('initializing lightbox in effect');
+		if (eventFiles && JSON.stringify(eventFiles) !== JSON.stringify(previousEventFiles)) {
+			console.log('Reinitializing lightbox reactively');
+			previousEventFiles = [...eventFiles]; // Update the previous files
+			initializeLightbox();
+		}
 	});
 </script>
 
@@ -39,12 +74,17 @@
 						layout="constrained"
 						aspectRatio={5 / 3}
 						alt={file.file_name}
+						on:click={(e) => {
+							if (!lightboxInitialized) {
+								e.preventDefault(); // Prevent link from opening if lightbox is not ready
+							}
+						}}
 					/>
 				</a>
 			{/each}
 			{#if eventFiles.length > 2 && fileCount}
 				<!-- "See All" Image -->
-				<a href='media/gallery' class="see-all-link block">
+				<a href="media/gallery" class="see-all-link block">
 					<div
 						class="flex items-center justify-center rounded-lg bg-gray-200 text-center font-semibold sm:text-lg"
 						style="aspect-ratio: 5 / 3; width: 100%;"
@@ -53,7 +93,7 @@
 					</div>
 				</a>
 			{:else}
-				<a href='media/gallery' class="see-all-link block">
+				<a href="media/gallery" class="see-all-link block">
 					<div
 						class="flex items-center justify-center rounded-lg bg-gray-200 text-center font-semibold sm:text-lg"
 						style="aspect-ratio: 5 / 3; width: 100%;"
@@ -69,7 +109,7 @@
 		</div>
 	{/if}
 {/if}
-<a href='media/add'
+<a href="media/add"
 	><Button class="flex w-full items-center justify-center ring-glow"
 		><ImagePlus />Add to gallery</Button
 	>
