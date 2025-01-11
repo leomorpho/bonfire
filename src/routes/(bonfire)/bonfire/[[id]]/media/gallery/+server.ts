@@ -2,6 +2,7 @@ import { tempAttendeeIdUrlParam } from '$lib/enums';
 import { fetchAccessibleEventFiles } from '$lib/filestorage';
 import { triplitHttpClient } from '$lib/server/triplit';
 import { error, json } from '@sveltejs/kit';
+import { and } from '@triplit/client';
 
 export const GET = async ({ url, params, locals }) => {
 	// Extract eventId from URL params
@@ -16,9 +17,16 @@ export const GET = async ({ url, params, locals }) => {
 	const tempAttendeeId = url.searchParams.get(tempAttendeeIdUrlParam);
 	if (tempAttendeeId) {
 		try {
-			const existingAttendee = await triplitHttpClient.fetchById(
-				'temporary_attendees',
-				tempAttendeeId
+			const existingAttendee = await triplitHttpClient.fetchOne(
+				triplitHttpClient
+					.query('temporary_attendees')
+					.where([
+						and([
+							['id', '=', tempAttendeeId],
+							['event_id', '=', id]
+						])
+					])
+					.build()
 			);
 			if (existingAttendee) {
 				tempAttendeeExists = true;
@@ -37,7 +45,7 @@ export const GET = async ({ url, params, locals }) => {
 	const bonfireId = params.id;
 
 	try {
-		const { files, isOwner } = await fetchAccessibleEventFiles(bonfireId as string, user);
+		const { files, isOwner } = await fetchAccessibleEventFiles(bonfireId as string, user?.id, null, false);
 		return json({ files, isOwner });
 	} catch (err) {
 		return json({ error: err.message }, { status: 400 });

@@ -420,7 +420,7 @@
 						if (imageDiv) {
 							const dataUploaderId = imageDiv.getAttribute('data-uploader-id');
 							el.style.display =
-								dataUploaderId === $page.data.user.id || $page.data.isOwner ? 'block' : 'none';
+							$page.data.user && dataUploaderId === $page.data.user.id || $page.data.isOwner ? 'block' : 'none';
 						} else {
 							el.style.display = 'none';
 						}

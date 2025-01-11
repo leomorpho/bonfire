@@ -14,6 +14,7 @@ import sharp from 'sharp'; // For resizing images
 import { dev } from '$app/environment';
 import { Readable } from 'stream';
 import { triplitHttpClient } from '$lib/server/triplit';
+import { and } from '@triplit/client';
 
 // Create an S3 client
 const s3 = new S3Client({
@@ -282,8 +283,28 @@ export async function deleteFilesFromS3(fileKeys: string[]): Promise<{
  * @returns {Promise<{ files: Array, isOwner: boolean }>} - An object containing the event files with signed URLs and ownership status.
  * @throws {Error} - If the user is unauthorized or the bonfire does not exist.
  */
-export async function fetchAccessibleEventFiles(bonfireId: string, user: any) {
-	if (!user) {
+export async function fetchAccessibleEventFiles(
+	bonfireId: string,
+	userId: string | null | undefined,
+	tempAttendeeId: string | null | undefined,
+	verifyAccess: boolean
+) {
+	let existingAttendee = null;
+
+	if (tempAttendeeId && verifyAccess) {
+		existingAttendee = await triplitHttpClient.fetchOne(
+			triplitHttpClient
+				.query('temporary_attendees')
+				.where([
+					and([
+						['id', '=', tempAttendeeId],
+						['event_id', '=', bonfireId]
+					])
+				])
+				.build()
+		);
+	}
+	if (verifyAccess && !userId && !existingAttendee) {
 		throw new Error('Unauthorized'); // Explicitly handle unauthorized access
 	}
 
@@ -300,7 +321,7 @@ export async function fetchAccessibleEventFiles(bonfireId: string, user: any) {
 	}
 
 	// Check if the user is the event owner
-	const isOwner = event.user_id === user.id;
+	const isOwner = event.user_id === userId;
 
 	// Fetch files related to the bonfire
 	const filesQuery = triplitHttpClient

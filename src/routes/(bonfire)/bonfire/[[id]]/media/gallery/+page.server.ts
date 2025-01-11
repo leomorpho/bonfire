@@ -2,6 +2,7 @@ import { tempAttendeeIdUrlParam } from '$lib/enums';
 import { fetchAccessibleEventFiles } from '$lib/filestorage';
 import { triplitHttpClient } from '$lib/server/triplit';
 import { error, redirect } from '@sveltejs/kit';
+import { and } from '@triplit/client';
 
 // Step 2: Implement the form load function
 export const load = async ({ locals, url, params }) => {
@@ -16,9 +17,16 @@ export const load = async ({ locals, url, params }) => {
 	let tempAttendeeExists: boolean = false;
 	if (tempAttendeeId) {
 		try {
-			const existingAttendee = await triplitHttpClient.fetchById(
-				'temporary_attendees',
-				tempAttendeeId
+			const existingAttendee = await triplitHttpClient.fetchOne(
+				triplitHttpClient
+					.query('temporary_attendees')
+					.where([
+						and([
+							['id', '=', tempAttendeeId],
+							['event_id', '=', bonfireId]
+						])
+					])
+					.build()
 			);
 			if (existingAttendee) {
 				tempAttendeeExists = true;
@@ -35,7 +43,12 @@ export const load = async ({ locals, url, params }) => {
 	}
 
 	try {
-		const { files, isOwner } = await fetchAccessibleEventFiles(bonfireId as string, user);
+		const { files, isOwner } = await fetchAccessibleEventFiles(
+			bonfireId as string,
+			user?.id,
+			null,
+			false
+		);
 		return {
 			user: user,
 			eventFiles: files,
