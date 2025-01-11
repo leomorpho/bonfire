@@ -452,7 +452,7 @@
 										<Plus class="ml-1 h-4 w-4 rounded-xl bg-white sm:h-5 sm:w-5" />
 									</div></Dialog.Trigger
 								>
-								<Dialog.Content class="h-full">
+								<Dialog.Content class="h-full sm:h-[90vh]">
 									<ScrollArea>
 										<Dialog.Header>
 											<Dialog.Title class="flex w-full justify-center">Attendees</Dialog.Title>
