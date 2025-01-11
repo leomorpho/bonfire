@@ -1,7 +1,6 @@
 import { tempAttendeeIdUrlParam } from '$lib/enums';
 import { ANON_ROLE, generateJWT, USER_ROLE, TEMP_ROLE } from '$lib/jwt';
-import { triplitHttpClient } from '$lib/server/triplit.js';
-import { convertTempToPermanentUser } from '$lib/utils';
+import { convertTempToPermanentUser, triplitHttpClient } from '$lib/server/triplit.js';
 
 export const load = async (event) => {
 	// Get the user from locals
