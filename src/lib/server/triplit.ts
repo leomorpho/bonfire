@@ -3,7 +3,7 @@ import { TRIPLIT_SERVICE_TOKEN } from '$env/static/private';
 import { Status } from '$lib/enums';
 import type { AttendeeTypescriptType, FileTypescriptType } from '$lib/types';
 
-import { HttpClient } from '@triplit/client';
+import { and, HttpClient } from '@triplit/client';
 
 export const triplitHttpClient = new HttpClient({
 	serverUrl: PUBLIC_TRIPLIT_URL,
@@ -97,3 +97,58 @@ export async function validateTempAttendees(attendeeIds: string[]): Promise<stri
 	const results = (await triplitHttpClient.fetch(query)) as AttendeeTypescriptType[];
 	return results.map((attendee: AttendeeTypescriptType) => attendee.id);
 }
+
+export const convertTempToPermanentUser = async (
+	userId: string,
+	eventId: string,
+	triplitUserUsername: string|null,
+	triplitUserId: string,
+	existingTempAttendeeId: string,
+	existingTempAttendeeName: string,
+	existingTempAttendeeStatus: string
+) => {
+	try {
+		console.log('---> converting temp user to permament user');
+
+		if (!triplitUserUsername) {
+			triplitHttpClient.update('user', triplitUserId, async (e) => {
+				e.username = existingTempAttendeeName;
+			});
+		}
+		// Convert temp attendee to normal attendance
+		await triplitHttpClient.insert('attendees', {
+			user_id: userId,
+			event_id: eventId,
+			status: existingTempAttendeeStatus
+		});
+
+		// Convert all files imported by this temp attendee to the current user
+		const files = await triplitHttpClient.fetch(
+			triplitHttpClient
+				.query('files')
+				.where([
+					and([
+						['event_id', '=', eventId],
+						['temp_uploader_id', '=', existingTempAttendeeId]
+					])
+				])
+				.build()
+		);
+
+		// Update each file to set uploader_id to the user's ID
+		for (const file of files) {
+			await triplitHttpClient.update('files', file.id, async (entity) => {
+				entity.uploader_id = userId;
+			});
+		}
+
+		// Finally, delete the temp attendee, which means the user will only be able to see past
+		// temp interactions with logged in user profile
+		await triplitHttpClient.delete('temporary_attendees', existingTempAttendeeId as string);
+	} catch (e) {
+		console.error(
+			`failed to link up temp attendee with id ${existingTempAttendeeId} to user with id ${userId}`,
+			e
+		);
+	}
+};

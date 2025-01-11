@@ -442,6 +442,7 @@
 			if (tempAttendeeId) {
 				url = url + `?${tempAttendeeIdUrlParam}=${tempAttendeeId}`;
 			}
+			console.log('fetch images with url', url);
 			const response = await fetch(url);
 			if (response.ok) {
 				const data = await response.json();

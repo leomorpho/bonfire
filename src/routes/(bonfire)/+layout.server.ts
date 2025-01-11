@@ -1,6 +1,7 @@
 import { tempAttendeeIdUrlParam } from '$lib/enums';
 import { ANON_ROLE, generateJWT, USER_ROLE, TEMP_ROLE } from '$lib/jwt';
 import { triplitHttpClient } from '$lib/server/triplit.js';
+import { convertTempToPermanentUser } from '$lib/utils';
 
 export const load = async (event) => {
 	// Get the user from locals
@@ -14,25 +15,23 @@ export const load = async (event) => {
 		const jwt = generateJWT(user.id, USER_ROLE);
 
 		if (tempAttendeeId) {
-			// Make sure user has an attendance object for tempAttendeeId
-			try {
-				const temp = await triplitHttpClient.fetchById('temporary_attendees', tempAttendeeId);
+			const existingAttendee = await triplitHttpClient.fetchById(
+				'temporary_attendees',
+				tempAttendeeId
+			);
 
-				if (!temp) {
-					throw new Error('temp attendee object does not exist');
-				}
-
-				await triplitHttpClient.insert('attendees', {
-					event_id: temp.event_id,
-					user_id: user.id,
-					status: temp.status
-				});
-
-				await triplitHttpClient.delete('temporary_attendees', tempAttendeeId);
-			} catch (e) {
-				console.log(
-					`failed to create regular user attendance from passed param tempAttendeeId ${tempAttendeeId}`,
-					e
+			if (existingAttendee) {
+				const triplitUser = await triplitHttpClient.fetchOne(
+					triplitHttpClient.query('user').where('id', '=', user.id).build()
+				);
+				await convertTempToPermanentUser(
+					user.id,
+					existingAttendee.event_id,
+					triplitUser?.username,
+					triplitUser?.id,
+					existingAttendee.id,
+					existingAttendee.name,
+					existingAttendee.status
 				);
 			}
 		}
