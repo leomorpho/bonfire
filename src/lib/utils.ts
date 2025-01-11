@@ -2,6 +2,8 @@ import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { format } from 'date-fns';
 import { generateId } from 'lucia';
+import { tempAttendeeIdStore, tempAttendeeIdUrlParam } from './enums';
+import { get } from 'svelte/store';
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
@@ -120,5 +122,23 @@ export const generatePassphraseId = async (prefix: string | null = null) => {
 
 		// Return fallback value...just a regular crypto generated value
 		return generateId(20);
+	}
+};
+
+export const adaptForTempUserUrl = (url: string) => {
+	const tempAttendeeId = get(tempAttendeeIdStore);
+
+	if (!tempAttendeeId) {
+		return url;
+	}
+
+	const param = `${tempAttendeeIdUrlParam}=${encodeURIComponent(tempAttendeeId)}`;
+
+	if (url.includes('?')) {
+		// URL already has parameters
+		return url.endsWith('&') || url.endsWith('?') ? `${url}${param}` : `${url}&${param}`;
+	} else {
+		// URL has no parameters
+		return `${url}?${param}`;
 	}
 };

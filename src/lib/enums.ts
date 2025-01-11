@@ -1,6 +1,40 @@
-import { writable } from 'svelte/store';
+import { writable, type Writable } from 'svelte/store';
 
-export const tempAttendeeIdStore = writable<string | null>(null);
+function createPersistentStore<T>(
+	key: string,
+	initialValue: T
+): Writable<T> & { get: () => T | null } {
+	const isBrowser = typeof window !== 'undefined' && typeof localStorage !== 'undefined';
+
+	const storedValue = isBrowser ? localStorage.getItem(key) : null;
+	const store = writable<T>(storedValue ? (JSON.parse(storedValue) as T) : initialValue);
+
+	// Update localStorage whenever the store value changes
+	if (isBrowser) {
+		store.subscribe((value) => {
+			if (value === null || value === undefined) {
+				localStorage.removeItem(key);
+			} else {
+				localStorage.setItem(key, JSON.stringify(value));
+			}
+		});
+	}
+
+	return {
+		...store,
+		set: store.set,
+		update: store.update,
+		get: () => {
+			if (!isBrowser) return null;
+			const item = localStorage.getItem(key);
+			return item ? (JSON.parse(item) as T) : null;
+		}
+	};
+}
+
+// Usage for tempAttendeeIdStore
+export const tempAttendeeIdStore = createPersistentStore<string | null>('tempAttendeeId', null);
+
 export const tempAttendeeIdUrlParam = 'temp-attendee-id';
 
 export const TEMP_ATTENDEE_MIN_NAME_LEN = 2;

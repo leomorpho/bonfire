@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { tempAttendeeIdStore } from '$lib/enums';
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import { Image } from '@unpic/svelte';
@@ -27,7 +28,8 @@
 
 	let eventFiles = $state($page.data.eventFiles);
 	console.log('isOwner', $page.data.isOwner);
-
+ 
+	console.log("+++++++++---> ", tempAttendeeIdStore.get())
 	let isDialogOpen = $state(false);
 	let dialogDescription = $state('');
 	let onConfirmCallback: (() => void) | null = null;

@@ -1,20 +1,37 @@
-import { goto } from '$app/navigation';
+import { tempAttendeeIdUrlParam } from '$lib/enums';
 import { fetchAccessibleEventFiles } from '$lib/filestorage';
 import { triplitHttpClient } from '$lib/server/triplit';
-import { error } from '@sveltejs/kit';
+import { error, redirect } from '@sveltejs/kit';
 
 // Step 2: Implement the form load function
-export const load = async (e) => {
-	const bonfireId = e.params.id; // Get the event ID from the route parameters
+export const load = async ({ locals, url, params }) => {
+	const bonfireId = params.id; // Get the event ID from the route parameters
 
 	if (!bonfireId) {
-		goto('/dashboard');
+		redirect(302, '/dashboard');
 	}
 
-	const user = e.locals.user;
+	const tempAttendeeId = url.searchParams.get(tempAttendeeIdUrlParam);
 
-	if (!user) {
-		goto('/login');
+	let tempAttendeeExists: boolean = false;
+	if (tempAttendeeId) {
+		try {
+			const existingAttendee = await triplitHttpClient.fetchById(
+				'temporary_attendees',
+				tempAttendeeId
+			);
+			if (existingAttendee) {
+				tempAttendeeExists = true;
+			}
+		} catch (e) {
+			console.debug('failed to find temp attendee because it does not exist', e);
+		}
+	}
+
+	const user = locals.user;
+
+	if (!user && !tempAttendeeExists) {
+		redirect(302, '/login');
 	}
 
 	try {

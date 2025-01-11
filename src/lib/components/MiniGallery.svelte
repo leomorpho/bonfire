@@ -44,7 +44,7 @@
 			{/each}
 			{#if eventFiles.length > 2 && fileCount}
 				<!-- "See All" Image -->
-				<a href="media/gallery" class="see-all-link block">
+				<a href='media/gallery' class="see-all-link block">
 					<div
 						class="flex items-center justify-center rounded-lg bg-gray-200 text-center font-semibold sm:text-lg"
 						style="aspect-ratio: 5 / 3; width: 100%;"
@@ -53,7 +53,7 @@
 					</div>
 				</a>
 			{:else}
-				<a href="media/gallery" class="see-all-link block">
+				<a href='media/gallery' class="see-all-link block">
 					<div
 						class="flex items-center justify-center rounded-lg bg-gray-200 text-center font-semibold sm:text-lg"
 						style="aspect-ratio: 5 / 3; width: 100%;"
@@ -69,7 +69,7 @@
 		</div>
 	{/if}
 {/if}
-<a href="media/add"
+<a href='media/add'
 	><Button class="flex w-full items-center justify-center ring-glow"
 		><ImagePlus />Add to gallery</Button
 	>

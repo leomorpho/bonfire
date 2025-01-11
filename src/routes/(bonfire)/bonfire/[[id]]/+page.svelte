@@ -600,7 +600,7 @@
 						</div>
 					{:else}
 						<div class="mb-10">
-							{#if eventFiles && fileCount}
+							{#if eventFiles}
 								<MiniGallery fileCount={fileCount - eventFiles.length} {eventFiles} />
 							{:else if loadEventFiles}
 								<Loader />
