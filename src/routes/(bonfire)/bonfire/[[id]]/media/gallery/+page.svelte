@@ -1,11 +1,9 @@
 <script lang="ts">
-	import { tempAttendeeIdStore, tempAttendeeIdUrlParam } from '$lib/enums';
+	import { tempAttendeeIdUrlParam } from '$lib/enums';
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
-	import { Image } from '@unpic/svelte';
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
 	import SelectionArea from '@viselect/vanilla';
-	import JSZip from 'jszip';
 	import { Download, LockOpen, Trash2 } from 'lucide-svelte';
 	import { Toggle } from '$lib/components/ui/toggle/index.js';
 	import PhotoSwipeLightbox from 'photoswipe/lightbox';
@@ -21,7 +19,7 @@
 	import { getFeTriplitClient } from '$lib/triplit';
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 	import { downloadAsZip, shareImages } from '$lib/gallery';
-	import GalleryImage from '$lib/components/GalleryImage.svelte';
+	import GalleryItem from '$lib/components/GalleryItem.svelte';
 
 	let selectedImages: any = $state([]);
 	let selection: any;
@@ -500,13 +498,14 @@
 					>
 						<ContextMenu.Root>
 							<ContextMenu.Trigger>
-								<GalleryImage
+								<GalleryItem
 									url={file.URL}
 									{selectionActive}
 									wPixel={file.w_pixel}
 									hPixel={file.h_pixel}
 									fileName={file.file_name}
 									blurhash={file.blurr_hash}
+									fileType={file.file_type}
 								/>
 							</ContextMenu.Trigger>
 							<ContextMenu.Content>
