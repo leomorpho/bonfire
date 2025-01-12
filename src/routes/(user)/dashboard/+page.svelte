@@ -90,7 +90,7 @@
 </script>
 
 <div class="mx-4 mb-48 flex flex-col items-center justify-center sm:mb-20">
-	<section class="mt-8 w-full sm:w-[450px]">
+	<section class="md:2/3 mt-8 w-full sm:w-2/3">
 		<h2 class="mb-4 text-lg font-semibold">Upcoming Bonfires</h2>
 		{#if futureEvents.fetching}
 			<Loader />
@@ -104,12 +104,14 @@
 			{:else}
 				<div>
 					{#each futureEvents.results as attendance}
-						<EventCard
-							event={attendance.event}
-							{userId}
-							eventCreatorName={attendance.organizer_name['username']}
-							rsvpStatus={attendance.status}
-						/>
+						<div class="my-7 sm:my-10">
+							<EventCard
+								event={attendance.event}
+								{userId}
+								eventCreatorName={attendance.organizer_name['username']}
+								rsvpStatus={attendance.status}
+							/>
+						</div>
 					{/each}
 				</div>
 			{/if}
