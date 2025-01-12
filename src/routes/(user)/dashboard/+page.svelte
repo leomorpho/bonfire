@@ -90,7 +90,7 @@
 </script>
 
 <div class="mx-4 mb-48 flex flex-col items-center justify-center sm:mb-20">
-	<section class="md:2/3 mt-8 w-full sm:w-2/3">
+	<section class="md:2/3 mt-8 w-full sm:w-2/3 md:w-[700px]">
 		<h2 class="mb-4 text-lg font-semibold">Upcoming Bonfires</h2>
 		{#if futureEvents.fetching}
 			<Loader />
