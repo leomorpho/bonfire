@@ -21,6 +21,7 @@
 	import { getFeTriplitClient } from '$lib/triplit';
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 	import { downloadAsZip, shareImages } from '$lib/gallery';
+	import GalleryImage from '$lib/components/GalleryImage.svelte';
 
 	let selectedImages: any = $state([]);
 	let selection: any;
@@ -499,21 +500,13 @@
 					>
 						<ContextMenu.Root>
 							<ContextMenu.Trigger>
-								<a
-									href={file.URL}
-									class={selectionActive ? 'disabled-link' : ''}
-									data-pswp-width={file.w_pixel}
-									data-pswp-height={file.h_pixel}
-								>
-									<Image
-										height={file.h_pixel}
-										class="rounded-lg"
-										src={file.URL}
-										layout="constrained"
-										aspectRatio={5 / 3}
-										alt={file.file_name}
-									/>
-								</a>
+								<GalleryImage
+									url={file.URL}
+									{selectionActive}
+									wPixel={file.w_pixel}
+									hPixel={file.h_pixel}
+									fileName={file.file_name}
+								/>
 							</ContextMenu.Trigger>
 							<ContextMenu.Content>
 								<ContextMenu.Item>Download</ContextMenu.Item>
