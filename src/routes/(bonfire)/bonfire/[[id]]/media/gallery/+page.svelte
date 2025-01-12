@@ -420,7 +420,9 @@
 						if (imageDiv) {
 							const dataUploaderId = imageDiv.getAttribute('data-uploader-id');
 							el.style.display =
-							$page.data.user && dataUploaderId === $page.data.user.id || $page.data.isOwner ? 'block' : 'none';
+								($page.data.user && dataUploaderId === $page.data.user.id) || $page.data.isOwner
+									? 'block'
+									: 'none';
 						} else {
 							el.style.display = 'none';
 						}
@@ -536,15 +538,11 @@
 					<ImagePlus class="size-3" /><span class="text-xs sm:text-sm">Upload</span>
 				</Toggle>
 			</a>
-			{#if tempAttendeeId}
+			{#if !$page.data.user}
 				<Tooltip.Provider>
 					<Tooltip.Root>
 						<Tooltip.Trigger
-							><Toggle
-								aria-label="toggle selection"
-								onclick={toggleSelection}
-								disabled={!!tempAttendeeId}
-							>
+							><Toggle aria-label="toggle selection" onclick={toggleSelection} disabled={true}>
 								<SquareMousePointer class="size-3" /> <span class="text-xs sm:text-sm">Select</span>
 							</Toggle></Tooltip.Trigger
 						>
@@ -556,17 +554,15 @@
 				<Tooltip.Provider>
 					<Tooltip.Root>
 						<Tooltip.Trigger>
-							<Toggle aria-label="toggle selection" disabled={!!tempAttendeeId}
-								><Toggle aria-label="toggle selection" disabled={!!tempAttendeeId}>
-									{#if showOnlyCurrentUserUploads}<Users class="size-3" />{:else}<User
-											class="size-3"
-										/>{/if}
+							<Toggle aria-label="toggle selection" disabled={true}>
+								{#if showOnlyCurrentUserUploads}<Users class="size-3" />{:else}<User
+										class="size-3"
+									/>{/if}
 
-									<span class="text-xs sm:text-sm">
-										{showOnlyCurrentUserUploads ? 'Show All' : 'Show Mine'}
-									</span>
-								</Toggle></Toggle
-							>
+								<span class="text-xs sm:text-sm">
+									{showOnlyCurrentUserUploads ? 'Show All' : 'Show Mine'}
+								</span>
+							</Toggle>
 						</Tooltip.Trigger>
 						<Tooltip.Content class="flex items-center">
 							<LockOpen class="mr-1 h-3 w-3" /> Login to enable feature
@@ -574,15 +570,11 @@
 					</Tooltip.Root>
 				</Tooltip.Provider>
 			{:else}
-				<Toggle aria-label="toggle selection" onclick={toggleSelection} disabled={!!tempAttendeeId}>
+				<Toggle aria-label="toggle selection" onclick={toggleSelection}>
 					<SquareMousePointer class="size-3" /> <span class="text-xs sm:text-sm">Select</span>
 				</Toggle>
 				<!-- Filter Button -->
-				<Toggle
-					aria-label="toggle selection"
-					onclick={filterByCurrentUserAsUploader}
-					disabled={!!tempAttendeeId}
-				>
+				<Toggle aria-label="toggle selection" onclick={filterByCurrentUserAsUploader}>
 					{#if showOnlyCurrentUserUploads}<Users class="size-3" />{:else}<User
 							class="size-3"
 						/>{/if}
@@ -601,7 +593,7 @@
 			>
 				{#each eventFiles as file}
 					<div
-						class="image-item rounded-xl border-2 border-white"
+						class="image-item rounded-xl border-4 border-white"
 						data-id={file.id}
 						data-uploader-id={file.uploader_id}
 						data-src={file.URL}
