@@ -1,4 +1,4 @@
-import { uploadLargeFileToS3 } from '$lib/filestorage';
+import { extractFirstFrameAndBlurHash, uploadLargeFileToS3 } from '$lib/filestorage';
 import { Readable } from 'stream';
 import { error, redirect } from '@sveltejs/kit';
 import { triplitHttpClient } from '$lib/server/triplit';
@@ -94,6 +94,17 @@ export const POST = async ({ url, locals, params, request }): Promise<Response> 
 				console.log('blurrhash --------->', blurrhash);
 			} catch (e) {
 				console.log('failed to generate the blurrhash for this image', e);
+			}
+		}
+		console.log('-------> filetype:', filetype);
+		if (filetype.startsWith('video/')) {
+			try {
+				blurrhash = await extractFirstFrameAndBlurHash(file);
+				console.log('Generated BlurHash:', blurrhash);
+
+				// Save the BlurHash to your database or use it as needed
+			} catch (err) {
+				console.error('Failed to generate BlurHash for video:', err);
 			}
 		}
 

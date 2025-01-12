@@ -15,6 +15,13 @@ import { dev } from '$app/environment';
 import { Readable } from 'stream';
 import { triplitHttpClient } from '$lib/server/triplit';
 import { and } from '@triplit/client';
+import ffmpegInstaller from '@ffmpeg-installer/ffmpeg';
+import ffmpeg from 'fluent-ffmpeg';
+import { encode } from 'blurhash';
+import fs from 'fs/promises';
+import path from 'path';
+
+ffmpeg.setFfmpegPath(ffmpegInstaller.path);
 
 // Create an S3 client
 const s3 = new S3Client({
@@ -349,4 +356,62 @@ export async function fetchAccessibleEventFiles(
 	);
 
 	return { files: filesWithUrls, isOwner };
+}
+
+ffmpeg.setFfmpegPath(ffmpegInstaller.path);
+
+/**
+ * Extract the first frame from a video saved in a local temp directory and generate a BlurHash.
+ * This function saves the video file to a `temp` directory within the project, processes it, and cleans up.
+ *
+ * @param videoBuffer - The video file as a Buffer.
+ * @returns {Promise<string>} - The generated BlurHash for the first frame.
+ */
+export async function extractFirstFrameAndBlurHash(videoBuffer: Buffer): Promise<string> {
+	// Define the local temp directory
+	const tempDir = path.join(process.cwd(), 'temp');
+	await fs.mkdir(tempDir, { recursive: true }); // Ensure the temp directory exists
+
+	// Define paths for the temporary video and frame files
+	const tempVideoPath = path.join(tempDir, `temp-video-${Date.now()}.mov`);
+	const tempImagePath = path.join(tempDir, `temp-frame-${Date.now()}.png`);
+
+	try {
+		// Save the video buffer to a temporary file
+		await fs.writeFile(tempVideoPath, videoBuffer);
+		console.log(`Video saved temporarily at: ${tempVideoPath}`);
+
+		// Use FFmpeg to extract the first frame
+		await new Promise<void>((resolve, reject) => {
+			ffmpeg(tempVideoPath)
+				.frames(1)
+				.output(tempImagePath)
+				.on('end', () => {
+					console.log(`Frame extracted temporarily at: ${tempImagePath}`);
+					resolve();
+				})
+				.on('error', (err) => {
+					console.error('FFmpeg error during frame extraction:', err);
+					reject(err);
+				})
+				.run();
+		});
+
+		// Read and process the extracted frame
+		const imageBuffer = await fs.readFile(tempImagePath);
+		const processedBuffer = await sharp(imageBuffer).resize(32, 32).raw().ensureAlpha().toBuffer();
+
+		const blurhash = encode(new Uint8ClampedArray(processedBuffer), 32, 32, 4, 4);
+
+		return blurhash;
+	} catch (err) {
+		console.error('Error during frame extraction or BlurHash generation:', err);
+		throw err;
+	} finally {
+		// Clean up temporary files
+		await Promise.all([
+			fs.unlink(tempVideoPath).catch(() => console.warn('Failed to delete temp video file')),
+			fs.unlink(tempImagePath).catch(() => console.warn('Failed to delete temp frame file'))
+		]);
+	}
 }
