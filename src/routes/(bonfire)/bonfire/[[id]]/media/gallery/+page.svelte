@@ -282,7 +282,7 @@
 			const uploaderId = el.getAttribute('data-uploader-id');
 
 			// Add to the target array if it doesn't already exist
-			if (src && name && id && uploaderId && !targetArray.find((item) => item.id === id)) {
+			if (src && name && id && !targetArray.find((item) => item.id === id)) {
 				targetArray.push({ src, name, id, uploaderId });
 			}
 		});
@@ -474,7 +474,6 @@
 
 			handleSelectionChange(changed.added, selectedImages);
 
-			// Remove unselected images
 			changed.removed.forEach((el) => {
 				el.classList.remove('border-blue-400');
 				el.classList.add('border-white');
