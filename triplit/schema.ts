@@ -295,9 +295,10 @@ export const schema = {
 			file_name: S.String(),
 			h_pixel: S.Number({ nullable: true }),
 			w_pixel: S.Number({ nullable: true }),
+			blurr_hash: S.String({ nullable: true, default: null, optional: true }),
 			size_in_bytes: S.Number(),
 			uploaded_at: S.Date({ default: S.Default.now() }),
-			uploader_id: S.String({ nullable: true, default: true, optional: true }), // ID of the attendee
+			uploader_id: S.String({ nullable: true, default: null, optional: true }), // ID of the attendee
 			uploader: S.RelationById('user', '$user_id'), // Link to the user
 			temp_uploader_id: S.String({ nullable: true, default: null, optional: true }), // ID of the attendee
 			temp_uploader: S.RelationById('temporary_attendees', '$id'), // Link to the user

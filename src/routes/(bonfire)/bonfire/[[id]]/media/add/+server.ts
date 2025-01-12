@@ -6,6 +6,8 @@ import sharp from 'sharp';
 import type { HttpClient } from '@triplit/client';
 import { createNewFileNotificationQueueObject } from '$lib/notification';
 import { tempAttendeeIdUrlParam } from '$lib/enums';
+import { encode } from 'blurhash';
+import { getPixels } from '@unpic/pixels';
 
 export const POST = async ({ url, locals, params, request }): Promise<Response> => {
 	const tempAttendeeId = url.searchParams.get(tempAttendeeIdUrlParam);
@@ -71,6 +73,7 @@ export const POST = async ({ url, locals, params, request }): Promise<Response> 
 		// Initialize metadata
 		let h_pixel: number | null = null;
 		let w_pixel: number | null = null;
+		let blurrhash: string | null = null;
 
 		// Extract dimensions if applicable
 		if (filetype.startsWith('image/')) {
@@ -78,6 +81,20 @@ export const POST = async ({ url, locals, params, request }): Promise<Response> 
 			const metadata = await sharp(file).metadata();
 			h_pixel = metadata.height || null;
 			w_pixel = metadata.width || null;
+
+			try {
+				// Process the image buffer with sharp
+				const processedBuffer = await sharp(file).toFormat('png').toBuffer();
+				// Use `getPixels` on the processed buffer
+				const pixelData = await getPixels(processedBuffer);
+				const data = Uint8ClampedArray.from(pixelData.data);
+
+				// Generate the BlurHash
+				blurrhash = encode(data, pixelData.width, pixelData.height, 4, 4);
+				console.log('blurrhash --------->', blurrhash);
+			} catch (e) {
+				console.log('failed to generate the blurrhash for this image', e);
+			}
 		}
 
 		// // Save the fileStream to a local file for debugging
@@ -106,7 +123,8 @@ export const POST = async ({ url, locals, params, request }): Promise<Response> 
 			file_name: filename,
 			size_in_bytes: fileSize,
 			h_pixel: h_pixel,
-			w_pixel: w_pixel
+			w_pixel: w_pixel,
+			blurr_hash: blurrhash
 		});
 
 		await createNewFileNotificationQueueObject(

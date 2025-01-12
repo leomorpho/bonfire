@@ -1,7 +1,10 @@
 <script lang="ts">
 	import { Image } from '@unpic/svelte';
+	import { blurhashToImageCssString } from "@unpic/placeholder";
 
-	let { url, wPixel, hPixel, fileName, selectionActive } = $props();
+	let { url, wPixel, hPixel, fileName, selectionActive, blurhash } = $props();
+
+	const placeholder = blurhashToImageCssString(blurhash);
 </script>
 
 <a
@@ -17,5 +20,6 @@
 		layout="constrained"
 		aspectRatio={5 / 3}
 		alt={fileName}
+		background={placeholder}
 	/>
 </a>

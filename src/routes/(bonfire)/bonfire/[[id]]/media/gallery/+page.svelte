@@ -506,6 +506,7 @@
 									wPixel={file.w_pixel}
 									hPixel={file.h_pixel}
 									fileName={file.file_name}
+									blurhash={file.blurr_hash}
 								/>
 							</ContextMenu.Trigger>
 							<ContextMenu.Content>
