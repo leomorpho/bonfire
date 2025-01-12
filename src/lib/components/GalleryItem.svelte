@@ -7,6 +7,8 @@
 	const placeholder = blurhash
 		? blurhashToImageCssString(blurhash)
 		: 'L9S#oNN3x_?wxUn%wct8pLaIxuf,';
+
+	const isVideo = fileType.startsWith('video/');
 </script>
 
 <a
@@ -14,6 +16,7 @@
 	class={selectionActive ? 'disabled-link' : ''}
 	data-pswp-width={wPixel}
 	data-pswp-height={hPixel}
+	data-pswp-is-video={isVideo}
 >
 	{#if fileType.startsWith('image/')}
 		<Image

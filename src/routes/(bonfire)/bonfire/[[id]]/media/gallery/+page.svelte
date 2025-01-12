@@ -226,6 +226,26 @@
 			close: false
 		});
 
+		lightbox.on('itemData', (e) => {
+			const element = e.itemData.element;
+
+			if (element && element.dataset.pswpIsVideo == 'true') {
+				const videoURL = element.href;
+				const imgPoster = element.dataset.pswpIsPoster;
+				e.itemData = {
+					html: `
+				<div class="pswp-video-wrapper">
+					<video controls autoplay poster="${imgPoster}" class="pswp-video">
+						<source src="${videoURL}" type="video/mp4">
+						Your browser does not support the video tag.
+					</video>
+				</div>
+			`,
+					photodata: element.dataset.photodata
+				};
+			}
+		});
+
 		lightbox.on('uiRegister', function () {
 			// Register the Download Button
 			lightbox.pswp.ui.registerElement({
@@ -627,5 +647,48 @@
 	.disabled-link {
 		pointer-events: none; /* Disables all mouse interactions */
 		cursor: default; /* Changes the cursor to indicate no interaction */
+	}
+
+	/* Ensure the PhotoSwipe content container fills the viewport */
+	.pswp__container {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		height: 100vh; /* Full viewport height */
+	}
+
+	.pswp__content {
+		display: flex; /* Flex to allow centering */
+		align-items: center; /* Center content vertically */
+		justify-content: center; /* Center content horizontally */
+		width: 100%;
+		height: 100%;
+		position: relative;
+	}
+
+	/* Ensure the zoom-wrap behaves as expected */
+	.pswp__zoom-wrap {
+		width: 100%;
+		height: 100%; /* Inherit full height */
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	/* Video wrapper fills its parent and centers its content */
+	.pswp-video-wrapper {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+		height: 100%;
+		background: black; /* Optional for matching background */
+	}
+
+	/* Scale the video proportionally to fit within the viewport */
+	.pswp-video {
+		max-width: 100%;
+		max-height: 100%;
+		object-fit: contain; /* Maintain aspect ratio */
 	}
 </style>
