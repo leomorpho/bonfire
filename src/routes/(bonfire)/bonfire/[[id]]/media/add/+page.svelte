@@ -21,6 +21,8 @@
 	import { tempAttendeeIdUrlParam } from '$lib/enums';
 
 	let uppy;
+	let totalFiles = 0; // To track total files to upload
+	let uploadedFiles = 0; // To track successfully uploaded files
 
 	const maxMbSize = 100;
 
@@ -67,9 +69,18 @@
 				},
 				allowedMetaFields: true
 			})
+			.on('upload-start', (file) => {
+				totalFiles = uppy.getFiles().length; // Count the total number of files in the queue
+				uploadedFiles = 0; // Reset the counter on upload start
+			})
 			.on('upload-success', (file, response) => {
+				uploadedFiles++; // Increment on successful upload
 				console.log('Upload successful:', file, response);
-				goto(onSuccessEndpoint);
+
+				// Redirect after all files have been uploaded
+				if (uploadedFiles === totalFiles) {
+					goto(onSuccessEndpoint);
+				}
 			})
 			.on('error', (error) => {
 				console.error('Upload error:', error);
