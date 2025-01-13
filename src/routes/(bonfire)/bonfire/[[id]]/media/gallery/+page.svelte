@@ -223,7 +223,26 @@
 			pswpModule: () => import('photoswipe'),
 			showHideAnimationType: 'zoom', // Optional animation
 			zoom: false,
-			close: true
+			close: true,
+			initialZoomLevel: 'fit',
+			secondaryZoomLevel: 'fit',
+			imageClickAction: false,
+			bgClickAction: 'close' // Close gallery when tapping the background
+		});
+
+		// Use afterInit to ensure the lightbox is fully initialized
+		lightbox.on('afterInit', () => {
+			// Adjust the cursor after the lightbox is fully initialized
+			const pswpElement = document.querySelector('.pswp');
+			if (pswpElement) {
+				pswpElement.style.cursor = 'pointer'; // Set cursor to pointer after the lightbox is initialized
+			}
+
+			// Also ensure that all `.pswp__img` and `.pswp__viewport` elements have the correct cursor
+			const imgElements = document.querySelectorAll('.pswp__img, .pswp__viewport');
+			imgElements.forEach((el) => {
+				el.style.cursor = 'pointer'; // Set cursor to pointer for the image and viewport
+			});
 		});
 
 		// Handle itemData for video and images
@@ -235,36 +254,24 @@
 				const imgPoster = element.dataset.pswpIsPoster || '';
 				e.itemData = {
 					html: `
-						<div class="pswp__item">
-							<video controls autoplay class="pswp__img" poster="${imgPoster}">
-								<source src="${videoURL}" type="video/mp4" />
-								Your browser does not support the video tag.
-							</video>
-						</div>
-					`
+                    <div class="pswp__item">
+                        <video controls class="pswp__img" poster="${imgPoster}">
+                            <source src="${videoURL}" type="video/mp4" />
+                            Your browser does not support the video tag.
+                        </video>
+                        <div class="pswp__play-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="12,8 12,16 16,12" />
+                            </svg>
+                        </div>
+                    </div>
+                `
 				};
+
+				// Disable zoom for video: remove zoom cursor
+				e.itemData.mouseMovePan = false; // Disable pan/zoom gestures for videos
 			}
 		});
-
-		// NOTE: the following is for auto-play, not sure I want it
-		// // Ensure video is handled properly on content activation
-		// lightbox.on('contentActivate', (e) => {
-		// 	const video = e.content.element?.querySelector('video');
-		// 	if (video) {
-		// 		video.play();
-		// 		// Automatically move to the next slide when video ends
-		// 		video.onended = () => lightbox.pswp.next();
-		// 	}
-		// });
-
-		// // Pause video when the content is deactivated
-		// lightbox.on('contentDeactivate', (e) => {
-		// 	const video = e.content.element?.querySelector('video');
-		// 	if (video) {
-		// 		video.pause();
-		// 		video.onended = null; // Cleanup event listener
-		// 	}
-		// });
 
 		lightbox.on('uiRegister', function () {
 			// Register the Download Button
@@ -535,7 +542,7 @@
 	<section class="w-full sm:w-[550px] md:w-[650px] lg:w-[950px]">
 		{#if eventFiles.length > 0}
 			<div
-				class="gallery-container selection-area my-5 grid grid-cols-3 gap-1 sm:grid-cols-4 lg:grid-cols-5"
+				class="gallery-container selection-area my-5 grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-5"
 			>
 				{#each eventFiles as file}
 					{#if !file.is_linked_file}
@@ -680,4 +687,12 @@
 		pointer-events: none; /* Disables all mouse interactions */
 		cursor: default; /* Changes the cursor to indicate no interaction */
 	}
+	/* Disable zoom cursor for PhotoSwipe lightbox */
+	.pswp__img,
+	.pswp__zoom-wrap,
+	.pswp__viewport {
+		cursor: pointer !important; /* Ensure regular pointer cursor */
+	}
+
+	
 </style>

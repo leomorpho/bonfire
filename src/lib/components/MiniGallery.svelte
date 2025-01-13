@@ -27,6 +27,35 @@
 			showHideAnimationType: 'zoom' // Optional animation
 		});
 
+		// Handle itemData for video and images
+		lightbox.on('itemData', (e) => {
+			const element = e.itemData.element;
+
+			if (element && element.dataset.pswpIsVideo === 'true') {
+				const videoURL = element.href;
+				const imgPoster = element.dataset.pswpIsPoster || '';
+				e.itemData = {
+					html: `
+						<div class="pswp__item">
+							<video class="pswp__img" poster="${imgPoster}">
+								<source src="${videoURL}" type="video/mp4" />
+								Your browser does not support the video tag.
+							</video>
+						</div>
+					`
+				};
+			}
+		});
+
+		// Listen for the 'opening' event to disable autoplay on videos
+		lightbox.on('opening', () => {
+			const videoElements = document.querySelectorAll('video');
+			videoElements.forEach((video) => {
+				// Remove autoplay to prevent videos from playing automatically
+				video.removeAttribute('autoplay');
+			});
+		});
+
 		lightbox.on('itemClick', (e) => {
 			console.log('PhotoSwipe item clicked:', e);
 		});
@@ -66,7 +95,12 @@
 	{#if eventFiles.length > 0}
 		<div class="lightbox-gallery-container my-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
 			{#each eventFiles as file}
-				<a href={file.signed_url} data-pswp-width={file.w_pixel} data-pswp-height={file.h_pixel}>
+				<a
+					href={file.signed_url}
+					data-pswp-width={file.w_pixel}
+					data-pswp-height={file.h_pixel}
+					data-pswp-is-video={file.file_type.startsWith('video/')}
+				>
 					<Image
 						class="border-white-500 rounded-lg border-2"
 						height={file.h_pixel}

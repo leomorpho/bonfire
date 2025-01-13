@@ -26,14 +26,13 @@
 
 <a
 	href={url}
-	class={selectionActive ? 'disabled-link' : ''}
 	data-pswp-width={wPixel}
 	data-pswp-height={hPixel}
 	data-pswp-is-video={isVideo}
 >
 	{#if fileType.startsWith('image/')}
 		<Image
-			height={hPixel}
+			width={wPixel}
 			class="rounded-lg"
 			src={url}
 			layout="constrained"
@@ -44,11 +43,11 @@
 	{:else if isVideo}
 		{#if preview}
 			<!-- Show preview for videos if available -->
-			<div class="relative rounded-lg">
+			<div class="relative rounded-lg object-cover">
 				<img class="rounded-lg" src={preview.URL} alt={fileName} width={wPixel} height={hPixel} />
 				<!-- Play icon in the center of the preview image -->
 				<div class="absolute inset-0 flex items-center justify-center">
-					<Play class="text-white h-10 w-10 sm:h-16 sm:w-16" />
+					<Play class="h-10 w-10 text-white sm:h-16 sm:w-16" />
 				</div>
 			</div>
 			<video
