@@ -384,6 +384,7 @@
 	}
 
 	const updateFilesWithLatest = async () => {
+		console.log('updateFilesWithLatest called');
 		const tempAttendeeId = $page.url.searchParams.get(tempAttendeeIdUrlParam);
 
 		// Fetch updated files using your API endpoint
@@ -397,6 +398,7 @@
 			if (response.ok) {
 				const data = await response.json();
 				eventFiles = data.files; // Update with the latest data
+				console.log('eventFiles', eventFiles);
 			} else {
 				console.error('Failed to fetch updated files:', await response.json());
 			}
@@ -448,6 +450,7 @@
 				.select(['id'])
 				.build(),
 			(results, info) => {
+				console.log('files sub', results);
 				// handle results
 				updateFilesWithLatest();
 			},

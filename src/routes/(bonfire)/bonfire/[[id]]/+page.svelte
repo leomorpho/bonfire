@@ -627,7 +627,7 @@
 					<div class=" rounded-xl bg-white p-5">
 						<div class="font-semibold">Gallery</div>
 					</div>
-					{#if (isAnonymousUser || isUnverifiedUser) && $page.data.numFiles != null}
+					{#if isAnonymousUser && $page.data.numFiles != null}
 						<div class="my-2">
 							<BonfireNoInfoCard text={$page.data.numFiles + ' files'} />
 						</div>
