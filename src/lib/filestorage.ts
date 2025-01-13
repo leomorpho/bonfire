@@ -340,6 +340,7 @@ export async function fetchAccessibleEventFiles(
 			])
 		)
 		.include('linked_file')
+		.order('uploaded_at', 'DESC')
 		// .select([
 		// 	'id',
 		// 	'file_key',

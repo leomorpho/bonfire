@@ -175,3 +175,5 @@ export const setTempAttendeeIdParam = () => {
 		return () => observer.disconnect();
 	}
 };
+
+export const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));

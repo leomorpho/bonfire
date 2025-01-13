@@ -6,14 +6,13 @@
 	import type { TriplitClient } from '@triplit/client';
 	import { page } from '$app/stores';
 	import Loader from '../Loader.svelte';
+	import { sleep } from '$lib/utils';
 
 	// Constant to toggle between real deletion and fake deletion for testing
 	const REAL_DELETION = true;
 
 	let isOpen = $state(false);
 
-	// Sleep function
-	const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 	// TODO: create a triplit table where we upload the progress, or use a websocket or SSE
 	let isDeleting = $state(false);

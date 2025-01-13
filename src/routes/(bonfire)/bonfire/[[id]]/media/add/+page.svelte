@@ -42,7 +42,8 @@
 			autoProceed: false, // Wait for user action before starting uploads
 			restrictions: {
 				maxFileSize: maxMbSize * 1024 * 1024, // Limit file size to 100MB
-				allowedFileTypes: ['image/*', 'video/*', 'audio/*'] // Allowed file types
+				// allowedFileTypes: ['image/*', 'video/*', 'audio/*'] // Allowed file types
+				allowedFileTypes: ['image/*'] // Allowed file types
 			}
 		})
 			.use(DashboardPlugin, {

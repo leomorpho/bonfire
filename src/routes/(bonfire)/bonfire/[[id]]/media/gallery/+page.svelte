@@ -20,12 +20,16 @@
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 	import { downloadAsZip, shareImages } from '$lib/gallery';
 	import GalleryItem from '$lib/components/GalleryItem.svelte';
+	import { sleep } from '$lib/utils';
+	import { dev } from '$app/environment';
+	import Loader from '$lib/components/Loader.svelte';
 
 	let selectedImages: any = $state([]);
 	let selection: any;
 	let selectionActive = $state(false);
 	let imageLinksNotClickable = $state(true);
 	let lightbox: PhotoSwipeLightbox | null = $state(null);
+	let showPageActionLoading = $state(false);
 
 	let eventFiles = $state($page.data.eventFiles);
 	console.log('isOwner', $page.data.isOwner);
@@ -83,41 +87,50 @@
 
 	// Function to handle download
 	async function handleDownload() {
-		if (selectedImages.length === 0) {
-			alert('No images selected!');
-			return;
-		}
+		try {
+			showPageActionLoading = true;
 
-		if (isMobile() && navigator.canShare()) {
-			// Mobile: Use Web Share API
-			await shareImages(selectedImages);
-		} else {
-			if (selectedImages.length === 1) {
-				// Single image download
-				const image = selectedImages[0];
-				console.log(image);
-				try {
-					const response = await fetch(image.src);
-					if (!response.ok) {
-						alert(`Failed to download image: ${response.statusText}`);
-						return;
-					}
-					const blob = await response.blob();
-					const a = document.createElement('a');
-					a.href = URL.createObjectURL(blob);
-					a.download = image.name || 'image.jpg';
-					document.body.appendChild(a);
-					a.click();
-					document.body.removeChild(a);
-					console.log(`Downloaded single image: ${image.name}`);
-				} catch (error) {
-					console.error('Error downloading single image:', error);
-					alert('Failed to download the image. Please try again.');
-				}
+			if (selectedImages.length === 0) {
+				alert('No images selected!');
 				return;
 			}
-			// Desktop: Download as ZIP or individually
-			await downloadAsZip(selectedImages);
+
+			if (isMobile() && navigator.canShare()) {
+				// Mobile: Use Web Share API
+				await shareImages(selectedImages);
+			} else {
+				if (selectedImages.length === 1) {
+					// Single image download
+					const image = selectedImages[0];
+					console.log(image);
+					try {
+						const response = await fetch(image.src);
+						if (!response.ok) {
+							alert(`Failed to download image: ${response.statusText}`);
+							return;
+						}
+						const blob = await response.blob();
+						const a = document.createElement('a');
+						a.href = URL.createObjectURL(blob);
+						a.download = image.name || 'image.jpg';
+						document.body.appendChild(a);
+						a.click();
+						document.body.removeChild(a);
+						console.log(`Downloaded single image: ${image.name}`);
+					} catch (error) {
+						console.error('Error downloading single image:', error);
+						alert('Failed to download the image. Please try again.');
+					}
+					return;
+				}
+				// Desktop: Download as ZIP or individually
+				await downloadAsZip(selectedImages);
+			}
+		} catch (e) {
+			console.log('failed to handle file download', e);
+			alert('Failed to download the image. Please try again.');
+		} finally {
+			showPageActionLoading = false;
 		}
 	}
 
@@ -130,39 +143,47 @@
 	}
 
 	async function handleDelete(id: string | null = null) {
-		// Prepare the file IDs for deletion
-		const selectedFileIds = id ? [id] : selectedImages.map((image: any) => image.id);
+		try {
+			showPageActionLoading = true;
 
-		if (!selectedFileIds || selectedFileIds.length === 0) {
-			alert('No files selected for deletion.');
-			return;
-		}
+			// Prepare the file IDs for deletion
+			const selectedFileIds = id ? [id] : selectedImages.map((image: any) => image.id);
 
-		const response = await fetch(`delete`, {
-			method: 'DELETE',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ fileIds: selectedFileIds })
-		});
+			if (!selectedFileIds || selectedFileIds.length === 0) {
+				alert('No files selected for deletion.');
+				return;
+			}
 
-		if (response.ok) {
-			const result = await response.json();
-			console.log('Files deleted:', result.deletedCount);
-
-			// Remove corresponding DOM elements
-			selectedFileIds.forEach((fileId) => {
-				const node = document.querySelector(`.image-item[data-id="${fileId}"]`);
-				if (node) {
-					node.remove(); // Remove the node from the DOM
-				}
+			const response = await fetch(`delete`, {
+				method: 'DELETE',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ fileIds: selectedFileIds })
 			});
 
-			// Update selectedImages array
-			selectedImages = selectedImages.filter((image) => !selectedFileIds.includes(image.id));
+			if (response.ok) {
+				const result = await response.json();
+				console.log('Files deleted:', result.deletedCount);
 
-			toast.success(`${id ? 'File' : 'Files'} deleted`);
-		} else {
-			toast.error('Failed to delete files, try again later');
-			console.error('Failed to delete files:', await response.text());
+				// Remove corresponding DOM elements
+				selectedFileIds.forEach((fileId) => {
+					const node = document.querySelector(`.image-item[data-id="${fileId}"]`);
+					if (node) {
+						node.remove(); // Remove the node from the DOM
+					}
+				});
+
+				// Update selectedImages array
+				selectedImages = selectedImages.filter((image) => !selectedFileIds.includes(image.id));
+
+				toast.success(`${id ? 'File' : 'Files'} deleted`);
+			} else {
+				toast.error('Failed to delete files, try again later');
+				console.error('Failed to delete files:', await response.text());
+			}
+		} catch (e) {
+			console.log('failed to delete files', e);
+		} finally {
+			showPageActionLoading = false;
 		}
 	}
 
@@ -615,9 +636,9 @@
 				<Button
 					disabled={eventFiles.length == selectedImages.length}
 					onclick={selectAll}
-					class="p-1 text-xs">Select All</Button
+					class="p-1 text-xs sm:text-lg sm:p-4 lg:text-2xl lg:p-6">Select All</Button
 				>
-				<Button disabled={selectedImages.length == 0} onclick={selectNone} class="p-1 text-xs"
+				<Button disabled={selectedImages.length == 0} onclick={selectNone} class="p-1 text-xs sm:text-lg sm:p-4 lg:text-2xl lg:p-6"
 					>Select None</Button
 				>
 			</div>
@@ -628,10 +649,10 @@
 							disabled={selectedImages.length == 0}
 							onclick={handleDownload}
 							class="rounded-full p-4 text-white shadow-lg transition
-							{selectedImages.length === 0 ? 'cursor-not-allowed bg-blue-300' : 'bg-blue-500 hover:bg-blue-600'}"
+							{selectedImages.length === 0 ? 'cursor-not-allowed bg-blue-400' : 'bg-blue-500 hover:bg-blue-600'}"
 						>
 							<!-- Button Icon -->
-							<Download class="h-6 w-6" />
+							<Download class="h-6 w-6 sm:h-8 sm:w-8 lg:h-12 lg:w-12" />
 						</button></Tooltip.Trigger
 					>
 					<Tooltip.Content>
@@ -653,7 +674,7 @@
 							{selectedImages.length === 0 ? 'cursor-not-allowed bg-red-100' : 'bg-red-500 hover:bg-red-600'}"
 								>
 									<!-- Button Icon -->
-									<Trash2 class="h-6 w-6" />
+									<Trash2 class="h-6 w-6 sm:h-8 sm:w-8 lg:h-12 lg:w-12" />
 								</button></CustomAlertDialogue
 							>
 						</Tooltip.Trigger>
@@ -678,6 +699,8 @@
 		isDialogOpen = false;
 	}}
 />
+
+<Loader show={showPageActionLoading} />
 
 <style>
 	.selection-area {
