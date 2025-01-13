@@ -426,18 +426,20 @@
 						<Calendar class="mr-2 h-4 w-4" />{formatHumanReadable(event.start_time)}
 					</div>
 					<div class="flex items-center font-light">
-						<UserRound class="mr-2 h-4 w-4" />Hosted by {event.organizer['username']}
-						{#if !isAnonymousUser}
-							<div class="ml-2">
-								<ProfileAvatar
-									url={profileImageMap.get(event.organizer['id'])?.small_image_url}
-									fullsizeUrl={profileImageMap.get(event.organizer['id'])?.full_image_url}
-									username={event.organizer['username']}
-									fallbackName={event.organizer['username']}
-									isTempUser={false}
-									lastUpdatedAt=""
-								/>
-							</div>
+						{#if event.organizer}
+							<UserRound class="mr-2 h-4 w-4" />Hosted by {event.organizer['username']}
+							{#if !isAnonymousUser}
+								<div class="ml-2">
+									<ProfileAvatar
+										url={profileImageMap.get(event.organizer['id'])?.small_image_url}
+										fullsizeUrl={profileImageMap.get(event.organizer['id'])?.full_image_url}
+										username={event.organizer['username']}
+										fallbackName={event.organizer['username']}
+										isTempUser={false}
+										lastUpdatedAt=""
+									/>
+								</div>
+							{/if}
 						{/if}
 					</div>
 
