@@ -3,16 +3,7 @@
 	import { blurhashToImageCssString } from '@unpic/placeholder';
 	import { Play } from 'lucide-svelte';
 
-	let {
-		url,
-		wPixel,
-		hPixel,
-		fileName,
-		selectionActive,
-		blurhash,
-		fileType,
-		preview = null
-	} = $props();
+	let { url, wPixel, hPixel, fileName, urlActive, blurhash, fileType, preview = null } = $props();
 
 	// TODO: only load image when it crosses screen
 	// TODO: blurhash not working for now, not sure why
@@ -21,11 +12,11 @@
 		: 'L9S#oNN3x_?wxUn%wct8pLaIxuf,';
 
 	const isVideo = fileType.startsWith('video/');
-	console.log('preview', preview);
 </script>
 
 <a
 	href={url}
+	class={urlActive ? 'disabled-link' : ''}
 	data-pswp-width={wPixel}
 	data-pswp-height={hPixel}
 	data-pswp-is-video={isVideo}
@@ -74,3 +65,10 @@
 		{/if}
 	{/if}
 </a>
+
+<style>
+	.disabled-link {
+		pointer-events: none; /* Disable all mouse interactions */
+		cursor: default; /* Change the cursor to indicate no interaction */
+	}
+</style>

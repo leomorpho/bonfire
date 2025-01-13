@@ -557,7 +557,7 @@
 								<ContextMenu.Trigger>
 									<GalleryItem
 										url={file.URL}
-										{selectionActive}
+										urlActive={selectionActive}
 										wPixel={file.w_pixel}
 										hPixel={file.h_pixel}
 										fileName={file.file_name}
@@ -682,10 +682,6 @@
 	}
 	.gallery-container {
 		user-select: none;
-	}
-	.disabled-link {
-		pointer-events: none; /* Disables all mouse interactions */
-		cursor: default; /* Changes the cursor to indicate no interaction */
 	}
 	/* Disable zoom cursor for PhotoSwipe lightbox */
 	.pswp__img,
