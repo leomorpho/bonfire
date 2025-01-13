@@ -26,16 +26,15 @@ import { getTaskLockState, updateTaskLockState } from './database/tasklock';
 
 export const runNotificationProcessor = async () => {
 	const taskName = TaskName.PROCESS_NOTIFICATION_QUEUE;
-	const locked = await getTaskLockState(taskName);
-
-	if (locked) {
-		console.debug('Task is already running. Skipping execution.');
-		return;
-	} else {
-		console.debug('Start notification processing task.');
-	}
 
 	try {
+		const locked = await getTaskLockState(taskName);
+		if (locked) {
+			console.debug('Task is already running. Skipping execution.');
+			return;
+		} else {
+			console.debug('Start notification processing task.');
+		}
 		await updateTaskLockState(taskName, true);
 
 		const query = triplitHttpClient
@@ -55,7 +54,11 @@ export const runNotificationProcessor = async () => {
 	} catch (error) {
 		console.error('Error running notification processor:', error);
 	} finally {
-		await updateTaskLockState(taskName, false);
+		try {
+			await updateTaskLockState(taskName, false);
+		} catch (e) {
+			console.log('failed to release task lock', e);
+		}
 	}
 };
 
