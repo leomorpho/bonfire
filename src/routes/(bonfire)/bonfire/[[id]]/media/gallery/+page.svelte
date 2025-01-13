@@ -24,6 +24,7 @@
 	let selectedImages: any = $state([]);
 	let selection: any;
 	let selectionActive = $state(false);
+	let imageLinksNotClickable = $state(true);
 	let lightbox: PhotoSwipeLightbox | null = $state(null);
 
 	let eventFiles = $state($page.data.eventFiles);
@@ -377,6 +378,8 @@
 		});
 
 		lightbox.init();
+		imageLinksNotClickable = false;
+
 		return lightbox;
 	}
 
@@ -557,7 +560,7 @@
 								<ContextMenu.Trigger>
 									<GalleryItem
 										url={file.URL}
-										urlActive={selectionActive}
+										urlActive={selectionActive || imageLinksNotClickable}
 										wPixel={file.w_pixel}
 										hPixel={file.h_pixel}
 										fileName={file.file_name}
@@ -689,6 +692,4 @@
 	.pswp__viewport {
 		cursor: pointer !important; /* Ensure regular pointer cursor */
 	}
-
-	
 </style>
