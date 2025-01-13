@@ -40,7 +40,6 @@ export const GET = async ({ url, params, locals }) => {
 	if ((!user || !user.id) && !tempAttendeeExists) {
 		throw error(401, 'Unauthorized'); // Return 401 if user is not logged in
 	}
-	console.log('@@@@@@@@@');
 
 	const bonfireId = params.id;
 

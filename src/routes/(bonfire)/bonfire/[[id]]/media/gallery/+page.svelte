@@ -15,7 +15,7 @@
 	import CustomAlertDialogue from '$lib/components/CustomAlertDialog.svelte';
 	import { toast } from 'svelte-sonner';
 	import { User, Users } from 'lucide-svelte';
-	import type { TriplitClient } from '@triplit/client';
+	import { and, type TriplitClient } from '@triplit/client';
 	import { getFeTriplitClient } from '$lib/triplit';
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 	import { downloadAsZip, shareImages } from '$lib/gallery';
@@ -427,7 +427,16 @@
 
 		let client = getFeTriplitClient($page.data.jwt) as TriplitClient;
 		const unsubscribeFromFileQuery = client.subscribe(
-			client.query('files').where(['event_id', '=', $page.params.id]).select(['id']).build(),
+			client
+				.query('files')
+				.where(
+					and([
+						['event_id', '=', $page.params.id],
+						['is_linked_file', '=', false]
+					])
+				)
+				.select(['id'])
+				.build(),
 			(results, info) => {
 				// handle results
 				updateFilesWithLatest();
@@ -529,47 +538,50 @@
 				class="gallery-container selection-area my-5 grid grid-cols-3 gap-1 sm:grid-cols-4 lg:grid-cols-5"
 			>
 				{#each eventFiles as file}
-					<div
-						class="image-item rounded-xl border-4 border-white"
-						data-id={file.id}
-						data-uploader-id={file.uploader_id}
-						data-src={file.URL}
-						data-name={file.file_name}
-					>
-						<ContextMenu.Root>
-							<ContextMenu.Trigger>
-								<GalleryItem
-									url={file.URL}
-									{selectionActive}
-									wPixel={file.w_pixel}
-									hPixel={file.h_pixel}
-									fileName={file.file_name}
-									blurhash={file.blurr_hash}
-									fileType={file.file_type}
-								/>
-							</ContextMenu.Trigger>
-							<ContextMenu.Content>
-								<ContextMenu.Item>Download</ContextMenu.Item>
-								{#if $page.data.isOwner || $page.data.user.id == file.uploader_id}
-									<CustomAlertDialogue
-										continueCallback={() => handleDelete(file.id)}
-										dialogDescription="This action cannot be undone. This will permanently delete this file from our servers."
-									>
-										<ContextMenu.Item>Delete this file</ContextMenu.Item></CustomAlertDialogue
-									>
-								{/if}
-								{#if $page.data.isOwner && selectedImages.length > 1}
-									<CustomAlertDialogue
-										continueCallback={() => handleDelete()}
-										dialogDescription="This action cannot be undone. This will permanently delete these files from our servers."
-									>
-										<ContextMenu.Item>Delete all selected files</ContextMenu.Item
-										></CustomAlertDialogue
-									>
-								{/if}
-							</ContextMenu.Content>
-						</ContextMenu.Root>
-					</div>
+					{#if !file.is_linked_file}
+						<div
+							class="image-item rounded-xl border-4 border-white"
+							data-id={file.id}
+							data-uploader-id={file.uploader_id}
+							data-src={file.URL}
+							data-name={file.file_name}
+						>
+							<ContextMenu.Root>
+								<ContextMenu.Trigger>
+									<GalleryItem
+										url={file.URL}
+										{selectionActive}
+										wPixel={file.w_pixel}
+										hPixel={file.h_pixel}
+										fileName={file.file_name}
+										blurhash={file.blurr_hash}
+										fileType={file.file_type}
+										preview={file.linked_file || null}
+									/>
+								</ContextMenu.Trigger>
+								<ContextMenu.Content>
+									<ContextMenu.Item>Download</ContextMenu.Item>
+									{#if $page.data.isOwner || $page.data.user.id == file.uploader_id}
+										<CustomAlertDialogue
+											continueCallback={() => handleDelete(file.id)}
+											dialogDescription="This action cannot be undone. This will permanently delete this file from our servers."
+										>
+											<ContextMenu.Item>Delete this file</ContextMenu.Item></CustomAlertDialogue
+										>
+									{/if}
+									{#if $page.data.isOwner && selectedImages.length > 1}
+										<CustomAlertDialogue
+											continueCallback={() => handleDelete()}
+											dialogDescription="This action cannot be undone. This will permanently delete these files from our servers."
+										>
+											<ContextMenu.Item>Delete all selected files</ContextMenu.Item
+											></CustomAlertDialogue
+										>
+									{/if}
+								</ContextMenu.Content>
+							</ContextMenu.Root>
+						</div>
+					{/if}
 				{/each}
 			</div>
 		{:else}

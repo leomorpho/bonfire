@@ -110,6 +110,7 @@ export const POST = async ({ url, locals, params, request }): Promise<Response> 
 
 				const video_frame_blurhash = videoBlurHash;
 				cleanup = tempCleanup;
+				blurhash = videoBlurHash;
 
 				// Extract metadata for the frame
 				const frameMetadata = await sharp(tempImagePath).metadata();
@@ -139,7 +140,8 @@ export const POST = async ({ url, locals, params, request }): Promise<Response> 
 					size_in_bytes: video_frame_file_size,
 					h_pixel: video_frame_h_pixel,
 					w_pixel: video_frame_w_pixel,
-					blurr_hash: video_frame_blurhash
+					blurr_hash: video_frame_blurhash,
+					is_linked_file: true
 				});
 				frameFileId = output.id;
 			} catch (err) {

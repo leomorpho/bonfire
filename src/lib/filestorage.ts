@@ -104,7 +104,7 @@ export async function uploadProfileImageToS3(file: File, userId: string) {
 	return { fullImageKey, smallImageKey };
 }
 
-export async function generateSignedUrl(key: string, expiresIn = 3600) {
+export async function generateSignedUrl(key: string, expiresIn = 3600 * 24) {
 	try {
 		const command = new GetObjectCommand({
 			Bucket: bucketName,
@@ -333,7 +333,13 @@ export async function fetchAccessibleEventFiles(
 	// Fetch files related to the bonfire
 	const filesQuery = triplitHttpClient
 		.query('files')
-		.where(['event_id', '=', bonfireId])
+		.where(
+			and([
+				['event_id', '=', bonfireId],
+				['is_linked_file', '=', false]
+			])
+		)
+		.include('linked_file')
 		// .select([
 		// 	'id',
 		// 	'file_key',
@@ -347,12 +353,24 @@ export async function fetchAccessibleEventFiles(
 		.build();
 	const files = await triplitHttpClient.fetch(filesQuery);
 
-	// Generate signed URLs for the files
+	// Generate signed URLs for the files, including linked files
 	const filesWithUrls = await Promise.all(
-		files.map(async (file) => ({
-			...file,
-			URL: await generateSignedUrl(file.file_key)
-		}))
+		files.map(async (file) => {
+			// Generate signed URL for the main file
+			const signedFileUrl = await generateSignedUrl(file.file_key);
+
+			// If the file has a linked_file, generate signed URL for the linked file
+			let linkedFileUrl = null;
+			if (file.linked_file) {
+				linkedFileUrl = await generateSignedUrl(file.linked_file.file_key);
+			}
+
+			return {
+				...file,
+				URL: signedFileUrl,
+				linked_file: file.linked_file ? { ...file.linked_file, URL: linkedFileUrl } : null
+			};
+		})
 	);
 
 	return { files: filesWithUrls, isOwner };
