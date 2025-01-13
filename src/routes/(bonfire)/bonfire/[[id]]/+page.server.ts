@@ -48,46 +48,45 @@ export const load = async ({ params, locals, url }) => {
 		} catch (e) {
 			console.log(e);
 		}
-	} else if (!tempAttendeeExists) {
-		// TODO: flatten into single query
-		try {
-			event = await triplitHttpClient.fetchOne(
-				triplitHttpClient
-					.query('events')
-					.where(['id', '=', eventId as string])
-					.include('announcements')
-					.include('attendees')
-					.include('files')
-					.subquery(
-						'organizer',
-						triplitHttpClient
-							.query('user')
-							.where(['id', '=', '$1.user_id'])
-							.select(['username', 'id'])
-							.build(),
-						'one'
-					)
-					.build()
-			);
-			if (event != null) {
-				if (event.attendees != null) {
-					numAttendees = event.attendees.length;
-				}
-				if (event.announcements != null) {
-					numAnnouncements = event.announcements.length;
-				}
-				if (event.files != null) {
-					numFiles = event.files.length;
-				}
-
-				// console.log("numAttendees", numAttendees)
-				// console.log("numAnnouncements", numAnnouncements)
-				// console.log("numFiles", numFiles)
-			}
-		} catch (e) {
-			console.debug(`### failed to fetch event with id ${eventId}`, e);
-		}
 	}
+	try {
+		event = await triplitHttpClient.fetchOne(
+			triplitHttpClient
+				.query('events')
+				.where(['id', '=', eventId as string])
+				.include('announcements')
+				.include('attendees')
+				.include('files')
+				.subquery(
+					'organizer',
+					triplitHttpClient
+						.query('user')
+						.where(['id', '=', '$1.user_id'])
+						.select(['username', 'id'])
+						.build(),
+					'one'
+				)
+				.build()
+		);
+		if (event != null) {
+			if (event.attendees != null) {
+				numAttendees = event.attendees.length;
+			}
+			if (event.announcements != null) {
+				numAnnouncements = event.announcements.length;
+			}
+			if (event.files != null) {
+				numFiles = event.files.length;
+			}
+
+			// console.log("numAttendees", numAttendees)
+			// console.log("numAnnouncements", numAnnouncements)
+			// console.log("numFiles", numFiles)
+		}
+	} catch (e) {
+		console.debug(`### failed to fetch event with id ${eventId}`, e);
+	}
+
 	return {
 		user: user,
 		event: event,
