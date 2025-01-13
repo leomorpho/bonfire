@@ -223,28 +223,50 @@
 			pswpModule: () => import('photoswipe'),
 			showHideAnimationType: 'zoom', // Optional animation
 			zoom: false,
-			close: false
+			close: true
 		});
 
+		// Handle itemData for video and images
 		lightbox.on('itemData', (e) => {
-			const element = e.itemData.element;
+        const element = e.itemData.element;
 
-			if (element && element.dataset.pswpIsVideo == 'true') {
+        if (element && element.dataset.pswpIsVideo === 'true') {
 				const videoURL = element.href;
-				const imgPoster = element.dataset.pswpIsPoster;
+				const imgPoster = element.dataset.pswpIsPoster || '';
 				e.itemData = {
 					html: `
-				<div class="pswp-video-wrapper">
-					<video controls autoplay poster="${imgPoster}" class="pswp-video">
-						<source src="${videoURL}" type="video/mp4">
-						Your browser does not support the video tag.
-					</video>
-				</div>
-			`,
-					photodata: element.dataset.photodata
+						<div class="pswp__item">
+							<video controls autoplay class="pswp__img" poster="${imgPoster}">
+								<source src="${videoURL}" type="video/mp4" />
+								Your browser does not support the video tag.
+							</video>
+						</div>
+					`,
 				};
 			}
 		});
+
+
+		// NOTE: the following is for auto-play, not sure I want it
+		// // Ensure video is handled properly on content activation
+		// lightbox.on('contentActivate', (e) => {
+		// 	const video = e.content.element?.querySelector('video');
+		// 	if (video) {
+		// 		video.play();
+		// 		// Automatically move to the next slide when video ends
+		// 		video.onended = () => lightbox.pswp.next();
+		// 	}
+		// });
+
+
+		// // Pause video when the content is deactivated
+		// lightbox.on('contentDeactivate', (e) => {
+		// 	const video = e.content.element?.querySelector('video');
+		// 	if (video) {
+		// 		video.pause();
+		// 		video.onended = null; // Cleanup event listener
+		// 	}
+		// });
 
 		lightbox.on('uiRegister', function () {
 			// Register the Download Button
@@ -649,46 +671,32 @@
 		cursor: default; /* Changes the cursor to indicate no interaction */
 	}
 
-	/* Ensure the PhotoSwipe content container fills the viewport */
 	.pswp__container {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		height: 100vh; /* Full viewport height */
-	}
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh; /* Ensure the container fills the full viewport */
+}
 
-	.pswp__content {
-		display: flex; /* Flex to allow centering */
-		align-items: center; /* Center content vertically */
-		justify-content: center; /* Center content horizontally */
-		width: 100%;
-		height: 100%;
-		position: relative;
-	}
+.pswp__content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%; /* Ensure content fills the container */
+}
 
-	/* Ensure the zoom-wrap behaves as expected */
-	.pswp__zoom-wrap {
-		width: 100%;
-		height: 100%; /* Inherit full height */
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
+.pswp-video-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    background: black; /* Optional for background */
+}
 
-	/* Video wrapper fills its parent and centers its content */
-	.pswp-video-wrapper {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		width: 100%;
-		height: 100%;
-		background: black; /* Optional for matching background */
-	}
-
-	/* Scale the video proportionally to fit within the viewport */
-	.pswp-video {
-		max-width: 100%;
-		max-height: 100%;
-		object-fit: contain; /* Maintain aspect ratio */
-	}
+.pswp-video {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain; /* Maintain aspect ratio */
+}
 </style>
