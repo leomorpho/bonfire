@@ -36,14 +36,22 @@
 				const imgPoster = element.dataset.pswpIsPoster || '';
 				e.itemData = {
 					html: `
-						<div class="pswp__item">
-							<video class="pswp__img" poster="${imgPoster}">
-								<source src="${videoURL}" type="video/mp4" />
-								Your browser does not support the video tag.
-							</video>
-						</div>
-					`
+                    <div class="pswp__item">
+                        <video controls class="pswp__img" poster="${imgPoster}">
+                            <source src="${videoURL}" type="video/mp4" />
+                            Your browser does not support the video tag.
+                        </video>
+                        <div class="pswp__play-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="12,8 12,16 16,12" />
+                            </svg>
+                        </div>
+                    </div>
+                `
 				};
+
+				// Disable zoom for video: remove zoom cursor
+				e.itemData.mouseMovePan = false; // Disable pan/zoom gestures for videos
 			}
 		});
 
@@ -148,3 +156,12 @@
 		><ImagePlus />Add to gallery</Button
 	>
 </a>
+
+<style>
+	/* Disable zoom cursor for PhotoSwipe lightbox */
+	.pswp__img,
+	.pswp__zoom-wrap,
+	.pswp__viewport {
+		cursor: pointer !important; /* Ensure regular pointer cursor */
+	}
+</style>
