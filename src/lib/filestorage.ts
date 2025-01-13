@@ -367,10 +367,15 @@ ffmpeg.setFfmpegPath(ffmpegInstaller.path);
  * @param videoBuffer - The video file as a Buffer.
  * @returns {Promise<string>} - The generated BlurHash for the first frame.
  */
-export async function extractFirstFrameAndBlurHash(videoBuffer: Buffer): Promise<string> {
+export async function extractFirstFrameAndBlurHash(
+	videoBuffer: Buffer
+): Promise<{ blurhash: string; tempImagePath: string; cleanup: () => Promise<void> }> {
 	// Define the local temp directory
 	const tempDir = path.join(process.cwd(), 'temp');
 	await fs.mkdir(tempDir, { recursive: true }); // Ensure the temp directory exists
+
+	// Delete files older than 1 hour
+	await cleanOldTempFiles(tempDir);
 
 	// Define paths for the temporary video and frame files
 	const tempVideoPath = path.join(tempDir, `temp-video-${Date.now()}.mov`);
@@ -381,13 +386,19 @@ export async function extractFirstFrameAndBlurHash(videoBuffer: Buffer): Promise
 		await fs.writeFile(tempVideoPath, videoBuffer);
 		console.log(`Video saved temporarily at: ${tempVideoPath}`);
 
-		// Use FFmpeg to extract the first frame
+		const durationInSeconds = await getVideoDuration(tempVideoPath);
+
+		// Generate a random timestamp within the video duration
+		const randomTimestamp = (Math.random() * durationInSeconds).toFixed(2); // e.g., "12.34"
+
+		// Use FFmpeg to extract the random frame
 		await new Promise<void>((resolve, reject) => {
 			ffmpeg(tempVideoPath)
+				.seekInput(randomTimestamp) // Seek to the random timestamp
 				.frames(1)
 				.output(tempImagePath)
 				.on('end', () => {
-					console.log(`Frame extracted temporarily at: ${tempImagePath}`);
+					console.log(`Random frame extracted temporarily at: ${tempImagePath}`);
 					resolve();
 				})
 				.on('error', (err) => {
@@ -403,15 +414,72 @@ export async function extractFirstFrameAndBlurHash(videoBuffer: Buffer): Promise
 
 		const blurhash = encode(new Uint8ClampedArray(processedBuffer), 32, 32, 4, 4);
 
-		return blurhash;
+		// Return the blurhash, temp image path, and a cleanup closure
+		return {
+			blurhash,
+			tempImagePath,
+			cleanup: async () => {
+				await Promise.all([
+					fs.unlink(tempVideoPath).catch(() => console.warn('Failed to delete temp video file')),
+					fs.unlink(tempImagePath).catch(() => console.warn('Failed to delete temp frame file'))
+				]);
+			}
+		};
 	} catch (err) {
 		console.error('Error during frame extraction or BlurHash generation:', err);
 		throw err;
-	} finally {
-		// Clean up temporary files
-		await Promise.all([
-			fs.unlink(tempVideoPath).catch(() => console.warn('Failed to delete temp video file')),
-			fs.unlink(tempImagePath).catch(() => console.warn('Failed to delete temp frame file'))
-		]);
+	}
+}
+
+/**
+ * Get the duration of a video using FFprobe.
+ * @param videoPath - Path to the video file.
+ * @returns {Promise<number>} - Duration of the video in seconds.
+ */
+async function getVideoDuration(videoPath: string): Promise<number> {
+	return new Promise((resolve, reject) => {
+		ffmpeg.ffprobe(videoPath, (err, metadata) => {
+			if (err) {
+				reject(err);
+			} else {
+				const duration = metadata.format.duration;
+				if (duration) {
+					resolve(duration);
+				} else {
+					reject(new Error('Unable to determine video duration'));
+				}
+			}
+		});
+	});
+}
+
+/**
+ * Clean up files in the temp directory that are older than 1 hour.
+ * @param tempDir - Path to the temp directory.
+ */
+async function cleanOldTempFiles(tempDir: string): Promise<void> {
+	try {
+		const files = await fs.readdir(tempDir);
+
+		const oneHourAgo = Date.now() - 60 * 60 * 1000;
+
+		await Promise.all(
+			files.map(async (file) => {
+				const filePath = path.join(tempDir, file);
+				try {
+					const stats = await fs.stat(filePath);
+
+					// Check if the file was modified more than 1 hour ago
+					if (stats.mtimeMs < oneHourAgo) {
+						await fs.unlink(filePath);
+						console.log(`Deleted old temp file: ${filePath}`);
+					}
+				} catch (err) {
+					console.warn(`Failed to process file for cleanup: ${filePath}`, err);
+				}
+			})
+		);
+	} catch (err) {
+		console.warn('Failed to clean old temp files:', err);
 	}
 }

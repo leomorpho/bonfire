@@ -4,6 +4,8 @@
 
 	let { url, wPixel, hPixel, fileName, selectionActive, blurhash, fileType } = $props();
 
+	// TODO: only load image when it crosses screen
+	// TODO: blurhash not working for now, not sure why
 	const placeholder = blurhash
 		? blurhashToImageCssString(blurhash)
 		: 'L9S#oNN3x_?wxUn%wct8pLaIxuf,';

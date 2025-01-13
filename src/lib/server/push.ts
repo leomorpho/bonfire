@@ -67,10 +67,10 @@ export async function processNotificationQueue(notificationQueueEntry: Notificat
 		return;
 	}
 
-	console.debug(
-		`Processing notification queue object created by user ${notificationQueueEntry.user_id}:`,
-		notificationQueueEntry
-	);
+	// console.debug(
+	// 	`Processing notification queue object created by user ${notificationQueueEntry.user_id}:`,
+	// 	notificationQueueEntry
+	// );
 
 	// Parse object_ids into an array
 	const objectIds = stringRepresentationToArray(notificationQueueEntry.object_ids);

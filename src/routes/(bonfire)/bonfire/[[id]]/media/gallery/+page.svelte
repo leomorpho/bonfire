@@ -228,9 +228,9 @@
 
 		// Handle itemData for video and images
 		lightbox.on('itemData', (e) => {
-        const element = e.itemData.element;
+			const element = e.itemData.element;
 
-        if (element && element.dataset.pswpIsVideo === 'true') {
+			if (element && element.dataset.pswpIsVideo === 'true') {
 				const videoURL = element.href;
 				const imgPoster = element.dataset.pswpIsPoster || '';
 				e.itemData = {
@@ -241,11 +241,10 @@
 								Your browser does not support the video tag.
 							</video>
 						</div>
-					`,
+					`
 				};
 			}
 		});
-
 
 		// NOTE: the following is for auto-play, not sure I want it
 		// // Ensure video is handled properly on content activation
@@ -257,7 +256,6 @@
 		// 		video.onended = () => lightbox.pswp.next();
 		// 	}
 		// });
-
 
 		// // Pause video when the content is deactivated
 		// lightbox.on('contentDeactivate', (e) => {
@@ -670,33 +668,4 @@
 		pointer-events: none; /* Disables all mouse interactions */
 		cursor: default; /* Changes the cursor to indicate no interaction */
 	}
-
-	.pswp__container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100vh; /* Ensure the container fills the full viewport */
-}
-
-.pswp__content {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%; /* Ensure content fills the container */
-}
-
-.pswp-video-wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-    background: black; /* Optional for background */
-}
-
-.pswp-video {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain; /* Maintain aspect ratio */
-}
 </style>

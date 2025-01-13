@@ -1,4 +1,5 @@
 import { Schema as S, type Roles, type ClientSchema, or } from '@triplit/client';
+import { nullable } from 'zod';
 
 // Define roles
 export const roles: Roles = {
@@ -306,7 +307,11 @@ export const schema = {
 			event: S.RelationById('events', '$event_id'), // Link to the event
 			seen_by: S.RelationMany('seen_gallery_items', {
 				where: [['gallery_item_id', '=', '$id']]
-			})
+			}),
+			// Link to supporting files; for example, for videos, we save a frame and link it to the video.
+			linked_file_id: S.Optional(S.String({ nullable: true, default: null, optional: true })), 
+			linked_file: S.Optional(S.RelationById('files', '$linked_file_id')),
+
 		}),
 		permissions: {
 			user: {

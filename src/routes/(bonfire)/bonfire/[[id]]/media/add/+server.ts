@@ -8,6 +8,7 @@ import { createNewFileNotificationQueueObject } from '$lib/notification';
 import { tempAttendeeIdUrlParam } from '$lib/enums';
 import { encode } from 'blurhash';
 import { getPixels } from '@unpic/pixels';
+import fs from 'fs/promises';
 
 export const POST = async ({ url, locals, params, request }): Promise<Response> => {
 	const tempAttendeeId = url.searchParams.get(tempAttendeeIdUrlParam);
@@ -69,11 +70,14 @@ export const POST = async ({ url, locals, params, request }): Promise<Response> 
 		const fileSize = file.length; // Get the file size in bytes
 		const fileStream = Readable.from(file);
 		const fileKey = `events/eventid_${id}/userid_${userIdForCurrentUserType}/${filename}`;
+		let frameFileId = null;
 
 		// Initialize metadata
 		let h_pixel: number | null = null;
 		let w_pixel: number | null = null;
-		let blurrhash: string | null = null;
+		let blurhash: string | null = null;
+
+		let cleanup: (() => Promise<void>) | null = null;
 
 		// Extract dimensions if applicable
 		if (filetype.startsWith('image/')) {
@@ -90,21 +94,61 @@ export const POST = async ({ url, locals, params, request }): Promise<Response> 
 				const data = Uint8ClampedArray.from(pixelData.data);
 
 				// Generate the BlurHash
-				blurrhash = encode(data, pixelData.width, pixelData.height, 4, 4);
-				console.log('blurrhash --------->', blurrhash);
+				blurhash = encode(data, pixelData.width, pixelData.height, 4, 4);
 			} catch (e) {
-				console.log('failed to generate the blurrhash for this image', e);
+				console.log('failed to generate the blurhash for this image', e);
 			}
-		}
-		console.log('-------> filetype:', filetype);
-		if (filetype.startsWith('video/')) {
+		} else if (filetype.startsWith('video/')) {
 			try {
-				blurrhash = await extractFirstFrameAndBlurHash(file);
-				console.log('Generated BlurHash:', blurrhash);
+				// TODO: run extractFirstFrameAndBlurHash in a task and use a default video placeholder while there is no extracted frame. It
+				// takes too long to do it synchronously.
+				const {
+					blurhash: videoBlurHash,
+					tempImagePath,
+					cleanup: tempCleanup
+				} = await extractFirstFrameAndBlurHash(file);
 
-				// Save the BlurHash to your database or use it as needed
+				const video_frame_blurhash = videoBlurHash;
+				cleanup = tempCleanup;
+
+				// Extract metadata for the frame
+				const frameMetadata = await sharp(tempImagePath).metadata();
+				const video_frame_h_pixel = frameMetadata.height || null;
+				const video_frame_w_pixel = frameMetadata.width || null;
+				h_pixel = video_frame_h_pixel;
+				w_pixel = video_frame_w_pixel;
+				const video_frame_file_size = (await fs.stat(tempImagePath)).size;
+
+				// Upload extracted frame
+				const frameFileKey = `events/eventid_${id}/userid_${userIdForCurrentUserType}/frame-${filename}`;
+				const frameStream = Readable.from(await fs.readFile(tempImagePath));
+
+				await uploadLargeFileToS3({
+					fileStream: frameStream,
+					key: frameFileKey,
+					contentType: 'image/png'
+				});
+
+				const {output} = await triplitHttpClient.insert('files', {
+					uploader_id: user?.id ?? null,
+					temp_uploader_id: tempAttendeeId ?? null,
+					event_id: id,
+					file_key: frameFileKey,
+					file_type: 'image/png',
+					file_name: `frame-${filename}`,
+					size_in_bytes: video_frame_file_size,
+					h_pixel: video_frame_h_pixel,
+					w_pixel: video_frame_w_pixel,
+					blurr_hash: video_frame_blurhash
+				});
+				frameFileId = output.id;
 			} catch (err) {
-				console.error('Failed to generate BlurHash for video:', err);
+				console.error('Failed to process video file:', err);
+				// Delete S3 file and triplit file
+			} finally {
+				if (cleanup) {
+					await cleanup(); // Cleanup temporary files
+				}
 			}
 		}
 
@@ -124,7 +168,8 @@ export const POST = async ({ url, locals, params, request }): Promise<Response> 
 			contentType: filetype
 		});
 
-		// Create entry
+		// Create database entry
+		// TODO: once transactions are supported in HTTP client, add one here
 		const fileTx = await triplitHttpClient.insert('files', {
 			uploader_id: user?.id ?? null,
 			temp_uploader_id: tempAttendeeId ?? null,
@@ -135,7 +180,8 @@ export const POST = async ({ url, locals, params, request }): Promise<Response> 
 			size_in_bytes: fileSize,
 			h_pixel: h_pixel,
 			w_pixel: w_pixel,
-			blurr_hash: blurrhash
+			blurr_hash: blurhash,
+			linked_file_id: frameFileId ?? null
 		});
 
 		await createNewFileNotificationQueueObject(
@@ -150,6 +196,7 @@ export const POST = async ({ url, locals, params, request }): Promise<Response> 
 			headers: { 'Content-Type': 'application/json' }
 		});
 	} catch (error) {
+		// Delete S3 file and triplit file
 		console.error('Error uploading file:', error);
 		return new Response('Internal Server Error', { status: 500 });
 	}
