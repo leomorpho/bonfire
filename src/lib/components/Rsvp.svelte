@@ -357,12 +357,6 @@
 				A unique URL that connects your actions to this event. Keep it open in a tab or save it for
 				future access—don’t lose it! This link serves as your identity for this event.
 			</p>
-			<!-- <div class="text-regular mb-1 mt-3 font-semibold">Downsides</div>
-			<ul class="list-disc space-y-2 pl-6">
-				<li>No push notifications or email updates.</li>
-				<li>Limited access to event's sensitive data.</li>
-				<li>No permanent account.</li>
-			</ul> -->
 		</div>
 
 		<div class="mb-2 mt-3 grid grid-cols-4 items-center gap-4">

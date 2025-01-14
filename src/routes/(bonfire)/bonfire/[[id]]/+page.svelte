@@ -23,6 +23,7 @@
 	import * as Avatar from '$lib/components/ui/avatar/index.js';
 	import BonfireNoInfoCard from '$lib/components/BonfireNoInfoCard.svelte';
 	import { dev } from '$app/environment';
+	import { overlayColorStore, overlayOpacityStore, styleStore } from '$lib/styles';
 
 	let userId = $state('');
 
@@ -155,6 +156,9 @@
 			(results) => {
 				if (results.length == 1) {
 					event = results[0];
+					styleStore.set(event.style);
+					overlayColorStore.set(event.overlay_color);
+					overlayOpacityStore.set(event.overlay_opacity);
 				}
 				eventLoading = false;
 			},
@@ -220,6 +224,7 @@
 			}
 		);
 
+		// TODO: below can be squashed into the above unsubscribeTempAttendeesQuery
 		let unsubscribeTemporaryUserQuery = null;
 		if (isUnverifiedUser) {
 			unsubscribeTemporaryUserQuery = client.subscribe(
