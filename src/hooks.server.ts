@@ -3,11 +3,14 @@ import * as Sentry from '@sentry/sveltekit';
 import { taskRunner } from '$lib/scheduler';
 import { lucia } from '$lib/server/auth';
 import type { Handle } from '@sveltejs/kit';
+import { dev } from '$app/environment';
 
-Sentry.init({
-	dsn: 'https://3b8c1776298855f9184a78a5d271ec6d@o4505031789314048.ingest.us.sentry.io/4508626481774592',
-	tracesSampleRate: 1
-});
+if (!dev) {
+	Sentry.init({
+		dsn: 'https://3b8c1776298855f9184a78a5d271ec6d@o4505031789314048.ingest.us.sentry.io/4508626481774592',
+		tracesSampleRate: 1
+	});
+}
 
 console.log('App started!');
 
