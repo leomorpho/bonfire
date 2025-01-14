@@ -9,9 +9,10 @@
 
 	let username = $state('');
 	let submitEnabled = $state(false);
+	let userExists = $state(false);
 
 	$effect(() => {
-		if (username.length > 0) {
+		if (username.length > 0 && userExists) {
 			submitEnabled = true;
 		} else {
 			submitEnabled = false;
@@ -20,24 +21,34 @@
 
 	let client: TriplitClient;
 
-	let userId = $state('');
-
 	onMount(() => {
 		client = getFeTriplitClient($page.data.jwt) as TriplitClient;
+		console.log('user with id', $page.data.user.id);
 
-		const initEvents = async () => {
-			userId = (await waitForUserId()) as string;
-			console.log(userId);
-			const query = client.query('user').where('id', '=', userId).build();
-			let result = await client.fetch(query);
-			if (result.length == 1) {
-				username = result[0].username;
+		// NOTE: we need to subscribe because if the user is new, they may still be in the creating
+		// process and we can't update a username on a user who doesn't yet exist.
+		const unsubscribeFromUserQuery = client.subscribe(
+			client
+				.query('user')
+				.where(['id', '=', $page.data.user.id])
+				.select(['id', 'username'])
+				.build(),
+			(results) => {
+				// If there are less than 3 files in the events eventFiles, fetch the latest 3
+				if (results.length == 1) {
+					username = results[0].username;
+					userExists = true;
+				}
+			},
+			(error) => {
+				console.error('Error fetching username:', error);
 			}
-		};
+		);
 
-		initEvents().catch((error) => {
-			console.error('Failed to get events:', error);
-		});
+		return () => {
+			// Cleanup
+			unsubscribeFromUserQuery();
+		};
 	});
 
 	const handleSubmit = async (e: Event) => {

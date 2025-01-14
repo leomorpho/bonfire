@@ -96,3 +96,5 @@ export const TempNameCheckingState = {
 	NAME_TAKEN: 'NAME_TAKEN',
 	ERROR: 'ERROR'
 };
+
+export const LOCAL_INDEXEDDB_NAME = "bonfire";

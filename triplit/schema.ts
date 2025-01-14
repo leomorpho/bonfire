@@ -308,9 +308,9 @@ export const schema = {
 				where: [['gallery_item_id', '=', '$id']]
 			}),
 			// Link to supporting files; for example, for videos, we save a frame and link it to the video.
-			linked_file_id: S.Optional(S.String({ nullable: true, default: null, optional: true })),
-			linked_file: S.Optional(S.RelationById('files', '$linked_file_id')),
-			is_linked_file: S.Optional(S.Boolean({ default: false }))
+			linked_file_id: S.String({ nullable: true, default: null, optional: true }),
+			linked_file: S.RelationById('files', '$linked_file_id'),
+			is_linked_file: S.Boolean({ default: false })
 		}),
 		permissions: {
 			user: {

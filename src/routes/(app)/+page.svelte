@@ -7,7 +7,7 @@
 	import Pricing from '$lib/components/Pricing.svelte';
 	import { onMount } from 'svelte';
 	import type { TriplitClient } from '@triplit/client';
-	import { getFeTriplitClient } from '$lib/triplit';
+	import { clearCache, getFeTriplitClient } from '$lib/triplit';
 	import { page } from '$app/stores';
 	import AboutUs from '$lib/components/AboutUs.svelte';
 
@@ -16,11 +16,8 @@
 	onMount(() => {
 		client = getFeTriplitClient($page.data.jwt) as TriplitClient;
 
-		async function clearCache() {
-			await client.reset();
-		}
-
-		clearCache().catch((error) => {
+		
+		clearCache(client).catch((error) => {
 			console.error('Failed to reset triplit local db on logout:', error);
 		});
 	});

@@ -3,6 +3,7 @@ import { schema } from '../../triplit/schema';
 import { PUBLIC_TRIPLIT_URL, PUBLIC_TRIPLIT_ANONYMOUS_TOKEN } from '$env/static/public';
 import { writable, get } from 'svelte/store';
 import { browser } from '$app/environment';
+import { LOCAL_INDEXEDDB_NAME } from './enums';
 
 export const userIdStore = writable<string | null>(null);
 
@@ -35,7 +36,10 @@ export function getFeTriplitClient(jwt: string) {
 		return feTriplitClient;
 	}
 	feTriplitClient = new TriplitClient({
-		storage: 'indexeddb',
+		storage: {
+			type: 'indexeddb',
+			name: LOCAL_INDEXEDDB_NAME
+		},
 		schema,
 		serverUrl: PUBLIC_TRIPLIT_URL,
 		token: jwt ? jwt : PUBLIC_TRIPLIT_ANONYMOUS_TOKEN,
@@ -45,4 +49,9 @@ export function getFeTriplitClient(jwt: string) {
 	console.log('Frontend TriplitClient initialized');
 
 	return feTriplitClient;
+}
+
+export async function clearCache(client: TriplitClient) {
+	client.reset();
+	await client.reset();
 }

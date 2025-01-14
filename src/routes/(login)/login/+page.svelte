@@ -6,12 +6,11 @@
 	import { Image } from '@unpic/svelte';
 	import { tempAttendeeIdFormName, tempAttendeeIdUrlParam } from '$lib/enums.js';
 	import { page } from '$app/stores';
-	import { goto } from '$app/navigation';
 	import { OTPInput, OTPRoot } from '@jimmyverburgt/svelte-input-otp';
 	import Minus from 'lucide-svelte/icons/minus';
 	import LoaderPage from '$lib/components/LoaderPage.svelte';
 	import type { TriplitClient } from '@triplit/client';
-	import { getFeTriplitClient } from '$lib/triplit.js';
+	import { clearCache, getFeTriplitClient } from '$lib/triplit.js';
 
 	const { data } = $props();
 
@@ -29,11 +28,8 @@
 	onMount(() => {
 		client = getFeTriplitClient($page.data.jwt) as TriplitClient;
 
-		async function clearCache() {
-			await client.reset();
-		}
-
-		clearCache().catch((error) => {
+	
+		clearCache(client).catch((error) => {
 			console.error('Failed to reset triplit local db on logout:', error);
 		});
 	});
@@ -92,7 +88,7 @@
 			// Check if the response indicates success
 			if (data.success) {
 				// Redirect to the location returned in the response
-				goto(data.location);
+				window.location.href = data.location;
 			} else {
 				otpInvalid = true;
 				console.log(data.error || 'OTP verification failed');
