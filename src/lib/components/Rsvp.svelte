@@ -340,7 +340,7 @@
 		</Dialog.Header>
 		<div class="space-y-3">
 			<a href={`/login/?event_id=${eventId}`}>
-				<Button class="w-full bg-green-500 text-lg">Login with magic link</Button>
+				<Button class="w-full bg-green-500 text-lg">Register/Login</Button>
 			</a>
 		</div>
 

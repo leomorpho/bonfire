@@ -391,15 +391,12 @@
 							<p class="font-semibold">Hi! This is a temporary account</p>
 						{/if}
 						<p class="text-sm">
-							Leave this tab open to continue accessing it seamlessly, or click the below button to
-							copy the URL and save it somewhere safe.
+							Keep this tab open for seamless access, or click the button below to copy the URL and
+							save it.
 						</p>
-						<p class="text-sm">
-							This URL will allow you to access this event with your current temporary identity.
-						</p>
-						<p class="text-sm">
-							You can sign up at any moment to link up your events to your email (only info needed!)
-						</p>
+						<p class="text-sm">This URL grants access to the event with your temporary identity.</p>
+						<p class="text-sm">Sign up anytime to link your events to your email.</p>
+
 						<Button
 							onclick={() => handleCopyingTempAccountUrl(event)}
 							class="mt-4 flex w-full items-center justify-center ring-glow"
