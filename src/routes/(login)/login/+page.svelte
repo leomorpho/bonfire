@@ -20,13 +20,43 @@
 	import Minus from 'lucide-svelte/icons/minus';
 	import LoaderPage from '$lib/components/LoaderPage.svelte';
 
-	let otpref: any = $state();
-
 	// Set start oneTimePasswordValue
 	let oneTimePasswordValue = $state('');
 
+	// Handle the paste event to capture pasted digits
+	function handlePaste(event: ClipboardEvent) {
+		// Ensure we only process the event if email_sent is true
+		if (email_sent) {
+			// Get the pasted content from the clipboard
+			const pastedText = event.clipboardData?.getData('text') || '';
+
+			// Filter out non-numeric characters from the pasted text
+			const numericInput = pastedText.replace(/[^0-9]/g, '');
+
+			if (numericInput) {
+				// Update oneTimePasswordValue with the pasted numeric value
+				oneTimePasswordValue = numericInput;
+				console.log(`Pasted OTP value: ${oneTimePasswordValue}`);
+			}
+		}
+	}
+
+	// Setup event listener for paste event when email_sent is true
+	$effect(() => {
+		if (email_sent) {
+			console.log('Listening for paste events');
+			document.addEventListener('paste', handlePaste); // Attach listener to the document
+		} else {
+			console.log('Not listening for paste events');
+			document.removeEventListener('paste', handlePaste); // Detach listener if email_sent is false
+		}
+	});
+
 	// Called when OTP input is complete
 	async function handleOtpComplete(otp: string) {
+		if (!email_sent) {
+			return;
+		}
 		try {
 			showPageLoader = true;
 			console.log('OTP Complete:', otp);
@@ -42,7 +72,7 @@
 			console.log('response', response);
 			const data = await response.json();
 			console.log(data);
-			
+
 			// Check if the response indicates success
 			if (data.success) {
 				// Redirect to the location returned in the response
@@ -59,7 +89,9 @@
 	}
 
 	function handleOtpChange(event: { detail: string }) {
-		console.log('OTP changed:', oneTimePasswordValue);
+		if (email_sent) {
+			console.log('OTP changed:', oneTimePasswordValue);
+		}
 	}
 
 	const { enhance, errors, submitting } = superForm(data.form, {
@@ -93,6 +125,16 @@
 
 <div class="flex h-screen items-center justify-center p-5">
 	<div class="card flex w-full max-w-[470px] flex-col p-5">
+		{#if !email_sent && oneTimePasswordValue.length > 0}
+			<div
+				class="my-4 rounded-lg bg-yellow-50 p-4 text-sm text-yellow-800 dark:bg-gray-800 dark:text-yellow-300"
+				role="alert"
+			>
+				<span class="font-medium">Oups!</span> One-time passwords can only be entered on the device you
+				are currently logging into. This means the device where you entered your email, not the one you're
+				currently on...
+			</div>
+		{/if}
 		{#if email_sent}
 			<div class="text-center">
 				<Mail size="40" class="mx-auto my-4" />
@@ -101,11 +143,10 @@
 					We've sent you a one-time password to enter below. Please be sure to check your spam
 					folder too.
 				</div>
-				<div class="mt-5 flex w-full justify-center text-2xl">
+				<div class="mb-5 mt-8 flex w-full justify-center sm:text-2xl">
 					<OTPRoot
 						inputMode="numeric"
-						ariaLabel="Svelte OTP Code"
-						bind:this={otpref}
+						ariaLabel="OTP Code"
 						maxLength={6}
 						on:change={handleOtpChange}
 						bind:value={oneTimePasswordValue}
@@ -116,17 +157,17 @@
 						<div class="flex items-center">
 							<OTPInput
 								index={0}
-								className="relative flex h-20 w-16 items-center justify-center border-y border-r border-input text-3xl transition-all first:rounded-l-md first:border-l last:rounded-r-md"
+								className="relative flex h-12 w-8 sm:h-14 sm:w-10 md:h-18 md:w-14 items-center justify-center border-y border-r border-input sm:text-xl md:text-2xl transition-all first:rounded-l-md first:border-l last:rounded-r-md"
 								focusClassName="z-10 ring-2 ring-ring ring-offset-background"
 							/>
 							<OTPInput
 								index={1}
-								className="relative flex h-20 w-16 items-center justify-center border-y border-r border-input text-3xl transition-all first:rounded-l-md first:border-l last:rounded-r-md"
+								className="relative flex h-12 w-8 sm:h-14 sm:w-10 md:h-18 md:w-14 items-center justify-center border-y border-r border-input sm:text-xl md:text-2xl transition-all first:rounded-l-md first:border-l last:rounded-r-md"
 								focusClassName="z-10 ring-2 ring-ring ring-offset-background"
 							/>
 							<OTPInput
 								index={2}
-								className="relative flex h-20 w-16 items-center justify-center border-y border-r border-input text-3xl transition-all first:rounded-l-md first:border-l last:rounded-r-md"
+								className="relative flex h-12 w-8 sm:h-14 sm:w-10 md:h-18 md:w-14 items-center justify-center border-y border-r border-input sm:text-xl md:text-2xl transition-all first:rounded-l-md first:border-l last:rounded-r-md"
 								focusClassName="z-10 ring-2 ring-ring ring-offset-background"
 							/>
 						</div>
@@ -136,17 +177,17 @@
 						<div class="flex items-center">
 							<OTPInput
 								index={3}
-								className="relative flex h-20 w-16 items-center justify-center border-y border-r border-input text-3xl transition-all first:rounded-l-md first:border-l last:rounded-r-md"
+								className="relative flex h-12 w-8 sm:h-14 sm:w-10 md:h-18 md:w-14 items-center justify-center border-y border-r border-input sm:text-xl md:text-2xl transition-all first:rounded-l-md first:border-l last:rounded-r-md"
 								focusClassName="z-10 ring-2 ring-ring ring-offset-background"
 							/>
 							<OTPInput
 								index={4}
-								className="relative flex h-20 w-16 items-center justify-center border-y border-r border-input text-3xl transition-all first:rounded-l-md first:border-l last:rounded-r-md"
+								className="relative flex h-12 w-8 sm:h-14 sm:w-10 md:h-18 md:w-14 items-center justify-center border-y border-r border-input sm:text-xl md:text-2xl transition-all first:rounded-l-md first:border-l last:rounded-r-md"
 								focusClassName="z-10 ring-2 ring-ring ring-offset-background"
 							/>
 							<OTPInput
 								index={5}
-								className="relative flex h-20 w-16 items-center justify-center border-y border-r border-input text-3xl transition-all first:rounded-l-md first:border-l last:rounded-r-md"
+								className="relative flex h-12 w-8 sm:h-14 sm:w-10 md:h-18 md:w-14 items-center justify-center border-y border-r border-input sm:text-xl md:text-2xl transition-all first:rounded-l-md first:border-l last:rounded-r-md"
 								focusClassName="z-10 ring-2 ring-ring ring-offset-background"
 							/>
 						</div>
@@ -161,12 +202,9 @@
 					</div>
 				{/if}
 				<!-- OTP Verification Form -->
-				<form id="otp-form" method="post" action="/login?/otpVerification" use:enhance>
-					<input type="hidden" name="verification_token" bind:value={oneTimePasswordValue} />
-					<button type="submit" class="text-md btn mt-5 w-full font-semibold sm:text-lg">
-						Submit
-					</button>
-				</form>
+				<div>
+					<button class="text-md btn mt-5 w-full font-semibold sm:text-lg"> Submit </button>
+				</div>
 			</div>
 		{:else}
 			<div class="my-4 flex w-full flex-col space-y-1.5 text-center">
