@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { tick } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import Google from '$lib/components/icons/Google.svelte';
 	import { superForm } from 'sveltekit-superforms';
 	import { Mail } from 'lucide-svelte';
@@ -7,6 +7,11 @@
 	import { tempAttendeeIdFormName, tempAttendeeIdUrlParam } from '$lib/enums.js';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
+	import { OTPInput, OTPRoot } from '@jimmyverburgt/svelte-input-otp';
+	import Minus from 'lucide-svelte/icons/minus';
+	import LoaderPage from '$lib/components/LoaderPage.svelte';
+	import type { TriplitClient } from '@triplit/client';
+	import { getFeTriplitClient } from '$lib/triplit.js';
 
 	const { data } = $props();
 
@@ -16,12 +21,22 @@
 	let showPageLoader = $state(false);
 	let otpInvalid = $state(false);
 
-	import { OTPInput, OTPRoot } from '@jimmyverburgt/svelte-input-otp';
-	import Minus from 'lucide-svelte/icons/minus';
-	import LoaderPage from '$lib/components/LoaderPage.svelte';
-
 	// Set start oneTimePasswordValue
 	let oneTimePasswordValue = $state('');
+
+	let client: TriplitClient;
+
+	onMount(() => {
+		client = getFeTriplitClient($page.data.jwt) as TriplitClient;
+
+		async function clearCache() {
+			await client.reset();
+		}
+
+		clearCache().catch((error) => {
+			console.error('Failed to reset triplit local db on logout:', error);
+		});
+	});
 
 	// Handle the paste event to capture pasted digits
 	function handlePaste(event: ClipboardEvent) {
@@ -33,10 +48,11 @@
 			// Filter out non-numeric characters from the pasted text
 			const numericInput = pastedText.replace(/[^0-9]/g, '');
 
-			if (numericInput) {
+			if (numericInput && numericInput.length == 6) {
 				// Update oneTimePasswordValue with the pasted numeric value
 				oneTimePasswordValue = numericInput;
 				console.log(`Pasted OTP value: ${oneTimePasswordValue}`);
+				handleOtpComplete(oneTimePasswordValue);
 			}
 		}
 	}
