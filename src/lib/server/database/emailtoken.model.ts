@@ -68,7 +68,7 @@ export const createEmailVerificationOTP = async (
 	return formatOtp(otp); // Returning OTP (you may also choose to return OTPId if preferred)
 };
 
-export const deleteEmailOTPs = async (otp: string) => {
+export const deleteEmailOTP = async (otp: string) => {
 	await db.delete(emailVerificationOtpTable).where(eq(emailVerificationOtpTable.otp, otp));
 };
 

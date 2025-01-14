@@ -6,13 +6,61 @@
 	import { Image } from '@unpic/svelte';
 	import { tempAttendeeIdFormName, tempAttendeeIdUrlParam } from '$lib/enums.js';
 	import { page } from '$app/stores';
-	import * as InputOTP from '$lib/components/ui/input-otp/index.js';
+	import { goto } from '$app/navigation';
 
 	const { data } = $props();
 
 	let email_input: HTMLInputElement | null = $state(null);
 	let show_email_input = $state(false);
 	let email_sent = $state(false);
+	let showPageLoader = $state(false);
+	let otpInvalid = $state(false);
+
+	import { OTPInput, OTPRoot } from '@jimmyverburgt/svelte-input-otp';
+	import Minus from 'lucide-svelte/icons/minus';
+	import LoaderPage from '$lib/components/LoaderPage.svelte';
+
+	let otpref: any = $state();
+
+	// Set start oneTimePasswordValue
+	let oneTimePasswordValue = $state('');
+
+	// Called when OTP input is complete
+	async function handleOtpComplete(otp: string) {
+		try {
+			showPageLoader = true;
+			console.log('OTP Complete:', otp);
+
+			// Submit the OTP to the backend for validation
+			const response = await fetch('/login/otp-verification', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ otp })
+			});
+			console.log('response', response);
+			const data = await response.json();
+			console.log(data);
+			
+			// Check if the response indicates success
+			if (data.success) {
+				// Redirect to the location returned in the response
+				goto(data.location);
+			} else {
+				otpInvalid = true;
+				console.log(data.error || 'OTP verification failed');
+			}
+		} catch (e) {
+			console.error('failed to verify OTP', e);
+		} finally {
+			showPageLoader = false;
+		}
+	}
+
+	function handleOtpChange(event: { detail: string }) {
+		console.log('OTP changed:', oneTimePasswordValue);
+	}
 
 	const { enhance, errors, submitting } = superForm(data.form, {
 		onResult(event) {
@@ -50,25 +98,75 @@
 				<Mail size="40" class="mx-auto my-4" />
 				<div class="text-3xl font-bold leading-none tracking-tight">Check your inbox</div>
 				<div class="text-muted-primary mx-auto mt-4 max-w-[32ch] text-lg opacity-80">
-					We've sent you a one-time password to enter below. Please be sure to check your spam folder too.
+					We've sent you a one-time password to enter below. Please be sure to check your spam
+					folder too.
 				</div>
-				<div class="flex w-full justify-center mt-5 text-2xl">
-					<InputOTP.Root maxlength={6}>
-						{#snippet children({ cells })}
-							<InputOTP.Group>
-								{#each cells.slice(0, 3) as cell}
-									<InputOTP.Slot {cell} />
-								{/each}
-							</InputOTP.Group>
-							<InputOTP.Separator />
-							<InputOTP.Group>
-								{#each cells.slice(3, 6) as cell}
-									<InputOTP.Slot {cell} />
-								{/each}
-							</InputOTP.Group>
-						{/snippet}
-					</InputOTP.Root>
+				<div class="mt-5 flex w-full justify-center text-2xl">
+					<OTPRoot
+						inputMode="numeric"
+						ariaLabel="Svelte OTP Code"
+						bind:this={otpref}
+						maxLength={6}
+						on:change={handleOtpChange}
+						bind:value={oneTimePasswordValue}
+						autoFocus={true}
+						onComplete={handleOtpComplete}
+						className="flex items-center gap-2"
+					>
+						<div class="flex items-center">
+							<OTPInput
+								index={0}
+								className="relative flex h-20 w-16 items-center justify-center border-y border-r border-input text-3xl transition-all first:rounded-l-md first:border-l last:rounded-r-md"
+								focusClassName="z-10 ring-2 ring-ring ring-offset-background"
+							/>
+							<OTPInput
+								index={1}
+								className="relative flex h-20 w-16 items-center justify-center border-y border-r border-input text-3xl transition-all first:rounded-l-md first:border-l last:rounded-r-md"
+								focusClassName="z-10 ring-2 ring-ring ring-offset-background"
+							/>
+							<OTPInput
+								index={2}
+								className="relative flex h-20 w-16 items-center justify-center border-y border-r border-input text-3xl transition-all first:rounded-l-md first:border-l last:rounded-r-md"
+								focusClassName="z-10 ring-2 ring-ring ring-offset-background"
+							/>
+						</div>
+						<div class="mx-1">
+							<Minus />
+						</div>
+						<div class="flex items-center">
+							<OTPInput
+								index={3}
+								className="relative flex h-20 w-16 items-center justify-center border-y border-r border-input text-3xl transition-all first:rounded-l-md first:border-l last:rounded-r-md"
+								focusClassName="z-10 ring-2 ring-ring ring-offset-background"
+							/>
+							<OTPInput
+								index={4}
+								className="relative flex h-20 w-16 items-center justify-center border-y border-r border-input text-3xl transition-all first:rounded-l-md first:border-l last:rounded-r-md"
+								focusClassName="z-10 ring-2 ring-ring ring-offset-background"
+							/>
+							<OTPInput
+								index={5}
+								className="relative flex h-20 w-16 items-center justify-center border-y border-r border-input text-3xl transition-all first:rounded-l-md first:border-l last:rounded-r-md"
+								focusClassName="z-10 ring-2 ring-ring ring-offset-background"
+							/>
+						</div>
+					</OTPRoot>
 				</div>
+				{#if otpInvalid}
+					<div
+						class="my-4 rounded-lg bg-yellow-50 p-4 text-sm text-yellow-800 dark:bg-gray-800 dark:text-yellow-300"
+						role="alert"
+					>
+						<span class="font-medium">Oups!</span> Your code appears to be incorrect.
+					</div>
+				{/if}
+				<!-- OTP Verification Form -->
+				<form id="otp-form" method="post" action="/login?/otpVerification" use:enhance>
+					<input type="hidden" name="verification_token" bind:value={oneTimePasswordValue} />
+					<button type="submit" class="text-md btn mt-5 w-full font-semibold sm:text-lg">
+						Submit
+					</button>
+				</form>
 			</div>
 		{:else}
 			<div class="my-4 flex w-full flex-col space-y-1.5 text-center">
@@ -143,3 +241,4 @@
 		{/if}
 	</div>
 </div>
+<LoaderPage show={showPageLoader} text={'Verifying...'} />

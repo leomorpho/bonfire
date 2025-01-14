@@ -6,7 +6,7 @@ import { createNewUser, getUserByEmail } from '$lib/server/database/user.model.j
 import { generateId } from 'lucia';
 import {
 	createEmailVerificationOTP,
-	deleteAllEmailOTPsForUser,
+	deleteAllEmailOTPsForUser
 } from '$lib/server/database/emailtoken.model.js';
 import { loginEmailHtmlTemplate, sendEmail } from '$lib/server/email/email.js';
 import { env } from '$env/dynamic/private';
@@ -18,24 +18,24 @@ import { dev } from '$app/environment';
 import {
 	LOGIN_TYPE_ACTIVATION,
 	LOGIN_TYPE_MAGIC_LINK,
-	NUM_DEFAULT_LOGS_NEW_SIGNUP,
+	NUM_DEFAULT_LOGS_NEW_SIGNUP
 } from '$lib/enums';
 
-// Name has a default value just to display something in the form.
-const schema = z.object({
+// Zod validation schema for login_with_email (requires email)
+const loginSchema = z.object({
 	email: z.string().trim().email(),
 	tempAttendeeIdFormName: z.string().optional()
 });
 
 export const load = async (e) => {
-	const form = await superValidate(zod(schema));
+	const form = await superValidate(zod(loginSchema));
 
 	return { form, user: e.locals.user };
 };
 
 export const actions = {
 	login_with_email: async ({ request, getClientAddress }) => {
-		const form = await superValidate(request, zod(schema));
+		const form = await superValidate(request, zod(loginSchema));
 
 		if (!form.valid) {
 			return fail(400, { form });
