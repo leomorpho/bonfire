@@ -98,7 +98,7 @@
 							<!-- <DropdownMenu.Separator /> -->
 
 							{#each links as link}
-								<a href={link.href} onclick={toggleMenu}>
+								<a href={link.href}>
 									<DropdownMenu.Item class="cursor-pointer p-2 px-4">
 										{#if link.icon}
 											<link.icon class="mr-1 h-4 w-4" />
