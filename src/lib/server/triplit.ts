@@ -101,7 +101,7 @@ export async function validateTempAttendees(attendeeIds: string[]): Promise<stri
 export const convertTempToPermanentUser = async (
 	userId: string,
 	eventId: string,
-	triplitUserUsername: string|null,
+	triplitUserUsername: string | null,
 	triplitUserId: string,
 	existingTempAttendeeId: string,
 	existingTempAttendeeName: string,
@@ -115,12 +115,30 @@ export const convertTempToPermanentUser = async (
 				e.username = existingTempAttendeeName;
 			});
 		}
-		// Convert temp attendee to normal attendance
-		await triplitHttpClient.insert('attendees', {
-			user_id: userId,
-			event_id: eventId,
-			status: existingTempAttendeeStatus
-		});
+		// Convert temp attendee to normal attendance if user doesn't already have an attendance
+		const attendances = await triplitHttpClient.fetch(
+			triplitHttpClient
+				.query('attendees')
+				.where([
+					and([
+						['event_id', '=', eventId],
+						['user_id', '=', userId]
+					])
+				])
+				.build()
+		);
+
+		if (attendances.length == 0) {
+			await triplitHttpClient.insert('attendees', {
+				user_id: userId,
+				event_id: eventId,
+				status: existingTempAttendeeStatus
+			});
+		} else if (attendances.length > 1) {
+			console.error(
+				`tried to convert temp user to permanent user, but this user with id ${userId} has more than 1 attendance objects for event with id ${eventId}`
+			);
+		}
 
 		// Convert all files imported by this temp attendee to the current user
 		const files = await triplitHttpClient.fetch(
