@@ -20,9 +20,7 @@
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 	import { downloadAsZip, shareImages } from '$lib/gallery';
 	import GalleryItem from '$lib/components/GalleryItem.svelte';
-	import { sleep } from '$lib/utils';
-	import { dev } from '$app/environment';
-	import Loader from '$lib/components/Loader.svelte';
+	import LoaderPage from '$lib/components/LoaderPage.svelte';
 
 	let selectedImages: any = $state([]);
 	let selection: any;
@@ -30,7 +28,7 @@
 	let imageLinksNotClickable = $state(true);
 	let lightbox: PhotoSwipeLightbox | null = $state(null);
 	let showPageActionLoading = $state(false);
-
+	let isDeleteFileConfirmationDialogOpen = $state(false);
 	let eventFiles = $state($page.data.eventFiles);
 	console.log('isOwner', $page.data.isOwner);
 
@@ -143,6 +141,8 @@
 	}
 
 	async function handleDelete(id: string | null = null) {
+		isDeleteFileConfirmationDialogOpen = false;
+
 		try {
 			showPageActionLoading = true;
 
@@ -595,7 +595,7 @@
 									{#if $page.data.isOwner || $page.data.user.id == file.uploader_id}
 										<CustomAlertDialogue
 											continueCallback={() => handleDelete(file.id)}
-											dialogDescription="This action cannot be undone. This will permanently delete this file from our servers."
+											dialogDescription={`This action cannot be undone. This will permanently delete ${selectedImages.length} this file from our servers.`}
 										>
 											<ContextMenu.Item>Delete this file</ContextMenu.Item></CustomAlertDialogue
 										>
@@ -603,7 +603,7 @@
 									{#if $page.data.isOwner && selectedImages.length > 1}
 										<CustomAlertDialogue
 											continueCallback={() => handleDelete()}
-											dialogDescription="This action cannot be undone. This will permanently delete these files from our servers."
+											dialogDescription={`This action cannot be undone. This will permanently delete ${selectedImages.length} this file from our servers.`}
 										>
 											<ContextMenu.Item>Delete all selected files</ContextMenu.Item
 											></CustomAlertDialogue
@@ -636,10 +636,12 @@
 				<Button
 					disabled={eventFiles.length == selectedImages.length}
 					onclick={selectAll}
-					class="p-1 text-xs sm:text-lg sm:p-4 lg:text-2xl lg:p-6">Select All</Button
+					class="p-1 text-xs sm:p-4 sm:text-lg lg:p-6 lg:text-2xl">Select All</Button
 				>
-				<Button disabled={selectedImages.length == 0} onclick={selectNone} class="p-1 text-xs sm:text-lg sm:p-4 lg:text-2xl lg:p-6"
-					>Select None</Button
+				<Button
+					disabled={selectedImages.length == 0}
+					onclick={selectNone}
+					class="p-1 text-xs sm:p-4 sm:text-lg lg:p-6 lg:text-2xl">Select None</Button
 				>
 			</div>
 			<Tooltip.Provider>
@@ -665,9 +667,10 @@
 					<Tooltip.Root>
 						<Tooltip.Trigger>
 							<CustomAlertDialogue
+								bind:isOpen={isDeleteFileConfirmationDialogOpen}
 								continueCallback={() => handleDelete()}
 								disabled={selectedImages.length == 0}
-								dialogDescription="This action cannot be undone. This will permanently delete these files from our servers."
+								dialogDescription={`This action cannot be undone. This will permanently delete ${selectedImages.length} ${selectedImages.length > 1 ? 'files' : 'file'} from our servers.`}
 								><button
 									disabled={selectedImages.length == 0}
 									class="rounded-full p-4 text-white shadow-lg transition
@@ -700,7 +703,7 @@
 	}}
 />
 
-<Loader show={showPageActionLoading} />
+<LoaderPage show={showPageActionLoading} text={`Deleting ${selectedImages.length} files...`} />
 
 <style>
 	.selection-area {

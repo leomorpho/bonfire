@@ -1,6 +1,6 @@
-import type { HttpClient, TriplitClient } from "@triplit/client";
-import { isNonEmptyArray } from "./utils";
-import { NotificationType } from "./enums";
+import { and, type HttpClient, type TriplitClient } from '@triplit/client';
+import { isNonEmptyArray } from './utils';
+import { NotificationType } from './enums';
 
 /**
  * Create a new notification queue object for attendance.
@@ -62,7 +62,6 @@ export async function createNewTemporaryAttendanceNotificationQueueObject(
 	});
 }
 
-
 /**
  * Create a new notification queue object for announcements.
  * @param client - TriplitClient instance.
@@ -90,7 +89,7 @@ export async function createNewAnnouncementNotificationQueueObject(
 		user_id: userId,
 		event_id: eventId,
 		object_type: NotificationType.ANNOUNCEMENT,
-		object_ids: objectIds,
+		object_ids: objectIds
 	});
 }
 
@@ -115,10 +114,37 @@ export async function createNewFileNotificationQueueObject(
 	// Stringify the list of IDs, even if it's a single item
 	const objectIds = JSON.stringify(fileIds);
 
-	await client.insert('notifications_queue', {
-		user_id: userId,
-		event_id: eventId,
-		object_type: NotificationType.FILES,
-		object_ids: objectIds
-	});
+	// Try to find an existing notification queue object with the same userId, eventId, and object_type
+	const existingQueue = await client.fetch(
+		client
+			.query('notifications_queue')
+			.where(
+				and([
+					['user_id', '=', userId],
+					['event_id', '=', eventId],
+					['object_type', '=', NotificationType.FILES]
+				])
+			)
+			.select(['id', 'object_ids'])
+			.build()
+	);
+
+	if (existingQueue && existingQueue.length > 0) {
+		// If an existing object is found, merge the new objectIds with the old ones
+		const existingObjectIds = JSON.parse(existingQueue[0].object_ids) as string[];
+		const updatedObjectIds = JSON.stringify([...new Set([...existingObjectIds, ...fileIds])]);
+
+		// Update the existing record with the new objectIds
+		await client.update('notifications_queue', existingQueue[0].id, async (entity) => {
+			entity.object_ids = updatedObjectIds;
+		});
+	} else {
+		// If no existing object is found, create a new notification queue object
+		await client.insert('notifications_queue', {
+			user_id: userId,
+			event_id: eventId,
+			object_type: NotificationType.FILES,
+			object_ids: objectIds
+		});
+	}
 }
