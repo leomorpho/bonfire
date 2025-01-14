@@ -22,6 +22,7 @@ export const sessionTable = sqliteTable('session', {
 	expiresAt: integer('expires_at').notNull()
 });
 
+// NOTE: deprecating
 export const emailVerificationTokenTable = sqliteTable('email_verification_token', {
 	id: text('id').notNull().primaryKey(),
 	created_at: text('timestamp')
@@ -31,6 +32,17 @@ export const emailVerificationTokenTable = sqliteTable('email_verification_token
 	email: text('email').notNull(),
 	expires_at: integer('expires_at', { mode: 'timestamp' }).notNull()
 });
+
+export const emailVerificationOtpTable = sqliteTable('email_verification_otp', {
+	id: text('id').notNull().primaryKey(),
+	user_id: text('user_id').notNull(),
+	email: text('email').notNull(),
+	otp: text('otp').notNull(),
+	created_at: text('timestamp')
+	  .notNull()
+	  .default(sql`(current_timestamp)`),
+	expires_at: integer('expires_at', { mode: 'timestamp' }).notNull()
+  });
 
 export const signinTable = sqliteTable('signin', {
 	id: integer('id').primaryKey({ autoIncrement: true }),

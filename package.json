@@ -39,7 +39,7 @@
 		"@types/web-push": "^3.6.4",
 		"@vitest/ui": "^2.1.8",
 		"autoprefixer": "^10.4.20",
-		"bits-ui": "1.0.0-next.74",
+		"bits-ui": "1.0.0-next.77",
 		"clsx": "^2.1.1",
 		"cmdk-sv": "^0.0.18",
 		"cross-env": "^7.0.3",

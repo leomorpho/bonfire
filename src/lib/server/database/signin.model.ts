@@ -17,6 +17,6 @@ export const getSignins = async (signin: { email: string; ip_address: string }) 
 	return batchResult[1];
 };
 
-export const createSignin = async (signin: Signin) => {
+export const createSigninEntry = async (signin: Signin) => {
 	await db.insert(signinTable).values(signin);
 };

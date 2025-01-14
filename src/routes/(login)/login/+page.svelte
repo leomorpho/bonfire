@@ -6,6 +6,7 @@
 	import { Image } from '@unpic/svelte';
 	import { tempAttendeeIdFormName, tempAttendeeIdUrlParam } from '$lib/enums.js';
 	import { page } from '$app/stores';
+	import * as InputOTP from '$lib/components/ui/input-otp/index.js';
 
 	const { data } = $props();
 
@@ -49,7 +50,24 @@
 				<Mail size="40" class="mx-auto my-4" />
 				<div class="text-3xl font-bold leading-none tracking-tight">Check your inbox</div>
 				<div class="text-muted-primary mx-auto mt-4 max-w-[32ch] text-lg opacity-80">
-					We've sent you a login link. Please be sure to check your spam folder too.
+					We've sent you a one-time password to enter below. Please be sure to check your spam folder too.
+				</div>
+				<div class="flex w-full justify-center mt-5 text-2xl">
+					<InputOTP.Root maxlength={6}>
+						{#snippet children({ cells })}
+							<InputOTP.Group>
+								{#each cells.slice(0, 3) as cell}
+									<InputOTP.Slot {cell} />
+								{/each}
+							</InputOTP.Group>
+							<InputOTP.Separator />
+							<InputOTP.Group>
+								{#each cells.slice(3, 6) as cell}
+									<InputOTP.Slot {cell} />
+								{/each}
+							</InputOTP.Group>
+						{/snippet}
+					</InputOTP.Root>
 				</div>
 			</div>
 		{:else}

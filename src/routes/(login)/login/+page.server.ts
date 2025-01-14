@@ -5,21 +5,20 @@ import { error, fail, redirect } from '@sveltejs/kit';
 import { createNewUser, getUserByEmail } from '$lib/server/database/user.model.js';
 import { generateId } from 'lucia';
 import {
-	createEmailVerificationToken,
-	deleteAllEmailTokensForUser
+	createEmailVerificationOTP,
+	deleteAllEmailOTPsForUser,
 } from '$lib/server/database/emailtoken.model.js';
 import { loginEmailHtmlTemplate, sendEmail } from '$lib/server/email/email.js';
 import { env } from '$env/dynamic/private';
 import { env as public_env } from '$env/dynamic/public';
 import { lucia } from '$lib/server/auth';
 import { PUBLIC_ORIGIN } from '$env/static/public';
-import { createSignin, getSignins } from '$lib/server/database/signin.model';
+import { createSigninEntry, getSignins } from '$lib/server/database/signin.model';
 import { dev } from '$app/environment';
 import {
 	LOGIN_TYPE_ACTIVATION,
 	LOGIN_TYPE_MAGIC_LINK,
 	NUM_DEFAULT_LOGS_NEW_SIGNUP,
-	tempAttendeeIdUrlParam
 } from '$lib/enums';
 
 // Name has a default value just to display something in the form.
@@ -79,36 +78,24 @@ export const actions = {
 			return fail(429, { form });
 		}
 
-		await createSignin({
+		await createSigninEntry({
 			email: form.data.email,
 			ip_address,
 			logged_in_at: new Date()
 		});
 
-		await deleteAllEmailTokensForUser(user.id);
-		const verification_token = await createEmailVerificationToken(user.id, user.email);
-		const origin = new URL(request.url).origin;
-		let verificationLink =
-			origin +
-			'/login/email-verification?verification_token=' +
-			verification_token +
-			'&login_type=' +
-			login_type;
-
-		// If user has a temp attendee, link up to verification email in order to link them up on login
-		if (form.data.tempAttendeeIdFormName) {
-			verificationLink = `${verificationLink}&${tempAttendeeIdUrlParam}=${form.data.tempAttendeeIdFormName}`;
-		}
+		await deleteAllEmailOTPsForUser(user.id);
+		const verification_token = await createEmailVerificationOTP(user.id, user.email);
 
 		await sendEmail({
 			from: `${public_env.PUBLIC_PROJECT_NAME} <${env.FROM_EMAIL}>`,
 			to: user.email,
-			subject: `Your ${login_type} link for ${public_env.PUBLIC_PROJECT_NAME}`,
+			subject: `Your ${login_type} pin for ${public_env.PUBLIC_PROJECT_NAME}`,
 			html: loginEmailHtmlTemplate({
 				login_type: login_type,
 				product_url: PUBLIC_ORIGIN,
 				product_name: public_env.PUBLIC_PROJECT_NAME,
-				action_url: verificationLink
+				verification_token: verification_token
 			}),
 			headers: {
 				'X-Entity-Ref-ID': generateId(20)

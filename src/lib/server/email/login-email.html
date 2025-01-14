@@ -1,8 +1,7 @@
 <h1>Your {{ login_type }} link</h1>
 <p>
-  Here’s your {{ login_type }} link for {{ product_name }}. The link expires in an
-  hour, but you can always get a new one by going through the sign in steps
-  again.
+  Here’s your {{ login_type }} pin for {{ product_name }}. The link expires in 15 minutes, 
+  but you can always get a new one by going through the sign in steps again.
 </p>
 <!-- Action -->
 <table
@@ -20,13 +19,8 @@
           <td align="center">
             <table border="0" cellspacing="0" cellpadding="0">
               <tr>
-                <td>
-                  <a
-                    href="{{ action_url }}"
-                    class="button button--"
-                    target="_blank"
-                    >Open {{ product_name }}</a
-                  >
+                <td style="font-size: 30px; font-weight: bold; color: #FF5733; padding: 15px; background-color: #f1f1f1; border-radius: 5px;">
+                  {{ verification_token }}
                 </td>
               </tr>
             </table>

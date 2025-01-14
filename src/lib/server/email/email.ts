@@ -21,7 +21,7 @@ type LayoutEmailVariables = {
 
 type LoginEmailVariables = LayoutEmailVariables & {
 	login_type: string;
-	action_url: string;
+	verification_token: string;
 };
 
 // NOTE: I included this initial authentication email template so that you can get started right away.
@@ -35,7 +35,7 @@ export const loginEmailHtmlTemplate = (variables: LoginEmailVariables) => {
 			.replaceAll('{{ login_type }}', variables.login_type)
 			.replaceAll('{{ product_url }}', variables.product_url)
 			.replaceAll('{{ product_name }}', variables.product_name)
-			.replaceAll('{{ action_url }}', variables.action_url)
+			.replaceAll('{{ verification_token }}', variables.verification_token)
 	);
 };
 
