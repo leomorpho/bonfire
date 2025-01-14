@@ -32,9 +32,13 @@
 
 	let links = $state(unauthLinks);
 
-	if ($page.data.user) {
-		links = authLinks;
-	}
+	$effect(() => {
+		if ($page.data.user) {
+			links = authLinks;
+		} else {
+			links = unauthLinks;
+		}
+	});
 
 	let showMenu = $state(false);
 
@@ -42,8 +46,6 @@
 		e.stopPropagation();
 		showMenu = !showMenu;
 	}
-
-	let notificationsCount = $state(0);
 </script>
 
 <Container>
