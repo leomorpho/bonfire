@@ -132,6 +132,7 @@
 		"resend": "4.0.1-alpha.0",
 		"sharp": "^0.33.5",
 		"stripe": "^16.5.0",
+		"svelte-boring-avatars": "^1.2.6",
 		"toad-scheduler": "^3.0.1",
 		"web-push": "^3.6.7"
 	}

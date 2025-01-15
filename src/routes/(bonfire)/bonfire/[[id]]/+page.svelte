@@ -4,7 +4,18 @@
 	import { getFeTriplitClient, waitForUserId } from '$lib/triplit';
 	import Loader from '$lib/components/Loader.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
-	import { Cog, Share, Plus, Drum, Copy, MapPin, UserRound, Calendar } from 'lucide-svelte';
+	import {
+		Cog,
+		Share,
+		Plus,
+		Drum,
+		Copy,
+		MapPin,
+		UserRound,
+		Calendar,
+		Key,
+		KeyRound
+	} from 'lucide-svelte';
 	import { formatHumanReadable } from '$lib/utils';
 	import Rsvp from '$lib/components/Rsvp.svelte';
 	import { onMount } from 'svelte';
@@ -388,7 +399,7 @@
 			<section class="mt-8 w-full sm:w-[450px] md:w-[550px] lg:w-[650px]">
 				{#if isUnverifiedUser}
 					<div
-						class="my-4 flex flex-col items-center justify-center space-y-2 rounded-lg bg-gradient-to-r from-violet-200 to-pink-200 p-5"
+						class="my-4 flex flex-col items-center justify-center space-y-2 rounded-lg bg-gradient-to-r from-violet-200 to-pink-200 p-5 text-center"
 					>
 						{#if tempAttendee}
 							<p class="font-semibold">Hi {tempAttendee.name}! This is a temporary account</p>
@@ -401,10 +412,17 @@
 						</p>
 						<p class="text-sm">This URL grants access to the event with your temporary identity.</p>
 						<p class="text-sm">Sign up anytime to link your events to your email.</p>
-
+						<a href="/login" class="w-full">
+							<Button
+								class="mt-4 flex w-full items-center justify-center bg-blue-500 hover:bg-blue-400"
+							>
+								<KeyRound class="h-5 w-5" />
+								Sign Up or Log In</Button
+							>
+						</a>
 						<Button
 							onclick={() => handleCopyingTempAccountUrl(event)}
-							class="mt-4 flex w-full items-center justify-center ring-glow"
+							class="mt-4 flex w-full items-center justify-center"
 						>
 							<Copy class="h-5 w-5" />
 							Copy Link</Button
@@ -424,12 +442,12 @@
 					<h1 class="mb-4 flex justify-center text-xl sm:text-2xl">
 						{isAnonymousUser ? $page.data.event.title : event.title}
 					</h1>
-					<div class="flex items-center font-medium">
+					<div class="flex flex items-center justify-center font-medium">
 						<Calendar class="mr-2 h-4 w-4" />{formatHumanReadable(event.start_time)}
 					</div>
-					<div class="flex items-center font-light">
+					<div class="flex flex items-center justify-center font-light">
 						{#if event.organizer}
-							<UserRound class="mr-2 h-4 w-4" />Hosted by {event.organizer['username']}
+							<UserRound class="mr-2 h-4 w-4" />Hosted by
 							{#if !isAnonymousUser}
 								<div class="ml-2">
 									<ProfileAvatar
@@ -441,11 +459,13 @@
 										lastUpdatedAt=""
 									/>
 								</div>
+							{:else}
+								{event.organizer['username']}
 							{/if}
 						{/if}
 					</div>
 
-					<div class="flex items-center font-light">
+					<div class="flex flex items-center justify-center font-light">
 						<MapPin class="mr-2 h-4 w-4" />
 						{#if !isAnonymousUser}
 							{#if event.location}
