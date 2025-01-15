@@ -43,6 +43,7 @@
 				<h3 class="mb-2 text-xl font-extrabold text-base-content text-opacity-80">Use for Free</h3>
 				<div class="text-5xl font-extrabold leading-snug">
 					$0 <span class="text-base font-bold">usd</span>
+					<span class="text-3xl font-medium">/ Bonfire</span>
 				</div>
 				<ul class="mb-20 mt-3 space-y-5">
 					{#each featuresFree.included as feature}
@@ -74,6 +75,7 @@
 				<h3 class="mb-2 text-xl font-extrabold text-base-content text-opacity-80">By Donation</h3>
 				<div class="text-5xl font-extrabold leading-snug">
 					$1 <span class="text-base font-bold">usd</span>
+					<span class="text-3xl font-medium">/ Bonfire</span>
 				</div>
 				<ul class="mb-20 mt-3 space-y-5">
 					{#each featuresPremium.included as feature}
