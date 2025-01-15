@@ -5,6 +5,14 @@
 </script>
 
 <Container>
+	<!-- Warning Box -->
+	<div
+		class="mb-4 rounded-lg bg-yellow-50 p-4 text-sm text-yellow-800 dark:bg-gray-800 dark:text-yellow-300"
+		role="alert"
+	>
+		<span class="font-medium">Important Notice:</span> We do not buy, sell, or share any of the data
+		you store on Bonfire. Your privacy is our priority.
+	</div>
 	<div id="privacy-policy" class="bg-gray-50 py-16">
 		<div class="mx-auto max-w-2xl px-6 lg:px-8">
 			<div class="space-y-8">
