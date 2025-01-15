@@ -2,7 +2,7 @@ import { error } from '@sveltejs/kit';
 import webPush from 'web-push';
 import { env } from '$env/dynamic/private';
 import { dev } from '$app/environment';
-import { PUBLIC_DEV_VAPID_PUBLIC_KEY, PUBLIC_VAPID_PUBLIC_KEY } from '$env/static/public';
+import { PUBLIC_DEV_VAPID_PUBLIC_KEY, PUBLIC_FROM_EMAIL, PUBLIC_VAPID_PUBLIC_KEY } from '$env/static/public';
 import { notificationPermissionTable, pushSubscriptionTable } from './server/database/schema';
 import { eq } from 'drizzle-orm';
 import { db } from './server/database/db';
@@ -18,7 +18,7 @@ if (
 const publicKey = dev ? PUBLIC_DEV_VAPID_PUBLIC_KEY : PUBLIC_VAPID_PUBLIC_KEY;
 const privateKey = dev ? env.DEV_VAPID_PRIVATE_KEY : env.VAPID_PRIVATE_KEY;
 
-webPush.setVapidDetails(`mailto:${env.FROM_EMAIL}`, publicKey as string, privateKey as string);
+webPush.setVapidDetails(`mailto:${PUBLIC_FROM_EMAIL}`, publicKey as string, privateKey as string);
 
 /**
  * Sends a push notification to a specific user by fetching their push subscriptions.
@@ -79,7 +79,7 @@ export async function sendPushNotification(
 	// Define VAPID options
 	const options = {
 		vapidDetails: {
-			subject: `mailto:${env.FROM_EMAIL}`,
+			subject: `mailto:${env.PUBLIC_FROM_EMAIL}`,
 			publicKey,
 			privateKey
 		},

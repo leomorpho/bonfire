@@ -88,7 +88,7 @@ export const actions = {
 		const verification_token = await createEmailVerificationOTP(user.id, user.email);
 
 		await sendEmail({
-			from: `${public_env.PUBLIC_PROJECT_NAME} <${env.FROM_EMAIL}>`,
+			from: `${public_env.PUBLIC_PROJECT_NAME} <${env.PUBLIC_FROM_EMAIL}>`,
 			to: user.email,
 			subject: `Your ${login_type} pin for ${public_env.PUBLIC_PROJECT_NAME}`,
 			html: loginEmailHtmlTemplate({
