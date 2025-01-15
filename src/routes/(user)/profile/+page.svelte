@@ -65,8 +65,8 @@
 				>
 			</div>
 			<div class="my-2">{$page.data.user.email}</div>
-			<div class="my-2 mt-5">You have {$page.data.user.num_logs} logs remaining</div>
-			<Button class="my-2"><Plus />Add more logs</Button>
+			<!-- <div class="my-2 mt-5">You have {$page.data.user.num_logs} logs remaining</div>
+			<Button class="my-2"><Plus />Add more logs</Button> -->
 			<!-- <Button class="my-2">Log out</Button> -->
 		{/if}
 	</section>
