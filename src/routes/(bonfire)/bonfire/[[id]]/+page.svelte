@@ -197,11 +197,17 @@
 					overlayColorStore.set(event.overlay_color);
 					overlayOpacityStore.set(event.overlay_opacity);
 				}
-				eventLoading = false;
 			},
 			(error) => {
 				console.error('Error fetching event:', error);
 				eventFailedLoading = true;
+			},
+			// Optional
+			{
+				localOnly: false,
+				onRemoteFulfilled: () => {
+					eventLoading = false;
+				}
 			}
 		);
 
