@@ -13,7 +13,6 @@
 		MapPin,
 		UserRound,
 		Calendar,
-		Key,
 		KeyRound
 	} from 'lucide-svelte';
 	import { formatHumanReadable } from '$lib/utils';
@@ -125,6 +124,32 @@
 		}
 	};
 
+	const orderAttendeesByProfileImage = (attendees, profileImageMap) => {
+		return attendees.sort((a, b) => {
+			const hasImageA = profileImageMap.has(a.user_id);
+			const hasImageB = profileImageMap.has(b.user_id);
+
+			if (hasImageA && !hasImageB) {
+				return -1;
+			} else if (!hasImageA && hasImageB) {
+				return 1;
+			} else {
+				return 0;
+			}
+		});
+	};
+
+	const placeAttendeesWithProfilePicAtFrontOfLists = (
+		attendeesGoing,
+		attendeesNotGoing,
+		attendeesMaybeGoing,
+		profileImageMap
+	) => {
+		attendeesGoing = orderAttendeesByProfileImage(attendeesGoing, profileImageMap);
+		attendeesNotGoing = orderAttendeesByProfileImage(attendeesNotGoing, profileImageMap);
+		attendeesMaybeGoing = orderAttendeesByProfileImage(attendeesMaybeGoing, profileImageMap);
+	};
+
 	const fetchEventFiles = async (eventId: string) => {
 		try {
 			loadEventFiles = true;
@@ -144,6 +169,7 @@
 
 	onMount(() => {
 		client = getFeTriplitClient($page.data.jwt) as TriplitClient;
+
 		if (isAnonymousUser) {
 			// If user is anonymous, load event data from page data. It will contain limited data.
 			event = $page.data.event;
@@ -205,6 +231,12 @@
 				const userIds = results.map((attendee) => attendee.user_id);
 				(async () => {
 					await fetchProfileImageMap(userIds);
+					placeAttendeesWithProfilePicAtFrontOfLists(
+						attendeesGoing,
+						attendeesNotGoing,
+						attendeesMaybeGoing,
+						profileImageMap
+					);
 				})();
 				attendeesLoading = false;
 			},
