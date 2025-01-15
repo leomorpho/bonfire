@@ -48,6 +48,7 @@
 	let tempAttendee = $state(null);
 
 	console.log('tempAttendeeId', tempAttendeeId);
+
 	if ($page.data.tempAttendeeExists && tempAttendeeId) {
 		isUnverifiedUser = true;
 		tempAttendeeIdStore.set(tempAttendeeId);
@@ -140,10 +141,10 @@
 	};
 
 	const placeAttendeesWithProfilePicAtFrontOfLists = (
-		attendeesGoing,
-		attendeesNotGoing,
-		attendeesMaybeGoing,
-		profileImageMap
+		attendeesGoing: any,
+		attendeesNotGoing: any,
+		attendeesMaybeGoing: any,
+		profileImageMap: any
 	) => {
 		attendeesGoing = orderAttendeesByProfileImage(attendeesGoing, profileImageMap);
 		attendeesNotGoing = orderAttendeesByProfileImage(attendeesNotGoing, profileImageMap);
@@ -196,6 +197,7 @@
 					styleStore.set(event.style);
 					overlayColorStore.set(event.overlay_color);
 					overlayOpacityStore.set(event.overlay_opacity);
+					eventLoading = false;
 				}
 			},
 			(error) => {
@@ -433,6 +435,7 @@
 	{#if !event}
 		<EventDoesNotExist />
 	{:else}
+		{console.log('Showing event in UI')}
 		<div class="mx-4 flex flex-col items-center justify-center">
 			<section class="mt-8 w-full sm:w-[450px] md:w-[550px] lg:w-[650px]">
 				{#if isUnverifiedUser}
@@ -706,4 +709,6 @@
 			</section>
 		</div>
 	{/if}
+{:else}
+	{console.log('YO this is an inconsistent state, eventLoading', eventLoading)}
 {/if}
