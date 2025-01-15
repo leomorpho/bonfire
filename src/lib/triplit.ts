@@ -52,6 +52,6 @@ export function getFeTriplitClient(jwt: string) {
 }
 
 export async function clearCache(client: TriplitClient) {
-	client.reset();
-	await client.reset();
+	await client.endSession();
+	await client.clear();
 }

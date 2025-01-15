@@ -2,7 +2,13 @@
 	import * as Avatar from '$lib/components/ui/avatar/index.js';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { formatHumanReadable } from '$lib/utils';
+	import { UserRoundMinus } from 'lucide-svelte';
 	import GeneratedAvatar from './GeneratedAvatar.svelte';
+	import { Button } from '$lib/components/ui/button/index.js';
+	import { page } from '$app/stores';
+	import type { TriplitClient } from '@triplit/client';
+	import { getFeTriplitClient } from '$lib/triplit';
+	import { toast } from 'svelte-sonner';
 
 	let {
 		url,
@@ -10,13 +16,56 @@
 		fallbackName = '',
 		username,
 		isTempUser = false,
-		lastUpdatedAt = null
+		lastUpdatedAt = null,
+		viewerIsEventAdmin = false,
+		attendanceId = null // NOTE: these can be either real or temp attendances (they are different object types)
 	} = $props();
 
+	let attendanceIsAboutToBeDeleted = $state(false);
 	const fallbackNameShort = fallbackName.slice(0, 2);
+	const eventId = $page.params.id;
+	let dialogIsOpen = $state(false);
+
+	const deleteRealAttendee = async () => {
+		const client = getFeTriplitClient($page.data.jwt) as TriplitClient;
+		await client.delete('attendees', attendanceId);
+	};
+
+	const deleteTempAttendee = async () => {
+		const client = getFeTriplitClient($page.data.jwt) as TriplitClient;
+		await client.delete('temporary_attendees', attendanceId);
+	};
+
+	const deleteAttendee = async () => {
+		if (!viewerIsEventAdmin && attendanceId) {
+			return;
+		}
+		try {
+			if (isTempUser) {
+				deleteTempAttendee();
+			} else {
+				deleteRealAttendee();
+			}
+			toast.success(`Deleted ${username ? username : 'attendee'} from event`);
+			dialogIsOpen = false;
+		} catch (e) {
+			console.error(
+				`failed to remove ${isTempUser ?? 'temp'} attendee from event with id ${eventId}`,
+				e
+			);
+		}
+	};
+
+	const handleRemoveUser = () => {
+		attendanceIsAboutToBeDeleted = true;
+	};
+
+	const handleCancelRemoveUser = () => {
+		attendanceIsAboutToBeDeleted = false;
+	};
 </script>
 
-<Dialog.Root>
+<Dialog.Root bind:open={dialogIsOpen}>
 	<Dialog.Trigger>
 		{#if fullsizeUrl || url}
 			<Avatar.Root
@@ -41,7 +90,7 @@
 			<div class="relative">
 				<GeneratedAvatar {username} />
 				{#if isTempUser}
-					<div class="pointer-events-none absolute inset-0 rounded-full border-yellow-400 border-4">
+					<div class="pointer-events-none absolute inset-0 rounded-full border-4 border-yellow-400">
 						<div class="flex h-full w-full items-center justify-center">{fallbackNameShort}</div>
 					</div>
 				{:else}
@@ -54,45 +103,80 @@
 	</Dialog.Trigger>
 	<Dialog.Content class="sm:max-w-[425px]">
 		<Dialog.Header>
-			<Dialog.Title class="flex justify-center">{username}</Dialog.Title>
-			<Dialog.Description>
-				{#if isTempUser}
-					<div class="m-3 flex justify-center rounded-lg bg-yellow-400 p-2 text-black">
-						Temporary account
+			{#if attendanceIsAboutToBeDeleted}
+				<div class="space-y-8">
+					<h1 class="text-xl font-bold">Are you absolutely sure?</h1>
+					<p>
+						This action cannot be undone. This will remove {username ? username : 'this user'} from this
+						event.
+					</p>
+					<div class="space-y-2">
+						<Button
+							onclick={deleteAttendee}
+							class="flex w-full items-center justify-center bg-red-500 hover:bg-red-400"
+						>
+							Yes, remove</Button
+						>
+						<Button
+							onclick={handleCancelRemoveUser}
+							class="flex w-full items-center justify-center "
+						>
+							Cancel</Button
+						>
 					</div>
-				{/if}
-				{#if lastUpdatedAt}
-					<div class="flex justify-center">Last updated {formatHumanReadable(lastUpdatedAt)}</div>
-				{/if}
-				{#if fullsizeUrl || url}
-					<Avatar.Root class="mt-3 h-full w-full">
-						<Avatar.Image src={fullsizeUrl ? fullsizeUrl : url} alt={username} />
-						<Avatar.Fallback>{fallbackNameShort}</Avatar.Fallback>
-						<!-- Overlay Layer for Temp User -->
-					</Avatar.Root>
-				{:else}
-					<div class="mb-10 flex h-full w-full items-center justify-center text-3xl md:text-4xl text-black">
-						<div class="relative">
-							<GeneratedAvatar {username} size={200} />
-							{#if isTempUser}
-								<div
-									class="pointer-events-none absolute inset-0 rounded-full border-yellow-400 border-8"
-								>
-									<div class="flex h-full w-full items-center justify-center">
-										{fallbackNameShort}
-									</div>
-								</div>
-							{:else}
-								<div class="pointer-events-none absolute inset-0 rounded-full">
-									<div class="flex h-full w-full items-center justify-center">
-										{fallbackNameShort}
-									</div>
-								</div>
-							{/if}
+				</div>
+			{:else}
+				<Dialog.Title class="flex justify-center">{username}</Dialog.Title>
+				<Dialog.Description>
+					{#if isTempUser}
+						<div class="m-3 flex justify-center rounded-lg bg-yellow-400 p-2 text-black">
+							Temporary account
 						</div>
-					</div>
-				{/if}
-			</Dialog.Description>
+					{/if}
+					{#if lastUpdatedAt}
+						<div class="flex justify-center">Last updated {formatHumanReadable(lastUpdatedAt)}</div>
+					{/if}
+					{#if fullsizeUrl || url}
+						<Avatar.Root class="mt-3  w-full">
+							<Avatar.Image src={fullsizeUrl ? fullsizeUrl : url} alt={username} />
+							<Avatar.Fallback>{fallbackNameShort}</Avatar.Fallback>
+							<!-- Overlay Layer for Temp User -->
+						</Avatar.Root>
+					{:else}
+						<div
+							class="mt-3 flex w-full items-center justify-center text-3xl text-black md:text-4xl"
+						>
+							<div class="relative">
+								<GeneratedAvatar {username} size={200} />
+								{#if isTempUser}
+									<div
+										class="pointer-events-none absolute inset-0 rounded-full border-8 border-yellow-400"
+									>
+										<div class="flex h-full w-full items-center justify-center">
+											{fallbackNameShort}
+										</div>
+									</div>
+								{:else}
+									<div class="pointer-events-none absolute inset-0 rounded-full">
+										<div class="flex h-full w-full items-center justify-center">
+											{fallbackNameShort}
+										</div>
+									</div>
+								{/if}
+							</div>
+						</div>
+					{/if}
+					{#if viewerIsEventAdmin}
+						<Button
+							onclick={handleRemoveUser}
+							class="mt-4 flex w-full items-center justify-center bg-red-500 hover:bg-red-400"
+						>
+							<UserRoundMinus class="h-5 w-5" />
+							Remove user from event</Button
+						>
+					{/if}
+				</Dialog.Description>
+			{/if}
 		</Dialog.Header>
 
 		<Dialog.Footer></Dialog.Footer>

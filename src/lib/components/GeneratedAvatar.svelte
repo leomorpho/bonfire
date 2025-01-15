@@ -8,5 +8,5 @@
 	{size}
 	name={username}
 	variant="marble"
-	colors={['#92A1C6', '#146A7C', '#F0AB3D', '#C271B4', '#C20D90']}
+	colors={['#A9C1FFFF', '#418491FF', '#F0AB3D', '#F07171FF', '#C20D90']}
 />

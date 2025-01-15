@@ -229,8 +229,14 @@ export const schema = {
 					filter: [['user_id', '=', '$role.userId']]
 				},
 				delete: {
-					// Users can remove themselves from the event
-					filter: [['user_id', '=', '$role.userId']]
+					filter: [
+						or([
+							// Event creator can delete anyone attending
+							['event.user_id', '=', '$role.userId'],
+							// Users can remove themselves from the event
+							['user_id', '=', '$role.userId']
+						])
+					]
 				}
 			},
 			temp: {
@@ -263,6 +269,16 @@ export const schema = {
 							['event.user_id', '=', '$role.userId'],
 							// A user should be able to only query for users and attendees who are attending a same event:
 							['event.attendees.user_id', '=', '$role.userId']
+						])
+					]
+				},
+				delete: {
+					filter: [
+						or([
+							// Event creator can delete anyone attending
+							['event.user_id', '=', '$role.userId'],
+							// Temp users can remove themselves from the event
+							['id', '=', '$role.temporaryAttendeeId'],
 						])
 					]
 				}

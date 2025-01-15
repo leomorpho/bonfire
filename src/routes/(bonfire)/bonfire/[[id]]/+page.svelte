@@ -91,7 +91,16 @@
 	let currentUserAttendee = $state();
 	const showMaxNumPeople = 50;
 
+	let currenUserIsEventAdmin = $state(false);
+
+	$effect(() => {
+		if (event && userId && event.user_id == (userId as string)) {
+			currenUserIsEventAdmin = true;
+		}
+	});
+
 	const fetchProfileImageMap = async (userIds: string[]) => {
+		// TODO: we can make this more performant by passing a last queried at timestamp (UTC) and the server will only returned changed users (added/updated/deleted images)
 		// This function never removes any profile pic entry, only upserts them.
 		try {
 			loadingProfileImageMap = true;
@@ -470,7 +479,7 @@
 						>
 					</div>
 				{/if}
-				{#if !isAnonymousUser && !isUnverifiedUser && event.user_id == (userId as string)}
+				{#if currenUserIsEventAdmin}
 					<div class="flex w-full justify-center">
 						<a href="update">
 							<Button variant="outline" class="m-2 rounded-full">
@@ -537,6 +546,8 @@
 									fallbackName={attendee.user?.username || attendee.name}
 									isTempUser={!!attendee.name}
 									lastUpdatedAt={attendee.updated_at}
+									viewerIsEventAdmin={currenUserIsEventAdmin}
+									attendanceId={attendee.id}
 								/>
 							{/each}
 							<Dialog.Root>
@@ -558,7 +569,7 @@
 												<div class="mb-3 mt-5">
 													{#if allAttendeesGoing.length > 0}
 														<h2 class="my-3 flex w-full justify-center font-semibold">Going</h2>
-														<div class="mx-5 flex flex-wrap -space-x-4">
+														<div class="mx-5 flex flex-wrap -space-x-4 text-black">
 															{#each attendeesGoing as attendee}
 																<ProfileAvatar
 																	url={profileImageMap.get(attendee.user_id)?.small_image_url}
@@ -568,6 +579,8 @@
 																	fallbackName={attendee.user?.username || attendee.name}
 																	isTempUser={!!attendee.name}
 																	lastUpdatedAt={attendee.updated_at}
+																	viewerIsEventAdmin={currenUserIsEventAdmin}
+																	attendanceId={attendee.id}
 																/>
 															{/each}
 														</div>
@@ -576,7 +589,7 @@
 												<div class="mb-3 mt-5">
 													{#if allAttendeesMaybeGoing.length > 0}
 														<h2 class="my-3 flex w-full justify-center font-semibold">Maybe</h2>
-														<div class="mx-5 flex flex-wrap -space-x-4">
+														<div class="mx-5 flex flex-wrap -space-x-4 text-black">
 															{#each allAttendeesMaybeGoing as attendee}
 																<ProfileAvatar
 																	url={profileImageMap.get(attendee.user_id)?.small_image_url}
@@ -586,6 +599,8 @@
 																	fallbackName={attendee.user?.username || attendee.name}
 																	isTempUser={!!attendee.name}
 																	lastUpdatedAt={attendee.updated_at}
+																	viewerIsEventAdmin={currenUserIsEventAdmin}
+																	attendanceId={attendee.id}
 																/>
 															{/each}
 														</div>
@@ -604,6 +619,8 @@
 																	fallbackName={attendee.user?.username || attendee.name}
 																	isTempUser={!!attendee.name}
 																	lastUpdatedAt={attendee.updated_at}
+																	viewerIsEventAdmin={currenUserIsEventAdmin}
+																	attendanceId={attendee.id}
 																/>
 															{/each}
 														</div>
