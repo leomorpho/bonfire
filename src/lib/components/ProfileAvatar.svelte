@@ -136,16 +136,14 @@
 					{#if lastUpdatedAt}
 						<div class="flex justify-center">Last updated {formatHumanReadable(lastUpdatedAt)}</div>
 					{/if}
-					{#if fullsizeUrl || url}
-						<Avatar.Root class="mt-3  w-full">
-							<Avatar.Image src={fullsizeUrl ? fullsizeUrl : url} alt={username} />
-							<Avatar.Fallback>{fallbackNameShort}</Avatar.Fallback>
-							<!-- Overlay Layer for Temp User -->
-						</Avatar.Root>
-					{:else}
-						<div
-							class="mt-3 flex w-full items-center justify-center text-3xl text-black md:text-4xl"
-						>
+					<div class="mt-3 flex w-full items-center justify-center text-3xl text-black md:text-4xl">
+						{#if fullsizeUrl || url}
+							<Avatar.Root class="mt-3 w-fit h-fit aspect-square">
+								<Avatar.Image src={fullsizeUrl ? fullsizeUrl : url} alt={username} />
+								<Avatar.Fallback>{fallbackNameShort}</Avatar.Fallback>
+								<!-- Overlay Layer for Temp User -->
+							</Avatar.Root>
+						{:else}
 							<div class="relative">
 								<GeneratedAvatar {username} size={200} />
 								{#if isTempUser}
@@ -164,8 +162,8 @@
 									</div>
 								{/if}
 							</div>
-						</div>
-					{/if}
+						{/if}
+					</div>
 					{#if viewerIsEventAdmin}
 						<Button
 							onclick={handleRemoveUser}
