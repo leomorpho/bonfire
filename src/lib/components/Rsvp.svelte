@@ -26,7 +26,13 @@
 	import { debounce, generatePassphraseId } from '$lib/utils';
 	import { toast } from 'svelte-sonner';
 
-	let { rsvpStatus = Status.DEFAULT, userId, eventId, isAnonymousUser } = $props();
+	let {
+		rsvpStatus = Status.DEFAULT,
+		userId,
+		eventId,
+		isAnonymousUser,
+		rsvpCanBeChanged = true
+	} = $props();
 
 	let isAnonRsvpDialogOpen = $state(false);
 
@@ -104,8 +110,6 @@
 		}
 		dropdownOpen = false;
 	};
-
-	
 
 	const checkNameAvailability = debounce(async function () {
 		try {
@@ -266,50 +270,58 @@
 	};
 </script>
 
+{#snippet rsvpButton()}
+	<Button
+		disabled={!rsvpCanBeChanged}
+		variant="outline"
+		class="mt-4 flex w-full items-center justify-center {rsvpStatus === Status.GOING
+			? 'bg-green-400 hover:bg-green-100'
+			: ''} {rsvpStatus === Status.MAYBE ? 'bg-yellow-400 hover:bg-yellow-100' : ''} {rsvpStatus ===
+		Status.NOT_GOING
+			? 'bg-red-400 hover:bg-red-100'
+			: ''} {rsvpStatus === Status.DEFAULT ? 'bg-purple-300 hover:bg-purple-100' : ''}"
+	>
+		{#if rsvpStatus === Status.DEFAULT || rsvpStatus == null}
+			<HandMetal class="mr-2" />
+		{/if}
+		{getStrValueOfRSVP(rsvpStatus)}
+	</Button>
+{/snippet}
+
 <div class="flex">
-	<DropdownMenu.Root bind:open={dropdownOpen}>
-		<DropdownMenu.Trigger class="w-full">
-			<Button
-				variant="outline"
-				class="mt-4 flex w-full items-center justify-center {rsvpStatus === Status.GOING
-					? 'bg-green-400 hover:bg-green-100'
-					: ''} {rsvpStatus === Status.MAYBE
-					? 'bg-yellow-400 hover:bg-yellow-100'
-					: ''} {rsvpStatus === Status.NOT_GOING
-					? 'bg-red-400 hover:bg-red-100'
-					: ''} {rsvpStatus === Status.DEFAULT ? 'bg-purple-300 hover:bg-purple-100' : ''}"
-			>
-				{#if rsvpStatus === Status.DEFAULT || rsvpStatus == null}
-					<HandMetal class="mr-2" />
-				{/if}
-				{getStrValueOfRSVP(rsvpStatus)}
-			</Button>
-		</DropdownMenu.Trigger>
-		<DropdownMenu.Content class="w-full">
-			<DropdownMenu.Group>
-				<DropdownMenu.Item
-					class={rsvpStatus === Status.GOING ? 'bg-green-400' : ''}
-					onclick={(event) => updateRSVP(event, Status.GOING)}
-				>
-					<Smile /> Going
-				</DropdownMenu.Item>
-				<DropdownMenu.Item
-					class={rsvpStatus === Status.MAYBE ? 'bg-yellow-400' : ''}
-					onclick={(event) => updateRSVP(event, Status.MAYBE)}
-				>
-					<Meh /> Maybe
-				</DropdownMenu.Item>
-				<DropdownMenu.Item
-					class={rsvpStatus === Status.NOT_GOING ? 'bg-red-400' : ''}
-					onclick={(event) => updateRSVP(event, Status.NOT_GOING)}
-				>
-					<Frown /> Not going
-				</DropdownMenu.Item>
-			</DropdownMenu.Group>
-		</DropdownMenu.Content>
-	</DropdownMenu.Root>
-	{#if showAddToCalendar}
-		<span class="ml-1"> <AddToCalendar /> </span>
+	{#if rsvpCanBeChanged}
+		<DropdownMenu.Root bind:open={dropdownOpen}>
+			<DropdownMenu.Trigger class="w-full">
+				{@render rsvpButton()}
+			</DropdownMenu.Trigger>
+			<DropdownMenu.Content class="w-full">
+				<DropdownMenu.Group>
+					<DropdownMenu.Item
+						class={rsvpStatus === Status.GOING ? 'bg-green-400' : ''}
+						onclick={(event) => updateRSVP(event, Status.GOING)}
+					>
+						<Smile /> Going
+					</DropdownMenu.Item>
+					<DropdownMenu.Item
+						class={rsvpStatus === Status.MAYBE ? 'bg-yellow-400' : ''}
+						onclick={(event) => updateRSVP(event, Status.MAYBE)}
+					>
+						<Meh /> Maybe
+					</DropdownMenu.Item>
+					<DropdownMenu.Item
+						class={rsvpStatus === Status.NOT_GOING ? 'bg-red-400' : ''}
+						onclick={(event) => updateRSVP(event, Status.NOT_GOING)}
+					>
+						<Frown /> Not going
+					</DropdownMenu.Item>
+				</DropdownMenu.Group>
+			</DropdownMenu.Content>
+		</DropdownMenu.Root>
+		{#if showAddToCalendar}
+			<span class="ml-1"> <AddToCalendar /> </span>
+		{/if}
+	{:else}
+		{@render rsvpButton()}
 	{/if}
 </div>
 

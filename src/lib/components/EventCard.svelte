@@ -20,8 +20,8 @@
 <a href={`/bonfire/${event.id}`}>
 	<Card.Root class="relative my-4 w-full bg-slate-100" style={event.style}>
 		<!-- Overlay -->
-		<div style={overlayStyle} class="absolute inset-0 rounded-xl pointer-events-none"></div>
-	
+		<div style={overlayStyle} class="pointer-events-none absolute inset-0 rounded-xl"></div>
+
 		<!-- Content -->
 		<div class="relative z-10 p-4">
 			<Card.Header class="rounded-xl bg-slate-100 pb-2 sm:mb-4">
@@ -30,7 +30,7 @@
 				<Card.Description>Hosted by {eventCreatorName}</Card.Description>
 			</Card.Header>
 			<Card.Content>
-				<Rsvp {rsvpStatus} {userId} eventId={event.id} {rsvpCanBeChanged} />
+				<Rsvp {rsvpStatus} {userId} eventId={event.id} {rsvpCanBeChanged} isAnonymousUser={false} />
 			</Card.Content>
 			{#if event.user_id == (userId as string)}
 				<a href={`/bonfire/${event.id}/update`}>

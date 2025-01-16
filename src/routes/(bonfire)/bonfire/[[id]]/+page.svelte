@@ -46,6 +46,7 @@
 	let isUnverifiedUser = $state($page.data.tempAttendeeExists);
 	const tempAttendeeId = $page.url.searchParams.get(tempAttendeeIdUrlParam);
 	let tempAttendee = $state(null);
+	let rsvpCanBeChanged = $state(false);
 
 	console.log('tempAttendeeId', tempAttendeeId);
 
@@ -207,6 +208,7 @@
 					overlayColorStore.set(event.overlay_color);
 					overlayOpacityStore.set(event.overlay_opacity);
 					eventLoading = false;
+					rsvpCanBeChanged = new Date(event.start_time) >= new Date();
 				}
 			},
 			(error) => {
@@ -666,7 +668,7 @@
 						</Button>
 					</a>
 				{/if} -->
-				<Rsvp {rsvpStatus} {userId} eventId={event.id} {isAnonymousUser} />
+				<Rsvp {rsvpStatus} {userId} eventId={event.id} {isAnonymousUser} {rsvpCanBeChanged} />
 
 				<Button
 					onclick={() => handleShare(event)}
