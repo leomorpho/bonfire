@@ -447,6 +447,7 @@
 		{console.log('Showing event in UI')}
 		<div class="mx-4 flex flex-col items-center justify-center">
 			<section class="mt-8 w-full sm:w-[450px] md:w-[550px] lg:w-[650px]">
+				<!-- TODO: allow temp attendees to delete themselves -->
 				{#if isUnverifiedUser}
 					<div
 						class="my-4 flex flex-col items-center justify-center space-y-2 rounded-lg bg-gradient-to-r from-violet-200 to-pink-200 p-5 text-center"

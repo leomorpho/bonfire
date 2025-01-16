@@ -15,7 +15,7 @@
 	const { data } = $props();
 
 	let email_input: HTMLInputElement | null = $state(null);
-	let show_email_input = $state(false);
+	let show_email_input = $state(true);
 	let email_sent = $state(false);
 	let showPageLoader = $state(false);
 	let otpInvalid = $state(false);
@@ -28,7 +28,6 @@
 	onMount(() => {
 		client = getFeTriplitClient($page.data.jwt) as TriplitClient;
 
-	
 		clearCache(client).catch((error) => {
 			console.error('Failed to reset triplit local db on logout:', error);
 		});
@@ -239,9 +238,10 @@
 					Signed in as {data.user.email}
 				</p>
 			{:else}
-				<a href="/login/google" class="text-md btn btn-primary mt-4 w-full font-semibold md:text-lg"
+				<!-- <a href="/login/google" class="text-md btn btn-primary mt-4 w-full font-semibold md:text-lg"
 					><Google class="mr-3 w-4" />Continue with Google
-				</a>{/if}
+				</a> -->
+			{/if}
 
 			{#if data.user}
 				<form method="post" action="/login?/signout">
