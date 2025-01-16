@@ -12,7 +12,6 @@
 	let { location = $bindable<string | undefined>(), geocodedLocation = $bindable<any>() } =
 		$props();
 
-	console.log('geocodedLocation ###### --->', geocodedLocation);
 	const originalLocation = location;
 	let open = $state(false);
 	let triggerRef = $state<HTMLButtonElement>(null!);

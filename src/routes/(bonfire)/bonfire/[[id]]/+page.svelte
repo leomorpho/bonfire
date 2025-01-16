@@ -13,7 +13,8 @@
 		MapPin,
 		UserRound,
 		Calendar,
-		KeyRound
+		KeyRound,
+		ArrowRightFromLine
 	} from 'lucide-svelte';
 	import { formatHumanReadable } from '$lib/utils';
 	import Rsvp from '$lib/components/Rsvp.svelte';
@@ -34,6 +35,7 @@
 	import BonfireNoInfoCard from '$lib/components/BonfireNoInfoCard.svelte';
 	import { dev } from '$app/environment';
 	import { overlayColorStore, overlayOpacityStore, styleStore } from '$lib/styles';
+	import ShareLocation from '$lib/components/ShareLocation.svelte';
 
 	let userId = $state('');
 
@@ -521,8 +523,18 @@
 					<div class="flex flex items-center justify-center font-light">
 						<MapPin class="mr-2 h-4 w-4" />
 						{#if !isAnonymousUser}
-							{#if event.location}
-								<div>{event.location}</div>
+							{#if event.location}<div class="flex items-center justify-center">
+									{#if event.geocoded_location}
+										<ShareLocation geocodedLocation={event.geocoded_location}>
+											<div class="flex items-center justify-center rounded-xl bg-slate-200 p-2 my-4">
+												{event.location}
+												<ArrowRightFromLine class="ml-2 h-4 w-4" />
+											</div>
+										</ShareLocation>
+									{:else}
+										<div>{event.location}</div>
+									{/if}
+								</div>
 							{:else}
 								<div>No location set</div>
 							{/if}
