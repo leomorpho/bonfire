@@ -1,19 +1,21 @@
 import * as Sentry from '@sentry/sveltekit';
 import { tempAttendeeIdStore, tempAttendeeIdUrlParam } from '$lib/enums';
 import type { HandleFetch } from '@sveltejs/kit';
+import { dev } from '$app/environment';
 
-// If you don't want to use Session Replay, remove the `Replay` integration,
-// `replaysSessionSampleRate` and `replaysOnErrorSampleRate` options.
-Sentry.init({
-	dsn: 'https://3b8c1776298855f9184a78a5d271ec6d@o4505031789314048.ingest.us.sentry.io/4508626481774592',
-	tracesSampleRate: 1,
-	replaysSessionSampleRate: 0.1,
-	replaysOnErrorSampleRate: 1,
-	integrations: [Sentry.replayIntegration()]
-});
+if (!dev) {
+	// If you don't want to use Session Replay, remove the `Replay` integration,
+	// `replaysSessionSampleRate` and `replaysOnErrorSampleRate` options.
+	Sentry.init({
+		dsn: 'https://3b8c1776298855f9184a78a5d271ec6d@o4505031789314048.ingest.us.sentry.io/4508626481774592',
+		tracesSampleRate: 1,
+		replaysSessionSampleRate: 0.1,
+		replaysOnErrorSampleRate: 1,
+		integrations: [Sentry.replayIntegration()]
+	});
+}
 
 export const handleFetch: HandleFetch = async ({ request, fetch }) => {
-	console.log('HANDLE FGETCH');
 	// Check if tempAttendeeId exists in the store
 	const tempAttendeeId = tempAttendeeIdStore.get();
 
