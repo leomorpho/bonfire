@@ -36,3 +36,14 @@ Feel free to contribute or suggest improvements! 🤝
 
 [![How to use Just Ship](https://img.youtube.com/vi/sJZOXUhkvMc/0.jpg)](https://www.youtube.com/watch?v=sJZOXUhkvMc)
 
+# Leo added
+## Interesting tools
+
+### Data Storage
+- [Faster S3](https://tebi.io/)
+
+### Video Streaming
+https://skippybla.medium.com/streaming-services-in-2023-504be51eebaa
+
+- [Bunny](https://bunny.net/stream/cdn-player/)
+- [Mux](https://www.mux.com/)

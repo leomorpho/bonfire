@@ -177,3 +177,24 @@ export const setTempAttendeeIdParam = () => {
 };
 
 export const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+export const debounce = (func, delay = 300) => {
+	let timeoutId;
+
+	return function (...args) {
+		// Clear the previous timeout
+		clearTimeout(timeoutId);
+
+		// Set a new timeout to call the function after the delay
+		return new Promise((resolve, reject) => {
+			timeoutId = setTimeout(async () => {
+				try {
+					const result = await func(...args);
+					resolve(result);
+				} catch (error) {
+					reject(error);
+				}
+			}, delay);
+		});
+	};
+};

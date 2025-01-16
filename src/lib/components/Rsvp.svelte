@@ -23,7 +23,7 @@
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Label } from '$lib/components/ui/label/index.js';
-	import { generatePassphraseId } from '$lib/utils';
+	import { debounce, generatePassphraseId } from '$lib/utils';
 	import { toast } from 'svelte-sonner';
 
 	let { rsvpStatus = Status.DEFAULT, userId, eventId, isAnonymousUser } = $props();
@@ -105,26 +105,7 @@
 		dropdownOpen = false;
 	};
 
-	function debounce(func, delay = 300) {
-		let timeoutId;
-
-		return function (...args) {
-			// Clear the previous timeout
-			clearTimeout(timeoutId);
-
-			// Set a new timeout to call the function after the delay
-			return new Promise((resolve, reject) => {
-				timeoutId = setTimeout(async () => {
-					try {
-						const result = await func(...args);
-						resolve(result);
-					} catch (error) {
-						reject(error);
-					}
-				}, delay);
-			});
-		};
-	}
+	
 
 	const checkNameAvailability = debounce(async function () {
 		try {

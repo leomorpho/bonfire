@@ -1,0 +1,141 @@
+<script lang="ts">
+	import { Input } from '$lib/components/ui/input/index.js';
+	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
+	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
+	import { debounce } from '$lib/utils';
+	import { tick } from 'svelte';
+	import * as Command from '$lib/components/ui/command/index.js';
+	import * as Popover from '$lib/components/ui/popover/index.js';
+	import { Button } from '$lib/components/ui/button/index.js';
+	import { cn } from '$lib/utils.js';
+	import Check from 'lucide-svelte/icons/check';
+	import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
+
+	let { value = $bindable<string | undefined>() } = $props();
+
+	let open = $state(false);
+	let triggerRef = $state<HTMLButtonElement>(null!);
+	let loading = $state(false);
+	let errorMessage = $state('');
+	let suggestions: { label: string; value: any }[] = $state([]);
+	let selectedResult: any = $state(null);
+
+	$effect(() => {
+		console.log('selectedResult', selectedResult);
+	});
+	const enterEventLocationText = 'Enter event location...';
+
+	const selectedValue = $derived(selectedResult?.formattedAddress ?? enterEventLocationText);
+
+	// We want to refocus the trigger button when the user selects
+	// an item from the list so users can continue navigating the
+	// rest of the form with the keyboard.
+	function closeAndFocusTrigger() {
+		open = false;
+		tick().then(() => {
+			triggerRef.focus();
+		});
+	}
+
+	// Function to fetch suggestions from the backend
+	const fetchSuggestions = debounce(async (query: string) => {
+		if (!query) {
+			suggestions = [];
+			return;
+		}
+
+		loading = true;
+		errorMessage = '';
+		try {
+			const response = await fetch('/bonfire/create/geocode', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ address: query })
+			});
+
+			if (!response.ok) {
+				const error = await response.json();
+				errorMessage = error.error || 'An error occurred.';
+				suggestions = [];
+				loading = false;
+				return;
+			}
+
+			const responseData = await response.json();
+
+			console.log('Response Data:', responseData); // Inspect the full response
+			const results = responseData.results; // Adjust this based on the actual API structure
+
+			if (Array.isArray(results)) {
+				// Map results only if it's an array
+				suggestions = results.map((res: any) => ({
+					label: res.formattedAddress,
+					value: res
+				}));
+			} else {
+				// Handle unexpected structure
+				errorMessage = 'Unexpected response format.';
+				suggestions = [];
+			}
+		} catch (error) {
+			console.error('Failed to fetch suggestions:', error);
+			errorMessage = 'Unable to fetch suggestions.';
+			suggestions = [];
+		} finally {
+			loading = false;
+		}
+	}, 300); // Debounce with a 300ms delay
+</script>
+
+<Popover.Root bind:open>
+	<Popover.Trigger bind:ref={triggerRef}>
+		{#snippet child({ props })}
+			<Button
+				variant="outline"
+				class="w-full justify-between"
+				{...props}
+				role="combobox"
+				aria-expanded={open}
+			>
+				{selectedValue || enterEventLocationText}
+				<ChevronsUpDown class="opacity-50" />
+			</Button>
+		{/snippet}
+	</Popover.Trigger>
+	<Popover.Content class="w-full p-0">
+		<Command.Root>
+			<Input
+				type="text"
+				placeholder="Location"
+				class="w-full bg-white"
+				bind:value
+				oninput={() => fetchSuggestions(value)}
+			/>
+			<Command.List>
+				<Command.Group>
+					{#if loading}
+						<Command.Item>Loading...</Command.Item>
+					{:else if errorMessage}
+						<Command.Item>{errorMessage}</Command.Item>
+					{:else if suggestions.length > 0}
+						{#each suggestions as suggestion}
+							<Command.Item
+								value={suggestion.label}
+								onSelect={() => {
+									selectedResult = suggestion.value; // Save full object
+									value = suggestion.label; // Display label
+									closeAndFocusTrigger();
+								}}
+							>
+								<Check class={cn(selectedResult !== suggestion.value && 'text-transparent')} />
+								{suggestion.label}
+							</Command.Item>
+						{/each}
+					{:else}
+						<Command.Item>No suggestions found.</Command.Item>
+					{/if}
+				</Command.Group>
+			</Command.List>
+		</Command.Root>
+	</Popover.Content>
+</Popover.Root>

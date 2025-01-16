@@ -149,6 +149,9 @@ importers:
       lucia:
         specifier: ^3.2.2
         version: 3.2.2
+      node-geocoder:
+        specifier: ^4.4.1
+        version: 4.4.1
       oslo:
         specifier: ^1.2.1
         version: 1.2.1
@@ -219,6 +222,9 @@ importers:
       '@types/node':
         specifier: ^22.10.5
         version: 22.10.5
+      '@types/node-geocoder':
+        specifier: ^4.2.6
+        version: 4.2.6
       '@types/web-push':
         specifier: ^3.6.4
         version: 3.6.4
@@ -2800,6 +2806,9 @@ packages:
   '@types/node-fetch@2.6.12':
     resolution: {integrity: sha512-8nneRWKCg3rMtF69nLQJnOYUcbafYeFSjqkw3jCRLsqkWFlHaoQrr5mXmofFGOx3DKn7UfmBMyov8ySvLRVldA==}
 
+  '@types/node-geocoder@4.2.6':
+    resolution: {integrity: sha512-rONIqFylsxAeyqCpfy626vs9ofNI8oXjNyBS2KuI+ePbCyLGrcqkVSrhIvuKxfeXtqikGk118EZtjehU0cUH9w==}
+
   '@types/node@18.19.70':
     resolution: {integrity: sha512-RE+K0+KZoEpDUbGGctnGdkrLFwi1eYKTlIHNl2Um98mUkGsm1u2Ff6Ltd0e8DktTtC98uy7rSj+hO8t/QuLoVQ==}
 
@@ -3242,6 +3251,9 @@ packages:
     engines: {node: '>=18', pnpm: '>=8.7.0'}
     peerDependencies:
       svelte: ^5.11.0
+
+  bluebird@3.7.2:
+    resolution: {integrity: sha512-XpNj6GDQzdfW+r2Wnn7xiSAd7TM3jzkxGXBGTtWKuSXv1xUV+azxAm8jdWZN06QTQk+2N2XB9jRDkvbmQmcRtg==}
 
   blueimp-canvas-to-blob@3.29.0:
     resolution: {integrity: sha512-0pcSSGxC0QxT+yVkivxIqW0Y4VlO2XSDPofBAqoJ1qJxgH9eiUDLv50Rixij2cDuEfx4M6DpD9UGZpRhT5Q8qg==}
@@ -4745,6 +4757,10 @@ packages:
   node-fetch@3.3.2:
     resolution: {integrity: sha512-dRB78srN/l6gqWulah9SrxeYnxeddIG30+GOqK/9OlLVyLg3HPnr6SqOWTWOXKRwC2eGYCkZ59NNuSgvSrpgOA==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+
+  node-geocoder@4.4.1:
+    resolution: {integrity: sha512-krx50Gxl4yBgMBhfUhOuNwStzLi+gAYaa46gs0e+ftTvaqLsjKYDFVxC8ff6RLc2f11Gp7Y+R1mkzwsE2c0chw==}
+    engines: {node: '>=18'}
 
   node-releases@2.0.19:
     resolution: {integrity: sha512-xxOWJsBKtzAq7DY0J+DTzuz58K8e7sJbdgwkbMWQe8UYB6ekmsQ45q0M/tJDsGaZmbC+l7n57UV8Hl5tHxO9uw==}
@@ -8681,6 +8697,11 @@ snapshots:
       '@types/node': 22.10.5
       form-data: 4.0.1
 
+  '@types/node-geocoder@4.2.6':
+    dependencies:
+      '@types/node': 22.10.5
+      '@types/node-fetch': 2.6.12
+
   '@types/node@18.19.70':
     dependencies:
       undici-types: 5.26.5
@@ -9228,6 +9249,8 @@ snapshots:
       runed: 0.22.0(svelte@5.17.3)
       svelte: 5.17.3
       svelte-toolbelt: 0.7.0(svelte@5.17.3)
+
+  bluebird@3.7.2: {}
 
   blueimp-canvas-to-blob@3.29.0: {}
 
@@ -10690,6 +10713,13 @@ snapshots:
       data-uri-to-buffer: 4.0.1
       fetch-blob: 3.2.0
       formdata-polyfill: 4.0.10
+
+  node-geocoder@4.4.1:
+    dependencies:
+      bluebird: 3.7.2
+      node-fetch: 2.7.0
+    transitivePeerDependencies:
+      - encoding
 
   node-releases@2.0.19: {}
 

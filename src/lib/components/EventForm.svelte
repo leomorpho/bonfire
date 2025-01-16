@@ -1,7 +1,7 @@
 <script lang="ts">
 	import EventStyler from './EventStyler.svelte';
 	import { Input } from '$lib/components/ui/input/index.js';
-	import { DateFormatter, CalendarDate, type DateValue } from '@internationalized/date';
+	import { CalendarDate, type DateValue } from '@internationalized/date';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Textarea } from '$lib/components/ui/textarea/index.js';
 	import { Plus, Minus, Clock, Clock8, ArrowDownToLine, Trash2 } from 'lucide-svelte';
@@ -17,8 +17,8 @@
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 	import { overlayColorStore, overlayOpacityStore, styleStore } from '$lib/styles';
-	import { generateId } from 'lucia';
 	import { generatePassphraseId, loadScript } from '$lib/utils';
+	import LocationPicker from './LocationPicker.svelte';
 
 	let { mode, event = null } = $props();
 
@@ -304,7 +304,7 @@
 			<TimezonePicker onValueChange={(newValue: any) => (timezone = newValue)} />
 
 			<div class="flex flex-row items-center">
-				<Input type="text" placeholder="Location" class="w-full bg-white" bind:value={location} />
+				<LocationPicker bind:value={location} />
 			</div>
 			<Textarea class="bg-white" placeholder="Details" bind:value={details} />
 		</form>
