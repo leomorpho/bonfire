@@ -37,6 +37,7 @@
 	let dateValue: DateValue | undefined = $state<DateValue | undefined>();
 	let eventName: string = $state(event?.title ?? ''); // State for event name
 	let location: string = $state(event?.location ?? ''); // State for location
+	let geocodedLocation: any = $state(event?.geocoded_location ?? ''); // State for geocoded location
 	let details: string = $state(event?.description ?? ''); // State for event details
 	let startHour = $state(''); // State for hour
 	let startMinute = $state(''); // State for minute
@@ -169,6 +170,7 @@
 				title: eventName,
 				description: details || null,
 				location: location || null,
+				geocoded_location: JSON.stringify(geocodedLocation) || null,
 				start_time: eventStartDatetime,
 				end_time: eventEndDatetime,
 				user_id: userId,
@@ -197,6 +199,7 @@
 				entity.title = eventName;
 				entity.description = details || null;
 				entity.location = location;
+				entity.geocoded_location = JSON.stringify(geocodedLocation);
 				entity.start_time = eventStartDatetime;
 				entity.end_time = eventEndDatetime;
 				entity.style = finalStyleCss;
@@ -304,7 +307,7 @@
 			<TimezonePicker onValueChange={(newValue: any) => (timezone = newValue)} />
 
 			<div class="flex flex-row items-center">
-				<LocationPicker bind:value={location} />
+				<LocationPicker bind:location bind:geocodedLocation />
 			</div>
 			<Textarea class="bg-white" placeholder="Details" bind:value={details} />
 		</form>

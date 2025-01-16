@@ -119,6 +119,7 @@ export const schema = {
 			start_time: S.Date(),
 			end_time: S.Date({ nullable: true }),
 			location: S.String({ nullable: true }),
+			geocoded_location: S.Optional(S.String({ nullable: true })),
 			user_id: S.String(),
 			user: S.RelationById('user', '$user_id'),
 			attendees: S.RelationMany('attendees', {

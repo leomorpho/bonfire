@@ -1,7 +1,5 @@
 <script lang="ts">
 	import { Input } from '$lib/components/ui/input/index.js';
-	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
-	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
 	import { debounce } from '$lib/utils';
 	import { tick } from 'svelte';
 	import * as Command from '$lib/components/ui/command/index.js';
@@ -11,8 +9,11 @@
 	import Check from 'lucide-svelte/icons/check';
 	import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
 
-	let { value = $bindable<string | undefined>() } = $props();
+	let { location = $bindable<string | undefined>(), geocodedLocation = $bindable<any>() } =
+		$props();
 
+	console.log('geocodedLocation ###### --->', geocodedLocation);
+	const originalLocation = location;
 	let open = $state(false);
 	let triggerRef = $state<HTMLButtonElement>(null!);
 	let loading = $state(false);
@@ -25,7 +26,17 @@
 	});
 	const enterEventLocationText = 'Enter event location...';
 
-	const selectedValue = $derived(selectedResult?.formattedAddress ?? enterEventLocationText);
+	let selectedValue = $state(location);
+	$effect(() => {
+		if (selectedResult?.formattedAddress) {
+			selectedValue = selectedResult?.formattedAddress;
+			geocodedLocation = selectedResult;
+		} else if (location) {
+			selectedValue = location;
+		} else {
+			selectedValue = enterEventLocationText;
+		}
+	});
 
 	// We want to refocus the trigger button when the user selects
 	// an item from the list so users can continue navigating the
@@ -108,8 +119,8 @@
 				type="text"
 				placeholder="Location"
 				class="w-full bg-white"
-				bind:value
-				oninput={() => fetchSuggestions(value)}
+				bind:value={location}
+				oninput={() => fetchSuggestions(location)}
 			/>
 			<Command.List>
 				<Command.Group>
@@ -123,7 +134,7 @@
 								value={suggestion.label}
 								onSelect={() => {
 									selectedResult = suggestion.value; // Save full object
-									value = suggestion.label; // Display label
+									location = suggestion.label; // Display label
 									closeAndFocusTrigger();
 								}}
 							>
@@ -131,8 +142,15 @@
 								{suggestion.label}
 							</Command.Item>
 						{/each}
-					{:else}
-						<Command.Item>No suggestions found.</Command.Item>
+					{:else if selectedValue != originalLocation}
+						<Command.Item
+							onSelect={() => {
+								selectedResult = { formattedAddress: location }; // Save custom address
+								closeAndFocusTrigger();
+							}}
+						>
+							Use custom address: "{location}"
+						</Command.Item>
 					{/if}
 				</Command.Group>
 			</Command.List>
