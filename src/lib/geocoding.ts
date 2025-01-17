@@ -28,7 +28,7 @@ async function geocodeWithFallback(
 	for (const options of providers) {
 		try {
 			const geocoder = NodeGeocoder(options);
-			const results = await geocoder.geocode('q=' + address);
+			const results = await geocoder.geocode(address);
 			return { success: true, results };
 		} catch (error) {
 			console.error(`Provider ${options.provider} failed:`, error);
