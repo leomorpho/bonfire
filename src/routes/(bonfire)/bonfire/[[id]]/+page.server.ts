@@ -38,6 +38,8 @@ export const load = async ({ params, locals, url }) => {
 
 	if (user) {
 		try {
+			// TODO: probably rate limit the number of new events you can see per minute
+
 			// Add viewer object so user is in the event viewer list else
 			// they won't be able to query for that event in FE
 			await triplitHttpClient.insert('event_viewers', {

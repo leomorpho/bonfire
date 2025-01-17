@@ -3,8 +3,20 @@ import { triplitHttpClient } from '$lib/server/triplit'; // Assuming you have Tr
 import { tempAttendeeIdUrlParam } from '$lib/enums';
 import { dev } from '$app/environment';
 import { and } from '@triplit/client';
+import { RateLimiter } from 'sveltekit-rate-limiter/server';
+
+// Initialize the rate limiter
+const limiter = new RateLimiter({
+	IP: [30, 'h'], // Limit 30 requests per hour per IP
+	IPUA: [20, 'h'] // Limit 20 requests per hour per IP + User Agent
+});
 
 export async function POST({ request, params }) {
+	// Check if the request is limited
+	if (!dev && (await limiter.isLimited({ request }))) {
+		throw error(429, 'Too many requests. Please try again later.');
+	}
+
 	const { id: eventId } = params;
 
 	if (!eventId) {

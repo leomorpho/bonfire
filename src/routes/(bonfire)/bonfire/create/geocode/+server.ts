@@ -6,8 +6,8 @@ import { dev } from '$app/environment';
 
 // Initialize the rate limiter
 const limiter = new RateLimiter({
-	IP: [30, 'm'], // Limit 10 requests per minute per IP
-	IPUA: [20, 'm'] // Limit 5 requests per minute per IP + User Agent
+	IP: [30, 'm'], // Limit 30 requests per minute per IP
+	IPUA: [20, 'm'] // Limit 20 requests per minute per IP + User Agent
 });
 
 export const POST: RequestHandler = async ({ request }) => {
