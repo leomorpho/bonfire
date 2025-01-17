@@ -19,6 +19,7 @@
 	import { overlayColorStore, overlayOpacityStore, styleStore } from '$lib/styles';
 	import { generatePassphraseId, loadScript } from '$lib/utils';
 	import AddressInput from './AddressInput.svelte';
+	import TextAreaAutoGrow from './TextAreaAutoGrow.svelte';
 
 	let { mode, event = null } = $props();
 
@@ -57,6 +58,8 @@
 	);
 	let overlayColor: string = $state(event?.overlay_color ?? '#000000');
 	let overlayOpacity: number = $state(event?.overlay_opacity ?? 0.4);
+
+	let isEditingStyle = $state(false);
 
 	if (event) {
 		const startTime = parseDateTime(event.start_time);
@@ -228,139 +231,151 @@
 </script>
 
 <div class="mx-4 flex flex-col items-center justify-center">
-	<section class="mt-8 w-full sm:w-[450px]">
-		<h2 class="mb-5 rounded-xl bg-white p-2 text-lg font-semibold">
-			{mode === EventFormType.CREATE ? 'Create' : 'Update'} a Bonfire
-		</h2>
-		<form class="space-y-2">
-			<Input type="text" placeholder="Event Name" bind:value={eventName} class="w-full bg-white" />
-			<Datepicker bind:value={dateValue} />
+	{#if isEditingStyle}
+		<div class="md:7/8 w-5/6">
+			<EventStyler bind:finalStyleCss bind:overlayColor bind:overlayOpacity />
+		</div>
+	{:else}
+		<section class="mt-8 w-full sm:w-[450px]">
+			<h2 class="mb-5 rounded-xl bg-white p-2 text-lg font-semibold">
+				{mode === EventFormType.CREATE ? 'Create' : 'Update'} a Bonfire
+			</h2>
+			<form class="space-y-2">
+				<Input
+					type="text"
+					placeholder="Event Name"
+					bind:value={eventName}
+					class="w-full bg-white"
+				/>
+				<Datepicker bind:value={dateValue} />
 
-			<div class="flex flex-row items-center justify-between space-x-4">
-				<!-- Start Time Inputs -->
-				<div class="grid grid-cols-4 items-center gap-2">
-					<Clock class="ml-4 mr-1 h-4 w-4 rounded-xl bg-white text-slate-500 ring-glow" />
-					<div class="font-mono">
-						<DoubleDigitsPicker maxValue={12} bind:value={startHour} placeholder="HH" />
-					</div>
-					<div class="font-mono">
-						<DoubleDigitsPicker bind:value={startMinute} placeholder="mm" />
-					</div>
-					<div class="w-18">
-						<AmPmPicker onValueChange={(newValue: any) => (ampmStart = newValue)} />
-					</div>
-				</div>
-
-				<!-- Toggle Button -->
-				{#if !setEndTime}
-					<Button
-						onclick={() => {
-							setEndTime = true;
-						}}
-						class="text-xs ring-glow"
-					>
-						<Plus class="ml-1 mr-1 h-2 w-2" />
-						to
-					</Button>
-				{:else}
-					<Button
-						onclick={() => {
-							setEndTime = false;
-						}}
-						class="text-xs ring-glow"
-					>
-						<Minus class="h-2 w-2" />
-						to
-					</Button>
-				{/if}
-			</div>
-
-			{#if setEndTime}
 				<div class="flex flex-row items-center justify-between space-x-4">
-					<!-- End Time Inputs -->
+					<!-- Start Time Inputs -->
 					<div class="grid grid-cols-4 items-center gap-2">
-						<Clock8 class="ml-4 mr-1 h-4 w-4 rounded-xl bg-white text-slate-500 ring-glow" />
-
+						<Clock class="ml-4 mr-1 h-4 w-4 rounded-xl bg-white text-slate-500 ring-glow" />
 						<div class="font-mono">
-							<DoubleDigitsPicker maxValue={12} bind:value={endHour} placeholder="HH" />
+							<DoubleDigitsPicker maxValue={12} bind:value={startHour} placeholder="HH" />
 						</div>
 						<div class="font-mono">
-							<DoubleDigitsPicker bind:value={endMinute} placeholder="mm" />
+							<DoubleDigitsPicker bind:value={startMinute} placeholder="mm" />
 						</div>
 						<div class="w-18">
-							<AmPmPicker onValueChange={(newValue: any) => (ampmEnd = newValue)} />
+							<AmPmPicker onValueChange={(newValue: any) => (ampmStart = newValue)} />
 						</div>
 					</div>
 
-					<!-- Invisible Button for Spacing -->
-					<Button
-						onclick={() => {
-							setEndTime = false;
-						}}
-						class="invisible"
-					>
-						<Minus class="ml-1 mr-1 h-4 w-4" />
-						to
-					</Button>
+					<!-- Toggle Button -->
+					{#if !setEndTime}
+						<Button
+							onclick={() => {
+								setEndTime = true;
+							}}
+							class="text-xs ring-glow"
+						>
+							<Plus class="ml-1 mr-1 h-2 w-2" />
+							to
+						</Button>
+					{:else}
+						<Button
+							onclick={() => {
+								setEndTime = false;
+							}}
+							class="text-xs ring-glow"
+						>
+							<Minus class="h-2 w-2" />
+							to
+						</Button>
+					{/if}
 				</div>
-			{/if}
 
-			<TimezonePicker onValueChange={(newValue: any) => (timezone = newValue)} />
-			<div class="h-10"></div>
-			<!-- <Input
+				{#if setEndTime}
+					<div class="flex flex-row items-center justify-between space-x-4">
+						<!-- End Time Inputs -->
+						<div class="grid grid-cols-4 items-center gap-2">
+							<Clock8 class="ml-4 mr-1 h-4 w-4 rounded-xl bg-white text-slate-500 ring-glow" />
+
+							<div class="font-mono">
+								<DoubleDigitsPicker maxValue={12} bind:value={endHour} placeholder="HH" />
+							</div>
+							<div class="font-mono">
+								<DoubleDigitsPicker bind:value={endMinute} placeholder="mm" />
+							</div>
+							<div class="w-18">
+								<AmPmPicker onValueChange={(newValue: any) => (ampmEnd = newValue)} />
+							</div>
+						</div>
+
+						<!-- Invisible Button for Spacing -->
+						<Button
+							onclick={() => {
+								setEndTime = false;
+							}}
+							class="invisible text-xs sm:text-base w-full"
+						>
+							<Minus class="ml-1 mr-1 h-4 w-4" />
+							to
+						</Button>
+					</div>
+				{/if}
+
+				<TimezonePicker onValueChange={(newValue: any) => (timezone = newValue)} />
+				<!-- <Input
 				type="text"
 				placeholder="Location name: Joe's house"
 				class="w-full bg-white"
 				bind:value={locationName}
 			/> -->
-			<div class="flex flex-row items-center">
-				<AddressInput bind:location bind:geocodedLocation />
-			</div>
-			<Textarea class="bg-white" placeholder="Details" bind:value={details} />
-		</form>
-		{#if mode == EventFormType.UPDATE}
-			<Dialog.Root>
-				<Dialog.Trigger class="w-full"
-					><Button disabled={submitDisabled} class="mt-2 w-full bg-red-500 hover:bg-red-400">
-						<Trash2 class="ml-1 mr-1 h-4 w-4" /> Delete
-					</Button></Dialog.Trigger
-				>
-				<Dialog.Content>
-					<Dialog.Header>
-						<Dialog.Title>Are you sure absolutely sure?</Dialog.Title>
-						<Dialog.Description>
-							This action cannot be undone. This will permanently delete this event and remove its
-							data from our servers.
-						</Dialog.Description>
-					</Dialog.Header>
-					<Dialog.Footer
+				<div class="flex flex-row items-center">
+					<AddressInput bind:location bind:geocodedLocation />
+				</div>
+				<TextAreaAutoGrow cls={"bg-white"} placeholder="Details" bind:value={details}/>
+			</form>
+		</section>
+		<div class="mt-10 w-full sm:w-[450px]">
+			<Button
+				disabled={submitDisabled}
+				type="submit"
+				class="sticky top-2 mt-2 w-full bg-green-600 ring-glow hover:bg-green-400"
+				onclick={handleSubmit}
+			>
+				{#if mode == 'create'}
+					<Plus class="ml-1 mr-1 h-4 w-4" />
+				{:else}
+					<ArrowDownToLine class="ml-1 mr-1 h-4 w-4" />
+				{/if}
+
+				{mode === EventFormType.CREATE ? 'Create' : 'Update'}
+			</Button>
+			{#if mode == EventFormType.UPDATE}
+				<Dialog.Root>
+					<Dialog.Trigger class="w-full"
 						><Button
 							disabled={submitDisabled}
-							class="mt-2 w-full bg-red-500 hover:bg-red-400"
-							onclick={deleteEvent}
+							class="mt-2 w-full bg-red-500 ring-glow hover:bg-red-400"
 						>
-							<Trash2 class="ml-1 mr-1 h-4 w-4" /> Crush it
-						</Button></Dialog.Footer
+							<Trash2 class="ml-1 mr-1 h-4 w-4" /> Delete
+						</Button></Dialog.Trigger
 					>
-				</Dialog.Content>
-			</Dialog.Root>
-		{/if}
-	</section>
-	<Button
-		disabled={submitDisabled}
-		type="submit"
-		class="sticky top-2 mt-2 w-full bg-green-600 ring-glow hover:bg-green-400 sm:w-[450px]"
-		onclick={handleSubmit}
-	>
-		{#if mode == 'create'}
-			<Plus class="ml-1 mr-1 h-4 w-4" />
-		{:else}
-			<ArrowDownToLine class="ml-1 mr-1 h-4 w-4" />
-		{/if}
-
-		{mode === EventFormType.CREATE ? 'Create' : 'Update'}
-	</Button>
-	<div class="md:7/8 w-5/6">
-		<EventStyler bind:finalStyleCss bind:overlayColor bind:overlayOpacity />
-	</div>
+					<Dialog.Content>
+						<Dialog.Header>
+							<Dialog.Title>Are you sure absolutely sure?</Dialog.Title>
+							<Dialog.Description>
+								This action cannot be undone. This will permanently delete this event and remove its
+								data from our servers.
+							</Dialog.Description>
+						</Dialog.Header>
+						<Dialog.Footer
+							><Button
+								disabled={submitDisabled}
+								class="mt-2 w-full bg-red-500 hover:bg-red-400"
+								onclick={deleteEvent}
+							>
+								<Trash2 class="ml-1 mr-1 h-4 w-4" /> Crush it
+							</Button></Dialog.Footer
+						>
+					</Dialog.Content>
+				</Dialog.Root>
+			{/if}
+		</div>
+	{/if}
 </div>

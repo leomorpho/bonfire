@@ -4,7 +4,7 @@
 </script>
 
 <div class="bg-color-selector min-h-screen w-full">
-	<div class="bg-overlay-selector">
+	<div class="bg-overlay-selector min-h-screen w-full">
 		<EventForm mode={EventFormType.CREATE} />
 	</div>
 </div>

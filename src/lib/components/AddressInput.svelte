@@ -102,7 +102,7 @@
 		{#snippet child({ props })}
 			<Button
 				variant="outline"
-				class="h-fit w-full flex-wrap justify-between whitespace-normal break-words text-xs sm:text-sm"
+				class="h-fit w-full flex-wrap justify-between whitespace-normal break-words"
 				{...props}
 				role="combobox"
 				aria-expanded={open}
@@ -112,7 +112,7 @@
 			</Button>
 		{/snippet}
 	</Popover.Trigger>
-	<Popover.Content class="w-full p-0 text-xs sm:text-sm">
+	<Popover.Content class="w-full p-0">
 		<Command.Root>
 			<Input
 				type="text"
