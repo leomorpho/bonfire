@@ -66,7 +66,7 @@
 </script>
 
 <Dialog.Root bind:open={dialogIsOpen}>
-	<Dialog.Trigger>
+	<Dialog.Trigger class="flex justify-center items-center">
 		{#if fullsizeUrl || url}
 			<Avatar.Root
 				class="relative h-12 w-12 border-2 sm:h-14 sm:w-14 {isTempUser

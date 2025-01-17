@@ -50,6 +50,20 @@
       "when": 1736817650442,
       "tag": "0006_known_nightcrawler",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1737133782404,
+      "tag": "0007_tearful_tomorrow_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1737133989496,
+      "tag": "0008_talented_doctor_strange",
+      "breakpoints": true
     }
   ]
 }

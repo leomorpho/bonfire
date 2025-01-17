@@ -209,7 +209,13 @@
 					event = results[0];
 
 					if (event) {
-						event.geocoded_location = JSON.parse(event.geocoded_location);
+						if (event.geocoded_location) {
+							try {
+								event.geocoded_location = JSON.parse(event.geocoded_location);
+							} catch (e) {
+								console.log(e);
+							}
+						}
 						styleStore.set(event.style);
 						overlayColorStore.set(event.overlay_color);
 						overlayOpacityStore.set(event.overlay_opacity);

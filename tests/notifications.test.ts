@@ -13,8 +13,7 @@ import { schema } from '../triplit/schema';
 import { PUBLIC_TRIPLIT_URL } from '$env/static/public';
 import { TRIPLIT_SERVICE_TOKEN } from '$env/static/private';
 
-
- const serverTriplitClient = new TriplitClient({
+const serverTriplitClient = new TriplitClient({
 	schema,
 	serverUrl: PUBLIC_TRIPLIT_URL,
 	token: TRIPLIT_SERVICE_TOKEN
@@ -30,7 +29,8 @@ async function createNewTestUser(
 		id: generateId(15),
 		email: email ?? faker.internet.email(),
 		email_verified: emailVerified ?? faker.datatype.boolean(),
-		num_logs: numLogs ?? faker.number.int({ min: 0, max: 100 })
+		num_logs: numLogs ?? faker.number.int({ min: 0, max: 100 }),
+		is_event_styles_admin: false
 	};
 
 	await createNewUser(user);

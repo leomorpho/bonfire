@@ -19,14 +19,16 @@ const user = await createNewUser({
 	id: generateId(15),
 	email: 'mike@test.com',
 	email_verified: true,
-	num_logs: 3
+	num_logs: 3,
+	is_event_styles_admin: false
 });
 
 const user2 = await createNewUser({
 	id: generateId(15),
 	email: 'jo@test.com',
 	email_verified: true,
-	num_logs: 3
+	num_logs: 3,
+	is_event_styles_admin: false
 });
 
 await client.insert('user', { id: user?.id, username: 'Mike' });

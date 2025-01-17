@@ -261,7 +261,7 @@
 						placeholder="Email"
 						type="email"
 						name="email"
-						class="input my-5 w-full"
+						class="input my-5 w-full bg-slate-100"
 						class:hidden={!show_email_input}
 					/>
 					{#if $errors.email}

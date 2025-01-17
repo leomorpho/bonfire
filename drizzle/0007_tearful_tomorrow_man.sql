@@ -1,0 +1,1 @@
+ALTER TABLE `user` ADD `is_event_styles_admin` integer;

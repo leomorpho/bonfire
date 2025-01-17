@@ -36,6 +36,7 @@ type NewUser = {
 	email: string;
 	email_verified: boolean;
 	num_logs: number;
+	is_event_styles_admin: boolean;
 };
 
 export const createNewUser = async (user: NewUser) => {

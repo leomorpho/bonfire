@@ -8,7 +8,8 @@ export const userTable = sqliteTable('user', {
 		.default(sql`(current_timestamp)`),
 	email: text('email').notNull().unique(),
 	email_verified: integer('email_verified', { mode: 'boolean' }),
-	num_logs: integer('num_logs').default(3)
+	num_logs: integer('num_logs').default(3),
+	is_event_styles_admin: integer('is_event_styles_admin', { mode: 'boolean' }).default(false)
 });
 
 export const sessionTable = sqliteTable('session', {
@@ -39,10 +40,10 @@ export const emailVerificationOtpTable = sqliteTable('email_verification_otp', {
 	email: text('email').notNull(),
 	otp: text('otp').notNull(),
 	created_at: text('timestamp')
-	  .notNull()
-	  .default(sql`(current_timestamp)`),
+		.notNull()
+		.default(sql`(current_timestamp)`),
 	expires_at: integer('expires_at', { mode: 'timestamp' }).notNull()
-  });
+});
 
 export const signinTable = sqliteTable('signin', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
@@ -99,5 +100,7 @@ export const notificationPermissionTable = sqliteTable('notification_permission'
 export const deletedUserTable = sqliteTable('deleted_user', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
 	userId: text('user_id').notNull(),
-	deleted_at: text('deleted_at').notNull().default(sql`(current_timestamp)`)
+	deleted_at: text('deleted_at')
+		.notNull()
+		.default(sql`(current_timestamp)`)
 });
