@@ -81,6 +81,6 @@ export const sendEmail = async (options: {
 		});
 		console.log(result);
 	} catch (e) {
-		console.error(e);
+		console.error(`failed to send the email to ${options.to} from ${options.from}`, e);
 	}
 };

@@ -23,7 +23,7 @@
 	$effect(() => {
 		console.log('selectedResult', selectedResult);
 	});
-	const enterEventLocationText = 'Enter event location...';
+	const enterEventLocationText = 'Enter event address...';
 
 	let selectedValue = $state(location);
 	$effect(() => {
@@ -116,8 +116,8 @@
 		<Command.Root>
 			<Input
 				type="text"
-				placeholder="Location"
-				class="w-full bg-white"
+				placeholder="1600 Pennsylvania Avenue, Washington DC"
+				class="w-max sm:w-96 bg-white"
 				bind:value={location}
 				oninput={() => fetchSuggestions(location)}
 			/>

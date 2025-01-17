@@ -18,7 +18,7 @@
 	import { onMount } from 'svelte';
 	import { overlayColorStore, overlayOpacityStore, styleStore } from '$lib/styles';
 	import { generatePassphraseId, loadScript } from '$lib/utils';
-	import LocationPicker from './LocationPicker.svelte';
+	import AddressInput from './AddressInput.svelte';
 
 	let { mode, event = null } = $props();
 
@@ -36,6 +36,7 @@
 
 	let dateValue: DateValue | undefined = $state<DateValue | undefined>();
 	let eventName: string = $state(event?.title ?? ''); // State for event name
+	let locationName: string = $state(event?.location_name ?? '');
 	let location: string = $state(event?.location ?? ''); // State for location
 	let geocodedLocation: any = $state(event?.geocoded_location ?? ''); // State for geocoded location
 	let details: string = $state(event?.description ?? ''); // State for event details
@@ -305,9 +306,15 @@
 			{/if}
 
 			<TimezonePicker onValueChange={(newValue: any) => (timezone = newValue)} />
-
+			<div class="h-10"></div>
+			<!-- <Input
+				type="text"
+				placeholder="Location name: Joe's house"
+				class="w-full bg-white"
+				bind:value={locationName}
+			/> -->
 			<div class="flex flex-row items-center">
-				<LocationPicker bind:location bind:geocodedLocation />
+				<AddressInput bind:location bind:geocodedLocation />
 			</div>
 			<Textarea class="bg-white" placeholder="Details" bind:value={details} />
 		</form>
