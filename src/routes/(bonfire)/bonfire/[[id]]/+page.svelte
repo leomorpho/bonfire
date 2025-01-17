@@ -548,7 +548,7 @@
 											</div>
 										</ShareLocation>
 									{:else}
-										<div>{event.location}</div>
+										<div class="my-4 flex items-center justify-center p-2">{event.location}</div>
 									{/if}
 								</div>
 							{:else}
