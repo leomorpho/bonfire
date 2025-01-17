@@ -102,7 +102,7 @@
 		{#snippet child({ props })}
 			<Button
 				variant="outline"
-				class="w-full justify-between"
+				class="h-fit w-full flex-wrap justify-between whitespace-normal break-words text-xs sm:text-sm"
 				{...props}
 				role="combobox"
 				aria-expanded={open}
@@ -112,12 +112,12 @@
 			</Button>
 		{/snippet}
 	</Popover.Trigger>
-	<Popover.Content class="w-full p-0">
+	<Popover.Content class="w-full p-0 text-xs sm:text-sm">
 		<Command.Root>
 			<Input
 				type="text"
 				placeholder="1600 Pennsylvania Avenue, Washington DC"
-				class="w-max sm:w-96 bg-white"
+				class="w-max bg-white sm:w-96"
 				bind:value={location}
 				oninput={() => fetchSuggestions(location)}
 			/>
