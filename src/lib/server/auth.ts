@@ -21,7 +21,8 @@ export const lucia = new Lucia(adapter, {
 		return {
 			emailVerified: attributes.email_verified,
 			email: attributes.email,
-			num_logs: attributes.num_logs
+			num_logs: attributes.num_logs,
+			is_event_styles_admin: attributes.is_event_styles_admin,
 		};
 	}
 });

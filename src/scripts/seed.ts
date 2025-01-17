@@ -20,7 +20,7 @@ const user = await createNewUser({
 	email: 'mike@test.com',
 	email_verified: true,
 	num_logs: 3,
-	is_event_styles_admin: false
+	is_event_styles_admin: true
 });
 
 const user2 = await createNewUser({

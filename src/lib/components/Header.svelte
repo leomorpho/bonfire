@@ -12,16 +12,24 @@
 		CircleHelp,
 		Cog,
 		CircleUser,
-		House
+		House,
+		Shield
 	} from 'lucide-svelte';
 	import { page } from '$app/stores';
 	import { enhance } from '$app/forms';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 
+	let isAdmin = false;
+
+	if ($page.data.user && $page.data.user.is_event_styles_admin) {
+		isAdmin = true;
+	}
+
 	const authLinks: Array<Link> = [
 		{ icon: House, name: 'Dashboard', href: '/dashboard' },
 		{ icon: CircleUser, name: 'Profile', href: '/profile' },
-		{ icon: Cog, name: 'Settings', href: '/settings' }
+		{ icon: Cog, name: 'Settings', href: '/settings' },
+		...(isAdmin ? [{ icon: Shield, name: 'Admin Panel', href: '/admin' }] : [])
 	];
 
 	const unauthLinks: Array<Link> = [

@@ -89,12 +89,12 @@
 				// Redirect to the location returned in the response
 				window.location.href = data.location;
 			} else {
+				showPageLoader = false;
 				otpInvalid = true;
 				console.log(data.error || 'OTP verification failed');
 			}
 		} catch (e) {
 			console.error('failed to verify OTP', e);
-		} finally {
 			showPageLoader = false;
 		}
 	}
