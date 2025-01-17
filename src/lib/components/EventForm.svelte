@@ -4,7 +4,7 @@
 	import { CalendarDate, type DateValue } from '@internationalized/date';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Textarea } from '$lib/components/ui/textarea/index.js';
-	import { Plus, Minus, Clock, Clock8, ArrowDownToLine, Trash2 } from 'lucide-svelte';
+	import { Plus, Minus, Clock, Clock8, ArrowDownToLine, Trash2, Palette } from 'lucide-svelte';
 	import DoubleDigitsPicker from '$lib/components/DoubleDigitsPicker.svelte';
 	import TimezonePicker from '$lib/components/TimezonePicker.svelte';
 	import Datepicker from '$lib/components/Datepicker.svelte';
@@ -20,6 +20,7 @@
 	import { generatePassphraseId, loadScript } from '$lib/utils';
 	import AddressInput from './AddressInput.svelte';
 	import TextAreaAutoGrow from './TextAreaAutoGrow.svelte';
+	import ChevronLeft from 'svelte-radix/ChevronLeft.svelte';
 
 	let { mode, event = null } = $props();
 
@@ -228,11 +229,29 @@
 			console.error('Error deleting event:', error);
 		}
 	};
+
+	const startEditEventStyle = () => {
+		isEditingStyle = true;
+	};
+	const sopEditEventStyle = () => {
+		isEditingStyle = false;
+	};
 </script>
 
 <div class="mx-4 flex flex-col items-center justify-center">
 	{#if isEditingStyle}
 		<div class="md:7/8 w-5/6">
+			<div class="sticky top-2 flex justify-center">
+				<Button
+					class="sticky top-2 mt-2 w-full bg-violet-500 ring-glow hover:bg-violet-400 sm:w-[450px]"
+					onclick={sopEditEventStyle}
+				>
+					<ChevronLeft class="mr-1" />
+
+					Back
+				</Button>
+			</div>
+
 			<EventStyler bind:finalStyleCss bind:overlayColor bind:overlayOpacity />
 		</div>
 	{:else}
@@ -310,7 +329,7 @@
 							onclick={() => {
 								setEndTime = false;
 							}}
-							class="invisible text-xs sm:text-base w-full"
+							class="invisible w-full text-xs sm:text-base"
 						>
 							<Minus class="ml-1 mr-1 h-4 w-4" />
 							to
@@ -328,14 +347,22 @@
 				<div class="flex flex-row items-center">
 					<AddressInput bind:location bind:geocodedLocation />
 				</div>
-				<TextAreaAutoGrow cls={"bg-white"} placeholder="Details" bind:value={details}/>
+				<TextAreaAutoGrow cls={'bg-white'} placeholder="Details" bind:value={details} />
 			</form>
 		</section>
 		<div class="mt-10 w-full sm:w-[450px]">
 			<Button
+				class="sticky top-2 mt-2 w-full bg-violet-500 ring-glow hover:bg-violet-400"
+				onclick={startEditEventStyle}
+			>
+				<Palette class="mr-1" />
+
+				Edit event style
+			</Button>
+			<Button
 				disabled={submitDisabled}
 				type="submit"
-				class="sticky top-2 mt-2 w-full bg-green-600 ring-glow hover:bg-green-400"
+				class="sticky top-2 mt-2 w-full bg-green-500 ring-glow hover:bg-green-400"
 				onclick={handleSubmit}
 			>
 				{#if mode == 'create'}
