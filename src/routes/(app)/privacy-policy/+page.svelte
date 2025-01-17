@@ -13,7 +13,7 @@
 		<span class="font-medium">Important Notice:</span> We do not buy, sell, or share any of the data
 		you store on Bonfire. Your privacy is our priority.
 	</div>
-	<div id="privacy-policy" class="bg-gray-50 py-16">
+	<div id="privacy-policy" class="py-16">
 		<div class="mx-auto max-w-2xl px-6 lg:px-8">
 			<div class="space-y-8">
 				<h1 class="text-center text-4xl font-bold">Privacy Policy</h1>
