@@ -4,6 +4,7 @@
 	import * as Popover from '$lib/components/ui/popover/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Slider } from '$lib/components/ui/slider/index.js';
+	import { PaintRoller } from 'lucide-svelte';
 
 	let {
 		finalStyleCss = $bindable<string>(),
@@ -16,7 +17,7 @@
 
 	const randomSort = (array) => array.sort(() => Math.random() - 0.5);
 
-	const randomStylesGallery = randomSort(stylesGallery)
+	const randomStylesGallery = randomSort(stylesGallery);
 	// DOM reference to the injected style
 	let styleElement: HTMLStyleElement | null = null;
 
@@ -136,9 +137,12 @@
 
 <div class="sticky top-10 flex justify-center">
 	<Popover.Root>
-		<Popover.Trigger class="mt-6 flex w-full justify-center sm:w-[450px]"
-			><Button class="w-full rounded-full ring-glow">Edit overlay</Button></Popover.Trigger
-		>
+		<Popover.Trigger class="mt-3 flex w-full justify-center sm:w-[450px]">
+			<Button class="w-full ring-glow">
+				<PaintRoller class="mr-1" />
+				Edit overlay
+			</Button>
+		</Popover.Trigger>
 		<Popover.Content class="bg-slate-200">
 			<div class="flex w-full justify-center">Overlay</div>
 			<div class="mt-7 flex w-full items-center justify-center space-x-5">

@@ -241,9 +241,9 @@
 <div class="mx-4 flex flex-col items-center justify-center">
 	{#if isEditingStyle}
 		<div class="md:7/8 w-5/6">
-			<div class="sticky top-2 flex justify-center">
+			<div class="sticky top-2 mt-2 flex justify-center">
 				<Button
-					class="sticky top-2 mt-2 w-full bg-violet-500 ring-glow hover:bg-violet-400 sm:w-[450px]"
+					class="w-full bg-violet-500 ring-glow hover:bg-violet-400 sm:w-[450px]"
 					onclick={sopEditEventStyle}
 				>
 					<ChevronLeft class="mr-1" />
