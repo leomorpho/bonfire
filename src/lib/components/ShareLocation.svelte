@@ -5,11 +5,7 @@
 	import WazeIcon from './icons/WazeIcon.svelte';
 	import AppleMapsIcon from './icons/AppleMapsIcon.svelte';
 
-	let { children, geocodedLocation } = $props();
-
-	const geoLocation = JSON.parse(geocodedLocation);
-	const lat = geoLocation.latitude;
-	const lon = geoLocation.longitude;
+	let { children, lat, lon } = $props();
 
 	const googleMapsUrl = `https://www.google.com/maps?q=${lat},${lon}`;
 	const appleMapsUrl = `https://maps.apple.com/?ll=${lat},${lon}`;

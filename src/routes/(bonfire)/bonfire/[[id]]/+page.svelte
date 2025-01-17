@@ -36,10 +36,11 @@
 	import { dev } from '$app/environment';
 	import { overlayColorStore, overlayOpacityStore, styleStore } from '$lib/styles';
 	import ShareLocation from '$lib/components/ShareLocation.svelte';
+	import type { EventTypescriptType } from '$lib/types';
 
 	let userId = $state('');
 
-	let event = $state();
+	let event = $state<EventTypescriptType>();
 	let eventLoading = $state(true);
 	let eventFailedLoading = $state(false);
 	let fileCount = $state(0);
@@ -206,11 +207,15 @@
 			(results) => {
 				if (results.length == 1) {
 					event = results[0];
-					styleStore.set(event.style);
-					overlayColorStore.set(event.overlay_color);
-					overlayOpacityStore.set(event.overlay_opacity);
-					eventLoading = false;
-					rsvpCanBeChanged = new Date(event.start_time) >= new Date();
+
+					if (event) {
+						event.geocoded_location = JSON.parse(event.geocoded_location);
+						styleStore.set(event.style);
+						overlayColorStore.set(event.overlay_color);
+						overlayOpacityStore.set(event.overlay_opacity);
+						eventLoading = false;
+						rsvpCanBeChanged = new Date(event.start_time) >= new Date();
+					}
 				}
 			},
 			(error) => {
@@ -299,7 +304,7 @@
 				(results) => {
 					if (results.length == 1) {
 						tempAttendee = results[0];
-						rsvpStatus = tempAttendee.status;
+						rsvpStatus = tempAttendee?.status;
 					}
 				},
 				(error) => {
@@ -524,9 +529,14 @@
 						<MapPin class="mr-2 h-4 w-4" />
 						{#if !isAnonymousUser}
 							{#if event.location}<div class="flex items-center justify-center">
-									{#if event.geocoded_location}
-										<ShareLocation geocodedLocation={event.geocoded_location}>
-											<div class="flex items-center justify-center rounded-xl bg-slate-200 p-2 my-4">
+									{#if event.geocoded_location && event.geocoded_location.latitude && event.geocoded_location.longitude}
+										<ShareLocation
+											lat={event.geocoded_location.latitude}
+											lon={event.geocoded_location.longitude}
+										>
+											<div
+												class="my-4 flex items-center justify-center rounded-xl bg-slate-200 p-2"
+											>
 												{event.location}
 												<ArrowRightFromLine class="ml-2 h-4 w-4" />
 											</div>
@@ -547,7 +557,7 @@
 				<div class="mx-3 mt-5 items-center">
 					{#if attendeesLoading}
 						<div class="flex flex-wrap items-center -space-x-3">
-							{#each Array(20).fill() as _, index}
+							{#each Array(20).fill(null) as _, index}
 								<Skeleton class="size-12 rounded-full" />
 							{/each}
 						</div>

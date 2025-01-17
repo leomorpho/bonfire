@@ -75,3 +75,23 @@ export type PushNotificationPayload = {
 	icon?: string;
 	badge?: number;
 };
+
+export type EventTypescriptType = {
+	id: string;
+	title: string;
+	description?: string | null; // Nullable
+	start_time: Date;
+	end_time?: Date | null; // Nullable
+	location?: string | null; // Nullable
+	geocoded_location?: string | null | JSON; // Optional and nullable
+	user_id: string; // ID of the user who created the event
+	user: { id: string; [key: string]: any }; // Relation to `user`, replace `[key: string]: any` with actual fields if defined
+	attendees: Array<AttendeeTypescriptType>; // Relation to attendees
+	temporary_attendees: Array<AttendeeTypescriptType>; // Relation to temporary attendees
+	announcements: Array<AnnouncementTypescriptType>; // Relation to announcements
+	files: Array<FileTypescriptType>; // Relation to files
+	viewers: Array<{ id: string; user_id: string; event_id: string }>; // Relation to event viewers
+	style?: string | null; // Nullable
+	overlay_color?: string | null; // Nullable and optional
+	overlay_opacity?: number | null; // Nullable and optional
+};
