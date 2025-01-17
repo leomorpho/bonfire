@@ -26,8 +26,7 @@
 			</AlertDialog.Description>
 		</AlertDialog.Header>
 		<AlertDialog.Footer>
-			<Button  class="my-2" onclick={handleCancel} variant="outline">Cancel</Button>
-			<!-- Not using <AlertDialog.Cancel/> because the click event does not trigger handleCancel-->
+			<AlertDialog.Cancel onclick={handleCancel}>Cancel</AlertDialog.Cancel>
 			<AlertDialog.Action onclick={handleConfirm}>Continue</AlertDialog.Action>
 		</AlertDialog.Footer>
 	</AlertDialog.Content>
