@@ -4,17 +4,17 @@ import type { RequestHandler } from './$types';
 import { RateLimiter } from 'sveltekit-rate-limiter/server';
 import { dev } from '$app/environment';
 
-// Initialize the rate limiter
-const limiter = new RateLimiter({
-	IP: [30, 'm'], // Limit 30 requests per minute per IP
-	IPUA: [20, 'm'] // Limit 20 requests per minute per IP + User Agent
-});
+// // Initialize the rate limiter
+// const limiter = new RateLimiter({
+// 	IP: [, 'm'], // Limit 30 requests per minute per IP
+// 	IPUA: [20, 'm'] // Limit 20 requests per minute per IP + User Agent
+// });
 
 export const POST: RequestHandler = async ({ request }) => {
 	// Check if the request is limited
-	if (!dev && (await limiter.isLimited({ request }))) {
-		throw error(429, 'Too many requests. Please try again later.');
-	}
+	// if (!dev && (await limiter.isLimited({ request }))) {
+	// 	throw error(429, 'Too many requests. Please try again later.');
+	// }
 
 	try {
 		// Parse the JSON body
