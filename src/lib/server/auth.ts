@@ -1,6 +1,6 @@
 import { db } from './database/db';
 import { Google } from 'arctic';
-import { Lucia } from 'lucia';
+import { Lucia, TimeSpan } from 'lucia';
 
 import { DrizzleSQLiteAdapter } from '@lucia-auth/adapter-drizzle';
 import { dev } from '$app/environment';
@@ -22,9 +22,10 @@ export const lucia = new Lucia(adapter, {
 			emailVerified: attributes.email_verified,
 			email: attributes.email,
 			num_logs: attributes.num_logs,
-			is_event_styles_admin: attributes.is_event_styles_admin,
+			is_event_styles_admin: attributes.is_event_styles_admin
 		};
-	}
+	},
+	sessionExpiresIn: new TimeSpan(90, 'd') // 90 days
 });
 
 declare module 'lucia' {
