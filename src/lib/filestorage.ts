@@ -20,11 +20,13 @@ import ffmpeg from 'fluent-ffmpeg';
 import { encode } from 'blurhash';
 import fs from 'fs/promises';
 import path from 'path';
+import { getPixels } from '@unpic/pixels';
+import { BannerMediaSize } from './enums';
 
 ffmpeg.setFfmpegPath(ffmpegInstaller.path);
 
 // Create an S3 client
- const s3 = new S3Client({
+const s3 = new S3Client({
 	region: env.S3_REGION, // Your Backblaze region
 	endpoint: env.S3_ENDPOINT,
 	credentials: {
@@ -35,13 +37,25 @@ ffmpeg.setFfmpegPath(ffmpegInstaller.path);
 
 const bucketName = dev ? env.DEV_S3_BUCKET_NAME : env.S3_BUCKET_NAME;
 
-export async function uploadProfileImageToS3(file: File, userId: string) {
+export async function uploadProfileImage(file: File, userId: string) {
+	// NOTE: Profile pics are always named the same for a same user, to overwrite their previous pic.
+
 	// Generate keys
 	const fullImageKey = `profile-images/${userId}/full.jpg`;
 	const smallImageKey = `profile-images/${userId}/small.jpg`;
 
 	// Convert File to Buffer
 	const fileBuffer = Buffer.from(await file.arrayBuffer());
+
+	// Generate BlurHash for the small image
+	let blurhash: string | null = null;
+	try {
+		const pixelData = await getPixels(fileBuffer);
+		const data = Uint8ClampedArray.from(pixelData.data);
+		blurhash = encode(data, pixelData.width, pixelData.height, 4, 4);
+	} catch (error) {
+		console.error('Failed to generate BlurHash:', error);
+	}
 
 	// Resize the image for the full version (400x400)
 	const fullImageBuffer = await sharp(fileBuffer)
@@ -84,24 +98,126 @@ export async function uploadProfileImageToS3(file: File, userId: string) {
 		// .select(['id']) // TODO: bug with select for http client
 		.build();
 
-	let existingEntry = await triplitHttpClient.fetchOne(query);
+	const existingEntry = await triplitHttpClient.fetchOne(query);
 
 	if (existingEntry) {
 		// Update the existing entry
 		await triplitHttpClient.update('profile_images', existingEntry.id, async (e) => {
 			e.full_image_key = fullImageKey;
 			e.small_image_key = smallImageKey;
+			e.blurhash = blurhash;
 		});
 	} else {
 		// Insert a new entry
 		await triplitHttpClient.insert('profile_images', {
 			user_id: userId,
 			full_image_key: fullImageKey,
-			small_image_key: smallImageKey
+			small_image_key: smallImageKey,
+			blurhash: blurhash
 		});
 	}
 
 	return { fullImageKey, smallImageKey };
+}
+
+export async function uploadBannerImage(file: File, userId: string, eventId: string) {
+	// Extract file metadata
+	const filetype = file.type; // MIME type, e.g., 'image/jpeg'
+	const filesize = file.size; // File size in bytes
+
+	// Generate keys
+	const largeImageKey = `banner/${eventId}/lg.jpg`;
+	const smallImageKey = `banner/${eventId}/sm.jpg`;
+
+	// Convert File to Buffer
+	const fileBuffer = Buffer.from(await file.arrayBuffer());
+
+	// Resize the image for the full version (400x400)
+	const largeImageBuffer = await sharp(fileBuffer)
+		.resize(BannerMediaSize.LARGE_WIDTH, BannerMediaSize.LARGE_HEIGHT, { fit: 'cover' })
+		.jpeg({ quality: 90 }) // High quality for full version
+		.toBuffer();
+
+	// Resize the image for the small version (128x128)
+	const smallImageBuffer = await sharp(fileBuffer)
+		.resize(BannerMediaSize.SMALL_WIDTH, BannerMediaSize.SMALL_HEIGHT, { fit: 'cover' })
+		.jpeg({ quality: 80 }) // Lower quality for small version
+		.toBuffer();
+
+	// Generate BlurHash for the small image
+	let blurhash: string | null = null;
+	try {
+		const pixelData = await getPixels(smallImageBuffer);
+		const data = Uint8ClampedArray.from(pixelData.data);
+		blurhash = encode(data, pixelData.width, pixelData.height, 4, 4);
+	} catch (error) {
+		console.error('Failed to generate BlurHash:', error);
+	}
+
+	// Upload large version
+	await s3.send(
+		new PutObjectCommand({
+			Bucket: bucketName,
+			Key: largeImageKey,
+			Body: largeImageBuffer,
+			ContentType: 'image/jpeg',
+			ACL: 'private'
+		})
+	);
+
+	// Upload small version
+	await s3.send(
+		new PutObjectCommand({
+			Bucket: bucketName,
+			Key: smallImageKey,
+			Body: smallImageBuffer,
+			ContentType: 'image/jpeg',
+			ACL: 'private'
+		})
+	);
+
+	// Check if a profile image entry exists for the user
+	const query = triplitHttpClient
+		.query('banner_media')
+		.where(['event_id', '=', eventId])
+		// .select(['id']) // TODO: bug with select for http client
+		.build();
+
+	const existingEntry = await triplitHttpClient.fetchOne(query);
+
+	if (existingEntry) {
+		// Update the existing entry
+		await triplitHttpClient.update('banner_media', existingEntry.id, async (e) => {
+			e.full_image_key = largeImageKey;
+			e.small_image_key = smallImageKey;
+			e.file_type = filetype;
+			e.h_pixel_lg = BannerMediaSize.LARGE_HEIGHT;
+			e.w_pixel_lg = BannerMediaSize.LARGE_WIDTH;
+			e.h_pixel_sm = BannerMediaSize.SMALL_HEIGHT;
+			e.w_pixel_sm = BannerMediaSize.SMALL_WIDTH;
+			e.blurr_hash = blurhash;
+			e.size_in_bytes = filesize;
+			e.uploader_id = userId;
+			e.event_id = eventId;
+		});
+	} else {
+		// Insert a new entry
+		await triplitHttpClient.insert('banner_media', {
+			full_image_key: smallImageKey,
+			small_image_key: smallImageKey,
+			file_type: filetype,
+			h_pixel_lg: BannerMediaSize.LARGE_HEIGHT,
+			w_pixel_lg: BannerMediaSize.LARGE_WIDTH,
+			h_pixel_sm: BannerMediaSize.SMALL_HEIGHT,
+			w_pixel_sm: BannerMediaSize.SMALL_WIDTH,
+			blurr_hash: blurhash,
+			size_in_bytes: filesize,
+			uploader_id: userId,
+			event_id: eventId
+		});
+	}
+
+	return { largeImageKey, smallImageKey };
 }
 
 export async function generateSignedUrl(key: string, expiresIn = 3600 * 24) {

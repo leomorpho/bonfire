@@ -76,7 +76,8 @@ export const schema = {
 			user: S.RelationById('user', '$user_id'), // Relation to the user table
 			full_image_key: S.String(), // Key for the full version of the image
 			small_image_key: S.String(), // Key for the smaller version of the image
-			uploaded_at: S.Date({ default: S.Default.now() }) // Timestamp of upload
+			uploaded_at: S.Date({ default: S.Default.now() }), // Timestamp of upload
+			blurr_hash: S.Optional(S.String({ nullable: true, default: null, optional: true }))
 		}),
 		permissions: {
 			user: {
@@ -134,6 +135,8 @@ export const schema = {
 			files: S.RelationMany('files', {
 				where: [['event_id', '=', '$id']]
 			}),
+			banner_media_id: S.String(),
+			banner_media: S.RelationById('banner_media', '$banner_media_id'),
 			viewers: S.RelationMany('event_viewers', {
 				where: [['event_id', '=', '$id']]
 			}),
@@ -328,6 +331,52 @@ export const schema = {
 			linked_file_id: S.String({ nullable: true, default: null, optional: true }),
 			linked_file: S.RelationById('files', '$linked_file_id'),
 			is_linked_file: S.Boolean({ default: false })
+		}),
+		permissions: {
+			user: {
+				read: {
+					filter: [
+						or([
+							['uploader_id', '=', '$role.userId'], // User can read their own profile
+							// A user should be able to only query for files of events they are attending:
+							['event.attendees.user_id', '=', '$role.userId']
+						])
+					]
+				},
+				// No need to allow insert since we will do that in BE logic and
+				// triplit doesn't seem powerful enough to be able to set appropriate permissions (user
+				// is attending event). Read is only used to count files as S3 URL is generated in BE.
+				update: {
+					filter: [['uploader_id', '=', '$role.userId']] // Users can only update their own files
+				},
+				delete: {
+					filter: [['uploader_id', '=', '$role.userId']] // Users can only delete their own files
+				}
+			},
+			temp: {
+				read: {
+					filter: [['event.temporary_attendees.id', '=', '$role.temporaryAttendeeId']]
+				}
+			}
+		}
+	},
+	banner_media: {
+		schema: S.Schema({
+			id: S.Id(),
+			full_image_key: S.String(), // S3 key
+			small_image_key: S.String(), // S3 key
+			file_type: S.String(), // e.g., 'image', 'video', 'gif'
+			h_pixel_lg: S.Number({ nullable: true }),
+			w_pixel_lg: S.Number({ nullable: true }),
+			h_pixel_sm: S.Number({ nullable: true }),
+			w_pixel_sm: S.Number({ nullable: true }),
+			blurr_hash: S.String({ nullable: true, default: null, optional: true }),
+			size_in_bytes: S.Number(),
+			uploaded_at: S.Date({ default: S.Default.now() }),
+			uploader_id: S.String({ nullable: true, default: null, optional: true }), // ID of the attendee
+			uploader: S.RelationById('user', '$user_id'), // Link to the user
+			event_id: S.String(), // ID of the event
+			event: S.RelationById('events', '$event_id') // Link to the event
 		}),
 		permissions: {
 			user: {

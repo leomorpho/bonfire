@@ -1,4 +1,4 @@
-import { uploadProfileImageToS3 } from '$lib/filestorage';
+import { uploadProfileImage } from '$lib/filestorage';
 import { json, redirect, type RequestHandler } from '@sveltejs/kit';
 
 export const POST: RequestHandler = async ({ request, locals }) => {
@@ -17,7 +17,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		}
 
 		// Use the existing upload function
-		const key = await uploadProfileImageToS3(file, user.id);
+		const key = await uploadProfileImage(file, user.id);
 
 		// Respond with the key
 		return json({ key });

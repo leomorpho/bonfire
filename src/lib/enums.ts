@@ -97,4 +97,11 @@ export const TempNameCheckingState = {
 	ERROR: 'ERROR'
 };
 
-export const LOCAL_INDEXEDDB_NAME = "bonfire";
+export const LOCAL_INDEXEDDB_NAME = 'bonfire';
+
+export const BannerMediaSize = {
+	LARGE_WIDTH: 850,
+	LARGE_HEIGHT: 315,
+	SMALL_WIDTH: 640,
+	SMALL_HEIGHT: 360
+};
