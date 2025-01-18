@@ -65,7 +65,7 @@ export async function POST({ request }) {
 	}
 
 	// Invalidate any existing sessions and update email verification status
-	await lucia.invalidateUserSessions(user.id);
+	// await lucia.invalidateUserSessions(user.id);
 	await updateUser(user.id, { email_verified: true });
 
 	// Create a session for the user

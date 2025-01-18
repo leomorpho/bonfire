@@ -2,7 +2,7 @@
 	import { onMount, tick } from 'svelte';
 	import Google from '$lib/components/icons/Google.svelte';
 	import { superForm } from 'sveltekit-superforms';
-	import { Mail } from 'lucide-svelte';
+	import { ClipboardPaste, Mail } from 'lucide-svelte';
 	import { Image } from '@unpic/svelte';
 	import { tempAttendeeIdFormName, tempAttendeeIdUrlParam } from '$lib/enums.js';
 	import { page } from '$app/stores';
@@ -11,6 +11,7 @@
 	import LoaderPage from '$lib/components/LoaderPage.svelte';
 	import type { TriplitClient } from '@triplit/client';
 	import { clearCache, getFeTriplitClient } from '$lib/triplit.js';
+	import Button from '$lib/components/ui/button/button.svelte';
 
 	const { data } = $props();
 
@@ -49,6 +50,27 @@
 				console.log(`Pasted OTP value: ${oneTimePasswordValue}`);
 				handleOtpComplete(oneTimePasswordValue);
 			}
+		}
+	}
+
+	async function handlePasteFromClipboard() {
+		try {
+			// Get the clipboard text
+			const clipboardText = await navigator.clipboard.readText();
+
+			// Filter out non-numeric characters from the clipboard text
+			const numericInput = clipboardText.replace(/[^0-9]/g, '');
+
+			if (numericInput && numericInput.length === 6) {
+				// Update oneTimePasswordValue with the numeric value
+				oneTimePasswordValue = numericInput;
+				console.log(`Pasted OTP value: ${oneTimePasswordValue}`);
+				handleOtpComplete(oneTimePasswordValue);
+			} else {
+				console.error('Clipboard does not contain a valid OTP.');
+			}
+		} catch (error) {
+			console.error('Failed to read clipboard:', error);
 		}
 	}
 
@@ -154,6 +176,10 @@
 					We've sent you a one-time password to enter below. Please be sure to check your spam
 					folder too.
 				</div>
+				<Button onclick={handlePasteFromClipboard} class="mt-5 bg-green-500 hover:bg-green-400">
+					<ClipboardPaste class="mr-1" />
+					Paste from clipboard</Button
+				>
 				<div class="mb-5 mt-8 flex w-full justify-center sm:text-2xl">
 					<OTPRoot
 						inputMode="numeric"
@@ -221,10 +247,18 @@
 			<div class="my-4 flex w-full flex-col space-y-1.5 text-center">
 				<div class="mx-auto w-fit max-w-64">
 					<Image
-						class="max-w-64 rounded-lg"
-						height={834}
-						width={1000}
-						src="https://f002.backblazeb2.com/file/bonfire-public/logo/Bonfire_logo_vert_color.png"
+						class="max-w-64 rounded-lg hidden sm:block"
+						height={209}
+						width={250}
+						src="https://f002.backblazeb2.com/file/bonfire-public/logo/logo_Bonfire_logo_vert_color_250.png"
+						layout="constrained"
+						alt="Bonfire logo with name"
+					/>
+					<Image
+						class="max-w-64 rounded-lg block sm:hidden"
+						height={125}
+						width={150}
+						src="https://f002.backblazeb2.com/file/bonfire-public/logo/logo_Bonfire_logo_vert_color_150px.png"
 						layout="constrained"
 						alt="Bonfire logo with name"
 					/>
@@ -261,6 +295,7 @@
 						placeholder="Email"
 						type="email"
 						name="email"
+						autocomplete="email"
 						class="input my-5 w-full bg-slate-100"
 						class:hidden={!show_email_input}
 					/>
