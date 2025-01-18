@@ -51,11 +51,11 @@
 	let tempAttendee = $state(null);
 	let rsvpCanBeChanged = $state(false);
 
-	$effect(()=>{
-		if (event){
+	$effect(() => {
+		if (event) {
 			rsvpCanBeChanged = new Date(event.start_time) >= new Date();
 		}
-	})
+	});
 
 	console.log('tempAttendeeId', tempAttendeeId);
 
@@ -218,6 +218,7 @@
 			client
 				.query('events')
 				.where([['id', '=', $page.params.id]])
+				.include('banner_media')
 				.subquery(
 					'organizer',
 					client.query('user').where(['id', '=', '$1.user_id']).select(['username', 'id']).build(),
@@ -524,6 +525,13 @@
 					</div>
 				{/if}
 				<div class="space-y-3 rounded-xl bg-white p-5">
+					{#if event.banner_media}
+						THere's a banner!
+					{:else}
+						<a class="flex w-full" href="banner/upload">
+							<Button class="w-full">Set a banner image</Button>
+						</a>
+					{/if}
 					<h1 class="mb-4 flex justify-center text-xl sm:text-2xl">
 						{isAnonymousUser ? $page.data.event.title : event.title}
 					</h1>

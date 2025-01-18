@@ -135,7 +135,7 @@ export const schema = {
 			files: S.RelationMany('files', {
 				where: [['event_id', '=', '$id']]
 			}),
-			banner_media_id: S.String(),
+			banner_media_id: S.Optional(S.String()),
 			banner_media: S.RelationById('banner_media', '$banner_media_id'),
 			viewers: S.RelationMany('event_viewers', {
 				where: [['event_id', '=', '$id']]

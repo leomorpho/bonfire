@@ -17,7 +17,7 @@
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 	import { overlayColorStore, overlayOpacityStore, styleStore } from '$lib/styles';
-	import { generatePassphraseId, loadScript } from '$lib/utils';
+	import { generatePassphraseId } from '$lib/utils';
 	import TextAreaAutoGrow from './TextAreaAutoGrow.svelte';
 	import ChevronLeft from 'svelte-radix/ChevronLeft.svelte';
 	import LocationInput from './LocationInput.svelte';
@@ -61,7 +61,7 @@
 	let overlayOpacity: number = $state(event?.overlay_opacity ?? 0.4);
 
 	let isEditingStyle = $state(false);
-	let cancelUrl = $state(event && event.id?`/bonfire/${event.id}`:'/');
+	let cancelUrl = $state(event && event.id ? `/bonfire/${event.id}` : '/');
 
 	if (event) {
 		const startTime = parseDateTime(event.start_time);
@@ -199,7 +199,6 @@
 			} else {
 				console.log('Failed to create event object');
 			}
-			goto('/dashboard');
 		} else {
 			await client.update('events', event.id, async (entity) => {
 				entity.title = eventName;
@@ -351,7 +350,7 @@
 				<TextAreaAutoGrow cls={'bg-white'} placeholder="Details" bind:value={details} />
 			</form>
 		</section>
-		<div class="mt-10 w-full sm:w-[450px]">
+		<div class="my-10 w-full sm:w-[450px]">
 			<a href={cancelUrl}>
 				<Button class="sticky top-2 mt-2 w-full ring-glow">Cancel</Button>
 			</a>

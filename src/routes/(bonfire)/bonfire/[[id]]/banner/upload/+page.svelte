@@ -17,6 +17,7 @@
 
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
 
 	let uppy;
 
@@ -31,7 +32,7 @@
 			restrictions: {
 				minNumberOfFiles: 1,
 				maxNumberOfFiles: 1,
-				maxFileSize: maxMbSize * 1024 * 1024, // Limit file size 
+				maxFileSize: maxMbSize * 1024 * 1024, // Limit file size to 100MB
 				allowedFileTypes: ['image/*'] // Allowed file types
 			}
 		})
@@ -49,8 +50,8 @@
 			.use(GoldenRetriever)
 			.use(ImageEditor, {
 				cropperOptions: {
-					initialAspectRatio: 1,
-					aspectRatio: 1
+					initialAspectRatio: 2.5,
+					aspectRatio: 2.5
 				},
 				actions: {
 					revert: true,
@@ -66,7 +67,7 @@
 			})
 			.use(Compressor)
 			.use(XHR, {
-				endpoint: '/bonfire/upload-profile-image', // Your SvelteKit endpoint
+				endpoint: `/bonfire/${$page.params.id}/banner/upload`,
 				method: 'POST',
 				formData: true,
 				fieldName: 'file', // Ensure this matches the backend expectation
@@ -76,7 +77,7 @@
 			})
 			.on('upload-success', (file, response) => {
 				console.log('Upload successful:', file, response);
-				goto('/profile')
+				goto('/profile');
 			})
 			.on('error', (error) => {
 				console.error('Upload error:', error);
@@ -86,9 +87,10 @@
 
 <div class="mx-2 flex flex-col items-center justify-center">
 	<section class="mt-8 w-full sm:w-[450px]">
-		<h2 class="my-6 text-2xl font-semibold flex justify-center">Edit Avatar</h2>
+		<h2 class="my-6 flex justify-center rounded-lg bg-white p-2 text-2xl font-semibold">
+			Set Banner
+		</h2>
 
 		<div id="uppy-dashboard"></div>
 	</section>
 </div>
-
