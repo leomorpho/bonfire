@@ -61,6 +61,7 @@
 	let overlayOpacity: number = $state(event?.overlay_opacity ?? 0.4);
 
 	let isEditingStyle = $state(false);
+	let cancelUrl = $state(event && event.id?`/bonfire/${event.id}`:'/');
 
 	if (event) {
 		const startTime = parseDateTime(event.start_time);
@@ -351,8 +352,8 @@
 			</form>
 		</section>
 		<div class="mt-10 w-full sm:w-[450px]">
-			<a href={`/bonfire/${event.id}`}>
-				<Button class="sticky top-2 mt-2 w-full">Cancel</Button>
+			<a href={cancelUrl}>
+				<Button class="sticky top-2 mt-2 w-full ring-glow">Cancel</Button>
 			</a>
 
 			<Button

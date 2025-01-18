@@ -24,11 +24,15 @@
 
 	// Synchronize input height with trigger button
 	$effect(() => {
+		resizeInputBox();
+	});
+
+	const resizeInputBox = () => {
 		if (triggerRef && inputRef) {
 			const triggerWidth = triggerRef.offsetWidth;
 			inputRef.style.width = `${triggerWidth}px`;
 		}
-	});
+	};
 
 	$effect(() => {
 		console.log('selectedResult', selectedResult);
@@ -109,6 +113,7 @@
 				errorMessage = 'Unexpected response type.';
 				suggestions = [];
 			}
+			resizeInputBox();
 		} catch (error) {
 			console.error('Failed to fetch suggestions:', error);
 			errorMessage = 'Unable to fetch suggestions.';
@@ -120,7 +125,7 @@
 </script>
 
 <Popover.Root bind:open>
-	<Popover.Trigger bind:ref={triggerRef}>
+	<Popover.Trigger bind:ref={triggerRef} onclick={resizeInputBox}>
 		{#snippet child({ props })}
 			<Button
 				variant="outline"
@@ -134,25 +139,38 @@
 			</Button>
 		{/snippet}
 	</Popover.Trigger>
-	<Popover.Content class="w-full p-0">
+	<Popover.Content class="w-full bg-slate-100 p-0">
 		<Command.Root>
 			<Input
 				type="text"
 				placeholder="1600 Pennsylvania Avenue, Washington DC"
-				class="h-[var(--trigger-height)] bg-white"
+				class="h-[var(--trigger-height)]"
 				bind:value={locationQueryStr}
 				bind:ref={inputRef}
 				oninput={() => fetchSuggestions(locationQueryStr)}
 			/>
 			<Command.List>
 				<Command.Group>
+					{#if locationQueryStr.length > 0}
+						<Command.Item
+							class="flex justify-center text-wrap font-semibold text-blue-800"
+							onSelect={() => {
+								selectedResult = { formattedAddress: locationQueryStr }; // Save custom address
+								location = locationQueryStr;
+								closeAndFocusTrigger();
+							}}
+						>
+							Use custom place: "{locationQueryStr}"
+						</Command.Item>
+					{/if}
 					{#if loading}
 						<Command.Item>Loading...</Command.Item>
 					{:else if errorMessage}
 						<Command.Item>{errorMessage}</Command.Item>
-					{:else if suggestions.length > 0}
+					{:else}
 						{#each suggestions as suggestion}
 							<Command.Item
+								class="flex text-wrap"
 								value={suggestion.label}
 								onSelect={() => {
 									selectedResult = suggestion.value; // Save full object
@@ -170,15 +188,6 @@
 								</span>
 							</Command.Item>
 						{/each}
-					{:else if selectedValue != originalLocation}
-						<Command.Item
-							onSelect={() => {
-								selectedResult = { formattedAddress: location }; // Save custom address
-								closeAndFocusTrigger();
-							}}
-						>
-							Use custom address: "{location}"
-						</Command.Item>
 					{/if}
 				</Command.Group>
 			</Command.List>
