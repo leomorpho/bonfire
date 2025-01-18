@@ -1,5 +1,6 @@
 import { goto } from '$app/navigation';
 import { tempAttendeeIdUrlParam } from '$lib/enums';
+import { generateSignedUrl } from '$lib/filestorage.js';
 import { triplitHttpClient } from '$lib/server/triplit';
 
 export const trailingSlash = 'always';
@@ -19,6 +20,11 @@ export const load = async ({ params, locals, url }) => {
 	let numAttendees = null;
 	let numAnnouncements = null;
 	let numFiles = null;
+
+	let banneIsSet = false;
+	let bannerSmallSizeUrl = null;
+	let bannerLargeSizeUrl = null;
+	let bannerBlurHash = '';
 
 	let tempAttendeeExists: boolean = false;
 	const tempAttendeeId = url.searchParams.get(tempAttendeeIdUrlParam);
@@ -59,6 +65,7 @@ export const load = async ({ params, locals, url }) => {
 				.include('announcements')
 				.include('attendees')
 				.include('files')
+				.include('banner_media')
 				.subquery(
 					'organizer',
 					triplitHttpClient
@@ -71,6 +78,7 @@ export const load = async ({ params, locals, url }) => {
 				.build()
 		);
 		if (event != null) {
+			console.log('---> event', event);
 			if (event.attendees != null) {
 				numAttendees = event.attendees.length;
 			}
@@ -79,6 +87,13 @@ export const load = async ({ params, locals, url }) => {
 			}
 			if (event.files != null) {
 				numFiles = event.files.length;
+			}
+			if (event.banner_media) {
+				banneIsSet = true;
+				const image = event.banner_media;
+				bannerLargeSizeUrl = await generateSignedUrl(image.full_image_key);
+				bannerSmallSizeUrl = await generateSignedUrl(image.small_image_key);
+				bannerBlurHash = image.blurr_hash;
 			}
 
 			// console.log("numAttendees", numAttendees)
@@ -89,12 +104,21 @@ export const load = async ({ params, locals, url }) => {
 		console.debug(`### failed to fetch event with id ${eventId}`, e);
 	}
 
+	const bannerInfo = {
+		banneIsSet,
+		bannerSmallSizeUrl,
+		bannerLargeSizeUrl,
+		bannerBlurHash
+	};
+
+	console.log('---->', bannerInfo);
 	return {
-		user: user,
-		event: event,
-		numAttendees: numAttendees,
-		numAnnouncements: numAnnouncements,
-		numFiles: numFiles,
-		tempAttendeeExists: tempAttendeeExists
+		user,
+		event,
+		numAttendees,
+		numAnnouncements,
+		numFiles,
+		tempAttendeeExists,
+		bannerInfo
 	};
 };

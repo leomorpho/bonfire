@@ -37,6 +37,7 @@
 	import { overlayColorStore, overlayOpacityStore, styleStore } from '$lib/styles';
 	import ShareLocation from '$lib/components/ShareLocation.svelte';
 	import type { EventTypescriptType } from '$lib/types';
+	import { Image } from '@unpic/svelte';
 
 	let userId = $state('');
 
@@ -525,8 +526,15 @@
 					</div>
 				{/if}
 				<div class="space-y-3 rounded-xl bg-white p-5">
-					{#if event.banner_media}
-						THere's a banner!
+					{#if $page.data.bannerInfo && $page.data.bannerInfo.banneIsSet}
+						<Image
+							width={400}
+							class="rounded-lg"
+							src={$page.data.bannerInfo.bannerLargeSizeUrl}
+							layout="constrained"
+							aspectRatio={5 / 3}
+							alt={'Banner for event'}
+						/>
 					{:else}
 						<a class="flex w-full" href="banner/upload">
 							<Button class="w-full">Set a banner image</Button>
