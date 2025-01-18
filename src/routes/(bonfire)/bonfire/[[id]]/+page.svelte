@@ -38,6 +38,7 @@
 	import ShareLocation from '$lib/components/ShareLocation.svelte';
 	import type { EventTypescriptType } from '$lib/types';
 	import { Image } from '@unpic/svelte';
+	import BonfireBanner from '$lib/components/BonfireBanner.svelte';
 
 	let userId = $state('');
 
@@ -527,13 +528,9 @@
 				{/if}
 				<div class="space-y-3 rounded-xl bg-white p-5">
 					{#if $page.data.bannerInfo && $page.data.bannerInfo.banneIsSet}
-						<Image
-							width={400}
-							class="rounded-lg"
-							src={$page.data.bannerInfo.bannerLargeSizeUrl}
-							layout="constrained"
-							aspectRatio={5 / 3}
-							alt={'Banner for event'}
+						<BonfireBanner
+							bannerSmallSizeUrl={$page.data.bannerInfo.bannerSmallSizeUrl}
+							bannerLargeSizeUrl={$page.data.bannerInfo.bannerLargeSizeUrl}
 						/>
 					{:else}
 						<a class="flex w-full" href="banner/upload">
