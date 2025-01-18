@@ -123,15 +123,14 @@
 									action="/login?/signout"
 									use:enhance
 								>
-									<button type="submit" onclick={toggleMenu}>
+									<button type="submit" class="btn mr-2">
 										<div class="flex items-center text-red-500">
-											<DropdownMenu.Item>
-												<LogOut class="mr-2 h-4 w-4" />
-												<span>Log out</span>
-											</DropdownMenu.Item>
+											<LogOut class="mr-2 h-4 w-4" />
+											<span>Log out</span>
 										</div>
 									</button>
 								</form>
+								
 							{:else}
 								<a href="/login" onclick={toggleMenu} class="btn mx-2 mb-2 mt-5 sm:hidden">
 									<FlameKindling />login</a
