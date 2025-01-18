@@ -51,6 +51,12 @@
 	let tempAttendee = $state(null);
 	let rsvpCanBeChanged = $state(false);
 
+	$effect(()=>{
+		if (event){
+			rsvpCanBeChanged = new Date(event.start_time) >= new Date();
+		}
+	})
+
 	console.log('tempAttendeeId', tempAttendeeId);
 
 	if ($page.data.tempAttendeeExists && tempAttendeeId) {
@@ -234,7 +240,6 @@
 						overlayColorStore.set(event.overlay_color);
 						overlayOpacityStore.set(event.overlay_opacity);
 						eventLoading = false;
-						rsvpCanBeChanged = new Date(event.start_time) >= new Date();
 					}
 				}
 			},
