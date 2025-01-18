@@ -1,4 +1,4 @@
-import { Schema as S, type Roles, type ClientSchema, or } from '@triplit/client';
+import { Schema as S, type Roles, type ClientSchema, or, and } from '@triplit/client';
 
 // Define roles
 export const roles: Roles = {
@@ -279,7 +279,7 @@ export const schema = {
 							// Event creator can delete anyone attending
 							['event.user_id', '=', '$role.userId'],
 							// Temp users can remove themselves from the event
-							['id', '=', '$role.temporaryAttendeeId'],
+							['id', '=', '$role.temporaryAttendeeId']
 						])
 					]
 				}
@@ -482,6 +482,34 @@ export const schema = {
 				update: { filter: [['user_id', '=', '$role.userId']] }, // Users can update their own notifications to mark them as read
 				delete: { filter: [['user_id', '=', '$role.userId']] } // Users can update their own notifications to mark them as read
 			}
+		}
+	},
+	seamless_tiles: {
+		schema: S.Schema({
+			id: S.Id(),
+			name: S.String({ nullable: true }),
+			updated_at: S.Date({ default: S.Default.now() }), // Last updated timestamp
+			enabled_in_prod: S.Boolean({ default: false }),
+			url: S.String(),
+			css_template: S.String()
+		}),
+		permissions: {
+			admin: {
+				read: { filter: [true] },
+				insert: { filter: [true] },
+				update: { filter: [true] }
+			},
+			user: {
+				read: {
+					filter: [
+						and([
+							['enabled_in_prod', '=', true],
+							['name', '!=', null]
+						])
+					]
+				}
+			},
+			temp: {}
 		}
 	}
 } satisfies ClientSchema;

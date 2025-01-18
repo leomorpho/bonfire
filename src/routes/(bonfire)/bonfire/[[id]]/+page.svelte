@@ -97,11 +97,25 @@
 
 	let currenUserIsEventAdmin = $state(false);
 
+	let latitude = $state(null);
+	let longitude = $state(null);
+
 	$effect(() => {
 		if (event && userId && event.user_id == (userId as string)) {
 			currenUserIsEventAdmin = true;
 		}
 	});
+
+	const convertGeocodedLocationToLatLon = (eventGeocodedLocation: any) => {
+		if (eventGeocodedLocation.latitude && eventGeocodedLocation.longitude) {
+			latitude = eventGeocodedLocation.latitude;
+			longitude = eventGeocodedLocation.longitude;
+		}
+		if (eventGeocodedLocation.data.latitude && eventGeocodedLocation.data.longitude) {
+			latitude = eventGeocodedLocation.data.latitude;
+			longitude = eventGeocodedLocation.data.longitude;
+		}
+	};
 
 	const fetchProfileImageMap = async (userIds: string[]) => {
 		// TODO: we can make this more performant by passing a last queried at timestamp (UTC) and the server will only returned changed users (added/updated/deleted images)
@@ -211,7 +225,7 @@
 					if (event) {
 						if (event.geocoded_location) {
 							try {
-								event.geocoded_location = JSON.parse(event.geocoded_location);
+								convertGeocodedLocationToLatLon(JSON.parse(event.geocoded_location as string));
 							} catch (e) {
 								console.log(e);
 							}
@@ -504,14 +518,14 @@
 						</a>
 					</div>
 				{/if}
-				<div class="rounded-xl bg-white p-5">
+				<div class="space-y-3 rounded-xl bg-white p-5">
 					<h1 class="mb-4 flex justify-center text-xl sm:text-2xl">
 						{isAnonymousUser ? $page.data.event.title : event.title}
 					</h1>
-					<div class="flex flex items-center justify-center font-medium">
+					<div class="flex items-center justify-center font-medium">
 						<Calendar class="mr-2 h-4 w-4" />{formatHumanReadable(event.start_time)}
 					</div>
-					<div class="flex flex items-center justify-center font-light">
+					<div class="flex items-center justify-center font-light">
 						{#if event.organizer}
 							<UserRound class="mr-2 h-4 w-4" />Hosted by
 							{#if !isAnonymousUser}
@@ -531,24 +545,19 @@
 						{/if}
 					</div>
 
-					<div class="flex flex items-center justify-center font-light">
+					<div class="flex items-center justify-center font-light">
 						<MapPin class="mr-2 h-4 w-4" />
 						{#if !isAnonymousUser}
 							{#if event.location}<div class="flex items-center justify-center">
-									{#if event.geocoded_location && event.geocoded_location.latitude && event.geocoded_location.longitude}
-										<ShareLocation
-											lat={event.geocoded_location.latitude}
-											lon={event.geocoded_location.longitude}
-										>
-											<div
-												class="my-4 flex items-center justify-center rounded-xl bg-slate-200 p-2"
-											>
-												{event.location}
+									{#if latitude && longitude}
+										<ShareLocation lat={latitude} lon={longitude}>
+											<div class="flex items-center justify-center rounded-xl bg-slate-100 p-2">
+												{@html event.location}
 												<ArrowRightFromLine class="ml-2 h-4 w-4" />
 											</div>
 										</ShareLocation>
 									{:else}
-										<div class="my-4 flex items-center justify-center p-2">{event.location}</div>
+										<div class="flex items-center justify-center p-2">{event.location}</div>
 									{/if}
 								</div>
 							{:else}
@@ -556,6 +565,14 @@
 							{/if}
 						{:else}
 							Set RSVP status to see location
+						{/if}
+					</div>
+					<div class="my-5 flex flex-col justify-center rounded-xl bg-slate-100 p-2 text-center">
+						<div class="font-semibold">Details</div>
+						{#if event.description}
+							{event.description}
+						{:else}
+							{'No details yet...'}
 						{/if}
 					</div>
 				</div>
@@ -705,14 +722,7 @@
 					<Share class="h-5 w-5" />
 					Share Bonfire</Button
 				>
-				<div class="my-10 rounded-xl bg-white p-5">
-					<div class="font-semibold">Details</div>
-					{#if event.description}
-						{event.description}
-					{:else}
-						{'No details yet...'}
-					{/if}
-				</div>
+
 				<HorizRule />
 				<div class="my-10">
 					<div class=" rounded-xl bg-white p-5">

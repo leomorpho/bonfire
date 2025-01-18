@@ -19,6 +19,16 @@
 	let errorMessage = $state('');
 	let suggestions: { label: string; value: any }[] = $state([]);
 	let selectedResult: any = $state(null);
+	let inputRef = $state<HTMLInputElement>(null!);
+	let locationQueryStr = $state('');
+
+	// Synchronize input height with trigger button
+	$effect(() => {
+		if (triggerRef && inputRef) {
+			const triggerWidth = triggerRef.offsetWidth;
+			inputRef.style.width = `${triggerWidth}px`;
+		}
+	});
 
 	$effect(() => {
 		console.log('selectedResult', selectedResult);
@@ -26,6 +36,7 @@
 	const enterEventLocationText = 'Enter event address...';
 
 	let selectedValue = $state(location);
+
 	$effect(() => {
 		if (selectedResult?.formattedAddress) {
 			selectedValue = selectedResult?.formattedAddress;
@@ -34,6 +45,13 @@
 			selectedValue = location;
 		} else {
 			selectedValue = enterEventLocationText;
+		}
+	});
+
+	$effect(() => {
+		if (location && geocodedLocation) {
+			console.log('location', location);
+			console.log('geocodedLocation', geocodedLocation);
 		}
 	});
 
@@ -74,17 +92,21 @@
 			const responseData = await response.json();
 
 			console.log('Response Data:', responseData); // Inspect the full response
-			const results = responseData.results; // Adjust this based on the actual API structure
 
-			if (Array.isArray(results)) {
-				// Map results only if it's an array
-				suggestions = results.map((res: any) => ({
+			// Check the response type
+			if (responseData.type === 'geocode') {
+				suggestions = responseData.results.map((res: any) => ({
 					label: res.formattedAddress,
-					value: res
+					value: { type: 'geocode', data: res }
+				}));
+			} else if (responseData.type === 'places') {
+				suggestions = responseData.results.map((res: any) => ({
+					label: `<div><strong>${res.name}</strong><br>${res.address}</div>`,
+					// simpleLabel: res.name,
+					value: { type: 'places', data: res }
 				}));
 			} else {
-				// Handle unexpected structure
-				errorMessage = 'Unexpected response format.';
+				errorMessage = 'Unexpected response type.';
 				suggestions = [];
 			}
 		} catch (error) {
@@ -94,7 +116,7 @@
 		} finally {
 			loading = false;
 		}
-	}, 300); // Debounce with a 300ms delay
+	}, 500); // Debounce with a 300ms delay
 </script>
 
 <Popover.Root bind:open>
@@ -107,7 +129,7 @@
 				role="combobox"
 				aria-expanded={open}
 			>
-				{selectedValue || enterEventLocationText}
+				{@html selectedValue || enterEventLocationText}
 				<ChevronsUpDown class="opacity-50" />
 			</Button>
 		{/snippet}
@@ -117,9 +139,10 @@
 			<Input
 				type="text"
 				placeholder="1600 Pennsylvania Avenue, Washington DC"
-				class="w-max bg-white sm:w-96"
-				bind:value={location}
-				oninput={() => fetchSuggestions(location)}
+				class="h-[var(--trigger-height)] bg-white"
+				bind:value={locationQueryStr}
+				bind:ref={inputRef}
+				oninput={() => fetchSuggestions(locationQueryStr)}
 			/>
 			<Command.List>
 				<Command.Group>
@@ -134,11 +157,17 @@
 								onSelect={() => {
 									selectedResult = suggestion.value; // Save full object
 									location = suggestion.label; // Display label
+									geocodedLocation = suggestion.value;
 									closeAndFocusTrigger();
 								}}
 							>
 								<Check class={cn(selectedResult !== suggestion.value && 'text-transparent')} />
-								{suggestion.label}
+								<span
+									class="dropdown-item-content"
+									class:active={selectedResult === suggestion.value}
+								>
+									{@html suggestion.label}
+								</span>
 							</Command.Item>
 						{/each}
 					{:else if selectedValue != originalLocation}

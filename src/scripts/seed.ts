@@ -45,7 +45,7 @@ const { output } = await client.insert('events', {
 	end_time: null,
 	user_id: user?.id,
 	style: `
-  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/subway-lines.png'); /* Replace with the URL of your tileable image */
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/subway-lines.png'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
   background-color: #ffffff; /* Fallback background color */

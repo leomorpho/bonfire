@@ -11,7 +11,7 @@ const config = {
 		plugin(function ({ addUtilities }) {
 			addUtilities({
 				'.ring-glow': {
-					'@apply ring-2 ring-white ring-opacity-50 hover:ring-opacity-75': {}
+					'@apply ring-2 ring-white ring-opacity-10 hover:ring-opacity-20': {}
 				}
 			});
 		})

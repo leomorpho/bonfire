@@ -1,4 +1,4 @@
-import { geocodeAddress } from '$lib/geocoding';
+import { searchLocation } from '$lib/geocoding';
 import { error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { RateLimiter } from 'sveltekit-rate-limiter/server';
@@ -25,8 +25,8 @@ export const POST: RequestHandler = async ({ request }) => {
 		}
 
 		// Perform geocoding
-		const results = await geocodeAddress(address);
-
+		const results = await searchLocation(address);
+		console.log('===>? res', results);
 		if (!results || results.length === 0) {
 			return new Response(JSON.stringify({ error: 'No results found for the given address.' }), {
 				status: 404

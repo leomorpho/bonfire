@@ -18,9 +18,9 @@
 	import { onMount } from 'svelte';
 	import { overlayColorStore, overlayOpacityStore, styleStore } from '$lib/styles';
 	import { generatePassphraseId, loadScript } from '$lib/utils';
-	import AddressInput from './AddressInput.svelte';
 	import TextAreaAutoGrow from './TextAreaAutoGrow.svelte';
 	import ChevronLeft from 'svelte-radix/ChevronLeft.svelte';
+	import LocationInput from './LocationInput.svelte';
 
 	let { mode, event = null } = $props();
 
@@ -345,12 +345,16 @@
 				bind:value={locationName}
 			/> -->
 				<div class="flex flex-row items-center">
-					<AddressInput bind:location bind:geocodedLocation />
+					<LocationInput bind:location bind:geocodedLocation />
 				</div>
 				<TextAreaAutoGrow cls={'bg-white'} placeholder="Details" bind:value={details} />
 			</form>
 		</section>
 		<div class="mt-10 w-full sm:w-[450px]">
+			<a href={`/bonfire/${event.id}`}>
+				<Button class="sticky top-2 mt-2 w-full">Cancel</Button>
+			</a>
+
 			<Button
 				class="sticky top-2 mt-2 w-full bg-violet-500 ring-glow hover:bg-violet-400"
 				onclick={startEditEventStyle}

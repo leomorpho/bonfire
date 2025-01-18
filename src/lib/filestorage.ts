@@ -24,7 +24,7 @@ import path from 'path';
 ffmpeg.setFfmpegPath(ffmpegInstaller.path);
 
 // Create an S3 client
-const s3 = new S3Client({
+ const s3 = new S3Client({
 	region: env.S3_REGION, // Your Backblaze region
 	endpoint: env.S3_ENDPOINT,
 	credentials: {

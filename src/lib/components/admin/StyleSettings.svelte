@@ -128,7 +128,7 @@
 		<Popover.Trigger class="mt-3 flex w-full justify-center sm:w-[450px]">
 			<Button class="w-full ring-glow">
 				<PaintRoller class="mr-1" />
-				Edit overlay
+				Set overlay
 			</Button>
 		</Popover.Trigger>
 		<Popover.Content class="bg-slate-200">
