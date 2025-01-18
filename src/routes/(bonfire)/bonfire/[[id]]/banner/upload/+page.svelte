@@ -77,7 +77,7 @@
 			})
 			.on('upload-success', (file, response) => {
 				console.log('Upload successful:', file, response);
-				goto('/profile');
+				goto(`/bonfire/${$page.params.id}`);
 			})
 			.on('error', (error) => {
 				console.error('Upload error:', error);

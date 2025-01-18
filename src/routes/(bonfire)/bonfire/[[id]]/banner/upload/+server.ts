@@ -18,7 +18,7 @@ export const POST: RequestHandler = async ({ request, locals, params }) => {
 		const formData = await request.formData();
 		const file = formData.get('file') as File;
 
-		if (!file || !(file instanceof Buffer)) {
+		if (!file || !(file instanceof File)) {
 			throw new TypeError('No valid file uploaded');
 		}
 
