@@ -70,7 +70,7 @@
 	}
 
 	// Function to fetch suggestions from the backend
-	const fetchSuggestions = debounce(async (query: string) => {
+	const fetchSuggestions = async (query: string) => {
 		if (!query) {
 			suggestions = [];
 			return;
@@ -121,7 +121,7 @@
 		} finally {
 			loading = false;
 		}
-	}, 500); // Debounce with a 300ms delay
+	}; // Debounce with a 300ms delay
 </script>
 
 <Popover.Root bind:open>
@@ -147,7 +147,7 @@
 				class="h-[var(--trigger-height)]"
 				bind:value={locationQueryStr}
 				bind:ref={inputRef}
-				oninput={() => fetchSuggestions(locationQueryStr)}
+				oninput={() => debounce(fetchSuggestions)(locationQueryStr)}
 			/>
 			<Command.List>
 				<Command.Group>
@@ -188,6 +188,13 @@
 								</span>
 							</Command.Item>
 						{/each}
+						<div class="mt-3 flex w-full justify-center">
+							<Button
+								class="w-full"
+								disabled={locationQueryStr.length == 0}
+								onclick={() => fetchSuggestions(locationQueryStr)}>Search</Button
+							>
+						</div>
 					{/if}
 				</Command.Group>
 			</Command.List>
