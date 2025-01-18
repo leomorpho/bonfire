@@ -105,7 +105,7 @@
 				}));
 			} else if (responseData.type === 'places') {
 				suggestions = responseData.results.map((res: any) => ({
-					label: `<div><strong>${res.name}</strong><br>${res.address}</div>`,
+					label: `<div><strong>${res.name}</strong><br><div class="flex text-wrap break-words">${res.address}</div></div>`,
 					// simpleLabel: res.name,
 					value: { type: 'places', data: res }
 				}));
@@ -139,7 +139,7 @@
 			</Button>
 		{/snippet}
 	</Popover.Trigger>
-	<Popover.Content class="w-full bg-slate-100 p-0">
+	<Popover.Content class="bg-slate-100 p-0">
 		<Command.Root>
 			<Input
 				type="text"
@@ -170,7 +170,7 @@
 					{:else}
 						{#each suggestions as suggestion}
 							<Command.Item
-								class="flex text-wrap"
+								class="flex max-w-full whitespace-normal text-wrap break-words"
 								value={suggestion.label}
 								onSelect={() => {
 									selectedResult = suggestion.value; // Save full object
@@ -181,14 +181,16 @@
 							>
 								<Check class={cn(selectedResult !== suggestion.value && 'text-transparent')} />
 								<span
-									class="dropdown-item-content"
+									class="dropdown-item-content flex text-wrap"
 									class:active={selectedResult === suggestion.value}
 								>
 									{@html suggestion.label}
 								</span>
 							</Command.Item>
 						{/each}
-						<div class="mt-3 flex w-full justify-center">
+						<div
+							class="mt-3 flex max-w-full justify-center whitespace-normal text-wrap break-words"
+						>
 							<Button
 								class="w-full"
 								disabled={locationQueryStr.length == 0}
