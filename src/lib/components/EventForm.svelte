@@ -40,7 +40,7 @@
 	let eventName: string = $state(event?.title ?? ''); // State for event name
 	let locationName: string = $state(event?.location_name ?? '');
 	let location: string = $state(event?.location ?? ''); // State for location
-	let geocodedLocation: any = $state(event?.geocoded_location ?? ''); // State for geocoded location
+	let geocodedLocation: any = $state(JSON.parse(event?.geocoded_location) ?? ''); // State for geocoded location
 	let details: string = $state(event?.description ?? ''); // State for event details
 	let startHour = $state(''); // State for hour
 	let startMinute = $state(''); // State for minute

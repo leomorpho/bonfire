@@ -12,7 +12,6 @@
 	let { location = $bindable<string | undefined>(), geocodedLocation = $bindable<any>() } =
 		$props();
 
-	const originalLocation = location;
 	let open = $state(false);
 	let triggerRef = $state<HTMLButtonElement>(null!);
 	let loading = $state(false);
@@ -44,7 +43,6 @@
 	$effect(() => {
 		if (selectedResult?.formattedAddress) {
 			selectedValue = selectedResult?.formattedAddress;
-			geocodedLocation = selectedResult;
 		} else if (location) {
 			selectedValue = location;
 		} else {
@@ -95,7 +93,7 @@
 
 			const responseData = await response.json();
 
-			console.log('Response Data:', responseData); // Inspect the full response
+			// console.log('Response Data:', responseData); // Inspect the full response
 
 			// Check the response type
 			if (responseData.type === 'geocode') {

@@ -115,6 +115,7 @@
 	});
 
 	const convertGeocodedLocationToLatLon = (eventGeocodedLocation: any) => {
+		console.log('###### eventGeocodedLocation -->', eventGeocodedLocation);
 		if (eventGeocodedLocation.latitude && eventGeocodedLocation.longitude) {
 			latitude = eventGeocodedLocation.latitude;
 			longitude = eventGeocodedLocation.longitude;
