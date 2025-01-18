@@ -105,7 +105,7 @@ export async function uploadProfileImage(file: File, userId: string) {
 		await triplitHttpClient.update('profile_images', existingEntry.id, async (e) => {
 			e.full_image_key = fullImageKey;
 			e.small_image_key = smallImageKey;
-			e.blurhash = blurhash;
+			e.blurr_hash = blurhash;
 		});
 	} else {
 		// Insert a new entry
@@ -113,7 +113,7 @@ export async function uploadProfileImage(file: File, userId: string) {
 			user_id: userId,
 			full_image_key: fullImageKey,
 			small_image_key: smallImageKey,
-			blurhash: blurhash
+			blurr_hash: blurhash
 		});
 	}
 
