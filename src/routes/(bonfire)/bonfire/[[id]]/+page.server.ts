@@ -111,7 +111,6 @@ export const load = async ({ params, locals, url }) => {
 		bannerBlurHash
 	};
 
-	console.log('---->', bannerInfo);
 	return {
 		user,
 		event,

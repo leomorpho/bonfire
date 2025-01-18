@@ -43,7 +43,7 @@ export const actions = {
 
 		let user = await getUserByEmail(form.data.email);
 		let login_type = LOGIN_TYPE_MAGIC_LINK;
-		console.log('form', form);
+
 		if (!user) {
 			user = await createNewUser({
 				id: generateId(15),

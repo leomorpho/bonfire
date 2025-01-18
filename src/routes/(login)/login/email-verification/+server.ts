@@ -37,7 +37,7 @@ export async function GET({ url, request }): Promise<Response> {
 		});
 	}
 
-	await lucia.invalidateUserSessions(user.id);
+	// await lucia.invalidateUserSessions(user.id);
 	await updateUser(user.id, { email_verified: true });
 
 	const session = await lucia.createSession(user.id, {});
