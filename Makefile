@@ -90,7 +90,12 @@ else
 	@cd e2e && npx playwright codegen http://localhost:5173
 endif
 
-.PHONY: test-e2e
+.PHONY: e2e
+e2e: ## Run Playwright tests
+	@echo "Running end-to-end tests..."
+	@cd e2e && npm install && npx playwright test
+
+.PHONY: e2eui
 e2eui: ## Run Playwright tests
 	@echo "Running end-to-end tests..."
 	@cd e2e && npm install && npx playwright test --ui
