@@ -74,3 +74,23 @@ cleandocker:
 
 localbuild:
 	npm run build && npm run preview 
+
+######################################
+# Playwright
+######################################
+
+# To run for mobile: `make codegen mobile=true`
+.PHONY: codegen
+codegen: ## Generate Playwright tests interactively
+ifeq ($(mobile),true)
+	@echo "Running Playwright codegen for mobile on predefined device (iPhone 12) at URL http://localhost:8002..."
+	@cd e2e && npx playwright codegen --device="iPhone 12" http://localhost:5173
+else
+	@echo "Running Playwright codegen for desktop at URL http://localhost:5173..."
+	@cd e2e && npx playwright codegen http://localhost:5173
+endif
+
+.PHONY: test-e2e
+e2eui: ## Run Playwright tests
+	@echo "Running end-to-end tests..."
+	@cd e2e && npm install && npx playwright test --ui

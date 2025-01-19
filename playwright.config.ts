@@ -6,13 +6,13 @@ import { defineConfig, devices } from '@playwright/test';
  */
 import dotenv from 'dotenv';
 import path from 'path';
-dotenv.config({ path: path.resolve('.env.example') });
+dotenv.config({ path: path.resolve('.env') });
 
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
-	testDir: 'tests',
+	testDir: 'e2e',
 	testMatch: /(.+\.)?(test|spec)\.[jt]s/,
 	/* Run tests in files in parallel */
 	fullyParallel: true,
@@ -70,10 +70,12 @@ export default defineConfig({
 		//   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
 		// },
 	],
-
+	globalSetup: './global-setup.js',
 	/* Run your local dev server before starting the tests */
 	webServer: {
-		command: 'npm run build && npm run preview',
-		port: 4173
+		command: 'npm run dev',
+		url: 'http://localhost:5173', // Match your Vite dev server port
+		timeout: 120 * 1000,
+		reuseExistingServer: !process.env.CI
 	}
 });
