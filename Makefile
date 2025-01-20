@@ -93,9 +93,9 @@ endif
 .PHONY: e2e
 e2e: ## Run Playwright tests
 	@echo "Running end-to-end tests..."
-	@cd e2e && npm install && npx playwright test
+	@npx playwright test
 
 .PHONY: e2eui
 e2eui: ## Run Playwright tests
 	@echo "Running end-to-end tests..."
-	@cd e2e && npm install && npx playwright test --ui
+	@npx playwright test --ui

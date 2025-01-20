@@ -180,7 +180,7 @@
 					<ClipboardPaste class="mr-1" />
 					Paste from clipboard</Button
 				>
-				<div class="mb-5 mt-8 flex w-full justify-center sm:text-2xl">
+				<div class="mb-5 mt-8 flex w-full justify-center sm:text-2xl" id="otp-entry">
 					<OTPRoot
 						inputMode="numeric"
 						ariaLabel="OTP Code"
@@ -247,7 +247,7 @@
 			<div class="my-4 flex w-full flex-col space-y-1.5 text-center">
 				<div class="mx-auto w-fit max-w-64">
 					<Image
-						class="max-w-64 rounded-lg hidden sm:block"
+						class="hidden max-w-64 rounded-lg sm:block"
 						height={209}
 						width={250}
 						src="https://f002.backblazeb2.com/file/bonfire-public/logo/logo_Bonfire_logo_vert_color_250.png"
@@ -255,7 +255,7 @@
 						alt="Bonfire logo with name"
 					/>
 					<Image
-						class="max-w-64 rounded-lg block sm:hidden"
+						class="block max-w-64 rounded-lg sm:hidden"
 						height={125}
 						width={150}
 						src="https://f002.backblazeb2.com/file/bonfire-public/logo/logo_Bonfire_logo_vert_color_150px.png"

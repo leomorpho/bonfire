@@ -17,6 +17,8 @@
 		} else {
 			submitEnabled = false;
 		}
+		console.log('username:', username, 'userExists:', userExists);
+		console.log('submitEnabled:', submitEnabled);
 	});
 
 	let client: TriplitClient;
@@ -36,7 +38,9 @@
 			(results) => {
 				// If there are less than 3 files in the events eventFiles, fetch the latest 3
 				if (results.length == 1) {
-					username = results[0].username;
+					if (results[0].username.length > 0) {
+						username = results[0].username;
+					}
 					userExists = true;
 				}
 			},

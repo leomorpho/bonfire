@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
-import { WEBSITE_URL } from './shared';
+import { loginUser, WEBSITE_URL } from './shared';
 
-test('New visitor', async ({ page }) => {
+test('New login', async ({ page }) => {
 	await page.goto(WEBSITE_URL);
 
 	await expect(page.getByRole('banner').getByRole('link', { name: 'About' })).toBeVisible();
@@ -12,4 +12,6 @@ test('New visitor', async ({ page }) => {
 	await page.getByRole('link', { name: 'login' }).click();
 	await expect(page.getByPlaceholder('Email')).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Continue' })).toBeVisible();
+
+  await loginUser(page);
 });
