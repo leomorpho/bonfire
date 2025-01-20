@@ -19,10 +19,14 @@
 	let userId = $state('');
 
 	function createEventsQuery(client: TriplitClient, currUserID: string, future: boolean) {
+		// NOTE: we add 24h so that currently happening events are still shown in the main window until 24h later
+		const currentDate = new Date();
+		const futureDate = new Date(currentDate.getTime() + 24 * 60 * 60 * 1000); // Add 24 hours in milliseconds
+
 		let query = client
 			.query('attendees')
 			.where(['user_id', '=', currUserID])
-			.where('event.start_time', future ? '>=' : '<', new Date().toISOString());
+			.where('event.start_time', future ? '>=' : '<', futureDate.toISOString());
 
 		return query
 			.subquery(
@@ -37,9 +41,15 @@
 	onMount(() => {
 		client = getFeTriplitClient($page.data.jwt) as TriplitClient;
 
-		const initEvents = async () => {
-			userId = (await waitForUserId()) as string;
+		userId = $page.data.user.id;
 
+		let futureEventsQuery = createEventsQuery(client, userId, true);
+		let pastEventsQuery = createEventsQuery(client, userId, false);
+
+		futureEvents = useQuery(client, futureEventsQuery);
+		pastEvents = useQuery(client, pastEventsQuery);
+
+		const initEvents = async () => {
 			// let pastEventsQuery = createEventsQuery(client, userId, true);
 			// console.log('----> ??? ', await client.fetch(pastEventsQuery.build()));
 
@@ -71,28 +81,16 @@
 			}
 		};
 
-		initEvents().catch((error) => {
-			console.error('Failed to get events:', error);
-		});
-	});
-
-	$effect(() => {
-		if (userId) {
-			let futureEventsQuery = createEventsQuery(client, userId, true);
-
-			let pastEventsQuery = createEventsQuery(client, userId, false);
-
-			futureEvents = useQuery(client, futureEventsQuery);
-
-			pastEvents = useQuery(client, pastEventsQuery);
-		}
+		// initEvents().catch((error) => {
+		// 	console.error('Failed to get events:', error);
+		// });
 	});
 </script>
 
 <div class="mx-4 mb-48 flex flex-col items-center justify-center sm:mb-20">
 	<section class="md:2/3 mt-8 w-full sm:w-2/3 md:w-[700px]">
 		<h2 class="mb-4 text-lg font-semibold">Upcoming Bonfires</h2>
-		{#if futureEvents.fetching}
+		{#if !futureEvents || futureEvents.fetching}
 			<Loader />
 		{:else if futureEvents.error}
 			<p>Error: {futureEvents.error.message}</p>
@@ -147,8 +145,9 @@
 		{/if}
 	{/if}
 </div>
-<div class="fixed bottom-6 left-1/2 flex -translate-x-1/2 transform flex-col items-center z-50">
+<div class="fixed bottom-6 left-1/2 z-50 flex -translate-x-1/2 transform flex-col items-center">
 	<a
+		id="create-bonfire-button"
 		href="bonfire/create"
 		class="rounded-full bg-blue-500 p-4 text-white shadow-lg transition hover:bg-blue-600"
 	>

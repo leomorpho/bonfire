@@ -8,9 +8,10 @@ import { dev } from '$app/environment';
 export async function GET(event: RequestEvent): Promise<Response> {
 	const state = generateState();
 	const codeVerifier = generateCodeVerifier();
-	const url = await google.createAuthorizationURL(state, codeVerifier, {
-		scopes: ['https://www.googleapis.com/auth/userinfo.email', 'openid']
-	});
+	const url = await google.createAuthorizationURL(state, codeVerifier, [
+		'https://www.googleapis.com/auth/userinfo.email',
+		'openid'
+	]);
 	event.cookies.set('code_verifier', codeVerifier, {
 		secure: !dev, // set to false in localhost
 		path: '/',

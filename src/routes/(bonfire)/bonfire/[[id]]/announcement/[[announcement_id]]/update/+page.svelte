@@ -4,7 +4,6 @@
 	import AnnouncementForm from '$lib/components/AnnouncementForm.svelte';
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
 	import { getFeTriplitClient } from '$lib/triplit';
-	import { useQuery } from '@triplit/svelte';
 	import SvgLoader from '$lib/components/SvgLoader.svelte';
 	import { onMount } from 'svelte';
 

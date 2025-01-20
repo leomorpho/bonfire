@@ -12,9 +12,21 @@
 
 	let { value = $bindable<DateValue | undefined>() } = $props();
 	let contentRef = $state<HTMLElement | null>(null);
+	let isPopupOpen = $state(false);
+	let prevDateEntry = value;
+
+	const closePopup = () => {
+		isPopupOpen = false;
+	};
+
+	$effect(() => {
+		if (value && prevDateEntry != value) {
+			closePopup();
+		}
+	});
 </script>
 
-<Popover.Root>
+<Popover.Root bind:open={isPopupOpen}>
 	<Popover.Trigger
 		class={cn(
 			buttonVariants({

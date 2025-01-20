@@ -3,7 +3,6 @@
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { CalendarDate, type DateValue } from '@internationalized/date';
 	import { Button } from '$lib/components/ui/button/index.js';
-	import { Textarea } from '$lib/components/ui/textarea/index.js';
 	import { Plus, Minus, Clock, Clock8, ArrowDownToLine, Trash2, Palette } from 'lucide-svelte';
 	import DoubleDigitsPicker from '$lib/components/DoubleDigitsPicker.svelte';
 	import TimezonePicker from '$lib/components/TimezonePicker.svelte';
@@ -38,7 +37,6 @@
 
 	let dateValue: DateValue | undefined = $state<DateValue | undefined>();
 	let eventName: string = $state(event?.title ?? ''); // State for event name
-	let locationName: string = $state(event?.location_name ?? '');
 	let location: string = $state(event?.location ?? ''); // State for location
 	let geocodedLocation: any = $state(
 		event?.geocoded_location ? JSON.parse(event?.geocoded_location) : ''
@@ -123,101 +121,109 @@
 	});
 
 	const handleSubmit = async (e: Event) => {
-		e.preventDefault();
+		try {
+			e.preventDefault();
 
-		// Ensure basic validation
-		if (!dateValue || !eventName) return;
+			// Ensure basic validation
+			if (!dateValue || !eventName) return;
 
-		// Convert DateValue to a JS Date object for the event date
-		const date = dateValue?.toDate();
+			// Convert DateValue to a JS Date object for the event date
+			const date = dateValue?.toDate();
 
-		// Default startMinute to "00" if not provided
-		const startMinutes = startMinute ? parseInt(startMinute) : 0;
+			// Default startMinute to "00" if not provided
+			const startMinutes = startMinute ? parseInt(startMinute) : 0;
 
-		// Convert the hour to 24-hour format based on AM/PM for start time
-		const startHours = (parseInt(startHour) % 12) + (ampmStart === 'PM' ? 12 : 0);
+			// Convert the hour to 24-hour format based on AM/PM for start time
+			const startHours = (parseInt(startHour) % 12) + (ampmStart === 'PM' ? 12 : 0);
 
-		// Set hours and minutes based on user input for start time
-		date.setHours(startHours, startMinutes, 0, 0);
+			// Set hours and minutes based on user input for start time
+			date.setHours(startHours, startMinutes, 0, 0);
 
-		// Convert the event date-time to the specified timezone for start time
-		const eventStartDatetime = new Date(date.toLocaleString('en-US', { timeZone: timezone.value }));
+			// Convert the event date-time to the specified timezone for start time
+			const eventStartDatetime = new Date(
+				date.toLocaleString('en-US', { timeZone: timezone.value })
+			);
 
-		let eventEndDatetime = null;
+			let eventEndDatetime = null;
 
-		if (setEndTime) {
-			// If end time is set, calculate end datetime
-			const endHours = (parseInt(endHour) % 12) + (ampmEnd === 'PM' ? 12 : 0);
-			const endMinutes = endMinute ? parseInt(endMinute) : 0;
+			if (setEndTime) {
+				// If end time is set, calculate end datetime
+				const endHours = (parseInt(endHour) % 12) + (ampmEnd === 'PM' ? 12 : 0);
+				const endMinutes = endMinute ? parseInt(endMinute) : 0;
 
-			// Create a new Date object for end time, based on the same date
-			const endDate = new Date(date);
-			endDate.setHours(endHours, endMinutes, 0, 0);
+				// Create a new Date object for end time, based on the same date
+				const endDate = new Date(date);
+				endDate.setHours(endHours, endMinutes, 0, 0);
 
-			// Convert the event date-time to the specified timezone for end time
-			eventEndDatetime = new Date(endDate.toLocaleString('en-US', { timeZone: timezone.value }));
-		}
-		const userId: string = (await waitForUserId()) as string;
-		console.log({
-			title: eventName,
-			description: details || null,
-			location: location || null,
-			start_time: eventStartDatetime,
-			end_time: eventEndDatetime,
-			user_id: userId, // Use the authenticated user's ID
-			timezone: timezone,
-			style: finalStyleCss,
-			overlay_color: overlayColor,
-			overlay_opacity: overlayOpacity
-		});
-
-		if (mode == 'create') {
-			// Save the event (uncomment in production)
-			const { output } = await client.insert('events', {
-				id: await generatePassphraseId(),
+				// Convert the event date-time to the specified timezone for end time
+				eventEndDatetime = new Date(endDate.toLocaleString('en-US', { timeZone: timezone.value }));
+			}
+			const userId: string = (await waitForUserId()) as string;
+			console.log({
 				title: eventName,
 				description: details || null,
 				location: location || null,
-				geocoded_location: JSON.stringify(geocodedLocation) || null,
 				start_time: eventStartDatetime,
 				end_time: eventEndDatetime,
-				user_id: userId,
+				user_id: userId, // Use the authenticated user's ID
+				timezone: timezone,
 				style: finalStyleCss,
 				overlay_color: overlayColor,
 				overlay_opacity: overlayOpacity
 			});
 
-			// Set the stores so the event page updates with new style
-			styleStore.set(finalStyleCss);
-			overlayColorStore.set(overlayColor);
-			overlayOpacityStore.set(overlayOpacity);
+			let eventId = event?.id;
 
-			if (output) {
-				await client.insert('attendees', {
+			if (mode == 'create') {
+				// Save the event (uncomment in production)
+				const { output } = await client.insert('events', {
+					id: await generatePassphraseId(),
+					title: eventName,
+					description: details || null,
+					location: location || null,
+					geocoded_location: JSON.stringify(geocodedLocation) || null,
+					start_time: eventStartDatetime,
+					end_time: eventEndDatetime,
 					user_id: userId,
-					event_id: output.id as string,
-					status: Status.DEFAULT // Default status
+					style: finalStyleCss,
+					overlay_color: overlayColor,
+					overlay_opacity: overlayOpacity
 				});
-			} else {
-				console.log('Failed to create event object');
-			}
-		} else {
-			await client.update('events', event.id, async (entity) => {
-				entity.title = eventName;
-				entity.description = details || null;
-				entity.location = location;
-				entity.geocoded_location = JSON.stringify(geocodedLocation);
-				entity.start_time = eventStartDatetime;
-				entity.end_time = eventEndDatetime;
-				entity.style = finalStyleCss;
-				entity.overlay_color = overlayColor;
-				entity.overlay_opacity = overlayOpacity;
-			});
-			styleStore.set(finalStyleCss);
-			overlayColorStore.set(overlayColor);
-			overlayOpacityStore.set(overlayOpacity);
 
-			goto(`/bonfire/${event.id}`);
+				// Set the stores so the event page updates with new style
+				styleStore.set(finalStyleCss);
+				overlayColorStore.set(overlayColor);
+				overlayOpacityStore.set(overlayOpacity);
+
+				if (output) {
+					await client.insert('attendees', {
+						user_id: userId,
+						event_id: output.id as string,
+						status: Status.DEFAULT // Default status
+					});
+					eventId = output.id;
+				} else {
+					console.log('Failed to create event object');
+				}
+			} else {
+				await client.update('events', event.id, async (entity) => {
+					entity.title = eventName;
+					entity.description = details || null;
+					entity.location = location;
+					entity.geocoded_location = JSON.stringify(geocodedLocation);
+					entity.start_time = eventStartDatetime;
+					entity.end_time = eventEndDatetime;
+					entity.style = finalStyleCss;
+					entity.overlay_color = overlayColor;
+					entity.overlay_opacity = overlayOpacity;
+				});
+				styleStore.set(finalStyleCss);
+				overlayColorStore.set(overlayColor);
+				overlayOpacityStore.set(overlayOpacity);
+			}
+			goto(`/bonfire/${eventId}`);
+		} catch (e) {
+			console.log(`failed to ${mode === EventFormType.CREATE ? 'create' : 'update'} event`, e);
 		}
 	};
 
@@ -258,7 +264,7 @@
 		</div>
 	{:else}
 		<section class="mt-8 w-full sm:w-[450px]">
-			<h2 class="mb-5 rounded-xl bg-white p-2 text-lg font-semibold">
+			<h2 class="mb-5 flex w-full justify-center rounded-xl bg-white p-2 text-lg font-semibold">
 				{mode === EventFormType.CREATE ? 'Create' : 'Update'} a Bonfire
 			</h2>
 			<form class="space-y-2">
@@ -340,12 +346,7 @@
 				{/if}
 
 				<TimezonePicker onValueChange={(newValue: any) => (timezone = newValue)} />
-				<!-- <Input
-				type="text"
-				placeholder="Location name: Joe's house"
-				class="w-full bg-white"
-				bind:value={locationName}
-			/> -->
+
 				<div class="flex flex-row items-center">
 					<LocationInput bind:location bind:geocodedLocation />
 				</div>
