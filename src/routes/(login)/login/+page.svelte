@@ -272,9 +272,9 @@
 					Signed in as {data.user.email}
 				</p>
 			{:else}
-				<!-- <a href="/login/google" class="text-md btn btn-primary mt-4 w-full font-semibold md:text-lg"
+				<a href="/login/google" class="text-md btn btn-primary mt-4 w-full font-semibold md:text-lg"
 					><Google class="mr-3 w-4" />Continue with Google
-				</a> -->
+				</a>
 			{/if}
 
 			{#if data.user}

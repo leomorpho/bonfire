@@ -147,8 +147,9 @@
 		{/if}
 	{/if}
 </div>
-<div class="fixed bottom-6 left-1/2 flex -translate-x-1/2 transform flex-col items-center z-50">
+<div class="fixed bottom-6 left-1/2 z-50 flex -translate-x-1/2 transform flex-col items-center">
 	<a
+		id="create-bonfire-button"
 		href="bonfire/create"
 		class="rounded-full bg-blue-500 p-4 text-white shadow-lg transition hover:bg-blue-600"
 	>
