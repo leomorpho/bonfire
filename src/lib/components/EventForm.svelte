@@ -367,6 +367,7 @@
 				Edit event style
 			</Button>
 			<Button
+				id="upsert-bonfire"
 				disabled={submitDisabled}
 				type="submit"
 				class="sticky top-2 mt-2 w-full bg-green-500 ring-glow hover:bg-green-400"

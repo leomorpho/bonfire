@@ -569,8 +569,8 @@
 						{#if !isAnonymousUser}
 							{#if event.location}<div class="flex items-center justify-center">
 									{#if latitude && longitude}
-										<ShareLocation lat={latitude} lon={longitude}>
-											<div class="flex items-center justify-center rounded-xl bg-slate-100 p-2">
+										<ShareLocation lat={latitude} lon={longitude} >
+											<div id="share-location" class="flex items-center justify-center rounded-xl bg-slate-100 p-2">
 												{@html event.location}
 												<ArrowRightFromLine class="ml-2 h-4 w-4" />
 											</div>
