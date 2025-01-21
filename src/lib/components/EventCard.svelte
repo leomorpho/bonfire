@@ -17,7 +17,7 @@
 	);
 </script>
 
-<a href={`/bonfire/${event.id}`}>
+<a href={`/bonfire/${event.id}`} class="event-card">
 	<Card.Root class="relative my-4 w-full bg-slate-100" style={event.style}>
 		<!-- Overlay -->
 		<div style={overlayStyle} class="pointer-events-none absolute inset-0 rounded-xl"></div>

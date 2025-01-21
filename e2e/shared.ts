@@ -7,7 +7,8 @@ export const EMAIL_CAPTURE_PORTAL_URL = 'http://localhost:8025/';
 export async function loginUser(
 	page,
 	email = faker.internet.email(),
-	username = faker.person.firstName()
+	username = faker.person.firstName(),
+	expectToSetUsername = true
 ) {
 	// Enter email
 	await page.goto(`${WEBSITE_URL}/`);
@@ -33,10 +34,12 @@ export async function loginUser(
 	// Type the OTP into the input field
 	await otpInput.fill(otp);
 
-	await expect(page.getByText('Choose Your Username').first()).toBeVisible();
-	await page.getByPlaceholder('Charlotte Brönte').click();
-	await page.getByPlaceholder('Charlotte Brönte').type(username); // Simulates typing
-	await page.getByRole('button', { name: 'Save' }).click();
+	if (expectToSetUsername) {
+		await expect(page.getByText('Choose Your Username').first()).toBeVisible();
+		await page.getByPlaceholder('Charlotte Brönte').click();
+		await page.getByPlaceholder('Charlotte Brönte').type(username); // Simulates typing
+		await page.getByRole('button', { name: 'Save' }).click();
+	}
 
 	await expect(page.getByRole('heading', { name: 'Upcoming Bonfires' })).toBeVisible();
 	await expect(page.getByRole('link', { name: 'Dashboard' })).toBeVisible();

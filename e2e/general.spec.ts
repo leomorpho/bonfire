@@ -402,11 +402,67 @@ test('Temp attendee view', async ({ browser }) => {
 
 	await tempAttendeePage.locator('.gallery-item').first().click();
 
-	// await tempAttendeePage.locator('#delete-selected-files').click();
-	// await expect(
-	// 	tempAttendeePage.getByRole('heading', { name: 'Are you absolutely sure?' })
-	// ).toBeVisible();
-	// await expect(tempAttendeePage.getByText('This action cannot be undone')).toBeVisible();
-	// await tempAttendeePage.getByRole('button', { name: 'Continue' }).click();
-	// await expect(tempAttendeePage.locator('.gallery-item')).toHaveCount(0);
+	await tempAttendeePage.getByRole('dialog').getByRole('button').nth(1).click();
+	await expect(
+		tempAttendeePage.getByRole('heading', { name: 'Are you absolutely sure?' })
+	).toBeVisible();
+	await expect(tempAttendeePage.getByText('This action cannot be undone')).toBeVisible();
+	await tempAttendeePage.getByRole('button', { name: 'Continue' }).click();
+	await expect(tempAttendeePage.locator('.gallery-item')).toHaveCount(0);
+});
+
+test('Temp -> normal attendee transformation', async ({ browser }) => {
+	const context1 = await browser.newContext();
+	const context2 = await browser.newContext();
+	const eventCreatorPage = await context1.newPage();
+	const tempAttendeePage = await context2.newPage();
+
+	await eventCreatorPage.goto(WEBSITE_URL);
+
+	// Create event from creator POV
+	const email = faker.internet.email();
+	const username = faker.person.firstName();
+	await loginUser(eventCreatorPage, email, username);
+
+	const eventName = `${faker.animal.dog()}'s birthday party!`;
+	const eventDetails = 'It will be fun!';
+	await createBonfire(eventCreatorPage, eventName, eventDetails);
+	await expect(eventCreatorPage.getByRole('heading', { name: eventName })).toBeVisible();
+
+	const eventUrl = eventCreatorPage.url();
+
+	// Temp attendee
+	const tempAttendeeUsername = faker.person.firstName();
+	await tempAttendeePage.goto(eventUrl);
+
+	// Set RSVP status
+	await tempAttendeePage.getByText('RSVP', { exact: true }).click();
+	await tempAttendeePage.getByRole('menuitem', { name: 'Going', exact: true }).click();
+	await expect(tempAttendeePage.getByRole('heading', { name: 'Hey There!' })).toBeVisible();
+	await expect(tempAttendeePage.getByText('There are two ways to set')).toBeVisible();
+	await expect(tempAttendeePage.getByRole('button', { name: 'Register/Login' })).toBeVisible();
+	await expect(tempAttendeePage.locator('div').filter({ hasText: 'or' }).nth(1)).toBeVisible();
+	await expect(tempAttendeePage.getByText('Generate unique URL')).toBeVisible();
+	await expect(tempAttendeePage.getByText('A unique URL that connects')).toBeVisible();
+	await tempAttendeePage.getByPlaceholder('Tony Garfunkel').click();
+	await tempAttendeePage.getByPlaceholder('Tony Garfunkel').fill(tempAttendeeUsername);
+	await tempAttendeePage.getByRole('button', { name: 'Generate URL' }).click();
+
+	// Should be redirected to bonfire page
+	await expect(
+		tempAttendeePage.getByText(`Hi ${tempAttendeeUsername}! This is a temporary`)
+	).toBeVisible();
+
+	const attendeeEmail = faker.internet.email();
+	const attendeeUsername = faker.person.firstName();
+	await loginUser(tempAttendeePage, attendeeEmail, attendeeUsername);
+
+	await expect(tempAttendeePage.locator('.event-card')).toHaveCount(0);
+
+	// Going to the URL should now link it to the account
+	await tempAttendeePage.goto(eventUrl);
+
+	await expect(tempAttendeePage.getByRole('heading', { name: eventName })).toBeVisible();
+	await tempAttendeePage.getByRole('link', { name: 'Dashboard' }).click();
+	await expect(tempAttendeePage.locator('.event-card')).toHaveCount(0);
 });

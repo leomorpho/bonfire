@@ -1,12 +1,18 @@
 <script>
 	import { BannerMediaSize } from '$lib/enums';
+	import { blurhashToImageCssString } from '@unpic/placeholder';
 	import { Image } from '@unpic/svelte';
 
-	let { bannerSmallSizeUrl, bannerLargeSizeUrl, currenUserIsEventAdmin } = $props();
+	let { bannerSmallSizeUrl, bannerLargeSizeUrl, currenUserIsEventAdmin, blurhash } = $props();
+	
+	const placeholder = blurhash
+		? blurhashToImageCssString(blurhash)
+		: 'L9S#oNN3x_?wxUn%wct8pLaIxuf,';
 </script>
 
 <div class="relative inline-block">
 	<Image
+	background={placeholder}
 		width={BannerMediaSize.LARGE_WIDTH}
 		class="hidden rounded-lg sm:block"
 		src={bannerLargeSizeUrl}
@@ -15,6 +21,7 @@
 		alt={'Banner for large screens'}
 	/>
 	<Image
+	background={placeholder}
 		width={BannerMediaSize.SMALL_WIDTH}
 		class="block rounded-lg sm:hidden"
 		src={bannerSmallSizeUrl}

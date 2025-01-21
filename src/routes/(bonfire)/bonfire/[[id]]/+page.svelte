@@ -530,6 +530,7 @@
 				<div class="space-y-3 rounded-xl bg-white p-5">
 					{#if $page.data.bannerInfo && $page.data.bannerInfo.banneIsSet}
 						<BonfireBanner
+							blurhash={$page.data.bannerInfo.bannerBlurHash}
 							bannerSmallSizeUrl={$page.data.bannerInfo.bannerSmallSizeUrl}
 							bannerLargeSizeUrl={$page.data.bannerInfo.bannerLargeSizeUrl}
 							{currenUserIsEventAdmin}
@@ -608,21 +609,19 @@
 							{/each}
 						</div>
 					{:else if !isAnonymousUser && attendeesGoing.length > 0}
-						<div class="flex flex-wrap items-center -space-x-4">
-							<div id="going-attendees">
-								{#each allAttendeesGoing.slice(0, showMaxNumPeople) as attendee}
-									<ProfileAvatar
-										url={profileImageMap.get(attendee.user_id)?.small_image_url}
-										fullsizeUrl={profileImageMap.get(attendee.user_id)?.full_image_url}
-										username={attendee.user?.username || attendee.name}
-										fallbackName={attendee.user?.username || attendee.name}
-										isTempUser={!!attendee.name}
-										lastUpdatedAt={attendee.updated_at}
-										viewerIsEventAdmin={currenUserIsEventAdmin}
-										attendanceId={attendee.id}
-									/>
-								{/each}
-							</div>
+						<div id="going-attendees" class="flex flex-wrap items-center -space-x-4">
+							{#each allAttendeesGoing.slice(0, showMaxNumPeople) as attendee}
+								<ProfileAvatar
+									url={profileImageMap.get(attendee.user_id)?.small_image_url}
+									fullsizeUrl={profileImageMap.get(attendee.user_id)?.full_image_url}
+									username={attendee.user?.username || attendee.name}
+									fallbackName={attendee.user?.username || attendee.name}
+									isTempUser={!!attendee.name}
+									lastUpdatedAt={attendee.updated_at}
+									viewerIsEventAdmin={currenUserIsEventAdmin}
+									attendanceId={attendee.id}
+								/>
+							{/each}
 							<Dialog.Root>
 								<Dialog.Trigger class="flex items-center"
 									>{#if allAttendeesGoing.length > showMaxNumPeople}
