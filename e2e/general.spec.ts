@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { loginUser, WEBSITE_URL } from './shared';
 import { faker } from '@faker-js/faker';
+import path from 'path';
 
 test('New login', async ({ page }) => {
 	await page.goto(WEBSITE_URL);
@@ -90,6 +91,8 @@ test('Create bonfire', async ({ page }) => {
 	await expect(page.locator('#bing-icon')).toBeVisible();
 	await page.getByRole('button', { name: 'cross 2 Close' }).click();
 
+	await expect(page.getByText('Hosted by')).toBeVisible();
+
 	// Check event details
 	await expect(page.getByText(details)).toBeVisible();
 
@@ -103,4 +106,28 @@ test('Create bonfire', async ({ page }) => {
 	await expect(page.getByText('Gallery', { exact: true })).toBeVisible();
 	await expect(page.getByText('No photos/videos yet')).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Add to gallery' })).toBeVisible();
+
+	// Upload a banner image
+	// Get the repository root directory
+	const repoRoot = process.cwd();
+
+	// Path to the image in your repo
+	const imagePath = path.resolve(repoRoot, 'e2e/test-images', 'banner.jpeg');
+
+	await page.getByRole('button', { name: 'Set a banner image' }).click();
+	await expect(page.getByRole('heading', { name: 'Set Banner' })).toBeVisible();
+	await expect(page.getByRole('tab', { name: 'My Device' })).toBeVisible();
+	await expect(page.getByRole('tab', { name: 'Camera' })).toBeVisible();
+	await expect(page.getByText('Image only. Max size: 5MB.')).toBeVisible();
+
+	// Locate the hidden input element for file upload
+const fileInput = await page.locator('input[type="file"]').first();
+await fileInput.setInputFiles(imagePath);
+
+	// await page.getByRole('tab', { name: 'My Device' }).click();
+	// await page.getByRole('tab', { name: 'My Device' }).setInputFiles(imagePath);
+	await page.getByRole('button', { name: 'Save', exact: true }).click();
+	await page.getByLabel('Upload 1 file').click();
+	await expect(page.getByRole('img', { name: 'Banner for large screens' })).toBeVisible();
+	await expect(page.getByLabel('Upload a new banner')).toBeVisible();
 });

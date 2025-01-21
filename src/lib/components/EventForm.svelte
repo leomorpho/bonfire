@@ -120,6 +120,19 @@
 		}
 	});
 
+	$effect(() => {
+		console.log(
+			'submitDisabled',
+			submitDisabled,
+			'dateValue',
+			dateValue,
+			'eventName',
+			eventName,
+			'startHour',
+			startHour
+		);
+	});
+
 	const handleSubmit = async (e: Event) => {
 		try {
 			e.preventDefault();
