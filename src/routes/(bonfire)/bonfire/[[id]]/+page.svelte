@@ -520,7 +520,7 @@
 				{/if}
 				{#if currenUserIsEventAdmin}
 					<div class="flex w-full justify-center">
-						<a href="update">
+						<a href="update" id="edit-bonfire">
 							<Button variant="outline" class="m-2 rounded-full">
 								<Cog class="h-5 w-5" />
 							</Button>
@@ -569,8 +569,11 @@
 						{#if !isAnonymousUser}
 							{#if event.location}<div class="flex items-center justify-center">
 									{#if latitude && longitude}
-										<ShareLocation lat={latitude} lon={longitude} >
-											<div id="share-location" class="flex items-center justify-center rounded-xl bg-slate-100 p-2">
+										<ShareLocation lat={latitude} lon={longitude}>
+											<div
+												id="share-location"
+												class="flex items-center justify-center rounded-xl bg-slate-100 p-2"
+											>
 												{@html event.location}
 												<ArrowRightFromLine class="ml-2 h-4 w-4" />
 											</div>
@@ -605,18 +608,20 @@
 						</div>
 					{:else if !isAnonymousUser && attendeesGoing.length > 0}
 						<div class="flex flex-wrap items-center -space-x-4">
-							{#each allAttendeesGoing.slice(0, showMaxNumPeople) as attendee}
-								<ProfileAvatar
-									url={profileImageMap.get(attendee.user_id)?.small_image_url}
-									fullsizeUrl={profileImageMap.get(attendee.user_id)?.full_image_url}
-									username={attendee.user?.username || attendee.name}
-									fallbackName={attendee.user?.username || attendee.name}
-									isTempUser={!!attendee.name}
-									lastUpdatedAt={attendee.updated_at}
-									viewerIsEventAdmin={currenUserIsEventAdmin}
-									attendanceId={attendee.id}
-								/>
-							{/each}
+							<div id="going-attendees">
+								{#each allAttendeesGoing.slice(0, showMaxNumPeople) as attendee}
+									<ProfileAvatar
+										url={profileImageMap.get(attendee.user_id)?.small_image_url}
+										fullsizeUrl={profileImageMap.get(attendee.user_id)?.full_image_url}
+										username={attendee.user?.username || attendee.name}
+										fallbackName={attendee.user?.username || attendee.name}
+										isTempUser={!!attendee.name}
+										lastUpdatedAt={attendee.updated_at}
+										viewerIsEventAdmin={currenUserIsEventAdmin}
+										attendanceId={attendee.id}
+									/>
+								{/each}
+							</div>
 							<Dialog.Root>
 								<Dialog.Trigger class="flex items-center"
 									>{#if allAttendeesGoing.length > showMaxNumPeople}

@@ -4,10 +4,11 @@ import { chromium, expect } from '@playwright/test';
 export const WEBSITE_URL = 'http://localhost:5173';
 export const EMAIL_CAPTURE_PORTAL_URL = 'http://localhost:8025/';
 
-export async function loginUser(page) {
-	const email = faker.internet.email();
-	const username = faker.person.firstName();
-
+export async function loginUser(
+	page,
+	email = faker.internet.email(),
+	username = faker.person.firstName()
+) {
 	// Enter email
 	await page.goto(`${WEBSITE_URL}/`);
 	await page.getByRole('link', { name: 'login' }).click();

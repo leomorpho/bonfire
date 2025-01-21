@@ -291,7 +291,7 @@
 <div class="flex">
 	{#if rsvpCanBeChanged}
 		<DropdownMenu.Root bind:open={dropdownOpen}>
-			<DropdownMenu.Trigger class="w-full">
+			<DropdownMenu.Trigger class="w-full" id="rsvp-button">
 				{@render rsvpButton()}
 			</DropdownMenu.Trigger>
 			<DropdownMenu.Content class="w-full">

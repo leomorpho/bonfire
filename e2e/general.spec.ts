@@ -23,7 +23,10 @@ test('New login', async ({ page }) => {
 test('Create bonfire', async ({ page }) => {
 	await page.goto(WEBSITE_URL);
 
-	await loginUser(page);
+	const email = faker.internet.email();
+	const username = faker.person.firstName();
+
+	await loginUser(page, email, username);
 
 	await page.locator('#create-bonfire-button').click();
 
@@ -78,7 +81,7 @@ test('Create bonfire', async ({ page }) => {
 
 	await page.getByRole('button', { name: 'Create' }).click();
 
-	// Event was created
+	// ------> Event was created
 	// Check event name
 	await expect(page.getByRole('heading', { name: eventName })).toBeVisible();
 
@@ -96,10 +99,34 @@ test('Create bonfire', async ({ page }) => {
 	// Check event details
 	await expect(page.getByText(details)).toBeVisible();
 
-	// Check general stuff
 	await expect(page.getByText('No attendees yet')).toBeVisible();
+
+	// Set RSVP state
 	await expect(page.getByText('RSVP')).toBeVisible();
+	await page.getByText('RSVP').click();
+	await page.getByRole('menuitem', { name: 'Going', exact: true }).click();
+	await expect(page.locator('#rsvp-button')).toHaveText('Going');
+
+	// Verify that there is exactly one user attending
+	await expect(page.locator('#going-attendees').locator('.profile-avatar')).toHaveCount(1);
+	// Now set as "not going"
+	await page.getByText('Going').click();
+	await page.getByRole('menuitem', { name: 'Not going', exact: true }).click();
+	await expect(page.locator('#rsvp-button')).toHaveText('Not going');
+	await expect(page.locator('#going-attendees').locator('.profile-avatar')).toHaveCount(0);
+	// And set back to "going"
+	await page.getByText('Not going').click();
+	await page.getByRole('menuitem', { name: 'Going', exact: true }).click();
+	await expect(page.locator('#rsvp-button')).toHaveText('Going');
+	await expect(page.locator('#going-attendees').locator('.profile-avatar')).toHaveCount(1);
+
+	// Click on share button
 	await expect(page.getByRole('button', { name: 'Share Bonfire' })).toBeVisible();
+	await page.getByRole('button', { name: 'Share Bonfire' }).click();
+	// TODO: below not working, not sure why as sonner shows in UI
+	// await expect(page.getByText('Invitation copied to')).toBeVisible();
+
+	// Check general stuff
 	await expect(page.getByText('Announcements', { exact: true })).toBeVisible();
 	await expect(page.getByText('No announcements yet')).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Create new announcement' })).toBeVisible();
@@ -108,11 +135,7 @@ test('Create bonfire', async ({ page }) => {
 	await expect(page.getByRole('button', { name: 'Add to gallery' })).toBeVisible();
 
 	// Upload a banner image
-	// Get the repository root directory
-	const repoRoot = process.cwd();
-
-	// Path to the image in your repo
-	const imagePath = path.resolve(repoRoot, 'e2e/test-images', 'banner.jpeg');
+	const imagePath = path.resolve(process.cwd(), 'e2e/test-images', 'banner.jpeg');
 
 	await page.getByRole('button', { name: 'Set a banner image' }).click();
 	await expect(page.getByRole('heading', { name: 'Set Banner' })).toBeVisible();
@@ -120,14 +143,40 @@ test('Create bonfire', async ({ page }) => {
 	await expect(page.getByRole('tab', { name: 'Camera' })).toBeVisible();
 	await expect(page.getByText('Image only. Max size: 5MB.')).toBeVisible();
 
-	// Locate the hidden input element for file upload
-const fileInput = await page.locator('input[type="file"]').first();
-await fileInput.setInputFiles(imagePath);
-
-	// await page.getByRole('tab', { name: 'My Device' }).click();
-	// await page.getByRole('tab', { name: 'My Device' }).setInputFiles(imagePath);
+	const fileInput = await page.locator('input[type="file"]').first();
+	await fileInput.setInputFiles(imagePath);
 	await page.getByRole('button', { name: 'Save', exact: true }).click();
 	await page.getByLabel('Upload 1 file').click();
+
 	await expect(page.getByRole('img', { name: 'Banner for large screens' })).toBeVisible();
 	await expect(page.getByLabel('Upload a new banner')).toBeVisible();
+
+	// Go to edit page and set background
+	await page.locator('#edit-bonfire').getByRole('button').click();
+	await page.getByRole('button', { name: 'Edit event style' }).click();
+	await page.getByRole('button', { name: 'Optical Illusion Pattern', exact: true }).click();
+	await page.getByText('Edit overlay').click();
+	await expect(page.getByText('Overlay', { exact: true })).toBeVisible();
+	await expect(page.getByRole('button', { name: 'Clear' })).toBeVisible();
+	await page.getByRole('button', { name: 'chevron left Back' }).click();
+	await page.getByRole('button', { name: 'Update' }).click();
+
+	// Verify address as it used to be mangled (possible bug again) when coming back from edit page
+	await page.locator('#share-location').click();
+	await expect(page.getByRole('heading', { name: 'Open in mapping app' })).toBeVisible();
+	await expect(page.locator('#google-maps-icon')).toBeVisible();
+	await expect(page.locator('#apple-icon')).toBeVisible();
+	await expect(page.getByRole('link', { name: 'Waze' })).toBeVisible();
+	await expect(page.locator('#bing-icon')).toBeVisible();
+	await page.getByRole('button', { name: 'cross 2 Close' }).click();
+
+	await page.locator('#going-attendees').locator('.profile-avatar').click();
+	await expect(page.getByRole('heading', { name: username })).toBeVisible();
+	await expect(page.getByRole('button', { name: 'Remove user from event' })).toBeVisible();
+	await page.getByRole('button', { name: 'Remove user from event' }).click();
+	await expect(page.getByRole('heading', { name: 'Are you absolutely sure?' })).toBeVisible();
+	await expect(page.getByText('This action cannot be undone')).toBeVisible();
+	await expect(page.getByRole('button', { name: 'Yes, remove' })).toBeVisible();
+	await expect(page.getByRole('button', { name: 'Cancel' })).toBeVisible();
+	await page.getByRole('button', { name: 'cross 2 Close' }).click();
 });
