@@ -610,6 +610,7 @@
 						</div>
 					{:else if !isAnonymousUser && attendeesGoing.length > 0}
 						<div id="going-attendees" class="flex flex-wrap items-center -space-x-4">
+							{console.log('---> attendeesGoingA', attendeesGoing)}
 							{#each allAttendeesGoing.slice(0, showMaxNumPeople) as attendee}
 								<ProfileAvatar
 									url={profileImageMap.get(attendee.user_id)?.small_image_url}
@@ -640,9 +641,10 @@
 											<Dialog.Description>
 												<div class="mb-3 mt-5">
 													{#if allAttendeesGoing.length > 0}
+														{console.log('---> attendeesGoing', attendeesGoing)}
 														<h2 class="my-3 flex w-full justify-center font-semibold">Going</h2>
 														<div class="mx-5 flex flex-wrap -space-x-4 text-black">
-															{#each attendeesGoing as attendee}
+															{#each allAttendeesGoing as attendee}
 																<ProfileAvatar
 																	url={profileImageMap.get(attendee.user_id)?.small_image_url}
 																	fullsizeUrl={profileImageMap.get(attendee.user_id)
@@ -681,7 +683,7 @@
 												<div class="mb-3 mt-5">
 													{#if allAttendeesNotGoing.length > 0}
 														<h2 class="my-3 flex w-full justify-center font-semibold">Not Going</h2>
-														<div class="mx-5 flex flex-wrap -space-x-4">
+														<div class="mx-5 flex flex-wrap -space-x-4 text-black">
 															{#each allAttendeesNotGoing as attendee}
 																<ProfileAvatar
 																	url={profileImageMap.get(attendee.user_id)?.small_image_url}

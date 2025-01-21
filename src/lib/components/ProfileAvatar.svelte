@@ -53,6 +53,9 @@
 				`failed to remove ${isTempUser ?? 'temp'} attendee from event with id ${eventId}`,
 				e
 			);
+		} finally {
+			// NOTE: if we don't set it back to true, I have observed that a new ProfileAvatar may open in delete mode. Not great UX experience.
+			attendanceIsAboutToBeDeleted = false;
 		}
 	};
 
@@ -66,7 +69,7 @@
 </script>
 
 <Dialog.Root bind:open={dialogIsOpen}>
-	<Dialog.Trigger class="flex justify-center items-center profile-avatar">
+	<Dialog.Trigger class="profile-avatar flex items-center justify-center">
 		{#if fullsizeUrl || url}
 			<Avatar.Root
 				class="relative h-12 w-12 border-2 sm:h-14 sm:w-14 {isTempUser
@@ -138,7 +141,7 @@
 					{/if}
 					<div class="mt-3 flex w-full items-center justify-center text-3xl text-black md:text-4xl">
 						{#if fullsizeUrl || url}
-							<Avatar.Root class="mt-3 w-fit h-fit aspect-square">
+							<Avatar.Root class="mt-3 aspect-square h-fit w-fit">
 								<Avatar.Image src={fullsizeUrl ? fullsizeUrl : url} alt={username} />
 								<Avatar.Fallback>{fallbackNameShort}</Avatar.Fallback>
 								<!-- Overlay Layer for Temp User -->
