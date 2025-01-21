@@ -2,6 +2,7 @@ import { error } from '@sveltejs/kit';
 import { triplitHttpClient } from '$lib/server/triplit';
 import { deleteFilesFromS3 } from '$lib/filestorage';
 import { tempAttendeeIdUrlParam } from '$lib/enums';
+import { and } from '@triplit/client';
 
 export const DELETE = async ({ request, locals, params, url }) => {
 	const tempAttendeeId = url.searchParams.get(tempAttendeeIdUrlParam);
@@ -65,16 +66,51 @@ export const DELETE = async ({ request, locals, params, url }) => {
 		}
 
 		// Fetch the file details and filter based on permissions
-		const filesQuery = triplitHttpClient
-			.query('files')
-			.where(['id', 'in', fileIds])
-			// .select(['id', 'uploader_id', 'file_key']) // Include the S3 file key // TODO: select bug in http client
-			.build();
+		let filesQuery;
+
+		if (user) {
+			filesQuery = triplitHttpClient
+				.query('files')
+				.where(
+					and([
+						['id', 'in', fileIds],
+						['uploader_id', '=', user?.id]
+					])
+				)
+				// .select(['id', 'uploader_id', 'file_key']) // Include the S3 file key // TODO: select bug in http client
+				.build();
+		} else if (tempAttendeeExists) {
+			filesQuery = triplitHttpClient
+				.query('files')
+				.where(
+					and([
+						['id', 'in', fileIds],
+						['temp_uploader_id', '=', tempAttendeeId]
+					])
+				)
+				// .select(['id', 'uploader_id', 'file_key']) // Include the S3 file key // TODO: select bug in http client
+				.build();
+		} else {
+			return new Response(JSON.stringify({ error: 'No valid files found' }), {
+				status: 404,
+				headers: { 'Content-Type': 'application/json' }
+			});
+		}
+
 		const files = await triplitHttpClient.fetch(filesQuery);
 
-		const filesToDelete = files.filter(
-			(file) => isOwner || file.temp_uploader_id == tempAttendeeId || file.uploader_id === user.id
-		);
+		if (!files || files.length === 0) {
+			return new Response(JSON.stringify({ error: 'No valid files found' }), {
+				status: 404,
+				headers: { 'Content-Type': 'application/json' }
+			});
+		}
+
+		const filesToDelete = files
+			.filter((file) => file) // Exclude null or undefined files
+			.filter(
+				(file) => isOwner || file.temp_uploader_id == tempAttendeeId || file.uploader_id === user.id
+			);
 
 		// Extract the S3 keys for the files to be deleted
 		const s3KeysToDelete = filesToDelete.map((file) => file.file_key);
