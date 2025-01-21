@@ -236,3 +236,64 @@ test('CRUD announcements', async ({ page }) => {
 	await expect(page.getByRole('heading', { name: eventName })).toBeVisible();
 	await expect(page.locator('.announcement')).toHaveCount(0);
 });
+
+test('CRUD gellery', async ({ page }) => {
+	await page.goto(WEBSITE_URL);
+
+	const email = faker.internet.email();
+	const username = faker.person.firstName();
+	await loginUser(page, email, username);
+
+	const eventName = `${faker.animal.dog()}'s birthday party!`;
+	await createBonfire(page, eventName);
+	await expect(page.getByRole('heading', { name: eventName })).toBeVisible();
+
+	await page.getByRole('button', { name: 'Add to gallery' }).click();
+	await expect(page.getByRole('link', { name: 'Upload' })).toBeVisible();
+
+	const fileInput = await page.locator('input[type="file"]').first();
+	const imagePath = path.resolve(process.cwd(), 'e2e/test-images', 'gallery-image.jpg');
+	await fileInput.setInputFiles(imagePath);
+	await page.getByLabel('Upload 1 file').click();
+	await expect(page.locator('.gallery-item')).toHaveCount(1);
+
+	// TODO: difficulty with playwright closing the image
+	// // // Test open/close of lightroom
+	// await page.locator('.gallery-item').first().click();
+	// await page.keyboard.press('Escape');
+
+	// // Open in light room
+	// await page.locator('.gallery-item').first().click();
+	// await expect(page.locator('.download-button').first()).toBeVisible();
+	// await expect(page.locator('.delete-button').first()).toBeVisible();
+
+	// // Try deleting image from lightroom, then cancel
+	// await page.locator('.delete-button').first().click();
+	// await page.getByRole('dialog').getByRole('button').nth(1).click();
+	// await expect(page.getByRole('heading', { name: 'Are you absolutely sure?' })).toBeVisible();
+	// await page.getByRole('button', { name: 'Cancel' }).click();
+	// await page.keyboard.press('Escape');
+
+	// Check top bar buttons
+	await expect(page.locator('#upload-new-images')).toBeVisible();
+	await expect(page.locator('#toggle-select-images')).toBeVisible();
+	await expect(page.locator('#toggle-show-user-uploaded-images')).toBeVisible();
+
+	// Toggle "show mine" back and forth
+	await page.locator('#toggle-show-user-uploaded-images').click();
+	await expect(page.locator('.gallery-item')).toHaveCount(1);
+	await page.locator('#toggle-show-user-uploaded-images').click();
+	await expect(page.locator('.gallery-item')).toHaveCount(1);
+
+	// Test "select" toggle
+	await page.locator('#toggle-select-images').click();
+	await page.getByRole('button', { name: 'Select All' }).click();
+	await page.getByRole('button', { name: 'Select None' }).click();
+	await page.getByRole('button', { name: 'Select All' }).click();
+
+	await page.locator('#delete-selected-files').click();
+	await expect(page.getByRole('heading', { name: 'Are you absolutely sure?' })).toBeVisible();
+	await expect(page.getByText('This action cannot be undone')).toBeVisible();
+	await page.getByRole('button', { name: 'Continue' }).click();
+	await expect(page.locator('.gallery-item')).toHaveCount(0);
+});

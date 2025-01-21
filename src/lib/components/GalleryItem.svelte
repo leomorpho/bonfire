@@ -14,9 +14,9 @@
 	const isVideo = fileType.startsWith('video/');
 </script>
 
-<a
+<a 
 	href={url}
-	class={urlActive ? 'disabled-link' : ''}
+	class={`gallery-item ${urlActive ? 'disabled-link' : ''}`}
 	data-pswp-width={wPixel}
 	data-pswp-height={hPixel}
 	data-pswp-is-video={isVideo}

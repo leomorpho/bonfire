@@ -305,7 +305,7 @@
 				html: {
 					isCustomSVG: true,
 					inner:
-						'<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>',
+						'<svg class="download-button" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>',
 					outlineID: 'pswp__icn-download'
 				},
 				onClick: (event, el, pswp) => {
@@ -335,7 +335,7 @@
 				html: {
 					isCustomSVG: true,
 					inner:
-						'<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>',
+						'<svg class="delete-button" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>',
 					outlineID: 'pswp__icn-delete'
 				},
 				onClick: (event, el, pswp) => {
@@ -511,7 +511,7 @@
 		</Breadcrumb.Root>
 		<div class="flex py-1 sm:space-x-2">
 			<a href="add">
-				<Toggle aria-label="toggle bold">
+				<Toggle id="upload-new-images" aria-label="toggle bold">
 					<ImagePlus class="size-3" /><span class="text-xs sm:text-sm">Upload</span>
 				</Toggle>
 			</a>
@@ -547,14 +547,20 @@
 					</Tooltip.Root>
 				</Tooltip.Provider>
 			{:else}
-				<Toggle aria-label="toggle selection" onclick={toggleSelection}>
+				<Toggle aria-label="toggle selection" onclick={toggleSelection} id="toggle-select-images">
 					<SquareMousePointer class="size-3" /> <span class="text-xs sm:text-sm">Select</span>
 				</Toggle>
 				<!-- Filter Button -->
-				<Toggle aria-label="toggle selection" onclick={filterByCurrentUserAsUploader}>
-					{#if showOnlyCurrentUserUploads}<Users class="size-3" />{:else}<User
-							class="size-3"
-						/>{/if}
+				<Toggle
+					aria-label="toggle selection"
+					onclick={filterByCurrentUserAsUploader}
+					id="toggle-show-user-uploaded-images"
+				>
+					{#if showOnlyCurrentUserUploads}
+						<Users class="size-3" />
+					{:else}
+						<User class="size-3" />
+					{/if}
 
 					<span class="text-xs sm:text-sm">
 						{showOnlyCurrentUserUploads ? 'Show All' : 'Show Mine'}
@@ -648,6 +654,7 @@
 				<Tooltip.Root>
 					<Tooltip.Trigger>
 						<button
+							id="download-selected-files"
 							disabled={selectedImages.length == 0}
 							onclick={handleDownload}
 							class="rounded-full p-4 text-white shadow-lg transition
@@ -671,15 +678,17 @@
 								continueCallback={() => handleDelete()}
 								disabled={selectedImages.length == 0}
 								dialogDescription={`This action cannot be undone. This will permanently delete ${selectedImages.length} ${selectedImages.length > 1 ? 'files' : 'file'} from our servers.`}
-								><button
+							>
+								<button
+									id="delete-selected-files"
 									disabled={selectedImages.length == 0}
 									class="rounded-full p-4 text-white shadow-lg transition
 							{selectedImages.length === 0 ? 'cursor-not-allowed bg-red-100' : 'bg-red-500 hover:bg-red-600'}"
 								>
 									<!-- Button Icon -->
 									<Trash2 class="h-6 w-6 sm:h-8 sm:w-8 lg:h-12 lg:w-12" />
-								</button></CustomAlertDialogue
-							>
+								</button>
+							</CustomAlertDialogue>
 						</Tooltip.Trigger>
 						<Tooltip.Content>
 							<p>Delete</p>
