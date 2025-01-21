@@ -532,8 +532,9 @@
 						<BonfireBanner
 							bannerSmallSizeUrl={$page.data.bannerInfo.bannerSmallSizeUrl}
 							bannerLargeSizeUrl={$page.data.bannerInfo.bannerLargeSizeUrl}
+							{currenUserIsEventAdmin}
 						/>
-					{:else}
+					{:else if currenUserIsEventAdmin}
 						<a class="flex w-full" href="banner/upload">
 							<Button class="w-full">Set a banner image</Button>
 						</a>

@@ -94,7 +94,7 @@ test('Create bonfire', async ({ page }) => {
 	await expect(page.locator('#bing-icon')).toBeVisible();
 	await page.getByRole('button', { name: 'cross 2 Close' }).click();
 
-	await expect(page.getByText('Hosted by')).toBeVisible();
+	await expect(page.getByText(`Hosted by ${username}`)).toBeVisible();
 
 	// Check event details
 	await expect(page.getByText(details)).toBeVisible();
@@ -237,7 +237,7 @@ test('CRUD announcements', async ({ page }) => {
 	await expect(page.locator('.announcement')).toHaveCount(0);
 });
 
-test('CRUD gellery', async ({ page }) => {
+test('CRUD gallery', async ({ page }) => {
 	await page.goto(WEBSITE_URL);
 
 	const email = faker.internet.email();
@@ -296,4 +296,38 @@ test('CRUD gellery', async ({ page }) => {
 	await expect(page.getByText('This action cannot be undone')).toBeVisible();
 	await page.getByRole('button', { name: 'Continue' }).click();
 	await expect(page.locator('.gallery-item')).toHaveCount(0);
+});
+
+test('Temp attendee view', async ({ browser }) => {
+	const context1 = await browser.newContext();
+	const context2 = await browser.newContext();
+	const eventCreatorPage = await context1.newPage();
+	const tempAttendeePage = await context2.newPage();
+
+	await eventCreatorPage.goto(WEBSITE_URL);
+
+	// Create event from creator POV
+	const email = faker.internet.email();
+	const username = faker.person.firstName();
+	await loginUser(eventCreatorPage, email, username);
+
+	const eventName = `${faker.animal.dog()}'s birthday party!`;
+	const eventDetails = 'It will be fun!';
+	await createBonfire(eventCreatorPage, eventName, eventDetails);
+	await expect(eventCreatorPage.getByRole('heading', { name: eventName })).toBeVisible();
+
+	const eventUrl = eventCreatorPage.url();
+
+	// Have
+	await tempAttendeePage.goto(eventUrl);
+
+	// Temp user should not be able to set a banner
+	await expect(tempAttendeePage.getByRole('heading', { name: 'Set Banner' })).toHaveCount(0);
+	await expect(tempAttendeePage.getByRole('heading', { name: eventName })).toBeVisible();
+	await expect(tempAttendeePage.getByText(`Hosted by ${username}`)).toBeVisible();
+	await expect(tempAttendeePage.getByText('Set RSVP status to see location')).toBeVisible();
+	await expect(tempAttendeePage.getByText(eventDetails)).toBeVisible();
+	await expect(tempAttendeePage.getByText('0 announcements')).toBeVisible();
+	await expect(tempAttendeePage.getByText('0 announcements')).toBeVisible();
+	await expect(tempAttendeePage.getByText('0 files')).toBeVisible();
 });

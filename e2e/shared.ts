@@ -95,11 +95,13 @@ export async function getEmailOTP(emailAddress: string) {
 	return otp;
 }
 
-export async function createBonfire(page, eventName = `${faker.animal.dog()}'s birthday party!`) {
+export async function createBonfire(
+	page,
+	eventName = `${faker.animal.dog()}'s birthday party!`,
+	details = `Join us for ${eventName} It will be a fun evening filled with dog treats!`
+) {
 	await page.goto(WEBSITE_URL);
 	await page.locator('#create-bonfire-button').click();
-
-	const details = `Join us for ${eventName} It will be a fun evening filled with dog treats!`;
 
 	await expect(page.getByRole('heading', { name: 'Create a Bonfire' })).toBeVisible();
 	await expect(page.getByPlaceholder('Event Name')).toBeVisible();
