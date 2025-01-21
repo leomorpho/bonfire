@@ -24,7 +24,6 @@ export const DELETE = async ({ request, locals, params, url }) => {
 		console.error(`Error checking for temp attendee with id ${tempAttendeeId}:`, error);
 		return new Response('Internal Server Error', { status: 500 });
 	}
-	console.log('--------------> tempAttendeeExists', tempAttendeeExists, 'id', tempAttendeeId);
 
 	try {
 		const user = locals.user;
