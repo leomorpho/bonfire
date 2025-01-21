@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { loginUser, WEBSITE_URL } from './shared';
+import { createBonfire, loginUser, WEBSITE_URL } from './shared';
 import { faker } from '@faker-js/faker';
 import path from 'path';
 
@@ -179,4 +179,60 @@ test('Create bonfire', async ({ page }) => {
 	await expect(page.getByRole('button', { name: 'Yes, remove' })).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Cancel' })).toBeVisible();
 	await page.getByRole('button', { name: 'cross 2 Close' }).click();
+});
+
+test('CRUD announcements', async ({ page }) => {
+	await page.goto(WEBSITE_URL);
+
+	const email = faker.internet.email();
+	const username = faker.person.firstName();
+	await loginUser(page, email, username);
+
+	const eventName = `${faker.animal.dog()}'s birthday party!`;
+	await createBonfire(page, eventName);
+	await expect(page.getByRole('heading', { name: eventName })).toBeVisible();
+
+	// Create
+	await expect(page.getByText('No announcements yet')).toBeVisible();
+	await page.getByRole('button', { name: 'Create new announcement' }).click();
+	await expect(page.getByRole('heading', { name: 'Create an Announcement' })).toBeVisible();
+	await page.getByPlaceholder('Type your announcement here').click();
+	await page.getByPlaceholder('Type your announcement here').fill('An announcement!');
+	await page.getByRole('button', { name: 'Create Announcement' }).click();
+	// Check we are back on bonfire view
+	await expect(page.getByRole('heading', { name: eventName })).toBeVisible();
+	await expect(page.getByRole('heading', { name: 'An announcement!' })).toBeVisible();
+	await expect(page.locator('.announcement')).toHaveCount(1);
+
+	// Update
+	await page
+		.locator('section div')
+		.filter({ hasText: 'Announcements An announcement' })
+		.getByRole('button')
+		.first()
+		.click();
+	await page.getByPlaceholder('Type your announcement here').click();
+	await page.getByPlaceholder('Type your announcement here').press('ControlOrMeta+a');
+	await page.getByPlaceholder('Type your announcement here').fill('Updated announcement');
+	await expect(page.getByRole('button', { name: 'Update Announcement' })).toBeVisible();
+	await page.getByRole('button', { name: 'Update Announcement' }).click();
+	// Check we are back on bonfire view
+	await expect(page.getByRole('heading', { name: eventName })).toBeVisible();
+	await expect(page.getByRole('heading', { name: 'Updated announcement' })).toBeVisible();
+	await expect(page.locator('.announcement')).toHaveCount(1);
+
+	// Delete
+	await page
+		.locator('section div')
+		.filter({ hasText: 'Announcements Updated' })
+		.getByRole('button')
+		.first()
+		.click();
+	await page.getByText('Delete Announcement').click();
+	await expect(page.getByRole('heading', { name: 'Are you sure?' })).toBeVisible();
+	await expect(page.getByText('This action cannot be undone')).toBeVisible();
+	await page.getByRole('button', { name: 'Confirm Delete' }).click();
+	// Check we are back on bonfire view
+	await expect(page.getByRole('heading', { name: eventName })).toBeVisible();
+	await expect(page.locator('.announcement')).toHaveCount(0);
 });
