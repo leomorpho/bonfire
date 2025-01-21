@@ -120,6 +120,11 @@ test('Create bonfire', async ({ page }) => {
 	await expect(page.locator('#rsvp-button')).toHaveText('Going');
 	await expect(page.locator('#going-attendees').locator('.profile-avatar')).toHaveCount(1);
 
+	await page.locator('#add-to-calendar').click();
+	await expect(page.getByRole('menuitem', { name: 'Google Calendar' })).toBeVisible();
+	await expect(page.getByRole('menuitem', { name: 'Outlook Calendar' })).toBeVisible();
+	await expect(page.getByRole('menuitem', { name: 'Apple Calendar (.ics)' })).toBeVisible();
+
 	// Click on share button
 	await expect(page.getByRole('button', { name: 'Share Bonfire' })).toBeVisible();
 	await page.getByRole('button', { name: 'Share Bonfire' }).click();
@@ -318,7 +323,8 @@ test('Temp attendee view', async ({ browser }) => {
 
 	const eventUrl = eventCreatorPage.url();
 
-	// Have
+	// Temp attendee
+	const tempAttendeeUsername = faker.person.firstName();
 	await tempAttendeePage.goto(eventUrl);
 
 	// Temp user should not be able to set a banner
@@ -330,4 +336,77 @@ test('Temp attendee view', async ({ browser }) => {
 	await expect(tempAttendeePage.getByText('0 announcements')).toBeVisible();
 	await expect(tempAttendeePage.getByText('0 announcements')).toBeVisible();
 	await expect(tempAttendeePage.getByText('0 files')).toBeVisible();
+
+	// Set RSVP status
+	await tempAttendeePage.getByText('RSVP', { exact: true }).click();
+	await tempAttendeePage.getByRole('menuitem', { name: 'Going', exact: true }).click();
+	await expect(tempAttendeePage.getByRole('heading', { name: 'Hey There!' })).toBeVisible();
+	await expect(tempAttendeePage.getByText('There are two ways to set')).toBeVisible();
+	await expect(tempAttendeePage.getByRole('button', { name: 'Register/Login' })).toBeVisible();
+	await expect(tempAttendeePage.locator('div').filter({ hasText: 'or' }).nth(1)).toBeVisible();
+	await expect(tempAttendeePage.getByText('Generate unique URL')).toBeVisible();
+	await expect(tempAttendeePage.getByText('A unique URL that connects')).toBeVisible();
+	await tempAttendeePage.getByPlaceholder('Tony Garfunkel').click();
+	await tempAttendeePage.getByPlaceholder('Tony Garfunkel').fill(tempAttendeeUsername);
+	await tempAttendeePage.getByRole('button', { name: 'Generate URL' }).click();
+
+	// Should be redirected to bonfire page
+	await expect(
+		tempAttendeePage.getByText(`Hi ${tempAttendeeUsername}! This is a temporary`)
+	).toBeVisible();
+	await expect(tempAttendeePage.getByText('Keep this tab open for')).toBeVisible();
+	await expect(tempAttendeePage.getByText('This URL grants access to the')).toBeVisible();
+	await expect(tempAttendeePage.getByText('Sign up anytime to link your')).toBeVisible();
+	await expect(tempAttendeePage.getByRole('button', { name: 'Sign Up or Log In' })).toBeVisible();
+	await expect(tempAttendeePage.getByRole('button', { name: 'Copy Link' })).toBeVisible();
+
+	// Verify address shows in mapping app dialog
+	await tempAttendeePage.locator('#share-location').click();
+	await expect(
+		tempAttendeePage.getByRole('heading', { name: 'Open in mapping app' })
+	).toBeVisible();
+	await expect(tempAttendeePage.locator('#google-maps-icon')).toBeVisible();
+	await expect(tempAttendeePage.locator('#apple-icon')).toBeVisible();
+	await expect(tempAttendeePage.getByRole('link', { name: 'Waze' })).toBeVisible();
+	await expect(tempAttendeePage.locator('#bing-icon')).toBeVisible();
+	await tempAttendeePage.getByRole('button', { name: 'cross 2 Close' }).click();
+
+	await tempAttendeePage.locator('#add-to-calendar').click();
+	await expect(tempAttendeePage.getByRole('menuitem', { name: 'Google Calendar' })).toBeVisible();
+	await expect(tempAttendeePage.getByRole('menuitem', { name: 'Outlook Calendar' })).toBeVisible();
+	await expect(
+		tempAttendeePage.getByRole('menuitem', { name: 'Apple Calendar (.ics)' })
+	).toBeVisible();
+	await tempAttendeePage.keyboard.press('Escape'); // Close dropdown
+
+	await expect(tempAttendeePage.getByText('No announcements yet')).toBeVisible();
+	await expect(tempAttendeePage.getByText('No photos/videos yet')).toBeVisible();
+
+	// Upload image to gallery
+	await tempAttendeePage.getByRole('button', { name: 'Add to gallery' }).click();
+
+	await expect(tempAttendeePage.getByRole('link', { name: 'Upload' })).toBeVisible();
+
+	const fileInput = await tempAttendeePage.locator('input[type="file"]').first();
+	const imagePath = path.resolve(process.cwd(), 'e2e/test-images', 'gallery-image.jpg');
+	await fileInput.setInputFiles(imagePath);
+	await tempAttendeePage.getByLabel('Upload 1 file').click();
+	await expect(tempAttendeePage.locator('.gallery-item')).toHaveCount(1);
+
+	// Check top bar buttons
+	await expect(tempAttendeePage.locator('#upload-new-images')).toBeVisible();
+	// NOTE: the below 2 are actually shown, just greyed out and disabled. We actually show "other" elements, which
+	// is something we should clean up in code to avoid duplication.
+	await expect(tempAttendeePage.locator('#toggle-select-images')).toHaveCount(0);
+	await expect(tempAttendeePage.locator('#toggle-show-user-uploaded-images')).toHaveCount(0);
+
+	await tempAttendeePage.locator('.gallery-item').first().click();
+
+	// await tempAttendeePage.locator('#delete-selected-files').click();
+	// await expect(
+	// 	tempAttendeePage.getByRole('heading', { name: 'Are you absolutely sure?' })
+	// ).toBeVisible();
+	// await expect(tempAttendeePage.getByText('This action cannot be undone')).toBeVisible();
+	// await tempAttendeePage.getByRole('button', { name: 'Continue' }).click();
+	// await expect(tempAttendeePage.locator('.gallery-item')).toHaveCount(0);
 });

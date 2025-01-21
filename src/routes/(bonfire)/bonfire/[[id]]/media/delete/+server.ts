@@ -1,73 +1,106 @@
 import { error } from '@sveltejs/kit';
 import { triplitHttpClient } from '$lib/server/triplit';
 import { deleteFilesFromS3 } from '$lib/filestorage';
+import { tempAttendeeIdUrlParam } from '$lib/enums';
 
-export const DELETE = async ({ request, locals, params }) => {
-	const user = locals.user;
-	if (!user) {
-		throw error(401, 'Unauthorized');
-	}
+export const DELETE = async ({ request, locals, params, url }) => {
+	const tempAttendeeId = url.searchParams.get(tempAttendeeIdUrlParam);
 
-	const { id: eventId } = params;
+	let tempAttendeeExists: boolean = false;
+	let existingAttendee = null;
 
-	if (!eventId) {
-		throw error(400, 'Missing event ID');
-	}
-
-	// Parse the request body for file IDs
-	const body = await request.json();
-	const fileIds = body.fileIds;
-
-	if (!fileIds || fileIds.length === 0) {
-		throw error(400, 'No file IDs provided');
-	}
-
-	// Fetch the event details
-	const eventQuery = triplitHttpClient
-		.query('events')
-		.where(['id', '=', eventId])
-		// .select(['user_id']) // TODO: select bug in http client
-		.build();
-	const event = await triplitHttpClient.fetch(eventQuery);
-
-	if (!event) {
-		throw error(404, 'Event not found');
-	}
-
-	// Check if the user is the event owner
-	const isOwner = event.user_id === user.id;
-
-	// Fetch the file details and filter based on permissions
-	const filesQuery = triplitHttpClient
-		.query('files')
-		.where(['id', 'in', fileIds])
-		// .select(['id', 'uploader_id', 'file_key']) // Include the S3 file key // TODO: select bug in http client
-		.build();
-	const files = await triplitHttpClient.fetch(filesQuery);
-
-	const filesToDelete = files.filter((file) => isOwner || file.uploader_id === user.id);
-
-	// Extract the S3 keys for the files to be deleted
-	const s3KeysToDelete = filesToDelete.map((file) => file.file_key);
-
-	// Perform S3 deletion
-	const s3DeleteResult = await deleteFilesFromS3(s3KeysToDelete);
-
-	// Delete only files the user is allowed to delete from the database
-	for (const file of filesToDelete) {
-		await triplitHttpClient.delete('files', file.id);
-	}
-
-	return new Response(
-		JSON.stringify({
-			success: true,
-			deletedCount: filesToDelete.length,
-			s3Deleted: s3DeleteResult.deleted.length,
-			s3Failed: s3DeleteResult.failed
-		}),
-		{
-			status: 200,
-			headers: { 'Content-Type': 'application/json' }
+	try {
+		if (tempAttendeeId) {
+			try {
+				existingAttendee = await triplitHttpClient.fetchById('temporary_attendees', tempAttendeeId);
+				if (existingAttendee) {
+					tempAttendeeExists = true;
+				}
+			} catch (e) {
+				console.debug('failed to find temp attendee because it does not exist', e);
+			}
 		}
-	);
+	} catch (error) {
+		console.error(`Error checking for temp attendee with id ${tempAttendeeId}:`, error);
+		return new Response('Internal Server Error', { status: 500 });
+	}
+	console.log('--------------> tempAttendeeExists', tempAttendeeExists, 'id', tempAttendeeId);
+
+	try {
+		const user = locals.user;
+
+		if (!user && !tempAttendeeExists) {
+			throw error(401, 'Unauthorized');
+		}
+
+		const { id: eventId } = params;
+
+		if (!eventId) {
+			throw error(400, 'Missing event ID');
+		}
+
+		// Parse the request body for file IDs
+		const body = await request.json();
+		const fileIds = body.fileIds;
+
+		if (!fileIds || fileIds.length === 0) {
+			throw error(400, 'No file IDs provided');
+		}
+
+		// Fetch the event details
+		const eventQuery = triplitHttpClient
+			.query('events')
+			.where(['id', '=', eventId])
+			// .select(['user_id']) // TODO: select bug in http client
+			.build();
+		const event = await triplitHttpClient.fetch(eventQuery);
+
+		if (!event) {
+			throw error(404, 'Event not found');
+		}
+
+		// Check if the user is the event owner
+		let isOwner = false;
+		if (user && event.user_id === user.id) {
+			isOwner = true;
+		}
+
+		// Fetch the file details and filter based on permissions
+		const filesQuery = triplitHttpClient
+			.query('files')
+			.where(['id', 'in', fileIds])
+			// .select(['id', 'uploader_id', 'file_key']) // Include the S3 file key // TODO: select bug in http client
+			.build();
+		const files = await triplitHttpClient.fetch(filesQuery);
+
+		const filesToDelete = files.filter(
+			(file) => isOwner || file.temp_uploader_id == tempAttendeeId || file.uploader_id === user.id
+		);
+
+		// Extract the S3 keys for the files to be deleted
+		const s3KeysToDelete = filesToDelete.map((file) => file.file_key);
+
+		// Perform S3 deletion
+		const s3DeleteResult = await deleteFilesFromS3(s3KeysToDelete);
+
+		// Delete only files the user is allowed to delete from the database
+		for (const file of filesToDelete) {
+			await triplitHttpClient.delete('files', file.id);
+		}
+
+		return new Response(
+			JSON.stringify({
+				success: true,
+				deletedCount: filesToDelete.length,
+				s3Deleted: s3DeleteResult.deleted.length,
+				s3Failed: s3DeleteResult.failed
+			}),
+			{
+				status: 200,
+				headers: { 'Content-Type': 'application/json' }
+			}
+		);
+	} catch (e) {
+		console.error('failed to delete file(s):', e);
+	}
 };

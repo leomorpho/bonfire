@@ -31,6 +31,7 @@
 	let isDeleteFileConfirmationDialogOpen = $state(false);
 	let eventFiles = $state($page.data.eventFiles);
 	console.log('isOwner', $page.data.isOwner);
+	const tempAttendeeId = $page.url.searchParams.get(tempAttendeeIdUrlParam);
 
 	let isDialogOpen = $state(false);
 	let dialogDescription = $state('');
@@ -154,7 +155,7 @@
 				return;
 			}
 
-			const response = await fetch(`delete`, {
+			const response = await fetch('delete' + `?${tempAttendeeIdUrlParam}=${tempAttendeeId}`, {
 				method: 'DELETE',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ fileIds: selectedFileIds })
@@ -354,7 +355,11 @@
 					const dataUploaderId = imageDiv.getAttribute('data-uploader-id');
 
 					// Check if the user is authorized to delete
-					if (dataUploaderId === $page.data.user.id || $page.data.isOwner) {
+					if (
+						dataUploaderId == tempAttendeeId ||
+						$page.data.isOwner ||
+						($page.data.user && dataUploaderId === $page.data.user.id)
+					) {
 						// Close PhotoSwipe viewer
 						pswp.close();
 

@@ -36,6 +36,7 @@ export const load = async ({ locals, params }) => {
 	}
 };
 
+// NOTE: pretty sure below code is DEAD
 export const actions = {
 	deleteFile: async ({ request, locals, params }) => {
 		const user = locals.user;

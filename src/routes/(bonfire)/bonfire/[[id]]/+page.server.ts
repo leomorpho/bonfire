@@ -78,7 +78,7 @@ export const load = async ({ params, locals, url }) => {
 				.build()
 		);
 		if (event != null) {
-			console.log('---> event', event);
+			// console.log('---> event', event);
 			if (event.attendees != null) {
 				numAttendees = event.attendees.length;
 			}
