@@ -33,7 +33,13 @@ export async function GET(event: RequestEvent): Promise<Response> {
 
 	try {
 		const tokens = await google.validateAuthorizationCode(code, code_verifier);
-		const google_user = parseJWT(tokens.idToken)!.payload as GoogleUser;
+		const idToken = tokens.data.id_token;
+
+		if (!idToken || typeof idToken !== 'string') {
+			throw new Error('Invalid idToken received');
+		}
+
+		const google_user = parseJWT(idToken)!.payload as GoogleUser;
 		let user = await getUserByEmail(google_user.email);
 
 		if (!user) {
