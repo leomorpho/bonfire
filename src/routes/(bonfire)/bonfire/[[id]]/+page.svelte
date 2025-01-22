@@ -435,7 +435,7 @@
 		const shareData = {
 			title: `Hey! You're invited to ${eventData.title}!`, // Use the event title
 			text: `...Check out this awesome event at ${eventData.location}!`, // Use the event location
-			url: `https://${PUBLIC_ORIGIN}/bonfire/${eventData.id}` // Use the event's unique ID in the URL
+			url: `${PUBLIC_ORIGIN}/bonfire/${eventData.id}` // Use the event's unique ID in the URL
 		};
 
 		toast.success('Invitation copied to clipboard!');
@@ -461,11 +461,6 @@
 	const handleCopyingTempAccountUrl = async (eventData: any) => {
 		// Prepare shareable data
 		let url = `${PUBLIC_ORIGIN}/bonfire/${eventData.id}?${tempAttendeeSecretParam}=${tempAttendeeSecret}`;
-		if (dev) {
-			url = 'http://' + url;
-		} else {
-			url = 'https://' + url;
-		}
 
 		// Add data to clipboard
 		try {
