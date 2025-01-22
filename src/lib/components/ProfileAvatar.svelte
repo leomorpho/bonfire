@@ -18,7 +18,8 @@
 		isTempUser = false,
 		lastUpdatedAt = null,
 		viewerIsEventAdmin = false,
-		attendanceId = null // NOTE: these can be either real or temp attendances (they are different object types)
+		attendanceId = null, // NOTE: these can be either real or temp attendances (they are different object types)
+		largeSizeMainAvatar = false
 	} = $props();
 
 	let attendanceIsAboutToBeDeleted = $state(false);
@@ -72,9 +73,9 @@
 	<Dialog.Trigger class="profile-avatar flex items-center justify-center">
 		{#if fullsizeUrl || url}
 			<Avatar.Root
-				class="relative h-12 w-12 border-2 sm:h-14 sm:w-14 {isTempUser
-					? 'border-yellow-300'
-					: 'border-white'}"
+				class={`relative ${largeSizeMainAvatar ? 'h-24 w-24 border-2 sm:h-32 sm:w-32' : 'h-12 w-12 border-2 sm:h-14 sm:w-14'} ${
+					isTempUser ? 'border-yellow-300' : 'border-white'
+				}`}
 			>
 				<!-- Avatar Image -->
 				<Avatar.Image src={url} alt={username} class="h-full w-full" />
@@ -91,7 +92,7 @@
 			</Avatar.Root>
 		{:else}
 			<div class="relative">
-				<GeneratedAvatar {username} />
+				<GeneratedAvatar {username} size={largeSizeMainAvatar ? 120 : 60} />
 				{#if isTempUser}
 					<div class="pointer-events-none absolute inset-0 rounded-full border-4 border-yellow-400">
 						<div class="flex h-full w-full items-center justify-center">{fallbackNameShort}</div>

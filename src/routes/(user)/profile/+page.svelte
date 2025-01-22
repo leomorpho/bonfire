@@ -9,6 +9,7 @@
 	import { Plus } from 'lucide-svelte';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { getFeTriplitClient } from '$lib/triplit';
+	import ProfileAvatar from '$lib/components/ProfileAvatar.svelte';
 
 	let user = $state();
 	let client: TriplitClient;
@@ -36,28 +37,19 @@
 			<p>Error: {user.error.message}</p>
 		{:else if user.results}
 			<div class="flex w-full flex-col items-center justify-center">
-				<Dialog.Root>
-					<Dialog.Trigger
-						><Avatar.Root class="h-24 w-24 sm:h-32 sm:w-32">
-							<Avatar.Image src={full_image_url} alt="@shadcn" />
-							<Avatar.Fallback>{user.results[0].username?.slice(0, 2)}</Avatar.Fallback>
-						</Avatar.Root>
-					</Dialog.Trigger>
-					<Dialog.Content class="flex items-center justify-center">
-						<Dialog.Header>
-							<Avatar.Root class="h-full w-full ">
-								<Avatar.Image src={full_image_url} alt="@shadcn" />
-								<Avatar.Fallback>{user.results[0].username?.slice(0, 2)}</Avatar.Fallback>
-							</Avatar.Root>
-						</Dialog.Header>
-					</Dialog.Content>
-				</Dialog.Root>
+				<ProfileAvatar
+					url={small_image_url}
+					fullsizeUrl={full_image_url}
+					fallbackName={user.results[0].username}
+					username={user.results[0].username}
+					largeSizeMainAvatar={true}
+				/>
 				<a href="profile/upload-profile-image"> <Button variant="link">Edit Avatar</Button></a>
 			</div>
 			<div class="mt-10 flex items-center justify-center text-xl font-semibold">
-				{user.results[0].username ? user.results[0].username : 'Click here to set profile name'}
-				<a href="profile/username"
-					><div
+				<a href="profile/username" class={`flex ${user.results[0].username? '': 'bg-yellow-200 hover:bg-yellow-100 rounded-lg p-2'}`}>
+					{user.results[0].username ? user.results[0].username : 'Set your username'}
+					<div
 						class="ml-1 flex items-center justify-center p-1 hover:rounded-lg hover:bg-slate-200"
 					>
 						<Pencil class="ml-1 h-4 w-4 " />
