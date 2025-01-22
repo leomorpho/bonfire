@@ -141,9 +141,10 @@
 		return selectedImages.every((image: any) => image.uploaderId === userUploaderId);
 	}
 
-	async function handleDelete(id: string | null = null) {
+	async function handleDelete(id: string | null = null, imageDiv: any, pswp: any) {
 		isDeleteFileConfirmationDialogOpen = false;
 
+		let filesSuccessfullyDeleted = false;
 		try {
 			showPageActionLoading = true;
 
@@ -177,6 +178,15 @@
 				selectedImages = selectedImages.filter((image) => !selectedFileIds.includes(image.id));
 
 				toast.success(`${id ? 'File' : 'Files'} deleted`);
+
+				if (imageDiv) {
+					// Remove the image from the DOM
+					imageDiv.remove();
+				}
+				if (pswp) {
+					// Optionally close the gallery
+					pswp.close();
+				}
 			} else {
 				toast.error('Failed to delete files, try again later');
 				console.error('Failed to delete files:', await response.text());
@@ -186,6 +196,7 @@
 		} finally {
 			showPageActionLoading = false;
 		}
+		return filesSuccessfullyDeleted;
 	}
 
 	// handleSelectionChange is called on every selection change to update the selected list of items.
@@ -367,14 +378,12 @@
 						openDialog(
 							'Are you sure you want to delete this image? This action cannot be undone.',
 							() => {
-								// Perform deletion
-								handleDelete(dataId);
-
-								// Remove the image from the DOM
-								imageDiv.remove();
-
-								// Optionally close the gallery
-								pswp.close();
+								try {
+									// Perform deletion
+									handleDelete(dataId, imageDiv, pswp);
+								} catch (e) {
+									console.log('failed to delete image', e);
+								}
 							}
 						);
 					} else {

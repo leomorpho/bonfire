@@ -1,28 +1,39 @@
-import { error } from '@sveltejs/kit';
+import { error, json } from '@sveltejs/kit';
 import { triplitHttpClient } from '$lib/server/triplit';
 import { deleteFilesFromS3 } from '$lib/filestorage';
 import { tempAttendeeSecretParam } from '$lib/enums';
 import { and } from '@triplit/client';
 
 export const DELETE = async ({ request, locals, params, url }) => {
-	const tempAttendeeId = url.searchParams.get(tempAttendeeSecretParam);
+	const tempAttendeeSecret = url.searchParams.get(tempAttendeeSecretParam);
+
+	// Extract eventId from URL params
+	const { id: eventId } = params;
+
+	if (!eventId) {
+		return json({ error: 'No event ID provided' }, { status: 400 });
+	}
 
 	let tempAttendeeExists: boolean = false;
-	let existingAttendee = null;
+	let existingTempAttendee = null;
 
 	try {
-		if (tempAttendeeId) {
-			try {
-				existingAttendee = await triplitHttpClient.fetchById('temporary_attendees', tempAttendeeId);
-				if (existingAttendee) {
-					tempAttendeeExists = true;
-				}
-			} catch (e) {
-				console.debug('failed to find temp attendee because it does not exist', e);
-			}
+		existingTempAttendee = await triplitHttpClient.fetchOne(
+			triplitHttpClient
+				.query('temporary_attendees')
+				.where([
+					and([
+						['secret_mapping.id', '=', tempAttendeeSecret],
+						['event_id', '=', eventId]
+					])
+				])
+				.build()
+		);
+		if (existingTempAttendee) {
+			tempAttendeeExists = true;
 		}
 	} catch (error) {
-		console.error(`Error checking for temp attendee with id ${tempAttendeeId}:`, error);
+		console.error(`Error checking for temp attendee with secret ${tempAttendeeSecret}:`, error);
 		return new Response('Internal Server Error', { status: 500 });
 	}
 
@@ -85,7 +96,7 @@ export const DELETE = async ({ request, locals, params, url }) => {
 				.where(
 					and([
 						['id', 'in', fileIds],
-						['temp_uploader_id', '=', tempAttendeeId]
+						['temp_uploader_id', '=', existingTempAttendee?.id]
 					])
 				)
 				// .select(['id', 'uploader_id', 'file_key']) // Include the S3 file key // TODO: select bug in http client
@@ -109,7 +120,10 @@ export const DELETE = async ({ request, locals, params, url }) => {
 		const filesToDelete = files
 			.filter((file) => file) // Exclude null or undefined files
 			.filter(
-				(file) => isOwner || file.temp_uploader_id == tempAttendeeId || file.uploader_id === user.id
+				(file) =>
+					isOwner ||
+					file.temp_uploader_id == existingTempAttendee?.id ||
+					file.uploader_id === user?.id
 			);
 
 		// Extract the S3 keys for the files to be deleted
