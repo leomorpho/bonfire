@@ -35,7 +35,7 @@ function createPersistentStore<T>(
 // Usage for tempAttendeeIdStore
 export const tempAttendeeIdStore = createPersistentStore<string | null>('tempAttendeeId', null);
 
-export const tempAttendeeSecretParam = 'temp-attendee-id';
+export const tempAttendeeSecretParam = 'temp-secret';
 export const tempAttendeeIdFormName = 'tempAttendeeIdFormName';
 
 export const TEMP_ATTENDEE_MIN_NAME_LEN = 2;

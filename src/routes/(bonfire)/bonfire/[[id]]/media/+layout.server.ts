@@ -11,17 +11,17 @@ export const load = async ({ locals, url, params }) => {
 		redirect(302, '/dashboard');
 	}
 
-	const tempAttendeeId = url.searchParams.get(tempAttendeeSecretParam);
+	const tempAttendeeSecret = url.searchParams.get(tempAttendeeSecretParam);
 
 	let tempAttendeeExists: boolean = false;
-	if (tempAttendeeId) {
+	if (tempAttendeeSecret) {
 		try {
 			const existingAttendee = await triplitHttpClient.fetchOne(
 				triplitHttpClient
 					.query('temporary_attendees')
 					.where([
 						and([
-							['id', '=', tempAttendeeId],
+							['secret_mapping.id', '=', tempAttendeeSecret],
 							['event_id', '=', bonfireId]
 						])
 					])

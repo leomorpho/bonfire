@@ -11,16 +11,21 @@ import { getPixels } from '@unpic/pixels';
 import fs from 'fs/promises';
 
 export const POST = async ({ url, locals, params, request }): Promise<Response> => {
-	const tempAttendeeId = url.searchParams.get(tempAttendeeSecretParam);
+	const tempAttendeeSecret = url.searchParams.get(tempAttendeeSecretParam);
 
 	let tempAttendeeExists: boolean = false;
-	let existingAttendee = null;
+	let existingTempAttendee = null;
 
 	try {
-		if (tempAttendeeId) {
+		if (tempAttendeeSecret) {
 			try {
-				existingAttendee = await triplitHttpClient.fetchById('temporary_attendees', tempAttendeeId);
-				if (existingAttendee) {
+				existingTempAttendee = await triplitHttpClient.fetchOne(
+					triplitHttpClient
+						.query('temporary_attendees')
+						.where(['secret_mapping.id', '=', tempAttendeeSecret])
+						.build()
+				);
+				if (existingTempAttendee) {
 					tempAttendeeExists = true;
 				}
 			} catch (e) {
@@ -28,7 +33,7 @@ export const POST = async ({ url, locals, params, request }): Promise<Response> 
 			}
 		}
 	} catch (error) {
-		console.error(`Error checking for temp attendee with id ${tempAttendeeId}:`, error);
+		console.error(`Error checking for temp attendee with secret ${tempAttendeeSecret}:`, error);
 		return new Response('Internal Server Error', { status: 500 });
 	}
 
@@ -62,7 +67,7 @@ export const POST = async ({ url, locals, params, request }): Promise<Response> 
 		}
 
 		// Get user-like ID for either user or tempUserAttendee
-		const userIdForCurrentUserType = user ? user.id : tempAttendeeId;
+		const userIdForCurrentUserType = user ? user.id : existingTempAttendee?.id;
 
 		// Extract file from formData
 		const filename = formData.get('name');
@@ -130,9 +135,9 @@ export const POST = async ({ url, locals, params, request }): Promise<Response> 
 					contentType: 'image/png'
 				});
 
-				const {output} = await triplitHttpClient.insert('files', {
+				const { output } = await triplitHttpClient.insert('files', {
 					uploader_id: user?.id ?? null,
-					temp_uploader_id: tempAttendeeId ?? null,
+					temp_uploader_id: existingTempAttendee?.id ?? null,
 					event_id: id,
 					file_key: frameFileKey,
 					file_type: 'image/png',
@@ -174,7 +179,7 @@ export const POST = async ({ url, locals, params, request }): Promise<Response> 
 		// TODO: once transactions are supported in HTTP client, add one here
 		const fileTx = await triplitHttpClient.insert('files', {
 			uploader_id: user?.id ?? null,
-			temp_uploader_id: tempAttendeeId ?? null,
+			temp_uploader_id: existingTempAttendee?.id ?? null,
 			event_id: id,
 			file_key: fileKey,
 			file_type: filetype,

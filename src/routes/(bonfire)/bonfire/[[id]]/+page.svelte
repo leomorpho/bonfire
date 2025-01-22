@@ -37,7 +37,6 @@
 	import { overlayColorStore, overlayOpacityStore, styleStore } from '$lib/styles';
 	import ShareLocation from '$lib/components/ShareLocation.svelte';
 	import type { EventTypescriptType } from '$lib/types';
-	import { Image } from '@unpic/svelte';
 	import BonfireBanner from '$lib/components/BonfireBanner.svelte';
 
 	let userId = $state('');
@@ -163,6 +162,23 @@
 		}
 	};
 
+	const fetchEventFiles = async (eventId: string) => {
+		try {
+			loadEventFiles = true;
+			let url = `/bonfire/${eventId}/media/mini-gallery`;
+			if (isUnverifiedUser) {
+				url = `${url}?${tempAttendeeSecretParam}=${tempAttendeeSecret}`;
+			}
+			const response = await fetch(url);
+			if (!response.ok) throw new Error(`Failed to fetch eventFiles: ${response.statusText}`);
+			eventFiles = await response.json();
+		} catch (error) {
+			console.error('Error fetching event files:', error);
+		} finally {
+			loadEventFiles = false;
+		}
+	};
+
 	const orderAttendeesByProfileImage = (attendees, profileImageMap) => {
 		return attendees.sort((a, b) => {
 			const hasImageA = profileImageMap.has(a.user_id);
@@ -187,23 +203,6 @@
 		attendeesGoing = orderAttendeesByProfileImage(attendeesGoing, profileImageMap);
 		attendeesNotGoing = orderAttendeesByProfileImage(attendeesNotGoing, profileImageMap);
 		attendeesMaybeGoing = orderAttendeesByProfileImage(attendeesMaybeGoing, profileImageMap);
-	};
-
-	const fetchEventFiles = async (eventId: string) => {
-		try {
-			loadEventFiles = true;
-			let url = `/bonfire/${eventId}/media/mini-gallery`;
-			if (isUnverifiedUser) {
-				url = `${url}?${tempAttendeeSecretParam}=${tempAttendeeSecret}`;
-			}
-			const response = await fetch(url);
-			if (!response.ok) throw new Error(`Failed to fetch eventFiles: ${response.statusText}`);
-			eventFiles = await response.json();
-		} catch (error) {
-			console.error('Error fetching event files:', error);
-		} finally {
-			loadEventFiles = false;
-		}
 	};
 
 	onMount(() => {

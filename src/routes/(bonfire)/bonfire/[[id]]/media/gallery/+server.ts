@@ -14,15 +14,15 @@ export const GET = async ({ url, params, locals }) => {
 
 	// Only temp users and logged in users can query this endpoint
 	let tempAttendeeExists: boolean = false;
-	const tempAttendeeId = url.searchParams.get(tempAttendeeSecretParam);
-	if (tempAttendeeId) {
+	const tempAttendeeSecret = url.searchParams.get(tempAttendeeSecretParam);
+	if (tempAttendeeSecret) {
 		try {
 			const existingAttendee = await triplitHttpClient.fetchOne(
 				triplitHttpClient
 					.query('temporary_attendees')
 					.where([
 						and([
-							['id', '=', tempAttendeeId],
+							['secret_mapping.id', '=', tempAttendeeSecret],
 							['event_id', '=', id]
 						])
 					])

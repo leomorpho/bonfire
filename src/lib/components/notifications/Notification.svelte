@@ -218,7 +218,7 @@
 							</Collapsible.Content>
 						</Collapsible.Root>
 					{:else}
-						<div class="grid grid-cols-4 gap-2">
+						<div class="grid grid-cols-4 gap-2 text-black">
 							{#each linkedObjects as attendee}
 								<ProfileAvatar
 									url={attendee.profileImage?.small_image_url}

@@ -158,6 +158,7 @@
 </a>
 
 <style>
+	/* There is a warning for these classes being unused, but that's because they're used indirectly by Photoswipe */
 	/* Disable zoom cursor for PhotoSwipe lightbox */
 	.pswp__img,
 	.pswp__zoom-wrap,
