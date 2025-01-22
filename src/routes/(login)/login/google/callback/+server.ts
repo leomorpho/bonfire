@@ -41,7 +41,9 @@ export async function GET(event: RequestEvent): Promise<Response> {
 			user = await createNewUser({
 				id: user_id,
 				email: google_user!.email,
-				email_verified: true
+				email_verified: true,
+				num_logs: 3,
+				is_event_styles_admin: false
 			});
 			if (!user) {
 				console.error('Failed to create user for ' + google_user.email);
