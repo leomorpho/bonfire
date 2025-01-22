@@ -8,46 +8,41 @@ export const load = async (event) => {
 
 	// Get the optional `tempAttendeeSecret` from the query parameters
 	const tempAttendeeSecret: string | null = event.url.searchParams.get(tempAttendeeSecretParam);
+	let existingAttendee;
+
+	if (tempAttendeeSecret) {
+		existingAttendee = await triplitHttpClient.fetchOne(
+			triplitHttpClient
+				.query('temporary_attendees')
+				.where(['secret_mapping.id', '=', tempAttendeeSecret])
+				.build()
+		);
+	}
 
 	// If the user is logged in, they will always be provided a user JWT
 	if (user) {
 		const jwt = generateJWT(user.id, USER_ROLE);
 
-		if (tempAttendeeSecret) {
-			const existingAttendee = await triplitHttpClient.fetchOne(
-				triplitHttpClient
-					.query('temporary_attendees')
-					.where(['secret_mapping.id', '=', tempAttendeeSecret])
-					.build()
+		if (existingAttendee) {
+			const triplitUser = await triplitHttpClient.fetchOne(
+				triplitHttpClient.query('user').where('id', '=', user.id).build()
 			);
-
-			if (existingAttendee) {
-				const triplitUser = await triplitHttpClient.fetchOne(
-					triplitHttpClient.query('user').where('id', '=', user.id).build()
-				);
-				await convertTempToPermanentUser(
-					user.id,
-					existingAttendee.event_id,
-					triplitUser?.username,
-					triplitUser?.id,
-					existingAttendee.id,
-					existingAttendee.name,
-					existingAttendee.status
-				);
-			}
+			await convertTempToPermanentUser(
+				user.id,
+				existingAttendee.event_id,
+				triplitUser?.username,
+				triplitUser?.id,
+				existingAttendee.id,
+				existingAttendee.name,
+				existingAttendee.status
+			);
 		}
 
 		return {
 			user: user,
 			jwt: jwt
 		};
-	} else if (tempAttendeeSecret) {
-		const existingAttendee = await triplitHttpClient.fetchOne(
-			triplitHttpClient
-				.query('temporary_attendees')
-				.where(['secret_mapping.id', '=', tempAttendeeSecret])
-				.build()
-		);
+	} else if (existingAttendee) {
 		const jwt = generateJWT(existingAttendee.id, TEMP_ROLE);
 		return { jwt };
 	} else {
