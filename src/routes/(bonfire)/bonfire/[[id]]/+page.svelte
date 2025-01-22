@@ -47,6 +47,11 @@
 	let fileCount = $state(0);
 	let rsvpStatus = $state('');
 
+	// Set the styles from BE object, especially important for anon users
+	styleStore.set($page.data.event.style);
+	overlayColorStore.set($page.data.event.overlay_color);
+	overlayOpacityStore.set($page.data.event.overlay_opacity);
+
 	const tempAttendeeId = $page.data.tempAttendeeId;
 	let isUnverifiedUser = $derived(!!tempAttendeeId);
 
