@@ -5,7 +5,7 @@
 	import { page } from '$app/stores';
 	import { getFeTriplitClient } from '$lib/triplit';
 	import { overlayColorStore, overlayOpacityStore, parseColor, styleStore } from '$lib/styles';
-	import { tempAttendeeIdStore, tempAttendeeSecretParam } from '$lib/enums';
+	import { tempAttendeeSecretParam } from '$lib/enums';
 	import { get } from 'svelte/store';
 
 	let { data, children }: { data: LayoutData; children: Snippet } = $props();
@@ -20,6 +20,7 @@
 	// on the event page when redirected from the update page.
 	styleStore.subscribe((value) => {
 		styles = value;
+		console.log("---------------------> YO", styles)
 	});
 	overlayColorStore.subscribe((value) => {
 		overlayColor = value;
@@ -29,20 +30,14 @@
 	});
 
 	// Access the `temp` parameter from the query string
-	let tempAttendeeId: string | null = $state(null);
+	let tempAttendeeSecret: string | null = $state(null);
 
 	// Use a reactive statement to react to changes in the `$page` store
 	const url = $page.url;
-	tempAttendeeId = url.searchParams.get(tempAttendeeSecretParam);
+	tempAttendeeSecret = url.searchParams.get(tempAttendeeSecretParam);
 
 	onMount(async () => {
-		if (tempAttendeeId) {
-			tempAttendeeIdStore.set(tempAttendeeId);
-		} else {
-			tempAttendeeId = get(tempAttendeeIdStore);
-		}
-
-		if ($page.data.user || tempAttendeeId) {
+		if ($page.data.user || tempAttendeeSecret) {
 			// User is logged in
 			client = getFeTriplitClient($page.data.jwt);
 			const styleDataQuery = client
@@ -55,16 +50,17 @@
 			styles = typeof styleData?.style === 'string' ? styleData.style : '';
 			overlayColor = styleData?.overlay_color ?? '#000000';
 			overlayOpacity = styleData?.overlay_opacity ?? 0.5;
-		} else if ($page.data.event) {
+			styleStore.set(styleData?.style || '');
+		overlayColorStore.set(overlayColor);
+		overlayOpacityStore.set(overlayOpacity);
+		} else {
 			// If user is not logged in, it's the responsibility of BE to return the proper event object for anonymous and unverified users
-			styles = typeof $page.data.event?.style === 'string' ? $page.data.event.style : '';
+			styles = $page.data.event.style ?? '';
 			overlayColor = $page.data.event?.overlay_color ?? '#000000';
 			overlayOpacity = $page.data.event?.overlay_opacity ?? 0.5;
 		}
 
-		styleStore.set(styleData?.style || '');
-		overlayColorStore.set(overlayColor);
-		overlayOpacityStore.set(overlayOpacity);
+		
 
 		console.log('styles', styles);
 		console.log('overlayColor', overlayColor);

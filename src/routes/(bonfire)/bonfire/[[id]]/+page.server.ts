@@ -112,7 +112,6 @@ export const load = async ({ params, locals, url }) => {
 		bannerLargeSizeUrl,
 		bannerBlurHash
 	};
-
 	return {
 		user,
 		event,
