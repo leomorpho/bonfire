@@ -19,7 +19,7 @@
 	import { formatHumanReadable } from '$lib/utils';
 	import Rsvp from '$lib/components/Rsvp.svelte';
 	import { onMount } from 'svelte';
-	import { Status, tempAttendeeIdStore, tempAttendeeIdUrlParam } from '$lib/enums';
+	import { Status, tempAttendeeIdStore, tempAttendeeSecretParam } from '$lib/enums';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import ProfileAvatar from '$lib/components/ProfileAvatar.svelte';
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
@@ -48,8 +48,10 @@
 	let fileCount = $state(0);
 	let rsvpStatus = $state('');
 
-	let isUnverifiedUser = $state($page.data.tempAttendeeExists);
-	const tempAttendeeId = $page.url.searchParams.get(tempAttendeeIdUrlParam);
+	const tempAttendeeId = $page.data.tempAttendeeId;
+	let isUnverifiedUser = $derived(!!tempAttendeeId);
+
+	const tempAttendeeSecret = $page.url.searchParams.get(tempAttendeeSecretParam);
 	let tempAttendee = $state(null);
 	let rsvpCanBeChanged = $state(false);
 
@@ -60,9 +62,9 @@
 	});
 
 	console.log('tempAttendeeId', tempAttendeeId);
+	console.log('tempAttendeeSecret', tempAttendeeSecret);
 
-	if ($page.data.tempAttendeeExists && tempAttendeeId) {
-		isUnverifiedUser = true;
+	if (tempAttendeeId) {
 		tempAttendeeIdStore.set(tempAttendeeId);
 	}
 
@@ -115,7 +117,7 @@
 	});
 
 	const convertGeocodedLocationToLatLon = (eventGeocodedLocation: any) => {
-		console.log('###### eventGeocodedLocation -->', eventGeocodedLocation);
+		// console.log('###### eventGeocodedLocation -->', eventGeocodedLocation);
 		if (eventGeocodedLocation.latitude && eventGeocodedLocation.longitude) {
 			latitude = eventGeocodedLocation.latitude;
 			longitude = eventGeocodedLocation.longitude;
@@ -135,7 +137,7 @@
 			// Construct the query string with comma-separated user IDs
 			let queryString = `userIds=${userIds.join(',')}`;
 			if (isUnverifiedUser) {
-				queryString = `${queryString}&${tempAttendeeIdUrlParam}=${tempAttendeeId}`;
+				queryString = `${queryString}&${tempAttendeeSecretParam}=${tempAttendeeSecret}`;
 			}
 			const response = await fetch(`/profile/profile-images?${queryString}`);
 
@@ -192,7 +194,7 @@
 			loadEventFiles = true;
 			let url = `/bonfire/${eventId}/media/mini-gallery`;
 			if (isUnverifiedUser) {
-				url = `${url}?${tempAttendeeIdUrlParam}=${tempAttendeeId}`;
+				url = `${url}?${tempAttendeeSecretParam}=${tempAttendeeSecret}`;
 			}
 			const response = await fetch(url);
 			if (!response.ok) throw new Error(`Failed to fetch eventFiles: ${response.statusText}`);
@@ -231,7 +233,7 @@
 			(results) => {
 				if (results.length == 1) {
 					event = results[0];
-
+					console.log('EVENT', event);
 					if (event) {
 						if (event.geocoded_location) {
 							try {
@@ -454,11 +456,11 @@
 
 	const handleCopyingTempAccountUrl = async (eventData: any) => {
 		// Prepare shareable data
-		let url = '';
+		let url = `${PUBLIC_ORIGIN}/bonfire/${eventData.id}?${tempAttendeeSecretParam}=${tempAttendeeSecret}`;
 		if (dev) {
-			url = `http://${PUBLIC_ORIGIN}/bonfire/${eventData.id}?${tempAttendeeIdUrlParam}=${tempAttendeeId}`;
+			url = 'http://' + url;
 		} else {
-			url = `https://${PUBLIC_ORIGIN}/bonfire/${eventData.id}?${tempAttendeeIdUrlParam}=${tempAttendeeId}`;
+			url = 'https://' + url;
 		}
 
 		// Add data to clipboard

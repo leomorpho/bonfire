@@ -256,6 +256,17 @@ export const schema = {
 			}
 		}
 	},
+	temporary_attendees_secret_mapping: {
+		schema: S.Schema({
+			id: S.Id(),
+			temporary_attendee_id: S.String(),
+			temporary_attendee: S.RelationById('temporary_attendees', '$temporary_attendee_id')
+		}),
+		permissions: {
+			user: {},
+			temp: {}
+		}
+	},
 	temporary_attendees: {
 		schema: S.Schema({
 			id: S.Id(),
@@ -263,7 +274,10 @@ export const schema = {
 			event: S.RelationById('events', '$event_id'), // Link to the event
 			status: S.String({ default: 'undecided' }), // RSVP status: attending, not attending, undecided
 			name: S.String(),
-			updated_at: S.Date({ default: S.Default.now() }) // Last updated timestamp
+			updated_at: S.Date({ default: S.Default.now() }), // Last updated timestamp
+			secret_mapping: S.RelationOne('temporary_attendees_secret_mapping', {
+				where: [['temporary_attendee_id', '=', '$id']]
+			})
 		}),
 		permissions: {
 			user: {

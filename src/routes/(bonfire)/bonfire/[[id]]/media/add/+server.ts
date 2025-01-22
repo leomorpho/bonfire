@@ -5,13 +5,13 @@ import { triplitHttpClient } from '$lib/server/triplit';
 import sharp from 'sharp';
 import type { HttpClient } from '@triplit/client';
 import { createNewFileNotificationQueueObject } from '$lib/notification';
-import { tempAttendeeIdUrlParam } from '$lib/enums';
+import { tempAttendeeSecretParam } from '$lib/enums';
 import { encode } from 'blurhash';
 import { getPixels } from '@unpic/pixels';
 import fs from 'fs/promises';
 
 export const POST = async ({ url, locals, params, request }): Promise<Response> => {
-	const tempAttendeeId = url.searchParams.get(tempAttendeeIdUrlParam);
+	const tempAttendeeId = url.searchParams.get(tempAttendeeSecretParam);
 
 	let tempAttendeeExists: boolean = false;
 	let existingAttendee = null;

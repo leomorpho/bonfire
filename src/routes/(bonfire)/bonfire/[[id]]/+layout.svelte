@@ -5,7 +5,7 @@
 	import { page } from '$app/stores';
 	import { getFeTriplitClient } from '$lib/triplit';
 	import { overlayColorStore, overlayOpacityStore, parseColor, styleStore } from '$lib/styles';
-	import { tempAttendeeIdStore, tempAttendeeIdUrlParam } from '$lib/enums';
+	import { tempAttendeeIdStore, tempAttendeeSecretParam } from '$lib/enums';
 	import { get } from 'svelte/store';
 
 	let { data, children }: { data: LayoutData; children: Snippet } = $props();
@@ -33,7 +33,7 @@
 
 	// Use a reactive statement to react to changes in the `$page` store
 	const url = $page.url;
-	tempAttendeeId = url.searchParams.get(tempAttendeeIdUrlParam);
+	tempAttendeeId = url.searchParams.get(tempAttendeeSecretParam);
 
 	onMount(async () => {
 		if (tempAttendeeId) {

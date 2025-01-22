@@ -1,4 +1,4 @@
-import { tempAttendeeIdUrlParam } from '$lib/enums';
+import { tempAttendeeSecretParam } from '$lib/enums';
 import { triplitHttpClient } from '$lib/server/triplit';
 import { redirect } from '@sveltejs/kit';
 import { and } from '@triplit/client';
@@ -11,7 +11,7 @@ export const load = async ({ locals, url, params }) => {
 		redirect(302, '/dashboard');
 	}
 
-	const tempAttendeeId = url.searchParams.get(tempAttendeeIdUrlParam);
+	const tempAttendeeId = url.searchParams.get(tempAttendeeSecretParam);
 
 	let tempAttendeeExists: boolean = false;
 	if (tempAttendeeId) {

@@ -1,11 +1,11 @@
 import { error } from '@sveltejs/kit';
 import { triplitHttpClient } from '$lib/server/triplit';
 import { deleteFilesFromS3 } from '$lib/filestorage';
-import { tempAttendeeIdUrlParam } from '$lib/enums';
+import { tempAttendeeSecretParam } from '$lib/enums';
 import { and } from '@triplit/client';
 
 export const DELETE = async ({ request, locals, params, url }) => {
-	const tempAttendeeId = url.searchParams.get(tempAttendeeIdUrlParam);
+	const tempAttendeeId = url.searchParams.get(tempAttendeeSecretParam);
 
 	let tempAttendeeExists: boolean = false;
 	let existingAttendee = null;

@@ -2,7 +2,7 @@ import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { format } from 'date-fns';
 import { generateId } from 'lucia';
-import { tempAttendeeIdStore, tempAttendeeIdUrlParam } from './enums';
+import { tempAttendeeIdStore, tempAttendeeSecretParam } from './enums';
 import { get } from 'svelte/store';
 
 export function cn(...inputs: ClassValue[]) {
@@ -94,7 +94,7 @@ export const loadPassphraseScript = () => {
 	});
 };
 
-export const generatePassphraseId = async (prefix: string | null = null) => {
+export const generatePassphraseId = async (prefix: string | null = null, wordsLen: number = 24) => {
 	try {
 		// Ensure the Passphrase script is loaded
 		await loadPassphraseScript();
@@ -102,7 +102,7 @@ export const generatePassphraseId = async (prefix: string | null = null) => {
 		const Passphrase = window.Passphrase;
 
 		// Generate passphrase
-		const passphrase = await Passphrase.generate(24);
+		const passphrase = await Passphrase.generate(wordsLen);
 
 		// Split passphrase into words and join with '-'
 		const passphrasePart = passphrase.split(' ').join('-');
@@ -132,7 +132,7 @@ export const adaptForTempUserUrl = (url: string) => {
 		return url;
 	}
 
-	const param = `${tempAttendeeIdUrlParam}=${encodeURIComponent(tempAttendeeId)}`;
+	const param = `${tempAttendeeSecretParam}=${encodeURIComponent(tempAttendeeId)}`;
 
 	if (url.includes('?')) {
 		// URL already has parameters
@@ -157,9 +157,9 @@ export const setTempAttendeeIdParam = () => {
 				// Check if the link is internal and doesn't already have the parameter
 				if (
 					url.origin === window.location.origin &&
-					!url.searchParams.has(tempAttendeeIdUrlParam)
+					!url.searchParams.has(tempAttendeeSecretParam)
 				) {
-					url.searchParams.set(tempAttendeeIdUrlParam, tempAttendeeId);
+					url.searchParams.set(tempAttendeeSecretParam, tempAttendeeId);
 					link.href = url.toString(); // Update the href attribute
 				}
 			});

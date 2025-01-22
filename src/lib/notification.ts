@@ -39,7 +39,7 @@ export async function createNewAttendanceNotificationQueueObject(
  * @param attendeeIds - List of attendance IDs.
  */
 export async function createNewTemporaryAttendanceNotificationQueueObject(
-	client: TriplitClient,
+	client: TriplitClient | HttpClient,
 	userId: string,
 	eventId: string,
 	attendeeIds: string[]

@@ -19,7 +19,7 @@ export function generateJWT(userId?: string, role: string = USER_ROLE) {
 	}
 
 	const options = {
-		expiresIn: '24h', // Token validity
+		expiresIn: '72h', // Token validity
 		algorithm: 'HS256' // Use RS256 if you have a private/public key setup
 	};
 

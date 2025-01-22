@@ -1,5 +1,5 @@
 import { goto } from '$app/navigation';
-import { tempAttendeeIdUrlParam } from '$lib/enums';
+import { tempAttendeeSecretParam } from '$lib/enums';
 import { generateSignedUrl } from '$lib/filestorage.js';
 import { triplitHttpClient } from '$lib/server/triplit';
 
@@ -26,16 +26,18 @@ export const load = async ({ params, locals, url }) => {
 	let bannerLargeSizeUrl = null;
 	let bannerBlurHash = '';
 
-	let tempAttendeeExists: boolean = false;
-	const tempAttendeeId = url.searchParams.get(tempAttendeeIdUrlParam);
-	if (tempAttendeeId) {
+	let tempAttendeeId;
+	const tempAttendeeSecretStr = url.searchParams.get(tempAttendeeSecretParam);
+	if (tempAttendeeSecretStr) {
 		try {
-			const existingAttendee = await triplitHttpClient.fetchById(
-				'temporary_attendees',
-				tempAttendeeId
+			const existingAttendee = await triplitHttpClient.fetchOne(
+				triplitHttpClient
+					.query('temporary_attendees')
+					.where(['secret_mapping.id', '=', tempAttendeeSecretStr])
+					.build()
 			);
 			if (existingAttendee) {
-				tempAttendeeExists = true;
+				tempAttendeeId = existingAttendee.id;
 			}
 		} catch (e) {
 			console.debug('failed to find temp attendee because it does not exist', e);
@@ -101,7 +103,7 @@ export const load = async ({ params, locals, url }) => {
 			// console.log("numFiles", numFiles)
 		}
 	} catch (e) {
-		console.debug(`### failed to fetch event with id ${eventId}`, e);
+		console.debug(`failed to fetch event with id ${eventId}`, e);
 	}
 
 	const bannerInfo = {
@@ -117,7 +119,7 @@ export const load = async ({ params, locals, url }) => {
 		numAttendees,
 		numAnnouncements,
 		numFiles,
-		tempAttendeeExists,
+		tempAttendeeId,
 		bannerInfo
 	};
 };

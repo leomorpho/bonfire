@@ -1,12 +1,12 @@
 import { error, json } from '@sveltejs/kit';
 import { triplitHttpClient } from '$lib/server/triplit';
 import { generateSignedUrl } from '$lib/filestorage';
-import { tempAttendeeIdUrlParam } from '$lib/enums';
+import { tempAttendeeSecretParam } from '$lib/enums';
 
 export const GET = async ({ locals, url }) => {
 	// Only temp users and logged in users can query this endpoint
 	let tempAttendeeExists: boolean = false;
-	const tempAttendeeId = url.searchParams.get(tempAttendeeIdUrlParam);
+	const tempAttendeeId = url.searchParams.get(tempAttendeeSecretParam);
 	if (tempAttendeeId) {
 		try {
 			const existingAttendee = await triplitHttpClient.fetchById(

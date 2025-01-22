@@ -9,7 +9,7 @@
 		NOTIFY_OF_ATTENDING_STATUS_CHANGE,
 		Status,
 		TEMP_ATTENDEE_MIN_NAME_LEN,
-		tempAttendeeIdUrlParam,
+		tempAttendeeSecretParam,
 		TempNameCheckingState
 	} from '$lib/enums';
 	import AddToCalendar from './AddToCalendar.svelte';
@@ -150,7 +150,7 @@
 
 	const createTemporaryAttendee = async () => {
 		isGeneratingTempLink = true;
-		const id = await generatePassphraseId('u');
+		const id = await generatePassphraseId('u', 36);
 		try {
 			if (!tempRsvpStatus) {
 				throw new Error('rsvp status is not set');
@@ -187,45 +187,37 @@
 	};
 
 	const updateRSVPForTempUser = async (newValue: string) => {
-		const tempAttendeeId = $page.url.searchParams.get(tempAttendeeIdUrlParam);
+		const tempAttendeeSecret = $page.url.searchParams.get(tempAttendeeSecretParam);
 
-		if (!tempAttendeeId) {
+		if (!tempAttendeeSecret) {
 			toast.error("You don't have a valid identity, please create a new one");
+			return;
 		}
+
 		try {
-			let attendance = client.fetchById('temporary_attendees', tempAttendeeId as string);
-
-			if (!attendance) {
-				throw new Error('no temp attendance object exists for that temp user and ID');
-			}
-
-			rsvpStatus = newValue; // Update the label
-
-			// NOTE that we automatically create a RSVP status attendance object
-			// upon navigation to an event if the user does not have an attendance object for it.
-			await client.update('temporary_attendees', tempAttendeeId as string, async (entity) => {
-				entity.status = newValue;
+			// Call the SvelteKit endpoint to update RSVP
+			const response = await fetch(`bonfire/${eventId}/temp/update-rsvp`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					tempAttendeeSecret,
+					rsvpStatus: newValue
+				})
 			});
 
-			try {
-				if (NOTIFY_OF_ATTENDING_STATUS_CHANGE.includes(rsvpStatus)) {
-					console.log();
-					await createNewTemporaryAttendanceNotificationQueueObject(
-						client,
-						tempAttendeeId as string,
-						eventId,
-						[tempAttendeeId as string]
-					);
-				}
-			} catch (e) {
-				console.log('failed to create attendance notifiations:', newValue, e);
+			if (!response.ok) {
+				const errorMessage = await response.text();
+				throw new Error(errorMessage || 'Failed to update RSVP status.');
 			}
 
-			// Perform any additional actions, e.g., API call to save the new RSVP status
+			// Update UI state or take further action if needed
+			toast.success(`RSVP successfully updated to ${newValue}`);
 			console.log('RSVP updated to:', newValue);
 		} catch (error) {
-			console.log('failed to update RSVP status to:', newValue, error);
-			toast.error('Sorry but we failed to update your RSVP status, please try again later.');
+			console.error('Failed to update RSVP status:', newValue, error);
+			toast.error('Sorry, we failed to update your RSVP status. Please try again later.');
 		}
 	};
 

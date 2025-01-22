@@ -1,6 +1,6 @@
 import { error, json } from '@sveltejs/kit';
 import { triplitHttpClient } from '$lib/server/triplit'; // Assuming you have Triplit client configured
-import { tempAttendeeIdUrlParam } from '$lib/enums';
+import { tempAttendeeSecretParam } from '$lib/enums';
 import { dev } from '$app/environment';
 import { and } from '@triplit/client';
 import { RateLimiter } from 'sveltekit-rate-limiter/server';
@@ -64,15 +64,19 @@ export async function POST({ request, params }) {
 		}
 
 		// Use Triplit to insert the temporary attendee record
-		await triplitHttpClient.insert('temporary_attendees', {
-			id: id, // Allow Triplit to generate the ID if not provided
+		const { output } = await triplitHttpClient.insert('temporary_attendees', {
 			event_id: eventId,
 			status: status || 'undecided', // Default status if not provided
 			name
 		});
 
+		await triplitHttpClient.insert('temporary_attendees_secret_mapping', {
+			id: id,
+			temporary_attendee_id: output.id
+		});
+
 		// Return the URL the FE can redirect to
-		const redirectUrl = `/bonfire/${eventId}?${tempAttendeeIdUrlParam}=${id}`;
+		const redirectUrl = `/bonfire/${eventId}?${tempAttendeeSecretParam}=${id}`;
 		return json({ success: true, redirectUrl });
 	} catch (err) {
 		console.error('Error creating temporary attendee:', err);

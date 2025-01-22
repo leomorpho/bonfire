@@ -18,7 +18,7 @@
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
-	import { tempAttendeeIdUrlParam } from '$lib/enums';
+	import { tempAttendeeSecretParam } from '$lib/enums';
 
 	let uppy;
 	let totalFiles = 0; // To track total files to upload
@@ -30,10 +30,10 @@
 		let imageUploadEndpoint = `/bonfire/${$page.params.id}/media/add`;
 		let onSuccessEndpoint = `/bonfire/${$page.params.id}/media/gallery`;
 
-		const tempAttendeeId = $page.url.searchParams.get(tempAttendeeIdUrlParam);
+		const tempAttendeeId = $page.url.searchParams.get(tempAttendeeSecretParam);
 		if (tempAttendeeId) {
-			imageUploadEndpoint = imageUploadEndpoint + `?${tempAttendeeIdUrlParam}=${tempAttendeeId}`;
-			onSuccessEndpoint = onSuccessEndpoint + `?${tempAttendeeIdUrlParam}=${tempAttendeeId}`;
+			imageUploadEndpoint = imageUploadEndpoint + `?${tempAttendeeSecretParam}=${tempAttendeeId}`;
+			onSuccessEndpoint = onSuccessEndpoint + `?${tempAttendeeSecretParam}=${tempAttendeeId}`;
 		}
 
 		// Initialize Uppy instance with Tus for resumable uploads

@@ -1,4 +1,4 @@
-import { LOGIN_TYPE_ACTIVATION, tempAttendeeIdUrlParam } from '$lib/enums';
+import { LOGIN_TYPE_ACTIVATION, tempAttendeeSecretParam } from '$lib/enums';
 import { lucia } from '$lib/server/auth';
 import { deleteEmailToken, getEmailToken } from '$lib/server/database/emailtoken.model';
 import { getUserById, updateUser } from '$lib/server/database/user.model';
@@ -44,7 +44,7 @@ export async function GET({ url, request }): Promise<Response> {
 	const sessionCookie = lucia.createSessionCookie(session.id);
 
 	// If user has a temp attendee, link up to account
-	const tempAttendeeId = url.searchParams.get(tempAttendeeIdUrlParam);
+	const tempAttendeeId = url.searchParams.get(tempAttendeeSecretParam);
 
 	const triplitUser = await triplitHttpClient.fetchOne(
 		triplitHttpClient.query('user').where('id', '=', user.id).build()

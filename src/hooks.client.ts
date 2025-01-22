@@ -1,5 +1,5 @@
 import * as Sentry from '@sentry/sveltekit';
-import { tempAttendeeIdStore, tempAttendeeIdUrlParam } from '$lib/enums';
+import { tempAttendeeIdStore, tempAttendeeSecretParam } from '$lib/enums';
 import type { HandleFetch } from '@sveltejs/kit';
 import { dev } from '$app/environment';
 
@@ -23,8 +23,8 @@ export const handleFetch: HandleFetch = async ({ request, fetch }) => {
 		const url = new URL(request.url);
 
 		// Add the tempAttendeeId parameter if it's not already present
-		if (!url.searchParams.has(tempAttendeeIdUrlParam)) {
-			url.searchParams.set(tempAttendeeIdUrlParam, tempAttendeeId);
+		if (!url.searchParams.has(tempAttendeeSecretParam)) {
+			url.searchParams.set(tempAttendeeSecretParam, tempAttendeeId);
 		}
 
 		// Clone the request with the updated URL

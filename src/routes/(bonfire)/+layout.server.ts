@@ -1,4 +1,4 @@
-import { tempAttendeeIdUrlParam } from '$lib/enums';
+import { tempAttendeeSecretParam } from '$lib/enums';
 import { ANON_ROLE, generateJWT, USER_ROLE, TEMP_ROLE } from '$lib/jwt';
 import { convertTempToPermanentUser, triplitHttpClient } from '$lib/server/triplit.js';
 
@@ -6,17 +6,19 @@ export const load = async (event) => {
 	// Get the user from locals
 	const user = event.locals.user;
 
-	// Get the optional `tempAttendeeId` from the query parameters
-	const tempAttendeeId: string | null = event.url.searchParams.get(tempAttendeeIdUrlParam);
+	// Get the optional `tempAttendeeSecret` from the query parameters
+	const tempAttendeeSecret: string | null = event.url.searchParams.get(tempAttendeeSecretParam);
 
 	// If the user is logged in, they will always be provided a user JWT
 	if (user) {
 		const jwt = generateJWT(user.id, USER_ROLE);
 
-		if (tempAttendeeId) {
-			const existingAttendee = await triplitHttpClient.fetchById(
-				'temporary_attendees',
-				tempAttendeeId
+		if (tempAttendeeSecret) {
+			const existingAttendee = await triplitHttpClient.fetchOne(
+				triplitHttpClient
+					.query('temporary_attendees')
+					.where(['secret_mapping.id', '=', tempAttendeeSecret])
+					.build()
 			);
 
 			if (existingAttendee) {
@@ -39,8 +41,14 @@ export const load = async (event) => {
 			user: user,
 			jwt: jwt
 		};
-	} else if (tempAttendeeId) {
-		const jwt = generateJWT(tempAttendeeId, TEMP_ROLE);
+	} else if (tempAttendeeSecret) {
+		const existingAttendee = await triplitHttpClient.fetchOne(
+			triplitHttpClient
+				.query('temporary_attendees')
+				.where(['secret_mapping.id', '=', tempAttendeeSecret])
+				.build()
+		);
+		const jwt = generateJWT(existingAttendee.id, TEMP_ROLE);
 		return { jwt };
 	} else {
 		const jwt = generateJWT(undefined, ANON_ROLE);

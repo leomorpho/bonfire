@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { tempAttendeeIdUrlParam } from '$lib/enums';
+	import { tempAttendeeSecretParam } from '$lib/enums';
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
@@ -31,7 +31,7 @@
 	let isDeleteFileConfirmationDialogOpen = $state(false);
 	let eventFiles = $state($page.data.eventFiles);
 	console.log('isOwner', $page.data.isOwner);
-	const tempAttendeeId = $page.url.searchParams.get(tempAttendeeIdUrlParam);
+	const tempAttendeeId = $page.url.searchParams.get(tempAttendeeSecretParam);
 
 	let isDialogOpen = $state(false);
 	let dialogDescription = $state('');
@@ -155,7 +155,7 @@
 				return;
 			}
 
-			const response = await fetch('delete' + `?${tempAttendeeIdUrlParam}=${tempAttendeeId}`, {
+			const response = await fetch('delete' + `?${tempAttendeeSecretParam}=${tempAttendeeId}`, {
 				method: 'DELETE',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ fileIds: selectedFileIds })
@@ -411,13 +411,13 @@
 
 	const updateFilesWithLatest = async () => {
 		console.log('updateFilesWithLatest called');
-		const tempAttendeeId = $page.url.searchParams.get(tempAttendeeIdUrlParam);
+		const tempAttendeeId = $page.url.searchParams.get(tempAttendeeSecretParam);
 
 		// Fetch updated files using your API endpoint
 		try {
 			let url = `/bonfire/${$page.params.id}/media/gallery`;
 			if (tempAttendeeId) {
-				url = url + `?${tempAttendeeIdUrlParam}=${tempAttendeeId}`;
+				url = url + `?${tempAttendeeSecretParam}=${tempAttendeeId}`;
 			}
 			const response = await fetch(url);
 			if (response.ok) {

@@ -4,7 +4,7 @@
 	import { superForm } from 'sveltekit-superforms';
 	import { ClipboardPaste, Mail } from 'lucide-svelte';
 	import { Image } from '@unpic/svelte';
-	import { tempAttendeeIdFormName, tempAttendeeIdUrlParam } from '$lib/enums.js';
+	import { tempAttendeeIdFormName, tempAttendeeSecretParam } from '$lib/enums.js';
 	import { page } from '$app/stores';
 	import { OTPInput, OTPRoot } from '@jimmyverburgt/svelte-input-otp';
 	import Minus from 'lucide-svelte/icons/minus';
@@ -144,7 +144,7 @@
 		}
 	};
 
-	const tempAttendeeId = $page.url.searchParams.get(tempAttendeeIdUrlParam);
+	const tempAttendeeId = $page.url.searchParams.get(tempAttendeeSecretParam);
 	console.log('tempAttendeeId', tempAttendeeId);
 </script>
 

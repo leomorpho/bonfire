@@ -1,7 +1,7 @@
 import { error, json } from '@sveltejs/kit';
 import { triplitHttpClient } from '$lib/server/triplit';
 import { generateSignedUrl } from '$lib/filestorage';
-import { MAX_NUM_IMAGES_IN_MINI_GALLERY, tempAttendeeIdUrlParam } from '$lib/enums';
+import { MAX_NUM_IMAGES_IN_MINI_GALLERY, tempAttendeeSecretParam } from '$lib/enums';
 
 export const GET = async ({ locals, url, params }) => {
 	// Extract eventId from URL params
@@ -13,7 +13,7 @@ export const GET = async ({ locals, url, params }) => {
 
 	// Only temp users and logged in users can query this endpoint
 	let tempAttendeeExists: boolean = false;
-	const tempAttendeeId = url.searchParams.get(tempAttendeeIdUrlParam);
+	const tempAttendeeId = url.searchParams.get(tempAttendeeSecretParam);
 	if (tempAttendeeId) {
 		try {
 			const existingAttendee = await triplitHttpClient.fetchById(
