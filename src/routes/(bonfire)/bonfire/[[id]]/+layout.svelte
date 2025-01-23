@@ -20,7 +20,6 @@
 	// on the event page when redirected from the update page.
 	styleStore.subscribe((value) => {
 		styles = value;
-		console.log("---------------------> YO", styles)
 	});
 	overlayColorStore.subscribe((value) => {
 		overlayColor = value;
@@ -51,16 +50,14 @@
 			overlayColor = styleData?.overlay_color ?? '#000000';
 			overlayOpacity = styleData?.overlay_opacity ?? 0.5;
 			styleStore.set(styleData?.style || '');
-		overlayColorStore.set(overlayColor);
-		overlayOpacityStore.set(overlayOpacity);
+			overlayColorStore.set(overlayColor);
+			overlayOpacityStore.set(overlayOpacity);
 		} else {
 			// If user is not logged in, it's the responsibility of BE to return the proper event object for anonymous and unverified users
 			styles = $page.data.event.style ?? '';
 			overlayColor = $page.data.event?.overlay_color ?? '#000000';
 			overlayOpacity = $page.data.event?.overlay_opacity ?? 0.5;
 		}
-
-		
 
 		console.log('styles', styles);
 		console.log('overlayColor', overlayColor);
