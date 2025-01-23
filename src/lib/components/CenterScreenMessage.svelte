@@ -1,11 +1,16 @@
 <script lang="ts">
 	// Any TypeScript logic can go here if needed
-	const { message } = $props();
+	const { message = null, children = null } = $props();
 </script>
 
 <div class="center-screen">
-	<p class="m-2 rounded-lg bg-slate-100 p-4 text-xl">
-		{message}
+	<p class="m-2 w-5/6 rounded-lg bg-slate-100 p-4 sm:w-2/3 sm:text-xl md:w-1/3">
+		{#if message}
+			{message}
+		{/if}
+		{#if children}
+			{@render children()}
+		{/if}
 	</p>
 </div>
 

@@ -52,13 +52,7 @@
 			styleStore.set(styleData?.style || '');
 			overlayColorStore.set(overlayColor);
 			overlayOpacityStore.set(overlayOpacity);
-		} else {
-			// If user is not logged in, it's the responsibility of BE to return the proper event object for anonymous and unverified users
-			styles = $page.data.event.style ?? '';
-			overlayColor = $page.data.event?.overlay_color ?? '#000000';
-			overlayOpacity = $page.data.event?.overlay_opacity ?? 0.5;
 		}
-
 		console.log('styles', styles);
 		console.log('overlayColor', overlayColor);
 		console.log('overlayOpacity', overlayOpacity);

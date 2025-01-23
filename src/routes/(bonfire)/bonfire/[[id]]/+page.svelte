@@ -48,10 +48,28 @@
 	let rsvpStatus = $state('');
 
 	// Set the styles from BE object, especially important for anon users
-	styleStore.set($page.data.event.style);
-	overlayColorStore.set($page.data.event.overlay_color);
-	overlayOpacityStore.set($page.data.event.overlay_opacity);
+	if ($page.data.event) {
+		styleStore.set($page.data.event.style ?? '');
+		overlayColorStore.set($page.data.event.overlay_color ?? '');
+		overlayOpacityStore.set($page.data.event.overlay_opacity ?? '');
+	} else {
+		styleStore.set(`
+    --background-color: #e5e5f7;
+    --primary-color: #444cf7;
+    --circle-size: 15px; /* Size of the repeating radial pattern */
+    --opacity-level: 1;
 
+    background-color: var(--background-color);
+    opacity: var(--opacity-level);
+    background-image: 
+        radial-gradient(circle at center center, var(--primary-color), var(--background-color)),
+        repeating-radial-gradient(circle at center center, var(--primary-color), var(--primary-color), var(--circle-size), transparent calc(var(--circle-size) * 2), transparent var(--circle-size));
+    background-blend-mode: multiply;
+        `);
+		overlayColorStore.set('#000000');
+		overlayOpacityStore.set(0.2);
+
+	}
 	const tempAttendeeId = $page.data.tempAttendeeId;
 	let isUnverifiedUser = $derived(!!tempAttendeeId);
 
