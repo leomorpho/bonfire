@@ -296,9 +296,7 @@
 
 		if (!isAnonymousUser) {
 			(async () => {
-				if (!isUnverifiedUser) {
-					currUserId = (await waitForUserId()) as string;
-				}
+				currUserId = (await waitForUserId()) as string;
 
 				// Fetch event files
 				await fetchEventFiles($page.params.id);
@@ -768,7 +766,7 @@
 						</Button>
 					</a>
 				{/if} -->
-				<Rsvp {rsvpStatus} {currUserId} eventId={event.id} {isAnonymousUser} {rsvpCanBeChanged} />
+				<Rsvp {rsvpStatus} userId={currUserId} eventId={event.id} {isAnonymousUser} {rsvpCanBeChanged} />
 
 				<Button
 					onclick={() => handleShare(event)}

@@ -153,8 +153,8 @@ export const schema = {
 				read: {
 					filter: [
 						or([
-							['user_id', '=', '$role.userId'], // User can read their own profile
-							// A user should be able to only query for users and attendees who are attending a same event:
+							['user_id', '=', '$role.userId'], // User can read their own events
+							// A user can only see events they are attending:
 							['attendees.user_id', '=', '$role.userId'],
 							['viewers.user_id', '=', '$role.userId'] // user is a viewer
 						])
@@ -306,7 +306,6 @@ export const schema = {
 							// Users can remove themselves from the event
 							['user_id', '=', '$role.userId'],
 							['event.event_admins.user_id', '=', '$role.userId'] // Event admins can update files
-
 						])
 					]
 				}
