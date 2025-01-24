@@ -59,9 +59,11 @@
 	);
 	let overlayColor: string = $state(event?.overlay_color ?? '#000000');
 	let overlayOpacity: number = $state(event?.overlay_opacity ?? 0.4);
-
 	let isEditingStyle = $state(false);
 	let cancelUrl = $state(event && event.id ? `/bonfire/${event.id}` : '/');
+	let timezone = $state({});
+	let setEndTime = $state(false);
+	let submitDisabled = $state(true);
 
 	if (event) {
 		const startTime = parseDateTime(event.start_time);
@@ -71,18 +73,13 @@
 		dateValue = startTime.dateValue;
 
 		if (event.end_time) {
-			const endTime = console.log(parseDateTime(event.end_time));
-			endHour = startTime.hour;
-			endMinute = startTime.minute;
-			ampmEnd = startTime.ampm;
+			const endTime = parseDateTime(event.end_time);
+			endHour = endTime.hour;
+			endMinute = endTime.minute;
+			ampmEnd = endTime.ampm;
 			setEndTime = true;
 		}
 	}
-
-	let timezone = $state({});
-
-	let setEndTime = $state(false);
-	let submitDisabled = $state(true);
 
 	function parseDateTime(isoString: string) {
 		// Create a Date object from the ISO string
@@ -319,6 +316,9 @@
 						<Button
 							onclick={() => {
 								setEndTime = false;
+								endHour = '';
+								endMinute = '';
+								ampmEnd = '';
 							}}
 							class="text-xs ring-glow"
 						>
@@ -345,16 +345,9 @@
 							</div>
 						</div>
 
-						<!-- Invisible Button for Spacing -->
-						<Button
-							onclick={() => {
-								setEndTime = false;
-							}}
-							class="invisible w-full text-xs sm:text-base"
-						>
-							<Minus class="ml-1 mr-1 h-4 w-4" />
-							to
-						</Button>
+						<!-- Toggle Button -->
+
+						<Button class="hidden text-xs ring-glow"></Button>
 					</div>
 				{/if}
 

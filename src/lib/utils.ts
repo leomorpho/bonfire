@@ -13,6 +13,10 @@ export function formatHumanReadable(date: Date): string {
 	return format(date, "MMMM d, yyyy 'at' h:mma"); // Convert "AM/PM" to "am/pm"
 }
 
+export function formatHumanReadableHour(date: Date): string {
+	return format(date, "h:mma"); // Convert "AM/PM" to "am/pm"
+}
+
 /**
  * Converts a JavaScript array into a JSON string representation.
  * @param array - The array to be transformed.

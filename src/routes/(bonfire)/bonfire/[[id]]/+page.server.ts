@@ -1,7 +1,7 @@
-import { goto } from '$app/navigation';
 import { tempAttendeeSecretParam } from '$lib/enums';
 import { generateSignedUrl } from '$lib/filestorage.js';
 import { triplitHttpClient } from '$lib/server/triplit';
+import { redirect } from '@sveltejs/kit';
 
 export const trailingSlash = 'always';
 
@@ -10,7 +10,7 @@ export const load = async ({ params, locals, url }) => {
 	const eventId = params.id; // Get the event ID from the route parameters
 
 	if (!eventId) {
-		goto('/dashboard');
+		redirect(302, '/dashboard');
 	}
 
 	// Get the user from locals

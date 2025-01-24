@@ -16,7 +16,7 @@
 		KeyRound,
 		ArrowRightFromLine
 	} from 'lucide-svelte';
-	import { formatHumanReadable } from '$lib/utils';
+	import { formatHumanReadable, formatHumanReadableHour } from '$lib/utils';
 	import Rsvp from '$lib/components/Rsvp.svelte';
 	import { onMount } from 'svelte';
 	import { Status, tempAttendeeIdStore, tempAttendeeSecretParam } from '$lib/enums';
@@ -546,6 +546,7 @@
 					</h1>
 					<div class="flex items-center justify-center font-medium">
 						<Calendar class="mr-2 h-4 w-4" />{formatHumanReadable(event.start_time)}
+						{#if event.end_time}to {formatHumanReadableHour(event.end_time)}{/if}
 					</div>
 					<div class="flex items-center justify-center font-light">
 						{#if event.organizer}
