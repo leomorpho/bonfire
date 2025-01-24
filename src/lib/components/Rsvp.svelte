@@ -17,7 +17,6 @@
 	import { onMount } from 'svelte';
 	import {
 		createNewAttendanceNotificationQueueObject,
-		createNewTemporaryAttendanceNotificationQueueObject
 	} from '$lib/notification';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';

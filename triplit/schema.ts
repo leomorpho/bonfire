@@ -304,7 +304,9 @@ export const schema = {
 							// Event creator can delete anyone attending
 							['event.user_id', '=', '$role.userId'],
 							// Users can remove themselves from the event
-							['user_id', '=', '$role.userId']
+							['user_id', '=', '$role.userId'],
+							['event.event_admins.user_id', '=', '$role.userId'] // Event admins can update files
+
 						])
 					]
 				}
@@ -359,10 +361,9 @@ export const schema = {
 				delete: {
 					filter: [
 						or([
-							// Event creator can delete anyone attending
-							['event.user_id', '=', '$role.userId'],
-							// Temp users can remove themselves from the event
-							['id', '=', '$role.temporaryAttendeeId']
+							['event.user_id', '=', '$role.userId'], // Event creator can delete anyone attending
+							['id', '=', '$role.temporaryAttendeeId'], // Temp users can remove themselves from the event
+							['event.event_admins.user_id', '=', '$role.userId'] // Event admins can update files
 						])
 					]
 				}
@@ -417,9 +418,9 @@ export const schema = {
 				read: {
 					filter: [
 						or([
-							['uploader_id', '=', '$role.userId'], // User can read their own profile
-							// A user should be able to only query for files of events they are attending:
-							['event.attendees.user_id', '=', '$role.userId']
+							['uploader_id', '=', '$role.userId'], // User can read their own files
+							['event.attendees.user_id', '=', '$role.userId'], // Attendees can read event files
+							['event.event_admins.user_id', '=', '$role.userId'] // Event admins can read files
 						])
 					]
 				},
@@ -427,15 +428,30 @@ export const schema = {
 				// triplit doesn't seem powerful enough to be able to set appropriate permissions (user
 				// is attending event). Read is only used to count files as S3 URL is generated in BE.
 				update: {
-					filter: [['uploader_id', '=', '$role.userId']] // Users can only update their own files
+					filter: [
+						or([
+							['uploader_id', '=', '$role.userId'], // Users can upload their own files
+							['event.event_admins.user_id', '=', '$role.userId'] // Event admins can upload files
+						])
+					]
 				},
 				delete: {
-					filter: [['uploader_id', '=', '$role.userId']] // Users can only delete their own files
+					filter: [
+						or([
+							['uploader_id', '=', '$role.userId'], // Users can update their own files
+							['event.event_admins.user_id', '=', '$role.userId'] // Event admins can update files
+						])
+					]
 				}
 			},
 			temp: {
 				read: {
-					filter: [['event.temporary_attendees.id', '=', '$role.temporaryAttendeeId']]
+					filter: [
+						or([
+							['uploader_id', '=', '$role.userId'], // Users can delete their own files
+							['event.event_admins.user_id', '=', '$role.userId'] // Event admins can delete files
+						])
+					]
 				}
 			}
 		}
@@ -503,14 +519,35 @@ export const schema = {
 			user: {
 				read: {
 					filter: [
-						['user_id', '=', '$role.userId'], // User can read their own profile
-						// A user should be able to only query for files of events they are attending:
-						['event.attendees.user_id', '=', '$role.userId']
+						['user_id', '=', '$role.userId'], // User can read their own announcements
+						['event.attendees.user_id', '=', '$role.userId'], // Attendees can read event announcements
+						['event.event_admins.user_id', '=', '$role.userId'] // Event admins can read announcements
 					]
 				},
-				insert: { filter: [['event.user_id', '=', '$role.userId']] },
-				update: { filter: [['user_id', '=', '$role.userId']] },
-				delete: { filter: [['user_id', '=', '$role.userId']] }
+				insert: {
+					filter: [
+						or([
+							['event.user_id', '=', '$role.userId'], // Event creator can add announcements
+							['event.event_admins.user_id', '=', '$role.userId'] // Event admins can add announcements
+						])
+					]
+				},
+				update: {
+					filter: [
+						or([
+							['user_id', '=', '$role.userId'], // Users can update their own announcements
+							['event.event_admins.user_id', '=', '$role.userId'] // Event admins can update announcements
+						])
+					]
+				},
+				delete: {
+					filter: [
+						or([
+							['user_id', '=', '$role.userId'], // Users can delete their own announcements
+							['event.event_admins.user_id', '=', '$role.userId'] // Event admins can delete announcements
+						])
+					]
+				}
 			},
 			temp: {
 				read: {

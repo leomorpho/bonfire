@@ -38,6 +38,16 @@
 	let onConfirmCallback: (() => void) | null = null;
 	let showOnlyCurrentUserUploads = $state(false); // State to track images uploaded by user toggle
 
+	let currUserId = $state('');
+	let adminUserIds: Set<string> = $state(new Set<string>());
+	let currenUserIsEventAdmin = $state(false);
+
+	$effect(() => {
+		if ($page.data.isOwner || adminUserIds.has(currUserId)) {
+			currenUserIsEventAdmin = true;
+		}
+	});
+
 	// Function to open the dialog
 	function openDialog(description: string, onConfirm: () => void) {
 		dialogDescription = description;
@@ -141,7 +151,11 @@
 		return selectedImages.every((image: any) => image.uploaderId === userUploaderId);
 	}
 
-	async function handleDelete(id: string | null = null, imageDiv: any, pswp: any) {
+	async function handleDelete(
+		id: string | null = null,
+		imageDiv: any | null = null,
+		pswp: any | null = null
+	) {
 		isDeleteFileConfirmationDialogOpen = false;
 
 		let filesSuccessfullyDeleted = false;
@@ -369,7 +383,8 @@
 					if (
 						dataUploaderId == tempAttendeeId ||
 						$page.data.isOwner ||
-						($page.data.user && dataUploaderId === $page.data.user.id)
+						($page.data.user && dataUploaderId === $page.data.user.id) ||
+						currenUserIsEventAdmin
 					) {
 						// Close PhotoSwipe viewer
 						pswp.close();
@@ -471,6 +486,7 @@
 		lightbox = createPhotoSwipe();
 
 		let client = getFeTriplitClient($page.data.jwt) as TriplitClient;
+
 		const unsubscribeFromFileQuery = client.subscribe(
 			client
 				.query('files')
@@ -498,11 +514,34 @@
 			}
 		);
 
+		const unsubscribeFromEventAdminsQUery = client.subscribe(
+			client
+				.query('event_admins')
+				.where(and([['event_id', '=', $page.params.id]]))
+				.select(['user_id'])
+				.build(),
+			(results, info) => {
+				adminUserIds = new Set(results.map((admin: { user_id: string }) => admin.user_id));
+				console.log('adminUserIds', adminUserIds);
+			},
+			(error) => {
+				// handle error
+			},
+			// Optional
+			{
+				localOnly: false,
+				onRemoteFulfilled: () => {
+					// console.log('server has sent back results for the subscription');
+				}
+			}
+		);
+
 		return () => {
 			// Cleanup
 			selection.destroy();
 			lightbox?.destroy(); // Cleanup when the component is destroyed
 			unsubscribeFromFileQuery();
+			unsubscribeFromEventAdminsQUery();
 		};
 	});
 </script>
@@ -612,7 +651,7 @@
 								</ContextMenu.Trigger>
 								<ContextMenu.Content>
 									<ContextMenu.Item>Download</ContextMenu.Item>
-									{#if $page.data.isOwner || $page.data.user.id == file.uploader_id}
+									{#if $page.data.isOwner || $page.data.user.id == file.uploader_id || currenUserIsEventAdmin}
 										<CustomAlertDialogue
 											continueCallback={() => handleDelete(file.id)}
 											dialogDescription={`This action cannot be undone. This will permanently delete ${selectedImages.length} this file from our servers.`}
@@ -620,7 +659,7 @@
 											<ContextMenu.Item>Delete this file</ContextMenu.Item></CustomAlertDialogue
 										>
 									{/if}
-									{#if $page.data.isOwner && selectedImages.length > 1}
+									{#if ($page.data.isOwner || currenUserIsEventAdmin) && selectedImages.length > 1}
 										<CustomAlertDialogue
 											continueCallback={() => handleDelete()}
 											dialogDescription={`This action cannot be undone. This will permanently delete ${selectedImages.length} this file from our servers.`}

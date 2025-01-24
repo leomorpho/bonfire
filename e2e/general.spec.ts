@@ -466,3 +466,33 @@ test('Temp -> normal attendee transformation', async ({ browser }) => {
 	await tempAttendeePage.getByRole('link', { name: 'Dashboard' }).click();
 	await expect(tempAttendeePage.locator('.event-card')).toHaveCount(0);
 });
+
+test('Event admins', async ({ browser }) => {
+	const context1 = await browser.newContext();
+	const context2 = await browser.newContext();
+	const eventCreatorPage = await context1.newPage();
+	const adminPage = await context2.newPage();
+
+	await eventCreatorPage.goto(WEBSITE_URL);
+
+	// Create event from creator POV
+	const eventOwnerEmail = faker.internet.email();
+	const eventOwnerUsername = faker.person.firstName();
+	await loginUser(eventCreatorPage, eventOwnerEmail, eventOwnerUsername);
+
+	const eventName = `${faker.animal.dog()}'s birthday party!`;
+	const eventDetails = 'It will be fun!';
+	await createBonfire(eventCreatorPage, eventName, eventDetails);
+	await expect(eventCreatorPage.getByRole('heading', { name: eventName })).toBeVisible();
+
+	const eventUrl = eventCreatorPage.url();
+
+	// Sign up admin
+	const adminEmail = faker.internet.email();
+	const adminUsername = faker.person.firstName();
+	await loginUser(adminPage, adminEmail, adminUsername);
+
+	await adminPage.goto(eventUrl);
+	await expect(adminPage.getByText('0 attendees')).toBeVisible();
+	await adminPage.getByRole('menuitem', { name: 'Going', exact: true }).click();
+});

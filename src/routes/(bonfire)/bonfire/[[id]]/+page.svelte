@@ -33,13 +33,12 @@
 	import CenterScreenMessage from '$lib/components/CenterScreenMessage.svelte';
 	import * as Avatar from '$lib/components/ui/avatar/index.js';
 	import BonfireNoInfoCard from '$lib/components/BonfireNoInfoCard.svelte';
-	import { dev } from '$app/environment';
 	import { overlayColorStore, overlayOpacityStore, styleStore } from '$lib/styles';
 	import ShareLocation from '$lib/components/ShareLocation.svelte';
 	import type { EventTypescriptType } from '$lib/types';
 	import BonfireBanner from '$lib/components/BonfireBanner.svelte';
 
-	let userId = $state('');
+	let currUserId = $state('');
 
 	let event = $state<EventTypescriptType>();
 	let eventLoading = $state(true);
@@ -117,11 +116,11 @@
 	let attendeesMaybeGoing: any = $state([]);
 	let attendeesNotGoing: any = $state([]);
 	let attendeesLoading = $state(true);
+	let tempAttendeesLoading = $state(true);
 
 	let tempAttendeesGoing: any = $state([]);
 	let tempAttendeesMaybeGoing: any = $state([]);
 	let tempAttendeesNotGoing: any = $state([]);
-	let tempAttendeesLoading = $state(true);
 
 	let currentUserAttendee = $state();
 	const showMaxNumPeople = 50;
@@ -134,7 +133,10 @@
 	let adminUserIds = $state(new Set<string>());
 
 	$effect(() => {
-		if ((event && userId && event.user_id == (userId as string)) || adminUserIds.has(userId)) {
+		if (
+			(event && currUserId && event.user_id == (currUserId as string)) ||
+			adminUserIds.has(currUserId)
+		) {
 			currenUserIsEventAdmin = true;
 		}
 	});
@@ -295,7 +297,7 @@
 		if (!isAnonymousUser) {
 			(async () => {
 				if (!isUnverifiedUser) {
-					userId = (await waitForUserId()) as string;
+					currUserId = (await waitForUserId()) as string;
 				}
 
 				// Fetch event files
@@ -436,13 +438,13 @@
 	]);
 
 	$effect(() => {
-		// Ensure event data and userId are available
-		if ($page.data.user && allAttendees && userId) {
+		// Ensure event data and currUserId are available
+		if ($page.data.user && allAttendees && currUserId) {
 			// Find the current user's RSVP status in the attendees list
 			const attendees = allAttendees;
 
 			if (attendees && attendees.length > 0) {
-				currentUserAttendee = attendees.find((attendee) => attendee.user_id == userId);
+				currentUserAttendee = attendees.find((attendee) => attendee.user_id == currUserId);
 				// Set RSVP status based on the attendee record, or keep it as default
 				rsvpStatus = currentUserAttendee ? currentUserAttendee.status : undefined;
 				$inspect('### rsvpStatus', rsvpStatus);
@@ -732,7 +734,8 @@
 								</Dialog.Content>
 							</Dialog.Root>
 						</div>
-					{:else if !isAnonymousUser && allAttendeesGoing.length == 0}
+						<!-- TODO: I think we can retire the below block -->
+						<!-- {:else if !isAnonymousUser && allAttendeesGoing.length == 0}
 						<div class="flex justify-center">
 							<div
 								class="flex w-full items-center justify-center rounded-lg bg-slate-500 bg-opacity-75 p-2 text-sm text-white ring-glow sm:w-2/3"
@@ -742,8 +745,8 @@
 									<Avatar.Fallback>{'BO'}</Avatar.Fallback>
 								</Avatar.Root> No attendees yet
 							</div>
-						</div>
-					{:else if isAnonymousUser}
+						</div> -->
+					{:else}
 						<div class="flex justify-center">
 							<div
 								class="flex w-full items-center justify-center rounded-lg bg-purple-500 bg-opacity-75 p-2 text-sm text-white ring-glow sm:w-2/3"
@@ -765,7 +768,7 @@
 						</Button>
 					</a>
 				{/if} -->
-				<Rsvp {rsvpStatus} {userId} eventId={event.id} {isAnonymousUser} {rsvpCanBeChanged} />
+				<Rsvp {rsvpStatus} {currUserId} eventId={event.id} {isAnonymousUser} {rsvpCanBeChanged} />
 
 				<Button
 					onclick={() => handleShare(event)}
@@ -786,9 +789,9 @@
 						</div>
 					{:else}
 						<div class="my-2">
-							<Annoucements maxCount={3} {isUnverifiedUser} />
+							<Annoucements maxCount={3} {isUnverifiedUser} {currenUserIsEventAdmin} />
 						</div>
-						{#if event.user_id == userId}
+						{#if currenUserIsEventAdmin}
 							<a href="announcement/create">
 								<Button class="mt-1 w-full ring-glow"
 									><Drum class="mr-1 h-4 w-4" /> Create new announcement</Button

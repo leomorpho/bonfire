@@ -12,7 +12,8 @@
 		currUserId,
 		currentUserAttendeeId,
 		announcement,
-		isUnverifiedUser = false
+		isUnverifiedUser = false,
+		currenUserIsEventAdmin = false
 	} = $props();
 	let cardRef: HTMLElement | null = $state(null); // Initialize as null to ensure proper type handling
 
@@ -78,7 +79,7 @@
 		>
 	</Card.Header>
 	<Card.Footer>
-		{#if currUserId == announcement.user_id}
+		{#if currUserId == announcement.user_id || currenUserIsEventAdmin}
 			<a href={`/bonfire/${eventId}/announcement/${announcement.id}/update`}
 				><Button class="mt-2 rounded-xl" variant="outline"><Pencil class="h-4 w-4" /></Button></a
 			>
