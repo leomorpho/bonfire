@@ -141,6 +141,9 @@ export const schema = {
 			viewers: S.RelationMany('event_viewers', {
 				where: [['event_id', '=', '$id']]
 			}),
+			event_admins: S.RelationMany('event_admins', {
+				where: [['event_id', '=', '$id']]
+			}),
 			style: S.String({ nullable: true }),
 			overlay_color: S.String({ nullable: true, optional: true }),
 			overlay_opacity: S.Number({ nullable: true, optional: true })
@@ -168,6 +171,60 @@ export const schema = {
 							// A user should be able to only query for users and attendees who are attending a same event:
 							['temporary_attendees.id', '=', '$role.temporaryAttendeeId']
 						])
+					]
+				}
+			}
+		}
+	},
+	event_admins: {
+		schema: S.Schema({
+			id: S.Id(), // Unique ID for each entry
+			event_id: S.String(), // ID of the event this admin is associated with
+			event: S.RelationById('events', '$event_id'), // Relation to the events table
+			user_id: S.String(), // ID of the user who is an admin
+			user: S.RelationById('user', '$user_id'), // Relation to the user table
+			added_by: S.String(), // ID of the user who added this admin
+			added_by_user: S.RelationById('user', '$added_by'), // Relation to the user who added this admin
+			role: S.String({ default: 'editor' }), // Role of the admin (e.g., editor, moderator)
+			created_at: S.Date({ default: S.Default.now() }), // Timestamp when the admin was added
+			updated_at: S.Date({ default: S.Default.now() }) // Timestamp when the entry was last updated
+		}),
+		permissions: {
+			user: {
+				read: {
+					filter: [
+						or([
+							['user_id', '=', '$role.userId'], // The admin can view their own admin entry
+							['event.user_id', '=', '$role.userId'], // Event creator can view all admins
+							['event.attendees.user_id', '=', '$role.userId'] // Users attending the event can view event admins
+						])
+					]
+				},
+				insert: {
+					filter: [
+						['event.user_id', '=', '$role.userId'] // Only the event creator can add admins
+					]
+				},
+				update: {
+					filter: [
+						or([
+							['event.user_id', '=', '$role.userId'] // Event creator can update any admin's role/permissions
+						])
+					]
+				},
+				delete: {
+					filter: [
+						or([
+							['user_id', '=', '$role.userId'], // Admin can remove themselves
+							['event.user_id', '=', '$role.userId'] // Event creator can remove any admin
+						])
+					]
+				}
+			},
+			temp: {
+				read: {
+					filter: [
+						['event.temporary_attendees.id', '=', '$role.temporaryAttendeeId'] // Temp users can view event admins if they're part of the event
 					]
 				}
 			}
@@ -209,6 +266,14 @@ export const schema = {
 			}),
 			seen_gallery_items: S.RelationMany('seen_gallery_items', {
 				where: [['attendee_id', '=', '$id']] // Link to seen_gallery_items
+			}),
+			admin_role: S.RelationOne('event_admins', {
+				where: [
+					and([
+						['user_id', '=', '$user_id'],
+						['event_id', '=', '$event_id']
+					])
+				]
 			})
 		}),
 		permissions: {

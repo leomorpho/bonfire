@@ -68,7 +68,6 @@
         `);
 		overlayColorStore.set('#000000');
 		overlayOpacityStore.set(0.2);
-
 	}
 	const tempAttendeeId = $page.data.tempAttendeeId;
 	let isUnverifiedUser = $derived(!!tempAttendeeId);
@@ -132,8 +131,10 @@
 	let latitude = $state(null);
 	let longitude = $state(null);
 
+	let adminUserIds = $state(new Set<string>());
+
 	$effect(() => {
-		if (event && userId && event.user_id == (userId as string)) {
+		if ((event && userId && event.user_id == (userId as string)) || adminUserIds.has(userId)) {
 			currenUserIsEventAdmin = true;
 		}
 	});
@@ -246,6 +247,7 @@
 				.query('events')
 				.where([['id', '=', $page.params.id]])
 				.include('banner_media')
+				.include('event_admins')
 				.subquery(
 					'organizer',
 					client.query('user').where(['id', '=', '$1.user_id']).select(['username', 'id']).build(),
@@ -255,7 +257,7 @@
 			(results) => {
 				if (results.length == 1) {
 					event = results[0];
-					console.log('EVENT', event);
+					// console.log('EVENT', event);
 					if (event) {
 						if (event.geocoded_location) {
 							try {
@@ -268,6 +270,12 @@
 						overlayColorStore.set(event.overlay_color);
 						overlayOpacityStore.set(event.overlay_opacity);
 						eventLoading = false;
+
+						if (event.event_admins) {
+							adminUserIds = new Set(
+								event.event_admins.map((admin: { user_id: string }) => admin.user_id)
+							);
+						}
 					}
 				}
 			},
@@ -629,7 +637,6 @@
 						</div>
 					{:else if !isAnonymousUser && attendeesGoing.length > 0}
 						<div id="going-attendees" class="flex flex-wrap items-center -space-x-4">
-							{console.log('---> attendeesGoingA', attendeesGoing)}
 							{#each allAttendeesGoing.slice(0, showMaxNumPeople) as attendee}
 								<ProfileAvatar
 									url={profileImageMap.get(attendee.user_id)?.small_image_url}
