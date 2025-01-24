@@ -200,7 +200,7 @@
 
 			let eventId = event?.id;
 
-			if (mode == 'create') {
+			if (mode == EventFormType.CREATE) {
 				// Save the event (uncomment in production)
 				const { output } = await client.insert('events', {
 					id: await generatePassphraseId(),
@@ -249,7 +249,10 @@
 			}
 			goto(`/bonfire/${eventId}`);
 		} catch (e) {
-			console.log(`failed to ${mode === EventFormType.CREATE ? 'create' : 'update'} event`, e);
+			console.log(
+				`failed to ${mode === EventFormType.CREATE ? EventFormType.CREATE : EventFormType.UPDATE} event`,
+				e
+			);
 		}
 	};
 
@@ -283,7 +286,7 @@
 	{#if currentEventEditingMode == editingMainEvent}
 		<section class="mt-8 w-full sm:w-[450px]">
 			<h2 class="mb-5 flex w-full justify-center rounded-xl bg-white p-2 text-lg font-semibold">
-				{mode === EventFormType.CREATE ? 'Create' : 'Update'} a Bonfire
+				{mode === EventFormType.CREATE ? EventFormType.CREATE : EventFormType.UPDATE} a Bonfire
 			</h2>
 			<form class="space-y-2">
 				<Input
@@ -397,13 +400,13 @@
 				class="sticky top-2 mt-2 w-full bg-green-500 ring-glow hover:bg-green-400"
 				onclick={handleSubmit}
 			>
-				{#if mode == 'create'}
+				{#if mode == EventFormType.CREATE}
 					<Plus class="ml-1 mr-1 h-4 w-4" />
 				{:else}
 					<ArrowDownToLine class="ml-1 mr-1 h-4 w-4" />
 				{/if}
 
-				{mode === EventFormType.CREATE ? 'Create' : 'Update'}
+				{mode === EventFormType.CREATE ? EventFormType.CREATE : EventFormType.UPDATE}
 			</Button>
 			{#if mode == EventFormType.UPDATE}
 				<Dialog.Root>
@@ -449,7 +452,13 @@
 				</Button>
 			</div>
 
-			<EventStyler bind:finalStyleCss bind:overlayColor bind:overlayOpacity />
+			<EventStyler
+				bind:finalStyleCss
+				bind:overlayColor
+				bind:overlayOpacity
+				editingMode={mode}
+				eventId={event ? event.id : null}
+			/>
 		</div>
 	{:else if currentEventEditingMode == editingAdmins}
 		<div class="md:7/8 w-5/6">

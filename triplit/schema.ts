@@ -183,8 +183,8 @@ export const schema = {
 			event: S.RelationById('events', '$event_id'), // Relation to the events table
 			user_id: S.String(), // ID of the user who is an admin
 			user: S.RelationById('user', '$user_id'), // Relation to the user table
-			added_by: S.String(), // ID of the user who added this admin
-			added_by_user: S.RelationById('user', '$added_by'), // Relation to the user who added this admin
+			added_by_user_id: S.String(), // ID of the user who added this admin
+			added_by_user: S.RelationById('user', '$added_by_user_id'), // Relation to the user who added this admin
 			role: S.String({ default: 'editor' }), // Role of the admin (e.g., editor, moderator)
 			created_at: S.Date({ default: S.Default.now() }), // Timestamp when the admin was added
 			updated_at: S.Date({ default: S.Default.now() }) // Timestamp when the entry was last updated

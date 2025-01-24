@@ -1,53 +1,60 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { getFeTriplitClient } from '$lib/triplit';
+	import { getFeTriplitClient, waitForUserId } from '$lib/triplit';
 	import type { TriplitClient } from '@triplit/client';
 	import { onMount } from 'svelte';
 	import Check from 'lucide-svelte/icons/check';
-	import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
 	import { tick } from 'svelte';
 	import * as Command from '$lib/components/ui/command/index.js';
 	import * as Popover from '$lib/components/ui/popover/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
-	import { cn } from '$lib/utils.js';
-	import Fuse from 'fuse.js';
-	import { X } from 'lucide-svelte';
+	import { cn, formatHumanReadable } from '$lib/utils.js';
+	import { UserRoundMinus, X } from 'lucide-svelte';
 	import HorizRule from './HorizRule.svelte';
+	import { toast } from 'svelte-sonner';
+	import * as Card from '$lib/components/ui/card/index.js';
+	import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
+	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
 
 	let { eventId } = $props();
+
+	let currUserId = $state();
 
 	let client: TriplitClient;
 	let attendeesLoading = $state(true);
 
-	let currentAdmins: any[] = $state([]);
+	let currentAdminAttendees: any[] = $state([]);
 	let currentNonAdminAttendees: any[] = $state([]);
-	let isFilteredNonAdminAttendeesInitialized = $state(false);
 	let selectedAttendee = $state<string | null>(null);
 	let open = $state(false);
 	let triggerRef = $state<HTMLButtonElement>(null!);
 	let inputRef = $state<HTMLInputElement>(null!);
 
-	let fuse: Fuse<any>;
-
 	onMount(() => {
 		client = getFeTriplitClient($page.data.jwt) as TriplitClient;
+
+		const init = async () => {
+			currUserId = await waitForUserId();
+		};
+		init();
 
 		const unsubscribeFromEventAttendeesQuery = client.subscribe(
 			client
 				.query('attendees')
 				.where([['event_id', '=', eventId]])
-				.include('admin_role')
+				.include('admin_role', (rel) => rel('admin_role').include('added_by_user').build())
 				.include('user')
 				.build(),
 			(results) => {
 				// Separate attendees into admins and non-admins
-				currentAdmins = results.filter((attendee) => attendee.admin_role !== null);
+				currentAdminAttendees = results.filter((attendee) => attendee.admin_role !== null);
 				currentNonAdminAttendees = results.filter((attendee) => attendee.admin_role === null);
 				currentNonAdminAttendees.sort((a, b) => {
 					return a.user.username.localeCompare(b.user.username);
 				});
 
-				console.log('currentNonAdminAttendees', currentNonAdminAttendees);
+				// console.log('currentNonAdminAttendees', currentNonAdminAttendees);
+				// console.log('currentAdminAttendees', currentAdminAttendees);
 			},
 			(error) => {
 				console.error('Error fetching event:', error);
@@ -70,53 +77,42 @@
 
 	async function promoteToAdmin(userId: string) {
 		try {
-			// const response = await client.mutation('add_event_admin').execute({
-			// 	event_id: eventId,
-			// 	user_id: userId
-			// });
+			await client.insert('event_admins', {
+				event_id: eventId,
+				user_id: userId,
+				added_by_user_id: currUserId
+			});
 
-			// if (response.success) {
-			if (true) {
-				const promotedUser = currentNonAdminAttendees.find(
-					(attendee) => attendee.user_id === userId
+			const promotedUser = currentNonAdminAttendees.find((attendee) => attendee.user_id === userId);
+			if (promotedUser) {
+				// Move user to admins list
+				currentAdminAttendees = [...currentAdminAttendees, promotedUser];
+				currentNonAdminAttendees = currentNonAdminAttendees.filter(
+					(attendee) => attendee.user_id !== userId
 				);
-				if (promotedUser) {
-					// Move user to admins list
-					currentAdmins = [...currentAdmins, promotedUser];
-					currentNonAdminAttendees = currentNonAdminAttendees.filter(
-						(attendee) => attendee.user_id !== userId
-					);
-					selectedAttendee = null;
-				}
-			} else {
-				console.error('Failed to promote user to admin:', response.error);
+				selectedAttendee = null;
 			}
+			toast.success('Successfully added a new admin');
 		} catch (error) {
+			toast.error('Failed to add admin, please try again later or contact support');
 			console.error('Error promoting user to admin:', error);
 		}
 	}
 
 	async function demoteToAttendee(userId: string) {
 		try {
-			// Uncomment and adjust the API call when ready
-			// const response = await client.mutation('remove_event_admin').execute({
-			// 	event_id: eventId,
-			// 	user_id: userId
-			// });
+			const demotedAttendee = currentAdminAttendees.find((admin) => admin.user_id === userId);
+			if (demotedAttendee) {
+				await client.delete('event_admins', demotedAttendee.admin_role.id);
 
-			// if (response.success) {
-			if (true) {
-				const demotedUser = currentAdmins.find((admin) => admin.user_id === userId);
-				if (demotedUser) {
-					// Move user to non-admin attendees list
-					currentNonAdminAttendees = [...currentNonAdminAttendees, demotedUser];
-					currentAdmins = currentAdmins.filter((admin) => admin.user_id !== userId);
-					selectedAttendee = null;
-				}
-			} else {
-				console.error('Failed to demote admin to attendee:', response.error);
+				// Move user to non-admin attendees list
+				currentNonAdminAttendees = [...currentNonAdminAttendees, demotedAttendee];
+				currentAdminAttendees = currentAdminAttendees.filter((admin) => admin.user_id !== userId);
+				selectedAttendee = null;
 			}
+			toast.success('Successfully removed an admin');
 		} catch (error) {
+			toast.error('Failed to remove admin, please try again later or contact support');
 			console.error('Error demoting admin to attendee:', error);
 		}
 	}
@@ -146,11 +142,29 @@
 	}
 </script>
 
-<div class="mx-4 flex flex-col items-center justify-center">
+<div class="mx-4 mb-16 flex flex-col items-center justify-center">
 	<section class="mt-8 w-full sm:w-[450px]">
 		<h1 class="mb-5 flex w-full justify-center rounded-xl bg-white p-2 text-lg font-semibold">
 			Add an admin
 		</h1>
+		<Collapsible.Root class="rounded-lg bg-slate-200 mb-5">
+			<Collapsible.Trigger class="flex items-center justify-between w-full px-4 space-x-4">
+				<div class="invisible"></div>
+				<h4 class="text-sm font-semibold">What admins can do</h4>
+				<Button variant="ghost" size="sm" class="w-9 p-0">
+					<ChevronsUpDown />
+					<span class="sr-only">Toggle</span>
+				</Button>
+			</Collapsible.Trigger>
+			<Collapsible.Content class="space-y-2">
+				<ul class="list-disc pl-5">
+					<li class="rounded-md px-4 py-2 text-sm">Create, update, delete announcements</li>
+					<li class="rounded-md px-4 py-2 text-sm">Remove attendees</li>
+				</ul>
+			</Collapsible.Content>
+		</Collapsible.Root>
+		
+
 		<Popover.Root bind:open>
 			<Popover.Trigger bind:ref={triggerRef} class="w-full">
 				{#snippet child({ props })}
@@ -196,26 +210,48 @@
 			</Popover.Content>
 		</Popover.Root>
 		<HorizRule />
-		<h1 class="mb-5 mt-7 flex w-full justify-center rounded-xl bg-white p-2 text-lg font-semibold">
-			Current admins
-		</h1>
-		{#if currentAdmins.length > 0}
-			<ul>
-				{#each currentAdmins as admin}
-					<li class="mb-2 flex justify-between rounded-xl bg-blue-200 p-2">
-						<div></div>
-						{admin.user.username}
-						<button
-							class="hover:rounded-lg hover:bg-slate-100"
-							onclick={() => {
-								demoteToAttendee(admin.user_id);
-							}}><X /></button
-						>
-					</li>
+
+		{#if currentAdminAttendees.length > 0}
+			<h1
+				class="mb-5 mt-7 flex w-full justify-center rounded-xl bg-white p-2 text-lg font-semibold"
+			>
+				Current admins
+			</h1>
+			<div class="space-y-4">
+				{#each currentAdminAttendees as adminAttendee}
+					<Card.Root class="">
+						<Card.Header>
+							<Card.Title>{adminAttendee.user.username}</Card.Title>
+							<Card.Description
+								>Added on {formatHumanReadable(adminAttendee.admin_role.created_at)} by
+								<span class="font-bold">
+									{#if currUserId == adminAttendee.admin_role.added_by_user_id}
+										you
+									{:else}
+										{adminAttendee.admin_role.added_by_user.username}
+									{/if}
+								</span>
+							</Card.Description>
+						</Card.Header>
+						<Card.Content>
+							<form>
+								<div class="grid w-full items-center gap-4"></div>
+							</form>
+						</Card.Content>
+						<Card.Footer class="flex justify-between">
+							<Button class="invisible" variant="outline">Cancel</Button>
+							<Button
+								onclick={() => {
+									demoteToAttendee(adminAttendee.user_id);
+								}}><UserRoundMinus /></Button
+							>
+						</Card.Footer>
+					</Card.Root>
 				{/each}
-			</ul>{:else}
+			</div>
+		{:else}
 			<div class="mb-5 flex w-full justify-center">
-				<div class="rounded-xl bg-white p-2">No admins yet</div>
+				<div class="rounded-xl bg-white p-2 px-4 text-xs">No admins yet</div>
 			</div>
 		{/if}
 	</section>
