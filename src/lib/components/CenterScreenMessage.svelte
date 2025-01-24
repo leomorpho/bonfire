@@ -4,7 +4,7 @@
 </script>
 
 <div class="center-screen">
-	<p class="m-2 w-5/6 rounded-lg bg-slate-100 p-4 sm:w-2/3 sm:text-xl md:w-1/3">
+	<p class="m-2 w-5/6 rounded-2xl bg-slate-100 p-4 sm:p-7 md:p-10 sm:w-2/3 sm:text-xl md:w-1/3">
 		{#if message}
 			{message}
 		{/if}
