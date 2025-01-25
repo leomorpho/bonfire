@@ -284,6 +284,7 @@
 				.include('user')
 				.build(),
 			(results) => {
+				console.log('attendees', results);
 				// Separate attendees into different variables by status
 				attendeesGoing = results.filter((attendee) => attendee.status === Status.GOING);
 				attendeesNotGoing = results.filter((attendee) => attendee.status === Status.NOT_GOING);

@@ -431,6 +431,30 @@ export async function fetchAccessibleEventFiles(
 		throw new Error('Unauthorized'); // Explicitly handle unauthorized access
 	}
 
+	// If user is logged in, they must have a valid attendance
+	console.log('userId --->', userId);
+	if (userId) {
+		try {
+			const attendance = await triplitHttpClient.fetchOne(
+				triplitHttpClient
+					.query('attendees')
+					.where([
+						and([
+							['user_id', '=', userId],
+							['event_id', '=', bonfireId]
+						])
+					])
+					.build()
+			);
+			console.log('attendance --->', attendance);
+			if (!attendance) {
+				return;
+			}
+		} catch (e) {
+			console.error('failed to fetch attendance object', e);
+		}
+	}
+
 	// Fetch event details to determine ownership
 	const eventQuery = triplitHttpClient
 		.query('events')
