@@ -1,5 +1,14 @@
 import { test, expect } from '@playwright/test';
-import { createBonfire, loginUser, navigateTo, WEBSITE_URL } from './shared';
+import {
+	addAnnouncementAsEventCreator,
+	createBonfire,
+	loginUser,
+	navigateTo,
+	rsvpAsLoggedInUser,
+	rsvpAsTempUser,
+	uploadGalleryImage,
+	WEBSITE_URL
+} from './shared';
 import { faker } from '@faker-js/faker';
 import path from 'path';
 
@@ -308,13 +317,11 @@ test('CRUD gallery', async ({ page }) => {
 	await expect(page.locator('.gallery-item')).toHaveCount(0);
 });
 
-test('Temp attendee view', async ({ browser }) => {
+test('User attendee view', async ({ browser }) => {
 	const context1 = await browser.newContext();
 	const context2 = await browser.newContext();
 	const eventCreatorPage = await context1.newPage();
-	const tempAttendeePage = await context2.newPage();
-
-	// await navigateTo(eventCreatorPage, WEBSITE_URL);
+	const userAttendeePage = await context2.newPage();
 
 	// Create event from creator POV
 	const email = faker.internet.email();
@@ -328,6 +335,62 @@ test('Temp attendee view', async ({ browser }) => {
 
 	const eventUrl = eventCreatorPage.url();
 
+	// Add logged in users and temp users as attendees, making sure we see the correct things
+	await rsvpAsLoggedInUser(browser, eventUrl);
+	await rsvpAsTempUser(browser, eventUrl);
+	// Have creator add announcements and files to make sure others can only see count until RSVP is set.
+	await addAnnouncementAsEventCreator(eventCreatorPage, eventUrl)
+	await uploadGalleryImage(eventCreatorPage, eventUrl)
+	await eventCreatorPage.close();
+
+	// Temp attendee
+	const userEmail = faker.internet.email();
+	const userUsername = faker.person.firstName();
+	await navigateTo(userAttendeePage, eventUrl);
+	await loginUser(userAttendeePage, userEmail, userUsername);
+	await navigateTo(userAttendeePage, eventUrl);
+
+	// Temp user should not be able to set a banner
+	await expect(userAttendeePage.getByRole('heading', { name: 'Set Banner' })).toHaveCount(0);
+	await expect(userAttendeePage.getByRole('heading', { name: eventName })).toBeVisible();
+	await expect(userAttendeePage.getByText(`Hosted by ${username}`)).toBeVisible();
+	await expect(userAttendeePage.getByText('Set RSVP status to see location')).toBeVisible();
+
+	await expect(userAttendeePage.getByText(eventDetails)).toBeVisible();
+	await expect(userAttendeePage.getByText('0 announcements')).toBeVisible();
+	await expect(userAttendeePage.getByText('0 announcements')).toBeVisible();
+	await expect(userAttendeePage.getByText('0 files')).toBeVisible();
+
+	await userAttendeePage.getByText('RSVP', { exact: true }).click();
+	await userAttendeePage.getByRole('menuitem', { name: 'Going', exact: true }).click();
+});
+
+test('Temp attendee view', async ({ browser }) => {
+	const context1 = await browser.newContext();
+	const context2 = await browser.newContext();
+	const eventCreatorPage = await context1.newPage();
+	const tempAttendeePage = await context2.newPage();
+
+	// Create event from creator POV
+	const email = faker.internet.email();
+	const username = faker.person.firstName();
+	await loginUser(eventCreatorPage, email, username);
+
+	const eventName = `${faker.animal.dog()} birthday party!`;
+	const eventDetails = 'It will be fun!';
+	await createBonfire(eventCreatorPage, eventName, eventDetails);
+	await expect(eventCreatorPage.getByRole('heading', { name: eventName })).toBeVisible();
+
+	const eventUrl = eventCreatorPage.url();
+
+	// Add logged in users and temp users as attendees, making sure we see the correct things
+	await rsvpAsLoggedInUser(browser, eventUrl);
+	await rsvpAsTempUser(browser, eventUrl);
+	// Have creator add announcements and files to make sure others can only see count until RSVP is set.
+	await addAnnouncementAsEventCreator(eventCreatorPage, eventUrl)
+	await uploadGalleryImage(eventCreatorPage, eventUrl)
+	await eventCreatorPage.close();
+
 	// Temp attendee
 	const tempAttendeeUsername = faker.person.firstName();
 	await navigateTo(tempAttendeePage, eventUrl);
@@ -338,9 +401,9 @@ test('Temp attendee view', async ({ browser }) => {
 	await expect(tempAttendeePage.getByText(`Hosted by ${username}`)).toBeVisible();
 	await expect(tempAttendeePage.getByText('Set RSVP status to see location')).toBeVisible();
 	await expect(tempAttendeePage.getByText(eventDetails)).toBeVisible();
-	await expect(tempAttendeePage.getByText('0 announcements')).toBeVisible();
-	await expect(tempAttendeePage.getByText('0 announcements')).toBeVisible();
-	await expect(tempAttendeePage.getByText('0 files')).toBeVisible();
+	await expect(tempAttendeePage.getByText('2 attendee(s)')).toBeVisible();
+	await expect(tempAttendeePage.getByText('1 announcement(s)')).toBeVisible();
+	await expect(tempAttendeePage.getByText('1 file(s)')).toBeVisible();
 
 	// Set RSVP status
 	await tempAttendeePage.getByText('RSVP', { exact: true }).click();
@@ -384,9 +447,6 @@ test('Temp attendee view', async ({ browser }) => {
 	).toBeVisible();
 	await tempAttendeePage.keyboard.press('Escape'); // Close dropdown
 
-	await expect(tempAttendeePage.getByText('No announcements yet')).toBeVisible();
-	await expect(tempAttendeePage.getByText('No photos/videos yet')).toBeVisible();
-
 	// Upload image to gallery
 	await tempAttendeePage.getByRole('button', { name: 'Add to gallery' }).click();
 
@@ -396,7 +456,7 @@ test('Temp attendee view', async ({ browser }) => {
 	const imagePath = path.resolve(process.cwd(), 'e2e/test-images', 'gallery-image.jpg');
 	await fileInput.setInputFiles(imagePath);
 	await tempAttendeePage.getByLabel('Upload 1 file').click();
-	await expect(tempAttendeePage.locator('.gallery-item')).toHaveCount(1);
+	await expect(tempAttendeePage.locator('.gallery-item')).toHaveCount(2);
 
 	// Check top bar buttons
 	await expect(tempAttendeePage.locator('#upload-new-images')).toBeVisible();

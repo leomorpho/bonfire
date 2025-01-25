@@ -33,7 +33,6 @@
 	import CenterScreenMessage from '$lib/components/CenterScreenMessage.svelte';
 	import * as Avatar from '$lib/components/ui/avatar/index.js';
 	import BonfireNoInfoCard from '$lib/components/BonfireNoInfoCard.svelte';
-	import { dev } from '$app/environment';
 	import { overlayColorStore, overlayOpacityStore, styleStore } from '$lib/styles';
 	import ShareLocation from '$lib/components/ShareLocation.svelte';
 	import type { EventTypescriptType } from '$lib/types';
@@ -613,7 +612,6 @@
 						</div>
 					{:else if !isAnonymousUser && attendeesGoing.length > 0}
 						<div id="going-attendees" class="flex flex-wrap items-center -space-x-4">
-							{console.log('---> attendeesGoingA', attendeesGoing)}
 							{#each allAttendeesGoing.slice(0, showMaxNumPeople) as attendee}
 								<ProfileAvatar
 									url={profileImageMap.get(attendee.user_id)?.small_image_url}
@@ -729,7 +727,7 @@
 									<Avatar.Image src={'/icon-128.png'} alt={''} />
 									<Avatar.Fallback>{'BO'}</Avatar.Fallback>
 								</Avatar.Root>
-								{$page.data.numAttendees} attendees
+								{$page.data.numAttendees} attendee(s)
 							</div>
 						</div>
 					{/if}
@@ -759,7 +757,7 @@
 					</div>
 					{#if isAnonymousUser && $page.data.numAnnouncements != null}
 						<div class="my-2">
-							<BonfireNoInfoCard text={$page.data.numAnnouncements + ' announcements'} />
+							<BonfireNoInfoCard text={$page.data.numAnnouncements + ' announcement(s)'} />
 						</div>
 					{:else}
 						<div class="my-2">
@@ -781,7 +779,7 @@
 					</div>
 					{#if isAnonymousUser && $page.data.numFiles != null}
 						<div class="my-2">
-							<BonfireNoInfoCard text={$page.data.numFiles + ' files'} />
+							<BonfireNoInfoCard text={$page.data.numFiles + ' file(s)'} />
 						</div>
 					{:else}
 						<div class="mb-10">
