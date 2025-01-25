@@ -1,9 +1,9 @@
 name: Playwright Tests
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
   pull_request:
-    branches: [ main, master ]
+    branches: [main, master]
 jobs:
   test:
     timeout-minutes: 60
@@ -12,7 +12,7 @@ jobs:
       # Checkout code
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       # Set up Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -28,7 +28,7 @@ jobs:
 
       # Create .env file from GitHub Secrets
       - name: Create .env file
-        if: secrets.ENV_FILE != ''
+        if: ${{ secrets.ENV_FILE && secrets.ENV_FILE != '' }}
         run: echo "${{ secrets.ENV_FILE }}" > .env
         shell: bash
 
@@ -39,7 +39,7 @@ jobs:
         # Wait for the services to be ready
       - name: Wait for services to be ready
         run: sleep 30 # Adjust based on your service startup time
-      
+
       # Install Playwright Browsers
       - name: Install Playwright Browsers
         run: pnpm exec playwright install --with-deps

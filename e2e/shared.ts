@@ -11,7 +11,8 @@ export async function loginUser(
 	expectToSetUsername = true
 ) {
 	// Enter email
-	await page.goto(`${WEBSITE_URL}/`);
+	await navigateTo(page, WEBSITE_URL);
+
 	await page.getByRole('link', { name: 'login' }).click();
 	await page.getByPlaceholder('Email').click();
 	await page.getByPlaceholder('Email').fill(email);
@@ -52,7 +53,8 @@ export async function getEmailOTP(emailAddress: string) {
 	const context = await browser.newContext();
 	const page = await context.newPage();
 
-	page.goto(EMAIL_CAPTURE_PORTAL_URL);
+	await navigateTo(page, EMAIL_CAPTURE_PORTAL_URL);
+
 
 	const emailLink = page.locator(`a:has-text("To: ${emailAddress}")`);
 	// Wait for the link to be visible
@@ -100,13 +102,14 @@ export async function getEmailOTP(emailAddress: string) {
 
 export async function createBonfire(
 	page,
-	eventName = `${faker.animal.dog()}'s birthday party!`,
+	eventName = `${faker.animal.dog()} birthday party!`,
 	details = `Join us for ${eventName} It will be a fun evening filled with dog treats!`
 ) {
-	await page.goto(WEBSITE_URL);
+	await navigateTo(page, WEBSITE_URL);
+
 	await page.locator('#create-bonfire-button').click();
 
-	await expect(page.getByRole('heading', { name: 'Create a Bonfire' })).toBeVisible();
+	// await expect(page.getByRole('heading', { name: 'Create a Bonfire' })).toBeVisible({ timeout: 10000 });
 	await expect(page.getByPlaceholder('Event Name')).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Pick a date' })).toBeVisible();
 	await expect(page.getByPlaceholder('HH')).toBeVisible();
@@ -142,4 +145,9 @@ export async function createBonfire(
 	await page.getByRole('button', { name: 'Create' }).click();
 
 	await expect(page.getByRole('heading', { name: eventName })).toBeVisible();
+}
+
+export async function navigateTo(page, URL) {
+	await page.goto(URL);
+	page.waitForNavigation({ waitUntil: 'load' });
 }

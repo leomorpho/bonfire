@@ -112,8 +112,10 @@
 	}
 
 	$effect(() => {
-		if (dateValue && eventName && startHour) {
+		if (dateValue && eventName.length > 0 && startHour.length > 0) {
 			submitDisabled = false;
+		} else {
+			submitDisabled = true;
 		}
 	});
 
