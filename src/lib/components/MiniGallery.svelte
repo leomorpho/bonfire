@@ -151,10 +151,10 @@
 		</div>
 	{/if}
 {/if}
-<a href="media/add"
-	><Button class="flex w-full items-center justify-center ring-glow"
-		><ImagePlus />Add to gallery</Button
-	>
+<a href="media/add">
+	<Button class="flex w-full items-center justify-center ring-glow">
+		<ImagePlus />Add to gallery
+	</Button>
 </a>
 
 <style>
