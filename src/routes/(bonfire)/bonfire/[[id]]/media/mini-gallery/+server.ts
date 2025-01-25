@@ -20,7 +20,12 @@ export const GET = async ({ locals, url, params }) => {
 			const existingAttendee = await triplitHttpClient.fetchOne(
 				triplitHttpClient
 					.query('temporary_attendees')
-					.where(['secret_mapping.id', '=', tempAttendeeSecret])
+					.where(
+						and([
+							['secret_mapping.id', '=', tempAttendeeSecret],
+							['event_id', '=', id]
+						])
+					)
 					.build()
 			);
 			if (existingAttendee) {
@@ -33,24 +38,26 @@ export const GET = async ({ locals, url, params }) => {
 
 	const user = locals.user;
 	if ((!user || !user.id) && !tempAttendeeExists) {
-		return json({}); // Return 401 if user is not logged in
+		return json({});
 	}
 
 	try {
-		const attendance = await triplitHttpClient.fetchOne(
-			triplitHttpClient
-				.query('attendees')
-				.where([
-					and([
-						['user_id', '=', user?.id],
-						['event_id', '=', id]
+		if (user) {
+			const attendance = await triplitHttpClient.fetchOne(
+				triplitHttpClient
+					.query('attendees')
+					.where([
+						and([
+							['user_id', '=', user?.id],
+							['event_id', '=', id]
+						])
 					])
-				])
-				.build()
-		);
-		console.log('attendance --->', attendance);
-		if (!attendance) {
-			return json({}); // Not authorized to get any data
+					.build()
+			);
+			console.log('attendance --->', attendance);
+			if (!attendance) {
+				return json({}); // Not authorized to get any data
+			}
 		}
 	} catch (e) {
 		console.error('failed to fetch attendance object', e);
