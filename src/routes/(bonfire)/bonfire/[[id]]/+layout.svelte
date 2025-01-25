@@ -5,7 +5,7 @@
 	import { page } from '$app/stores';
 	import { getFeTriplitClient } from '$lib/triplit';
 	import { overlayColorStore, overlayOpacityStore, parseColor, styleStore } from '$lib/styles';
-	import { tempAttendeeSecretParam } from '$lib/enums';
+	import { tempAttendeeSecretStore, tempAttendeeSecretParam } from '$lib/enums';
 	import { get } from 'svelte/store';
 
 	let { data, children }: { data: LayoutData; children: Snippet } = $props();
@@ -36,6 +36,12 @@
 	tempAttendeeSecret = url.searchParams.get(tempAttendeeSecretParam);
 
 	onMount(async () => {
+		if (tempAttendeeSecret) {
+			tempAttendeeSecretStore.set(tempAttendeeSecret);
+		} else {
+			tempAttendeeSecret = get(tempAttendeeSecretStore);
+		}
+		
 		if ($page.data.user || tempAttendeeSecret) {
 			// User is logged in
 			client = getFeTriplitClient($page.data.jwt);

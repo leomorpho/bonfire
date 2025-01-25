@@ -19,7 +19,7 @@
 	import { formatHumanReadable, formatHumanReadableHour } from '$lib/utils';
 	import Rsvp from '$lib/components/Rsvp.svelte';
 	import { onMount } from 'svelte';
-	import { Status, tempAttendeeIdStore, tempAttendeeSecretParam } from '$lib/enums';
+	import { Status, tempAttendeeSecretStore, tempAttendeeSecretParam } from '$lib/enums';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import ProfileAvatar from '$lib/components/ProfileAvatar.svelte';
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
@@ -69,7 +69,7 @@
 	console.log('tempAttendeeSecret', tempAttendeeSecret);
 
 	if (tempAttendeeId) {
-		tempAttendeeIdStore.set(tempAttendeeId);
+		tempAttendeeSecretStore.set(tempAttendeeId);
 	}
 
 	let isAnonymousUser = $state(!$page.data.user);

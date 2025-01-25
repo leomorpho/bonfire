@@ -2,7 +2,7 @@ import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { format } from 'date-fns';
 import { generateId } from 'lucia';
-import { tempAttendeeIdStore, tempAttendeeSecretParam } from './enums';
+import { tempAttendeeSecretStore, tempAttendeeSecretParam } from './enums';
 import { get } from 'svelte/store';
 
 export function cn(...inputs: ClassValue[]) {
@@ -130,7 +130,7 @@ export const generatePassphraseId = async (prefix: string | null = null, wordsLe
 };
 
 export const adaptForTempUserUrl = (url: string) => {
-	const tempAttendeeId = get(tempAttendeeIdStore);
+	const tempAttendeeId = get(tempAttendeeSecretStore);
 
 	if (!tempAttendeeId) {
 		return url;
@@ -149,7 +149,7 @@ export const adaptForTempUserUrl = (url: string) => {
 
 export const setTempAttendeeIdParam = () => {
 	// Retrieve the tempAttendeeId value
-	const tempAttendeeId = tempAttendeeIdStore.get();
+	const tempAttendeeId = tempAttendeeSecretStore.get();
 
 	if (tempAttendeeId) {
 		const observer = new MutationObserver(() => {

@@ -1,5 +1,5 @@
 import * as Sentry from '@sentry/sveltekit';
-import { tempAttendeeIdStore, tempAttendeeSecretParam } from '$lib/enums';
+import { tempAttendeeSecretStore, tempAttendeeSecretParam } from '$lib/enums';
 import type { HandleFetch } from '@sveltejs/kit';
 import { dev } from '$app/environment';
 
@@ -17,7 +17,7 @@ if (!dev) {
 
 export const handleFetch: HandleFetch = async ({ request, fetch }) => {
 	// Check if tempAttendeeId exists in the store
-	const tempAttendeeId = tempAttendeeIdStore.get();
+	const tempAttendeeId = tempAttendeeSecretStore.get();
 
 	if (tempAttendeeId) {
 		const url = new URL(request.url);
