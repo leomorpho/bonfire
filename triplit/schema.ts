@@ -154,8 +154,7 @@ export const schema = {
 					filter: [
 						or([
 							['user_id', '=', '$role.userId'], // User can read their own events
-							// A user can only see events they are attending:
-							['attendees.user_id', '=', '$role.userId'],
+							['attendees.user_id', '=', '$role.userId'], // A user can only see events they are attending
 							['viewers.user_id', '=', '$role.userId'] // user is a viewer
 						])
 					]

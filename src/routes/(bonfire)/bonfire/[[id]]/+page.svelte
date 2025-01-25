@@ -326,6 +326,7 @@
 					);
 				})();
 				attendeesLoading = false;
+				console.log('results', results);
 			},
 			(error) => {
 				console.error('Error fetching attendees:', error);
@@ -766,7 +767,13 @@
 						</Button>
 					</a>
 				{/if} -->
-				<Rsvp {rsvpStatus} userId={currUserId} eventId={event.id} {isAnonymousUser} {rsvpCanBeChanged} />
+				<Rsvp
+					{rsvpStatus}
+					userId={currUserId}
+					eventId={event.id}
+					{isAnonymousUser}
+					{rsvpCanBeChanged}
+				/>
 
 				<Button
 					onclick={() => handleShare(event)}

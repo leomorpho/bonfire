@@ -303,6 +303,9 @@ test('CRUD gallery', async ({ page }) => {
 	await expect(page.locator('.gallery-item')).toHaveCount(0);
 });
 
+test('User can RSVP', async ({ browser }) => {
+});
+
 test('Temp attendee view', async ({ browser }) => {
 	const context1 = await browser.newContext();
 	const context2 = await browser.newContext();

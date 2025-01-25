@@ -225,7 +225,7 @@
 					await client.insert('attendees', {
 						user_id: userId,
 						event_id: output.id as string,
-						status: Status.DEFAULT // Default status
+						status: Status.GOING // Default status
 					});
 					eventId = output.id;
 				} else {

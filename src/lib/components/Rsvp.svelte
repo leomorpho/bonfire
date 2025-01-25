@@ -136,11 +136,13 @@
 		}
 		try {
 			await client.delete('attendees', attendance.id);
-			toast.success("This event has been unlinked from your account and removed from your dashboard.")
+			toast.success(
+				'This event has been unlinked from your account and removed from your dashboard.'
+			);
 		} catch (e) {
 			console.error(`failed to delete attendance for event ${eventId} and user ${userId}:`, e);
-		}finally{
-			goto("/dashboard")
+		} finally {
+			goto('/dashboard');
 		}
 	};
 
@@ -283,7 +285,8 @@
 				try {
 					const { output } = await client.insert('attendees', {
 						event_id: eventId,
-						user_id: userId
+						user_id: userId,
+						status: newValue
 					});
 					attendanceId = output?.id;
 				} catch (e) {
@@ -303,6 +306,12 @@
 				}
 			}
 
+			// TODO: this is a hack because when putting a going status, the attendee list does not update correctly,
+			// not returning all attendees. Just reloading as that fixes the issue, though not ideal.
+			let reload = false;
+			if (rsvpStatus == Status.DEFAULT) {
+				reload = true;
+			}
 			rsvpStatus = newValue; // Update the label
 
 			if (NOTIFY_OF_ATTENDING_STATUS_CHANGE.includes(rsvpStatus)) {
@@ -315,6 +324,10 @@
 
 			// Perform any additional actions, e.g., API call to save the new RSVP status
 			console.log('RSVP updated to:', newValue);
+
+			if (reload) {
+				window.location.reload();
+			}
 		} catch (error) {
 			console.log('failed to update RSVP status to:', newValue, error);
 		}
