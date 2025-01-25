@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
-	import { Smile, Meh, Frown, HandMetal } from 'lucide-svelte';
+	import { Smile, Meh, Frown, HandMetal, LogOut } from 'lucide-svelte';
 	import type { TriplitClient } from '@triplit/client';
 	import { and } from '@triplit/client';
 	import { getFeTriplitClient } from '$lib/triplit';
@@ -15,16 +15,14 @@
 	import AddToCalendar from './AddToCalendar.svelte';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
-	import {
-		createNewAttendanceNotificationQueueObject,
-		createNewTemporaryAttendanceNotificationQueueObject
-	} from '$lib/notification';
+	import { createNewAttendanceNotificationQueueObject } from '$lib/notification';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Label } from '$lib/components/ui/label/index.js';
 	import { debounce, generatePassphraseId } from '$lib/utils';
 	import { toast } from 'svelte-sonner';
+	import { goto } from '$app/navigation';
 
 	let {
 		rsvpStatus = Status.DEFAULT,
@@ -109,6 +107,43 @@
 			await updateRSVPForTempUser(newValue);
 		}
 		dropdownOpen = false;
+	};
+
+	const deleteAttendance = async (event: Event) => {
+		let attendance;
+
+		try {
+			const query = client
+				.query('attendees')
+				.where([
+					and([
+						['user_id', '=', userId],
+						['event_id', '=', eventId as string]
+					])
+				])
+				.select(['id'])
+				.build();
+			attendance = await client.fetchOne(query);
+		} catch (e) {
+			console.error(`failed to fetch attendance for event ${eventId} and user ${userId}:`, e);
+		}
+
+		if (!attendance) {
+			console.error(
+				`tried to delete attendance for event ${eventId} and user ${userId} but it does NOT exist`
+			);
+			return;
+		}
+		try {
+			await client.delete('attendees', attendance.id);
+			toast.success(
+				'This event has been unlinked from your account and removed from your dashboard.'
+			);
+		} catch (e) {
+			console.error(`failed to delete attendance for event ${eventId} and user ${userId}:`, e);
+		} finally {
+			goto('/dashboard');
+		}
 	};
 
 	const checkNameAvailability = debounce(async function () {
@@ -234,28 +269,65 @@
 				.build();
 			let attendance = await client.fetchOne(query);
 
-			if (!attendance) {
+			console.log('user_id ---+', userId);
+			console.log('event_id ---+', eventId);
+			console.log('attendance ---+', attendance);
+
+			if (!userId || !eventId) {
+				console.error(
+					`updateRSVPForLoggedInUser: userId (${userId}) or eventId (${eventId}) is missing and prevents update of RSVP status for logged in user`
+				);
 				return;
 			}
 
-			try {
-				// NOTE that we automatically create a RSVP status attendance object
-				// upon navigation to an event if the user does not have an attendance object for it.
-				attendance = await client.update('attendees', attendance.id, async (entity) => {
-					entity.status = newValue;
-				});
-			} catch (e) {
-				console.log('failed to create attendance notifiations:', newValue, e);
+			let attendanceId = attendance?.id;
+			if (!attendance) {
+				try {
+					const { output } = await client.insert('attendees', {
+						event_id: eventId,
+						user_id: userId,
+						status: newValue
+					});
+					attendanceId = output?.id;
+				} catch (e) {
+					console.error(
+						`failed to create attendance for event ${eventId} and user ${userId}:`,
+						newValue,
+						e
+					);
+				}
+			} else {
+				try {
+					attendance = await client.update('attendees', attendance.id, async (entity) => {
+						entity.status = newValue;
+					});
+				} catch (e) {
+					console.error('failed to update attendance:', newValue, e);
+				}
 			}
 
+			// TODO: this is a hack because when putting a going status, the attendee list does not update correctly,
+			// not returning all attendees. Just reloading as that fixes the issue, though not ideal.
+			let reload = false;
+			if (rsvpStatus == Status.DEFAULT) {
+				reload = true;
+			}
 			rsvpStatus = newValue; // Update the label
 
 			if (NOTIFY_OF_ATTENDING_STATUS_CHANGE.includes(rsvpStatus)) {
-				await createNewAttendanceNotificationQueueObject(client, userId, eventId, [attendance.id]);
+				try {
+					await createNewAttendanceNotificationQueueObject(client, userId, eventId, [attendanceId]);
+				} catch (e) {
+					console.log('failed to create attendance notifications:', newValue, e);
+				}
 			}
 
 			// Perform any additional actions, e.g., API call to save the new RSVP status
 			console.log('RSVP updated to:', newValue);
+
+			if (reload) {
+				window.location.reload();
+			}
 		} catch (error) {
 			console.log('failed to update RSVP status to:', newValue, error);
 		}
@@ -306,6 +378,14 @@
 					>
 						<Frown /> Not going
 					</DropdownMenu.Item>
+					{#if rsvpStatus != Status.DEFAULT}
+						<DropdownMenu.Item
+							class={rsvpStatus === Status.NOT_GOING ? '' : ''}
+							onclick={(event) => deleteAttendance(event)}
+						>
+							<LogOut /> Leave event
+						</DropdownMenu.Item>
+					{/if}
 				</DropdownMenu.Group>
 			</DropdownMenu.Content>
 		</DropdownMenu.Root>
