@@ -35,13 +35,34 @@
 	const url = $page.url;
 	tempAttendeeSecret = url.searchParams.get(tempAttendeeSecretParam);
 
+	if ($page.data.event) {
+		styleStore.set($page.data.event.style ?? '');
+		overlayColorStore.set($page.data.event.overlay_color ?? '');
+		overlayOpacityStore.set($page.data.event.overlay_opacity ?? '');
+	} else {
+		styleStore.set(`
+    --background-color: #e5e5f7;
+    --primary-color: #444cf7;
+    --circle-size: 15px; /* Size of the repeating radial pattern */
+    --opacity-level: 1;
+    background-color: var(--background-color);
+    opacity: var(--opacity-level);
+    background-image: 
+        radial-gradient(circle at center center, var(--primary-color), var(--background-color)),
+        repeating-radial-gradient(circle at center center, var(--primary-color), var(--primary-color), var(--circle-size), transparent calc(var(--circle-size) * 2), transparent var(--circle-size));
+    background-blend-mode: multiply;
+        `);
+		overlayColorStore.set('#000000');
+		overlayOpacityStore.set(0.2);
+	}
+
 	onMount(async () => {
 		if (tempAttendeeSecret) {
 			tempAttendeeSecretStore.set(tempAttendeeSecret);
 		} else {
 			tempAttendeeSecret = get(tempAttendeeSecretStore);
 		}
-		
+
 		if ($page.data.user || tempAttendeeSecret) {
 			// User is logged in
 			client = getFeTriplitClient($page.data.jwt);
@@ -52,17 +73,14 @@
 				.build();
 
 			styleData = await client.fetchOne(styleDataQuery);
-			styles = typeof styleData?.style === 'string' ? styleData.style : '';
-			overlayColor = styleData?.overlay_color ?? '#000000';
-			overlayOpacity = styleData?.overlay_opacity ?? 0.5;
-			styleStore.set(styleData?.style || '');
-			overlayColorStore.set(overlayColor);
-			overlayOpacityStore.set(overlayOpacity);
-		} else {
-			// If user is not logged in, it's the responsibility of BE to return the proper event object for anonymous and unverified users
-			styles = $page.data.event.style ?? '';
-			overlayColor = $page.data.event?.overlay_color ?? '#000000';
-			overlayOpacity = $page.data.event?.overlay_opacity ?? 0.5;
+			if (styleData) {
+				styles = typeof styleData?.style ?? '';
+				overlayColor = styleData?.overlay_color ?? '#000000';
+				overlayOpacity = styleData?.overlay_opacity ?? 0.5;
+				styleStore.set(styleData?.style || '');
+				overlayColorStore.set(overlayColor);
+				overlayOpacityStore.set(overlayOpacity);
+			}
 		}
 
 		console.log('styles', styles);

@@ -46,11 +46,6 @@
 	let fileCount = $state(0);
 	let rsvpStatus = $state('');
 
-	// Set the styles from BE object, especially important for anon users
-	styleStore.set($page.data.event.style);
-	overlayColorStore.set($page.data.event.overlay_color);
-	overlayOpacityStore.set($page.data.event.overlay_opacity);
-
 	const tempAttendeeId = $page.data.tempAttendeeId;
 	let isUnverifiedUser = $derived(!!tempAttendeeId);
 
@@ -64,9 +59,9 @@
 		}
 	});
 
-	$effect(()=>{
-		console.log("==== rsvpStatus", rsvpStatus)
-	})
+	$effect(() => {
+		console.log('==== rsvpStatus', rsvpStatus);
+	});
 
 	if (tempAttendeeId) {
 		tempAttendeeSecretStore.set(tempAttendeeId);
@@ -351,8 +346,6 @@
 				console.error('Error fetching attendees:', error);
 			}
 		);
-
-		
 
 		const unsubscribeFromFilesQuery = client.subscribe(
 			client
