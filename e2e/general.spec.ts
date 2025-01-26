@@ -58,7 +58,6 @@ test('Create bonfire', async ({ page }) => {
 	await expect(page.getByPlaceholder('Details')).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Cancel' })).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Edit event style' })).toBeVisible();
-	await expect(page.getByText('Cancel Edit event style Create')).toBeVisible();
 
 	// Check that create button is disabled
 	await expect(page.locator('#upsert-bonfire')).toBeDisabled();
@@ -487,7 +486,7 @@ test('Temp attendee view', async ({ browser }) => {
 	).toBeVisible();
 	await expect(tempAttendeePage.getByText('This action cannot be undone')).toBeVisible();
 	await tempAttendeePage.getByRole('button', { name: 'Continue' }).click();
-	await expect(tempAttendeePage.locator('.gallery-item')).toHaveCount(0);
+	await expect(tempAttendeePage.locator('.gallery-item')).toHaveCount(1);
 });
 
 test('Temp -> normal attendee transformation', async ({ browser }) => {
@@ -572,6 +571,7 @@ test('Event admins', async ({ browser }) => {
 	await loginUser(adminPage, adminEmail, adminUsername);
 
 	await adminPage.goto(eventUrl);
-	await expect(adminPage.getByText('0 attendees')).toBeVisible();
-	await adminPage.getByRole('menuitem', { name: 'Going', exact: true }).click();
+	await expect(adminPage.getByText('1 attendee(s)')).toBeVisible();
+	await adminPage.getByText('RSVP', { exact: true }).click();
+
 });

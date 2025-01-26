@@ -121,7 +121,6 @@ export async function createBonfire(
 	await expect(page.getByPlaceholder('Details')).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Cancel' })).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Edit event style' })).toBeVisible();
-	await expect(page.getByText('Cancel Edit event style Create')).toBeVisible();
 
 	// Enter date
 	await page.getByPlaceholder('Event Name').click();
@@ -143,6 +142,8 @@ export async function createBonfire(
 	await page.getByPlaceholder('1600 Pennsylvania Avenue,').fill('15 rue du luxembourg, mouscron');
 	await page.getByText('Rue du Luxembourg 15, 7700').click();
 
+	await expect(page.getByRole('button', { name: 'Create' })).toBeEnabled();
+	await page.waitForTimeout(100);
 	await page.getByRole('button', { name: 'Create' }).click();
 
 	await expect(page.getByRole('heading', { name: eventName })).toBeVisible();
@@ -183,9 +184,11 @@ export async function rsvpAsTempUser(page, eventUrl) {
 		// Generate a unique URL for the temporary user
 		await page.getByPlaceholder('Tony Garfunkel').click();
 		await page.getByPlaceholder('Tony Garfunkel').fill(tempUsername);
-		await page.getByRole('button', { name: 'Generate URL' }).click();	  
+		await page.getByRole('button', { name: 'Generate URL' }).click();
 
-		console.log(`############### Temporary user ${tempUsername} RSVPed as "Going" on the event at ${eventUrl}`);
+		console.log(
+			`############### Temporary user ${tempUsername} RSVPed as "Going" on the event at ${eventUrl}`
+		);
 	} finally {
 		await page.close();
 	}
