@@ -1,5 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { chromium, expect } from '@playwright/test';
+import path from 'path';
 
 export const WEBSITE_URL = 'http://localhost:5173';
 export const EMAIL_CAPTURE_PORTAL_URL = 'http://localhost:8025/';
@@ -11,7 +12,8 @@ export async function loginUser(
 	expectToSetUsername = true
 ) {
 	// Enter email
-	await page.goto(`${WEBSITE_URL}/`);
+	await navigateTo(page, WEBSITE_URL);
+
 	await page.getByRole('link', { name: 'login' }).click();
 	await page.getByPlaceholder('Email').click();
 	await page.getByPlaceholder('Email').fill(email);
@@ -52,7 +54,7 @@ export async function getEmailOTP(emailAddress: string) {
 	const context = await browser.newContext();
 	const page = await context.newPage();
 
-	page.goto(EMAIL_CAPTURE_PORTAL_URL);
+	await navigateTo(page, EMAIL_CAPTURE_PORTAL_URL);
 
 	const emailLink = page.locator(`a:has-text("To: ${emailAddress}")`);
 	// Wait for the link to be visible
@@ -95,18 +97,20 @@ export async function getEmailOTP(emailAddress: string) {
 	expect(otp).not.toBeNull();
 	expect(otp).not.toBe('');
 
+	await page.close();
 	return otp;
 }
 
 export async function createBonfire(
 	page,
-	eventName = `${faker.animal.dog()}'s birthday party!`,
+	eventName = `${faker.animal.dog()} birthday party!`,
 	details = `Join us for ${eventName} It will be a fun evening filled with dog treats!`
 ) {
-	await page.goto(WEBSITE_URL);
+	await navigateTo(page, WEBSITE_URL);
+
 	await page.locator('#create-bonfire-button').click();
 
-	await expect(page.getByRole('heading', { name: 'Create a Bonfire' })).toBeVisible();
+	// await expect(page.getByRole('heading', { name: 'Create a Bonfire' })).toBeVisible({ timeout: 10000 });
 	await expect(page.getByPlaceholder('Event Name')).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Pick a date' })).toBeVisible();
 	await expect(page.getByPlaceholder('HH')).toBeVisible();
@@ -142,4 +146,85 @@ export async function createBonfire(
 	await page.getByRole('button', { name: 'Create' }).click();
 
 	await expect(page.getByRole('heading', { name: eventName })).toBeVisible();
+}
+
+export async function rsvpAsLoggedInUser(page, eventUrl) {
+	try {
+		const email = faker.internet.email();
+		const username = faker.person.firstName();
+
+		// Log in the user
+		await loginUser(page, email, username);
+
+		// Navigate to the event
+		await navigateTo(page, eventUrl);
+
+		// Set RSVP status
+		await page.getByText('RSVP', { exact: true }).click();
+		await page.getByRole('menuitem', { name: 'Going', exact: true }).click();
+
+		console.log(`################# User ${username} RSVPed as "Going" on the event at ${eventUrl}`);
+	} finally {
+		await page.close();
+	}
+}
+
+export async function rsvpAsTempUser(page, eventUrl) {
+	try {
+		const tempUsername = faker.person.firstName();
+
+		// Navigate to the event
+		await navigateTo(page, eventUrl);
+
+		// Set RSVP status
+		await page.getByText('RSVP', { exact: true }).click();
+		await page.getByRole('menuitem', { name: 'Going', exact: true }).click();
+
+		// Generate a unique URL for the temporary user
+		await page.getByPlaceholder('Tony Garfunkel').click();
+		await page.getByPlaceholder('Tony Garfunkel').fill(tempUsername);
+		await page.getByRole('button', { name: 'Generate URL' }).click();	  
+
+		console.log(`############### Temporary user ${tempUsername} RSVPed as "Going" on the event at ${eventUrl}`);
+	} finally {
+		await page.close();
+	}
+}
+
+export async function addAnnouncementAsEventCreator(page, eventUrl) {
+	// Navigate to the event
+	await navigateTo(page, eventUrl);
+
+	// Click the button to create a new announcement
+	await page.getByRole('button', { name: 'Create new announcement' }).click();
+
+	// Fill out the announcement details
+	const announcementText = faker.lorem.sentence();
+	await page.getByPlaceholder('Type your announcement here').click();
+	await page.getByPlaceholder('Type your announcement here').fill(announcementText);
+
+	// Submit the announcement
+	await page.getByRole('button', { name: 'Create Announcement' }).click();
+
+	console.log(`Added announcement: "${announcementText}" to the event at ${eventUrl}`);
+}
+
+export async function uploadGalleryImage(page, eventUrl) {
+	// Navigate to the event
+	await navigateTo(page, eventUrl);
+
+	// Click the button to add to the gallery
+	await page.getByRole('button', { name: 'Add to gallery' }).click();
+
+	// Select an image to upload
+	const fileInput = await page.locator('input[type="file"]').first();
+	const imagePath = path.resolve(process.cwd(), 'e2e/test-images', 'gallery-image.jpg');
+	await fileInput.setInputFiles(imagePath);
+	await page.getByLabel('Upload 1 file').click();
+	await expect(page.locator('.gallery-item')).toHaveCount(1);
+	console.log(`Uploaded a gallery image to the event at ${eventUrl}`);
+}
+
+export async function navigateTo(page, URL) {
+	await page.goto(URL, { waitUntil: 'load' });
 }

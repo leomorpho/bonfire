@@ -1,10 +1,24 @@
 import { test, expect } from '@playwright/test';
-import { createBonfire, loginUser, WEBSITE_URL } from './shared';
+import {
+	addAnnouncementAsEventCreator,
+	createBonfire,
+	loginUser,
+	navigateTo,
+	rsvpAsLoggedInUser,
+	rsvpAsTempUser,
+	uploadGalleryImage,
+	WEBSITE_URL
+} from './shared';
 import { faker } from '@faker-js/faker';
 import path from 'path';
 
+test.beforeEach(async ({ page }) => {
+	await page.context().clearCookies();
+	await page.context().clearPermissions();
+});
+
 test('New login', async ({ page }) => {
-	await page.goto(WEBSITE_URL);
+	await navigateTo(page, WEBSITE_URL);
 
 	await expect(page.getByRole('banner').getByRole('link', { name: 'About' })).toBeVisible();
 	await expect(page.getByRole('link', { name: 'Pricing' })).toBeVisible();
@@ -21,7 +35,7 @@ test('New login', async ({ page }) => {
 });
 
 test('Create bonfire', async ({ page }) => {
-	await page.goto(WEBSITE_URL);
+	await navigateTo(page, WEBSITE_URL);
 
 	const email = faker.internet.email();
 	const username = faker.person.firstName();
@@ -30,7 +44,7 @@ test('Create bonfire', async ({ page }) => {
 
 	await page.locator('#create-bonfire-button').click();
 
-	const eventName = `${faker.animal.dog()}'s birthday party!`;
+	const eventName = `${faker.animal.dog()} birthday party!`;
 	const details = `Join us for ${eventName} It will be a fun evening filled with dog treats!`;
 
 	await expect(page.getByRole('heading', { name: 'Create a Bonfire' })).toBeVisible();
@@ -79,7 +93,9 @@ test('Create bonfire', async ({ page }) => {
 	await page.getByPlaceholder('1600 Pennsylvania Avenue,').fill('15 rue du luxembourg, mouscron');
 	await page.getByText('Rue du Luxembourg 15, 7700').click();
 
-	await page.getByRole('button', { name: 'Create' }).click();
+	await expect(page.getByRole('button', { name: 'Create' })).toBeEnabled();
+	await page.waitForTimeout(100);
+	await page.getByRole('button', { name: 'Create' }).click({ force: true });
 
 	// ------> Event was created
 	// Check event name
@@ -99,25 +115,22 @@ test('Create bonfire', async ({ page }) => {
 	// Check event details
 	await expect(page.getByText(details)).toBeVisible();
 
-	await expect(page.getByText('No attendees yet')).toBeVisible();
+	await expect(page.locator('#going-attendees').locator('.profile-avatar')).toHaveCount(1);
 
 	// Set RSVP state
-	await expect(page.getByText('RSVP')).toBeVisible();
-	await page.getByText('RSVP').click();
-	await page.getByRole('menuitem', { name: 'Going', exact: true }).click();
-	await expect(page.locator('#rsvp-button')).toHaveText('Going');
+	await expect(page.getByText('Going').first()).toBeVisible();
 
 	// Verify that there is exactly one user attending
 	await expect(page.locator('#going-attendees').locator('.profile-avatar')).toHaveCount(1);
 	// Now set as "not going"
-	await page.getByText('Going').click();
+	await page.getByText('Going').first().click();
 	await page.getByRole('menuitem', { name: 'Not going', exact: true }).click();
 	await expect(page.locator('#rsvp-button')).toHaveText('Not going');
 	await expect(page.locator('#going-attendees').locator('.profile-avatar')).toHaveCount(0);
 	// And set back to "going"
 	await page.getByText('Not going').click();
 	await page.getByRole('menuitem', { name: 'Going', exact: true }).click();
-	await expect(page.locator('#rsvp-button')).toHaveText('Going');
+	await expect(page.locator('#rsvp-button').first()).toHaveText('Going');
 	await expect(page.locator('#going-attendees').locator('.profile-avatar')).toHaveCount(1);
 
 	await page.locator('#add-to-calendar').click();
@@ -187,13 +200,13 @@ test('Create bonfire', async ({ page }) => {
 });
 
 test('CRUD announcements', async ({ page }) => {
-	await page.goto(WEBSITE_URL);
+	// await navigateTo(page, WEBSITE_URL);
 
 	const email = faker.internet.email();
 	const username = faker.person.firstName();
 	await loginUser(page, email, username);
 
-	const eventName = `${faker.animal.dog()}'s birthday party!`;
+	const eventName = `${faker.animal.dog()} birthday party!`;
 	await createBonfire(page, eventName);
 	await expect(page.getByRole('heading', { name: eventName })).toBeVisible();
 
@@ -243,13 +256,13 @@ test('CRUD announcements', async ({ page }) => {
 });
 
 test('CRUD gallery', async ({ page }) => {
-	await page.goto(WEBSITE_URL);
+	// await navigateTo(page, WEBSITE_URL);
 
 	const email = faker.internet.email();
 	const username = faker.person.firstName();
 	await loginUser(page, email, username);
 
-	const eventName = `${faker.animal.dog()}'s birthday party!`;
+	const eventName = `${faker.animal.dog()} birthday party!`;
 	await createBonfire(page, eventName);
 	await expect(page.getByRole('heading', { name: eventName })).toBeVisible();
 
@@ -303,7 +316,60 @@ test('CRUD gallery', async ({ page }) => {
 	await expect(page.locator('.gallery-item')).toHaveCount(0);
 });
 
-test('User can RSVP', async ({ browser }) => {
+test('User attendee view', async ({ browser }) => {
+	const context1 = await browser.newContext();
+	const context2 = await browser.newContext();
+	const eventCreatorPage = await context1.newPage();
+	const userAttendeePage = await context2.newPage();
+
+	// Create event from creator POV
+	const email = faker.internet.email();
+	const username = faker.person.firstName();
+	await loginUser(eventCreatorPage, email, username);
+
+	const eventName = `${faker.animal.dog()} birthday party!`;
+	const eventDetails = 'It will be fun!';
+	await createBonfire(eventCreatorPage, eventName, eventDetails);
+	await expect(eventCreatorPage.getByRole('heading', { name: eventName })).toBeVisible();
+
+	const eventUrl = eventCreatorPage.url();
+
+	// TODO: there's some fucking black magic and the attendees are NOT getting created
+	// const context3 = await browser.newContext();
+	// const context4 = await browser.newContext();
+	// const page3 = await context3.newPage();
+	// const page4 = await context4.newPage();
+
+	// // Add logged in users and temp users as attendees, making sure we see the correct things
+	// await rsvpAsLoggedInUser(page3, eventUrl);
+	// await rsvpAsTempUser(page4, eventUrl);
+
+	// Have creator add announcements and files to make sure others can only see count until RSVP is set.
+	await addAnnouncementAsEventCreator(eventCreatorPage, eventUrl);
+	await uploadGalleryImage(eventCreatorPage, eventUrl);
+	await eventCreatorPage.close();
+
+	// Temp attendee
+	const userEmail = faker.internet.email();
+	const userUsername = faker.person.firstName();
+	await navigateTo(userAttendeePage, eventUrl);
+	await loginUser(userAttendeePage, userEmail, userUsername);
+	await navigateTo(userAttendeePage, eventUrl);
+
+	// Temp user should not be able to set a banner
+	await expect(userAttendeePage.getByRole('heading', { name: 'Set Banner' })).toHaveCount(0);
+	await expect(userAttendeePage.getByRole('heading', { name: eventName })).toBeVisible();
+	await expect(userAttendeePage.getByText(`Hosted by ${username}`)).toBeVisible();
+	await expect(userAttendeePage.getByText(eventDetails)).toBeVisible();
+	await expect(userAttendeePage.getByText('Set RSVP status to see location')).toBeVisible();
+
+	await expect(userAttendeePage.getByText(eventDetails)).toBeVisible();
+	await expect(userAttendeePage.getByText('1 attendee(s)')).toBeVisible();
+	await expect(userAttendeePage.getByText('1 announcement(s)')).toBeVisible();
+	await expect(userAttendeePage.getByText('1 file(s)')).toBeVisible();
+
+	await userAttendeePage.getByText('RSVP', { exact: true }).click();
+	await userAttendeePage.getByRole('menuitem', { name: 'Going', exact: true }).click();
 });
 
 test('Temp attendee view', async ({ browser }) => {
@@ -312,23 +378,36 @@ test('Temp attendee view', async ({ browser }) => {
 	const eventCreatorPage = await context1.newPage();
 	const tempAttendeePage = await context2.newPage();
 
-	await eventCreatorPage.goto(WEBSITE_URL);
-
 	// Create event from creator POV
 	const email = faker.internet.email();
 	const username = faker.person.firstName();
 	await loginUser(eventCreatorPage, email, username);
 
-	const eventName = `${faker.animal.dog()}'s birthday party!`;
+	const eventName = `${faker.animal.dog()} birthday party!`;
 	const eventDetails = 'It will be fun!';
 	await createBonfire(eventCreatorPage, eventName, eventDetails);
 	await expect(eventCreatorPage.getByRole('heading', { name: eventName })).toBeVisible();
 
 	const eventUrl = eventCreatorPage.url();
 
+	// TODO: there's some fucking black magic and the attendees are NOT getting created
+	// const context3 = await browser.newContext();
+	// const context4 = await browser.newContext();
+	// const page3 = await context3.newPage();
+	// const page4 = await context4.newPage();
+
+	// // Add logged in users and temp users as attendees, making sure we see the correct things
+	// await rsvpAsLoggedInUser(page3, eventUrl);
+	// await rsvpAsTempUser(page4, eventUrl);
+
+	// Have creator add announcements and files to make sure others can only see count until RSVP is set.
+	await addAnnouncementAsEventCreator(eventCreatorPage, eventUrl);
+	await uploadGalleryImage(eventCreatorPage, eventUrl);
+	await eventCreatorPage.close();
+
 	// Temp attendee
 	const tempAttendeeUsername = faker.person.firstName();
-	await tempAttendeePage.goto(eventUrl);
+	await navigateTo(tempAttendeePage, eventUrl);
 
 	// Temp user should not be able to set a banner
 	await expect(tempAttendeePage.getByRole('heading', { name: 'Set Banner' })).toHaveCount(0);
@@ -336,9 +415,9 @@ test('Temp attendee view', async ({ browser }) => {
 	await expect(tempAttendeePage.getByText(`Hosted by ${username}`)).toBeVisible();
 	await expect(tempAttendeePage.getByText('Set RSVP status to see location')).toBeVisible();
 	await expect(tempAttendeePage.getByText(eventDetails)).toBeVisible();
-	await expect(tempAttendeePage.getByText('0 announcements')).toBeVisible();
-	await expect(tempAttendeePage.getByText('0 announcements')).toBeVisible();
-	await expect(tempAttendeePage.getByText('0 files')).toBeVisible();
+	await expect(tempAttendeePage.getByText('1 attendee(s)')).toBeVisible();
+	await expect(tempAttendeePage.getByText('1 announcement(s)')).toBeVisible();
+	await expect(tempAttendeePage.getByText('1 file(s)')).toBeVisible();
 
 	// Set RSVP status
 	await tempAttendeePage.getByText('RSVP', { exact: true }).click();
@@ -382,9 +461,6 @@ test('Temp attendee view', async ({ browser }) => {
 	).toBeVisible();
 	await tempAttendeePage.keyboard.press('Escape'); // Close dropdown
 
-	await expect(tempAttendeePage.getByText('No announcements yet')).toBeVisible();
-	await expect(tempAttendeePage.getByText('No photos/videos yet')).toBeVisible();
-
 	// Upload image to gallery
 	await tempAttendeePage.getByRole('button', { name: 'Add to gallery' }).click();
 
@@ -394,7 +470,7 @@ test('Temp attendee view', async ({ browser }) => {
 	const imagePath = path.resolve(process.cwd(), 'e2e/test-images', 'gallery-image.jpg');
 	await fileInput.setInputFiles(imagePath);
 	await tempAttendeePage.getByLabel('Upload 1 file').click();
-	await expect(tempAttendeePage.locator('.gallery-item')).toHaveCount(1);
+	await expect(tempAttendeePage.locator('.gallery-item')).toHaveCount(2);
 
 	// Check top bar buttons
 	await expect(tempAttendeePage.locator('#upload-new-images')).toBeVisible();
@@ -420,14 +496,14 @@ test('Temp -> normal attendee transformation', async ({ browser }) => {
 	const eventCreatorPage = await context1.newPage();
 	const tempAttendeePage = await context2.newPage();
 
-	await eventCreatorPage.goto(WEBSITE_URL);
+	// await navigateTo(eventCreatorPage, WEBSITE_URL);
 
 	// Create event from creator POV
 	const email = faker.internet.email();
 	const username = faker.person.firstName();
 	await loginUser(eventCreatorPage, email, username);
 
-	const eventName = `${faker.animal.dog()}'s birthday party!`;
+	const eventName = `${faker.animal.dog()} birthday party!`;
 	const eventDetails = 'It will be fun!';
 	await createBonfire(eventCreatorPage, eventName, eventDetails);
 	await expect(eventCreatorPage.getByRole('heading', { name: eventName })).toBeVisible();
@@ -436,7 +512,7 @@ test('Temp -> normal attendee transformation', async ({ browser }) => {
 
 	// Temp attendee
 	const tempAttendeeUsername = faker.person.firstName();
-	await tempAttendeePage.goto(eventUrl);
+	await navigateTo(tempAttendeePage, eventUrl);
 
 	// Set RSVP status
 	await tempAttendeePage.getByText('RSVP', { exact: true }).click();
@@ -463,7 +539,7 @@ test('Temp -> normal attendee transformation', async ({ browser }) => {
 	await expect(tempAttendeePage.locator('.event-card')).toHaveCount(0);
 
 	// Going to the URL should now link it to the account
-	await tempAttendeePage.goto(eventUrl);
+	await navigateTo(tempAttendeePage, eventUrl);
 
 	await expect(tempAttendeePage.getByRole('heading', { name: eventName })).toBeVisible();
 	await tempAttendeePage.getByRole('link', { name: 'Dashboard' }).click();

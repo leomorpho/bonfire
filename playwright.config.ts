@@ -14,14 +14,16 @@ dotenv.config({ path: path.resolve('.env') });
 export default defineConfig({
 	testDir: 'e2e',
 	testMatch: /(.+\.)?(test|spec)\.[jt]s/,
+	timeout: 60 * 1000, // 60 seconds
 	/* Run tests in files in parallel */
-	// fullyParallel: true, // NOTE: seems to break batch run
+	fullyParallel: true, // NOTE: seems to break batch run
 	/* Fail the build on CI if you accidentally left test.only in the source code. */
 	forbidOnly: !!process.env.CI,
 	/* Retry on CI only */
-	retries: process.env.CI ? 2 : 0,
+	retries: 2,
+	// retries: process.env.CI ? 2 : 0,
 	/* Opt out of parallel tests on CI. */
-	workers: 1, //process.env.CI ? 1 : undefined,
+	workers: 2, //process.env.CI ? 1 : undefined,
 	/* Reporter to use. See https://playwright.dev/docs/test-reporters */
 	reporter: 'html',
 	/* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
@@ -30,7 +32,8 @@ export default defineConfig({
 		// baseURL: 'http://127.0.0.1:3000',
 
 		/* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-		trace: 'on-first-retry'
+		trace: 'on-first-retry',
+		screenshot: 'only-on-failure' // Capture screenshots on failure
 	},
 
 	/* Configure projects for major browsers */

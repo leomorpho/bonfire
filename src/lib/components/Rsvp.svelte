@@ -231,7 +231,7 @@
 
 		try {
 			// Call the SvelteKit endpoint to update RSVP
-			const response = await fetch(`bonfire/${eventId}/temp/update-rsvp`, {
+			const response = await fetch(`/bonfire/${eventId}/temp/update-rsvp?${tempAttendeeSecretParam}=${tempAttendeeSecret}`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'

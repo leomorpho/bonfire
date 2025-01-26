@@ -82,6 +82,7 @@
 			announcementsQuery.build(),
 			(results, info) => {
 				announcementsSubset = results;
+				// console.log('announcementsSubset ====>', announcementsSubset);
 				notificationsLoading = false;
 			},
 			(error) => {

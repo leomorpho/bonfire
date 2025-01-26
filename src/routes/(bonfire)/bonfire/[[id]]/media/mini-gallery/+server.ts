@@ -1,7 +1,8 @@
-import { error, json } from '@sveltejs/kit';
+import { json } from '@sveltejs/kit';
 import { triplitHttpClient } from '$lib/server/triplit';
 import { generateSignedUrl } from '$lib/filestorage';
 import { MAX_NUM_IMAGES_IN_MINI_GALLERY, tempAttendeeSecretParam } from '$lib/enums';
+import { and } from '@triplit/client';
 
 export const GET = async ({ locals, url, params }) => {
 	// Extract eventId from URL params
@@ -19,7 +20,12 @@ export const GET = async ({ locals, url, params }) => {
 			const existingAttendee = await triplitHttpClient.fetchOne(
 				triplitHttpClient
 					.query('temporary_attendees')
-					.where(['secret_mapping.id', '=', tempAttendeeSecret])
+					.where(
+						and([
+							['secret_mapping.id', '=', tempAttendeeSecret],
+							['event_id', '=', id]
+						])
+					)
 					.build()
 			);
 			if (existingAttendee) {
@@ -32,7 +38,28 @@ export const GET = async ({ locals, url, params }) => {
 
 	const user = locals.user;
 	if ((!user || !user.id) && !tempAttendeeExists) {
-		throw error(401, 'Unauthorized'); // Return 401 if user is not logged in
+		return json({});
+	}
+
+	try {
+		if (user) {
+			const attendance = await triplitHttpClient.fetchOne(
+				triplitHttpClient
+					.query('attendees')
+					.where([
+						and([
+							['user_id', '=', user?.id],
+							['event_id', '=', id]
+						])
+					])
+					.build()
+			);
+			if (!attendance) {
+				return json({}); // Not authorized to get any data
+			}
+		}
+	} catch (e) {
+		console.error('failed to fetch attendance object', e);
 	}
 
 	try {

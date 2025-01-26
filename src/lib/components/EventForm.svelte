@@ -76,11 +76,10 @@
 
 	let currentEventEditingMode = $state(editingMainEvent);
 	let cancelUrl = $state(event && event.id ? `/bonfire/${event.id}` : '/');
-
 	let timezone = $state({});
-
 	let setEndTime = $state(false);
-	let submitDisabled = $state(true);
+	let submitDisabled = $derived(!(dateValue && eventName.length > 0 && startHour.length > 0));
+	let isEventSaving = $state(false);
 
 	if (event) {
 		const startTime = parseDateTime(event.start_time);
@@ -90,9 +89,10 @@
 		dateValue = startTime.dateValue;
 
 		if (event.end_time) {
-			endHour = startTime.hour;
-			endMinute = startTime.minute;
-			ampmEnd = startTime.ampm;
+			const endTime = parseDateTime(event.end_time);
+			endHour = endTime.hour;
+			endMinute = endTime.minute;
+			ampmEnd = endTime.ampm;
 			setEndTime = true;
 		}
 	}
@@ -128,12 +128,6 @@
 	}
 
 	$effect(() => {
-		if (dateValue && eventName && startHour) {
-			submitDisabled = false;
-		}
-	});
-
-	$effect(() => {
 		console.log(
 			'submitDisabled',
 			submitDisabled,
@@ -148,6 +142,7 @@
 
 	const handleSubmit = async (e: Event) => {
 		try {
+			isEventSaving = true;
 			e.preventDefault();
 
 			// Ensure basic validation
@@ -253,6 +248,8 @@
 				`failed to ${mode === EventFormType.CREATE ? EventFormType.CREATE : EventFormType.UPDATE} event`,
 				e
 			);
+		} finally {
+			isEventSaving = false;
 		}
 	};
 
@@ -327,6 +324,9 @@
 						<Button
 							onclick={() => {
 								setEndTime = false;
+								endHour = '';
+								endMinute = '';
+								ampmEnd = '';
 							}}
 							class="text-xs ring-glow"
 						>
@@ -353,16 +353,9 @@
 							</div>
 						</div>
 
-						<!-- Invisible Button for Spacing -->
-						<Button
-							onclick={() => {
-								setEndTime = false;
-							}}
-							class="invisible w-full text-xs sm:text-base"
-						>
-							<Minus class="ml-1 mr-1 h-4 w-4" />
-							to
-						</Button>
+						<!-- Toggle Button -->
+
+						<Button class="hidden text-xs ring-glow"></Button>
 					</div>
 				{/if}
 
@@ -397,9 +390,12 @@
 				id="upsert-bonfire"
 				disabled={submitDisabled}
 				type="submit"
-				class="sticky top-2 mt-2 w-full bg-green-500 ring-glow hover:bg-green-400"
+				class={`sticky top-2 mt-2 w-full ${submitDisabled ? 'bg-slate-400' : 'bg-green-500 hover:bg-green-400'} ring-glow`}
 				onclick={handleSubmit}
 			>
+				{#if isEventSaving}
+					<span class="loading loading-spinner loading-xs ml-2"> </span>
+				{/if}
 				{#if mode == EventFormType.CREATE}
 					<Plus class="ml-1 mr-1 h-4 w-4" />
 				{:else}

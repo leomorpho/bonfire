@@ -50,6 +50,7 @@
 		"eslint-config-prettier": "^9.1.0",
 		"eslint-plugin-svelte": "^2.46.0",
 		"globals": "^15.11.0",
+		"lefthook": "^1.10.10",
 		"lucide-svelte": "^0.453.0",
 		"mode-watcher": "^0.5.0",
 		"postcss": "^8.4.49",

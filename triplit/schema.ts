@@ -517,9 +517,11 @@ export const schema = {
 			user: {
 				read: {
 					filter: [
-						['user_id', '=', '$role.userId'], // User can read their own announcements
-						['event.attendees.user_id', '=', '$role.userId'], // Attendees can read event announcements
-						['event.event_admins.user_id', '=', '$role.userId'] // Event admins can read announcements
+						or([
+							['user_id', '=', '$role.userId'], // User can read their own announcements
+							['event.attendees.user_id', '=', '$role.userId'], // Attendees can read event announcements
+							['event.event_admins.user_id', '=', '$role.userId'] // Event admins can read announcements
+						])
 					]
 				},
 				insert: {

@@ -1,7 +1,7 @@
-import { goto } from '$app/navigation';
 import { tempAttendeeSecretParam } from '$lib/enums';
 import { generateSignedUrl } from '$lib/filestorage.js';
 import { triplitHttpClient } from '$lib/server/triplit';
+import { redirect } from '@sveltejs/kit';
 
 export const trailingSlash = 'always';
 
@@ -10,14 +10,14 @@ export const load = async ({ params, locals, url }) => {
 	const eventId = params.id; // Get the event ID from the route parameters
 
 	if (!eventId) {
-		goto('/dashboard');
+		redirect(302, '/dashboard');
 	}
 
 	// Get the user from locals
 	const user = locals.user;
 	console.log('logged in user', user);
 	let event = null;
-	let numAttendees = null;
+	let numAttendees = 0;
 	let numAnnouncements = null;
 	let numFiles = null;
 
@@ -59,6 +59,8 @@ export const load = async ({ params, locals, url }) => {
 			console.log(e);
 		}
 	}
+
+	let isUserAnAttendee = false;
 	try {
 		event = await triplitHttpClient.fetchOne(
 			triplitHttpClient
@@ -66,6 +68,7 @@ export const load = async ({ params, locals, url }) => {
 				.where(['id', '=', eventId as string])
 				.include('announcements')
 				.include('attendees')
+				.include('temporary_attendees')
 				.include('files')
 				.include('banner_media')
 				.subquery(
@@ -82,7 +85,19 @@ export const load = async ({ params, locals, url }) => {
 		if (event != null) {
 			// console.log('---> event', event);
 			if (event.attendees != null) {
-				numAttendees = event.attendees.length;
+				numAttendees += event.attendees.length;
+
+				// Check if the current user is among the attendees
+				isUserAnAttendee = event.attendees.some((attendee) => attendee.user_id === user?.id);
+			}
+			if (event.temporary_attendees != null) {
+				numAttendees += event.temporary_attendees.length;
+
+				if (!isUserAnAttendee) {
+					isUserAnAttendee = event.temporary_attendees.some(
+						(attendee) => attendee.user_id === user?.id
+					);
+				}
 			}
 			if (event.announcements != null) {
 				numAnnouncements = event.announcements.length;
@@ -119,6 +134,7 @@ export const load = async ({ params, locals, url }) => {
 		numAnnouncements,
 		numFiles,
 		tempAttendeeId,
-		bannerInfo
+		bannerInfo,
+		isUserAnAttendee
 	};
 };
