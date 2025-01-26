@@ -26,7 +26,7 @@ export const POST: RequestHandler = async ({ request }) => {
 
 		// Perform geocoding
 		const results = await searchLocation(address);
-		console.log('===>? res', results);
+		// console.log('===>? res', results);
 		if (!results || results.length === 0) {
 			return new Response(JSON.stringify({ error: 'No results found for the given address.' }), {
 				status: 404

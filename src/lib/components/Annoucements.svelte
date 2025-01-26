@@ -82,6 +82,7 @@
 			announcementsQuery.build(),
 			(results, info) => {
 				announcementsSubset = results;
+				// console.log('announcementsSubset ====>', announcementsSubset);
 				notificationsLoading = false;
 			},
 			(error) => {
@@ -110,7 +111,13 @@
 	<div class="space-y-3">
 		{#if totalCount > 0}
 			{#each announcementsSubset as announcement}
-				<Announcement {eventId} currUserId={userId} {announcement} {currentUserAttendeeId} {isUnverifiedUser} />
+				<Announcement
+					{eventId}
+					currUserId={userId}
+					{announcement}
+					{currentUserAttendeeId}
+					{isUnverifiedUser}
+				/>
 			{/each}
 			{#if totalCount > maxCount}
 				<Button class="mt-3 w-full ring-glow" onclick={getAllAnnouncements}

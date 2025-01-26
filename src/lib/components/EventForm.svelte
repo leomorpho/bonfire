@@ -63,7 +63,8 @@
 	let cancelUrl = $state(event && event.id ? `/bonfire/${event.id}` : '/');
 	let timezone = $state({});
 	let setEndTime = $state(false);
-	let submitDisabled = $state(true);
+	let submitDisabled = $derived(!(dateValue && eventName.length > 0 && startHour.length > 0));
+	let isEventSaving = $state(false);
 
 	if (event) {
 		const startTime = parseDateTime(event.start_time);
@@ -112,14 +113,6 @@
 	}
 
 	$effect(() => {
-		if (dateValue && eventName.length > 0 && startHour.length > 0) {
-			submitDisabled = false;
-		} else {
-			submitDisabled = true;
-		}
-	});
-
-	$effect(() => {
 		console.log(
 			'submitDisabled',
 			submitDisabled,
@@ -134,6 +127,7 @@
 
 	const handleSubmit = async (e: Event) => {
 		try {
+			isEventSaving = true;
 			e.preventDefault();
 
 			// Ensure basic validation
@@ -211,7 +205,7 @@
 					await client.insert('attendees', {
 						user_id: userId,
 						event_id: output.id as string,
-						status: Status.DEFAULT // Default status
+						status: Status.GOING // Default status
 					});
 					eventId = output.id;
 				} else {
@@ -236,6 +230,8 @@
 			goto(`/bonfire/${eventId}`);
 		} catch (e) {
 			console.log(`failed to ${mode === EventFormType.CREATE ? 'create' : 'update'} event`, e);
+		} finally {
+			isEventSaving = false;
 		}
 	};
 
@@ -378,9 +374,12 @@
 				id="upsert-bonfire"
 				disabled={submitDisabled}
 				type="submit"
-				class="sticky top-2 mt-2 w-full bg-green-500 ring-glow hover:bg-green-400"
+				class={`sticky top-2 mt-2 w-full ${submitDisabled ? 'bg-slate-400' : 'bg-green-500 hover:bg-green-400'} ring-glow`}
 				onclick={handleSubmit}
 			>
+				{#if isEventSaving}
+					<span class="loading loading-spinner loading-xs ml-2"> </span>
+				{/if}
 				{#if mode == 'create'}
 					<Plus class="ml-1 mr-1 h-4 w-4" />
 				{:else}

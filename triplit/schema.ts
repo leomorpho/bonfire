@@ -438,9 +438,11 @@ export const schema = {
 			user: {
 				read: {
 					filter: [
-						['user_id', '=', '$role.userId'], // User can read their own profile
-						// A user should be able to only query for files of events they are attending:
-						['event.attendees.user_id', '=', '$role.userId']
+						or([
+							['user_id', '=', '$role.userId'], // User can read their own profile
+							// A user should be able to only query for files of events they are attending:
+							['event.attendees.user_id', '=', '$role.userId']
+						])
 					]
 				},
 				insert: { filter: [['event.user_id', '=', '$role.userId']] },

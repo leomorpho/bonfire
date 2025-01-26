@@ -64,8 +64,9 @@
 		}
 	});
 
-	console.log('tempAttendeeId', tempAttendeeId);
-	console.log('tempAttendeeSecret', tempAttendeeSecret);
+	$effect(()=>{
+		console.log("==== rsvpStatus", rsvpStatus)
+	})
 
 	if (tempAttendeeId) {
 		tempAttendeeSecretStore.set(tempAttendeeId);
@@ -212,8 +213,30 @@
 	onMount(() => {
 		client = getFeTriplitClient($page.data.jwt) as TriplitClient;
 
-		if (isAnonymousUser) {
+		// TODO: below can be squashed into the above unsubscribeTempAttendeesQuery
+		let unsubscribeTemporaryUserQuery = null;
+		if (isUnverifiedUser) {
+			unsubscribeTemporaryUserQuery = client.subscribe(
+				client
+					.query('temporary_attendees')
+					.where([['id', '=', tempAttendeeId]])
+					.build(),
+				(results) => {
+					if (results.length == 1) {
+						tempAttendee = results[0];
+						rsvpStatus = tempAttendee?.status;
+					}
+				},
+				(error) => {
+					console.error('Error fetching current temporary attendee:', error);
+				}
+			);
+		}
+
+		if (isAnonymousUser || !$page.data.isUserAnAttendee) {
 			// If user is anonymous, load event data from page data. It will contain limited data.
+			// Also, if the user is logged in but is NOT YET attending, we don't want to pull live data
+			// since they won't have the permissions to.
 			event = $page.data.event;
 			eventLoading = false;
 			attendeesLoading = false;
@@ -288,6 +311,7 @@
 				attendeesGoing = results.filter((attendee) => attendee.status === Status.GOING);
 				attendeesNotGoing = results.filter((attendee) => attendee.status === Status.NOT_GOING);
 				attendeesMaybeGoing = results.filter((attendee) => attendee.status === Status.MAYBE);
+
 				// Fetch profile image map for attendees
 				const userIds = results.map((attendee) => attendee.user_id);
 				(async () => {
@@ -328,25 +352,7 @@
 			}
 		);
 
-		// TODO: below can be squashed into the above unsubscribeTempAttendeesQuery
-		let unsubscribeTemporaryUserQuery = null;
-		if (isUnverifiedUser) {
-			unsubscribeTemporaryUserQuery = client.subscribe(
-				client
-					.query('temporary_attendees')
-					.where([['id', '=', tempAttendeeId]])
-					.build(),
-				(results) => {
-					if (results.length == 1) {
-						tempAttendee = results[0];
-						rsvpStatus = tempAttendee?.status;
-					}
-				},
-				(error) => {
-					console.error('Error fetching temporary attendee:', error);
-				}
-			);
-		}
+		
 
 		const unsubscribeFromFilesQuery = client.subscribe(
 			client
@@ -483,7 +489,6 @@
 	{#if !event}
 		<EventDoesNotExist />
 	{:else}
-		{console.log('Showing event in UI')}
 		<div class="mx-4 flex flex-col items-center justify-center">
 			<section class="mt-8 w-full sm:w-[450px] md:w-[550px] lg:w-[650px]">
 				<!-- TODO: allow temp attendees to delete themselves -->
@@ -542,7 +547,7 @@
 						</a>
 					{/if}
 					<h1 class="mb-4 flex justify-center text-xl sm:text-2xl">
-						{isAnonymousUser ? $page.data.event.title : event.title}
+						{event.title}
 					</h1>
 					<div class="flex items-center justify-center font-medium">
 						<Calendar class="mr-2 h-4 w-4" />{formatHumanReadable(event.start_time)}
@@ -551,7 +556,7 @@
 					<div class="flex items-center justify-center font-light">
 						{#if event.organizer}
 							<UserRound class="mr-2 h-4 w-4" />Hosted by
-							{#if !isAnonymousUser}
+							{#if rsvpStatus}
 								<div class="ml-2">
 									<ProfileAvatar
 										url={profileImageMap.get(event.organizer['id'])?.small_image_url}
@@ -570,7 +575,7 @@
 
 					<div class="flex items-center justify-center font-light">
 						<MapPin class="mr-2 h-4 w-4" />
-						{#if !isAnonymousUser}
+						{#if rsvpStatus}
 							{#if event.location}<div class="flex items-center justify-center">
 									{#if latitude && longitude}
 										<ShareLocation lat={latitude} lon={longitude}>
@@ -610,115 +615,121 @@
 								<Skeleton class="size-12 rounded-full" />
 							{/each}
 						</div>
-					{:else if !isAnonymousUser && attendeesGoing.length > 0}
-						<div id="going-attendees" class="flex flex-wrap items-center -space-x-4">
-							{#each allAttendeesGoing.slice(0, showMaxNumPeople) as attendee}
-								<ProfileAvatar
-									url={profileImageMap.get(attendee.user_id)?.small_image_url}
-									fullsizeUrl={profileImageMap.get(attendee.user_id)?.full_image_url}
-									username={attendee.user?.username || attendee.name}
-									fallbackName={attendee.user?.username || attendee.name}
-									isTempUser={!!attendee.name}
-									lastUpdatedAt={attendee.updated_at}
-									viewerIsEventAdmin={currenUserIsEventAdmin}
-									attendanceId={attendee.id}
-								/>
-							{/each}
-							<Dialog.Root>
-								<Dialog.Trigger class="flex items-center"
-									>{#if allAttendeesGoing.length > showMaxNumPeople}
-										<div class="rounded-xl bg-white text-sm text-gray-500">
-											and {allAttendeesGoing.length - showMaxNumPeople} more
-										</div>
-									{/if}
-									<div class="flex h-12 w-12 items-center justify-center sm:h-14 sm:w-14">
-										<Plus class="ml-1 h-4 w-4 rounded-xl bg-white sm:h-5 sm:w-5" />
-									</div></Dialog.Trigger
-								>
-								<Dialog.Content class="h-full sm:h-[90vh]">
-									<ScrollArea>
-										<Dialog.Header>
-											<Dialog.Title class="flex w-full justify-center">Attendees</Dialog.Title>
-											<Dialog.Description>
-												<div class="mb-3 mt-5">
-													{#if allAttendeesGoing.length > 0}
-														{console.log('---> attendeesGoing', attendeesGoing)}
-														<h2 class="my-3 flex w-full justify-center font-semibold">Going</h2>
-														<div class="mx-5 flex flex-wrap -space-x-4 text-black">
-															{#each allAttendeesGoing as attendee}
-																<ProfileAvatar
-																	url={profileImageMap.get(attendee.user_id)?.small_image_url}
-																	fullsizeUrl={profileImageMap.get(attendee.user_id)
-																		?.full_image_url}
-																	username={attendee.user?.username || attendee.name}
-																	fallbackName={attendee.user?.username || attendee.name}
-																	isTempUser={!!attendee.name}
-																	lastUpdatedAt={attendee.updated_at}
-																	viewerIsEventAdmin={currenUserIsEventAdmin}
-																	attendanceId={attendee.id}
-																/>
-															{/each}
-														</div>
-													{/if}
-												</div>
-												<div class="mb-3 mt-5">
-													{#if allAttendeesMaybeGoing.length > 0}
-														<h2 class="my-3 flex w-full justify-center font-semibold">Maybe</h2>
-														<div class="mx-5 flex flex-wrap -space-x-4 text-black">
-															{#each allAttendeesMaybeGoing as attendee}
-																<ProfileAvatar
-																	url={profileImageMap.get(attendee.user_id)?.small_image_url}
-																	fullsizeUrl={profileImageMap.get(attendee.user_id)
-																		?.full_image_url}
-																	username={attendee.user?.username || attendee.name}
-																	fallbackName={attendee.user?.username || attendee.name}
-																	isTempUser={!!attendee.name}
-																	lastUpdatedAt={attendee.updated_at}
-																	viewerIsEventAdmin={currenUserIsEventAdmin}
-																	attendanceId={attendee.id}
-																/>
-															{/each}
-														</div>
-													{/if}
-												</div>
-												<div class="mb-3 mt-5">
-													{#if allAttendeesNotGoing.length > 0}
-														<h2 class="my-3 flex w-full justify-center font-semibold">Not Going</h2>
-														<div class="mx-5 flex flex-wrap -space-x-4 text-black">
-															{#each allAttendeesNotGoing as attendee}
-																<ProfileAvatar
-																	url={profileImageMap.get(attendee.user_id)?.small_image_url}
-																	fullsizeUrl={profileImageMap.get(attendee.user_id)
-																		?.full_image_url}
-																	username={attendee.user?.username || attendee.name}
-																	fallbackName={attendee.user?.username || attendee.name}
-																	isTempUser={!!attendee.name}
-																	lastUpdatedAt={attendee.updated_at}
-																	viewerIsEventAdmin={currenUserIsEventAdmin}
-																	attendanceId={attendee.id}
-																/>
-															{/each}
-														</div>
-													{/if}
-												</div>
-											</Dialog.Description>
-										</Dialog.Header>
-									</ScrollArea>
-								</Dialog.Content>
-							</Dialog.Root>
-						</div>
-					{:else if !isAnonymousUser && allAttendeesGoing.length == 0}
-						<div class="flex justify-center">
-							<div
-								class="flex w-full items-center justify-center rounded-lg bg-slate-500 bg-opacity-75 p-2 text-sm text-white ring-glow sm:w-2/3"
-							>
-								<Avatar.Root class="mr-2 h-12 w-12 border-2 border-white bg-white sm:h-14 sm:w-14">
-									<Avatar.Image src={'/icon-128.png'} alt={''} />
-									<Avatar.Fallback>{'BO'}</Avatar.Fallback>
-								</Avatar.Root> No attendees yet
+					{:else if rsvpStatus}
+						{#if attendeesGoing.length > 0}
+							<div id="going-attendees" class="flex flex-wrap items-center -space-x-4">
+								{#each allAttendeesGoing.slice(0, showMaxNumPeople) as attendee}
+									<ProfileAvatar
+										url={profileImageMap.get(attendee.user_id)?.small_image_url}
+										fullsizeUrl={profileImageMap.get(attendee.user_id)?.full_image_url}
+										username={attendee.user?.username || attendee.name}
+										fallbackName={attendee.user?.username || attendee.name}
+										isTempUser={!!attendee.name}
+										lastUpdatedAt={attendee.updated_at}
+										viewerIsEventAdmin={currenUserIsEventAdmin}
+										attendanceId={attendee.id}
+									/>
+								{/each}
+								<Dialog.Root>
+									<Dialog.Trigger class="flex items-center"
+										>{#if allAttendeesGoing.length > showMaxNumPeople}
+											<div class="rounded-xl bg-white text-sm text-gray-500">
+												and {allAttendeesGoing.length - showMaxNumPeople} more
+											</div>
+										{/if}
+										<div class="flex h-12 w-12 items-center justify-center sm:h-14 sm:w-14">
+											<Plus class="ml-1 h-4 w-4 rounded-xl bg-white sm:h-5 sm:w-5" />
+										</div></Dialog.Trigger
+									>
+									<Dialog.Content class="h-full sm:h-[90vh]">
+										<ScrollArea>
+											<Dialog.Header>
+												<Dialog.Title class="flex w-full justify-center">Attendees</Dialog.Title>
+												<Dialog.Description>
+													<div class="mb-3 mt-5">
+														{#if allAttendeesGoing.length > 0}
+															{console.log('---> attendeesGoing', attendeesGoing)}
+															<h2 class="my-3 flex w-full justify-center font-semibold">Going</h2>
+															<div class="mx-5 flex flex-wrap -space-x-4 text-black">
+																{#each allAttendeesGoing as attendee}
+																	<ProfileAvatar
+																		url={profileImageMap.get(attendee.user_id)?.small_image_url}
+																		fullsizeUrl={profileImageMap.get(attendee.user_id)
+																			?.full_image_url}
+																		username={attendee.user?.username || attendee.name}
+																		fallbackName={attendee.user?.username || attendee.name}
+																		isTempUser={!!attendee.name}
+																		lastUpdatedAt={attendee.updated_at}
+																		viewerIsEventAdmin={currenUserIsEventAdmin}
+																		attendanceId={attendee.id}
+																	/>
+																{/each}
+															</div>
+														{/if}
+													</div>
+													<div class="mb-3 mt-5">
+														{#if allAttendeesMaybeGoing.length > 0}
+															<h2 class="my-3 flex w-full justify-center font-semibold">Maybe</h2>
+															<div class="mx-5 flex flex-wrap -space-x-4 text-black">
+																{#each allAttendeesMaybeGoing as attendee}
+																	<ProfileAvatar
+																		url={profileImageMap.get(attendee.user_id)?.small_image_url}
+																		fullsizeUrl={profileImageMap.get(attendee.user_id)
+																			?.full_image_url}
+																		username={attendee.user?.username || attendee.name}
+																		fallbackName={attendee.user?.username || attendee.name}
+																		isTempUser={!!attendee.name}
+																		lastUpdatedAt={attendee.updated_at}
+																		viewerIsEventAdmin={currenUserIsEventAdmin}
+																		attendanceId={attendee.id}
+																	/>
+																{/each}
+															</div>
+														{/if}
+													</div>
+													<div class="mb-3 mt-5">
+														{#if allAttendeesNotGoing.length > 0}
+															<h2 class="my-3 flex w-full justify-center font-semibold">
+																Not Going
+															</h2>
+															<div class="mx-5 flex flex-wrap -space-x-4 text-black">
+																{#each allAttendeesNotGoing as attendee}
+																	<ProfileAvatar
+																		url={profileImageMap.get(attendee.user_id)?.small_image_url}
+																		fullsizeUrl={profileImageMap.get(attendee.user_id)
+																			?.full_image_url}
+																		username={attendee.user?.username || attendee.name}
+																		fallbackName={attendee.user?.username || attendee.name}
+																		isTempUser={!!attendee.name}
+																		lastUpdatedAt={attendee.updated_at}
+																		viewerIsEventAdmin={currenUserIsEventAdmin}
+																		attendanceId={attendee.id}
+																	/>
+																{/each}
+															</div>
+														{/if}
+													</div>
+												</Dialog.Description>
+											</Dialog.Header>
+										</ScrollArea>
+									</Dialog.Content>
+								</Dialog.Root>
 							</div>
-						</div>
-					{:else if isAnonymousUser}
+						{:else if allAttendeesGoing.length == 0}
+							<div class="flex justify-center">
+								<div
+									class="flex w-full items-center justify-center rounded-lg bg-slate-500 bg-opacity-75 p-2 text-sm text-white ring-glow sm:w-2/3"
+								>
+									<Avatar.Root
+										class="mr-2 h-12 w-12 border-2 border-white bg-white sm:h-14 sm:w-14"
+									>
+										<Avatar.Image src={'/icon-128.png'} alt={''} />
+										<Avatar.Fallback>{'BO'}</Avatar.Fallback>
+									</Avatar.Root> No attendees yet
+								</div>
+							</div>
+						{/if}
+					{:else}
 						<div class="flex justify-center">
 							<div
 								class="flex w-full items-center justify-center rounded-lg bg-purple-500 bg-opacity-75 p-2 text-sm text-white ring-glow sm:w-2/3"
@@ -755,11 +766,7 @@
 					<div class=" rounded-xl bg-white p-5">
 						<div class="font-semibold">Announcements</div>
 					</div>
-					{#if isAnonymousUser && $page.data.numAnnouncements != null}
-						<div class="my-2">
-							<BonfireNoInfoCard text={$page.data.numAnnouncements + ' announcement(s)'} />
-						</div>
-					{:else}
+					{#if rsvpStatus}
 						<div class="my-2">
 							<Annoucements maxCount={3} {isUnverifiedUser} />
 						</div>
@@ -770,6 +777,10 @@
 								>
 							</a>
 						{/if}
+					{:else}
+						<div class="my-2">
+							<BonfireNoInfoCard text={$page.data.numAnnouncements + ' announcement(s)'} />
+						</div>
 					{/if}
 				</div>
 				<HorizRule />
@@ -777,17 +788,17 @@
 					<div class=" rounded-xl bg-white p-5">
 						<div class="font-semibold">Gallery</div>
 					</div>
-					{#if isAnonymousUser && $page.data.numFiles != null}
-						<div class="my-2">
-							<BonfireNoInfoCard text={$page.data.numFiles + ' file(s)'} />
-						</div>
-					{:else}
+					{#if rsvpStatus}
 						<div class="mb-10">
 							{#if eventFiles}
 								<MiniGallery fileCount={fileCount - eventFiles.length} {eventFiles} />
 							{:else if loadEventFiles}
 								<Loader />
 							{/if}
+						</div>
+					{:else}
+						<div class="my-2">
+							<BonfireNoInfoCard text={$page.data.numFiles + ' file(s)'} />
 						</div>
 					{/if}
 				</div>

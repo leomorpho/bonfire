@@ -1,4 +1,4 @@
-import { error, json } from '@sveltejs/kit';
+import { json } from '@sveltejs/kit';
 import { triplitHttpClient } from '$lib/server/triplit';
 import { generateSignedUrl } from '$lib/filestorage';
 import { MAX_NUM_IMAGES_IN_MINI_GALLERY, tempAttendeeSecretParam } from '$lib/enums';
@@ -54,7 +54,6 @@ export const GET = async ({ locals, url, params }) => {
 					])
 					.build()
 			);
-			console.log('attendance --->', attendance);
 			if (!attendance) {
 				return json({}); // Not authorized to get any data
 			}

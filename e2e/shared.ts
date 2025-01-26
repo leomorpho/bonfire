@@ -148,8 +148,7 @@ export async function createBonfire(
 	await expect(page.getByRole('heading', { name: eventName })).toBeVisible();
 }
 
-export async function rsvpAsLoggedInUser(browser, eventUrl) {
-	const page = await browser.newPage();
+export async function rsvpAsLoggedInUser(page, eventUrl) {
 	try {
 		const email = faker.internet.email();
 		const username = faker.person.firstName();
@@ -164,14 +163,13 @@ export async function rsvpAsLoggedInUser(browser, eventUrl) {
 		await page.getByText('RSVP', { exact: true }).click();
 		await page.getByRole('menuitem', { name: 'Going', exact: true }).click();
 
-		console.log(`User ${username} RSVPed as "Going" on the event at ${eventUrl}`);
+		console.log(`################# User ${username} RSVPed as "Going" on the event at ${eventUrl}`);
 	} finally {
 		await page.close();
 	}
 }
 
-export async function rsvpAsTempUser(browser, eventUrl) {
-	const page = await browser.newPage();
+export async function rsvpAsTempUser(page, eventUrl) {
 	try {
 		const tempUsername = faker.person.firstName();
 
@@ -185,9 +183,9 @@ export async function rsvpAsTempUser(browser, eventUrl) {
 		// Generate a unique URL for the temporary user
 		await page.getByPlaceholder('Tony Garfunkel').click();
 		await page.getByPlaceholder('Tony Garfunkel').fill(tempUsername);
-		await page.getByRole('button', { name: 'Generate URL' }).click();
+		await page.getByRole('button', { name: 'Generate URL' }).click();	  
 
-		console.log(`Temporary user ${tempUsername} RSVPed as "Going" on the event at ${eventUrl}`);
+		console.log(`############### Temporary user ${tempUsername} RSVPed as "Going" on the event at ${eventUrl}`);
 	} finally {
 		await page.close();
 	}
