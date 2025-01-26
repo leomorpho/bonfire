@@ -4,8 +4,6 @@ import {
 	createBonfire,
 	loginUser,
 	navigateTo,
-	rsvpAsLoggedInUser,
-	rsvpAsTempUser,
 	uploadGalleryImage,
 	WEBSITE_URL
 } from './shared';
@@ -567,7 +565,8 @@ test('Event admins', async ({ browser }) => {
 
 	// Sign up admin
 	const adminEmail = faker.internet.email();
-	const adminUsername = faker.person.firstName();
+	// Adding "aaa" so user is always first in the list of attendees (user for later selection)
+	const adminUsername = "aaa" + faker.person.firstName();
 	await loginUser(adminPage, adminEmail, adminUsername);
 
 	await adminPage.goto(eventUrl);
@@ -590,4 +589,27 @@ test('Event admins', async ({ browser }) => {
 	console.log('adminUsername', adminUsername);
 	await eventCreatorPage.getByRole('option', { name: adminUsername }).click();
 	await expect(eventCreatorPage.getByRole('heading', { name: adminUsername })).toBeVisible();
+
+	// Check new admin can do the allowed admin tasks
+	await adminPage.goto(eventUrl);
+
+	// Go to event settings
+	await expect(adminPage.locator('#edit-bonfire').getByRole('button')).toBeVisible();
+	await adminPage.locator('#edit-bonfire').getByRole('button').click();
+	await adminPage.getByRole('button', { name: 'update' }).click();
+
+	// See if we can see the remove user screen
+	await adminPage.locator('#going-attendees').locator('.profile-avatar').first().click();
+	await adminPage.getByRole('button', { name: 'Remove user from event' }).click();
+	await adminPage.getByRole('button', { name: 'Cancel' }).click();
+	await adminPage.getByRole('button', { name: 'cross 2 Close' }).click();
+
+	// Add an announcement
+	const announcementText = faker.lorem.paragraph();
+	await adminPage.getByRole('button', { name: 'Create new announcement' }).click();
+	await adminPage.getByPlaceholder('Type your announcement here').click();
+	await adminPage.getByPlaceholder('Type your announcement here').fill(announcementText);
+	await adminPage.getByRole('button', { name: 'Create Announcement' }).click();
+	await expect(adminPage.getByText(announcementText)).toBeVisible();
+
 });
