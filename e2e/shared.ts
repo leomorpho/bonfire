@@ -110,7 +110,7 @@ export async function createBonfire(
 
 	await page.locator('#create-bonfire-button').click();
 
-	// await expect(page.getByRole('heading', { name: 'Create a Bonfire' })).toBeVisible({ timeout: 10000 });
+	await expect(page.getByRole('heading', { name: 'Create a Bonfire' })).toBeVisible();
 	await expect(page.getByPlaceholder('Event Name')).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Pick a date' })).toBeVisible();
 	await expect(page.getByPlaceholder('HH')).toBeVisible();
