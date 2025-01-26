@@ -566,7 +566,7 @@ test('Event admins', async ({ browser }) => {
 	// Sign up admin
 	const adminEmail = faker.internet.email();
 	// Adding "aaa" so user is always first in the list of attendees (user for later selection)
-	const adminUsername = "aaa" + faker.person.firstName();
+	const adminUsername = 'aaa' + faker.person.firstName();
 	await loginUser(adminPage, adminEmail, adminUsername);
 
 	await adminPage.goto(eventUrl);
@@ -589,14 +589,28 @@ test('Event admins', async ({ browser }) => {
 	console.log('adminUsername', adminUsername);
 	await eventCreatorPage.getByRole('option', { name: adminUsername }).click();
 	await expect(eventCreatorPage.getByRole('heading', { name: adminUsername })).toBeVisible();
-
+	await eventCreatorPage.close();
+	
 	// Check new admin can do the allowed admin tasks
 	await adminPage.goto(eventUrl);
 
 	// Go to event settings
 	await expect(adminPage.locator('#edit-bonfire').getByRole('button')).toBeVisible();
 	await adminPage.locator('#edit-bonfire').getByRole('button').click();
-	await adminPage.getByRole('button', { name: 'update' }).click();
+	// Update name
+	const newEventName = eventName + ' new!';
+	await adminPage.getByPlaceholder('Event Name').click();
+	await adminPage.getByPlaceholder('Event Name').fill(newEventName);
+	const newDetails = eventDetails + ' new!';
+	await adminPage.getByPlaceholder('Details').click();
+	await adminPage.getByPlaceholder('Details').fill(newDetails);
+	// Hit update
+	await expect(adminPage.getByRole('button', { name: 'Update' })).toBeEnabled();
+	await adminPage.waitForTimeout(100);
+	await adminPage.getByRole('button', { name: 'Update' }).click();
+	// Check data
+	await expect(adminPage.getByRole('heading', { name: eventName })).toBeVisible();
+	await expect(adminPage.getByText(newDetails)).toBeVisible();
 
 	// See if we can see the remove user screen
 	await adminPage.locator('#going-attendees').locator('.profile-avatar').first().click();
@@ -612,4 +626,19 @@ test('Event admins', async ({ browser }) => {
 	await adminPage.getByRole('button', { name: 'Create Announcement' }).click();
 	await expect(adminPage.getByText(announcementText)).toBeVisible();
 
+	// Upload a new banner image
+	await adminPage.getByRole('button', { name: 'Set a banner image' }).click();
+	await expect(adminPage.getByRole('heading', { name: 'Set Banner' })).toBeVisible();
+	await expect(adminPage.getByRole('tab', { name: 'My Device' })).toBeVisible();
+	await expect(adminPage.getByRole('tab', { name: 'Camera' })).toBeVisible();
+	await expect(adminPage.getByText('Image only. Max size: 5MB.')).toBeVisible();
+
+	const fileInput = await adminPage.locator('input[type="file"]').first();
+	const imagePath = path.resolve(process.cwd(), 'e2e/test-images', 'banner.jpeg');
+	await fileInput.setInputFiles(imagePath);
+	await adminPage.getByRole('button', { name: 'Save', exact: true }).click();
+	await adminPage.getByLabel('Upload 1 file').click();
+
+	await expect(adminPage.getByRole('img', { name: 'Banner for large screens' })).toBeVisible();
+	await expect(adminPage.getByLabel('Upload a new banner')).toBeVisible();
 });

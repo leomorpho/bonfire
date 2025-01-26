@@ -452,8 +452,6 @@
 				bind:finalStyleCss
 				bind:overlayColor
 				bind:overlayOpacity
-				editingMode={mode}
-				eventId={event ? event.id : null}
 			/>
 		</div>
 	{:else if currentEventEditingMode == editingAdmins}
@@ -468,7 +466,7 @@
 					Back
 				</Button>
 			</div>
-			<EventAdminEditor eventId={event.id} {currUserId} />
+			<EventAdminEditor eventId={event?.id} {currUserId} eventCreatorId={event?.user_id} />
 		</div>
 	{/if}
 </div>

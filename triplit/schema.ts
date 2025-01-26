@@ -201,13 +201,17 @@ export const schema = {
 				},
 				insert: {
 					filter: [
-						['event.user_id', '=', '$role.userId'] // Only the event creator can add admins
+						or([
+							['event.user_id', '=', '$role.userId'], // Event creator can add admins
+							['event.event_admins.user_id', '=', '$role.userId'] // Event admins can add other admins
+						])
 					]
 				},
 				update: {
 					filter: [
 						or([
-							['event.user_id', '=', '$role.userId'] // Event creator can update any admin's role/permissions
+							['event.user_id', '=', '$role.userId'], // Event creator can update any admin's role/permissions
+							['event.event_admins.user_id', '=', '$role.userId'] // Event admins can update other admins
 						])
 					]
 				},
@@ -215,7 +219,8 @@ export const schema = {
 					filter: [
 						or([
 							['user_id', '=', '$role.userId'], // Admin can remove themselves
-							['event.user_id', '=', '$role.userId'] // Event creator can remove any admin
+							['event.user_id', '=', '$role.userId'], // Event creator can remove any admin
+							['event.event_admins.user_id', '=', '$role.userId'] // Event admins can remove other admins
 						])
 					]
 				}

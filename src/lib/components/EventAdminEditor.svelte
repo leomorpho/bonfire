@@ -16,8 +16,8 @@
 	import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
 	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
 
-	let { eventId, currUserId } = $props();
-
+	let { eventId, currUserId, eventCreatorId } = $props();
+console.log("--->eventCreatorId", eventCreatorId)
 	let client: TriplitClient;
 	let attendeesLoading = $state(true);
 
@@ -37,7 +37,7 @@
 				.where([
 					and([
 						['event_id', '=', eventId],
-						['user_id', '!=', currUserId]
+						['user_id', '!=', eventCreatorId] // Exclude the event creator
 					])
 				])
 				.include('admin_role', (rel) => rel('admin_role').include('added_by_user').build())
@@ -155,7 +155,7 @@
 				</Button>
 			</Collapsible.Trigger>
 			<Collapsible.Content class="space-y-2">
-				<ul class="list-disc pl-5">
+				<ul class="list-disc pl-5 ml-5">
 					<li class="rounded-md px-4 py-2 text-sm">Create, update, delete announcements</li>
 					<li class="rounded-md px-4 py-2 text-sm">Remove attendees</li>
 				</ul>
