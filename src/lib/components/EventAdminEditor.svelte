@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { getFeTriplitClient, waitForUserId } from '$lib/triplit';
-	import type { TriplitClient } from '@triplit/client';
+	import { and, type TriplitClient } from '@triplit/client';
 	import { onMount } from 'svelte';
 	import Check from 'lucide-svelte/icons/check';
 	import { tick } from 'svelte';
@@ -16,9 +16,7 @@
 	import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
 	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
 
-	let { eventId } = $props();
-
-	let currUserId = $state();
+	let { eventId, currUserId } = $props();
 
 	let client: TriplitClient;
 	let attendeesLoading = $state(true);
@@ -33,15 +31,15 @@
 	onMount(() => {
 		client = getFeTriplitClient($page.data.jwt) as TriplitClient;
 
-		const init = async () => {
-			currUserId = await waitForUserId();
-		};
-		init();
-
 		const unsubscribeFromEventAttendeesQuery = client.subscribe(
 			client
 				.query('attendees')
-				.where([['event_id', '=', eventId]])
+				.where([
+					and([
+						['event_id', '=', eventId],
+						['user_id', '!=', currUserId]
+					])
+				])
 				.include('admin_role', (rel) => rel('admin_role').include('added_by_user').build())
 				.include('user')
 				.build(),
@@ -147,8 +145,8 @@
 		<h1 class="mb-5 flex w-full justify-center rounded-xl bg-white p-2 text-lg font-semibold">
 			Add an admin
 		</h1>
-		<Collapsible.Root class="rounded-lg bg-slate-200 mb-5">
-			<Collapsible.Trigger class="flex items-center justify-between w-full px-4 space-x-4">
+		<Collapsible.Root class="mb-5 rounded-lg bg-slate-200">
+			<Collapsible.Trigger class="flex w-full items-center justify-between space-x-4 px-4">
 				<div class="invisible"></div>
 				<h4 class="text-sm font-semibold">What admins can do</h4>
 				<Button variant="ghost" size="sm" class="w-9 p-0">
@@ -163,7 +161,6 @@
 				</ul>
 			</Collapsible.Content>
 		</Collapsible.Root>
-		
 
 		<Popover.Root bind:open>
 			<Popover.Trigger bind:ref={triggerRef} class="w-full">
@@ -222,16 +219,18 @@
 					<Card.Root class="">
 						<Card.Header>
 							<Card.Title>{adminAttendee.user.username}</Card.Title>
-							<Card.Description
-								>Added on {formatHumanReadable(adminAttendee.admin_role.created_at)} by
-								<span class="font-bold">
-									{#if currUserId == adminAttendee.admin_role.added_by_user_id}
-										you
-									{:else}
-										{adminAttendee.admin_role.added_by_user.username}
-									{/if}
-								</span>
-							</Card.Description>
+							{#if adminAttendee.admin_role}
+								<Card.Description>
+									Added on {formatHumanReadable(adminAttendee.admin_role.created_at)} by
+									<span class="font-bold">
+										{#if currUserId == adminAttendee.admin_role.added_by_user_id}
+											you
+										{:else}
+											{adminAttendee.admin_role.added_by_user.username}
+										{/if}
+									</span>
+								</Card.Description>
+							{/if}
 						</Card.Header>
 						<Card.Content>
 							<form>
@@ -241,6 +240,7 @@
 						<Card.Footer class="flex justify-between">
 							<Button class="invisible" variant="outline">Cancel</Button>
 							<Button
+								class="delete-admin"
 								onclick={() => {
 									demoteToAttendee(adminAttendee.user_id);
 								}}><UserRoundMinus /></Button

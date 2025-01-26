@@ -31,13 +31,13 @@
 	import LocationInput from './LocationInput.svelte';
 	import EventAdminEditor from './EventAdminEditor.svelte';
 
-	let { mode, event = null } = $props();
+	let { mode, event = null, currUserId = null } = $props();
 
 	const editingMainEvent = 'editing_main_event';
 	const editingStyles = 'editing_styles';
 	const editingAdmins = 'editing_admins';
 
-	console.log(event);
+	// console.log(event);
 
 	let client: TriplitClient;
 
@@ -127,18 +127,18 @@
 		};
 	}
 
-	$effect(() => {
-		console.log(
-			'submitDisabled',
-			submitDisabled,
-			'dateValue',
-			dateValue,
-			'eventName',
-			eventName,
-			'startHour',
-			startHour
-		);
-	});
+	// $effect(() => {
+	// 	console.log(
+	// 		'submitDisabled',
+	// 		submitDisabled,
+	// 		'dateValue',
+	// 		dateValue,
+	// 		'eventName',
+	// 		eventName,
+	// 		'startHour',
+	// 		startHour
+	// 	);
+	// });
 
 	const handleSubmit = async (e: Event) => {
 		try {
@@ -468,7 +468,7 @@
 					Back
 				</Button>
 			</div>
-			<EventAdminEditor eventId={event.id} />
+			<EventAdminEditor eventId={event.id} {currUserId} />
 		</div>
 	{/if}
 </div>

@@ -573,5 +573,21 @@ test('Event admins', async ({ browser }) => {
 	await adminPage.goto(eventUrl);
 	await expect(adminPage.getByText('1 attendee(s)')).toBeVisible();
 	await adminPage.getByText('RSVP', { exact: true }).click();
+	await adminPage.getByText('Going').first().click();
 
+	// Now event creator will add above attendee as an admin
+	await eventCreatorPage.locator('#edit-bonfire').getByRole('button').click();
+	await eventCreatorPage.getByRole('button', { name: 'Edit admins' }).click();
+	await expect(eventCreatorPage.getByRole('heading', { name: 'Add an admin' })).toBeVisible();
+	await expect(
+		eventCreatorPage.getByRole('button', { name: 'What admins can do Toggle' })
+	).toBeVisible();
+	await eventCreatorPage.getByRole('button', { name: 'What admins can do Toggle' }).click();
+	await expect(eventCreatorPage.getByText('Create, update, delete')).toBeVisible();
+	await expect(eventCreatorPage.getByText('Remove attendees')).toBeVisible();
+	await expect(eventCreatorPage.getByText('No admins yet')).toBeVisible();
+	await eventCreatorPage.getByText('Select an attendee...').click();
+	console.log('adminUsername', adminUsername);
+	await eventCreatorPage.getByRole('option', { name: adminUsername }).click();
+	await expect(eventCreatorPage.getByRole('heading', { name: adminUsername })).toBeVisible();
 });

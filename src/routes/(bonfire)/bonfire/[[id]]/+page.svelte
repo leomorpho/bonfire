@@ -40,6 +40,12 @@
 
 	let currUserId = $state('');
 
+	$effect(() => {
+		if ($page.data.user) {
+			currUserId = $page.data.user.id;
+		}
+	});
+
 	let event = $state<EventTypescriptType>();
 	let eventLoading = $state(true);
 	let eventFailedLoading = $state(false);
