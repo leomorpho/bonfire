@@ -556,7 +556,7 @@ test('Event admins', async ({ browser }) => {
 	const eventOwnerUsername = faker.person.firstName();
 	await loginUser(eventCreatorPage, eventOwnerEmail, eventOwnerUsername);
 
-	const eventName = `${faker.animal.dog()}'s birthday party!`;
+	const eventName = `${faker.animal.dog()} birthday party!`;
 	const eventDetails = 'It will be fun!';
 	await createBonfire(eventCreatorPage, eventName, eventDetails);
 	await expect(eventCreatorPage.getByRole('heading', { name: eventName })).toBeVisible();
@@ -590,7 +590,7 @@ test('Event admins', async ({ browser }) => {
 	await eventCreatorPage.getByRole('option', { name: adminUsername }).click();
 	await expect(eventCreatorPage.getByRole('heading', { name: adminUsername })).toBeVisible();
 	await eventCreatorPage.close();
-	
+
 	// Check new admin can do the allowed admin tasks
 	await adminPage.goto(eventUrl);
 
