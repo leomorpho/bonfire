@@ -38,7 +38,13 @@
 	import type { EventTypescriptType } from '$lib/types';
 	import BonfireBanner from '$lib/components/BonfireBanner.svelte';
 
-	let userId = $state('');
+	let currUserId = $state('');
+
+	$effect(() => {
+		if ($page.data.user) {
+			currUserId = $page.data.user.id;
+		}
+	});
 
 	let event = $state<EventTypescriptType>();
 	let eventLoading = $state(true);
@@ -95,11 +101,11 @@
 	let attendeesMaybeGoing: any = $state([]);
 	let attendeesNotGoing: any = $state([]);
 	let attendeesLoading = $state(true);
+	let tempAttendeesLoading = $state(true);
 
 	let tempAttendeesGoing: any = $state([]);
 	let tempAttendeesMaybeGoing: any = $state([]);
 	let tempAttendeesNotGoing: any = $state([]);
-	let tempAttendeesLoading = $state(true);
 
 	let currentUserAttendee = $state();
 	const showMaxNumPeople = 50;
@@ -109,8 +115,13 @@
 	let latitude = $state(null);
 	let longitude = $state(null);
 
+	let adminUserIds = $state(new Set<string>());
+
 	$effect(() => {
-		if (event && userId && event.user_id == (userId as string)) {
+		if (
+			(event && currUserId && event.user_id == (currUserId as string)) ||
+			adminUserIds.has(currUserId)
+		) {
 			currenUserIsEventAdmin = true;
 		}
 	});
@@ -245,6 +256,7 @@
 				.query('events')
 				.where([['id', '=', $page.params.id]])
 				.include('banner_media')
+				.include('event_admins')
 				.subquery(
 					'organizer',
 					client.query('user').where(['id', '=', '$1.user_id']).select(['username', 'id']).build(),
@@ -254,7 +266,7 @@
 			(results) => {
 				if (results.length == 1) {
 					event = results[0];
-					console.log('EVENT', event);
+					// console.log('EVENT', event);
 					if (event) {
 						if (event.geocoded_location) {
 							try {
@@ -267,6 +279,12 @@
 						overlayColorStore.set(event.overlay_color);
 						overlayOpacityStore.set(event.overlay_opacity);
 						eventLoading = false;
+
+						if (event.event_admins) {
+							adminUserIds = new Set(
+								event.event_admins.map((admin: { user_id: string }) => admin.user_id)
+							);
+						}
 					}
 				}
 			},
@@ -285,9 +303,7 @@
 
 		if (!isAnonymousUser) {
 			(async () => {
-				if (!isUnverifiedUser) {
-					userId = (await waitForUserId()) as string;
-				}
+				currUserId = (await waitForUserId()) as string;
 
 				// Fetch event files
 				await fetchEventFiles($page.params.id);
@@ -319,6 +335,7 @@
 					);
 				})();
 				attendeesLoading = false;
+				console.log('results', results);
 			},
 			(error) => {
 				console.error('Error fetching attendees:', error);
@@ -409,13 +426,13 @@
 	]);
 
 	$effect(() => {
-		// Ensure event data and userId are available
-		if ($page.data.user && allAttendees && userId) {
+		// Ensure event data and currUserId are available
+		if ($page.data.user && allAttendees && currUserId) {
 			// Find the current user's RSVP status in the attendees list
 			const attendees = allAttendees;
 
 			if (attendees && attendees.length > 0) {
-				currentUserAttendee = attendees.find((attendee) => attendee.user_id == userId);
+				currentUserAttendee = attendees.find((attendee) => attendee.user_id == currUserId);
 				// Set RSVP status based on the attendee record, or keep it as default
 				rsvpStatus = currentUserAttendee ? currentUserAttendee.status : undefined;
 				$inspect('### rsvpStatus', rsvpStatus);
@@ -744,7 +761,13 @@
 						</Button>
 					</a>
 				{/if} -->
-				<Rsvp {rsvpStatus} {userId} eventId={event.id} {isAnonymousUser} {rsvpCanBeChanged} />
+				<Rsvp
+					{rsvpStatus}
+					userId={currUserId}
+					eventId={event.id}
+					{isAnonymousUser}
+					{rsvpCanBeChanged}
+				/>
 
 				<Button
 					onclick={() => handleShare(event)}
@@ -761,9 +784,9 @@
 					</div>
 					{#if rsvpStatus}
 						<div class="my-2">
-							<Annoucements maxCount={3} {isUnverifiedUser} />
+							<Annoucements maxCount={3} {isUnverifiedUser} {currenUserIsEventAdmin} />
 						</div>
-						{#if event.user_id == userId}
+						{#if currenUserIsEventAdmin}
 							<a href="announcement/create">
 								<Button class="mt-1 w-full ring-glow"
 									><Drum class="mr-1 h-4 w-4" /> Create new announcement</Button

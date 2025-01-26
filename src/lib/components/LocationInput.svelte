@@ -33,9 +33,9 @@
 		}
 	};
 
-	$effect(() => {
-		console.log('selectedResult', selectedResult);
-	});
+	// $effect(() => {
+	// 	console.log('selectedResult', selectedResult);
+	// });
 	const enterEventLocationText = 'Enter event address...';
 
 	let selectedValue = $state(location);

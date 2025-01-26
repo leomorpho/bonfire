@@ -11,7 +11,7 @@
 	import Announcement from '../Announcement.svelte';
 	import { NotificationType } from '$lib/enums';
 
-	let { notification, toggleDialog } = $props();
+	let { notification, toggleDialog, currenUserIsEventAdmin = false } = $props();
 
 	let userId = $state('');
 	let linkedObjects = $state([]);
@@ -206,15 +206,20 @@
 								</Collapsible.Trigger>
 							</div>
 							<!-- Show the rest in the collapsible content -->
-							<Collapsible.Content>
-								{#each linkedObjects as attendee}
-									<ProfileAvatar
-										url={attendee.profileImage?.small_image_url}
-										fullsizeUrl={attendee.profileImage?.full_image_url}
-										username={attendee.user?.username}
-										fallbackName={attendee.user?.username}
-									/>
-								{/each}
+							<Collapsible.Content class="text-black">
+								<div class="flex flex-wrap space-x-1 space-y-1">
+									{#each linkedObjects as attendee}
+										<ProfileAvatar
+											url={attendee.profileImage?.small_image_url}
+											fullsizeUrl={attendee.profileImage?.full_image_url}
+											username={attendee.user?.username}
+											fallbackName={attendee.user?.username}
+											isTempUser={false}
+											lastUpdatedAt=""
+											viewerIsEventAdmin={currenUserIsEventAdmin}
+										/>
+									{/each}
+								</div>
 							</Collapsible.Content>
 						</Collapsible.Root>
 					{:else}
@@ -225,6 +230,9 @@
 									fullsizeUrl={attendee.profileImage?.full_image_url}
 									username={attendee.user?.username}
 									fallbackName={attendee.user?.username}
+									isTempUser={false}
+									lastUpdatedAt=""
+									viewerIsEventAdmin={currenUserIsEventAdmin}
 								/>
 							{/each}
 						</div>
@@ -247,14 +255,17 @@
 							</div>
 							<!-- Show the rest in the collapsible content -->
 							<Collapsible.Content>
-								{#each linkedObjects as attendee}
-									<ProfileAvatar
-										url=""
-										username={attendee.name}
-										fallbackName={attendee.name}
-										isTempUser={true}
-									/>
-								{/each}
+								<div class="flex flex-wrap space-x-1 space-y-1">
+									{#each linkedObjects as attendee}
+										<ProfileAvatar
+											url=""
+											username={attendee.name}
+											fallbackName={attendee.name}
+											isTempUser={true}
+											viewerIsEventAdmin={currenUserIsEventAdmin}
+										/>
+									{/each}
+								</div>
 							</Collapsible.Content>
 						</Collapsible.Root>
 					{:else}
@@ -265,6 +276,7 @@
 									username={attendee.name}
 									fallbackName={attendee.name}
 									isTempUser={true}
+									viewerIsEventAdmin={currenUserIsEventAdmin}
 								/>
 							{/each}
 						</div>

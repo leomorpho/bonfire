@@ -141,6 +141,9 @@ export const schema = {
 			viewers: S.RelationMany('event_viewers', {
 				where: [['event_id', '=', '$id']]
 			}),
+			event_admins: S.RelationMany('event_admins', {
+				where: [['event_id', '=', '$id']]
+			}),
 			style: S.String({ nullable: true }),
 			overlay_color: S.String({ nullable: true, optional: true }),
 			overlay_opacity: S.Number({ nullable: true, optional: true })
@@ -150,9 +153,8 @@ export const schema = {
 				read: {
 					filter: [
 						or([
-							['user_id', '=', '$role.userId'], // User can read their own profile
-							// A user should be able to only query for users and attendees who are attending a same event:
-							['attendees.user_id', '=', '$role.userId'],
+							['user_id', '=', '$role.userId'], // User can read their own events
+							['attendees.user_id', '=', '$role.userId'], // A user can only see events they are attending
 							['viewers.user_id', '=', '$role.userId'] // user is a viewer
 						])
 					]
@@ -168,6 +170,65 @@ export const schema = {
 							// A user should be able to only query for users and attendees who are attending a same event:
 							['temporary_attendees.id', '=', '$role.temporaryAttendeeId']
 						])
+					]
+				}
+			}
+		}
+	},
+	event_admins: {
+		schema: S.Schema({
+			id: S.Id(), // Unique ID for each entry
+			event_id: S.String(), // ID of the event this admin is associated with
+			event: S.RelationById('events', '$event_id'), // Relation to the events table
+			user_id: S.String(), // ID of the user who is an admin
+			user: S.RelationById('user', '$user_id'), // Relation to the user table
+			added_by_user_id: S.String(), // ID of the user who added this admin
+			added_by_user: S.RelationById('user', '$added_by_user_id'), // Relation to the user who added this admin
+			role: S.String({ default: 'editor' }), // Role of the admin (e.g., editor, moderator)
+			created_at: S.Date({ default: S.Default.now() }), // Timestamp when the admin was added
+			updated_at: S.Date({ default: S.Default.now() }) // Timestamp when the entry was last updated
+		}),
+		permissions: {
+			user: {
+				read: {
+					filter: [
+						or([
+							['user_id', '=', '$role.userId'], // The admin can view their own admin entry
+							['event.user_id', '=', '$role.userId'], // Event creator can view all admins
+							['event.attendees.user_id', '=', '$role.userId'] // Users attending the event can view event admins
+						])
+					]
+				},
+				insert: {
+					filter: [
+						or([
+							['event.user_id', '=', '$role.userId'], // Event creator can add admins
+							['event.event_admins.user_id', '=', '$role.userId'] // Event admins can add other admins
+						])
+					]
+				},
+				update: {
+					filter: [
+						or([
+							['event.user_id', '=', '$role.userId'], // Event creator can update any admin's role/permissions
+							['event.event_admins.user_id', '=', '$role.userId'] // Event admins can update other admins
+						])
+					]
+				},
+				delete: {
+					filter: [
+						or([
+							['user_id', '=', '$role.userId'], // Admin can remove themselves
+							['event.user_id', '=', '$role.userId'], // Event creator can remove any admin
+							['event.event_admins.user_id', '=', '$role.userId'] // Event admins can remove other admins
+						])
+					]
+				}
+			},
+			temp: {
+				read: {
+					filter: [
+						['event.temporary_attendees.id', '=', '$role.temporaryAttendeeId'] // Temp users can view event admins if they're part of the event
 					]
 				}
 			}
@@ -209,6 +270,14 @@ export const schema = {
 			}),
 			seen_gallery_items: S.RelationMany('seen_gallery_items', {
 				where: [['attendee_id', '=', '$id']] // Link to seen_gallery_items
+			}),
+			admin_role: S.RelationOne('event_admins', {
+				where: [
+					and([
+						['user_id', '=', '$user_id'],
+						['event_id', '=', '$event_id']
+					])
+				]
 			})
 		}),
 		permissions: {
@@ -239,7 +308,8 @@ export const schema = {
 							// Event creator can delete anyone attending
 							['event.user_id', '=', '$role.userId'],
 							// Users can remove themselves from the event
-							['user_id', '=', '$role.userId']
+							['user_id', '=', '$role.userId'],
+							['event.event_admins.user_id', '=', '$role.userId'] // Event admins can update files
 						])
 					]
 				}
@@ -294,10 +364,9 @@ export const schema = {
 				delete: {
 					filter: [
 						or([
-							// Event creator can delete anyone attending
-							['event.user_id', '=', '$role.userId'],
-							// Temp users can remove themselves from the event
-							['id', '=', '$role.temporaryAttendeeId']
+							['event.user_id', '=', '$role.userId'], // Event creator can delete anyone attending
+							['id', '=', '$role.temporaryAttendeeId'], // Temp users can remove themselves from the event
+							['event.event_admins.user_id', '=', '$role.userId'] // Event admins can update files
 						])
 					]
 				}
@@ -352,9 +421,9 @@ export const schema = {
 				read: {
 					filter: [
 						or([
-							['uploader_id', '=', '$role.userId'], // User can read their own profile
-							// A user should be able to only query for files of events they are attending:
-							['event.attendees.user_id', '=', '$role.userId']
+							['uploader_id', '=', '$role.userId'], // User can read their own files
+							['event.attendees.user_id', '=', '$role.userId'], // Attendees can read event files
+							['event.event_admins.user_id', '=', '$role.userId'] // Event admins can read files
 						])
 					]
 				},
@@ -362,15 +431,30 @@ export const schema = {
 				// triplit doesn't seem powerful enough to be able to set appropriate permissions (user
 				// is attending event). Read is only used to count files as S3 URL is generated in BE.
 				update: {
-					filter: [['uploader_id', '=', '$role.userId']] // Users can only update their own files
+					filter: [
+						or([
+							['uploader_id', '=', '$role.userId'], // Users can upload their own files
+							['event.event_admins.user_id', '=', '$role.userId'] // Event admins can upload files
+						])
+					]
 				},
 				delete: {
-					filter: [['uploader_id', '=', '$role.userId']] // Users can only delete their own files
+					filter: [
+						or([
+							['uploader_id', '=', '$role.userId'], // Users can update their own files
+							['event.event_admins.user_id', '=', '$role.userId'] // Event admins can update files
+						])
+					]
 				}
 			},
 			temp: {
 				read: {
-					filter: [['event.temporary_attendees.id', '=', '$role.temporaryAttendeeId']]
+					filter: [
+						or([
+							['uploader_id', '=', '$role.userId'], // Users can delete their own files
+							['event.event_admins.user_id', '=', '$role.userId'] // Event admins can delete files
+						])
+					]
 				}
 			}
 		}
@@ -439,15 +523,36 @@ export const schema = {
 				read: {
 					filter: [
 						or([
-							['user_id', '=', '$role.userId'], // User can read their own profile
-							// A user should be able to only query for files of events they are attending:
-							['event.attendees.user_id', '=', '$role.userId']
+							['user_id', '=', '$role.userId'], // User can read their own announcements
+							['event.attendees.user_id', '=', '$role.userId'], // Attendees can read event announcements
+							['event.event_admins.user_id', '=', '$role.userId'] // Event admins can read announcements
 						])
 					]
 				},
-				insert: { filter: [['event.user_id', '=', '$role.userId']] },
-				update: { filter: [['user_id', '=', '$role.userId']] },
-				delete: { filter: [['user_id', '=', '$role.userId']] }
+				insert: {
+					filter: [
+						or([
+							['event.user_id', '=', '$role.userId'], // Event creator can add announcements
+							['event.event_admins.user_id', '=', '$role.userId'] // Event admins can add announcements
+						])
+					]
+				},
+				update: {
+					filter: [
+						or([
+							['user_id', '=', '$role.userId'], // Users can update their own announcements
+							['event.event_admins.user_id', '=', '$role.userId'] // Event admins can update announcements
+						])
+					]
+				},
+				delete: {
+					filter: [
+						or([
+							['user_id', '=', '$role.userId'], // Users can delete their own announcements
+							['event.event_admins.user_id', '=', '$role.userId'] // Event admins can delete announcements
+						])
+					]
+				}
 			},
 			temp: {
 				read: {

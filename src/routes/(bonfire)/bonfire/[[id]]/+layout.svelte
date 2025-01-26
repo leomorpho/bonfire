@@ -74,15 +74,14 @@
 
 			styleData = await client.fetchOne(styleDataQuery);
 			if (styleData) {
-				styles = typeof styleData?.style ?? '';
-				overlayColor = styleData?.overlay_color ?? '#000000';
-				overlayOpacity = styleData?.overlay_opacity ?? 0.5;
-				styleStore.set(styleData?.style || '');
+				styles = styleData.style ?? '';
+				overlayColor = styleData.overlay_color ?? '#000000';
+				overlayOpacity = styleData.overlay_opacity ?? 0.5;
+				styleStore.set(styleData.style || '');
 				overlayColorStore.set(overlayColor);
 				overlayOpacityStore.set(overlayOpacity);
 			}
 		}
-
 		console.log('styles', styles);
 		console.log('overlayColor', overlayColor);
 		console.log('overlayOpacity', overlayOpacity);

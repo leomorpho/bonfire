@@ -10,11 +10,11 @@
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
 	import BonfireNoInfoCard from './BonfireNoInfoCard.svelte';
 
-	let { maxCount = null, isUnverifiedUser = false } = $props();
+	let { maxCount = null, isUnverifiedUser = false, currenUserIsEventAdmin = false } = $props();
 
 	const eventId = $page.params.id;
 	let announcementsSubset = $state([]);
-	let allUnreadNotifications = $state();
+	let allUnreadNotifications: any = $state();
 	let userId = $state('');
 	let notificationsLoading = $state(true);
 	let totalCount = $state(0);
@@ -117,6 +117,7 @@
 					{announcement}
 					{currentUserAttendeeId}
 					{isUnverifiedUser}
+					{currenUserIsEventAdmin}
 				/>
 			{/each}
 			{#if totalCount > maxCount}
@@ -138,6 +139,7 @@
 												{announcement}
 												{currentUserAttendeeId}
 												{isUnverifiedUser}
+												{currenUserIsEventAdmin}
 											/>
 										</div>
 									{/each}

@@ -432,7 +432,6 @@ export async function fetchAccessibleEventFiles(
 	}
 
 	// If user is logged in, they must have a valid attendance
-	console.log('userId --->', userId);
 	if (userId) {
 		try {
 			const attendance = await triplitHttpClient.fetchOne(

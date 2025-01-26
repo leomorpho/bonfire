@@ -3,7 +3,16 @@
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { CalendarDate, type DateValue } from '@internationalized/date';
 	import { Button } from '$lib/components/ui/button/index.js';
-	import { Plus, Minus, Clock, Clock8, ArrowDownToLine, Trash2, Palette } from 'lucide-svelte';
+	import {
+		Plus,
+		Minus,
+		Clock,
+		Clock8,
+		ArrowDownToLine,
+		Trash2,
+		Palette,
+		Shield
+	} from 'lucide-svelte';
 	import DoubleDigitsPicker from '$lib/components/DoubleDigitsPicker.svelte';
 	import TimezonePicker from '$lib/components/TimezonePicker.svelte';
 	import Datepicker from '$lib/components/Datepicker.svelte';
@@ -20,10 +29,15 @@
 	import TextAreaAutoGrow from './TextAreaAutoGrow.svelte';
 	import ChevronLeft from 'svelte-radix/ChevronLeft.svelte';
 	import LocationInput from './LocationInput.svelte';
+	import EventAdminEditor from './EventAdminEditor.svelte';
 
-	let { mode, event = null } = $props();
+	let { mode, event = null, currUserId = null } = $props();
 
-	console.log(event);
+	const editingMainEvent = 'editing_main_event';
+	const editingStyles = 'editing_styles';
+	const editingAdmins = 'editing_admins';
+
+	// console.log(event);
 
 	let client: TriplitClient;
 
@@ -59,7 +73,8 @@
 	);
 	let overlayColor: string = $state(event?.overlay_color ?? '#000000');
 	let overlayOpacity: number = $state(event?.overlay_opacity ?? 0.4);
-	let isEditingStyle = $state(false);
+
+	let currentEventEditingMode = $state(editingMainEvent);
 	let cancelUrl = $state(event && event.id ? `/bonfire/${event.id}` : '/');
 	let timezone = $state({});
 	let setEndTime = $state(false);
@@ -112,18 +127,18 @@
 		};
 	}
 
-	$effect(() => {
-		console.log(
-			'submitDisabled',
-			submitDisabled,
-			'dateValue',
-			dateValue,
-			'eventName',
-			eventName,
-			'startHour',
-			startHour
-		);
-	});
+	// $effect(() => {
+	// 	console.log(
+	// 		'submitDisabled',
+	// 		submitDisabled,
+	// 		'dateValue',
+	// 		dateValue,
+	// 		'eventName',
+	// 		eventName,
+	// 		'startHour',
+	// 		startHour
+	// 	);
+	// });
 
 	const handleSubmit = async (e: Event) => {
 		try {
@@ -180,7 +195,7 @@
 
 			let eventId = event?.id;
 
-			if (mode == 'create') {
+			if (mode == EventFormType.CREATE) {
 				// Save the event (uncomment in production)
 				const { output } = await client.insert('events', {
 					id: await generatePassphraseId(),
@@ -229,7 +244,10 @@
 			}
 			goto(`/bonfire/${eventId}`);
 		} catch (e) {
-			console.log(`failed to ${mode === EventFormType.CREATE ? 'create' : 'update'} event`, e);
+			console.log(
+				`failed to ${mode === EventFormType.CREATE ? EventFormType.CREATE : EventFormType.UPDATE} event`,
+				e
+			);
 		} finally {
 			isEventSaving = false;
 		}
@@ -247,33 +265,25 @@
 	};
 
 	const startEditEventStyle = () => {
-		isEditingStyle = true;
+		currentEventEditingMode = editingStyles;
 	};
-	const sopEditEventStyle = () => {
-		isEditingStyle = false;
+	const stopEditEventStyle = () => {
+		currentEventEditingMode = editingMainEvent;
+	};
+
+	const startEditAdmins = () => {
+		currentEventEditingMode = editingAdmins;
+	};
+	const stopEditAdmins = () => {
+		currentEventEditingMode = editingMainEvent;
 	};
 </script>
 
 <div class="mx-4 flex flex-col items-center justify-center">
-	{#if isEditingStyle}
-		<div class="md:7/8 w-5/6">
-			<div class="sticky top-2 mt-2 flex justify-center">
-				<Button
-					class="w-full bg-violet-500 ring-glow hover:bg-violet-400 sm:w-[450px]"
-					onclick={sopEditEventStyle}
-				>
-					<ChevronLeft class="mr-1" />
-
-					Back
-				</Button>
-			</div>
-
-			<EventStyler bind:finalStyleCss bind:overlayColor bind:overlayOpacity />
-		</div>
-	{:else}
+	{#if currentEventEditingMode == editingMainEvent}
 		<section class="mt-8 w-full sm:w-[450px]">
 			<h2 class="mb-5 flex w-full justify-center rounded-xl bg-white p-2 text-lg font-semibold">
-				{mode === EventFormType.CREATE ? 'Create' : 'Update'} a Bonfire
+				{mode === EventFormType.CREATE ? EventFormType.CREATE : EventFormType.UPDATE} a Bonfire
 			</h2>
 			<form class="space-y-2">
 				<Input
@@ -356,20 +366,26 @@
 				</div>
 				<TextAreaAutoGrow cls={'bg-white'} placeholder="Details" bind:value={details} />
 			</form>
+
+			<div class="mt-5 grid w-full grid-cols-1 gap-2 sm:grid-cols-2">
+				<Button class="justify-centerp-4 flex items-center" onclick={startEditEventStyle}>
+					<Palette class="mr-1" />
+					Edit event style
+				</Button>
+				<Button
+					class="flex items-center justify-center p-4"
+					disabled={!event}
+					onclick={startEditAdmins}
+				>
+					<Shield class="mr-1" />
+					Edit admins
+				</Button>
+			</div>
 		</section>
 		<div class="my-10 w-full sm:w-[450px]">
 			<a href={cancelUrl}>
 				<Button class="sticky top-2 mt-2 w-full ring-glow">Cancel</Button>
 			</a>
-
-			<Button
-				class="sticky top-2 mt-2 w-full bg-violet-500 ring-glow hover:bg-violet-400"
-				onclick={startEditEventStyle}
-			>
-				<Palette class="mr-1" />
-
-				Edit event style
-			</Button>
 			<Button
 				id="upsert-bonfire"
 				disabled={submitDisabled}
@@ -380,13 +396,13 @@
 				{#if isEventSaving}
 					<span class="loading loading-spinner loading-xs ml-2"> </span>
 				{/if}
-				{#if mode == 'create'}
+				{#if mode == EventFormType.CREATE}
 					<Plus class="ml-1 mr-1 h-4 w-4" />
 				{:else}
 					<ArrowDownToLine class="ml-1 mr-1 h-4 w-4" />
 				{/if}
 
-				{mode === EventFormType.CREATE ? 'Create' : 'Update'}
+				{mode === EventFormType.CREATE ? EventFormType.CREATE : EventFormType.UPDATE}
 			</Button>
 			{#if mode == EventFormType.UPDATE}
 				<Dialog.Root>
@@ -418,6 +434,39 @@
 					</Dialog.Content>
 				</Dialog.Root>
 			{/if}
+		</div>
+	{:else if currentEventEditingMode == editingStyles}
+		<div class="md:7/8 w-5/6">
+			<div class="sticky top-2 mt-2 flex justify-center">
+				<Button
+					class="w-full bg-violet-500 ring-glow hover:bg-violet-400 sm:w-[450px]"
+					onclick={stopEditEventStyle}
+				>
+					<ChevronLeft class="mr-1" />
+
+					Back
+				</Button>
+			</div>
+
+			<EventStyler
+				bind:finalStyleCss
+				bind:overlayColor
+				bind:overlayOpacity
+			/>
+		</div>
+	{:else if currentEventEditingMode == editingAdmins}
+		<div class="md:7/8 w-5/6">
+			<div class="sticky top-2 mt-2 flex justify-center">
+				<Button
+					class="w-full bg-violet-500 ring-glow hover:bg-violet-400 sm:w-[450px]"
+					onclick={stopEditAdmins}
+				>
+					<ChevronLeft class="mr-1" />
+
+					Back
+				</Button>
+			</div>
+			<EventAdminEditor eventId={event?.id} {currUserId} eventCreatorId={event?.user_id} />
 		</div>
 	{/if}
 </div>
