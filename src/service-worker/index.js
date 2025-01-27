@@ -31,27 +31,56 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-	// ignore POST requests etc
+	// Ignore non-GET requests
 	if (event.request.method !== 'GET') return;
+
+	// Helper function to extract file key for `backblazeb2.com/` URLs
+	function getFileKey(url) {
+		const baseIndex = url.indexOf('backblazeb2.com/') + 'backblazeb2.com/'.length;
+		const relativePath = url.substring(baseIndex); // Extract everything after 'backblazeb2.com/'
+		return relativePath.split('?')[0]; // Remove query parameters
+	}
 
 	async function respond() {
 		const url = new URL(event.request.url);
 		const cache = await caches.open(CACHE);
 
-		// `build`/`files` can always be served from the cache
-		if (ASSETS.includes(url.pathname)) {
+		// Handle ASSETS (like build files)
+		if (ASSETS.some((asset) => url.pathname.startsWith(asset))) {
 			return cache.match(url.pathname);
 		}
 
-		// for everything else, try the network first, but
-		// fall back to the cache if we're offline
-		try {
-			const response = await fetch(event.request);
+		// Handle `backblazeb2.com` URLs
+		if (url.hostname.includes('backblazeb2.com')) {
+			const fileKey = getFileKey(event.request.url);
 
-			if (response.status === 200) {
-				cache.put(event.request, response.clone());
+			// Try serving from cache first
+			const cachedResponse = await cache.match(fileKey);
+			if (cachedResponse) {
+				console.log(`[SW] Serving ${fileKey} from cache`);
+				return cachedResponse;
 			}
 
+			// Otherwise, fetch from network and cache
+			try {
+				const response = await fetch(event.request);
+				if (response.ok) {
+					cache.put(fileKey, response.clone());
+					console.log(`[SW] Cached ${fileKey} from network`);
+				}
+				return response;
+			} catch {
+				console.error(`[SW] Failed to fetch ${fileKey} from network`);
+				return new Response('Offline content unavailable', { status: 503 });
+			}
+		}
+
+		// For other requests, try the network first and fall back to cache
+		try {
+			const response = await fetch(event.request);
+			if (response.ok) {
+				cache.put(event.request, response.clone());
+			}
 			return response;
 		} catch {
 			return cache.match(event.request);
@@ -102,8 +131,8 @@ self.addEventListener('push', (event) => {
 });
 
 self.addEventListener('notificationclick', function (event) {
-  console.log("Notification clicked:", event.notification);
-  
+	console.log('Notification clicked:', event.notification);
+
 	// Close the notification when clicked
 	event.notification.close();
 
