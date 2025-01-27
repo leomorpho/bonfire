@@ -67,8 +67,10 @@
 					<li class="flex items-center">
 						<a href={link.href}>
 							{#if link.icon}
-								<link.icon class="h-4 w-4" />
-							{/if}{link.name}</a
+								<link.icon class="h-6 w-6" />
+							{/if}
+							{link.name}
+							</a
 						>
 					</li>
 				{/each}
@@ -80,7 +82,7 @@
 				<form method="post" class="ml-auto hidden sm:block" action="/login?/signout" use:enhance>
 					<button type="submit" class="btn mr-2">
 						<div class="flex items-center text-red-500">
-							<LogOut class="mr-2 h-4 w-4" />
+							<LogOut class="mr-2 h-6 w-6" />
 							<span>Log out</span>
 						</div>
 					</button>
@@ -95,9 +97,9 @@
 				<DropdownMenu.Root bind:open={showMenu}>
 					<DropdownMenu.Trigger>
 						<div
-							class="m-1 flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 sm:h-10 sm:w-10"
+							class="m-1 flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 sm:h-10 sm:w-10"
 						>
-							<Menu class="h-4 w-4 text-gray-600 sm:h-5 sm:w-5" />
+							<Menu class="h-6 w-6 text-gray-600 sm:h-5 sm:w-5" />
 						</div>
 					</DropdownMenu.Trigger>
 					<DropdownMenu.Content class="m-2">
@@ -109,10 +111,10 @@
 								<a href={link.href}>
 									<DropdownMenu.Item class="cursor-pointer p-2 px-4">
 										{#if link.icon}
-											<link.icon class="mr-1 h-4 w-4" />
+											<link.icon class="mr-1 h-6 w-6" />
 										{/if}
-										{link.name}</DropdownMenu.Item
-									>
+										{link.name}
+									</DropdownMenu.Item>
 								</a>
 							{/each}
 
@@ -125,12 +127,11 @@
 								>
 									<button type="submit" class="btn mr-2">
 										<div class="flex items-center text-red-500">
-											<LogOut class="mr-2 h-4 w-4" />
+											<LogOut class="mr-2 h-6 w-6" />
 											<span>Log out</span>
 										</div>
 									</button>
 								</form>
-								
 							{:else}
 								<a href="/login" onclick={toggleMenu} class="btn mx-2 mb-2 mt-5 sm:hidden">
 									<FlameKindling />login</a
