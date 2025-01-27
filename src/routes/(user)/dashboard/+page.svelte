@@ -6,7 +6,7 @@
 	import { onMount } from 'svelte';
 	import type { TriplitClient } from '@triplit/client';
 	import Loader from '$lib/components/Loader.svelte';
-	import { Frown } from 'lucide-svelte';
+	import { Frown, Plus } from 'lucide-svelte';
 	import { useQuery } from '@triplit/svelte';
 	import EventCard from '$lib/components/EventCard.svelte';
 	import { page } from '$app/stores';
@@ -145,22 +145,19 @@
 		{/if}
 	{/if}
 </div>
-<div class="fixed bottom-6 left-1/2 z-50 flex -translate-x-1/2 transform flex-col items-center">
+
+<div
+	class="fixed bottom-6 left-1/2 z-50 flex -translate-x-1/2 transform flex-col items-center"
+	id="create-bonfire-container"
+>
 	<a
 		id="create-bonfire-button"
-		href="bonfire/create"
-		class="rounded-full bg-blue-500 p-4 text-white shadow-lg transition hover:bg-blue-600"
+		href="/bonfire/create"
+		role="button"
+		aria-label="Create a Bonfire"
+		class="rounded-full bg-blue-500 p-4 text-white shadow-lg transition-all duration-200 ease-in-out hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-300 active:bg-blue-700"
 	>
-		<!-- Button Icon -->
-		<svg
-			class="h-6 w-6"
-			xmlns="http://www.w3.org/2000/svg"
-			fill="none"
-			viewBox="0 0 24 24"
-			stroke="currentColor"
-		>
-			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-		</svg>
+		<Plus aria-hidden="true" />
 	</a>
-	<span class="mt-2">Create a Bonfire</span>
+	<span class="mt-2 text-sm text-gray-700" id="create-bonfire-label">Create a Bonfire</span>
 </div>
