@@ -404,11 +404,11 @@
 
 				{mode === EventFormType.CREATE ? EventFormType.CREATE : EventFormType.UPDATE}
 			</Button>
-			{#if mode == EventFormType.UPDATE}
+			{#if mode == EventFormType.UPDATE && currUserId == event.user_id}
 				<Dialog.Root>
-					<Dialog.Trigger class="w-full"
+					<Dialog.Trigger class="w-full" disabled={submitDisabled || currUserId != event.user_id}
 						><Button
-							disabled={submitDisabled}
+							disabled={submitDisabled || currUserId != event.user_id}
 							class="mt-2 w-full bg-red-500 ring-glow hover:bg-red-400"
 						>
 							<Trash2 class="ml-1 mr-1 h-4 w-4" /> Delete
@@ -448,11 +448,7 @@
 				</Button>
 			</div>
 
-			<EventStyler
-				bind:finalStyleCss
-				bind:overlayColor
-				bind:overlayOpacity
-			/>
+			<EventStyler bind:finalStyleCss bind:overlayColor bind:overlayOpacity />
 		</div>
 	{:else if currentEventEditingMode == editingAdmins}
 		<div class="md:7/8 w-5/6">
