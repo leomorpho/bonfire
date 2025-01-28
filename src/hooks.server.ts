@@ -51,6 +51,9 @@ export const handle: Handle = sequence(Sentry.sentryHandle(), async ({ event, re
 		event.locals.user = user;
 		event.locals.session = session;
 
+		// Increase body size limit for video uploads
+		event.request.headers.set('content-length', '52428800'); // 50MB in bytes
+
 		return resolve(event);
 	} catch (error) {
 		console.error('Error in handle:', error);
