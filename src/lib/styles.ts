@@ -29,6 +29,8 @@ export function parseColor(hex: string): string {
 	return `${r}, ${g}, ${b}`;
 }
 
+export const randomSort = (array) => array.sort(() => Math.random() - 0.5);
+
 export const stylesGallery = [
 	{
 		id: 1,

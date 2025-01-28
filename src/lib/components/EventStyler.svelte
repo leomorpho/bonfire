@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { parseColor, stylesGallery } from '$lib/styles';
+	import { parseColor, randomSort, stylesGallery } from '$lib/styles';
 	import { onMount } from 'svelte';
 	import * as Popover from '$lib/components/ui/popover/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
@@ -15,7 +15,6 @@
 	// Currently selected style
 	let selectedStyle: { id: number; name: string; cssTemplate: string } | null = $state(null);
 
-	const randomSort = (array) => array.sort(() => Math.random() - 0.5);
 
 	const randomStylesGallery = randomSort(stylesGallery);
 	// DOM reference to the injected style

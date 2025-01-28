@@ -24,7 +24,14 @@
 	import { EventFormType, Status } from '$lib/enums';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
-	import { overlayColorStore, overlayOpacityStore, styleStore } from '$lib/styles';
+	import {
+		overlayColorStore,
+		overlayOpacityStore,
+		parseColor,
+		stylesGallery,
+		styleStore,
+		randomSort
+	} from '$lib/styles';
 	import { generatePassphraseId } from '$lib/utils';
 	import TextAreaAutoGrow from './TextAreaAutoGrow.svelte';
 	import ChevronLeft from 'svelte-radix/ChevronLeft.svelte';
@@ -55,13 +62,8 @@
 	let endMinute = $state(''); // State for minute
 	let ampmEnd: string = $state('PM'); // State for AM/PM
 
-	const defaultBackground = `background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/kiwis.png'); /* Replace with the URL of your tileable image */
-  background-repeat: repeat; /* Tiles the image in both directions */
-  background-size: auto; /* Ensures the image retains its original size */
-  background-color: #ffffff; /* Fallback background color */
-  width: 100%;
-  height: 100%;`;
-
+	const defaultBackground = randomSort(stylesGallery)[0].cssTemplate;
+	console.log('defaultBackground', defaultBackground);
 	let finalStyleCss: string = $state(event?.style ?? defaultBackground);
 	let overlayColor: string = $state(event?.overlay_color ?? '#000000');
 	let overlayOpacity: number = $state(event?.overlay_opacity ?? 0.4);
@@ -74,6 +76,30 @@
 	let isEventSaving = $state(false);
 	let errorMessage = $state('');
 	let showError = $state(false);
+
+	// NOTE: this is a hack and I dont like it. The way to go is refactor the code in EventStyler so it's reusable.
+	$effect(() => {
+		if (finalStyleCss) {
+			// Replace the placeholder selector with the actual target
+			const completeCss = `
+		.bg-color-selector {
+			${finalStyleCss}
+		}
+
+		.bg-overlay-selector {
+				background-color: rgba(var(--overlay-color-rgb, ${parseColor(overlayColor)}), ${overlayOpacity});
+			}
+		`;
+
+			// console.log('applying css', completeCss);
+
+			// Create a new <style> tag for the selected preview style
+			const styleElement = document.createElement('style');
+			styleElement.type = 'text/css';
+			styleElement.textContent = completeCss;
+			document.head.appendChild(styleElement);
+		}
+	});
 
 	if (event) {
 		const startTime = parseDateTime(event.start_time);
