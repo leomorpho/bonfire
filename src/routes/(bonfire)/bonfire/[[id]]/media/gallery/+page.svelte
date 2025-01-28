@@ -61,16 +61,20 @@
 
 	function toggleSelection() {
 		selectionActive = !selectionActive;
-
+		console.log('selectionActive', selectionActive);
 		if (selectionActive) {
 			lightbox?.destroy();
+			// NOTE: we don't have specific styling for non-selected state
+			// const items = document.querySelectorAll('.image-item');
+			// items.forEach((el) => {
+			// });
 		} else {
 			// Clear selectedImages and remove selection styling
 			selectedImages = [];
-			const selectedElements = document.querySelectorAll('.image-item.border-blue-400');
+			const selectedElements = document.querySelectorAll('.image-item');
+			// Selected items will have a white border, which needs to be removed when turning off selection
 			selectedElements.forEach((el) => {
-				el.classList.remove('border-blue-400');
-				el.classList.add('border-white');
+				el.classList.remove('border-white');
 			});
 
 			lightbox = createPhotoSwipe();
@@ -79,16 +83,17 @@
 
 	function selectAll() {
 		const allImages = document.querySelectorAll('.image-item');
-		handleSelectionChange(allImages, selectedImages);
+		markAsSelected(allImages, selectedImages);
 
 		console.log('All images selected:', selectedImages);
 	}
 
 	function selectNone() {
-		const selectedElements = document.querySelectorAll('.image-item.border-blue-400');
+		const selectedElements = document.querySelectorAll('.image-item');
 		selectedElements.forEach((el) => {
-			el.classList.remove('border-blue-400');
-			el.classList.add('border-white');
+			el.classList.remove('bg-white-500');
+			el.classList.remove('rounded-lg');
+			el.classList.remove('border-white');
 		});
 		selectedImages = [];
 		console.log('Selection cleared');
@@ -213,12 +218,14 @@
 		return filesSuccessfullyDeleted;
 	}
 
-	// handleSelectionChange is called on every selection change to update the selected list of items.
-	function handleSelectionChange(elements: Element[] | NodeListOf<Element>, targetArray: any[]) {
+	// markAsSelected is called on every selection change to update the selected list of items.
+	function markAsSelected(elements: Element[] | NodeListOf<Element>, targetArray: any[]) {
 		elements.forEach((el) => {
 			// Update element styles
-			el.classList.remove('border-white');
-			el.classList.add('border-blue-400');
+
+			el.classList.add('bg-white-500');
+			el.classList.add('rounded-lg');
+			el.classList.add('border-white');
 
 			// Extract attributes
 			const id = el.getAttribute('data-id');
@@ -467,7 +474,7 @@
 			console.log('Added:', changed.added);
 			console.log('Removed:', changed.removed);
 
-			handleSelectionChange(changed.added, selectedImages);
+			markAsSelected(changed.added, selectedImages);
 
 			changed.removed.forEach((el) => {
 				el.classList.remove('border-blue-400');
@@ -627,7 +634,7 @@
 				{#each eventFiles as file}
 					{#if !file.is_linked_file}
 						<div
-							class="image-item"
+							class="image-item border-2 border-transparent"
 							data-id={file.id}
 							data-uploader-id={file.uploader_id}
 							data-src={file.URL}
