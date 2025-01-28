@@ -3,7 +3,7 @@
 	import { blurhashToImageCssString } from '@unpic/placeholder';
 	import { Play } from 'lucide-svelte';
 
-	let { url, wPixel, hPixel, fileName, urlActive, blurhash, fileType, preview = null } = $props();
+	let { url, wPixel, hPixel, fileName, urlActive=false, blurhash, fileType, preview = null } = $props();
 
 	// TODO: only load image when it crosses screen
 	// TODO: blurhash not working for now, not sure why

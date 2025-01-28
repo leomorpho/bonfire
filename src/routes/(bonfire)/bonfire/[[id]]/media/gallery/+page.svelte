@@ -630,7 +630,7 @@
 				{#each eventFiles as file}
 					{#if !file.is_linked_file}
 						<div
-							class="image-item rounded-xl border-4 border-white"
+							class="image-item"
 							data-id={file.id}
 							data-uploader-id={file.uploader_id}
 							data-src={file.URL}

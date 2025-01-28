@@ -6,6 +6,7 @@
 	import { ImagePlus } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import BonfireNoInfoCard from './BonfireNoInfoCard.svelte';
+	import GalleryItem from './GalleryItem.svelte';
 
 	let { fileCount, eventFiles } = $props();
 	let lightbox: PhotoSwipeLightbox | null = $state(null);
@@ -109,18 +110,14 @@
 					data-pswp-height={file.h_pixel}
 					data-pswp-is-video={file.file_type.startsWith('video/')}
 				>
-					<Image
-						class="border-white-500 rounded-lg border-2"
-						height={file.h_pixel}
-						src={file.signed_url}
-						layout="constrained"
-						aspectRatio={5 / 3}
-						alt={file.file_name}
-						on:click={(e) => {
-							if (!lightboxInitialized) {
-								e.preventDefault(); // Prevent link from opening if lightbox is not ready
-							}
-						}}
+					<GalleryItem
+						url={file.URL}
+						wPixel={file.w_pixel}
+						hPixel={file.h_pixel}
+						fileName={file.file_name}
+						blurhash={file.blurr_hash}
+						fileType={file.file_type}
+						preview={file.linked_file || null}
 					/>
 				</a>
 			{/each}
