@@ -41,14 +41,6 @@
 
 	let client: TriplitClient;
 
-	onMount(() => {
-		client = getFeTriplitClient($page.data.jwt) as TriplitClient;
-		(async () => {
-			// NOTE: for testing
-			console.log('generatePassphraseId()', await generatePassphraseId());
-		})();
-	});
-
 	let dateValue: DateValue | undefined = $state<DateValue | undefined>();
 	let eventName: string = $state(event?.title ?? ''); // State for event name
 	let location: string = $state(event?.location ?? ''); // State for location
@@ -62,15 +54,20 @@
 	let endHour = $state(''); // State for hour
 	let endMinute = $state(''); // State for minute
 	let ampmEnd: string = $state('PM'); // State for AM/PM
-	let finalStyleCss: string = $state(
-		event?.style ??
-			`background-image: url('https://f002.backblazeb2.com/file/bonfire-public/kiwis.png'); /* Replace with the URL of your tileable image */
+
+	const defaultBackground = `background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/kiwis.png'); /* Replace with the URL of your tileable image */
   background-repeat: repeat; /* Tiles the image in both directions */
   background-size: auto; /* Ensures the image retains its original size */
   background-color: #ffffff; /* Fallback background color */
   width: 100%;
-  height: 100%;`
-	);
+  height: 100%;`;
+
+	let finalStyleCss: string = $state(event?.style ?? defaultBackground);
+
+	$effect(() => {
+		console.log('finalStyleCss', finalStyleCss);
+	});
+
 	let overlayColor: string = $state(event?.overlay_color ?? '#000000');
 	let overlayOpacity: number = $state(event?.overlay_opacity ?? 0.4);
 
@@ -277,6 +274,14 @@
 	const stopEditAdmins = () => {
 		currentEventEditingMode = editingMainEvent;
 	};
+
+	onMount(() => {
+		client = getFeTriplitClient($page.data.jwt) as TriplitClient;
+		(async () => {
+			// NOTE: for testing
+			console.log('generatePassphraseId()', await generatePassphraseId());
+		})();
+	});
 </script>
 
 <div class="mx-4 flex flex-col items-center justify-center">
