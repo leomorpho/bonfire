@@ -23,6 +23,7 @@
 	let uppy;
 	let totalFiles = 0; // To track total files to upload
 	let uploadedFiles = 0; // To track successfully uploaded files
+	let currentProgress = {};
 
 	const maxMbSize = 50;
 
@@ -32,7 +33,8 @@
 
 		const tempAttendeeSecret = $page.url.searchParams.get(tempAttendeeSecretParam);
 		if (tempAttendeeSecret) {
-			imageUploadEndpoint = imageUploadEndpoint + `?${tempAttendeeSecretParam}=${tempAttendeeSecret}`;
+			imageUploadEndpoint =
+				imageUploadEndpoint + `?${tempAttendeeSecretParam}=${tempAttendeeSecret}`;
 			onSuccessEndpoint = onSuccessEndpoint + `?${tempAttendeeSecretParam}=${tempAttendeeSecret}`;
 		}
 
@@ -51,11 +53,12 @@
 				target: '#uppy-dashboard',
 				autoOpen: 'imageEditor', // Automatically open the editor
 				showProgressDetails: true,
-				note: `Images or videos. Max size: ${maxMbSize}MB.`
+				// proudlyDisplayPoweredByUppy: false,
+				note: `Images or videos. Max size: ${maxMbSize}MB.`,
+				metaFields: [{ id: 'name', name: 'Name', placeholder: 'File name' }]
 			})
 			.use(Webcam, {
 				mirror: true // Use mirror mode for webcam
-				// countdown: true // Add a countdown before capturing
 			})
 			// .use(Audio)
 			.use(GoldenRetriever)
@@ -69,30 +72,58 @@
 					Authorization: `Bearer ${window.localStorage.getItem('token')}`
 				},
 				allowedMetaFields: true,
-			})
-			.on('upload-start', (file) => {
-				totalFiles = uppy.getFiles().length; // Count the total number of files in the queue
-				uploadedFiles = 0; // Reset the counter on upload start
-			})
-			.on('upload-success', (file, response) => {
-				uploadedFiles++; // Increment on successful upload
-				console.log('Upload successful:', file, response);
-
-				// Redirect after all files have been uploaded
-				if (uploadedFiles === totalFiles) {
-					goto(onSuccessEndpoint);
-				}
-			})
-			.on('error', (error) => {
-				console.error('Upload error:', error);
+				timeout: 0 // Disable timeout for large files
 			});
+
+		uppy.on('upload-start', (file) => {
+			totalFiles = uppy.getFiles().length; // Count the total number of files in the queue
+			uploadedFiles = 0; // Reset the counter on upload start
+			currentProgress = {};
+		});
+
+		uppy.on('upload-success', (file, response) => {
+			uploadedFiles++; // Increment on successful upload
+			console.log('Upload successful:', file, response);
+
+			// Redirect after all files have been uploaded
+			if (uploadedFiles === totalFiles) {
+				goto(onSuccessEndpoint);
+			}
+		});
+
+		uppy.on('error', (error) => {
+			console.error('Upload error:', error);
+		});
 
 		uppy.on('file-added', (file) => {
 			uppy.setFileMeta(file.id, {
 				originalName: file.name,
 				mimeType: file.type,
-				size: file.size
+				size: file.size,
+				uploadStartTime: new Date().toISOString()
 			});
+		});
+
+		// Track individual file progress
+		uppy.on('upload-progress', (file, progress) => {
+			const { bytesUploaded, bytesTotal } = progress;
+			const fileProgress = Math.floor((bytesUploaded / bytesTotal) * 100);
+
+			currentProgress[file.id] = {
+				bytesUploaded,
+				bytesTotal,
+				percentage: fileProgress
+			};
+
+			// Update the UI with detailed progress
+			const progressDetails = document.querySelector(
+				`[data-uppy-file-id="${file.id}"] .uppy-Dashboard-Item-statusSize`
+			);
+			if (progressDetails) {
+				const uploadedMB = (bytesUploaded / (1024 * 1024)).toFixed(1);
+				const totalMB = (bytesTotal / (1024 * 1024)).toFixed(1);
+				progressDetails.textContent = `${uploadedMB}MB of ${totalMB}MB (${fileProgress}%)`;
+			}
 		});
 	});
 </script>

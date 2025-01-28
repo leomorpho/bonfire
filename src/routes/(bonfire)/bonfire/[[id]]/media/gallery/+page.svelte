@@ -75,6 +75,7 @@
 			// Selected items will have a white border, which needs to be removed when turning off selection
 			selectedElements.forEach((el) => {
 				el.classList.remove('border-blue-300');
+				el.classList.add('border-transparent');
 			});
 
 			lightbox = createPhotoSwipe();
@@ -91,8 +92,9 @@
 	function selectNone() {
 		const selectedElements = document.querySelectorAll('.image-item');
 		selectedElements.forEach((el) => {
-			el.classList.remove('rounded-lg');
+			// el.classList.remove('rounded-lg');
 			el.classList.remove('border-blue-300');
+			el.classList.add('border-transparent');
 		});
 		selectedImages = [];
 		console.log('Selection cleared');
@@ -105,7 +107,8 @@
 	) {
 		elements.forEach((el) => {
 			// Update element styles
-			el.classList.add('rounded-lg', 'border-blue-300');
+			el.classList.remove('border-transparent');
+			el.classList.add('border-blue-300');
 
 			// Extract attributes
 			const id = el.getAttribute('data-id');
@@ -478,6 +481,7 @@
 
 			changed.removed.forEach((el) => {
 				el.classList.remove('border-blue-300');
+				el.classList.add('border-transparent');
 				const id = el.getAttribute('data-id');
 				const index = selectedImages.findIndex((img) => img.id === id);
 				if (index > -1) selectedImages.splice(index, 1);
