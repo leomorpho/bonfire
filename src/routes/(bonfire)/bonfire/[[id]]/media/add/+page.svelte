@@ -24,7 +24,7 @@
 	let totalFiles = 0; // To track total files to upload
 	let uploadedFiles = 0; // To track successfully uploaded files
 
-	const maxMbSize = 100;
+	const maxMbSize = 50;
 
 	onMount(() => {
 		let imageUploadEndpoint = `/bonfire/${$page.params.id}/media/add`;
@@ -68,7 +68,7 @@
 				headers: {
 					Authorization: `Bearer ${window.localStorage.getItem('token')}`
 				},
-				allowedMetaFields: true
+				allowedMetaFields: true,
 			})
 			.on('upload-start', (file) => {
 				totalFiles = uppy.getFiles().length; // Count the total number of files in the queue

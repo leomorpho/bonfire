@@ -410,7 +410,8 @@ export async function fetchAccessibleEventFiles(
 	bonfireId: string,
 	userId: string | null | undefined,
 	tempAttendeeId: string | null | undefined,
-	verifyAccess: boolean
+	verifyAccess: boolean,
+	numFiles: number | null = null
 ) {
 	let existingAttendee = null;
 
@@ -445,7 +446,7 @@ export async function fetchAccessibleEventFiles(
 					])
 					.build()
 			);
-			console.log('attendance --->', attendance);
+			// console.log('attendance --->', attendance);
 			if (!attendance) {
 				return;
 			}
@@ -470,7 +471,7 @@ export async function fetchAccessibleEventFiles(
 	const isOwner = event.user_id === userId;
 
 	// Fetch files related to the bonfire
-	const filesQuery = triplitHttpClient
+	let filesQuery = triplitHttpClient
 		.query('files')
 		.where(
 			and([
@@ -479,19 +480,23 @@ export async function fetchAccessibleEventFiles(
 			])
 		)
 		.include('linked_file')
-		.order('uploaded_at', 'DESC')
-		// .select([
-		// 	'id',
-		// 	'file_key',
-		// 	'file_type',
-		// 	'uploader_id',
-		// 	'h_pixel',
-		// 	'w_pixel',
-		// 	'size_in_bytes',
-		// 	'uploaded_at'
-		// ]) // Include necessary fields // TODO: bug with select for http client
-		.build();
-	const files = await triplitHttpClient.fetch(filesQuery);
+		.order('uploaded_at', 'DESC');
+	// .select([
+	// 	'id',
+	// 	'file_key',
+	// 	'file_type',
+	// 	'uploader_id',
+	// 	'h_pixel',
+	// 	'w_pixel',
+	// 	'size_in_bytes',
+	// 	'uploaded_at'
+	// ]) // Include necessary fields // TODO: bug with select for http client
+	// .build();
+
+	if (numFiles) {
+		filesQuery = filesQuery.limit(numFiles);
+	}
+	const files = await triplitHttpClient.fetch(filesQuery.build());
 
 	// Generate signed URLs for the files, including linked files
 	const filesWithUrls = await Promise.all(
