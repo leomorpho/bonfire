@@ -13,6 +13,9 @@ import { tempAttendeeSecretParam } from '$lib/enums';
 import { encode } from 'blurhash';
 import { getPixels } from '@unpic/pixels';
 import fs from 'fs/promises';
+import os from 'os';
+import path from 'path';
+import { createReadStream } from 'fs';
 
 export const POST = async ({ url, locals, params, request }): Promise<Response> => {
 	const tempAttendeeSecret = url.searchParams.get(tempAttendeeSecretParam);
@@ -64,9 +67,8 @@ export const POST = async ({ url, locals, params, request }): Promise<Response> 
 		const boundary = boundaryMatch[1];
 		const formData = await parseMultipart(request, boundary);
 
-		const file = formData.get('file');
-
-		if (!file || !(file instanceof Buffer)) {
+		const fileTempPath = formData.get('file');
+		if (!fileTempPath || typeof fileTempPath !== 'string') {
 			throw new TypeError('No valid file uploaded');
 		}
 
@@ -76,8 +78,9 @@ export const POST = async ({ url, locals, params, request }): Promise<Response> 
 		// Extract file from formData
 		const filename = formData.get('name');
 		const filetype = formData.get('type');
-		const fileSize = file.length; // Get the file size in bytes
-		const fileStream = Readable.from(file);
+		// const fileSize = file.length; // Get the file size in bytes // That needs to be updated to read from the filepath
+		const fileStream = createReadStream(fileTempPath);
+
 		const fileKey = `events/eventid_${id}/userid_${userIdForCurrentUserType}/${filename}`;
 		let frameFileId = null;
 
@@ -91,13 +94,13 @@ export const POST = async ({ url, locals, params, request }): Promise<Response> 
 		// Extract dimensions if applicable
 		if (filetype.startsWith('image/')) {
 			// Images: Use `sharp`
-			const metadata = await sharp(file).metadata();
+			const metadata = await sharp(fileTempPath).metadata();
 			h_pixel = metadata.height || null;
 			w_pixel = metadata.width || null;
 
 			try {
 				// Process the image buffer with sharp
-				const processedBuffer = await sharp(file).toFormat('png').toBuffer();
+				const processedBuffer = await sharp(fileTempPath).toFormat('png').toBuffer();
 				// Use `getPixels` on the processed buffer
 				const pixelData = await getPixels(processedBuffer);
 				const data = Uint8ClampedArray.from(pixelData.data);
@@ -125,7 +128,7 @@ export const POST = async ({ url, locals, params, request }): Promise<Response> 
 					blurhash: videoBlurHash,
 					tempImagePath,
 					cleanup: tempCleanup
-				} = await extractFirstFrameAndBlurHash(file);
+				} = await extractFirstFrameAndBlurHash(fileTempPath);
 
 				const video_frame_blurhash = videoBlurHash;
 				cleanup = tempCleanup;
@@ -172,22 +175,12 @@ export const POST = async ({ url, locals, params, request }): Promise<Response> 
 				}
 			}
 			try {
-				await transcodeAndUploadVideo(file, fileKey);
+				await transcodeAndUploadVideo(fileTempPath, fileKey);
 			} catch (e) {
 				console.log(`"failed to upload video with key ${fileKey} to s3`, e);
 				throw error(500);
 			}
 		}
-
-		// // Save the fileStream to a local file for debugging
-		// const debugFilePath = filename;
-		// const writable = fs.createWriteStream(debugFilePath);
-
-		// fileStream.pipe(writable);
-
-		// writable.on('finish', () => {
-		// 	console.log(`File saved locally for debugging: ${debugFilePath}`);
-		// });
 
 		// Create database entry
 		// TODO: once transactions are supported in HTTP client, add one here
@@ -198,7 +191,7 @@ export const POST = async ({ url, locals, params, request }): Promise<Response> 
 			file_key: fileKey,
 			file_type: filetype,
 			file_name: filename,
-			size_in_bytes: fileSize,
+			size_in_bytes: (await await fs.stat(fileTempPath)).size,
 			h_pixel: h_pixel,
 			w_pixel: w_pixel,
 			blurr_hash: blurhash,
@@ -246,9 +239,11 @@ async function parseMultipart(request: Request, boundary: string) {
 		}
 
 		if (filename) {
-			// Binary file content
+			// Save binary file content to a temp file
+			const tempFilePath = path.join(os.tmpdir(), filename);
 			const content = part.slice(contentIndex, part.lastIndexOf('\r\n'));
-			formData.set(name, Buffer.from(content, 'binary'));
+			await fs.writeFile(tempFilePath, content, 'binary');
+			formData.set(name, tempFilePath); // Store the file path instead of binary content
 			formData.set('name', filename);
 		} else {
 			// Text content

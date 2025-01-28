@@ -522,28 +522,24 @@ export async function fetchAccessibleEventFiles(
 }
 
 /**
- * Transcode a video to a streamable MP4 format and upload to S3.
- * @param videoBuffer - The video file as a Buffer.
+ * Transcode a video file to a streamable MP4 format and upload it to S3.
+ * @param videoPath - The file path to the video file.
  * @param outputKey - S3 key for the transcoded file.
  * @returns {Promise<string>} - The S3 key of the uploaded file.
  */
 export async function transcodeAndUploadVideo(
-	videoBuffer: Buffer,
+	videoPath: string,
 	outputKey: string
 ): Promise<string> {
 	const tempDir = path.join(process.cwd(), 'temp');
 	await fs.mkdir(tempDir, { recursive: true }); // Ensure temp directory exists
 
-	const tempVideoPath = path.join(tempDir, `temp-video-${Date.now()}`);
 	const tempOutputPath = path.join(tempDir, `transcoded-${Date.now()}.mp4`);
 
 	try {
-		// Save the video buffer to a temporary file
-		await fs.writeFile(tempVideoPath, videoBuffer);
-
 		// Transcode the video to MP4 (H.264/AAC)
 		await new Promise<void>((resolve, reject) => {
-			ffmpeg(tempVideoPath)
+			ffmpeg(videoPath)
 				.output(tempOutputPath)
 				.videoCodec('libx264')
 				.audioCodec('aac')
@@ -572,22 +568,19 @@ export async function transcodeAndUploadVideo(
 		throw error;
 	} finally {
 		// Clean up temporary files
-		await Promise.all([
-			fs.unlink(tempVideoPath).catch(() => console.warn('Failed to delete temp video file')),
-			fs.unlink(tempOutputPath).catch(() => console.warn('Failed to delete temp output file'))
-		]);
+		await fs.unlink(tempOutputPath).catch(() => console.warn('Failed to delete temp output file'));
 	}
 }
 
 /**
- * Extract the first frame from a video saved in a local temp directory and generate a BlurHash.
- * This function saves the video file to a `temp` directory within the project, processes it, and cleans up.
+ * Extract the first frame from a video and generate a BlurHash.
+ * This function processes a video file from a given file path and cleans up temporary files.
  *
- * @param videoBuffer - The video file as a Buffer.
- * @returns {Promise<string>} - The generated BlurHash for the first frame.
+ * @param videoPath - The file path to the video.
+ * @returns {Promise<{ blurhash: string; tempImagePath: string; cleanup: () => Promise<void> }>} - The generated BlurHash for the first frame.
  */
 export async function extractFirstFrameAndBlurHash(
-	videoBuffer: Buffer
+	videoPath: string
 ): Promise<{ blurhash: string; tempImagePath: string; cleanup: () => Promise<void> }> {
 	// Define the local temp directory
 	const tempDir = path.join(process.cwd(), 'temp');
@@ -596,23 +589,19 @@ export async function extractFirstFrameAndBlurHash(
 	// Delete files older than 1 hour
 	await cleanOldTempFiles(tempDir);
 
-	// Define paths for the temporary video and frame files
-	const tempVideoPath = path.join(tempDir, `temp-video-${Date.now()}.mov`);
+	// Define the path for the temporary frame file
 	const tempImagePath = path.join(tempDir, `temp-frame-${Date.now()}.png`);
 
 	try {
-		// Save the video buffer to a temporary file
-		await fs.writeFile(tempVideoPath, videoBuffer);
-		console.log(`Video saved temporarily at: ${tempVideoPath}`);
-
-		const durationInSeconds = await getVideoDuration(tempVideoPath);
+		// Get the video duration
+		const durationInSeconds = await getVideoDuration(videoPath);
 
 		// Generate a random timestamp within the video duration
 		const randomTimestamp = (Math.random() * durationInSeconds).toFixed(2); // e.g., "12.34"
 
 		// Use FFmpeg to extract the random frame
 		await new Promise<void>((resolve, reject) => {
-			ffmpeg(tempVideoPath)
+			ffmpeg(videoPath)
 				.seekInput(randomTimestamp) // Seek to the random timestamp
 				.frames(1)
 				.output(tempImagePath)
@@ -638,10 +627,9 @@ export async function extractFirstFrameAndBlurHash(
 			blurhash,
 			tempImagePath,
 			cleanup: async () => {
-				await Promise.all([
-					fs.unlink(tempVideoPath).catch(() => console.warn('Failed to delete temp video file')),
-					fs.unlink(tempImagePath).catch(() => console.warn('Failed to delete temp frame file'))
-				]);
+				await fs
+					.unlink(tempImagePath)
+					.catch(() => console.warn('Failed to delete temp frame file'));
 			}
 		};
 	} catch (err) {
