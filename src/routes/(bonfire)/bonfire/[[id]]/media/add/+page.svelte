@@ -30,10 +30,10 @@
 		let imageUploadEndpoint = `/bonfire/${$page.params.id}/media/add`;
 		let onSuccessEndpoint = `/bonfire/${$page.params.id}/media/gallery`;
 
-		const tempAttendeeId = $page.url.searchParams.get(tempAttendeeSecretParam);
-		if (tempAttendeeId) {
-			imageUploadEndpoint = imageUploadEndpoint + `?${tempAttendeeSecretParam}=${tempAttendeeId}`;
-			onSuccessEndpoint = onSuccessEndpoint + `?${tempAttendeeSecretParam}=${tempAttendeeId}`;
+		const tempAttendeeSecret = $page.url.searchParams.get(tempAttendeeSecretParam);
+		if (tempAttendeeSecret) {
+			imageUploadEndpoint = imageUploadEndpoint + `?${tempAttendeeSecretParam}=${tempAttendeeSecret}`;
+			onSuccessEndpoint = onSuccessEndpoint + `?${tempAttendeeSecretParam}=${tempAttendeeSecret}`;
 		}
 
 		// Initialize Uppy instance with Tus for resumable uploads
@@ -43,7 +43,7 @@
 			restrictions: {
 				maxFileSize: maxMbSize * 1024 * 1024, // Limit file size to 100MB
 				// allowedFileTypes: ['image/*', 'video/*', 'audio/*'] // Allowed file types
-				allowedFileTypes: ['image/*'] // Allowed file types
+				allowedFileTypes: ['image/*', 'video/*'] // Allowed file types
 			}
 		})
 			.use(DashboardPlugin, {
@@ -51,7 +51,7 @@
 				target: '#uppy-dashboard',
 				autoOpen: 'imageEditor', // Automatically open the editor
 				showProgressDetails: true,
-				note: `Images, videos or sound files. Max size: ${maxMbSize}MB.`
+				note: `Images or videos. Max size: ${maxMbSize}MB.`
 			})
 			.use(Webcam, {
 				mirror: true // Use mirror mode for webcam

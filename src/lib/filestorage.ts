@@ -516,7 +516,63 @@ export async function fetchAccessibleEventFiles(
 	return { files: filesWithUrls, isOwner };
 }
 
-ffmpeg.setFfmpegPath(ffmpegInstaller.path);
+/**
+ * Transcode a video to a streamable MP4 format and upload to S3.
+ * @param videoBuffer - The video file as a Buffer.
+ * @param outputKey - S3 key for the transcoded file.
+ * @returns {Promise<string>} - The S3 key of the uploaded file.
+ */
+export async function transcodeAndUploadVideo(
+	videoBuffer: Buffer,
+	outputKey: string
+): Promise<string> {
+	const tempDir = path.join(process.cwd(), 'temp');
+	await fs.mkdir(tempDir, { recursive: true }); // Ensure temp directory exists
+
+	const tempVideoPath = path.join(tempDir, `temp-video-${Date.now()}`);
+	const tempOutputPath = path.join(tempDir, `transcoded-${Date.now()}.mp4`);
+
+	try {
+		// Save the video buffer to a temporary file
+		await fs.writeFile(tempVideoPath, videoBuffer);
+
+		// Transcode the video to MP4 (H.264/AAC)
+		await new Promise<void>((resolve, reject) => {
+			ffmpeg(tempVideoPath)
+				.output(tempOutputPath)
+				.videoCodec('libx264')
+				.audioCodec('aac')
+				.format('mp4')
+				.outputOptions('-movflags +faststart') // Optimize for streaming
+				.on('end', () => resolve())
+				.on('error', (err) => reject(err))
+				.run();
+		});
+
+		// Read the transcoded file into a stream
+		const transcodedBuffer = await fs.readFile(tempOutputPath);
+		const fileStream = Readable.from(transcodedBuffer);
+
+		// Upload the transcoded file to S3
+		await uploadLargeFileToS3({
+			fileStream,
+			key: outputKey,
+			contentType: 'video/mp4'
+		});
+
+		console.log(`Successfully uploaded transcoded video to S3: ${outputKey}`);
+		return outputKey;
+	} catch (error) {
+		console.error('Error during transcoding/upload process:', error);
+		throw error;
+	} finally {
+		// Clean up temporary files
+		await Promise.all([
+			fs.unlink(tempVideoPath).catch(() => console.warn('Failed to delete temp video file')),
+			fs.unlink(tempOutputPath).catch(() => console.warn('Failed to delete temp output file'))
+		]);
+	}
+}
 
 /**
  * Extract the first frame from a video saved in a local temp directory and generate a BlurHash.

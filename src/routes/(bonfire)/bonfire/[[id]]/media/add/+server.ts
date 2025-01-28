@@ -1,4 +1,8 @@
-import { extractFirstFrameAndBlurHash, uploadLargeFileToS3 } from '$lib/filestorage';
+import {
+	extractFirstFrameAndBlurHash,
+	transcodeAndUploadVideo,
+	uploadLargeFileToS3
+} from '$lib/filestorage';
 import { Readable } from 'stream';
 import { error, redirect } from '@sveltejs/kit';
 import { triplitHttpClient } from '$lib/server/triplit';
@@ -103,6 +107,16 @@ export const POST = async ({ url, locals, params, request }): Promise<Response> 
 			} catch (e) {
 				console.log('failed to generate the blurhash for this image', e);
 			}
+			try {
+				await uploadLargeFileToS3({
+					fileStream,
+					key: fileKey,
+					contentType: filetype
+				});
+			} catch (e) {
+				console.log(`"failed to upload image with key ${fileKey} to s3`, e);
+				throw error(500);
+			}
 		} else if (filetype.startsWith('video/')) {
 			try {
 				// TODO: run extractFirstFrameAndBlurHash in a task and use a default video placeholder while there is no extracted frame. It
@@ -157,6 +171,12 @@ export const POST = async ({ url, locals, params, request }): Promise<Response> 
 					await cleanup(); // Cleanup temporary files
 				}
 			}
+			try {
+				await transcodeAndUploadVideo(file, fileKey);
+			} catch (e) {
+				console.log(`"failed to upload video with key ${fileKey} to s3`, e);
+				throw error(500);
+			}
 		}
 
 		// // Save the fileStream to a local file for debugging
@@ -168,12 +188,6 @@ export const POST = async ({ url, locals, params, request }): Promise<Response> 
 		// writable.on('finish', () => {
 		// 	console.log(`File saved locally for debugging: ${debugFilePath}`);
 		// });
-
-		await uploadLargeFileToS3({
-			fileStream,
-			key: fileKey,
-			contentType: filetype
-		});
 
 		// Create database entry
 		// TODO: once transactions are supported in HTTP client, add one here
