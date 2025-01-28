@@ -63,11 +63,6 @@
   height: 100%;`;
 
 	let finalStyleCss: string = $state(event?.style ?? defaultBackground);
-
-	$effect(() => {
-		console.log('finalStyleCss', finalStyleCss);
-	});
-
 	let overlayColor: string = $state(event?.overlay_color ?? '#000000');
 	let overlayOpacity: number = $state(event?.overlay_opacity ?? 0.4);
 
@@ -77,6 +72,8 @@
 	let setEndTime = $state(false);
 	let submitDisabled = $derived(!(dateValue && eventName.length > 0 && startHour.length > 0));
 	let isEventSaving = $state(false);
+	let errorMessage = $state('');
+	let showError = $state(false);
 
 	if (event) {
 		const startTime = parseDateTime(event.start_time);
@@ -139,11 +136,17 @@
 
 	const handleSubmit = async (e: Event) => {
 		try {
+			errorMessage = '';
+			showError = false;
 			isEventSaving = true;
 			e.preventDefault();
 
 			// Ensure basic validation
-			if (!dateValue || !eventName) return;
+			if (!dateValue || !eventName) {
+				errorMessage = 'Please fill in all required fields';
+				showError = true;
+				return;
+			}
 
 			// Convert DateValue to a JS Date object for the event date
 			const date = dateValue?.toDate();
@@ -173,29 +176,30 @@
 				const endDate = new Date(date);
 				endDate.setHours(endHours, endMinutes, 0, 0);
 
+				// Check if end time is before start time
+				if (endDate < date) {
+					errorMessage = 'End time must be after start time';
+					showError = true;
+					return;
+				}
+
 				// Convert the event date-time to the specified timezone for end time
 				eventEndDatetime = new Date(endDate.toLocaleString('en-US', { timeZone: timezone.value }));
 			}
+
 			const userId: string = (await waitForUserId()) as string;
-			console.log({
-				title: eventName,
-				description: details || null,
-				location: location || null,
-				start_time: eventStartDatetime,
-				end_time: eventEndDatetime,
-				user_id: userId, // Use the authenticated user's ID
-				timezone: timezone,
-				style: finalStyleCss,
-				overlay_color: overlayColor,
-				overlay_opacity: overlayOpacity
-			});
+			if (!userId) {
+				errorMessage = 'User authentication failed';
+				showError = true;
+				return;
+			}
 
 			let eventId = event?.id;
 
 			if (mode == EventFormType.CREATE) {
-				// Save the event (uncomment in production)
-				const { output } = await client.insert('events', {
-					id: await generatePassphraseId(),
+				const newEventId = await generatePassphraseId();
+				const { output, error } = await client.insert('events', {
+					id: newEventId,
 					title: eventName,
 					description: details || null,
 					location: location || null,
@@ -208,43 +212,62 @@
 					overlay_opacity: overlayOpacity
 				});
 
+				if (error || !output) {
+					errorMessage = 'Failed to create event. Please try again.';
+					showError = true;
+					return;
+				}
+
+				const { error: attendeeError } = await client.insert('attendees', {
+					user_id: userId,
+					event_id: output.id as string,
+					status: Status.GOING
+				});
+
+				if (attendeeError) {
+					errorMessage = 'Event created but failed to add you as an attendee.';
+					showError = true;
+					return;
+				}
+
 				// Set the stores so the event page updates with new style
 				styleStore.set(finalStyleCss);
 				overlayColorStore.set(overlayColor);
 				overlayOpacityStore.set(overlayOpacity);
 
-				if (output) {
-					await client.insert('attendees', {
-						user_id: userId,
-						event_id: output.id as string,
-						status: Status.GOING // Default status
-					});
-					eventId = output.id;
-				} else {
-					console.log('Failed to create event object');
-				}
+				eventId = output.id;
 			} else {
-				await client.update('events', event.id, async (entity) => {
-					entity.title = eventName;
-					entity.description = details || null;
-					entity.location = location;
-					entity.geocoded_location = JSON.stringify(geocodedLocation);
-					entity.start_time = eventStartDatetime;
-					entity.end_time = eventEndDatetime;
-					entity.style = finalStyleCss;
-					entity.overlay_color = overlayColor;
-					entity.overlay_opacity = overlayOpacity;
-				});
-				styleStore.set(finalStyleCss);
-				overlayColorStore.set(overlayColor);
-				overlayOpacityStore.set(overlayOpacity);
+				try {
+					await client.update('events', event.id, async (entity) => {
+						entity.title = eventName;
+						entity.description = details || null;
+						entity.location = location;
+						entity.geocoded_location = JSON.stringify(geocodedLocation);
+						entity.start_time = eventStartDatetime;
+						entity.end_time = eventEndDatetime;
+						entity.style = finalStyleCss;
+						entity.overlay_color = overlayColor;
+						entity.overlay_opacity = overlayOpacity;
+					});
+
+					styleStore.set(finalStyleCss);
+					overlayColorStore.set(overlayColor);
+					overlayOpacityStore.set(overlayOpacity);
+				} catch (error) {
+					errorMessage = 'Failed to update event. Please try again.';
+					showError = true;
+					return;
+				}
 			}
-			goto(`/bonfire/${eventId}`);
+
+			// Only redirect if everything succeeded
+			if (eventId) {
+				goto(`/bonfire/${eventId}`);
+			}
 		} catch (e) {
-			console.log(
-				`failed to ${mode === EventFormType.CREATE ? EventFormType.CREATE : EventFormType.UPDATE} event`,
-				e
-			);
+			console.error(`Failed to ${mode === EventFormType.CREATE ? 'create' : 'update'} event`, e);
+			errorMessage = `Failed to ${mode === EventFormType.CREATE ? 'create' : 'update'} event. Please try again.`;
+			showError = true;
 		} finally {
 			isEventSaving = false;
 		}
@@ -276,6 +299,10 @@
 	};
 
 	onMount(() => {
+		styleStore.set(finalStyleCss);
+		overlayColorStore.set(overlayColor);
+		overlayOpacityStore.set(overlayOpacity);
+
 		client = getFeTriplitClient($page.data.jwt) as TriplitClient;
 		(async () => {
 			// NOTE: for testing
@@ -468,6 +495,11 @@
 				</Button>
 			</div>
 			<EventAdminEditor eventId={event?.id} {currUserId} eventCreatorId={event?.user_id} />
+		</div>
+	{/if}
+	{#if showError}
+		<div class="mt-2 rounded-md bg-red-100 p-3 text-red-700">
+			{errorMessage}
 		</div>
 	{/if}
 </div>
