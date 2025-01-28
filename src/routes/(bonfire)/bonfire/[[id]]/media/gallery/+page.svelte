@@ -302,17 +302,14 @@
 				const imgPoster = element.dataset.pswpIsPoster || '';
 				e.itemData = {
 					html: `
-                    <div class="pswp__item">
-                        <video controls class="pswp__img" poster="${imgPoster}">
-                            <source src="${videoURL}" type="video/mp4" />
-                            Your browser does not support the video tag.
-                        </video>
-                        <div class="pswp__play-btn">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polygon points="12,8 12,16 16,12" />
-                            </svg>
-                        </div>
-                    </div>
+                    <div class="flex items-center justify-center h-full w-full">
+						<div class="relative max-w-full max-h-full">
+							<video controls class="rounded-lg shadow-lg" poster="${imgPoster}">
+								<source src="${videoURL}" type="video/mp4" />
+								Your browser does not support the video tag.
+							</video>
+						</div>
+					</div>
                 `
 				};
 
