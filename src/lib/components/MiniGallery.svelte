@@ -6,6 +6,7 @@
 	import { ImagePlus } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import BonfireNoInfoCard from './BonfireNoInfoCard.svelte';
+	import GalleryItem from './GalleryItem.svelte';
 
 	let { fileCount, eventFiles } = $props();
 	let lightbox: PhotoSwipeLightbox | null = $state(null);
@@ -36,17 +37,14 @@
 				const imgPoster = element.dataset.pswpIsPoster || '';
 				e.itemData = {
 					html: `
-                    <div class="pswp__item">
-                        <video controls class="pswp__img" poster="${imgPoster}">
-                            <source src="${videoURL}" type="video/mp4" />
-                            Your browser does not support the video tag.
-                        </video>
-                        <div class="pswp__play-btn">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polygon points="12,8 12,16 16,12" />
-                            </svg>
-                        </div>
-                    </div>
+                   	<div class="flex items-center justify-center h-full w-full">
+						<div class="relative max-w-full max-h-full">
+							<video controls class="rounded-lg shadow-lg" poster="${imgPoster}">
+								<source src="${videoURL}" type="video/mp4" />
+								Your browser does not support the video tag.
+							</video>
+						</div>
+					</div>
                 `
 				};
 
@@ -109,18 +107,14 @@
 					data-pswp-height={file.h_pixel}
 					data-pswp-is-video={file.file_type.startsWith('video/')}
 				>
-					<Image
-						class="border-white-500 rounded-lg border-2"
-						height={file.h_pixel}
-						src={file.signed_url}
-						layout="constrained"
-						aspectRatio={5 / 3}
-						alt={file.file_name}
-						on:click={(e) => {
-							if (!lightboxInitialized) {
-								e.preventDefault(); // Prevent link from opening if lightbox is not ready
-							}
-						}}
+					<GalleryItem
+						url={file.URL}
+						wPixel={file.w_pixel}
+						hPixel={file.h_pixel}
+						fileName={file.file_name}
+						blurhash={file.blurr_hash}
+						fileType={file.file_type}
+						preview={file.linked_file || null}
 					/>
 				</a>
 			{/each}

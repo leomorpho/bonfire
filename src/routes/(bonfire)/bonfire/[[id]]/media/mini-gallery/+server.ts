@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import { triplitHttpClient } from '$lib/server/triplit';
-import { generateSignedUrl } from '$lib/filestorage';
+import { fetchAccessibleEventFiles, generateSignedUrl } from '$lib/filestorage';
 import { MAX_NUM_IMAGES_IN_MINI_GALLERY, tempAttendeeSecretParam } from '$lib/enums';
 import { and } from '@triplit/client';
 
@@ -14,10 +14,12 @@ export const GET = async ({ locals, url, params }) => {
 
 	// Only temp users and logged in users can query this endpoint
 	let tempAttendeeExists: boolean = false;
+	let existingAttendee;
+
 	const tempAttendeeSecret = url.searchParams.get(tempAttendeeSecretParam);
 	if (tempAttendeeSecret) {
 		try {
-			const existingAttendee = await triplitHttpClient.fetchOne(
+			existingAttendee = await triplitHttpClient.fetchOne(
 				triplitHttpClient
 					.query('temporary_attendees')
 					.where(
@@ -42,48 +44,55 @@ export const GET = async ({ locals, url, params }) => {
 	}
 
 	try {
-		if (user) {
-			const attendance = await triplitHttpClient.fetchOne(
-				triplitHttpClient
-					.query('attendees')
-					.where([
-						and([
-							['user_id', '=', user?.id],
-							['event_id', '=', id]
-						])
-					])
-					.build()
-			);
-			if (!attendance) {
-				return json({}); // Not authorized to get any data
-			}
-		}
-	} catch (e) {
-		console.error('failed to fetch attendance object', e);
-	}
-
-	try {
-		// Fetch files for the given event ID
-		const eventFilesQuery = triplitHttpClient
-			.query('files')
-			.where('event_id', '=', id)
-			.order('uploaded_at', 'DESC')
-			.limit(MAX_NUM_IMAGES_IN_MINI_GALLERY)
-			.build();
-
-		const eventFiles = await triplitHttpClient.fetch(eventFilesQuery);
-
-		// Generate signed URLs for the files
-		const signedFiles = await Promise.all(
-			eventFiles.map(async (file) => ({
-				...file,
-				signed_url: await generateSignedUrl(file.file_key)
-			}))
+		// NOTE: below function checks user is attending bonfire
+		const { files, isOwner } = await fetchAccessibleEventFiles(
+			id as string,
+			user?.id,
+			existingAttendee?.id,
+			true,
+			MAX_NUM_IMAGES_IN_MINI_GALLERY
 		);
 
+		// Format and return the files with signed URLs
+		const signedFiles = await Promise.all(
+			files.map(async (file) => ({
+				...file,
+				signed_url: await generateSignedUrl(file.file_key),
+				linked_file: file.linked_file
+					? {
+							...file.linked_file,
+							signed_url: await generateSignedUrl(file.linked_file.file_key)
+						}
+					: null
+			}))
+		);
 		return json(signedFiles);
 	} catch (error) {
 		console.error('Error fetching event files:', error);
 		return json({ error: 'Internal server error' }, { status: 500 });
 	}
+	// try {
+	// 	// Fetch files for the given event ID
+	// 	const eventFilesQuery = triplitHttpClient
+	// 		.query('files')
+	// 		.where('event_id', '=', id)
+	// 		.order('uploaded_at', 'DESC')
+	// 		.limit(MAX_NUM_IMAGES_IN_MINI_GALLERY)
+	// 		.build();
+
+	// 	const eventFiles = await triplitHttpClient.fetch(eventFilesQuery);
+
+	// 	// Generate signed URLs for the files
+	// 	const signedFiles = await Promise.all(
+	// 		eventFiles.map(async (file) => ({
+	// 			...file,
+	// 			signed_url: await generateSignedUrl(file.file_key)
+	// 		}))
+	// 	);
+
+	// 	return json(signedFiles);
+	// } catch (error) {
+	// 	console.error('Error fetching event files:', error);
+	// 	return json({ error: 'Internal server error' }, { status: 500 });
+	// }
 };

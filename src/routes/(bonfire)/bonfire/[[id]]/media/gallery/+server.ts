@@ -12,12 +12,14 @@ export const GET = async ({ url, params, locals }) => {
 		return json({ error: 'No event ID provided' }, { status: 400 });
 	}
 
+	let existingAttendee;
+
 	// Only temp users and logged in users can query this endpoint
 	let tempAttendeeExists: boolean = false;
 	const tempAttendeeSecret = url.searchParams.get(tempAttendeeSecretParam);
 	if (tempAttendeeSecret) {
 		try {
-			const existingAttendee = await triplitHttpClient.fetchOne(
+			 existingAttendee = await triplitHttpClient.fetchOne(
 				triplitHttpClient
 					.query('temporary_attendees')
 					.where([
@@ -37,6 +39,7 @@ export const GET = async ({ url, params, locals }) => {
 	}
 
 	const user = locals.user;
+
 	if ((!user || !user.id) && !tempAttendeeExists) {
 		throw error(401, 'Unauthorized'); // Return 401 if user is not logged in
 	}
@@ -44,9 +47,16 @@ export const GET = async ({ url, params, locals }) => {
 	const bonfireId = params.id;
 
 	try {
-		const { files, isOwner } = await fetchAccessibleEventFiles(bonfireId as string, user?.id, null, false);
+		// NOTE: below function checks user is attending bonfire
+		const { files, isOwner } = await fetchAccessibleEventFiles(
+			bonfireId as string,
+			user?.id,
+			existingAttendee?.id,
+			false
+		);
 		return json({ files, isOwner });
-	} catch (err) {
-		return json({ error: err.message }, { status: 400 });
+	} catch (error) {
+		console.error('Error fetching event files:', error);
+		return json({ error: 'Internal server error' }, { status: 500 });
 	}
 };

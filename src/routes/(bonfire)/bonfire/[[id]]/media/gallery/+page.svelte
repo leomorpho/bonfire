@@ -4,14 +4,13 @@
 	import { page } from '$app/stores';
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
 	import SelectionArea from '@viselect/vanilla';
-	import { Download, LockOpen, Trash2 } from 'lucide-svelte';
+	import { Download, Trash2 } from 'lucide-svelte';
 	import { Toggle } from '$lib/components/ui/toggle/index.js';
 	import PhotoSwipeLightbox from 'photoswipe/lightbox';
 	import 'photoswipe/style.css';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { ImagePlus } from 'lucide-svelte';
 	import * as ContextMenu from '$lib/components/ui/context-menu/index.js';
-	import { SquareMousePointer } from 'lucide-svelte';
 	import CustomAlertDialogue from '$lib/components/CustomAlertDialog.svelte';
 	import { toast } from 'svelte-sonner';
 	import { User, Users } from 'lucide-svelte';
@@ -28,6 +27,7 @@
 	let imageLinksNotClickable = $state(true);
 	let lightbox: PhotoSwipeLightbox | null = $state(null);
 	let showPageActionLoading = $state(false);
+	let showPageActionLoadingText = $state('Loading...');
 	let isDeleteFileConfirmationDialogOpen = $state(false);
 	let eventFiles = $state($page.data.eventFiles);
 	console.log('isOwner', $page.data.isOwner);
@@ -61,16 +61,21 @@
 
 	function toggleSelection() {
 		selectionActive = !selectionActive;
-
+		console.log('selectionActive', selectionActive);
 		if (selectionActive) {
 			lightbox?.destroy();
+			// NOTE: we don't have specific styling for non-selected state
+			// const items = document.querySelectorAll('.image-item');
+			// items.forEach((el) => {
+			// });
 		} else {
 			// Clear selectedImages and remove selection styling
 			selectedImages = [];
-			const selectedElements = document.querySelectorAll('.image-item.border-blue-400');
+			const selectedElements = document.querySelectorAll('.image-item');
+			// Selected items will have a white border, which needs to be removed when turning off selection
 			selectedElements.forEach((el) => {
-				el.classList.remove('border-blue-400');
-				el.classList.add('border-white');
+				el.classList.remove('border-blue-300');
+				el.classList.add('border-transparent');
 			});
 
 			lightbox = createPhotoSwipe();
@@ -79,25 +84,50 @@
 
 	function selectAll() {
 		const allImages = document.querySelectorAll('.image-item');
-		handleSelectionChange(allImages, selectedImages);
+		toggleSelectionStateForItem(allImages, selectedImages);
 
 		console.log('All images selected:', selectedImages);
 	}
 
 	function selectNone() {
-		const selectedElements = document.querySelectorAll('.image-item.border-blue-400');
+		const selectedElements = document.querySelectorAll('.image-item');
 		selectedElements.forEach((el) => {
-			el.classList.remove('border-blue-400');
-			el.classList.add('border-white');
+			// el.classList.remove('rounded-lg');
+			el.classList.remove('border-blue-300');
+			el.classList.add('border-transparent');
 		});
 		selectedImages = [];
 		console.log('Selection cleared');
+	}
+
+	// handleSelectionChange is called on every selection change to update the selected list of items.
+	function toggleSelectionStateForItem(
+		elements: Element[] | NodeListOf<Element>,
+		targetArray: any[]
+	) {
+		elements.forEach((el) => {
+			// Update element styles
+			el.classList.remove('border-transparent');
+			el.classList.add('border-blue-300');
+
+			// Extract attributes
+			const id = el.getAttribute('data-id');
+			const src = el.getAttribute('data-src');
+			const name = el.getAttribute('data-name');
+			const uploaderId = el.getAttribute('data-uploader-id');
+
+			// Add to the target array if it doesn't already exist
+			if (src && name && id && !targetArray.find((item) => item.id === id)) {
+				targetArray.push({ src, name, id, uploaderId });
+			}
+		});
 	}
 
 	// Function to handle download
 	async function handleDownload() {
 		try {
 			showPageActionLoading = true;
+			showPageActionLoadingText = `Downloading ${selectedImages.length} files...`;
 
 			if (selectedImages.length === 0) {
 				alert('No images selected!');
@@ -161,6 +191,7 @@
 		let filesSuccessfullyDeleted = false;
 		try {
 			showPageActionLoading = true;
+			showPageActionLoadingText = `Deleting ${selectedImages.length} files...`;
 
 			// Prepare the file IDs for deletion
 			const selectedFileIds = id ? [id] : selectedImages.map((image: any) => image.id);
@@ -213,27 +244,6 @@
 		return filesSuccessfullyDeleted;
 	}
 
-	// handleSelectionChange is called on every selection change to update the selected list of items.
-	function handleSelectionChange(elements: Element[] | NodeListOf<Element>, targetArray: any[]) {
-		elements.forEach((el) => {
-			// Update element styles
-			el.classList.remove('border-white');
-			el.classList.add('border-blue-400');
-
-			// Extract attributes
-			const id = el.getAttribute('data-id');
-			const src = el.getAttribute('data-src');
-			const name = el.getAttribute('data-name');
-			const uploaderId = el.getAttribute('data-uploader-id');
-
-			// Add to the target array if it doesn't already exist
-			if (src && name && id && !targetArray.find((item) => item.id === id)) {
-				targetArray.push({ src, name, id, uploaderId });
-			}
-		});
-	}
-
-	// TODO: unused?
 	function filterByCurrentUserAsUploader() {
 		const userUploaderId = $page.data.user.id;
 
@@ -302,17 +312,14 @@
 				const imgPoster = element.dataset.pswpIsPoster || '';
 				e.itemData = {
 					html: `
-                    <div class="pswp__item">
-                        <video controls class="pswp__img" poster="${imgPoster}">
-                            <source src="${videoURL}" type="video/mp4" />
-                            Your browser does not support the video tag.
-                        </video>
-                        <div class="pswp__play-btn">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polygon points="12,8 12,16 16,12" />
-                            </svg>
-                        </div>
-                    </div>
+                    <div class="flex items-center justify-center h-full w-full">
+						<div class="relative max-w-full max-h-full">
+							<video controls class="rounded-lg shadow-lg" poster="${imgPoster}">
+								<source src="${videoURL}" type="video/mp4" />
+								Your browser does not support the video tag.
+							</video>
+						</div>
+					</div>
                 `
 				};
 
@@ -470,11 +477,11 @@
 			console.log('Added:', changed.added);
 			console.log('Removed:', changed.removed);
 
-			handleSelectionChange(changed.added, selectedImages);
+			toggleSelectionStateForItem(changed.added, selectedImages);
 
 			changed.removed.forEach((el) => {
-				el.classList.remove('border-blue-400');
-				el.classList.add('border-white');
+				el.classList.remove('border-blue-300');
+				el.classList.add('border-transparent');
 				const id = el.getAttribute('data-id');
 				const index = selectedImages.findIndex((img) => img.id === id);
 				if (index > -1) selectedImages.splice(index, 1);
@@ -568,7 +575,7 @@
 					<ImagePlus class="size-3" /><span class="text-xs sm:text-sm">Upload</span>
 				</Toggle>
 			</a>
-			{#if !$page.data.user}
+			<!-- {#if !$page.data.user}
 				<Tooltip.Provider>
 					<Tooltip.Root>
 						<Tooltip.Trigger
@@ -598,16 +605,22 @@
 							<LockOpen class="mr-1 h-3 w-3" /> Login to enable feature
 						</Tooltip.Content>
 					</Tooltip.Root>
-				</Tooltip.Provider>
-			{:else}
-				<Toggle aria-label="toggle selection" onclick={toggleSelection} id="toggle-select-images">
-					<SquareMousePointer class="size-3" /> <span class="text-xs sm:text-sm">Select</span>
+				</Tooltip.Provider> -->
+			{#if $page.data.user}
+				<Toggle
+					aria-label="toggle selection"
+					onclick={toggleSelection}
+					id="toggle-select-images"
+					class="data-[state=on]:bg-slate-300"
+				>
+					<Download class="size-3" /> <span class="text-xs sm:text-sm">Download</span>
 				</Toggle>
 				<!-- Filter Button -->
 				<Toggle
 					aria-label="toggle selection"
 					onclick={filterByCurrentUserAsUploader}
 					id="toggle-show-user-uploaded-images"
+					class="data-[state=on]:bg-slate-300"
 				>
 					{#if showOnlyCurrentUserUploads}
 						<Users class="size-3" />
@@ -625,12 +638,12 @@
 	<section class="w-full sm:w-[550px] md:w-[650px] lg:w-[950px]">
 		{#if eventFiles.length > 0}
 			<div
-				class="gallery-container selection-area my-5 grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-5"
+				class="gallery-container selection-area my-5 grid grid-cols-3 gap-1 sm:grid-cols-4 lg:grid-cols-5"
 			>
 				{#each eventFiles as file}
 					{#if !file.is_linked_file}
 						<div
-							class="image-item rounded-xl border-4 border-white"
+							class="image-item rounded-xl border-4 border-transparent"
 							data-id={file.id}
 							data-uploader-id={file.uploader_id}
 							data-src={file.URL}
@@ -690,67 +703,72 @@
 	<div
 		class="fixed bottom-0 left-1/2 flex -translate-x-1/2 transform flex-col items-center bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-slate-100 via-transparent to-transparent"
 	>
-		<div class="flex items-center space-x-2 p-20">
-			<div class="flex flex-col justify-center space-y-1">
-				<Button
-					disabled={eventFiles.length == selectedImages.length}
-					onclick={selectAll}
-					class="p-1 text-xs sm:p-4 sm:text-lg lg:p-6 lg:text-2xl">Select All</Button
-				>
-				<Button
-					disabled={selectedImages.length == 0}
-					onclick={selectNone}
-					class="p-1 text-xs sm:p-4 sm:text-lg lg:p-6 lg:text-2xl">Select None</Button
-				>
-			</div>
-			<Tooltip.Provider>
-				<Tooltip.Root>
-					<Tooltip.Trigger>
-						<button
-							id="download-selected-files"
-							disabled={selectedImages.length == 0}
-							onclick={handleDownload}
-							class="rounded-full p-4 text-white shadow-lg transition
-							{selectedImages.length === 0 ? 'cursor-not-allowed bg-blue-400' : 'bg-blue-500 hover:bg-blue-600'}"
-						>
-							<!-- Button Icon -->
-							<Download class="h-6 w-6 sm:h-8 sm:w-8 lg:h-12 lg:w-12" />
-						</button></Tooltip.Trigger
+		<div class="p-20">
+			{#if selectedImages.length > 0}
+				<div class="flex w-full justify-center py-2">{selectedImages.length} files selected</div>
+			{/if}
+			<div class="flex items-center space-x-2">
+				<div class="flex flex-col justify-center space-y-1">
+					<Button
+						disabled={eventFiles.length == selectedImages.length}
+						onclick={selectAll}
+						class="p-1 text-xs sm:p-4 sm:text-lg lg:p-6 lg:text-2xl">Select All</Button
 					>
-					<Tooltip.Content>
-						<p>Download</p>
-					</Tooltip.Content>
-				</Tooltip.Root>
-			</Tooltip.Provider>
-			{#if $page.data.isOwner || canBulkDelete()}
+					<Button
+						disabled={selectedImages.length == 0}
+						onclick={selectNone}
+						class="p-1 text-xs sm:p-4 sm:text-lg lg:p-6 lg:text-2xl">Select None</Button
+					>
+				</div>
 				<Tooltip.Provider>
 					<Tooltip.Root>
 						<Tooltip.Trigger>
-							<CustomAlertDialogue
-								bind:isOpen={isDeleteFileConfirmationDialogOpen}
-								continueCallback={() => handleDelete()}
+							<button
+								id="download-selected-files"
 								disabled={selectedImages.length == 0}
-								dialogDescription={`This action cannot be undone. This will permanently delete ${selectedImages.length} ${selectedImages.length > 1 ? 'files' : 'file'} from our servers.`}
+								onclick={handleDownload}
+								class="rounded-full p-4 text-white shadow-lg transition
+							{selectedImages.length === 0 ? 'cursor-not-allowed bg-blue-400' : 'bg-blue-500 hover:bg-blue-600'}"
 							>
-								<button
-									id="delete-selected-files"
-									disabled={selectedImages.length == 0}
-									class="rounded-full p-4 text-white shadow-lg transition
-							{selectedImages.length === 0 ? 'cursor-not-allowed bg-red-100' : 'bg-red-500 hover:bg-red-600'}"
-								>
-									<!-- Button Icon -->
-									<Trash2 class="h-6 w-6 sm:h-8 sm:w-8 lg:h-12 lg:w-12" />
-								</button>
-							</CustomAlertDialogue>
-						</Tooltip.Trigger>
+								<!-- Button Icon -->
+								<Download class="h-6 w-6 sm:h-8 sm:w-8 lg:h-12 lg:w-12" />
+							</button></Tooltip.Trigger
+						>
 						<Tooltip.Content>
-							<p>Delete</p>
+							<p>Download</p>
 						</Tooltip.Content>
 					</Tooltip.Root>
 				</Tooltip.Provider>
-			{/if}
+				{#if $page.data.isOwner || canBulkDelete()}
+					<Tooltip.Provider>
+						<Tooltip.Root>
+							<Tooltip.Trigger>
+								<CustomAlertDialogue
+									bind:isOpen={isDeleteFileConfirmationDialogOpen}
+									continueCallback={() => handleDelete()}
+									disabled={selectedImages.length == 0}
+									dialogDescription={`This action cannot be undone. This will permanently delete ${selectedImages.length} ${selectedImages.length > 1 ? 'files' : 'file'} from our servers.`}
+								>
+									<button
+										id="delete-selected-files"
+										disabled={selectedImages.length == 0}
+										class="rounded-full p-4 text-white shadow-lg transition
+							{selectedImages.length === 0 ? 'cursor-not-allowed bg-red-100' : 'bg-red-500 hover:bg-red-600'}"
+									>
+										<!-- Button Icon -->
+										<Trash2 class="h-6 w-6 sm:h-8 sm:w-8 lg:h-12 lg:w-12" />
+									</button>
+								</CustomAlertDialogue>
+							</Tooltip.Trigger>
+							<Tooltip.Content>
+								<p>Delete</p>
+							</Tooltip.Content>
+						</Tooltip.Root>
+					</Tooltip.Provider>
+				{/if}
 
-			<!-- <span class="mt-2">Download {selectedImages.length} files</span> -->
+				<!-- <span class="mt-2">Download {selectedImages.length} files</span> -->
+			</div>
 		</div>
 	</div>
 {/if}
@@ -765,7 +783,7 @@
 	}}
 />
 
-<LoaderPage show={showPageActionLoading} text={`Deleting ${selectedImages.length} files...`} />
+<LoaderPage show={showPageActionLoading} text={showPageActionLoadingText} />
 
 <style>
 	.selection-area {
