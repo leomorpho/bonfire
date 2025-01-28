@@ -546,12 +546,14 @@
 				{/if}
 				<div class="space-y-3 rounded-xl bg-white p-5">
 					{#if $page.data.bannerInfo && $page.data.bannerInfo.banneIsSet}
-						<BonfireBanner
-							blurhash={$page.data.bannerInfo.bannerBlurHash}
-							bannerSmallSizeUrl={$page.data.bannerInfo.bannerSmallSizeUrl}
-							bannerLargeSizeUrl={$page.data.bannerInfo.bannerLargeSizeUrl}
-							{currenUserIsEventAdmin}
-						/>
+						<div class="flex w-full justify-center">
+							<BonfireBanner
+								blurhash={$page.data.bannerInfo.bannerBlurHash}
+								bannerSmallSizeUrl={$page.data.bannerInfo.bannerSmallSizeUrl}
+								bannerLargeSizeUrl={$page.data.bannerInfo.bannerLargeSizeUrl}
+								{currenUserIsEventAdmin}
+							/>
+						</div>
 					{:else if currenUserIsEventAdmin}
 						<a class="flex w-full" href="banner/upload">
 							<Button class="w-full">Set a banner image</Button>
