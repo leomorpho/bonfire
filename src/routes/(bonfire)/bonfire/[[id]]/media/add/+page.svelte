@@ -19,22 +19,28 @@
 	import { goto } from '$app/navigation';
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
 	import { tempAttendeeSecretParam } from '$lib/enums';
+	import type { TriplitClient } from '@triplit/client';
+	import { getFeTriplitClient } from '$lib/triplit';
 
-	let uppy;
+	let uppy: any;
 	let totalFiles = 0; // To track total files to upload
 	let uploadedFiles = 0; // To track successfully uploaded files
 
+	let client: TriplitClient;
+
 	const maxMbSize = 100;
 
-	onMount(() => {
-		let imageUploadEndpoint = `/bonfire/${$page.params.id}/media/add`;
-		let onSuccessEndpoint = `/bonfire/${$page.params.id}/media/gallery`;
+	let presignEndpoint = `/bonfire/${$page.params.id}/media/presign`;
+	let onSuccessEndpoint = `/bonfire/${$page.params.id}/media/gallery`;
 
-		const tempAttendeeId = $page.url.searchParams.get(tempAttendeeSecretParam);
-		if (tempAttendeeId) {
-			imageUploadEndpoint = imageUploadEndpoint + `?${tempAttendeeSecretParam}=${tempAttendeeId}`;
-			onSuccessEndpoint = onSuccessEndpoint + `?${tempAttendeeSecretParam}=${tempAttendeeId}`;
-		}
+	const tempAttendeeSecret = $page.url.searchParams.get(tempAttendeeSecretParam);
+	if (tempAttendeeSecret) {
+		presignEndpoint = presignEndpoint + `?${tempAttendeeSecretParam}=${tempAttendeeSecret}`;
+		onSuccessEndpoint = onSuccessEndpoint + `?${tempAttendeeSecretParam}=${tempAttendeeSecret}`;
+	}
+
+	onMount(() => {
+		client = getFeTriplitClient($page.data.jwt) as TriplitClient;
 
 		// Initialize Uppy instance with Tus for resumable uploads
 		uppy = new Uppy({
@@ -60,16 +66,6 @@
 			// .use(Audio)
 			.use(GoldenRetriever)
 			.use(Compressor)
-			.use(XHR, {
-				endpoint: imageUploadEndpoint, // Your SvelteKit endpoint
-				method: 'POST',
-				formData: true,
-				fieldName: 'file', // Ensure this matches the backend expectation
-				headers: {
-					Authorization: `Bearer ${window.localStorage.getItem('token')}`
-				},
-				allowedMetaFields: true
-			})
 			.on('upload-start', (file) => {
 				totalFiles = uppy.getFiles().length; // Count the total number of files in the queue
 				uploadedFiles = 0; // Reset the counter on upload start
@@ -93,6 +89,63 @@
 				mimeType: file.type,
 				size: file.size
 			});
+		});
+
+		// Handle file upload on clicking Uppy upload button
+		uppy.on('upload', async () => {
+			const files = uppy.getFiles();
+			for (const file of files) {
+				try {
+					// Step 1: Fetch presigned URL
+					const presignResponse = await fetch(presignEndpoint, {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+							Authorization: `Bearer ${window.localStorage.getItem('token')}`
+						},
+						body: JSON.stringify({
+							filename: file.name,
+							contentType: file.type,
+							size: file.size
+						})
+					});
+
+					if (!presignResponse.ok) throw new Error('Failed to fetch presigned URL');
+
+					const { uploadURL, fileKey, existingTempAttendeeId } = await presignResponse.json();
+
+					// Step 2: Upload to S3
+					const s3Response = await fetch(uploadURL, {
+						method: 'PUT',
+						headers: { 'Content-Type': file.type },
+						body: file.data
+					});
+
+					if (!s3Response.ok) throw new Error('Failed to upload to S3');
+
+					// Step 3: Create `files` entry in Triplit
+					await client.insert('files', {
+						event_id: $page.params.id,
+						file_key: fileKey,
+						file_type: file.type,
+						file_name: file.name,
+						size_in_bytes: file.size,
+						uploader_id: $page.data.user?$page.data.user.id : existingTempAttendeeId,
+						uploaded_at: new Date().toISOString()
+					});
+
+					// Mark file as uploaded in Uppy
+					uppy.emit('upload-success', file, { uploadURL });
+
+					// Send notification
+				} catch (error) {
+					console.error('Error uploading file:', error);
+					uppy.emit('upload-error', file, error);
+				}
+			}
+
+			// Redirect after all uploads are complete
+			goto(onSuccessEndpoint);
 		});
 	});
 </script>

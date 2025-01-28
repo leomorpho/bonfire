@@ -415,7 +415,6 @@ export const schema = {
 			linked_file_id: S.String({ nullable: true, default: null, optional: true }),
 			linked_file: S.RelationById('files', '$linked_file_id'),
 			is_linked_file: S.Boolean({ default: false }),
-			is_uploaded: S.Optional(S.Boolean({ default: false }))
 		}),
 		permissions: {
 			user: {

@@ -100,5 +100,3 @@ export async function shareImages(selectedImages: []) {
 		alert('Your device does not support sharing these images.');
 	}
 }
-
-
