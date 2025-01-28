@@ -11,7 +11,7 @@
 	>
 		<div class="text-center">
 			<div class="font-mono text-white">{text}</div>
-			<SvgLoader />
+			<div class="flex w-full justify-center"><SvgLoader /></div>
 		</div>
 	</div>
 {/if}

@@ -11,7 +11,6 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { ImagePlus } from 'lucide-svelte';
 	import * as ContextMenu from '$lib/components/ui/context-menu/index.js';
-	import { SquareMousePointer } from 'lucide-svelte';
 	import CustomAlertDialogue from '$lib/components/CustomAlertDialog.svelte';
 	import { toast } from 'svelte-sonner';
 	import { User, Users } from 'lucide-svelte';
@@ -28,6 +27,7 @@
 	let imageLinksNotClickable = $state(true);
 	let lightbox: PhotoSwipeLightbox | null = $state(null);
 	let showPageActionLoading = $state(false);
+	let showPageActionLoadingText = $state('Loading...');
 	let isDeleteFileConfirmationDialogOpen = $state(false);
 	let eventFiles = $state($page.data.eventFiles);
 	console.log('isOwner', $page.data.isOwner);
@@ -124,6 +124,7 @@
 	async function handleDownload() {
 		try {
 			showPageActionLoading = true;
+			showPageActionLoadingText = `Downloading ${selectedImages.length} files...`;
 
 			if (selectedImages.length === 0) {
 				alert('No images selected!');
@@ -187,6 +188,7 @@
 		let filesSuccessfullyDeleted = false;
 		try {
 			showPageActionLoading = true;
+			showPageActionLoadingText = `Deleting ${selectedImages.length} files...`;
 
 			// Prepare the file IDs for deletion
 			const selectedFileIds = id ? [id] : selectedImages.map((image: any) => image.id);
@@ -607,7 +609,7 @@
 					id="toggle-select-images"
 					class="data-[state=on]:bg-slate-300"
 				>
-					<SquareMousePointer class="size-3" /> <span class="text-xs sm:text-sm">Select</span>
+					<Download class="size-3" /> <span class="text-xs sm:text-sm">Download</span>
 				</Toggle>
 				<!-- Filter Button -->
 				<Toggle
@@ -777,7 +779,7 @@
 	}}
 />
 
-<LoaderPage show={showPageActionLoading} text={`Deleting ${selectedImages.length} files...`} />
+<LoaderPage show={showPageActionLoading} text={showPageActionLoadingText} />
 
 <style>
 	.selection-area {
