@@ -4,7 +4,7 @@
 	import { page } from '$app/stores';
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
 	import SelectionArea from '@viselect/vanilla';
-	import { Download, LockOpen, Trash2 } from 'lucide-svelte';
+	import { Bold, Download, LockOpen, Trash2 } from 'lucide-svelte';
 	import { Toggle } from '$lib/components/ui/toggle/index.js';
 	import PhotoSwipeLightbox from 'photoswipe/lightbox';
 	import 'photoswipe/style.css';
@@ -579,7 +579,7 @@
 					<ImagePlus class="size-3" /><span class="text-xs sm:text-sm">Upload</span>
 				</Toggle>
 			</a>
-			{#if !$page.data.user}
+			<!-- {#if !$page.data.user}
 				<Tooltip.Provider>
 					<Tooltip.Root>
 						<Tooltip.Trigger
@@ -609,9 +609,9 @@
 							<LockOpen class="mr-1 h-3 w-3" /> Login to enable feature
 						</Tooltip.Content>
 					</Tooltip.Root>
-				</Tooltip.Provider>
-			{:else}
-				<Toggle aria-label="toggle selection" onclick={toggleSelection} id="toggle-select-images">
+				</Tooltip.Provider> -->
+			{#if $page.data.user}
+				<Toggle aria-label="toggle selection" onclick={toggleSelection} id="toggle-select-images" class="data-[state=on]:bg-slate-300">
 					<SquareMousePointer class="size-3" /> <span class="text-xs sm:text-sm">Select</span>
 				</Toggle>
 				<!-- Filter Button -->
@@ -619,6 +619,7 @@
 					aria-label="toggle selection"
 					onclick={filterByCurrentUserAsUploader}
 					id="toggle-show-user-uploaded-images"
+					class="data-[state=on]:bg-slate-300"
 				>
 					{#if showOnlyCurrentUserUploads}
 						<Users class="size-3" />
