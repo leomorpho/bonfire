@@ -83,7 +83,7 @@
 
 	function selectAll() {
 		const allImages = document.querySelectorAll('.image-item');
-		markAsSelected(allImages, selectedImages);
+		toggleSelectionStateForItem(allImages, selectedImages);
 
 		console.log('All images selected:', selectedImages);
 	}
@@ -97,6 +97,35 @@
 		});
 		selectedImages = [];
 		console.log('Selection cleared');
+	}
+
+	// toggleSelectionStateForItem is called on every selection change to update the selected list of items.
+	function toggleSelectionStateForItem(
+		elements: Element[] | NodeListOf<Element>,
+		targetArray: any[]
+	) {
+		elements.forEach((el) => {
+			// Extract attributes
+			const id = el.getAttribute('data-id');
+			const src = el.getAttribute('data-src');
+			const name = el.getAttribute('data-name');
+			const uploaderId = el.getAttribute('data-uploader-id');
+
+			// Check if the item is already in the targetArray
+			const existingIndex = targetArray.findIndex((item) => item.id === id);
+
+			if (existingIndex !== -1) {
+				// Item is already selected, deselect it
+				el.classList.remove('bg-white-500', 'rounded-lg', 'border-white');
+				targetArray.splice(existingIndex, 1); // Remove from targetArray
+			} else {
+				// Item is not selected, select it
+				el.classList.add('bg-white-500', 'rounded-lg', 'border-white');
+				if (src && name && id) {
+					targetArray.push({ src, name, id, uploaderId }); // Add to targetArray
+				}
+			}
+		});
 	}
 
 	// Function to handle download
@@ -216,28 +245,6 @@
 			showPageActionLoading = false;
 		}
 		return filesSuccessfullyDeleted;
-	}
-
-	// markAsSelected is called on every selection change to update the selected list of items.
-	function markAsSelected(elements: Element[] | NodeListOf<Element>, targetArray: any[]) {
-		elements.forEach((el) => {
-			// Update element styles
-
-			el.classList.add('bg-white-500');
-			el.classList.add('rounded-lg');
-			el.classList.add('border-white');
-
-			// Extract attributes
-			const id = el.getAttribute('data-id');
-			const src = el.getAttribute('data-src');
-			const name = el.getAttribute('data-name');
-			const uploaderId = el.getAttribute('data-uploader-id');
-
-			// Add to the target array if it doesn't already exist
-			if (src && name && id && !targetArray.find((item) => item.id === id)) {
-				targetArray.push({ src, name, id, uploaderId });
-			}
-		});
 	}
 
 	// TODO: unused?
@@ -474,11 +481,11 @@
 			console.log('Added:', changed.added);
 			console.log('Removed:', changed.removed);
 
-			markAsSelected(changed.added, selectedImages);
+			toggleSelectionStateForItem(changed.added, selectedImages);
 
 			changed.removed.forEach((el) => {
-				el.classList.remove('border-blue-400');
-				el.classList.add('border-white');
+				el.classList.remove('border-white');
+				el.classList.add('border-transparent');
 				const id = el.getAttribute('data-id');
 				const index = selectedImages.findIndex((img) => img.id === id);
 				if (index > -1) selectedImages.splice(index, 1);
@@ -634,7 +641,7 @@
 				{#each eventFiles as file}
 					{#if !file.is_linked_file}
 						<div
-							class="image-item border-2 border-transparent"
+							class="image-item border-2 border-transparent rounded-xl"
 							data-id={file.id}
 							data-uploader-id={file.uploader_id}
 							data-src={file.URL}
