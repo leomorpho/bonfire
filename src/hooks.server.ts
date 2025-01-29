@@ -111,15 +111,32 @@ tusServer.on(EVENTS.POST_FINISH, async (req, res, upload) => {
 	}
 });
 
-// ✅ Start a native HTTP server for TUS
-const server = createServer((req, res) => {
-	console.log(`Incoming TUS request: ${req.url}`);
-	tusServer.handle(req, res);
-});
+let server: any; // Store the server instance
 
-server.listen(3001, () => {
-	console.log('TUS server running on http://localhost:3001');
-});
+function startTusServer() {
+	server = createServer((req, res) => {
+		console.log(`Incoming TUS request: ${req.url}`);
+		tusServer.handle(req, res);
+	});
+
+	server.listen(3001, () => {
+		console.log('TUS server running on http://localhost:3001');
+	});
+}
+
+// Graceful shutdown on Vite restart
+if (import.meta.hot) {
+	import.meta.hot.accept();
+	import.meta.hot.dispose(() => {
+		console.log('🛑 Stopping TUS server...');
+		server.close(() => {
+			console.log('✅ TUS server stopped.');
+		});
+	});
+}
+
+// Start the server
+startTusServer();
 
 /**
  * Middleware to intercept TUS uploads before SvelteKit
