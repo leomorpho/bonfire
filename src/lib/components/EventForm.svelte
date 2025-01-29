@@ -223,45 +223,46 @@
 			let eventId = event?.id;
 
 			if (mode == EventFormType.CREATE) {
-				const newEventId = await generatePassphraseId();
-				const { output, error } = await client.insert('events', {
-					id: newEventId,
-					title: eventName,
-					description: details || null,
-					location: location || null,
-					geocoded_location: JSON.stringify(geocodedLocation) || null,
-					start_time: eventStartDatetime,
-					end_time: eventEndDatetime,
-					user_id: userId,
-					style: finalStyleCss,
-					overlay_color: overlayColor,
-					overlay_opacity: overlayOpacity
-				});
+				eventId = await generatePassphraseId();
 
-				if (error || !output) {
-					errorMessage = 'Failed to create event. Please try again.';
+				try {
+					await client.transact(async (tx) => {
+						// Insert the event
+						await tx.insert('events', {
+							id: eventId,
+							title: eventName,
+							description: details || null,
+							location: location || null,
+							geocoded_location: JSON.stringify(geocodedLocation) || null,
+							start_time: eventStartDatetime,
+							end_time: eventEndDatetime,
+							user_id: userId,
+							style: finalStyleCss,
+							overlay_color: overlayColor,
+							overlay_opacity: overlayOpacity
+						});
+
+						// Add the user as an attendee
+						await tx.insert('attendees', {
+							user_id: userId,
+							event_id: eventId as string,
+							status: Status.GOING
+						});
+					});
+
+					// If the transaction succeeds
+					console.log('Event and attendee created successfully.');
+				} catch (transactionError) {
+					// Handle transaction failure
+					console.error('Transaction failed:', transactionError);
+					errorMessage = 'Failed to create event and add you as an attendee. Please try again.';
 					showError = true;
-					return;
-				}
-
-				const { error: attendeeError } = await client.insert('attendees', {
-					user_id: userId,
-					event_id: output.id as string,
-					status: Status.GOING
-				});
-
-				if (attendeeError) {
-					errorMessage = 'Event created but failed to add you as an attendee.';
-					showError = true;
-					return;
 				}
 
 				// Set the stores so the event page updates with new style
 				styleStore.set(finalStyleCss);
 				overlayColorStore.set(overlayColor);
 				overlayOpacityStore.set(overlayOpacity);
-
-				eventId = output.id;
 			} else {
 				try {
 					await client.update('events', event.id, async (entity) => {
