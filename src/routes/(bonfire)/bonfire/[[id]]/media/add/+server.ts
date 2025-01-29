@@ -15,7 +15,8 @@ import { getPixels } from '@unpic/pixels';
 import fs from 'fs/promises';
 import os from 'os';
 import path from 'path';
-import { createReadStream } from 'fs';
+import { createReadStream, createWriteStream } from 'fs';
+import Busboy from 'busboy';
 
 export const POST = async ({ url, locals, params, request }): Promise<Response> => {
 	const tempAttendeeSecret = url.searchParams.get(tempAttendeeSecretParam);
@@ -57,15 +58,7 @@ export const POST = async ({ url, locals, params, request }): Promise<Response> 
 			throw error(400, 'Missing ID parameter'); // Return 400 if `id` is not provided
 		}
 
-		const contentType = request.headers.get('content-type') || '';
-		const boundaryMatch = contentType.match(/boundary=(.+)$/);
-
-		if (!boundaryMatch) {
-			return new Response('Invalid multipart form', { status: 400 });
-		}
-
-		const boundary = boundaryMatch[1];
-		const formData = await parseMultipart(request, boundary);
+		const formData = (await parseMultipartStream(request)) as Map<string, string>;
 
 		const fileTempPath = formData.get('file');
 		if (!fileTempPath || typeof fileTempPath !== 'string') {
@@ -216,41 +209,79 @@ export const POST = async ({ url, locals, params, request }): Promise<Response> 
 	}
 };
 
-// Utility function to parse multipart form data
-async function parseMultipart(request: Request, boundary: string) {
-	const buffer = await request.arrayBuffer();
-	const data = Buffer.from(buffer); // Use Buffer for binary-safe handling
-	const parts = data.toString('binary').split(`--${boundary}`);
-	const formData = new Map<string, any>();
+async function parseMultipartStream(request: Request): Promise<Map<string, string>> {
+	return new Promise((resolve, reject) => {
+		const formData = new Map<string, string>();
+		const headers = Object.fromEntries(request.headers); // Convert headers properly
+		const busboy = Busboy({ headers });
 
-	for (const part of parts) {
-		// Match the content-disposition header
-		const match = part.match(
-			/Content-Disposition: form-data; name="([^"]+)"(; filename="([^"]+)")?/i
-		);
-		if (!match) continue;
+		const files: Promise<void>[] = [];
 
-		const name = match[1];
-		const filename = match[3];
-		const contentIndex = part.indexOf('\r\n\r\n') + 4;
+		busboy.on('file', (fieldname, file, fileMeta) => {
+			if (!fileMeta || typeof fileMeta.filename !== 'string') {
+				console.error(`🚨 Invalid filename for field "${fieldname}":`, fileMeta);
+				reject(new Error('Invalid file upload. Filename missing or invalid.'));
+				return;
+			}
 
-		if (contentIndex < 4 || part.trim().endsWith('--')) {
-			continue; // Skip empty or incomplete parts
-		}
+			const { filename, mimeType } = fileMeta;
+			console.log(`✅ Processing file: ${filename} (${mimeType})`);
 
-		if (filename) {
-			// Save binary file content to a temp file
 			const tempFilePath = path.join(os.tmpdir(), filename);
-			const content = part.slice(contentIndex, part.lastIndexOf('\r\n'));
-			await fs.writeFile(tempFilePath, content, 'binary');
-			formData.set(name, tempFilePath); // Store the file path instead of binary content
-			formData.set('name', filename);
-		} else {
-			// Text content
-			const content = part.slice(contentIndex, part.lastIndexOf('\r\n')).trim();
-			formData.set(name, content);
-		}
-	}
+			const writeStream = createWriteStream(tempFilePath);
 
-	return formData;
+			file.pipe(writeStream);
+
+			const filePromise = new Promise<void>((res, rej) => {
+				writeStream.on('finish', () => {
+					console.log(`✅ File successfully written: ${tempFilePath}`);
+					formData.set(fieldname, tempFilePath);
+					formData.set('name', filename);
+					formData.set('type', mimeType);
+					res();
+				});
+				writeStream.on('error', (err) => {
+					console.error(`❌ Error writing file: ${err.message}`);
+					rej(err);
+				});
+			});
+
+			files.push(filePromise);
+
+			file.on('error', (err) => {
+				console.error(`❌ Error reading file stream: ${err.message}`);
+				reject(err);
+			});
+		});
+
+		busboy.on('field', (fieldname, value) => {
+			console.log(`📌 Processing field: ${fieldname} = ${value}`);
+			formData.set(fieldname, value);
+		});
+
+		busboy.on('finish', async () => {
+			try {
+				console.log('✅ Busboy finished parsing.');
+				await Promise.all(files); // Ensure all files are written before resolving
+				resolve(formData);
+			} catch (err) {
+				console.error(`❌ Error during Busboy finish: ${err.message}`);
+				reject(err);
+			}
+		});
+
+		busboy.on('error', (err) => {
+			console.error(`❌ Busboy error: ${err.message}`);
+			reject(err);
+		});
+
+		try {
+			// Correctly convert `request.body` to a Node.js readable stream
+			const nodeStream = Readable.fromWeb(request.body);
+			nodeStream.pipe(busboy);
+		} catch (err) {
+			console.error(`❌ Error piping request body: ${err.message}`);
+			reject(err);
+		}
+	});
 }
