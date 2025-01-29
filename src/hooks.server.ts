@@ -9,6 +9,7 @@ import { FileStore } from '@tus/file-store';
 import { Readable } from 'stream';
 import { createServer } from 'http';
 import { fetch as nodeFetch } from 'undici'; // Faster fetch for Node.js
+import { EVENTS } from '@tus/server';
 import { processGalleryFile } from '$lib/filestorage';
 
 if (!dev) {
@@ -37,24 +38,30 @@ const tusServer = new Server({
 	maxSize: 500 * 1024 * 1024 // Set max size to 500MB
 });
 
-/**
- * ✅ Trigger custom logic when an upload is complete
- */
-tusServer.on('uploadComplete', async (req, res, file) => {
-	console.log(`📌 Upload completed: ${file.id}`);
+// ✅ Hook into the POST_FINISH event to process uploaded files
+tusServer.on(EVENTS.POST_FINISH, async (req, res, upload) => {
+	try {
+		console.log('✅ File upload complete:', upload);
 
-	// Debug: Check if metadata exists
-	console.log('📊 File metadata:', file.metadata);
+		// Extract necessary metadata
+		const filePath = `./uploads/${upload.id}`; // Adjust path based on storage config
+		const filename = upload.metadata.filename || upload.id;
+		const filetype = upload.metadata.filetype || 'unknown';
+		const userId = upload.metadata.userId;
+		const eventId = upload.metadata.eventId;
 
-	const filePath = `./uploads/${file.id}`; // ✅ Path where TUS stores the file
-	const filename = file.metadata.name; // ✅ Extract original filename
-	const filetype = file.metadata.type; // ✅ Extract MIME type
-	const eventId = file.metadata.eventId; // ✅ Extract event ID
-	const userId = file.metadata.userId; // ✅ Extract uploader's ID
+		// Ensure metadata exists before processing
+		if (!userId || !eventId) {
+			console.warn('⚠️ Missing required metadata for processing.');
+			return;
+		}
 
-	
-	// ✅ Run processing logic asynchronously
-	await processGalleryFile(filePath, filename, filetype, userId, eventId);
+		// Call the processing function
+		await processGalleryFile(filePath, filename, filetype, userId, eventId);
+		console.log('📸 Gallery file processed successfully');
+	} catch (error) {
+		console.error('❌ Error processing gallery file:', error);
+	}
 });
 
 // ✅ Start a native HTTP server for TUS
