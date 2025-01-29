@@ -11,6 +11,7 @@ import { fetch as nodeFetch } from 'undici'; // Faster fetch for Node.js
 import { EVENTS } from '@tus/server';
 import { processGalleryFile } from '$lib/filestorage';
 import { tempAttendeeSecretParam } from '$lib/enums';
+import { triplitHttpClient } from '$lib/server/triplit';
 
 if (!dev) {
 	Sentry.init({
@@ -112,7 +113,33 @@ tusServer.on(EVENTS.POST_FINISH, async (req, res, upload) => {
 			return;
 		}
 
-		await processGalleryFile(filePath, filename, filetype, userId, eventId);
+		// TODO: check with lucia that current user is logged in
+
+		let tempAttendeeId: string | null = null;
+		let existingTempAttendee= null;
+
+		try {
+			if (tempAttendeeSecret) {
+				try {
+					existingTempAttendee = await triplitHttpClient.fetchOne(
+						triplitHttpClient
+							.query('temporary_attendees')
+							.where(['secret_mapping.id', '=', tempAttendeeSecret])
+							.build()
+					);
+					if (existingTempAttendee) {
+						tempAttendeeId = existingTempAttendee.id;
+					}
+				} catch (e) {
+					console.debug('failed to find temp attendee because it does not exist', e);
+				}
+			}
+		} catch (error) {
+			console.error(`Error checking for temp attendee with secret ${tempAttendeeSecret}:`, error);
+			return new Response('Internal Server Error', { status: 500 });
+		}
+
+		await processGalleryFile(filePath, filename, filetype, userId, tempAttendeeId, eventId);
 		console.log('📸 Gallery file processed successfully');
 	} catch (error) {
 		console.error('❌ Error in POST_FINISH hook:', error);

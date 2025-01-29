@@ -14,7 +14,7 @@ import sharp from 'sharp'; // For resizing images
 import { dev } from '$app/environment';
 import { Readable } from 'stream';
 import { triplitHttpClient } from '$lib/server/triplit';
-import { and } from '@triplit/client';
+import { and, HttpClient } from '@triplit/client';
 import ffmpegInstaller from '@ffmpeg-installer/ffmpeg';
 import ffmpeg from 'fluent-ffmpeg';
 import { encode } from 'blurhash';
@@ -23,6 +23,7 @@ import path from 'path';
 import { getPixels } from '@unpic/pixels';
 import { BannerMediaSize } from './enums';
 import { createReadStream } from 'fs';
+import { createNewFileNotificationQueueObject } from './notification';
 
 ffmpeg.setFfmpegPath(ffmpegInstaller.path);
 
@@ -51,10 +52,15 @@ export async function processGalleryFile(
 	filePath: string,
 	filename: string,
 	filetype: string,
-	userId: string,
+	userId: string | null,
+	tempAttendeeId: string | null,
 	eventId: string
 ) {
 	try {
+		if (!userId && !tempAttendeeId) {
+			return Error('either userId or tempAttendeeId must be set');
+		}
+
 		const fileKey = `events/eventid_${eventId}/userid_${userId}/${filename}`;
 		let frameFileId = null;
 		let h_pixel: number | null = null;
@@ -111,10 +117,15 @@ export async function processGalleryFile(
 				// Store frame file in DB
 				const { output } = await triplitHttpClient.insert('files', {
 					uploader_id: userId,
+					temp_uploader_id: tempAttendeeId,
 					event_id: eventId,
 					file_key: frameFileKey,
 					file_type: 'image/png',
 					file_name: `frame-${filename}`,
+					size_in_bytes: (await fs.stat(tempImagePath)).size,
+					h_pixel: h_pixel,
+					w_pixel: w_pixel,
+					blurr_hash: videoBlurHash,
 					is_linked_file: true
 				});
 				frameFileId = output.id;
@@ -129,21 +140,32 @@ export async function processGalleryFile(
 		}
 
 		// ✅ Store file metadata in database
-		await triplitHttpClient.insert('files', {
+		const { output } = await triplitHttpClient.insert('files', {
 			uploader_id: userId,
+			temp_uploader_id: tempAttendeeId,
 			event_id: eventId,
 			file_key: fileKey,
 			file_type: filetype,
 			file_name: filename,
+			size_in_bytes: (await await fs.stat(filePath)).size,
 			h_pixel,
 			w_pixel,
 			blurr_hash: blurhash,
 			linked_file_id: frameFileId ?? null
 		});
 
+		await createNewFileNotificationQueueObject(
+			triplitHttpClient as HttpClient,
+			userId ?? (tempAttendeeId as string),
+			eventId,
+			[output?.id as string]
+		);
+
 		console.log(`✅ Successfully processed file: ${filePath}`);
 	} catch (error) {
 		console.error(`❌ Error processing uploaded file: ${error}`);
+	} finally {
+		// TODO clean up all temp files
 	}
 }
 
