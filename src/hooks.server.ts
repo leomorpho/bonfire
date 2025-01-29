@@ -4,6 +4,11 @@ import { taskRunner } from '$lib/scheduler';
 import { lucia } from '$lib/server/auth';
 import type { Handle } from '@sveltejs/kit';
 import { dev } from '$app/environment';
+import { Server } from '@tus/server';
+import { FileStore } from '@tus/file-store';
+import { Readable } from 'stream';
+import { createServer } from 'http';
+import { fetch as nodeFetch } from 'undici'; // Faster fetch for Node.js
 
 if (!dev) {
 	Sentry.init({
@@ -22,7 +27,50 @@ process.on('unhandledRejection', (reason, promise) => {
 	console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });
 
-export const handle: Handle = sequence(Sentry.sentryHandle(), async ({ event, resolve }) => {
+/**
+ * Setup the TUS server
+ */
+const tusServer = new Server({
+	path: '/api/tus/files',
+	datastore: new FileStore({ directory: './uploads' }),
+	maxSize: 500 * 1024 * 1024 // Set max size to 500MB
+});
+
+// ✅ Start a native HTTP server for TUS
+const server = createServer((req, res) => {
+	console.log(`Incoming TUS request: ${req.url}`);
+	tusServer.handle(req, res);
+});
+
+server.listen(3001, () => {
+	console.log('TUS server running on http://localhost:3001');
+});
+
+/**
+ * Middleware to intercept TUS uploads before SvelteKit
+ */
+const tusHandler: Handle = async ({ event, resolve }) => {
+	if (event.url.pathname.startsWith('/api/tus/files')) {
+		console.log('🔹 Forwarding request to TUS server');
+
+		// ✅ Forward request to standalone TUS server
+		const response = await nodeFetch(`http://localhost:3001${event.url.pathname}`, {
+			method: event.request.method,
+			headers: Object.fromEntries(event.request.headers),
+			body: event.request.body ? event.request.body : null
+		});
+
+		// ✅ Return the TUS server's response to the frontend
+		return new Response(response.body, { status: response.status, headers: response.headers });
+	}
+
+	return resolve(event);
+};
+
+/**
+ * Middleware for authentication and body size increase
+ */
+const authHandler: Handle = async ({ event, resolve }) => {
 	try {
 		const sessionId = event.cookies.get(lucia.sessionCookieName);
 		if (!sessionId) {
@@ -34,8 +82,6 @@ export const handle: Handle = sequence(Sentry.sentryHandle(), async ({ event, re
 		const { session, user } = await lucia.validateSession(sessionId);
 		if (session && session.fresh) {
 			const sessionCookie = lucia.createSessionCookie(session.id);
-			// sveltekit types deviates from the de-facto standard
-			// you can use 'as any' too
 			event.cookies.set(sessionCookie.name, sessionCookie.value, {
 				path: '.',
 				...sessionCookie.attributes
@@ -52,14 +98,21 @@ export const handle: Handle = sequence(Sentry.sentryHandle(), async ({ event, re
 		event.locals.session = session;
 
 		// Increase body size limit for video uploads
-		event.request.headers.set('content-length', '52428800'); // 50MB in bytes
+		event.request.headers.set('content-length', '100000000'); // 100MB limit
 
 		return resolve(event);
 	} catch (error) {
-		console.error('Error in handle:', error);
+		console.error('Error in auth handler:', error);
 		throw error;
 	}
-});
+};
+
+// 🔹 Compose all handlers using `sequence`
+export const handle: Handle = sequence(
+	Sentry.sentryHandle(),
+	tusHandler, // ✅ Handle TUS uploads before SvelteKit
+	authHandler // ✅ Ensure authentication & session management
+);
 
 // Start the scheduler when the server starts
 taskRunner();
