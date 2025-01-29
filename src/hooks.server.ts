@@ -6,11 +6,11 @@ import type { Handle } from '@sveltejs/kit';
 import { dev } from '$app/environment';
 import { Server } from '@tus/server';
 import { FileStore } from '@tus/file-store';
-import { Readable } from 'stream';
 import { createServer } from 'http';
 import { fetch as nodeFetch } from 'undici'; // Faster fetch for Node.js
 import { EVENTS } from '@tus/server';
 import { processGalleryFile } from '$lib/filestorage';
+import { tempAttendeeSecretParam } from '$lib/enums';
 
 if (!dev) {
 	Sentry.init({
@@ -35,32 +35,87 @@ process.on('unhandledRejection', (reason, promise) => {
 const tusServer = new Server({
 	path: '/api/tus/files',
 	datastore: new FileStore({ directory: './uploads' }),
-	maxSize: 500 * 1024 * 1024 // Set max size to 500MB
+	maxSize: 500 * 1024 * 1024, // Set max size to 500MB
+	async onIncomingRequest(req, res) {
+		const userId = req.headers['x-user-id'];
+		const tempAttendeeSecret = req.headers['x-temp-attendee-secret'];
+		const eventId = req.headers['x-event-id'];
+
+		// Store the auth data on the request object for use in hooks
+		req.auth = {
+			userId: userId || '',
+			tempAttendeeSecret: tempAttendeeSecret || '',
+			eventId: eventId || ''
+		};
+
+		// Validate requirements
+		// if ((!userId && !tempAttendeeSecret) || !eventId) {
+		// 	throw {
+		// 		status_code: 401,
+		// 		body: 'Unauthorized: Missing required authentication'
+		// 	};
+		// }
+
+		// You could add additional validation here, like:
+		// - Verify the eventId exists
+		// - Check if the user has permission for this event
+		// - Validate tempAttendeeSecret format
+	}
 });
 
-// ✅ Hook into the POST_FINISH event to process uploaded files
+tusServer.on(EVENTS.POST_CREATE, async (req, res, upload) => {
+	try {
+		console.log('📥 New file upload started:', upload);
+
+		// Access the auth data we set in onIncomingRequest
+		const { userId, tempAttendeeSecret, eventId } = req.auth;
+
+		if (!eventId && !(userId || tempAttendeeSecret)) {
+			console.warn('⚠️ No eventId found in request.');
+			res.writeHead(400);
+			res.end('Bad Request: Missing eventId');
+			return;
+		}
+
+		return { res }; // Just return res, metadata will be saved with the upload object
+	} catch (error) {
+		console.error('❌ Error in POST_CREATE hook:', error);
+		if (!res.headersSent) {
+			res.writeHead(500);
+			res.end('Internal Server Error');
+		}
+	}
+});
+
 tusServer.on(EVENTS.POST_FINISH, async (req, res, upload) => {
 	try {
 		console.log('✅ File upload complete:', upload);
 
-		// Extract necessary metadata
-		const filePath = `./uploads/${upload.id}`; // Adjust path based on storage config
-		const filename = upload.metadata.filename || upload.id;
-		const filetype = upload.metadata.filetype || 'unknown';
-		const userId = upload.metadata.userId;
+		// Extract metadata directly from the upload object
+		const filePath = `./uploads/${upload.id}`;
+		const filename = upload.metadata.filename || upload.metadata.originalName || upload.id;
+		const filetype = upload.metadata.filetype || upload.metadata.mimeType || 'unknown';
+		const userId = upload.metadata.userId || null;
+		const tempAttendeeSecret = upload.metadata.tempAttendeeSecret || null;
 		const eventId = upload.metadata.eventId;
 
-		// Ensure metadata exists before processing
-		if (!userId || !eventId) {
-			console.warn('⚠️ Missing required metadata for processing.');
+		console.log('📝 Processing with metadata:', {
+			userId,
+			tempAttendeeSecret,
+			eventId,
+			filename,
+			filetype
+		});
+
+		if ((!userId && !tempAttendeeSecret) || !eventId) {
+			console.warn('⚠️ Missing required metadata:', { userId, tempAttendeeSecret, eventId });
 			return;
 		}
 
-		// Call the processing function
 		await processGalleryFile(filePath, filename, filetype, userId, eventId);
 		console.log('📸 Gallery file processed successfully');
 	} catch (error) {
-		console.error('❌ Error processing gallery file:', error);
+		console.error('❌ Error in POST_FINISH hook:', error);
 	}
 });
 
@@ -79,17 +134,61 @@ server.listen(3001, () => {
  */
 const tusHandler: Handle = async ({ event, resolve }) => {
 	if (event.url.pathname.startsWith('/api/tus/files')) {
-		console.log('🔹 Forwarding request to TUS server');
+		console.log('🔹 TUS upload request detected');
 
-		// ✅ Forward request to standalone TUS server
-		const response = await nodeFetch(`http://localhost:3001${event.url.pathname}`, {
-			method: event.request.method,
-			headers: Object.fromEntries(event.request.headers),
-			body: event.request.body ? event.request.body : null
-		});
+		// Extract session and user details
+		const sessionId = event.cookies.get(lucia.sessionCookieName);
+		let userId = null;
+		const tempAttendeeSecret = event.url.searchParams.get(tempAttendeeSecretParam) || '';
+		const eventId = event.url.searchParams.get('eventId');
 
-		// ✅ Return the TUS server's response to the frontend
-		return new Response(response.body, { status: response.status, headers: response.headers });
+		if (sessionId) {
+			try {
+				const { session, user } = await lucia.validateSession(sessionId);
+				if (session) {
+					userId = user.id;
+				}
+			} catch (error) {
+				console.warn('⚠️ Invalid or expired session. Proceeding without authentication.');
+			}
+		}
+
+		// If neither userId nor tempAttendeeSecret exists, reject the upload
+		if (!userId && !tempAttendeeSecret) {
+			console.warn('⚠️ Unauthorized attempt to upload.');
+			return new Response('Unauthorized', { status: 401 });
+		}
+
+		// Validate eventId for POST and PATCH requests (new uploads and continuations)
+		if ((event.request.method === 'POST' || event.request.method === 'PATCH') && !eventId) {
+			console.warn('⚠️ Missing eventId in upload request');
+			return new Response('Bad Request: Missing eventId', { status: 400 });
+		}
+
+		// Forward authentication and metadata to TUS server
+		const headers = new Headers(event.request.headers);
+		if (userId) headers.set('x-user-id', userId);
+		if (tempAttendeeSecret) headers.set('x-temp-attendee-secret', tempAttendeeSecret);
+		if (eventId) headers.set('x-event-id', eventId);
+
+		try {
+			const response = await nodeFetch(
+				`http://localhost:3001${event.url.pathname}${event.url.search}`,
+				{
+					method: event.request.method,
+					headers: Object.fromEntries(headers),
+					body: event.request.body ? event.request.body : null
+				}
+			);
+
+			return new Response(response.body, {
+				status: response.status,
+				headers: response.headers
+			});
+		} catch (error) {
+			console.error('❌ Error forwarding request to TUS server:', error);
+			return new Response('Internal Server Error', { status: 500 });
+		}
 	}
 
 	return resolve(event);
@@ -138,8 +237,8 @@ const authHandler: Handle = async ({ event, resolve }) => {
 // 🔹 Compose all handlers using `sequence`
 export const handle: Handle = sequence(
 	Sentry.sentryHandle(),
-	tusHandler, // ✅ Handle TUS uploads before SvelteKit
-	authHandler // ✅ Ensure authentication & session management
+	authHandler, // ✅ Ensure authentication & session management
+	tusHandler // ✅ Handle TUS uploads before SvelteKit
 );
 
 // Start the scheduler when the server starts

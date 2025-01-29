@@ -65,25 +65,16 @@
 			.use(GoldenRetriever)
 			.use(Compressor)
 			.use(Tus, {
-				endpoint: '/api/tus/files'.replace(/\/+$/, ''), // Remove trailing slashes
+				endpoint: `/api/tus/files?eventId=${$page.params.id}&${tempAttendeeSecretParam}=${tempAttendeeSecret}`, // Remove trailing slashes
 				removeFingerprintOnSuccess: true, // 🔹 Remove tracking ID after success
 				chunkSize: 1 * 1024 * 1024, // 1MB chunk size
 				retryDelays: [0, 3000, 5000, 10000], // Retry logic
-				metadata: (file) => ({
-					name: file.name,
-					type: file.type,
-					eventId: currentEventId, // Ensure this is defined
-					userId: currentUserId // Ensure this is defined
-				}),
 				// 🔹 Prevent auto-resume
 				onShouldRetry: (err, retryAttempt, options) => {
 					console.log('⚠️ Upload error, clearing old sessions:', err);
-
-					// Clear failed upload from Uppy
 					uppy.getFiles().forEach((file) => {
 						uppy.removeFile(file.id);
 					});
-
 					return false; // 🚀 Stop retries for failed uploads
 				}
 			});
@@ -121,11 +112,16 @@
 		});
 
 		uppy.on('file-added', (file) => {
+			console.log('📄 File added:', file.name);
+
 			uppy.setFileMeta(file.id, {
 				originalName: file.name,
 				mimeType: file.type,
 				size: file.size,
-				uploadStartTime: new Date().toISOString()
+				uploadStartTime: new Date().toISOString(),
+				eventId: typeof $page.params.id !== 'undefined' ? $page.params.id : '',
+				userId: $page.data.user?.id,
+				tempAttendeeSecret: tempAttendeeSecret
 			});
 		});
 
