@@ -56,6 +56,8 @@ export async function processGalleryFile(
 	tempAttendeeId: string | null,
 	eventId: string
 ) {
+	const tempFiles = [filePath];
+
 	try {
 		if (!userId && !tempAttendeeId) {
 			return Error('either userId or tempAttendeeId must be set');
@@ -91,6 +93,8 @@ export async function processGalleryFile(
 				contentType: filetype
 			});
 		} else if (filetype.startsWith('video/')) {
+			tempFiles.push(`${filePath}.json`); // This is the metadata file from TUS
+
 			// ✅ Process Video
 			try {
 				const {
@@ -165,7 +169,15 @@ export async function processGalleryFile(
 	} catch (error) {
 		console.error(`❌ Error processing uploaded file: ${error}`);
 	} finally {
-		// TODO clean up all temp files
+		// ✅ Clean up all temporary files, including TUS metadata file
+		for (const tempFile of tempFiles) {
+			try {
+				await fs.unlink(tempFile);
+				console.log(`🗑️ Deleted temp file: ${tempFile}`);
+			} catch (err) {
+				console.error(`❌ Failed to delete temp file ${tempFile}:`, err);
+			}
+		}
 	}
 }
 
