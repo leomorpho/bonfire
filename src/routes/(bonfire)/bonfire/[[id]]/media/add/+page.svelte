@@ -19,6 +19,7 @@
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
 	import { tempAttendeeSecretParam } from '$lib/enums';
 	import Tus from '@uppy/tus';
+	import { toast } from 'svelte-sonner';
 
 	let uppy: any;
 	let totalFiles = 0; // To track total files to upload
@@ -91,6 +92,12 @@
 
 		uppy.on('upload-error', (file, error) => {
 			console.error(`❌ Upload failed for ${file.name}:`, error);
+			toast.error(
+				'❌ Upload failed. Please try again later or contact support if the issue persists.',
+				{
+					duration: 6000 // 6 seconds
+				}
+			);
 		});
 
 		uppy.on('upload-retry', (file) => {
@@ -99,10 +106,17 @@
 
 		uppy.on('upload-success', (file, response) => {
 			uploadedFiles++; // Increment on successful upload
-			console.log(`✅ Successfully uploaded: ${file.name}`, response);
+			console.log(`Successfully uploaded: ${file.name}`, response);
 
 			// Redirect after all files have been uploaded
 			if (uploadedFiles === totalFiles) {
+				toast.success(
+					'Upload successful! Your files are being optimized and will appear in the gallery shortly.',
+					{
+						duration: 6000 // 6 seconds
+					}
+				);
+
 				goto(onSuccessEndpoint);
 			}
 		});

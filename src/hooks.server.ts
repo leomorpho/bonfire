@@ -36,47 +36,12 @@ process.on('unhandledRejection', (reason, promise) => {
 const tusServer = new Server({
 	path: '/api/tus/files',
 	datastore: new FileStore({ directory: './uploads' }),
-	maxSize: 500 * 1024 * 1024, // Set max size to 500MB
-	async onIncomingRequest(req, res) {
-		const userId = req.headers['x-user-id'];
-		const tempAttendeeSecret = req.headers['x-temp-attendee-secret'];
-		const eventId = req.headers['x-event-id'];
-
-		// Store the auth data on the request object for use in hooks
-		req.auth = {
-			userId: userId || '',
-			tempAttendeeSecret: tempAttendeeSecret || '',
-			eventId: eventId || ''
-		};
-
-		// Validate requirements
-		// if ((!userId && !tempAttendeeSecret) || !eventId) {
-		// 	throw {
-		// 		status_code: 401,
-		// 		body: 'Unauthorized: Missing required authentication'
-		// 	};
-		// }
-
-		// You could add additional validation here, like:
-		// - Verify the eventId exists
-		// - Check if the user has permission for this event
-		// - Validate tempAttendeeSecret format
-	}
+	maxSize: 500 * 1024 * 1024 // Set max size to 500MB
 });
 
 tusServer.on(EVENTS.POST_CREATE, async (req, res, upload) => {
 	try {
 		console.log('📥 New file upload started:', upload);
-
-		// Access the auth data we set in onIncomingRequest
-		const { userId, tempAttendeeSecret, eventId } = req.auth;
-
-		if (!eventId && !(userId || tempAttendeeSecret)) {
-			console.warn('⚠️ No eventId found in request.');
-			res.writeHead(400);
-			res.end('Bad Request: Missing eventId');
-			return;
-		}
 
 		return { res }; // Just return res, metadata will be saved with the upload object
 	} catch (error) {
@@ -116,7 +81,7 @@ tusServer.on(EVENTS.POST_FINISH, async (req, res, upload) => {
 		// TODO: check with lucia that current user is logged in
 
 		let tempAttendeeId: string | null = null;
-		let existingTempAttendee= null;
+		let existingTempAttendee = null;
 
 		try {
 			if (tempAttendeeSecret) {
@@ -165,23 +130,44 @@ const tusHandler: Handle = async ({ event, resolve }) => {
 
 		// Extract session and user details
 		const sessionId = event.cookies.get(lucia.sessionCookieName);
-		let userId = null;
+		let userId: string | null = null;
 		const tempAttendeeSecret = event.url.searchParams.get(tempAttendeeSecretParam) || '';
 		const eventId = event.url.searchParams.get('eventId');
 
-		if (sessionId) {
-			try {
-				const { session, user } = await lucia.validateSession(sessionId);
-				if (session) {
-					userId = user.id;
+		let validUser = false;
+
+		try {
+			// ✅ Check if user is logged in with Lucia
+			if (sessionId) {
+				try {
+					const { session, user } = await lucia.validateSession(sessionId);
+					if (session) {
+						userId = user.id;
+						validUser = true;
+					}
+				} catch (error) {
+					console.warn('⚠️ Invalid or expired session. Proceeding without authentication.', error);
 				}
-			} catch (error) {
-				console.warn('⚠️ Invalid or expired session. Proceeding without authentication.');
 			}
+
+			// ✅ Check if tempAttendeeSecret maps to a valid temporary attendee
+			if (!validUser && tempAttendeeSecret) {
+				const tempAttendee = await triplitHttpClient.fetchOne(
+					triplitHttpClient
+						.query('temporary_attendees')
+						.where(['secret_mapping.id', '=', tempAttendeeSecret])
+						.build()
+				);
+				if (tempAttendee) {
+					validUser = true;
+				}
+			}
+		} catch (error) {
+			console.error('❌ Authentication error:', error);
 		}
 
-		// If neither userId nor tempAttendeeSecret exists, reject the upload
-		if (!userId && !tempAttendeeSecret) {
+		// ❌ Reject if neither userId nor tempAttendeeSecret is valid
+		if (!validUser) {
 			console.warn('⚠️ Unauthorized attempt to upload.');
 			return new Response('Unauthorized', { status: 401 });
 		}
