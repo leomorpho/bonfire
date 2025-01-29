@@ -9,6 +9,7 @@ import { FileStore } from '@tus/file-store';
 import { Readable } from 'stream';
 import { createServer } from 'http';
 import { fetch as nodeFetch } from 'undici'; // Faster fetch for Node.js
+import { processGalleryFile } from '$lib/filestorage';
 
 if (!dev) {
 	Sentry.init({
@@ -34,6 +35,26 @@ const tusServer = new Server({
 	path: '/api/tus/files',
 	datastore: new FileStore({ directory: './uploads' }),
 	maxSize: 500 * 1024 * 1024 // Set max size to 500MB
+});
+
+/**
+ * ✅ Trigger custom logic when an upload is complete
+ */
+tusServer.on('uploadComplete', async (req, res, file) => {
+	console.log(`📌 Upload completed: ${file.id}`);
+
+	// Debug: Check if metadata exists
+	console.log('📊 File metadata:', file.metadata);
+
+	const filePath = `./uploads/${file.id}`; // ✅ Path where TUS stores the file
+	const filename = file.metadata.name; // ✅ Extract original filename
+	const filetype = file.metadata.type; // ✅ Extract MIME type
+	const eventId = file.metadata.eventId; // ✅ Extract event ID
+	const userId = file.metadata.userId; // ✅ Extract uploader's ID
+
+	
+	// ✅ Run processing logic asynchronously
+	await processGalleryFile(filePath, filename, filetype, userId, eventId);
 });
 
 // ✅ Start a native HTTP server for TUS

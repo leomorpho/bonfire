@@ -69,7 +69,13 @@
 				removeFingerprintOnSuccess: true, // 🔹 Remove tracking ID after success
 				chunkSize: 1 * 1024 * 1024, // 1MB chunk size
 				retryDelays: [0, 3000, 5000, 10000], // Retry logic
-				// 🔹 Proper way to prevent auto-resume
+				metadata: (file) => ({
+					name: file.name,
+					type: file.type,
+					eventId: currentEventId, // Ensure this is defined
+					userId: currentUserId // Ensure this is defined
+				}),
+				// 🔹 Prevent auto-resume
 				onShouldRetry: (err, retryAttempt, options) => {
 					console.log('⚠️ Upload error, clearing old sessions:', err);
 

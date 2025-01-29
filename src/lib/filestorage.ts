@@ -22,6 +22,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { getPixels } from '@unpic/pixels';
 import { BannerMediaSize } from './enums';
+import { createReadStream } from 'fs';
 
 ffmpeg.setFfmpegPath(ffmpegInstaller.path);
 
@@ -36,6 +37,115 @@ const s3 = new S3Client({
 });
 
 const bucketName = dev ? env.DEV_S3_BUCKET_NAME : env.S3_BUCKET_NAME;
+
+/**
+ * Runs file processing for uploaded images & videos.
+ * @param {string} filePath - The path of the uploaded file.
+ * @param {string} filename - The original filename.
+ * @param {string} filetype - MIME type of the file.
+ * @param {string} userId - The ID of the uploader (either user or temp attendee).
+ * @param {string} eventId - The event ID associated with the upload.
+ * @returns {Promise<void>}
+ */
+export async function processGalleryFile(
+	filePath: string,
+	filename: string,
+	filetype: string,
+	userId: string,
+	eventId: string
+) {
+	try {
+		const fileKey = `events/eventid_${eventId}/userid_${userId}/${filename}`;
+		let frameFileId = null;
+		let h_pixel: number | null = null;
+		let w_pixel: number | null = null;
+		let blurhash: string | null = null;
+		let cleanup: (() => Promise<void>) | null = null;
+
+		if (filetype.startsWith('image/')) {
+			// ✅ Process Image
+			const metadata = await sharp(filePath).metadata();
+			h_pixel = metadata.height || null;
+			w_pixel = metadata.width || null;
+
+			// Generate BlurHash
+			try {
+				const processedBuffer = await sharp(filePath).toFormat('png').toBuffer();
+				const pixelData = await getPixels(processedBuffer);
+				const data = Uint8ClampedArray.from(pixelData.data);
+				blurhash = encode(data, pixelData.width, pixelData.height, 4, 4);
+			} catch (e) {
+				console.log('❌ Failed to generate BlurHash:', e);
+			}
+
+			// Upload to S3
+			await uploadLargeFileToS3({
+				fileStream: createReadStream(filePath),
+				key: fileKey,
+				contentType: filetype
+			});
+		} else if (filetype.startsWith('video/')) {
+			// ✅ Process Video
+			try {
+				const {
+					blurhash: videoBlurHash,
+					tempImagePath,
+					cleanup: tempCleanup
+				} = await extractFirstFrameAndBlurHash(filePath);
+				cleanup = tempCleanup;
+				blurhash = videoBlurHash;
+
+				// Extract metadata for video frame
+				const frameMetadata = await sharp(tempImagePath).metadata();
+				h_pixel = frameMetadata.height || null;
+				w_pixel = frameMetadata.width || null;
+
+				// Upload extracted frame
+				const frameFileKey = `events/eventid_${eventId}/userid_${userId}/frame-${filename}`;
+				await uploadLargeFileToS3({
+					fileStream: createReadStream(tempImagePath),
+					key: frameFileKey,
+					contentType: 'image/png'
+				});
+
+				// Store frame file in DB
+				const { output } = await triplitHttpClient.insert('files', {
+					uploader_id: userId,
+					event_id: eventId,
+					file_key: frameFileKey,
+					file_type: 'image/png',
+					file_name: `frame-${filename}`,
+					is_linked_file: true
+				});
+				frameFileId = output.id;
+			} catch (err) {
+				console.error('❌ Failed to process video:', err);
+			} finally {
+				if (cleanup) await cleanup();
+			}
+
+			// Transcode and upload video
+			await transcodeAndUploadVideo(filePath, fileKey);
+		}
+
+		// ✅ Store file metadata in database
+		await triplitHttpClient.insert('files', {
+			uploader_id: userId,
+			event_id: eventId,
+			file_key: fileKey,
+			file_type: filetype,
+			file_name: filename,
+			h_pixel,
+			w_pixel,
+			blurr_hash: blurhash,
+			linked_file_id: frameFileId ?? null
+		});
+
+		console.log(`✅ Successfully processed file: ${filePath}`);
+	} catch (error) {
+		console.error(`❌ Error processing uploaded file: ${error}`);
+	}
+}
 
 export async function uploadProfileImage(file: File, userId: string) {
 	// NOTE: Profile pics are always named the same for a same user, to overwrite their previous pic.
