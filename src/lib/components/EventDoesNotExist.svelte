@@ -9,6 +9,6 @@
 	<ul class="mt-3 list-disc m-2 space-y-2">
 		<li>the event was automatically deleted because it ended over 2 weeks ago 🎆</li>
 		<li>the event never existed 🪐</li>
-		<li>the universe is in chaos, and entropy is winning 🥵</li>
+		<li>our systems are facing some difficulties, so please try again later...sorry 🥵</li>
 	</ul>
 </CenterScreenMessage>

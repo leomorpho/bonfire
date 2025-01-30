@@ -244,6 +244,9 @@
 			// If user is anonymous, load event data from page data. It will contain limited data.
 			// Also, if the user is logged in but is NOT YET attending, we don't want to pull live data
 			// since they won't have the permissions to.
+			console.log(
+				'not fetching event data because used is anonymous or not an attendee, and therefore only data returned from BE will be shown'
+			);
 			event = $page.data.event;
 			eventLoading = false;
 			attendeesLoading = false;
