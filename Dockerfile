@@ -4,37 +4,38 @@ FROM node:22 AS build
 WORKDIR /app
 
 # Copy package files and install dependencies
-COPY package*.json pnpm-lock.yaml ./
-RUN npm install -g pnpm && pnpm i
+COPY package.json pnpm-lock.yaml ./
+RUN npm install -g pnpm && pnpm i --frozen-lockfile
 
-COPY .env.example .env
-RUN npx @sveltejs/kit sync
-
-# Copy application source code and build the app
+# Copy app source & build
 COPY . .
-RUN npx @sveltejs/kit sync
-RUN pnpm build
+RUN pnpm run build
 
-# Prune devDependencies
+# Prune devDependencies to reduce image size
 RUN pnpm prune --production
+
+
 
 # Stage 2: Run the SvelteKit app
 FROM node:22-slim AS run
 
 # Set the environment for production
 ENV NODE_ENV=production
-ENV PORT=4000
+ENV PORT=3000
 
 WORKDIR /app
 
-# Copy build artifacts and necessary files from the build stage
-COPY --from=build /app/build ./build
+# Copy required files from the build stage
+COPY --from=build /app/.output ./.output
 COPY --from=build /app/package.json ./package.json
+COPY --from=build /app/pnpm-lock.yaml ./pnpm-lock.yaml
 COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/public ./public
+
+# Ensure PNPM is installed
+RUN npm install -g pnpm
 
 # Expose the app port
 EXPOSE 3000
 
 # Run the SvelteKit app
-ENTRYPOINT ["node", "build"]
+ENTRYPOINT ["pnpm", "run", "start"]
