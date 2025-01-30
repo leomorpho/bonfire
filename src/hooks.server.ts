@@ -78,8 +78,6 @@ tusServer.on(EVENTS.POST_FINISH, async (req, res, upload) => {
 			return;
 		}
 
-		// TODO: check with lucia that current user is logged in
-
 		let tempAttendeeId: string | null = null;
 		let existingTempAttendee = null;
 
