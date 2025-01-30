@@ -20,3 +20,4 @@ data/mailpit.db*
 test-results
 playwright-report
 temp
+uploads

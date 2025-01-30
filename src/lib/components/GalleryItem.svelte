@@ -20,7 +20,6 @@
 	const isVideo = fileType.startsWith('video/');
 
 	const getPlaceholder = () => {
-		console.log('Passed blurhash', blurhash);
 		if (!blurhash) {
 			return {
 				cssGradientString: blurhashToCssGradientString('LEHV6nWB2yk8pyo0adR*.7kCMdnj'), // Fallback gray background
@@ -46,7 +45,7 @@
 	};
 
 	const placeholder = getPlaceholder();
-	console.log('fileName', fileName, 'placeholder', placeholder);
+	// console.log('fileName', fileName, 'placeholder', placeholder);
 
 	// Create a blob URL from the data URI for video poster
 	let posterUrl = $state('');

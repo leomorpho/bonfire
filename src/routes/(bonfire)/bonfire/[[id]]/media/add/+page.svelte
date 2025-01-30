@@ -3,7 +3,6 @@
 	import Uppy from '@uppy/core';
 	import Webcam from '@uppy/webcam';
 	// import Audio from '@uppy/audio';
-	import XHR from '@uppy/xhr-upload';
 	import GoldenRetriever from '@uppy/golden-retriever';
 	import Compressor from '@uppy/compressor';
 	import DashboardPlugin from '@uppy/dashboard';
@@ -19,13 +18,15 @@
 	import { goto } from '$app/navigation';
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
 	import { tempAttendeeSecretParam } from '$lib/enums';
+	import Tus from '@uppy/tus';
+	import { toast } from 'svelte-sonner';
 
-	let uppy;
+	let uppy: any;
 	let totalFiles = 0; // To track total files to upload
 	let uploadedFiles = 0; // To track successfully uploaded files
 	let currentProgress = {};
 
-	const maxMbSize = 50;
+	const maxMbSize = 100;
 
 	onMount(() => {
 		let imageUploadEndpoint = `/bonfire/${$page.params.id}/media/add`;
@@ -40,8 +41,9 @@
 
 		// Initialize Uppy instance with Tus for resumable uploads
 		uppy = new Uppy({
-			debug: false, // Enable debug logs (optional)
+			debug: true, // Enable debug logs (optional)
 			autoProceed: false, // Wait for user action before starting uploads
+			allowMultipleUploads: false, // Ensure only one upload at a time
 			restrictions: {
 				maxFileSize: maxMbSize * 1024 * 1024, // Limit file size to 100MB
 				// allowedFileTypes: ['image/*', 'video/*', 'audio/*'] // Allowed file types
@@ -63,16 +65,19 @@
 			// .use(Audio)
 			.use(GoldenRetriever)
 			.use(Compressor)
-			.use(XHR, {
-				endpoint: imageUploadEndpoint, // Your SvelteKit endpoint
-				method: 'POST',
-				formData: true,
-				fieldName: 'file', // Ensure this matches the backend expectation
-				headers: {
-					Authorization: `Bearer ${window.localStorage.getItem('token')}`
-				},
-				allowedMetaFields: true,
-				timeout: 0 // Disable timeout for large files
+			.use(Tus, {
+				endpoint: `/api/tus/files?eventId=${$page.params.id}&${tempAttendeeSecretParam}=${tempAttendeeSecret}`, // Remove trailing slashes
+				removeFingerprintOnSuccess: true, // 🔹 Remove tracking ID after success
+				chunkSize: 1 * 1024 * 1024, // 1MB chunk size
+				retryDelays: [0, 3000, 5000, 10000], // Retry logic
+				// 🔹 Prevent auto-resume
+				onShouldRetry: (err, retryAttempt, options) => {
+					console.log('⚠️ Upload error, clearing old sessions:', err);
+					uppy.getFiles().forEach((file) => {
+						uppy.removeFile(file.id);
+					});
+					return false; // 🚀 Stop retries for failed uploads
+				}
 			});
 
 		uppy.on('upload-start', (file) => {
@@ -81,12 +86,37 @@
 			currentProgress = {};
 		});
 
+		uppy.on('upload-progress', (file, progress) => {
+			console.log(`📊 Progress - ${file.name}: ${progress.bytesUploaded} / ${progress.bytesTotal}`);
+		});
+
+		uppy.on('upload-error', (file, error) => {
+			console.error(`❌ Upload failed for ${file.name}:`, error);
+			toast.error(
+				'❌ Upload failed. Please try again later or contact support if the issue persists.',
+				{
+					duration: 6000 // 6 seconds
+				}
+			);
+		});
+
+		uppy.on('upload-retry', (file) => {
+			console.warn(`🔄 Retrying upload: ${file.name}`);
+		});
+
 		uppy.on('upload-success', (file, response) => {
 			uploadedFiles++; // Increment on successful upload
-			console.log('Upload successful:', file, response);
+			console.log(`Successfully uploaded: ${file.name}`, response);
 
 			// Redirect after all files have been uploaded
 			if (uploadedFiles === totalFiles) {
+				toast.success(
+					'Upload successful! Your files are being optimized and will appear in the gallery shortly.',
+					{
+						duration: 6000 // 6 seconds
+					}
+				);
+
 				goto(onSuccessEndpoint);
 			}
 		});
@@ -96,11 +126,16 @@
 		});
 
 		uppy.on('file-added', (file) => {
+			console.log('📄 File added:', file.name);
+
 			uppy.setFileMeta(file.id, {
 				originalName: file.name,
 				mimeType: file.type,
 				size: file.size,
-				uploadStartTime: new Date().toISOString()
+				uploadStartTime: new Date().toISOString(),
+				eventId: typeof $page.params.id !== 'undefined' ? $page.params.id : '',
+				userId: $page.data.user?.id,
+				tempAttendeeSecret: tempAttendeeSecret
 			});
 		});
 

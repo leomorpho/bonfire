@@ -14,7 +14,7 @@ import sharp from 'sharp'; // For resizing images
 import { dev } from '$app/environment';
 import { Readable } from 'stream';
 import { triplitHttpClient } from '$lib/server/triplit';
-import { and } from '@triplit/client';
+import { and, HttpClient } from '@triplit/client';
 import ffmpegInstaller from '@ffmpeg-installer/ffmpeg';
 import ffmpeg from 'fluent-ffmpeg';
 import { encode } from 'blurhash';
@@ -22,6 +22,8 @@ import fs from 'fs/promises';
 import path from 'path';
 import { getPixels } from '@unpic/pixels';
 import { BannerMediaSize } from './enums';
+import { createReadStream } from 'fs';
+import { createNewFileNotificationQueueObject } from './notification';
 
 ffmpeg.setFfmpegPath(ffmpegInstaller.path);
 
@@ -36,6 +38,148 @@ const s3 = new S3Client({
 });
 
 const bucketName = dev ? env.DEV_S3_BUCKET_NAME : env.S3_BUCKET_NAME;
+
+/**
+ * Runs file processing for uploaded images & videos.
+ * @param {string} filePath - The path of the uploaded file.
+ * @param {string} filename - The original filename.
+ * @param {string} filetype - MIME type of the file.
+ * @param {string} userId - The ID of the uploader (either user or temp attendee).
+ * @param {string} eventId - The event ID associated with the upload.
+ * @returns {Promise<void>}
+ */
+export async function processGalleryFile(
+	filePath: string,
+	filename: string,
+	filetype: string,
+	userId: string | null,
+	tempAttendeeId: string | null,
+	eventId: string
+) {
+	const tempFiles = [filePath];
+
+	try {
+		if (!userId && !tempAttendeeId) {
+			return Error('either userId or tempAttendeeId must be set');
+		}
+
+		const fileKey = `events/eventid_${eventId}/userid_${userId}/${filename}`;
+		let frameFileId = null;
+		let h_pixel: number | null = null;
+		let w_pixel: number | null = null;
+		let blurhash: string | null = null;
+		let cleanup: (() => Promise<void>) | null = null;
+
+		if (filetype.startsWith('image/')) {
+			// ✅ Process Image
+			const metadata = await sharp(filePath).metadata();
+			h_pixel = metadata.height || null;
+			w_pixel = metadata.width || null;
+
+			// Generate BlurHash
+			try {
+				const processedBuffer = await sharp(filePath).toFormat('png').toBuffer();
+				const pixelData = await getPixels(processedBuffer);
+				const data = Uint8ClampedArray.from(pixelData.data);
+				blurhash = encode(data, pixelData.width, pixelData.height, 4, 4);
+			} catch (e) {
+				console.log('❌ Failed to generate BlurHash:', e);
+			}
+
+			// Upload to S3
+			await uploadLargeFileToS3({
+				fileStream: createReadStream(filePath),
+				key: fileKey,
+				contentType: filetype
+			});
+		} else if (filetype.startsWith('video/')) {
+			tempFiles.push(`${filePath}.json`); // This is the metadata file from TUS
+
+			// ✅ Process Video
+			try {
+				const {
+					blurhash: videoBlurHash,
+					tempImagePath,
+					cleanup: tempCleanup
+				} = await extractFirstFrameAndBlurHash(filePath);
+				cleanup = tempCleanup;
+				blurhash = videoBlurHash;
+
+				// Extract metadata for video frame
+				const frameMetadata = await sharp(tempImagePath).metadata();
+				h_pixel = frameMetadata.height || null;
+				w_pixel = frameMetadata.width || null;
+
+				// Upload extracted frame
+				const frameFileKey = `events/eventid_${eventId}/userid_${userId}/frame-${filename}`;
+				await uploadLargeFileToS3({
+					fileStream: createReadStream(tempImagePath),
+					key: frameFileKey,
+					contentType: 'image/png'
+				});
+
+				// Store frame file in DB
+				const { output } = await triplitHttpClient.insert('files', {
+					uploader_id: userId,
+					temp_uploader_id: tempAttendeeId,
+					event_id: eventId,
+					file_key: frameFileKey,
+					file_type: 'image/png',
+					file_name: `frame-${filename}`,
+					size_in_bytes: (await fs.stat(tempImagePath)).size,
+					h_pixel: h_pixel,
+					w_pixel: w_pixel,
+					blurr_hash: videoBlurHash,
+					is_linked_file: true
+				});
+				frameFileId = output.id;
+			} catch (err) {
+				console.error('❌ Failed to process video:', err);
+			} finally {
+				if (cleanup) await cleanup();
+			}
+
+			// Transcode and upload video
+			await transcodeAndUploadVideo(filePath, fileKey);
+		}
+
+		// ✅ Store file metadata in database
+		const { output } = await triplitHttpClient.insert('files', {
+			uploader_id: userId,
+			temp_uploader_id: tempAttendeeId,
+			event_id: eventId,
+			file_key: fileKey,
+			file_type: filetype,
+			file_name: filename,
+			size_in_bytes: (await await fs.stat(filePath)).size,
+			h_pixel,
+			w_pixel,
+			blurr_hash: blurhash,
+			linked_file_id: frameFileId ?? null
+		});
+
+		await createNewFileNotificationQueueObject(
+			triplitHttpClient as HttpClient,
+			userId ?? (tempAttendeeId as string),
+			eventId,
+			[output?.id as string]
+		);
+
+		console.log(`✅ Successfully processed file: ${filePath}`);
+	} catch (error) {
+		console.error(`❌ Error processing uploaded file: ${error}`);
+	} finally {
+		// ✅ Clean up all temporary files, including TUS metadata file
+		for (const tempFile of tempFiles) {
+			try {
+				await fs.unlink(tempFile);
+				console.log(`🗑️ Deleted temp file: ${tempFile}`);
+			} catch (err) {
+				console.error(`❌ Failed to delete temp file ${tempFile}:`, err);
+			}
+		}
+	}
+}
 
 export async function uploadProfileImage(file: File, userId: string) {
 	// NOTE: Profile pics are always named the same for a same user, to overwrite their previous pic.
