@@ -36,7 +36,14 @@ process.on('unhandledRejection', (reason, promise) => {
 const tusServer = new Server({
 	path: '/api/tus/files',
 	datastore: new FileStore({ directory: './uploads' }),
-	maxSize: 500 * 1024 * 1024 // Set max size to 500MB
+	maxSize: 500 * 1024 * 1024, // Set max size to 500MB
+	respectForwardedHeaders: true // ✅ Important when behind a reverse proxy
+});
+
+// 🚀 Disable CORS Handling
+tusServer.on('OPTIONS', (req, res) => {
+    res.writeHead(204);
+    res.end();
 });
 
 tusServer.on(EVENTS.POST_CREATE, async (req, res, upload) => {
