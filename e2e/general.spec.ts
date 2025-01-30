@@ -464,10 +464,14 @@ test('Temp attendee view', async ({ browser }) => {
 	await expect(tempAttendeePage.getByRole('link', { name: 'Upload' })).toBeVisible();
 
 	const fileInput = await tempAttendeePage.locator('input[type="file"]').first();
+	await fileInput.setInputFiles([]); // Clears previous file selection
 	const imagePath = path.resolve(process.cwd(), 'e2e/test-images', 'gallery-image.jpg');
 	await fileInput.setInputFiles(imagePath);
 	await tempAttendeePage.getByLabel('Upload 1 file').click();
-	await expect(tempAttendeePage.locator('.gallery-item')).toHaveCount(2);
+
+	// Wait for the upload to be confirmed (adjust selector based on your UI)
+	await tempAttendeePage.waitForSelector('.upload-complete-message', { timeout: 15000 });
+	await expect(tempAttendeePage.locator('.gallery-item')).toHaveCount(2, { timeout: 10000 });
 
 	// Check top bar buttons
 	await expect(tempAttendeePage.locator('#upload-new-images')).toBeVisible();
