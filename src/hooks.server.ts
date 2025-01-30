@@ -160,7 +160,10 @@ const tusHandler: Handle = async ({ event, resolve }) => {
 		const eventId = event.url.searchParams.get('eventId');
 
 		let validUser = false;
-
+		console.log('🔹 Incoming headers:', event.request.headers);
+		console.log('🔹 Request URL:', event.url.href);
+		console.log('🔹 Search Params:', event.url.searchParams);
+		
 		try {
 			// ✅ Check if user is logged in with Lucia
 			if (sessionId) {
