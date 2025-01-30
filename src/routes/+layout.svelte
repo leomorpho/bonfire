@@ -5,14 +5,11 @@
 	import { beforeNavigate, afterNavigate } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { getMeta } from '$lib/meta';
-	import {
-		PUBLIC_DEFAULT_DESCRIPTION,
-		PUBLIC_DEFAULT_TITLE,
-		PUBLIC_PROJECT_NAME
-	} from '$env/static/public';
 	import Header from '$lib/components/Header.svelte';
 	import { getFlash } from 'sveltekit-flash-message';
 	import { Toaster } from '$lib/components/ui/sonner/index';
+
+import { env as publicEnv } from '$env/dynamic/public';
 
 	let { children } = $props();
 
@@ -22,8 +19,8 @@
 	}
 	const meta = $derived(
 		getMeta({
-			defaultTitle: PUBLIC_DEFAULT_TITLE,
-			defaultDescription: PUBLIC_DEFAULT_DESCRIPTION,
+			defaultTitle: publicEnv.PUBLIC_DEFAULT_TITLE ?? '',
+			defaultDescription: publicEnv.PUBLIC_DEFAULT_DESCRIPTION ?? '',
 			defaultOGImage: '/socialcard.jpeg',
 			routeMeta: $page.data?.meta ?? {},
 			url: $page.url,
@@ -52,8 +49,8 @@
 	<meta name="color-scheme" content="light dark" />
 
 	<script src="https://cdn.jsdelivr.net/npm/ios-pwa-splash@1.0.0/cdn.min.js"></script>
-	<script >
-		iosPWASplash("/icon-192.png", "#000000");
+	<script>
+		iosPWASplash('/icon-192.png', '#000000');
 	</script>
 
 	<!--
@@ -67,7 +64,7 @@
 	  -->
 
 	<link rel="icon" href="/favicon.ico" sizes="any" />
-	<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+	<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 
 	<link rel="icon" href="/icon.svg" type="image/svg+xml" />
 	<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -119,4 +116,3 @@
 {/if}
 <Toaster richColors toastOptions={{}} />
 {@render children()}
-

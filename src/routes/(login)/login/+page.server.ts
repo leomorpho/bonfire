@@ -9,10 +9,9 @@ import {
 	deleteAllEmailOTPsForUser
 } from '$lib/server/database/emailtoken.model.js';
 import { loginEmailHtmlTemplate, sendEmail } from '$lib/server/email/email.js';
-import { env } from '$env/dynamic/private';
-import { env as public_env } from '$env/dynamic/public';
+import { env as privateEnv } from '$env/dynamic/private';
+import { env as publicEnv } from '$env/dynamic/public';
 import { lucia } from '$lib/server/auth';
-import { PUBLIC_ORIGIN } from '$env/static/public';
 import { createSigninEntry, getSignins } from '$lib/server/database/signin.model';
 import { dev } from '$app/environment';
 import {
@@ -50,7 +49,7 @@ export const actions = {
 				email: form.data.email,
 				email_verified: false,
 				num_logs: NUM_DEFAULT_LOGS_NEW_SIGNUP,
-				is_event_styles_admin: false,
+				is_event_styles_admin: false
 			});
 			if (!user) {
 				throw error(500, 'Failed to create new user');
@@ -70,7 +69,9 @@ export const actions = {
 			await new Promise((resolve) => setTimeout(resolve, 2000));
 		}
 
-		const ratelimit = env.SIGNIN_IP_RATELIMIT ? parseInt(env.SIGNIN_IP_RATELIMIT) : 20;
+		const ratelimit = privateEnv.SIGNIN_IP_RATELIMIT
+			? parseInt(privateEnv.SIGNIN_IP_RATELIMIT)
+			: 20;
 
 		if (signins.length > ratelimit && !dev) {
 			form.errors.email = [
@@ -89,13 +90,13 @@ export const actions = {
 		const verification_token = await createEmailVerificationOTP(user.id, user.email);
 
 		await sendEmail({
-			from: `${public_env.PUBLIC_PROJECT_NAME} <${public_env.PUBLIC_FROM_EMAIL}>`,
+			from: `${publicEnv.PUBLIC_PROJECT_NAME} <${publicEnv.PUBLIC_FROM_EMAIL}>`,
 			to: user.email,
-			subject: `Your ${login_type} pin for ${public_env.PUBLIC_PROJECT_NAME}`,
+			subject: `Your ${login_type} pin for ${publicEnv.PUBLIC_PROJECT_NAME}`,
 			html: loginEmailHtmlTemplate({
 				login_type: login_type,
-				product_url: PUBLIC_ORIGIN,
-				product_name: public_env.PUBLIC_PROJECT_NAME,
+				product_url: publicEnv.PUBLIC_ORIGIN,
+				product_name: publicEnv.PUBLIC_PROJECT_NAME,
 				verification_token: verification_token
 			}),
 			headers: {

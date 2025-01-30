@@ -1,13 +1,12 @@
-import { PUBLIC_TRIPLIT_URL } from '$env/static/public';
-import { TRIPLIT_SERVICE_TOKEN } from '$env/static/private';
 import { Status } from '$lib/enums';
 import type { AttendeeTypescriptType, FileTypescriptType } from '$lib/types';
-
+import { env as publicEnv } from '$env/dynamic/public';
+import { env as privateEnv } from '$env/dynamic/private';
 import { and, HttpClient } from '@triplit/client';
 
 export const triplitHttpClient = new HttpClient({
-	serverUrl: PUBLIC_TRIPLIT_URL,
-	token: TRIPLIT_SERVICE_TOKEN
+	serverUrl: publicEnv.PUBLIC_TRIPLIT_URL,
+	token: privateEnv.TRIPLIT_SERVICE_TOKEN
 });
 
 export async function getAttendeeUserIdsOfEvent(

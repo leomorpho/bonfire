@@ -1,14 +1,15 @@
 import { describe, it, expect } from 'vitest';
 import { Status } from '$lib/enums';
 import { schema } from '../triplit/schema';
-import { PUBLIC_TRIPLIT_URL } from '$env/static/public';
-import { TRIPLIT_SERVICE_TOKEN } from '$env/static/private';
+import { env as publicEnv } from '$env/dynamic/public';
+import { env as privateEnv } from '$env/dynamic/private';
+
 import { TriplitClient } from '@triplit/client';
 
 const serverTriplitClient = new TriplitClient({
 	schema,
-	serverUrl: PUBLIC_TRIPLIT_URL,
-	token: TRIPLIT_SERVICE_TOKEN
+	serverUrl: publicEnv.PUBLIC_TRIPLIT_URL,
+	token: privateEnv.TRIPLIT_SERVICE_TOKEN
 });
 
 const db = serverTriplitClient;

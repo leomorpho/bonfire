@@ -1,21 +1,37 @@
 import { redirect } from '@sveltejs/kit';
 import { ListObjectsV2Command, S3Client } from '@aws-sdk/client-s3';
-import { PUBLIC_S3_BONFIRE_PUCLIC_BUCKET_NAME } from '$env/static/public';
 import { createHash } from 'crypto';
-import { env } from '$env/dynamic/private';
 import { triplitHttpClient } from '$lib/server/triplit.js';
+import { env as publicEnv } from '$env/dynamic/public';
+import { env as privateEnv } from '$env/dynamic/private';
 
+const s3Region = privateEnv.S3_REGION;
+const s3Endpoint = privateEnv.S3_ENDPOINT;
+const s3AccessKey = privateEnv.S3_BONFIRE_PUBLIC_ACCESS_KEY_ID;
+const s3SecretKey = privateEnv.S3_BONFIRE_PUBLIC_SECRET_ACCESS_KEY;
+
+console.log(`S3_REGION: ${s3Region || '❌ MISSING'}`);
+console.log(`S3_ENDPOINT: ${s3Endpoint || '❌ MISSING'}`);
+console.log(`S3_ACCESS_KEY_ID: ${s3AccessKey ? '✅ OK' : '❌ MISSING'}`);
+console.log(`S3_SECRET_ACCESS_KEY: ${s3SecretKey ? '✅ OK' : '❌ MISSING'}`);
+
+if (!s3Region || !s3Endpoint || !s3AccessKey || !s3SecretKey) {
+	console.error('❌ Missing required S3 environment variables');
+	throw new Error('Missing required S3 environment variables');
+}
+
+// TODO: make sure we have only 1
 // Create an S3 client
 const s3 = new S3Client({
-	region: env.S3_REGION, // Your Backblaze region
-	endpoint: env.S3_ENDPOINT,
+	region: s3Region, // Your Backblaze region
+	endpoint: s3Endpoint,
 	credentials: {
-		accessKeyId: env.S3_BONFIRE_PUBLIC_ACCESS_KEY_ID,
-		secretAccessKey: env.S3_BONFIRE_PUBLIC_SECRET_ACCESS_KEY
+		accessKeyId: s3AccessKey,
+		secretAccessKey: s3SecretKey
 	}
 });
 
-const bucketName = PUBLIC_S3_BONFIRE_PUCLIC_BUCKET_NAME;
+const bucketName = publicEnv.PUBLIC_S3_BONFIRE_PUCLIC_BUCKET_NAME;
 
 /**
  * List all files in a specified directory (prefix) in the S3 bucket.
@@ -81,7 +97,7 @@ async function syncSeamlessTiles(files: { id: string; fileKey: string }[]) {
 					id: file.id,
 					url: file.fileKey,
 					css_template: `url("${file.fileKey}")`,
-					name:  null, // Default to null; can be updated later
+					name: null, // Default to null; can be updated later
 					enabled_in_prod: false // Default to disabled in production
 				});
 			})

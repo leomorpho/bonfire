@@ -9,7 +9,7 @@ import {
 } from '@aws-sdk/client-s3';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { env } from '$env/dynamic/private';
+import { env as privateEnv } from '$env/dynamic/private';
 import sharp from 'sharp'; // For resizing images
 import { dev } from '$app/environment';
 import { Readable } from 'stream';
@@ -27,17 +27,32 @@ import { createNewFileNotificationQueueObject } from './notification';
 
 ffmpeg.setFfmpegPath(ffmpegInstaller.path);
 
+const s3Region = privateEnv.S3_REGION;
+const s3Endpoint = privateEnv.S3_ENDPOINT;
+const s3AccessKey = dev ? privateEnv.DEV_S3_ACCESS_KEY_ID : privateEnv.S3_ACCESS_KEY_ID;
+const s3SecretKey = dev ? privateEnv.DEV_S3_SECRET_ACCESS_KEY : privateEnv.S3_SECRET_ACCESS_KEY;
+
+console.log(`S3_REGION: ${s3Region || '❌ MISSING'}`);
+console.log(`S3_ENDPOINT: ${s3Endpoint || '❌ MISSING'}`);
+console.log(`S3_ACCESS_KEY_ID: ${s3AccessKey ? '✅ OK' : '❌ MISSING'}`);
+console.log(`S3_SECRET_ACCESS_KEY: ${s3SecretKey ? '✅ OK' : '❌ MISSING'}`);
+
+if (!s3Region || !s3Endpoint || !s3AccessKey || !s3SecretKey) {
+	console.error('❌ Missing required S3 environment variables');
+	throw new Error('Missing required S3 environment variables');
+}
+
 // Create an S3 client
 const s3 = new S3Client({
-	region: env.S3_REGION, // Your Backblaze region
-	endpoint: env.S3_ENDPOINT,
+	region: s3Region, // Your Backblaze region
+	endpoint: s3Endpoint,
 	credentials: {
-		accessKeyId: dev ? env.DEV_S3_ACCESS_KEY_ID : env.S3_ACCESS_KEY_ID,
-		secretAccessKey: dev ? env.DEV_S3_SECRET_ACCESS_KEY : env.S3_SECRET_ACCESS_KEY
+		accessKeyId: s3AccessKey,
+		secretAccessKey: s3SecretKey
 	}
 });
 
-const bucketName = dev ? env.DEV_S3_BUCKET_NAME : env.S3_BUCKET_NAME;
+const bucketName = dev ? privateEnv.DEV_S3_BUCKET_NAME : privateEnv.S3_BUCKET_NAME;
 
 /**
  * Runs file processing for uploaded images & videos.

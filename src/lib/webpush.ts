@@ -1,24 +1,31 @@
 import { error } from '@sveltejs/kit';
 import webPush from 'web-push';
-import { env } from '$env/dynamic/private';
+import { env as privateEnv} from '$env/dynamic/private';
+import { env as publicEnv } from '$env/dynamic/public';
+
 import { dev } from '$app/environment';
-import { PUBLIC_DEV_VAPID_PUBLIC_KEY, PUBLIC_FROM_EMAIL, PUBLIC_VAPID_PUBLIC_KEY } from '$env/static/public';
 import { notificationPermissionTable, pushSubscriptionTable } from './server/database/schema';
 import { eq } from 'drizzle-orm';
 import { db } from './server/database/db';
 import type { PermissionValue } from './server/push';
 
 if (
-	(dev && (!PUBLIC_DEV_VAPID_PUBLIC_KEY || !env.DEV_VAPID_PRIVATE_KEY)) ||
-	(!dev && (!PUBLIC_VAPID_PUBLIC_KEY || !env.VAPID_PRIVATE_KEY))
+	(dev && (!publicEnv.PUBLIC_DEV_VAPID_PUBLIC_KEY || !privateEnv.DEV_VAPID_PRIVATE_KEY)) ||
+	(!dev && (!publicEnv.PUBLIC_VAPID_PUBLIC_KEY || !privateEnv.VAPID_PRIVATE_KEY))
 ) {
 	throw error;
 }
 
-const publicKey = dev ? PUBLIC_DEV_VAPID_PUBLIC_KEY : PUBLIC_VAPID_PUBLIC_KEY;
-const privateKey = dev ? env.DEV_VAPID_PRIVATE_KEY : env.VAPID_PRIVATE_KEY;
+const publicKey: string = dev
+	? (publicEnv.PUBLIC_DEV_VAPID_PUBLIC_KEY ?? '')
+	: (publicEnv.PUBLIC_VAPID_PUBLIC_KEY ?? '');
+const privateKey: string = dev ? privateEnv.DEV_VAPID_PRIVATE_KEY : privateEnv.VAPID_PRIVATE_KEY;
 
-webPush.setVapidDetails(`mailto:${PUBLIC_FROM_EMAIL}`, publicKey as string, privateKey as string);
+webPush.setVapidDetails(
+	`mailto:${publicEnv.PUBLIC_FROM_EMAIL}`,
+	publicKey as string,
+	privateKey as string
+);
 
 /**
  * Sends a push notification to a specific user by fetching their push subscriptions.
@@ -79,7 +86,7 @@ export async function sendPushNotification(
 	// Define VAPID options
 	const options = {
 		vapidDetails: {
-			subject: `mailto:${env.PUBLIC_FROM_EMAIL}`,
+			subject: `mailto:${env.env.PUBLIC_FROM_EMAIL}`,
 			publicKey,
 			privateKey
 		},

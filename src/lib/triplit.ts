@@ -1,6 +1,6 @@
 import { TriplitClient } from '@triplit/client';
 import { schema } from '../../triplit/schema';
-import { PUBLIC_TRIPLIT_URL, PUBLIC_TRIPLIT_ANONYMOUS_TOKEN } from '$env/static/public';
+import { env as publicEnv } from '$env/dynamic/public';
 import { writable, get } from 'svelte/store';
 import { browser } from '$app/environment';
 import { LOCAL_INDEXEDDB_NAME } from './enums';
@@ -41,8 +41,8 @@ export function getFeTriplitClient(jwt: string) {
 			name: LOCAL_INDEXEDDB_NAME
 		},
 		schema,
-		serverUrl: PUBLIC_TRIPLIT_URL,
-		token: jwt ? jwt : PUBLIC_TRIPLIT_ANONYMOUS_TOKEN,
+		serverUrl: publicEnv.PUBLIC_TRIPLIT_URL,
+		token: jwt ? jwt : publicEnv.PUBLIC_TRIPLIT_ANONYMOUS_TOKEN,
 		autoConnect: browser
 	}) as TriplitClient;
 

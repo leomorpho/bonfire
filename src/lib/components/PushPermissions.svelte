@@ -2,7 +2,8 @@
 	import { Label } from '$lib/components/ui/label/index.js';
 	import { Switch } from '$lib/components/ui/switch/index.js';
 	import { onMount } from 'svelte';
-	import { PUBLIC_VAPID_PUBLIC_KEY, PUBLIC_DEV_VAPID_PUBLIC_KEY } from '$env/static/public';
+	import { env as publicEnv } from '$env/dynamic/public';
+
 	import { dev } from '$app/environment';
 	import { toast } from 'svelte-sonner';
 	import PushSubscriptionPermission from './PushSubscriptionPermission.svelte';
@@ -122,7 +123,9 @@
 					console.log('Subscribing to push notifications...');
 					const subscription = await registration.pushManager.subscribe({
 						userVisibleOnly: true,
-						applicationServerKey: dev ? PUBLIC_DEV_VAPID_PUBLIC_KEY : PUBLIC_VAPID_PUBLIC_KEY
+						applicationServerKey: dev
+							? publicEnv.PUBLIC_DEV_VAPID_PUBLIC_KEY
+							: publicEnv.PUBLIC_VAPID_PUBLIC_KEY
 					});
 
 					// Send the subscription to the backend

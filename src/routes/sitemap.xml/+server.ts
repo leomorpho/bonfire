@@ -1,10 +1,10 @@
 import * as sitemap from 'super-sitemap';
 import type { RequestHandler } from '@sveltejs/kit';
-import { PUBLIC_ORIGIN } from '$env/static/public';
+import { env as publicEnv } from '$env/dynamic/public';
 
 export const GET: RequestHandler = async () => {
 	return await sitemap.response({
-		origin: PUBLIC_ORIGIN,
+		origin: publicEnv.PUBLIC_ORIGIN,
 		excludeRoutePatterns: ['^/stripe/.*', '.*\\(login\\).*']
 	});
 };

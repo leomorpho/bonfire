@@ -24,7 +24,6 @@
 	import ProfileAvatar from '$lib/components/ProfileAvatar.svelte';
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
 	import { Skeleton } from '$lib/components/ui/skeleton/index.js';
-	import { PUBLIC_ORIGIN } from '$env/static/public';
 	import MiniGallery from '$lib/components/MiniGallery.svelte';
 	import { toast } from 'svelte-sonner';
 	import Annoucements from '$lib/components/Annoucements.svelte';
@@ -37,6 +36,7 @@
 	import ShareLocation from '$lib/components/ShareLocation.svelte';
 	import type { EventTypescriptType } from '$lib/types';
 	import BonfireBanner from '$lib/components/BonfireBanner.svelte';
+	import { env as publicEnv } from '$env/dynamic/public';
 
 	let currUserId = $state('');
 
@@ -452,7 +452,7 @@
 		const shareData = {
 			title: `Hey! You're invited to ${eventData.title}!`, // Use the event title
 			text: `...Check out this awesome event at ${eventData.location}!`, // Use the event location
-			url: `${PUBLIC_ORIGIN}/bonfire/${eventData.id}` // Use the event's unique ID in the URL
+			url: `${publicEnv.PUBLIC_ORIGIN}/bonfire/${eventData.id}` // Use the event's unique ID in the URL
 		};
 
 		toast.success('Invitation copied to clipboard!');
@@ -477,7 +477,7 @@
 
 	const handleCopyingTempAccountUrl = async (eventData: any) => {
 		// Prepare shareable data
-		let url = `${PUBLIC_ORIGIN}/bonfire/${eventData.id}?${tempAttendeeSecretParam}=${tempAttendeeSecret}`;
+		let url = `${publicEnv.PUBLIC_ORIGIN}/bonfire/${eventData.id}?${tempAttendeeSecretParam}=${tempAttendeeSecret}`;
 
 		// Add data to clipboard
 		try {

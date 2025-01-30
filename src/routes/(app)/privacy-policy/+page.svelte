@@ -1,6 +1,6 @@
 <script>
 	import Container from '$lib/components/Container.svelte';
-	import { PUBLIC_FROM_EMAIL } from '$env/static/public';
+	import { env as publicEnv } from '$env/dynamic/public';
 	import Footer from '$lib/components/Footer.svelte';
 </script>
 
@@ -81,10 +81,10 @@
 					<p>
 						<strong>Email:</strong>
 						<a
-							href="mailto:{PUBLIC_FROM_EMAIL}"
+							href="mailto:{publicEnv.PUBLIC_FROM_EMAIL}"
 							class="font-semibold text-blue-600 transition-colors duration-200 hover:text-blue-800"
 						>
-							{PUBLIC_FROM_EMAIL}
+							{publicEnv.PUBLIC_FROM_EMAIL}
 						</a>
 					</p>
 				</div>

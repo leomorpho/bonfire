@@ -1,10 +1,10 @@
-import { PUBLIC_PROJECT_NAME } from '$env/static/public';
 import type { Meta } from '$lib/meta';
+import { env as publicEnv } from '$env/dynamic/public';
 
 export const load = async () => {
 	const meta: Meta = {
-		title: `${PUBLIC_PROJECT_NAME} | Privacy Policy`,
-		description: `The privacy policy for ${PUBLIC_PROJECT_NAME}`
+		title: `${publicEnv.PUBLIC_PROJECT_NAME} | Privacy Policy`,
+		description: `The privacy policy for ${publicEnv.PUBLIC_PROJECT_NAME}`
 	};
 	return { meta };
 };
