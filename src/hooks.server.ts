@@ -13,6 +13,7 @@ import { processGalleryFile } from '$lib/filestorage';
 import { tempAttendeeSecretParam } from '$lib/enums';
 import { triplitHttpClient } from '$lib/server/triplit';
 import { env as publicEnv } from '$env/dynamic/public';
+import { Readable } from 'stream';
 
 if (!dev) {
 	Sentry.init({
@@ -211,12 +212,16 @@ const tusHandler: Handle = async ({ event, resolve }) => {
 		if (eventId) headers.set('x-event-id', eventId);
 
 		try {
+			const bodyStream = event.request.body
+        ? Readable.toWeb(Readable.from(event.request.body))
+        : null;
+
 			const response = await nodeFetch(
 				`http://localhost:3001${event.url.pathname}${event.url.search}`,
 				{
 					method: event.request.method,
 					headers: Object.fromEntries(headers),
-					body: event.request.body ? event.request.body : null,
+					body: bodyStream,
 					duplex: 'half' // ✅ Fix for undici & Node.js 18+ streaming
 				}
 			);
