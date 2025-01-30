@@ -1,12 +1,12 @@
 /* eslint-disable no-irregular-whitespace */
 import { SMTPClient } from 'emailjs';
-import { RESEND_SERVER_TOKEN } from '$env/static/private';
 import { dev } from '$app/environment';
 import { inline } from '@css-inline/css-inline';
 import layout from './layout.html?raw';
 import login from './login-email.html?raw';
 // import postmark from 'postmark';
 import { Resend } from 'resend';
+import { env as privateEnv } from '$env/dynamic/private';
 
 const localClient = new SMTPClient({
 	host: 'localhost',
@@ -71,7 +71,7 @@ export const sendEmail = async (options: {
 			return await sendTestEmail(options);
 		}
 
-		const resend = new Resend(RESEND_SERVER_TOKEN);
+		const resend = new Resend(privateEnv.RESEND_SERVER_TOKEN);
 		const result = await resend.emails.send({
 			from: options.from,
 			to: options.to,

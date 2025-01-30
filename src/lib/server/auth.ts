@@ -5,8 +5,8 @@ import { Lucia, TimeSpan } from 'lucia';
 import { DrizzleSQLiteAdapter } from '@lucia-auth/adapter-drizzle';
 import { dev } from '$app/environment';
 import { sessionTable, userTable } from './database/schema';
-import { GOOGLE_CLIENT_SECRET, GOOGLE_CLIENT_ID } from '$env/static/private';
 import { env as publicEnv } from '$env/dynamic/public';
+import { env as privateEnv } from '$env/dynamic/private';
 
 const adapter = new DrizzleSQLiteAdapter(db, sessionTable, userTable);
 
@@ -44,7 +44,11 @@ const redirect_url = dev
 	? 'http://localhost:5173/login/google/callback'
 	: `${publicEnv.PUBLIC_ORIGIN}/login/google/callback`;
 
-export const google = new Google(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, redirect_url);
+export const google = new Google(
+	privateEnv.GOOGLE_CLIENT_ID,
+	privateEnv.GOOGLE_CLIENT_SECRET,
+	redirect_url
+);
 
 // if (!dev && (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET)) {
 // 	throw new Error('GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET are not set');

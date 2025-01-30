@@ -1,7 +1,7 @@
 import { json, type RequestEvent } from '@sveltejs/kit';
 import { stripeClient } from '../stripe';
 
-import { STRIPE_WEBHOOK_SECRET } from '$env/static/private';
+import { env as privateEnv } from '$env/dynamic/private';
 
 function toBuffer(ab: ArrayBuffer): Buffer {
 	const buf = Buffer.alloc(ab.byteLength);
@@ -17,7 +17,7 @@ export async function POST(event: RequestEvent) {
 	const req = event.request;
 	// let data;
 	let eventType: string;
-	if (STRIPE_WEBHOOK_SECRET) {
+	if (privateEnv.STRIPE_WEBHOOK_SECRET) {
 		// let event;
 		const _rawBody = await req.arrayBuffer();
 		const payload = toBuffer(_rawBody);
@@ -28,7 +28,11 @@ export async function POST(event: RequestEvent) {
 		// const payload = Buffer.from(req.rawBody);
 		const signature = req.headers.get('stripe-signature') as string;
 		try {
-			const event = stripeClient.webhooks.constructEvent(payload, signature, STRIPE_WEBHOOK_SECRET);
+			const event = stripeClient.webhooks.constructEvent(
+				payload,
+				signature,
+				privateEnv.STRIPE_WEBHOOK_SECRET
+			);
 			//const data = event.data;
 			eventType = event.type;
 		} catch (err) {
