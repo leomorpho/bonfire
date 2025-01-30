@@ -14,7 +14,6 @@ import { tempAttendeeSecretParam } from '$lib/enums';
 import { triplitHttpClient } from '$lib/server/triplit';
 import { env as publicEnv } from '$env/dynamic/public';
 
-
 if (!dev) {
 	Sentry.init({
 		dsn: 'https://3b8c1776298855f9184a78a5d271ec6d@o4505031789314048.ingest.us.sentry.io/4508626481774592',
@@ -23,7 +22,7 @@ if (!dev) {
 }
 
 console.log('App started!');
-console.log("PUBLIC_TRIPLIT_URL", publicEnv.PUBLIC_TRIPLIT_URL)
+console.log('PUBLIC_TRIPLIT_URL', publicEnv.PUBLIC_TRIPLIT_URL);
 
 process.on('uncaughtException', (err) => {
 	console.error('Uncaught Exception:', err.stack || err.message || err);
@@ -45,8 +44,8 @@ const tusServer = new Server({
 
 // 🚀 Disable CORS Handling
 tusServer.on('OPTIONS', (req, res) => {
-    res.writeHead(204);
-    res.end();
+	res.writeHead(204);
+	res.end();
 });
 
 tusServer.on(EVENTS.POST_CREATE, async (req, res, upload) => {
@@ -152,6 +151,8 @@ startTusServer();
 const tusHandler: Handle = async ({ event, resolve }) => {
 	if (event.url.pathname.startsWith('/api/tus/files')) {
 		console.log('🔹 TUS upload request detected');
+		console.log('🔹 Request Method:', event.request.method);
+		console.log('🔹 Incoming Headers:', event.request.headers);
 
 		// Extract session and user details
 		const sessionId = event.cookies.get(lucia.sessionCookieName);
@@ -160,10 +161,7 @@ const tusHandler: Handle = async ({ event, resolve }) => {
 		const eventId = event.url.searchParams.get('eventId');
 
 		let validUser = false;
-		console.log('🔹 Incoming headers:', event.request.headers);
-		console.log('🔹 Request URL:', event.url.href);
-		console.log('🔹 Search Params:', event.url.searchParams);
-		
+
 		try {
 			// ✅ Check if user is logged in with Lucia
 			if (sessionId) {
@@ -201,7 +199,7 @@ const tusHandler: Handle = async ({ event, resolve }) => {
 		}
 
 		// Validate eventId for POST and PATCH requests (new uploads and continuations)
-		if ((event.request.method === 'POST' || event.request.method === 'PATCH') && !eventId) {
+		if (event.request.method === 'POST' && !eventId) {
 			console.warn('⚠️ Missing eventId in upload request');
 			return new Response('Bad Request: Missing eventId', { status: 400 });
 		}
