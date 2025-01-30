@@ -29,6 +29,8 @@ ENV PORT=3000
 
 WORKDIR /app
 
+RUN mkdir -p /app/uploads && chmod -R 777 /app/uploads
+
 # Copy required files from the build stage
 COPY --from=build /app/build ./build
 COPY --from=build /app/package.json ./package.json
