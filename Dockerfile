@@ -3,6 +3,9 @@ FROM node:22 AS build
 
 WORKDIR /app
 
+# Copy dummy env file to set dummy env vars (some are required during build, but they will be overwritten at runtime)
+COPY .env.example .env
+
 # Copy package files and install dependencies
 COPY package.json pnpm-lock.yaml ./
 RUN npm install -g pnpm && pnpm i --frozen-lockfile
