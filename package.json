@@ -2,6 +2,9 @@
 	"name": "justship2",
 	"version": "0.0.1",
 	"private": true,
+	"engines": {
+		"node": ">=20.18.1"
+	},
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
