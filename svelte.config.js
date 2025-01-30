@@ -5,7 +5,7 @@ import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 const config = {
 	// Consult https://kit.svelte.dev/docs/integrations#preprocessors
 	// for more information about preprocessors
-	preprocess: vitePreprocess({postcss: true}),
+	preprocess: vitePreprocess({ postcss: true }),
 
 	kit: {
 		// adapter-auto only supports some environments, see https://kit.svelte.dev/docs/adapter-auto for a list.
@@ -14,10 +14,23 @@ const config = {
 		adapter: adapter({
 			precompress: false, // Disable automatic compression
 			maxRequestBodySize: 100 * 1024 * 1024 // Set to 100MB
-		  }),
+		}),
 		alias: {
 			'@/*': './path/to/lib/*'
 		}
+	},
+	env: {
+		PUBLIC_PROJECT_NAME: 'YourProjectName',
+		PUBLIC_ORIGIN: 'https://yourdomain.com',
+		PUBLIC_DEFAULT_TITLE: 'Your Project Title',
+		PUBLIC_DEFAULT_DESCRIPTION: 'A short description of your project',
+		PUBLIC_TRIPLIT_URL: 'https://api.triplit.com',
+		PUBLIC_TRIPLIT_ANONYMOUS_TOKEN: 'your-triplit-anonymous-token',
+		PUBLIC_S3_BONFIRE_PUCLIC_BUCKET_NAME: 'your-public-s3-bucket',
+		PUBLIC_DEV_VAPID_PUBLIC_KEY:
+			'BI_hmbKNnT6X_gwPwaTURvcYA21P1NMKsp3SXluHdWTmcWu7ewKB83g0KwZKpwYaGcZsdm09LBC19yeYoEpALdI',
+		PUBLIC_VAPID_PUBLIC_KEY:
+			'BI_hmbKNnT6X_gwPwaTURvcYA21P1NMKsp3SXluHdWTmcWu7ewKB83g0KwZKpwYaGcZsdm09LBC19yeYoEpALdI'
 	}
 };
 

@@ -9,15 +9,15 @@ RUN npm install -g pnpm && pnpm i --frozen-lockfile
 
 # Copy app source & build
 COPY . .
-COPY .env.example .env
-RUN npx @sveltejs/kit sync
+# COPY .env.example .env
+# RUN npx @sveltejs/kit sync
 RUN pnpm run build
 
 # Prune devDependencies to reduce image size
 RUN pnpm prune --production
 
 # 🧹 Remove the .env file before shipping the runtime container
-RUN rm .env
+# RUN rm -f .env
 
 # Stage 2: Run the SvelteKit app
 FROM node:22-slim AS run
