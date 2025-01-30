@@ -48,7 +48,7 @@ ENV_FILE = .env.prod
 
 # Build the Docker image
 builddocker:
-	docker build --tag $(IMAGE_NAME) .
+	docker build --tag $(IMAGE_NAME) . --no-cache
 
 # Run the container locally
 run:
