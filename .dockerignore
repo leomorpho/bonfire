@@ -7,3 +7,5 @@ Dockerfile
 *.log
 *.cache
 .kamal
+.svelte-kit/output
+.env
