@@ -153,7 +153,7 @@ const tusHandler: Handle = async ({ event, resolve }) => {
 	if (event.url.pathname.startsWith('/api/tus/files')) {
 		console.log('🔹 TUS upload request detected');
 		console.log('🔹 Request Method:', event.request.method);
-		console.log('🔹 Incoming Headers:', event.request.headers);
+		// console.log('🔹 Incoming Headers:', event.request.headers);
 
 		// Extract session and user details
 		const sessionId = event.cookies.get(lucia.sessionCookieName);
