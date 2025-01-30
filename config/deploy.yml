@@ -56,3 +56,6 @@ env:
 
 proxy:
   app_port: 3000
+  ssl: true
+  host: vps.bnfr-events.app
+  forward_headers: true
