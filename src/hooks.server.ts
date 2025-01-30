@@ -216,7 +216,8 @@ const tusHandler: Handle = async ({ event, resolve }) => {
 				{
 					method: event.request.method,
 					headers: Object.fromEntries(headers),
-					body: event.request.body ? event.request.body : null
+					body: event.request.body ? event.request.body : null,
+					duplex: 'half' // ✅ Fix for undici & Node.js 18+ streaming
 				}
 			);
 
