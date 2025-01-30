@@ -12,6 +12,7 @@ import { EVENTS } from '@tus/server';
 import { processGalleryFile } from '$lib/filestorage';
 import { tempAttendeeSecretParam } from '$lib/enums';
 import { triplitHttpClient } from '$lib/server/triplit';
+import { PUBLIC_TRIPLIT_URL } from '$env/static/public';
 
 if (!dev) {
 	Sentry.init({
@@ -21,6 +22,7 @@ if (!dev) {
 }
 
 console.log('App started!');
+console.log("PUBLIC_TRIPLIT_URL", PUBLIC_TRIPLIT_URL)
 
 process.on('uncaughtException', (err) => {
 	console.error('Uncaught Exception:', err.stack || err.message || err);
