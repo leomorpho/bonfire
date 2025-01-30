@@ -53,3 +53,6 @@ env:
     - SPLITWISE_CONSUMER_KEY
     - SPLITWISE_CONSUMER_SECRET
     - BODY_SIZE_LIMIT
+
+proxy:
+  app_port: 3000
