@@ -59,4 +59,3 @@ proxy:
   ssl: true
   host: bnfr-events.app
   forward_headers: true
-  redirect_http: true
