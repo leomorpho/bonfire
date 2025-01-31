@@ -402,7 +402,6 @@
 					// Check if the user is authorized to delete
 					if (
 						dataUploaderId == tempAttendeeId ||
-						$page.data.isOwner ||
 						($page.data.user && dataUploaderId === $page.data.user.id) ||
 						currenUserIsEventAdmin
 					) {
@@ -436,7 +435,7 @@
 						if (imageDiv) {
 							const dataUploaderId = imageDiv.getAttribute('data-uploader-id');
 							el.style.display =
-								($page.data.user && dataUploaderId === $page.data.user.id) || $page.data.isOwner
+								($page.data.user && dataUploaderId === $page.data.user.id) || currenUserIsEventAdmin
 									? 'block'
 									: 'none';
 						} else {
@@ -688,7 +687,7 @@
 								</ContextMenu.Trigger>
 								<ContextMenu.Content>
 									<ContextMenu.Item>Download</ContextMenu.Item>
-									{#if $page.data.isOwner || $page.data.user.id == file.uploader_id || currenUserIsEventAdmin}
+									{#if $page.data.user.id == file.uploader_id || currenUserIsEventAdmin}
 										<CustomAlertDialogue
 											continueCallback={() => handleDelete(file.id)}
 											dialogDescription={`This action cannot be undone. This will permanently delete ${selectedImages.length} this file from our servers.`}
@@ -696,7 +695,7 @@
 											<ContextMenu.Item>Delete this file</ContextMenu.Item></CustomAlertDialogue
 										>
 									{/if}
-									{#if ($page.data.isOwner || currenUserIsEventAdmin) && selectedImages.length > 1}
+									{#if currenUserIsEventAdmin && selectedImages.length > 1}
 										<CustomAlertDialogue
 											continueCallback={() => handleDelete()}
 											dialogDescription={`This action cannot be undone. This will permanently delete ${selectedImages.length} this file from our servers.`}
@@ -763,7 +762,7 @@
 						</Tooltip.Content>
 					</Tooltip.Root>
 				</Tooltip.Provider>
-				{#if $page.data.isOwner || canBulkDelete()}
+				{#if currenUserIsEventAdmin || canBulkDelete()}
 					<Tooltip.Provider>
 						<Tooltip.Root>
 							<Tooltip.Trigger>
