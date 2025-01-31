@@ -9,7 +9,7 @@
 	import PhotoSwipeLightbox from 'photoswipe/lightbox';
 	import 'photoswipe/style.css';
 	import { Button } from '$lib/components/ui/button/index.js';
-	import { ImagePlus } from 'lucide-svelte';
+	import { ImagePlus, ImageMinus, ImageDown } from 'lucide-svelte';
 	import * as ContextMenu from '$lib/components/ui/context-menu/index.js';
 	import CustomAlertDialogue from '$lib/components/CustomAlertDialog.svelte';
 	import { toast } from 'svelte-sonner';
@@ -39,8 +39,18 @@
 	let showOnlyCurrentUserUploads = $state(false); // State to track images uploaded by user toggle
 
 	let currUserId = $state('');
+	let eventOwnerUserId = $state('');
 	let adminUserIds: Set<string> = $state(new Set<string>());
 	let currenUserIsEventAdmin = $state(false);
+
+	let deleteButtonEnabled = $state(true);
+	let downloadButtonEnabled = $state(true);
+
+	$effect(() => {
+		if (eventOwnerUserId == currUserId) {
+			currenUserIsEventAdmin = true;
+		}
+	});
 
 	$effect(() => {
 		if ($page.data.isOwner || adminUserIds.has(currUserId)) {
@@ -79,6 +89,9 @@
 			});
 
 			lightbox = createPhotoSwipe();
+
+			downloadButtonEnabled = true;
+			deleteButtonEnabled = true;
 		}
 	}
 
@@ -521,6 +534,28 @@
 			}
 		);
 
+		const unsubscribeFromEventQuery = client.subscribe(
+			client
+				.query('events')
+				.where([['id', '=', $page.params.id]])
+				.select(['user_id'])
+
+				.build(),
+			(results) => {
+				if (results.length == 1) {
+					eventOwnerUserId = results[0].user_id;
+				}
+			},
+			(error) => {
+				console.error('Error fetching event:', error);
+			},
+			// Optional
+			{
+				localOnly: false,
+				onRemoteFulfilled: () => {}
+			}
+		);
+
 		const unsubscribeFromEventAdminsQUery = client.subscribe(
 			client
 				.query('event_admins')
@@ -548,6 +583,7 @@
 			selection.destroy();
 			lightbox?.destroy(); // Cleanup when the component is destroyed
 			unsubscribeFromFileQuery();
+			unsubscribeFromEventQuery();
 			unsubscribeFromEventAdminsQUery();
 		};
 	});
@@ -569,51 +605,39 @@
 				</Breadcrumb.Item>
 			</Breadcrumb.List>
 		</Breadcrumb.Root>
-		<div class="flex py-1 sm:space-x-2">
+		<div class="ml-4 flex py-1 sm:space-x-2">
 			<a href="add">
 				<Toggle id="upload-new-images" aria-label="toggle bold">
-					<ImagePlus class="size-3" /><span class="text-xs sm:text-sm">Upload</span>
+					<ImagePlus class="size-3" /><span class="hidden text-xs sm:block sm:text-sm">Upload</span>
 				</Toggle>
 			</a>
-			<!-- {#if !$page.data.user}
-				<Tooltip.Provider>
-					<Tooltip.Root>
-						<Tooltip.Trigger
-							><Toggle aria-label="toggle selection" onclick={toggleSelection} disabled={true}>
-								<SquareMousePointer class="size-3" /> <span class="text-xs sm:text-sm">Select</span>
-							</Toggle></Tooltip.Trigger
-						>
-						<Tooltip.Content class="flex items-center">
-							<LockOpen class="mr-1 h-3 w-3" />Login to enable feature
-						</Tooltip.Content>
-					</Tooltip.Root>
-				</Tooltip.Provider>
-				<Tooltip.Provider>
-					<Tooltip.Root>
-						<Tooltip.Trigger>
-							<Toggle aria-label="toggle selection" disabled={true}>
-								{#if showOnlyCurrentUserUploads}<Users class="size-3" />{:else}<User
-										class="size-3"
-									/>{/if}
 
-								<span class="text-xs sm:text-sm">
-									{showOnlyCurrentUserUploads ? 'Show All' : 'Show Mine'}
-								</span>
-							</Toggle>
-						</Tooltip.Trigger>
-						<Tooltip.Content class="flex items-center">
-							<LockOpen class="mr-1 h-3 w-3" /> Login to enable feature
-						</Tooltip.Content>
-					</Tooltip.Root>
-				</Tooltip.Provider> -->
 			{#if $page.data.user}
 				<Toggle
+					id="delete-images"
+					aria-label="toggle bold"
+					onclick={() => {
+						downloadButtonEnabled = false;
+						toggleSelection();
+					}}
+					class="data-[state=on]:bg-slate-300"
+					disabled={!deleteButtonEnabled}
+				>
+					<ImageMinus class="size-3" /><span class="hidden text-xs sm:block sm:text-sm">Delete</span
+					>
+				</Toggle>
+				<Toggle
 					aria-label="toggle selection"
-					onclick={toggleSelection}
+					onclick={() => {
+						deleteButtonEnabled = false;
+						toggleSelection();
+					}}
 					id="toggle-select-images"
 					class="data-[state=on]:bg-slate-300"
+					disabled={!downloadButtonEnabled}
 				>
-					<Download class="size-3" /> <span class="text-xs sm:text-sm">Download</span>
+					<ImageDown class="size-3" />
+					<span class="hidden text-xs sm:block sm:text-sm">Download</span>
 				</Toggle>
 				<!-- Filter Button -->
 				<Toggle
@@ -628,7 +652,7 @@
 						<User class="size-3" />
 					{/if}
 
-					<span class="text-xs sm:text-sm">
+					<span class="hidden text-xs sm:block sm:text-sm">
 						{showOnlyCurrentUserUploads ? 'Show All' : 'Show Mine'}
 					</span>
 				</Toggle>

@@ -14,8 +14,6 @@ RUN npm install -g pnpm && pnpm i --frozen-lockfile
 COPY . .
 RUN pnpm run build && \
     pnpm prune --production && \
-    pnpm store prune && \
-    rm -rf node_modules/.pnpm/@types* node_modules/.pnpm/*eslint* node_modules/.pnpm/vitest* && \
     rm .env
 
 # Stage 2: Run the SvelteKit app
