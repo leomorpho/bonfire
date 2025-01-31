@@ -6,13 +6,15 @@ import type { Handle } from '@sveltejs/kit';
 import { dev } from '$app/environment';
 import { Server } from '@tus/server';
 import { FileStore } from '@tus/file-store';
-import { createServer } from 'http';
+import { IncomingMessage, ServerResponse } from 'http';
 import { fetch as nodeFetch } from 'undici'; // Faster fetch for Node.js
 import { EVENTS } from '@tus/server';
 import { processGalleryFile } from '$lib/filestorage';
 import { tempAttendeeSecretParam } from '$lib/enums';
 import { triplitHttpClient } from '$lib/server/triplit';
 import { env as publicEnv } from '$env/dynamic/public';
+import { Readable } from 'stream';
+import { EventEmitter } from 'events';
 
 if (!dev) {
 	Sentry.init({
@@ -118,32 +120,44 @@ tusServer.on(EVENTS.POST_FINISH, async (req, res, upload) => {
 	}
 });
 
-let server: any; // Store the server instance
+async function toNodeRequest(request: Request): Promise<IncomingMessage> {
+	console.log('📏 Creating Node.js-compatible request object');
 
-function startTusServer() {
-	server = createServer((req, res) => {
-		console.log(`Incoming TUS request: ${req.url}`);
-		tusServer.handle(req, res);
+	// Create readable stream directly from request body
+	const readable = new Readable({
+		read() {} // No-op to prevent auto-consumption
 	});
 
-	server.listen(3001, () => {
-		console.log('TUS server running on http://localhost:3001');
+	const req = Object.assign(readable, {
+		method: request.method,
+		url: new URL(request.url).pathname,
+		headers: Object.fromEntries(request.headers),
+		connection: { remoteAddress: '127.0.0.1' },
+		httpVersion: '1.1',
+		httpVersionMajor: 1,
+		httpVersionMinor: 1,
+		rawHeaders: [],
+		rawTrailers: [],
+		socket: new EventEmitter() as any
 	});
+
+	// ✅ Stream body instead of reading it upfront
+	if (request.body) {
+		console.log('📥 Streaming request body to TUS server...');
+		for await (const chunk of request.body as any) {
+			readable.push(chunk);
+		}
+	}
+	readable.push(null); // ✅ End the stream properly
+
+	console.log('✅ Node.js request object created:', {
+		method: req.method,
+		url: req.url,
+		headers: req.headers
+	});
+
+	return req as IncomingMessage;
 }
-
-// Graceful shutdown on Vite restart
-if (import.meta.hot) {
-	import.meta.hot.accept();
-	import.meta.hot.dispose(() => {
-		console.log('🛑 Stopping TUS server...');
-		server.close(() => {
-			console.log('✅ TUS server stopped.');
-		});
-	});
-}
-
-// Start the server
-startTusServer();
 
 /**
  * Middleware to intercept TUS uploads before SvelteKit
@@ -152,82 +166,112 @@ const tusHandler: Handle = async ({ event, resolve }) => {
 	if (event.url.pathname.startsWith('/api/tus/files')) {
 		console.log('🔹 TUS upload request detected');
 		console.log('🔹 Request Method:', event.request.method);
-		console.log('🔹 Incoming Headers:', event.request.headers);
+		console.log('🔹 Request URL:', event.url.href);
+		console.log('🔹 Incoming Headers:', Object.fromEntries(event.request.headers));
+		console.log('🔹 Upload-Length:', event.request.headers.get('upload-length'));
 
-		// Extract session and user details
-		const sessionId = event.cookies.get(lucia.sessionCookieName);
-		let userId: string | null = null;
-		const tempAttendeeSecret = event.url.searchParams.get(tempAttendeeSecretParam) || '';
-		const eventId = event.url.searchParams.get('eventId');
+		// 📝 Clone the request before reading the body
+		const clonedRequest = event.request.clone();
 
-		let validUser = false;
-
+		// 🔍 Log body size without consuming the stream
 		try {
-			// ✅ Check if user is logged in with Lucia
-			if (sessionId) {
-				try {
-					const { session, user } = await lucia.validateSession(sessionId);
-					if (session) {
-						userId = user.id;
-						validUser = true;
-					}
-				} catch (error) {
-					console.warn('⚠️ Invalid or expired session. Proceeding without authentication.', error);
-				}
+			const rawBody = await clonedRequest.arrayBuffer();
+			console.log('📏 Request body size:', rawBody.byteLength, 'bytes');
+
+			// 🔥 Check for unexpectedly empty PATCH body
+			if (event.request.method === 'PATCH' && rawBody.byteLength === 0) {
+				console.warn('⚠️ PATCH request has an empty body, which may cause failures.');
 			}
-
-			// ✅ Check if tempAttendeeSecret maps to a valid temporary attendee
-			if (!validUser && tempAttendeeSecret) {
-				const tempAttendee = await triplitHttpClient.fetchOne(
-					triplitHttpClient
-						.query('temporary_attendees')
-						.where(['secret_mapping.id', '=', tempAttendeeSecret])
-						.build()
-				);
-				if (tempAttendee) {
-					validUser = true;
-				}
-			}
-		} catch (error) {
-			console.error('❌ Authentication error:', error);
+		} catch (err) {
+			console.error('❌ Error reading request body:', err);
 		}
 
-		// ❌ Reject if neither userId nor tempAttendeeSecret is valid
-		if (!validUser) {
-			console.warn('⚠️ Unauthorized attempt to upload.');
-			return new Response('Unauthorized', { status: 401 });
-		}
+		// // Extract session and user details
+		// const sessionId = event.cookies.get(lucia.sessionCookieName);
+		// let userId: string | null = null;
+		// const tempAttendeeSecret = event.url.searchParams.get(tempAttendeeSecretParam) || '';
+		// const eventId = event.url.searchParams.get('eventId');
 
-		// Validate eventId for POST and PATCH requests (new uploads and continuations)
-		if (event.request.method === 'POST' && !eventId) {
-			console.warn('⚠️ Missing eventId in upload request');
-			return new Response('Bad Request: Missing eventId', { status: 400 });
-		}
+		// let validUser = false;
 
-		// Forward authentication and metadata to TUS server
-		const headers = new Headers(event.request.headers);
-		if (userId) headers.set('x-user-id', userId);
-		if (tempAttendeeSecret) headers.set('x-temp-attendee-secret', tempAttendeeSecret);
-		if (eventId) headers.set('x-event-id', eventId);
+		// try {
+		// 	// ✅ Check if user is logged in with Lucia
+		// 	if (sessionId) {
+		// 		try {
+		// 			const { session, user } = await lucia.validateSession(sessionId);
+		// 			if (session) {
+		// 				userId = user.id;
+		// 				validUser = true;
+		// 			}
+		// 		} catch (error) {
+		// 			console.warn('⚠️ Invalid or expired session. Proceeding without authentication.', error);
+		// 		}
+		// 	}
 
-		try {
-			const response = await nodeFetch(
-				`http://localhost:3001${event.url.pathname}${event.url.search}`,
-				{
-					method: event.request.method,
-					headers: Object.fromEntries(headers),
-					body: event.request.body ? event.request.body : null
-				}
-			);
+		// 	// ✅ Check if tempAttendeeSecret maps to a valid temporary attendee
+		// 	if (!validUser && tempAttendeeSecret) {
+		// 		const tempAttendee = await triplitHttpClient.fetchOne(
+		// 			triplitHttpClient
+		// 				.query('temporary_attendees')
+		// 				.where(['secret_mapping.id', '=', tempAttendeeSecret])
+		// 				.build()
+		// 		);
+		// 		if (tempAttendee) {
+		// 			validUser = true;
+		// 		}
+		// 	}
+		// } catch (error) {
+		// 	console.error('❌ Authentication error:', error);
+		// }
 
-			return new Response(response.body, {
-				status: response.status,
-				headers: response.headers
-			});
-		} catch (error) {
-			console.error('❌ Error forwarding request to TUS server:', error);
-			return new Response('Internal Server Error', { status: 500 });
-		}
+		// // ❌ Reject if neither userId nor tempAttendeeSecret is valid
+		// if (!validUser) {
+		// 	console.warn('⚠️ Unauthorized attempt to upload.');
+		// 	return new Response('Unauthorized', { status: 401 });
+		// }
+
+		// // Validate eventId for POST and PATCH requests (new uploads and continuations)
+		// if (event.request.method === 'POST' && !eventId) {
+		// 	console.warn('⚠️ Missing eventId in upload request');
+		// 	return new Response('Bad Request: Missing eventId', { status: 400 });
+		// }
+
+		// // Forward authentication and metadata to TUS server
+		// const headers = new Headers(event.request.headers);
+		// if (userId) headers.set('x-user-id', userId);
+		// if (tempAttendeeSecret) headers.set('x-temp-attendee-secret', tempAttendeeSecret);
+		// if (eventId) headers.set('x-event-id', eventId);
+
+		const req = await toNodeRequest(event.request);
+		const res = new ServerResponse(req);
+
+		// ✅ Handle the request with TUS and return its response
+		return new Promise((resolveResponse) => {
+			tusServer
+				.handle(req, res)
+				.then(() => {
+					const headers = new Headers();
+					Object.entries(res.getHeaders()).forEach(([key, value]) => {
+						if (value) headers.set(key, String(value));
+					});
+
+					console.log('✅ TUS Request Handled - Response:', {
+						status: res.statusCode,
+						headers: Object.fromEntries(headers)
+					});
+
+					resolveResponse(
+						new Response(res.statusCode === 204 ? null : res.outputData[0]?.data, {
+							status: res.statusCode,
+							headers
+						})
+					);
+				})
+				.catch((err) => {
+					console.error('❌ Error handling TUS request:', err);
+					resolveResponse(new Response('Internal Server Error', { status: 500 }));
+				});
+		});
 	}
 
 	return resolve(event);
@@ -262,9 +306,6 @@ const authHandler: Handle = async ({ event, resolve }) => {
 		}
 		event.locals.user = user;
 		event.locals.session = session;
-
-		// Increase body size limit for video uploads
-		event.request.headers.set('content-length', '100000000'); // 100MB limit
 
 		return resolve(event);
 	} catch (error) {
