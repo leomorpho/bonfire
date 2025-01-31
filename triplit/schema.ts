@@ -423,7 +423,8 @@ export const schema = {
 						or([
 							['uploader_id', '=', '$role.userId'], // User can read their own files
 							['event.attendees.user_id', '=', '$role.userId'], // Attendees can read event files
-							['event.event_admins.user_id', '=', '$role.userId'] // Event admins can read files
+							['event.event_admins.user_id', '=', '$role.userId'], // Event admins can read files
+							['event.user_id', '=', '$role.userId'] // event owner can do whatever
 						])
 					]
 				},
@@ -434,7 +435,8 @@ export const schema = {
 					filter: [
 						or([
 							['uploader_id', '=', '$role.userId'], // Users can upload their own files
-							['event.event_admins.user_id', '=', '$role.userId'] // Event admins can upload files
+							['event.event_admins.user_id', '=', '$role.userId'], // Event admins can upload files
+							['event.user_id', '=', '$role.userId'] // event owner can do whatever
 						])
 					]
 				},
@@ -442,7 +444,8 @@ export const schema = {
 					filter: [
 						or([
 							['uploader_id', '=', '$role.userId'], // Users can update their own files
-							['event.event_admins.user_id', '=', '$role.userId'] // Event admins can update files
+							['event.event_admins.user_id', '=', '$role.userId'], // Event admins can update files
+							['event.user_id', '=', '$role.userId'] // event owner can do whatever
 						])
 					]
 				}
