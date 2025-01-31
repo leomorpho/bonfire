@@ -802,20 +802,21 @@ export async function extractFirstFrameAndBlurHash(
  * @param videoPath - Path to the video file.
  * @returns {Promise<number>} - Duration of the video in seconds.
  */
-async function getVideoDuration(videoPath: string): Promise<number> {
+export async function getVideoDuration(videoPath: string): Promise<number> {
 	return new Promise((resolve, reject) => {
-		ffmpeg.ffprobe(videoPath, (err, metadata) => {
-			if (err) {
-				reject(err);
-			} else {
-				const duration = metadata.format.duration;
-				if (duration) {
-					resolve(duration);
-				} else {
-					reject(new Error('Unable to determine video duration'));
+		ffmpeg(videoPath)
+			.outputOptions('-f null') // Prevent actual output
+			.on('stderr', (stderrLine) => {
+				const match = stderrLine.match(/Duration: (\d+):(\d+):(\d+\.\d+)/);
+				if (match) {
+					const [, hours, minutes, seconds] = match.map(parseFloat);
+					const durationInSeconds = hours * 3600 + minutes * 60 + seconds;
+					resolve(durationInSeconds);
 				}
-			}
-		});
+			})
+			.on('end', () => reject(new Error('Duration not found in ffmpeg output')))
+			.on('error', (err) => reject(new Error(`FFmpeg error: ${err.message}`)))
+			.run();
 	});
 }
 
