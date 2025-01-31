@@ -12,7 +12,7 @@
 	import '@uppy/core/dist/style.css';
 	import '@uppy/dashboard/dist/style.css';
 	import '@uppy/webcam/dist/style.css';
-	import '@uppy/audio/dist/style.min.css';
+	// import '@uppy/audio/dist/style.min.css';
 	import '@uppy/image-editor/dist/style.min.css';
 
 	import { onMount } from 'svelte';
