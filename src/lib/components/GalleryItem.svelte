@@ -1,9 +1,6 @@
 <script lang="ts">
 	import { Image } from '@unpic/svelte';
-	import {
-		blurhashToCssGradientString,
-		blurhashToDataUri,
-	} from '@unpic/placeholder';
+	import { blurhashToCssGradientString, blurhashToDataUri } from '@unpic/placeholder';
 	import { Play } from 'lucide-svelte';
 
 	let {
@@ -102,7 +99,7 @@
 				<video
 					class="hidden rounded-lg"
 					src={url}
-					poster={posterUrl || preview.URL}
+					poster={posterUrl || (preview && preview.URL)}
 					controls
 					width={wPixel}
 					height={hPixel}
