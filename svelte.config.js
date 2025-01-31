@@ -19,6 +19,13 @@ const config = {
 			'@/*': './path/to/lib/*'
 		}
 	},
+	vitePlugin: {
+		// Allows you to hold ctrl+shift and click on an item in the browser and it then
+		// opens that components location in VSCode
+		inspector: {
+			holdMode: true
+		}
+	},
 	env: {
 		PUBLIC_PROJECT_NAME: 'YourProjectName',
 		PUBLIC_ORIGIN: 'https://yourdomain.com',

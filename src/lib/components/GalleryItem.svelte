@@ -86,7 +86,7 @@
 				<Image
 					width={wPixel}
 					class="h-full w-full object-cover"
-					src={preview.URL}
+					src={preview.URL ?? ''}
 					layout="constrained"
 					aspectRatio={5 / 3}
 					alt={fileName}
@@ -99,7 +99,7 @@
 				<video
 					class="hidden rounded-lg"
 					src={url}
-					poster={posterUrl || (preview && preview.URL)}
+					poster={posterUrl || (preview.URL ?? '')}
 					controls
 					width={wPixel}
 					height={hPixel}
@@ -110,7 +110,7 @@
 				<video
 					class="absolute inset-0 h-full w-full object-cover"
 					src={url}
-					poster={posterUrl || preview.URL}
+					poster={posterUrl}
 					controls
 					width={wPixel}
 					height={hPixel}
