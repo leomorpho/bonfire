@@ -186,61 +186,61 @@ const tusHandler: Handle = async ({ event, resolve }) => {
 			console.error('❌ Error reading request body:', err);
 		}
 
-		// // Extract session and user details
-		// const sessionId = event.cookies.get(lucia.sessionCookieName);
-		// let userId: string | null = null;
-		// const tempAttendeeSecret = event.url.searchParams.get(tempAttendeeSecretParam) || '';
-		// const eventId = event.url.searchParams.get('eventId');
+		// Extract session and user details
+		const sessionId = event.cookies.get(lucia.sessionCookieName);
+		let userId: string | null = null;
+		const tempAttendeeSecret = event.url.searchParams.get(tempAttendeeSecretParam) || '';
+		const eventId = event.url.searchParams.get('eventId');
 
-		// let validUser = false;
+		let validUser = false;
 
-		// try {
-		// 	// ✅ Check if user is logged in with Lucia
-		// 	if (sessionId) {
-		// 		try {
-		// 			const { session, user } = await lucia.validateSession(sessionId);
-		// 			if (session) {
-		// 				userId = user.id;
-		// 				validUser = true;
-		// 			}
-		// 		} catch (error) {
-		// 			console.warn('⚠️ Invalid or expired session. Proceeding without authentication.', error);
-		// 		}
-		// 	}
+		try {
+			// ✅ Check if user is logged in with Lucia
+			if (sessionId) {
+				try {
+					const { session, user } = await lucia.validateSession(sessionId);
+					if (session) {
+						userId = user.id;
+						validUser = true;
+					}
+				} catch (error) {
+					console.warn('⚠️ Invalid or expired session. Proceeding without authentication.', error);
+				}
+			}
 
-		// 	// ✅ Check if tempAttendeeSecret maps to a valid temporary attendee
-		// 	if (!validUser && tempAttendeeSecret) {
-		// 		const tempAttendee = await triplitHttpClient.fetchOne(
-		// 			triplitHttpClient
-		// 				.query('temporary_attendees')
-		// 				.where(['secret_mapping.id', '=', tempAttendeeSecret])
-		// 				.build()
-		// 		);
-		// 		if (tempAttendee) {
-		// 			validUser = true;
-		// 		}
-		// 	}
-		// } catch (error) {
-		// 	console.error('❌ Authentication error:', error);
-		// }
+			// ✅ Check if tempAttendeeSecret maps to a valid temporary attendee
+			if (!validUser && tempAttendeeSecret) {
+				const tempAttendee = await triplitHttpClient.fetchOne(
+					triplitHttpClient
+						.query('temporary_attendees')
+						.where(['secret_mapping.id', '=', tempAttendeeSecret])
+						.build()
+				);
+				if (tempAttendee) {
+					validUser = true;
+				}
+			}
+		} catch (error) {
+			console.error('❌ Authentication error:', error);
+		}
 
-		// // ❌ Reject if neither userId nor tempAttendeeSecret is valid
-		// if (!validUser) {
-		// 	console.warn('⚠️ Unauthorized attempt to upload.');
-		// 	return new Response('Unauthorized', { status: 401 });
-		// }
+		// ❌ Reject if neither userId nor tempAttendeeSecret is valid
+		if (!validUser) {
+			console.warn('⚠️ Unauthorized attempt to upload.');
+			return new Response('Unauthorized', { status: 401 });
+		}
 
-		// // Validate eventId for POST and PATCH requests (new uploads and continuations)
-		// if (event.request.method === 'POST' && !eventId) {
-		// 	console.warn('⚠️ Missing eventId in upload request');
-		// 	return new Response('Bad Request: Missing eventId', { status: 400 });
-		// }
+		// Validate eventId for POST and PATCH requests (new uploads and continuations)
+		if (event.request.method === 'POST' && !eventId) {
+			console.warn('⚠️ Missing eventId in upload request');
+			return new Response('Bad Request: Missing eventId', { status: 400 });
+		}
 
-		// // Forward authentication and metadata to TUS server
-		// const headers = new Headers(event.request.headers);
-		// if (userId) headers.set('x-user-id', userId);
-		// if (tempAttendeeSecret) headers.set('x-temp-attendee-secret', tempAttendeeSecret);
-		// if (eventId) headers.set('x-event-id', eventId);
+		// Forward authentication and metadata to TUS server
+		const headers = new Headers(event.request.headers);
+		if (userId) headers.set('x-user-id', userId);
+		if (tempAttendeeSecret) headers.set('x-temp-attendee-secret', tempAttendeeSecret);
+		if (eventId) headers.set('x-event-id', eventId);
 
 		const req = await toNodeRequest(event.request);
 		const res = new ServerResponse(req);
@@ -278,7 +278,7 @@ const tusHandler: Handle = async ({ event, resolve }) => {
 };
 
 /**
- * Middleware for authentication and body size increase
+ * Middleware for authentication
  */
 const authHandler: Handle = async ({ event, resolve }) => {
 	try {
