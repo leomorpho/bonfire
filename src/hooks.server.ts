@@ -143,18 +143,22 @@ async function toNodeRequest(request: Request): Promise<IncomingMessage> {
 
 	// ✅ Stream body instead of reading it upfront
 	if (request.body) {
-		console.log('📥 Streaming request body to TUS server...');
+		if (dev) {
+			console.log('📥 Streaming request body to TUS server...');
+		}
 		for await (const chunk of request.body as any) {
 			readable.push(chunk);
 		}
 	}
 	readable.push(null); // ✅ End the stream properly
 
-	console.log('✅ Node.js request object created:', {
-		method: req.method,
-		url: req.url,
-		headers: req.headers
-	});
+	if (dev) {
+		console.log('✅ Node.js request object created:', {
+			method: req.method,
+			url: req.url,
+			headers: req.headers
+		});
+	}
 
 	return req as IncomingMessage;
 }
@@ -167,8 +171,10 @@ const tusHandler: Handle = async ({ event, resolve }) => {
 		console.log('🔹 TUS upload request detected');
 		console.log('🔹 Request Method:', event.request.method);
 		console.log('🔹 Request URL:', event.url.href);
-		console.log('🔹 Incoming Headers:', Object.fromEntries(event.request.headers));
-		console.log('🔹 Upload-Length:', event.request.headers.get('upload-length'));
+		if (dev) {
+			console.log('🔹 Incoming Headers:', Object.fromEntries(event.request.headers));
+			console.log('🔹 Upload-Length:', event.request.headers.get('upload-length'));
+		}
 
 		// 📝 Clone the request before reading the body
 		const clonedRequest = event.request.clone();
@@ -176,11 +182,13 @@ const tusHandler: Handle = async ({ event, resolve }) => {
 		// 🔍 Log body size without consuming the stream
 		try {
 			const rawBody = await clonedRequest.arrayBuffer();
-			console.log('📏 Request body size:', rawBody.byteLength, 'bytes');
+			if (dev) {
+				console.log('📏 Request body size:', rawBody.byteLength, 'bytes');
+			}
 
 			// 🔥 Check for unexpectedly empty PATCH body
 			if (event.request.method === 'PATCH' && rawBody.byteLength === 0) {
-				console.warn('⚠️ PATCH request has an empty body, which may cause failures.');
+				console.error('⚠️ PATCH request has an empty body, which may cause failures.');
 			}
 		} catch (err) {
 			console.error('❌ Error reading request body:', err);
@@ -254,11 +262,12 @@ const tusHandler: Handle = async ({ event, resolve }) => {
 					Object.entries(res.getHeaders()).forEach(([key, value]) => {
 						if (value) headers.set(key, String(value));
 					});
-
-					console.log('✅ TUS Request Handled - Response:', {
-						status: res.statusCode,
-						headers: Object.fromEntries(headers)
-					});
+					if (dev) {
+						console.log('✅ TUS Request Handled - Response:', {
+							status: res.statusCode,
+							headers: Object.fromEntries(headers)
+						});
+					}
 
 					resolveResponse(
 						new Response(res.statusCode === 204 ? null : res.outputData[0]?.data, {
