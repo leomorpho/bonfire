@@ -7,7 +7,6 @@ import { dev } from '$app/environment';
 import { Server } from '@tus/server';
 import { FileStore } from '@tus/file-store';
 import { IncomingMessage, ServerResponse } from 'http';
-import { fetch as nodeFetch } from 'undici'; // Faster fetch for Node.js
 import { EVENTS } from '@tus/server';
 import { processGalleryFile } from '$lib/filestorage';
 import { tempAttendeeSecretParam } from '$lib/enums';

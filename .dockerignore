@@ -7,5 +7,16 @@ Dockerfile
 *.log
 *.cache
 .kamal
-.svelte-kit/output
 .env
+.gitignore
+.gitattributes
+README.md
+.npmrc
+.prettierrc
+.eslintrc.cjs
+.editorconfig
+.svelte-kit
+.vscode
+build
+package
+**/.env

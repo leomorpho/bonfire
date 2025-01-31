@@ -52,10 +52,10 @@ builddocker:
 
 # Run the container locally
 run:
-	docker run --env-file $(ENV_FILE) -p $(PORT):$(PORT) --name $(CONTAINER_NAME) $(IMAGE_NAME)
+	docker rm -f bonfire-container && docker run --env-file $(ENV_FILE) -p $(PORT):$(PORT) --name $(CONTAINER_NAME) $(IMAGE_NAME)
 
 runi:
-	docker run -it --env-file $(ENV_FILE) -p $(PORT):$(PORT) --name $(CONTAINER_NAME) $(IMAGE_NAME) sh
+	docker rm -f bonfire-container && docker run -it --env-file $(ENV_FILE) -p $(PORT):$(PORT) --name $(CONTAINER_NAME) $(IMAGE_NAME) sh
 
 # Stop the running container
 runstop:
