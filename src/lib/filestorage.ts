@@ -752,16 +752,10 @@ export async function extractFirstFrameAndBlurHash(
 	const tempImagePath = path.join(tempDir, `temp-frame-${Date.now()}.png`);
 
 	try {
-		// Get the video duration
-		const durationInSeconds = await getVideoDuration(videoPath);
-
-		// Generate a random timestamp within the video duration
-		const randomTimestamp = (Math.random() * durationInSeconds).toFixed(2); // e.g., "12.34"
-
 		// Use FFmpeg to extract the random frame
 		await new Promise<void>((resolve, reject) => {
 			ffmpeg(videoPath)
-				.seekInput(randomTimestamp) // Seek to the random timestamp
+				.seekInput(0)
 				.frames(1)
 				.output(tempImagePath)
 				.on('end', () => {
@@ -795,29 +789,6 @@ export async function extractFirstFrameAndBlurHash(
 		console.error('Error during frame extraction or BlurHash generation:', err);
 		throw err;
 	}
-}
-
-/**
- * Get the duration of a video using FFprobe.
- * @param videoPath - Path to the video file.
- * @returns {Promise<number>} - Duration of the video in seconds.
- */
-export async function getVideoDuration(videoPath: string): Promise<number> {
-	return new Promise((resolve, reject) => {
-		ffmpeg(videoPath)
-			.outputOptions('-f null') // Prevent actual output
-			.on('stderr', (stderrLine) => {
-				const match = stderrLine.match(/Duration: (\d+):(\d+):(\d+\.\d+)/);
-				if (match) {
-					const [, hours, minutes, seconds] = match.map(parseFloat);
-					const durationInSeconds = hours * 3600 + minutes * 60 + seconds;
-					resolve(durationInSeconds);
-				}
-			})
-			.on('end', () => reject(new Error('Duration not found in ffmpeg output')))
-			.on('error', (err) => reject(new Error(`FFmpeg error: ${err.message}`)))
-			.run();
-	});
 }
 
 /**
