@@ -79,7 +79,13 @@ export const DELETE = async ({ request, locals, params, url }) => {
 		// Fetch the file details and filter based on permissions
 		let filesQuery;
 
-		if (user) {
+		if (user && isOwner) {
+			filesQuery = triplitHttpClient
+				.query('files')
+				.where([['id', 'in', fileIds]])
+				// .select(['id', 'uploader_id', 'file_key']) // Include the S3 file key // TODO: select bug in http client
+				.build();
+		} else if (user && !isOwner) {
 			filesQuery = triplitHttpClient
 				.query('files')
 				.where(
