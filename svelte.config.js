@@ -1,5 +1,6 @@
 import adapter from '@sveltejs/adapter-node';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
+import * as child_process from 'node:child_process';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -17,6 +18,10 @@ const config = {
 		}),
 		alias: {
 			'@/*': './path/to/lib/*'
+		},
+		version: {
+			name: child_process.execSync('git rev-parse HEAD').toString().trim(), // version name for build
+			pollInterval: 60000 // Check for updates every 60 seconds
 		}
 	},
 	vitePlugin: {

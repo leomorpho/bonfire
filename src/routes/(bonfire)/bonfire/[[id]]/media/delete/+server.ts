@@ -62,6 +62,7 @@ export const DELETE = async ({ request, locals, params, url }) => {
 		const eventQuery = triplitHttpClient
 			.query('events')
 			.where(['id', '=', eventId])
+			.include('event_admins')
 			// .select(['user_id']) // TODO: select bug in http client
 			.build();
 		const event = await triplitHttpClient.fetch(eventQuery);
@@ -71,21 +72,29 @@ export const DELETE = async ({ request, locals, params, url }) => {
 		}
 
 		// Check if the user is the event owner
-		let isOwner = false;
-		if (user && event.user_id === user.id) {
-			isOwner = true;
+		let isAdmin = false;
+		if (user) {
+			// Check if user is the event owner
+			if (event.user_id === user.id) {
+				isAdmin = true;
+			}
+
+			// Check if user is in event_admins
+			if (event.event_admins?.some((admin) => admin.user_id === user.id)) {
+				isAdmin = true;
+			}
 		}
 
 		// Fetch the file details and filter based on permissions
 		let filesQuery;
 
-		if (user && isOwner) {
+		if (user && isAdmin) {
 			filesQuery = triplitHttpClient
 				.query('files')
 				.where([['id', 'in', fileIds]])
 				// .select(['id', 'uploader_id', 'file_key']) // Include the S3 file key // TODO: select bug in http client
 				.build();
-		} else if (user && !isOwner) {
+		} else if (user && !isAdmin) {
 			filesQuery = triplitHttpClient
 				.query('files')
 				.where(
@@ -127,7 +136,7 @@ export const DELETE = async ({ request, locals, params, url }) => {
 			.filter((file) => file) // Exclude null or undefined files
 			.filter(
 				(file) =>
-					isOwner ||
+					isAdmin ||
 					file.temp_uploader_id == existingTempAttendee?.id ||
 					file.uploader_id === user?.id
 			);

@@ -30,7 +30,7 @@
 	let showPageActionLoadingText = $state('Loading...');
 	let isDeleteFileConfirmationDialogOpen = $state(false);
 	let eventFiles = $state($page.data.eventFiles);
-	console.log('isOwner', $page.data.isOwner);
+	console.log('isOwner', $page.data.isAdmin);
 	const tempAttendeeId = $page.url.searchParams.get(tempAttendeeSecretParam);
 
 	let isDialogOpen = $state(false);
@@ -53,7 +53,7 @@
 	});
 
 	$effect(() => {
-		if ($page.data.isOwner || adminUserIds.has(currUserId)) {
+		if ($page.data.isAdmin || adminUserIds.has(currUserId)) {
 			currenUserIsEventAdmin = true;
 		}
 	});

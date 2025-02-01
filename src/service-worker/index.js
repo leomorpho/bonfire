@@ -1,6 +1,8 @@
 // @ts-expect-error just an import so ignore it
 import { build, files, version } from '$service-worker';
 
+console.log('[SW] Current app version:', version);
+
 // Create a unique cache name for this deployment
 const CACHE = `cache-${version}`;
 
@@ -10,7 +12,9 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (event) => {
-	// Create a new cache and add all files to it
+	console.log('[SW] Installing new version:', version);
+	self.skipWaiting(); // Forces the new service worker to take control immediately
+
 	async function addFilesToCache() {
 		const cache = await caches.open(CACHE);
 		await cache.addAll(ASSETS);
@@ -20,14 +24,18 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('activate', (event) => {
-	// Remove previous cached data from disk
+	console.log('[SW] Activating new service worker, version:', version);
+
 	async function deleteOldCaches() {
 		for (const key of await caches.keys()) {
-			if (key !== CACHE) await caches.delete(key);
+			if (key !== CACHE) {
+				console.log(`[SW] Deleting old cache: ${key}`);
+				await caches.delete(key);
+			}
 		}
 	}
 
-	event.waitUntil(deleteOldCaches());
+	event.waitUntil(deleteOldCaches().then(() => self.clients.claim())); // Immediately take control
 });
 
 self.addEventListener('fetch', (event) => {
@@ -44,10 +52,19 @@ self.addEventListener('fetch', (event) => {
 	async function respond() {
 		const url = new URL(event.request.url);
 		const cache = await caches.open(CACHE);
+		const cachedResponse = await cache.match(event.request);
 
-		// Handle ASSETS (like build files)
-		if (ASSETS.some((asset) => url.pathname.startsWith(asset))) {
-			return cache.match(url.pathname);
+		// Force a network fetch and update cache for ASSETS
+		if (ASSETS.some((asset) => event.request.url.includes(asset))) {
+			try {
+				const response = await fetch(event.request);
+				if (response.ok) {
+					cache.put(event.request, response.clone()); // Update cache with latest version
+				}
+				return response;
+			} catch {
+				return cachedResponse || new Response('Offline content unavailable', { status: 503 });
+			}
 		}
 
 		// Handle `backblazeb2.com` URLs

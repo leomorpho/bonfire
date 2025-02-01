@@ -8,8 +8,9 @@
 	import Header from '$lib/components/Header.svelte';
 	import { getFlash } from 'sveltekit-flash-message';
 	import { Toaster } from '$lib/components/ui/sonner/index';
-
-import { env as publicEnv } from '$env/dynamic/public';
+	import { updated } from '$app/state';
+	import { env as publicEnv } from '$env/dynamic/public';
+	import { toast } from 'svelte-sonner';
 
 	let { children } = $props();
 
@@ -29,6 +30,44 @@ import { env as publicEnv } from '$env/dynamic/public';
 	);
 
 	const flash = getFlash(page);
+
+	// Show toast only in the browser after a new version is deployed
+	if (browser && localStorage.getItem('newVersionDeployed')) {
+		toast.success("🔥 Bonfire updated! You're now on the latest version.");
+		localStorage.removeItem('newVersionDeployed'); // Clear the flag
+	}
+
+	beforeNavigate(({ willUnload, to }) => {
+		if (updated.current && !willUnload && to?.url) {
+			console.log('[PWA] New version detected! Reloading page...');
+			if (browser) {
+				localStorage.setItem('newVersionDeployed', 'true'); // Store flag only in the browser
+			}
+			location.href = to.url.href; // Force full-page reload
+		}
+	});
+
+	// Prevent zooming with javascript
+	if (typeof window !== 'undefined') {
+		document.addEventListener(
+			'gesturestart',
+			(event) => {
+				event.preventDefault(); // Block pinch-zoom gestures
+				document.body.style.zoom = '1'; // Prevents reflow issues
+			},
+			{ passive: false }
+		);
+
+		// document.addEventListener(
+		// 	"wheel",
+		// 	(event) => {
+		// 		if (event.ctrlKey) {
+		// 			event.preventDefault(); // Block zooming via Ctrl + Scroll
+		// 		}
+		// 	},
+		// 	{ passive: false }
+		// );
+	}
 </script>
 
 <svelte:head>
