@@ -20,7 +20,6 @@ const config = {
 			'@/*': './path/to/lib/*'
 		},
 		version: {
-			name: child_process.execSync('git rev-parse HEAD').toString().trim(), // version name for build
 			pollInterval: 60000 // Check for updates every 60 seconds
 		}
 	},
