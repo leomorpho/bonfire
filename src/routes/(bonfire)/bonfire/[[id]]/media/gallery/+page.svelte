@@ -607,7 +607,7 @@
 		<div class="ml-4 flex py-1 sm:space-x-2">
 			<a href="add">
 				<Toggle id="upload-new-images" aria-label="toggle bold">
-					<ImagePlus class="w-10 h-10" /><span class="hidden text-xs sm:block sm:text-sm">Upload</span>
+					<ImagePlus class="!w-5 !h-5 sm:!w-4 sm:!h-4" /><span class="hidden text-xs sm:block sm:text-sm">Upload</span>
 				</Toggle>
 			</a>
 
@@ -622,7 +622,7 @@
 					class="data-[state=on]:bg-slate-300"
 					disabled={!deleteButtonEnabled}
 				>
-					<ImageMinus class="w-10 h-10" /><span class="hidden text-xs sm:block sm:text-sm">Delete</span
+					<ImageMinus class="!w-5 !h-5 sm:!w-4 sm:!h-4" /><span class="hidden text-xs sm:block sm:text-sm">Delete</span
 					>
 				</Toggle>
 				<Toggle
@@ -635,7 +635,7 @@
 					class="data-[state=on]:bg-slate-300"
 					disabled={!downloadButtonEnabled}
 				>
-					<ImageDown class="w-10 h-10" />
+					<ImageDown class="!w-5 !h-5 sm:!w-4 sm:!h-4" />
 					<span class="hidden text-xs sm:block sm:text-sm">Download</span>
 				</Toggle>
 				<!-- Filter Button -->
@@ -646,9 +646,9 @@
 					class="data-[state=on]:bg-slate-300"
 				>
 					{#if showOnlyCurrentUserUploads}
-						<Users class="w-10 h-10" />
+						<Users class="!w-5 !h-5 sm:!w-4 sm:!h-4" />
 					{:else}
-						<User class="w-10 h-10" />
+						<User class="!w-5 !h-5 sm:!w-4 sm:!h-4" />
 					{/if}
 
 					<span class="hidden text-xs sm:block sm:text-sm">
