@@ -156,5 +156,5 @@
 		{$flash.message}
 	</div>
 {/if}
-<Toaster richColors toastOptions={{}} />
+<Toaster richColors closeButton toastOptions={{}} />
 {@render children()}

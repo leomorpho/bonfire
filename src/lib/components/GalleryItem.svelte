@@ -46,20 +46,22 @@
 
 	// Create a blob URL from the data URI for video poster
 	let posterUrl = $state('');
-	if (isVideo && placeholder.dataUri) {
-		const dataURItoBlob = (dataURI) => {
-			const byteString = atob(dataURI.split(',')[1]);
-			const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
-			const ab = new ArrayBuffer(byteString.length);
-			const ia = new Uint8Array(ab);
-			for (let i = 0; i < byteString.length; i++) {
-				ia[i] = byteString.charCodeAt(i);
-			}
-			return new Blob([ab], { type: mimeString });
-		};
+	$effect(() => {
+		if (isVideo && (preview?.URL || placeholder.dataUri)) {
+			const dataURItoBlob = (dataURI) => {
+				const byteString = atob(dataURI.split(',')[1]);
+				const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+				const ab = new ArrayBuffer(byteString.length);
+				const ia = new Uint8Array(ab);
+				for (let i = 0; i < byteString.length; i++) {
+					ia[i] = byteString.charCodeAt(i);
+				}
+				return new Blob([ab], { type: mimeString });
+			};
 
-		posterUrl = URL.createObjectURL(dataURItoBlob(placeholder.dataUri));
-	}
+			posterUrl = preview?.URL ?? URL.createObjectURL(dataURItoBlob(placeholder.dataUri));
+		}
+	});
 </script>
 
 <a

@@ -113,7 +113,7 @@
 				toast.success(
 					'Upload successful! Your files are being optimized and will appear in the gallery shortly.',
 					{
-						duration: 6000 // 6 seconds
+						duration: 10000, // 10 seconds
 					}
 				);
 

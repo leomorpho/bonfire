@@ -518,8 +518,10 @@
 				.select(['id'])
 				.build(),
 			(results, info) => {
+				console.log("A NEW FILE IS AVAILABLE")
 				// handle results
 				updateFilesWithLatest();
+				console.log('===> eventFiles', eventFiles);
 			},
 			(error) => {
 				// handle error
@@ -607,7 +609,9 @@
 		<div class="ml-4 flex py-1 sm:space-x-2">
 			<a href="add">
 				<Toggle id="upload-new-images" aria-label="toggle bold">
-					<ImagePlus class="!w-5 !h-5 sm:!w-4 sm:!h-4" /><span class="hidden text-xs sm:block sm:text-sm">Upload</span>
+					<ImagePlus class="!h-5 !w-5 sm:!h-4 sm:!w-4" /><span
+						class="hidden text-xs sm:block sm:text-sm">Upload</span
+					>
 				</Toggle>
 			</a>
 
@@ -622,7 +626,8 @@
 					class="data-[state=on]:bg-slate-300"
 					disabled={!deleteButtonEnabled}
 				>
-					<ImageMinus class="!w-5 !h-5 sm:!w-4 sm:!h-4" /><span class="hidden text-xs sm:block sm:text-sm">Delete</span
+					<ImageMinus class="!h-5 !w-5 sm:!h-4 sm:!w-4" /><span
+						class="hidden text-xs sm:block sm:text-sm">Delete</span
 					>
 				</Toggle>
 				<Toggle
@@ -635,7 +640,7 @@
 					class="data-[state=on]:bg-slate-300"
 					disabled={!downloadButtonEnabled}
 				>
-					<ImageDown class="!w-5 !h-5 sm:!w-4 sm:!h-4" />
+					<ImageDown class="!h-5 !w-5 sm:!h-4 sm:!w-4" />
 					<span class="hidden text-xs sm:block sm:text-sm">Download</span>
 				</Toggle>
 				<!-- Filter Button -->
@@ -646,9 +651,9 @@
 					class="data-[state=on]:bg-slate-300"
 				>
 					{#if showOnlyCurrentUserUploads}
-						<Users class="!w-5 !h-5 sm:!w-4 sm:!h-4" />
+						<Users class="!h-5 !w-5 sm:!h-4 sm:!w-4" />
 					{:else}
-						<User class="!w-5 !h-5 sm:!w-4 sm:!h-4" />
+						<User class="!h-5 !w-5 sm:!h-4 sm:!w-4" />
 					{/if}
 
 					<span class="hidden text-xs sm:block sm:text-sm">
