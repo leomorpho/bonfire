@@ -65,7 +65,7 @@ export const DELETE = async ({ request, locals, params, url }) => {
 			.include('event_admins')
 			// .select(['user_id']) // TODO: select bug in http client
 			.build();
-		const event = await triplitHttpClient.fetch(eventQuery);
+		const event = await triplitHttpClient.fetchOne(eventQuery);
 
 		if (!event) {
 			throw error(404, 'Event not found');
@@ -89,6 +89,7 @@ export const DELETE = async ({ request, locals, params, url }) => {
 		let filesQuery;
 
 		if (user && isAdmin) {
+			console.log('=> GOD MODE', fileIds);
 			filesQuery = triplitHttpClient
 				.query('files')
 				.where([['id', 'in', fileIds]])
@@ -117,12 +118,11 @@ export const DELETE = async ({ request, locals, params, url }) => {
 				// .select(['id', 'uploader_id', 'file_key']) // Include the S3 file key // TODO: select bug in http client
 				.build();
 		} else {
-			return new Response(JSON.stringify({ error: 'No valid files found' }), {
-				status: 404,
+			return new Response(JSON.stringify({ error: 'Not authorized' }), {
+				status: 403,
 				headers: { 'Content-Type': 'application/json' }
 			});
 		}
-
 		const files = await triplitHttpClient.fetch(filesQuery);
 
 		if (!files || files.length === 0) {
