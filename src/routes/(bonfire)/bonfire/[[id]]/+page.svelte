@@ -759,14 +759,6 @@
 						</div>
 					{/if}
 				</div>
-				<!-- {#if isAnonymousUser}
-					<a href="/login" class="mt-4 flex justify-center">
-						<Button class="w-full bg-green-500 py-8 hover:bg-green-400">
-							<KeyRound class="mr-2 size-4 " />
-							Log in or register to interact with event.
-						</Button>
-					</a>
-				{/if} -->
 				<Rsvp
 					{rsvpStatus}
 					userId={currUserId}

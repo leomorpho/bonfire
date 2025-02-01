@@ -39,8 +39,10 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-	// Ignore non-GET requests
-	if (event.request.method !== 'GET') return;
+	// Ignore non-GET requests and extension requests
+	if (event.request.method !== 'GET' || event.request.url.startsWith('chrome-extension://')) {
+		return;
+	}
 
 	// Helper function to extract file key for `backblazeb2.com/` URLs
 	function getFileKey(url) {

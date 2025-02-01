@@ -37,7 +37,8 @@ export const schema = {
 			}),
 			attendances: S.RelationMany('attendees', {
 				where: [['user_id', '=', '$id']]
-			})
+			}),
+			created_at: S.Optional(S.Date({ default: S.Default.now() }))
 		}),
 		permissions: {
 			user: {
@@ -146,7 +147,8 @@ export const schema = {
 			}),
 			style: S.String({ nullable: true }),
 			overlay_color: S.String({ nullable: true, optional: true }),
-			overlay_opacity: S.Number({ nullable: true, optional: true })
+			overlay_opacity: S.Number({ nullable: true, optional: true }),
+			created_at: S.Optional(S.Date({ default: S.Default.now() }))
 		}),
 		permissions: {
 			user: {
@@ -240,7 +242,8 @@ export const schema = {
 			event_id: S.String(), // ID of the event
 			event: S.RelationById('events', '$event_id'), // Link to the event
 			user_id: S.String(),
-			user: S.RelationById('user', '$user_id')
+			user: S.RelationById('user', '$user_id'),
+			created_at: S.Optional(S.Date({ default: S.Default.now() }))
 		}),
 		permissions: {
 			user: {
@@ -330,7 +333,8 @@ export const schema = {
 		schema: S.Schema({
 			id: S.Id(),
 			temporary_attendee_id: S.String(),
-			temporary_attendee: S.RelationById('temporary_attendees', '$temporary_attendee_id')
+			temporary_attendee: S.RelationById('temporary_attendees', '$temporary_attendee_id'),
+			created_at: S.Optional(S.Date({ default: S.Default.now() }))
 		}),
 		permissions: {
 			user: {},
