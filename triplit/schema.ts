@@ -456,10 +456,12 @@ export const schema = {
 			},
 			temp: {
 				read: {
+					filter: [or([['event.temporary_attendees.id', '=', '$role.temporaryAttendeeId']])]
+				},
+				delete: {
 					filter: [
 						or([
-							['uploader_id', '=', '$role.userId'], // Users can delete their own files
-							['event.event_admins.user_id', '=', '$role.userId'] // Event admins can delete files
+							['uploader_id', '=', '$role.temporaryAttendeeId'] // Users can delete their own files
 						])
 					]
 				}

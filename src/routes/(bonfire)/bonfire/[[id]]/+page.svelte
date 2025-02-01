@@ -305,7 +305,7 @@
 			}
 		);
 
-		if (!isAnonymousUser) {
+		if (!isAnonymousUser && !isUnverifiedUser) {
 			(async () => {
 				currUserId = (await waitForUserId()) as string;
 
