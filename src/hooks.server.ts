@@ -196,7 +196,10 @@ const tusHandler: Handle = async ({ event, resolve }) => {
 		// Extract session and user details
 		const sessionId = event.cookies.get(lucia.sessionCookieName);
 		let userId: string | null = null;
-		const tempAttendeeSecret = event.url.searchParams.get(tempAttendeeSecretParam) || '';
+		const tempAttendeeSecret =
+			event.request.headers.get('x-temp-attendee-secret') ||
+			event.url.searchParams.get(tempAttendeeSecretParam) ||
+			'';
 		const eventId = event.url.searchParams.get('eventId');
 
 		let validUser = false;
@@ -217,12 +220,14 @@ const tusHandler: Handle = async ({ event, resolve }) => {
 
 			// ✅ Check if tempAttendeeSecret maps to a valid temporary attendee
 			if (!validUser && tempAttendeeSecret) {
+				console.log('=====> <3', tempAttendeeSecret);
 				const tempAttendee = await triplitHttpClient.fetchOne(
 					triplitHttpClient
 						.query('temporary_attendees')
 						.where(['secret_mapping.id', '=', tempAttendeeSecret])
 						.build()
 				);
+				console.log('=====> <3 tempAttendee', tempAttendee);
 				if (tempAttendee) {
 					validUser = true;
 				}

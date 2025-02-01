@@ -29,13 +29,10 @@
 	const maxMbSize = 100;
 
 	onMount(() => {
-		let imageUploadEndpoint = `/bonfire/${$page.params.id}/media/add`;
 		let onSuccessEndpoint = `/bonfire/${$page.params.id}/media/gallery`;
 
 		const tempAttendeeSecret = $page.url.searchParams.get(tempAttendeeSecretParam);
 		if (tempAttendeeSecret) {
-			imageUploadEndpoint =
-				imageUploadEndpoint + `?${tempAttendeeSecretParam}=${tempAttendeeSecret}`;
 			onSuccessEndpoint = onSuccessEndpoint + `?${tempAttendeeSecretParam}=${tempAttendeeSecret}`;
 		}
 
@@ -77,6 +74,12 @@
 						uppy.removeFile(file.id);
 					});
 					return false; // 🚀 Stop retries for failed uploads
+				},
+				// Inject tempAttendeeSecretParam into EVERY request
+				onBeforeRequest: (req) => {
+					if (tempAttendeeSecret) {
+						req.setHeader('X-Temp-Attendee-Secret', tempAttendeeSecret);
+					}
 				}
 			});
 
@@ -113,7 +116,7 @@
 				toast.success(
 					'Upload successful! Your files are being optimized and will appear in the gallery shortly.',
 					{
-						duration: 10000, // 10 seconds
+						duration: 10000 // 10 seconds
 					}
 				);
 
