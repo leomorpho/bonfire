@@ -431,14 +431,16 @@
 					<Palette class="mr-1" />
 					Edit event style
 				</Button>
-				<Button
-					class="flex items-center justify-center p-4"
-					disabled={!event}
-					onclick={startEditAdmins}
-				>
-					<Shield class="mr-1" />
-					Edit admins
-				</Button>
+				{#if event?.user_id == currUserId}
+					<Button
+						class="flex items-center justify-center p-4"
+						disabled={!event}
+						onclick={startEditAdmins}
+					>
+						<Shield class="mr-1" />
+						Edit admins
+					</Button>
+				{/if}
 			</div>
 		</section>
 		<div class="my-10 w-full sm:w-[450px]">

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { getFeTriplitClient, waitForUserId } from '$lib/triplit';
+	import { getFeTriplitClient } from '$lib/triplit';
 	import { and, type TriplitClient } from '@triplit/client';
 	import { onMount } from 'svelte';
 	import Check from 'lucide-svelte/icons/check';
@@ -17,7 +17,7 @@
 	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
 
 	let { eventId, currUserId, eventCreatorId } = $props();
-console.log("--->eventCreatorId", eventCreatorId)
+
 	let client: TriplitClient;
 	let attendeesLoading = $state(true);
 
@@ -148,16 +148,30 @@ console.log("--->eventCreatorId", eventCreatorId)
 		<Collapsible.Root class="mb-5 rounded-lg bg-slate-200">
 			<Collapsible.Trigger class="flex w-full items-center justify-between space-x-4 px-4">
 				<div class="invisible"></div>
-				<h4 class="text-sm font-semibold">What admins can do</h4>
+				<h4 class="text-sm font-semibold">Admin Permissions</h4>
 				<Button variant="ghost" size="sm" class="w-9 p-0">
 					<ChevronsUpDown />
 					<span class="sr-only">Toggle</span>
 				</Button>
 			</Collapsible.Trigger>
 			<Collapsible.Content class="space-y-2">
-				<ul class="list-disc pl-5 ml-5">
-					<li class="rounded-md px-4 py-2 text-sm">Create, update, delete announcements</li>
+				<ul class="ml-5 list-disc pl-5">
+					<li class="rounded-md px-4 py-2 text-sm">Modify event details</li>
+					<li class="rounded-md px-4 py-2 text-sm">
+						Manage announcements (create, update, delete)
+					</li>
 					<li class="rounded-md px-4 py-2 text-sm">Remove attendees</li>
+					<li class="rounded-md px-4 py-2 text-sm">
+						Delete files that don’t belong in the bonfire
+					</li>
+				</ul>
+
+				<hr class="my-8 mt-12 h-px border-0 bg-gray-200 dark:bg-gray-700" />
+
+				<div class="flex justify-center px-4 text-sm font-semibold">Limitations</div>
+				<ul class="ml-5 list-disc pl-5">
+					<li class="rounded-md px-4 py-2 text-sm">Cannot assign or revoke admin roles</li>
+					<li class="rounded-md px-4 py-2 text-sm">Cannot transfer account ownership</li>
 				</ul>
 			</Collapsible.Content>
 		</Collapsible.Root>
