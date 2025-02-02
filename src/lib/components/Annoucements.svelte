@@ -121,7 +121,7 @@
 				/>
 			{/each}
 			{#if totalCount > maxCount}
-				<Button class="mt-3 w-full ring-glow" onclick={getAllAnnouncements}
+				<Button class="mt-3 w-full ring-glow dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-white" onclick={getAllAnnouncements}
 					>See {totalCount - maxCount} more annoucements</Button
 				>
 				<Dialog.Root bind:open={isDialogOpen}>

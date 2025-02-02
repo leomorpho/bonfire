@@ -11,8 +11,8 @@
 	import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
 
 	// Timezone data and selection
-	let { onValueChange = $bindable(() => {}), styleClass="bg-white" } = $props();
-	let value = $state({})
+	let { onValueChange = $bindable(() => {}), styleClass = 'bg-white' } = $props();
+	let value = $state({});
 	let timezoneOptions: any = $state([]);
 
 	// Helper function to get the UTC offset for a timezone in hours
@@ -51,13 +51,12 @@
 
 	let triggerRef = $state<HTMLButtonElement>(null!);
 
-	$effect(()=>{
-		if (timezoneOptions.length > 0){
+	$effect(() => {
+		if (timezoneOptions.length > 0) {
 			value = detectUserTimezone();
-			onValueChange(value)
+			onValueChange(value);
 		}
-	})
-	
+	});
 
 	const selectedValue = $derived(
 		timezoneOptions.find((f: any) => f.value == value.value)?.label ?? 'Select a time zone...'
@@ -79,7 +78,7 @@
 </script>
 
 <Popover.Root bind:open>
-	<Popover.Trigger bind:ref={triggerRef} class={styleClass}>
+	<Popover.Trigger bind:ref={triggerRef} class={`dark:bg-slate-900 ${styleClass}`}>
 		{#snippet child({ props })}
 			<Button
 				variant="outline"
@@ -89,7 +88,7 @@
 				aria-expanded={open}
 			>
 				<div class="flex w-full flex-row items-center justify-between font-normal">
-					<Earth class="h-4 w-4 text-slate-400 mr-1" />
+					<Earth class="mr-1 h-4 w-4 text-slate-400" />
 					{selectedValue || 'Select a time zone...'}
 					<ChevronsUpDown class="ml-2 size-4 shrink-0 opacity-50" />
 				</div>
@@ -107,11 +106,13 @@
 							value={timezone.value}
 							onSelect={() => {
 								value = timezone;
-								onValueChange(timezone)
+								onValueChange(timezone);
 								closeAndFocusTrigger();
 							}}
 						>
-							<Check class={cn('mr-2 size-4', value.value !== timezone.value && 'text-transparent')} />
+							<Check
+								class={cn('mr-2 size-4', value.value !== timezone.value && 'text-transparent')}
+							/>
 							{timezone.label}
 						</Command.Item>
 					{/each}

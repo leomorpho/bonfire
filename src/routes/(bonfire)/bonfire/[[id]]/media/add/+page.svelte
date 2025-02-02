@@ -13,22 +13,45 @@
 	import '@uppy/webcam/dist/style.css';
 	// import '@uppy/audio/dist/style.min.css';
 
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
 	import { tempAttendeeSecretParam } from '$lib/enums';
 	import Tus from '@uppy/tus';
 	import { toast } from 'svelte-sonner';
+	import { browser } from '$app/environment';
 
 	let uppy: any;
+
 	let totalFiles = 0; // To track total files to upload
 	let uploadedFiles = 0; // To track successfully uploaded files
 	let currentProgress = {};
 
 	const maxMbSize = 100;
 
+	let theme = 'light';
+	let observer: any;
+
+	function detectTailwindTheme(): 'light' | 'dark' {
+		if (browser) {
+			return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+		}
+		return 'light';
+	}
+
 	onMount(() => {
+		if (!browser) return;
+
+		theme = detectTailwindTheme();
+
+		// Watch for Tailwind dark mode changes
+		observer = new MutationObserver(() => {
+			theme = detectTailwindTheme();
+		});
+
+		observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+
 		let onSuccessEndpoint = `/bonfire/${$page.params.id}/media/gallery`;
 
 		const tempAttendeeSecret = $page.url.searchParams.get(tempAttendeeSecretParam);
@@ -54,7 +77,8 @@
 				showProgressDetails: true,
 				// proudlyDisplayPoweredByUppy: false,
 				note: `Images or videos. Max size: ${maxMbSize}MB.`,
-				metaFields: [{ id: 'name', name: 'Name', placeholder: 'File name' }]
+				metaFields: [{ id: 'name', name: 'Name', placeholder: 'File name' }],
+				theme: theme
 			})
 			.use(Webcam, {
 				mirror: true // Use mirror mode for webcam
@@ -164,11 +188,18 @@
 			}
 		});
 	});
+
+	// Ensure the observer stops when the module is unloaded
+	onDestroy(() => {
+		if (observer) observer.disconnect();
+	});
 </script>
 
 <div class="mx-4 flex flex-col items-center justify-center">
 	<section class="mt-8 w-full sm:w-[450px]">
-		<Breadcrumb.Root class="mb-10 mt-2 rounded-xl bg-white bg-opacity-95 p-2">
+		<Breadcrumb.Root
+			class="mb-10 mt-2 rounded-xl bg-white bg-opacity-95 p-2 dark:bg-slate-900 dark:hover:bg-slate-800"
+		>
 			<Breadcrumb.List class="ml-2 text-xs sm:ml-5 sm:text-sm">
 				<Breadcrumb.Item>
 					<Breadcrumb.Link href={`/bonfire/${$page.params.id}`}>Event</Breadcrumb.Link>

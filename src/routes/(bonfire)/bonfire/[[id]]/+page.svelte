@@ -547,7 +547,7 @@
 						</a>
 					</div>
 				{/if}
-				<div class="space-y-3 rounded-xl bg-white p-5">
+				<div class="space-y-3 rounded-xl bg-white p-5 dark:bg-slate-900">
 					{#if $page.data.bannerInfo && $page.data.bannerInfo.banneIsSet}
 						<div class="flex w-full justify-center">
 							<BonfireBanner
@@ -559,7 +559,9 @@
 						</div>
 					{:else if currenUserIsEventAdmin}
 						<a class="flex w-full" href="banner/upload">
-							<Button class="w-full">Set a banner image</Button>
+							<Button class="w-full dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-white"
+								>Set a banner image</Button
+							>
 						</a>
 					{/if}
 					<h1 class="mb-4 flex justify-center text-xl sm:text-2xl">
@@ -597,7 +599,7 @@
 										<ShareLocation lat={latitude} lon={longitude}>
 											<div
 												id="share-location"
-												class="flex items-center justify-center rounded-xl bg-slate-100 p-2"
+												class="flex items-center justify-center rounded-xl bg-slate-100 p-2 dark:bg-slate-900"
 											>
 												{@html event.location}
 												<ArrowRightFromLine class="ml-2 h-4 w-4" />
@@ -614,7 +616,9 @@
 							Set RSVP status to see location
 						{/if}
 					</div>
-					<div class="my-5 flex flex-col justify-center rounded-xl bg-slate-100 p-2 text-center">
+					<div
+						class="my-5 flex flex-col justify-center rounded-xl bg-slate-100 p-2 text-center dark:bg-slate-800"
+					>
 						<div class="font-semibold">Details</div>
 						{#if event.description}
 							{event.description}
@@ -649,12 +653,16 @@
 								<Dialog.Root>
 									<Dialog.Trigger class="flex items-center"
 										>{#if allAttendeesGoing.length > showMaxNumPeople}
-											<div class="rounded-xl bg-white text-sm text-gray-500">
+											<div
+												class="rounded-xl bg-white text-sm text-gray-500 dark:bg-slate-900 dark:text-gray-100"
+											>
 												and {allAttendeesGoing.length - showMaxNumPeople} more
 											</div>
 										{/if}
 										<div class="flex h-12 w-12 items-center justify-center sm:h-14 sm:w-14">
-											<Plus class="ml-1 h-4 w-4 rounded-xl bg-white sm:h-5 sm:w-5" />
+											<Plus
+												class="ml-1 h-4 w-4 rounded-xl bg-white dark:bg-slate-900 sm:h-5 sm:w-5"
+											/>
 										</div></Dialog.Trigger
 									>
 									<Dialog.Content class="h-full sm:h-[90vh]">
@@ -737,7 +745,7 @@
 									class="flex w-full items-center justify-center rounded-lg bg-slate-500 bg-opacity-75 p-2 text-sm text-white ring-glow sm:w-2/3"
 								>
 									<Avatar.Root
-										class="mr-2 h-12 w-12 border-2 border-white bg-white sm:h-14 sm:w-14"
+										class="mr-2 h-12 w-12 border-2 border-white bg-white dark:bg-slate-900 sm:h-14 sm:w-14"
 									>
 										<Avatar.Image src={'/icon-128.png'} alt={''} />
 										<Avatar.Fallback>{'BO'}</Avatar.Fallback>
@@ -750,7 +758,9 @@
 							<div
 								class="flex w-full items-center justify-center rounded-lg bg-purple-500 bg-opacity-75 p-2 text-sm text-white ring-glow sm:w-2/3"
 							>
-								<Avatar.Root class="mr-2 h-12 w-12 border-2 border-white bg-white sm:h-14 sm:w-14">
+								<Avatar.Root
+									class="mr-2 h-12 w-12 border-2 border-white bg-white dark:bg-slate-900 sm:h-14 sm:w-14"
+								>
 									<Avatar.Image src={'/icon-128.png'} alt={''} />
 									<Avatar.Fallback>{'BO'}</Avatar.Fallback>
 								</Avatar.Root>
@@ -769,7 +779,7 @@
 
 				<Button
 					onclick={() => handleShare(event)}
-					class="mt-4 flex w-full items-center justify-center ring-glow"
+					class="mt-4 flex w-full items-center justify-center ring-glow dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-white"
 				>
 					<Share class="h-5 w-5" />
 					Share Bonfire</Button
@@ -777,7 +787,7 @@
 
 				<HorizRule />
 				<div class="my-10">
-					<div class=" rounded-xl bg-white p-5">
+					<div class=" rounded-xl bg-white p-5 dark:bg-slate-900">
 						<div class="font-semibold">Announcements</div>
 					</div>
 					{#if rsvpStatus}
@@ -786,7 +796,7 @@
 						</div>
 						{#if currenUserIsEventAdmin}
 							<a href="announcement/create">
-								<Button class="mt-1 w-full ring-glow"
+								<Button class="mt-1 w-full ring-glow dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-white"
 									><Drum class="mr-1 h-4 w-4" /> Create new announcement</Button
 								>
 							</a>
@@ -799,7 +809,7 @@
 				</div>
 				<HorizRule />
 				<div class="my-5">
-					<div class=" rounded-xl bg-white p-5">
+					<div class=" rounded-xl bg-white p-5 dark:bg-slate-900">
 						<div class="font-semibold">Gallery</div>
 					</div>
 					{#if rsvpStatus}

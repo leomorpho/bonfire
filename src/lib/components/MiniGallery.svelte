@@ -122,7 +122,7 @@
 				<!-- "See All" Image -->
 				<a href="media/gallery" class="see-all-link block">
 					<div
-						class="flex items-center justify-center rounded-lg bg-gray-200 text-center font-semibold sm:text-lg"
+						class="flex items-center justify-center rounded-lg bg-gray-200 dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-white text-center font-semibold sm:text-lg"
 						style="aspect-ratio: 5 / 3; width: 100%;"
 					>
 						See {fileCount} more
@@ -131,7 +131,7 @@
 			{:else}
 				<a href="media/gallery" class="see-all-link block">
 					<div
-						class="flex items-center justify-center rounded-lg bg-gray-200 text-center font-semibold sm:text-lg"
+						class="flex items-center justify-center rounded-lg bg-gray-200 dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-white text-center font-semibold sm:text-lg"
 						style="aspect-ratio: 5 / 3; width: 100%;"
 					>
 						See Gallery
@@ -146,7 +146,7 @@
 	{/if}
 {/if}
 <a href="media/add">
-	<Button class="flex w-full items-center justify-center ring-glow">
+	<Button class="flex w-full items-center justify-center ring-glow dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-white">
 		<ImagePlus />Add to gallery
 	</Button>
 </a>

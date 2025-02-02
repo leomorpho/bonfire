@@ -127,7 +127,7 @@
 		{#snippet child({ props })}
 			<Button
 				variant="outline"
-				class="h-fit w-full flex-wrap justify-between whitespace-normal break-words"
+				class="h-fit w-full flex-wrap justify-between whitespace-normal break-words dark:bg-slate-900"
 				{...props}
 				role="combobox"
 				aria-expanded={open}

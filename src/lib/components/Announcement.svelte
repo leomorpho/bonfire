@@ -67,8 +67,8 @@
 
 <Card.Root
 	class="announcement bg-opacity-90 {announcement.seen_by.length == 0 && !isUnverifiedUser
-		? 'bg-yellow-200'
-		: 'bg-slate-200'}"
+		? 'bg-yellow-200 dark:bg-yellow-700'
+		: 'bg-slate-200 dark:bg-slate-800'} dark:text-white"
 >
 	<Card.Header>
 		<Card.Title class="font-normal">{announcement.content}</Card.Title>

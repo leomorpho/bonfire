@@ -18,7 +18,7 @@
 </script>
 
 <Select.Root type="single" name="am/pm" bind:value >
-	<Select.Trigger class={`w-full ${styleClass}`}>
+	<Select.Trigger class={`w-full dark:bg-slate-900 ${styleClass}`}>
 		{triggerContent}
 	</Select.Trigger>
 	<Select.Content class={styleClass}>

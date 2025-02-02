@@ -336,12 +336,18 @@
 			console.log('generatePassphraseId()', await generatePassphraseId());
 		})();
 	});
+
+	function capitalize(str: string) {
+		return str.charAt(0).toUpperCase() + str.slice(1);
+	}
 </script>
 
 <div class="mx-4 flex flex-col items-center justify-center">
 	{#if currentEventEditingMode == editingMainEvent}
 		<section class="mt-8 w-full sm:w-[450px]">
-			<h2 class="mb-5 flex w-full justify-center rounded-xl bg-white p-2 text-lg font-semibold">
+			<h2
+				class="mb-5 flex w-full justify-center rounded-xl bg-white p-2 text-lg font-semibold dark:bg-slate-900"
+			>
 				{mode === EventFormType.CREATE ? EventFormType.CREATE : EventFormType.UPDATE} a Bonfire
 			</h2>
 			<form class="space-y-2">
@@ -349,14 +355,16 @@
 					type="text"
 					placeholder="Event Name"
 					bind:value={eventName}
-					class="w-full bg-white"
+					class="w-full bg-white dark:bg-slate-900"
 				/>
 				<Datepicker bind:value={dateValue} />
 
 				<div class="flex flex-row items-center justify-between space-x-4">
 					<!-- Start Time Inputs -->
 					<div class="grid grid-cols-4 items-center gap-2">
-						<Clock class="ml-4 mr-1 h-4 w-4 rounded-xl bg-white text-slate-500 ring-glow" />
+						<Clock
+							class="ml-4 mr-1 h-4 w-4 rounded-xl bg-white text-slate-500 ring-glow dark:bg-slate-900"
+						/>
 						<div class="font-mono">
 							<DoubleDigitsPicker maxValue={12} bind:value={startHour} placeholder="HH" />
 						</div>
@@ -374,7 +382,7 @@
 							onclick={() => {
 								setEndTime = true;
 							}}
-							class="text-xs ring-glow"
+							class="text-xs ring-glow dark:bg-slate-900 dark:text-white"
 						>
 							<Plus class="ml-1 mr-1 h-2 w-2" />
 							to
@@ -387,7 +395,7 @@
 								endMinute = '';
 								ampmEnd = '';
 							}}
-							class="text-xs ring-glow"
+							class="text-xs ring-glow dark:bg-slate-900 dark:text-white"
 						>
 							<Minus class="h-2 w-2" />
 							to
@@ -399,7 +407,9 @@
 					<div class="flex flex-row items-center justify-between space-x-4">
 						<!-- End Time Inputs -->
 						<div class="grid grid-cols-4 items-center gap-2">
-							<Clock8 class="ml-4 mr-1 h-4 w-4 rounded-xl bg-white text-slate-500 ring-glow" />
+							<Clock8
+								class="ml-4 mr-1 h-4 w-4 rounded-xl bg-white text-slate-500 ring-glow dark:bg-slate-900"
+							/>
 
 							<div class="font-mono">
 								<DoubleDigitsPicker maxValue={12} bind:value={endHour} placeholder="HH" />
@@ -423,16 +433,23 @@
 				<div class="flex flex-row items-center">
 					<LocationInput bind:location bind:geocodedLocation />
 				</div>
-				<TextAreaAutoGrow cls={'bg-white'} placeholder="Details" bind:value={details} />
+				<TextAreaAutoGrow
+					cls={'bg-white dark:bg-slate-900 dark:bg-slate-900'}
+					placeholder="Details"
+					bind:value={details}
+				/>
 			</form>
 
 			<div class="mt-5 grid w-full grid-cols-1 gap-2 sm:grid-cols-2">
-				<Button class="justify-centerp-4 flex items-center" onclick={startEditEventStyle}>
+				<Button
+					class="justify-centerp-4 flex items-center dark:bg-slate-700 dark:text-white"
+					onclick={startEditEventStyle}
+				>
 					<Palette class="mr-1" />
 					Edit event style
 				</Button>
 				<Button
-					class="flex items-center justify-center p-4"
+					class="flex items-center justify-center p-4 dark:bg-slate-700 dark:text-white"
 					disabled={!event || event?.user_id != currUserId}
 					onclick={startEditAdmins}
 				>
@@ -443,13 +460,15 @@
 		</section>
 		<div class="my-10 w-full sm:w-[450px]">
 			<a href={cancelUrl}>
-				<Button class="sticky top-2 mt-2 w-full ring-glow">Cancel</Button>
+				<Button class="sticky top-2 mt-2 w-full ring-glow dark:bg-slate-700 dark:text-white"
+					>Cancel</Button
+				>
 			</a>
 			<Button
 				id="upsert-bonfire"
 				disabled={submitDisabled}
 				type="submit"
-				class={`sticky top-2 mt-2 w-full ${submitDisabled ? 'bg-slate-400' : 'bg-green-500 hover:bg-green-400'} ring-glow`}
+				class={`sticky top-2 mt-2 w-full ${submitDisabled ? 'bg-slate-400 dark:bg-slate-600' : 'bg-green-500 hover:bg-green-400 dark:bg-green-700 dark:hover:bg-green-600'} ring-glow dark:text-white`}
 				onclick={handleSubmit}
 			>
 				{#if isEventSaving}
@@ -461,14 +480,16 @@
 					<ArrowDownToLine class="ml-1 mr-1 h-4 w-4" />
 				{/if}
 
-				{mode === EventFormType.CREATE ? EventFormType.CREATE : EventFormType.UPDATE}
+				{mode === EventFormType.CREATE
+					? capitalize(EventFormType.CREATE)
+					: capitalize(EventFormType.UPDATE)}
 			</Button>
 			{#if mode == EventFormType.UPDATE && currUserId == event.user_id}
 				<Dialog.Root>
 					<Dialog.Trigger class="w-full" disabled={submitDisabled || currUserId != event.user_id}
 						><Button
 							disabled={submitDisabled || currUserId != event.user_id}
-							class="mt-2 w-full bg-red-500 ring-glow hover:bg-red-400"
+							class="mt-2 w-full bg-red-500 ring-glow hover:bg-red-400 dark:bg-red-700 dark:hover:bg-red-600 dark:text-white"
 						>
 							<Trash2 class="ml-1 mr-1 h-4 w-4" /> Delete
 						</Button></Dialog.Trigger

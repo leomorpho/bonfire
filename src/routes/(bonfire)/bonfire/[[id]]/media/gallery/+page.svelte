@@ -592,7 +592,7 @@
 <div class="mx-4 mb-48 flex flex-col items-center justify-center">
 	<!-- Breadcrumbs and Toggle Buttons -->
 	<div
-		class="sticky top-0 z-10 mt-2 flex flex-col items-center justify-between rounded-xl bg-white bg-opacity-95 px-2 min-[320px]:flex-row sm:w-[550px] md:w-[650px] lg:w-[950px]"
+		class="sticky top-0 z-10 mt-2 flex flex-col items-center justify-between rounded-xl bg-white dark:bg-slate-900 dark:hover:bg-slate-800 bg-opacity-95 px-2 min-[320px]:flex-row sm:w-[550px] md:w-[650px] lg:w-[950px]"
 	>
 		<Breadcrumb.Root>
 			<Breadcrumb.List class="ml-2 text-xs sm:ml-5 sm:text-sm">
@@ -739,12 +739,12 @@
 					<Button
 						disabled={eventFiles.length == selectedImages.length}
 						onclick={selectAll}
-						class="p-1 text-xs sm:p-4 sm:text-lg lg:p-6 lg:text-2xl">Select All</Button
+						class="p-1 text-xs sm:p-4 sm:text-lg lg:p-6 lg:text-2xl dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-white">Select All</Button
 					>
 					<Button
 						disabled={selectedImages.length == 0}
 						onclick={selectNone}
-						class="p-1 text-xs sm:p-4 sm:text-lg lg:p-6 lg:text-2xl">Select None</Button
+						class="p-1 text-xs sm:p-4 sm:text-lg lg:p-6 lg:text-2xl dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-white">Select None</Button
 					>
 				</div>
 				<Tooltip.Provider>
