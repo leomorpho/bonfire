@@ -12,6 +12,7 @@
 	import { env as publicEnv } from '$env/dynamic/public';
 	import { toast } from 'svelte-sonner';
 	import PullToRefresh from '$lib/components/PullToRefresh.svelte';
+	import { ModeWatcher } from "mode-watcher";
 
 	let { children } = $props();
 
@@ -164,4 +165,5 @@
 	</div>
 {/if}
 <Toaster richColors closeButton toastOptions={{}} />
+<ModeWatcher/>
 {@render children()}

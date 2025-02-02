@@ -18,6 +18,8 @@
 	import { page } from '$app/stores';
 	import { enhance } from '$app/forms';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
+	import { Button } from '$lib/components/ui/button/index.js';
+	import ToggleTheme from './ToggleTheme.svelte';
 
 	let isAdmin = false;
 
@@ -78,17 +80,23 @@
 
 		<div class="navbar-end">
 			{#if $page.data.user}
-				<form method="post" class="ml-auto hidden sm:block" action="/login?/signout" use:enhance>
-					<button type="submit" class="btn mr-2">
-						<div class="flex items-center text-red-500">
-							<LogOut class="mr-2 h-6 w-6" />
-							<span>Log out</span>
-						</div>
-					</button>
+				<form method="post" 
+				class="ml-auto hidden sm:block mx-2" 
+
+				action="/login?/signout" use:enhance>
+					<Button
+						type="submit"
+						class="mx-1 flex w-full items-center bg-slate-100 text-red-500 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700"
+					>
+						<LogOut class="mr-2 h-6 w-6" />
+						<span>Log out</span>
+					</Button>
 				</form>
 			{:else}
 				<a href="/login" class="btn ml-auto mr-2 hidden sm:flex"> <FlameKindling />login</a>
 			{/if}
+
+			<div class="hidden sm:mx-2 sm:block"><ToggleTheme /></div>
 			{#if $page.data.user}
 				<NotificationsIndicator />
 			{/if}
@@ -96,9 +104,9 @@
 				<DropdownMenu.Root bind:open={showMenu}>
 					<DropdownMenu.Trigger>
 						<div
-							class="m-1 flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 sm:h-10 sm:w-10"
+							class="m-1 flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700"
 						>
-							<Menu class="h-6 w-6 text-gray-600 sm:h-5 sm:w-5" />
+							<Menu class="h-6 w-6 sm:h-5 sm:w-5" />
 						</div>
 					</DropdownMenu.Trigger>
 					<DropdownMenu.Content class="m-2">
@@ -116,20 +124,22 @@
 									</DropdownMenu.Item>
 								</a>
 							{/each}
+							<div class="my-5 flex w-full justify-center"><ToggleTheme /></div>
 
 							{#if $page.data.user}
 								<form
 									method="post"
-									class="btn mx-2 mb-2 mt-5 sm:hidden"
+									class="mb-3 flex w-full justify-center"
 									action="/login?/signout"
 									use:enhance
 								>
-									<button type="submit" class="btn mr-2">
-										<div class="flex items-center text-red-500">
-											<LogOut class="mr-2 h-6 w-6" />
-											<span>Log out</span>
-										</div>
-									</button>
+									<Button
+										type="submit"
+										class="mx-2 flex w-full items-center bg-slate-100 text-red-500 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700"
+									>
+										<LogOut class="mr-2 h-6 w-6" />
+										<span>Log out</span>
+									</Button>
 								</form>
 							{:else}
 								<a href="/login" onclick={toggleMenu} class="btn mx-2 mb-2 mt-5 sm:hidden">
