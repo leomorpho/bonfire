@@ -15,6 +15,7 @@
 	import * as Card from '$lib/components/ui/card/index.js';
 	import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
 	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
+	import { createNewAdminNotificationQueueObject } from '$lib/notification';
 
 	let { eventId, currUserId, eventCreatorId } = $props();
 
@@ -81,6 +82,27 @@
 				added_by_user_id: currUserId
 			});
 
+			const response = await fetch(`/bonfire/${eventId}/admins/notify`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ eventId, userId })
+			});
+
+			let notificationSent = false;
+			try {
+				const data = await response.json();
+
+				if (!response.ok) {
+					throw new Error(data.error || 'Failed to send admin notification');
+				}
+				notificationSent = true;
+			} catch (e) {
+				console.error(
+					`failed to send new admin notification for eventId ${eventId} and userId ${userId}`,
+					e
+				);
+			}
+
 			const promotedUser = currentNonAdminAttendees.find((attendee) => attendee.user_id === userId);
 			if (promotedUser) {
 				// Move user to admins list
@@ -90,7 +112,12 @@
 				);
 				selectedAttendee = null;
 			}
-			toast.success('Successfully added a new admin');
+
+			if (notificationSent) {
+				toast.success('Successfully added a new admin and notified them');
+			} else {
+				toast.success('Successfully added a new admin');
+			}
 		} catch (error) {
 			toast.error('Failed to add admin, please try again later or contact support');
 			console.error('Error promoting user to admin:', error);

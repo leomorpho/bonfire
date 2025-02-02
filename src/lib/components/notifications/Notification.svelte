@@ -21,7 +21,7 @@
 	const maxNumAttendeesToShowInline = 3;
 
 	const fetchLinkedObjects = async () => {
-		console.log('notification', notification);
+		// console.log('notification', notification);
 		if (!notification.object_ids || !notification.object_type) return;
 
 		const client = getFeTriplitClient($page.data.jwt) as TriplitClient;
@@ -48,6 +48,10 @@
 			case NotificationType.TEMP_ATTENDEES:
 				query = client.query('temporary_attendees').where(['id', 'in', objectIds]).build();
 				break;
+			case NotificationType.ADMIN_ADDED:
+				// Nothing needed
+				isLoading = false;
+				return;
 			default:
 				console.error(`Unknown object_type: ${notification.object_type}`);
 				return;
@@ -162,13 +166,21 @@
 		<p class="text-gray-400">Loading details...</p>
 	{:else}
 		<!-- Render linked objects -->
-		{#if notification.object_type === 'files'}
+		{#if notification.object_type === NotificationType.FILES}
 			<a
-				class="my-2"
+				class="my-2 flex w-full justify-center"
 				href={`/bonfire/${notification.event_id}/media/gallery`}
 				onclick={toggleDialog}
 			>
 				<Button class="mt-3">See event images</Button>
+			</a>
+		{:else if notification.object_type == NotificationType.ADMIN_ADDED}
+			<a
+				class="my-2 flex w-full justify-center"
+				href={`/bonfire/${notification.event_id}`}
+				onclick={toggleDialog}
+			>
+				<Button class="mt-3">See event</Button>
 			</a>
 		{/if}
 		{#if linkedObjects.length > 0}

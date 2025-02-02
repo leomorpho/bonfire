@@ -631,10 +631,42 @@ export const schema = {
 		}),
 		permissions: {
 			user: {
-				read: { filter: [['user_id', '=', '$role.userId']] }, // Users can read their own notifications
-				insert: { filter: [['user_id', '=', '$role.userId']] }, // Users can insert their own notifications (if needed)
-				update: { filter: [['user_id', '=', '$role.userId']] }, // Users can update their own notifications
-				delete: { filter: [['user_id', '=', '$role.userId']] } // Users can delete their own notifications
+				read: {
+					filter: [
+						or([
+							['user_id', '=', '$role.userId'], // Users can read their own announcements
+							['event.event_admins.user_id', '=', '$role.userId'], // Event admins can read notifications
+							['event.user_id', '=', '$role.userId'] // Event owner can read notifications
+						])
+					]
+				},
+				insert: {
+					filter: [
+						or([
+							['user_id', '=', '$role.userId'], // Users can create their own announcements
+							['event.event_admins.user_id', '=', '$role.userId'], // Event admins can create notifications
+							['event.user_id', '=', '$role.userId'] // Event owner can create notifications
+						])
+					]
+				}, // Users can insert their own notifications (if needed)
+				update: {
+					filter: [
+						or([
+							['user_id', '=', '$role.userId'], // Users can update their own announcements
+							['event.event_admins.user_id', '=', '$role.userId'], // Event admins can update notifications
+							['event.user_id', '=', '$role.userId'] // Event owner can update notifications
+						])
+					]
+				},
+				delete: {
+					filter: [
+						or([
+							['user_id', '=', '$role.userId'], // Users can delete their own announcements
+							['event.event_admins.user_id', '=', '$role.userId'], // Event admins can delete notifications
+							['event.user_id', '=', '$role.userId'] // Event owner can delete notifications
+						])
+					]
+				}
 			},
 			temp: {
 				insert: { filter: [['user_id', '=', '$role.temporaryAttendeeId']] } // Users can read their own notifications

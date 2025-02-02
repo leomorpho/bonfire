@@ -13,8 +13,8 @@
 	let userId = $state('');
 
 	// Read notifications and loading state from the store
-	let allUnreadNotifications = $state([]);
-	let allSeenNotifications = $state([]);
+	let allUnreadNotifications: any = $state([]);
+	let allSeenNotifications: any = $state([]);
 
 	// Track pagination for seen notifications
 	let loadMoreSeen: ((pageSize?: number) => void) | undefined = $state();

@@ -20,7 +20,8 @@ import {
 	validateAnnouncements,
 	validateAttendees,
 	validateFiles,
-	validateTempAttendees
+	validateTempAttendees,
+	validateUserIds
 } from './triplit';
 import { getTaskLockState, updateTaskLockState } from './database/tasklock';
 
@@ -90,6 +91,9 @@ export async function processNotificationQueue(notificationQueueEntry: Notificat
 		case NotificationType.TEMP_ATTENDEES:
 			validObjectIds = await validateTempAttendees(objectIds);
 			break;
+		case NotificationType.ADMIN_ADDED:
+			validObjectIds = await validateUserIds(objectIds);
+			break;
 		default:
 			console.error(`Unknown object_type: ${notificationQueueEntry.object_type}`);
 			return;
@@ -97,11 +101,18 @@ export async function processNotificationQueue(notificationQueueEntry: Notificat
 
 	if (validObjectIds.length === 0) {
 		console.warn(`No valid objects found for queued notification ${notificationQueueEntry.id}`);
-		// Delete the notification queue entry
-		await triplitHttpClient.delete('notifications_queue', notificationQueueEntry.id);
-		console.log(
-			`Deleted notification queue entry ${notificationQueueEntry.id} due to no valid objects.`
-		);
+		try {
+			// Delete the notification queue entry
+			await triplitHttpClient.delete('notifications_queue', notificationQueueEntry.id);
+			console.log(
+				`Deleted notification queue entry ${notificationQueueEntry.id} due to no valid objects.`
+			);
+		} catch (err) {
+			console.error(
+				`failed to delete notification queue object with id ${notificationQueueEntry.id}`,
+				err
+			);
+		}
 		return;
 	}
 
@@ -118,6 +129,9 @@ export async function processNotificationQueue(notificationQueueEntry: Notificat
 			break;
 		case NotificationType.TEMP_ATTENDEES:
 			await notifyEventCreatorOfTemporaryAttendees(notificationQueueEntry.event_id, validObjectIds);
+			break;
+		case NotificationType.ADMIN_ADDED:
+			await notifyAttendeeOfTheirNewAdminRole(notificationQueueEntry.event_id, validObjectIds);
 			break;
 		default:
 			console.error(`Unknown object_type: ${notificationQueueEntry.object_type}`);
@@ -343,6 +357,45 @@ async function notifyEventCreatorOfTemporaryAttendees(
 		pushNotificationPayload,
 		[PermissionType.EVENT_ACTIVITY]
 	);
+}
+
+async function notifyAttendeeOfTheirNewAdminRole(eventId: string, newAdminUserIds: string[]) {
+	const creatorQuery = triplitHttpClient
+		.query('events')
+		// .select(['id', 'title']) // TODO: triplit bug preventing select
+		.where([['id', '=', eventId]])
+		.build();
+
+	const [event] = await triplitHttpClient.fetch(creatorQuery);
+
+	if (!event) return;
+
+	for (const newAdminUserId of newAdminUserIds) {
+		const existingNotification = await getUnreadExistingNotification(
+			newAdminUserId, // Send notification to each individual user
+			eventId,
+			NotificationType.ADMIN_ADDED
+		);
+
+		const existingObjectIds = existingNotification
+			? stringRepresentationToArray(existingNotification.object_ids)
+			: [];
+		const updatedObjectIds = Array.from(new Set([...existingObjectIds, newAdminUserId]));
+
+		const message = `You have been made an admin for the event: "${event.title}".`;
+		const pushNotificationPayload = { title: "You're now an event admin!", body: message };
+
+		await handleNotification(
+			existingNotification as NotificationTypescriptType | null,
+			newAdminUserId,
+			eventId,
+			NotificationType.ADMIN_ADDED,
+			updatedObjectIds,
+			message,
+			pushNotificationPayload,
+			[PermissionType.EVENT_ACTIVITY]
+		);
+	}
 }
 
 export type PermissionValue = (typeof PermissionType)[keyof typeof PermissionType];

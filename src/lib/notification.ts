@@ -148,3 +148,63 @@ export async function createNewFileNotificationQueueObject(
 		});
 	}
 }
+
+/**
+ * Create a new notification queue object for admin assignments.
+ * @param client - TriplitClient instance.
+ * @param userId - The ID of the user creating the notification queue object.
+ * @param eventId - The ID of the event.
+ * @param adminIds - List of attendee IDs who are now admins.
+ */
+export async function createNewAdminNotificationQueueObject(
+	client: TriplitClient | HttpClient,
+	userId: string,
+	eventId: string,
+	userIdsBecomingAdmins: string[]
+): Promise<void> {
+	if (!isNonEmptyArray(userIdsBecomingAdmins)) {
+		throw new Error(
+			'attendee IDs of admins in createNewAdminNotificationQueueObject cannot be empty.'
+		);
+	}
+	// Convert admin IDs to JSON string
+	const objectIds = JSON.stringify(userIdsBecomingAdmins);
+
+	try {
+		// Check if a notification queue entry already exists for this event and user
+		// const existingQueue = await client.fetch(
+		// 	client
+		// 		.query('notifications_queue')
+		// 		.where(
+		// 			and([
+		// 				['user_id', '=', userId],
+		// 				['event_id', '=', eventId],
+		// 				['object_type', '=', NotificationType.ADMIN_ADDED]
+		// 			])
+		// 		)
+		// 		.select(['id', 'object_ids'])
+		// 		.build()
+		// );
+
+		// if (existingQueue && existingQueue.length > 0) {
+		// 	// Merge new admin IDs with existing ones
+		// 	const existingObjectIds = JSON.parse(existingQueue[0].object_ids) as string[];
+		// 	const updatedObjectIds = JSON.stringify([...new Set([...existingObjectIds, ...userIdsBecomingAdmins])]);
+
+		// 	// Update the existing notification queue entry
+		// 	await client.update('notifications_queue', existingQueue[0].id, async (entity) => {
+		// 		entity.object_ids = updatedObjectIds;
+		// 	});
+		// } else {
+		// Create a new notification queue entry
+		await client.insert('notifications_queue', {
+			user_id: userId,
+			event_id: eventId,
+			object_type: NotificationType.ADMIN_ADDED,
+			object_ids: objectIds
+		});
+		// }
+	} catch (e) {
+		console.log('failed to create notification queue object for admin notification', e);
+	}
+}
