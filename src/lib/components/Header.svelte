@@ -57,7 +57,7 @@
 </script>
 
 <Container>
-	<header class="navbar px-0">
+	<header class="navbar px-0" id="top-header">
 		<div class="navbar-start">
 			<Logo />
 		</div>
@@ -70,8 +70,7 @@
 								<link.icon class="h-6 w-6" />
 							{/if}
 							{link.name}
-							</a
-						>
+						</a>
 					</li>
 				{/each}
 			</ul>
@@ -144,3 +143,26 @@
 		</div>
 	</header>
 </Container>
+
+<style>
+	:root {
+		--safe-area-top: env(safe-area-inset-top, 0px);
+	}
+
+	#top-header {
+		position: fixed;
+		top: var(--safe-area-top, 0);
+		left: 0;
+		width: 100%;
+		z-index: 1000; /* Keep it above other elements */
+		background: rgba(255, 255, 255, 0.95); /* Slight transparency */
+		padding-top: var(--safe-area-top, 10px); /* Ensure padding below the status bar */
+		box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+	}
+
+	@supports (padding-top: env(safe-area-inset-top)) {
+		#top-header {
+			padding-top: env(safe-area-inset-top);
+		}
+	}
+</style>

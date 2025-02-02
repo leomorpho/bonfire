@@ -521,7 +521,6 @@
 				console.log("A NEW FILE IS AVAILABLE")
 				// handle results
 				updateFilesWithLatest();
-				console.log('===> eventFiles', eventFiles);
 			},
 			(error) => {
 				// handle error
