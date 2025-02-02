@@ -51,7 +51,7 @@ test('Create bonfire', async ({ page }) => {
 	await expect(page.getByPlaceholder('HH')).toBeVisible();
 	await expect(page.getByPlaceholder('mm')).toBeVisible();
 	await expect(page.getByRole('button', { name: 'PM caret sort' })).toBeVisible();
-	await expect(page.getByRole('button', { name: 'to' })).toBeVisible();
+	await expect(page.getByRole('button', { name: 'to' }).first()).toBeVisible();
 	await expect(page.getByText('Enter event address...')).toBeVisible();
 	await expect(page.getByPlaceholder('Details')).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Cancel' })).toBeVisible();
