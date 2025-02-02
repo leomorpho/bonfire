@@ -30,7 +30,7 @@
 		})
 	);
 
-	const flash = getFlash(page);
+	const flash = browser ? getFlash(page) : null;
 
 	// Show toast only in the browser after a new version is deployed
 	if (browser && localStorage.getItem('newVersionDeployed')) {

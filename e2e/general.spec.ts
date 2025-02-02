@@ -583,10 +583,10 @@ test('Event admins', async ({ browser }) => {
 	await eventCreatorPage.getByRole('button', { name: 'Edit admins' }).click();
 	await expect(eventCreatorPage.getByRole('heading', { name: 'Add an admin' })).toBeVisible();
 	await expect(
-		eventCreatorPage.getByRole('button', { name: 'What admins can do Toggle' })
+		eventCreatorPage.getByRole('button', { name: 'Admin Permissions Toggle' })
 	).toBeVisible();
-	await eventCreatorPage.getByRole('button', { name: 'What admins can do Toggle' }).click();
-	await expect(eventCreatorPage.getByText('Create, update, delete')).toBeVisible();
+	await eventCreatorPage.getByRole('button', { name: 'Admin Permissions Toggle' }).click();
+	await expect(eventCreatorPage.getByText('Modify event details')).toBeVisible();
 	await expect(eventCreatorPage.getByText('Remove attendees')).toBeVisible();
 	await expect(eventCreatorPage.getByText('No admins yet')).toBeVisible();
 	await eventCreatorPage.getByText('Select an attendee...').click();

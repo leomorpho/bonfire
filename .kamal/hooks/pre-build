@@ -49,5 +49,6 @@ if [ "$KAMAL_VERSION" != "$remote_head" ]; then
 fi
 
 npx triplit schema push --token TRIPLIT_SERVICE_TOKEN --remote PUBLIC_TRIPLIT_URL
+echo "Pushed new triplit schema to prod without issues" >&2
 
 exit 0
