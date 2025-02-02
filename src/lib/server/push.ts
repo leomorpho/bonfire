@@ -203,7 +203,7 @@ async function notifyAttendeesOfAnnouncements(
 			: [];
 		const updatedObjectIds = Array.from(new Set([...existingObjectIds, ...announcementIds]));
 
-		const message = `You have ${updatedObjectIds.length} new announcements in an event you're attending!`;
+		const message = `📢 You have ${updatedObjectIds.length} new announcements in an event you're attending!`;
 		const pushNotificationPayload = { title: 'New Announcements', body: message };
 
 		await handleNotification(
@@ -253,7 +253,7 @@ async function notifyAttendeesOfFiles(eventId: string, fileIds: string[]): Promi
 			: [];
 		const updatedObjectIds = Array.from(new Set([...existingObjectIds, ...filteredFileIds]));
 
-		const message = `You have ${updatedObjectIds.length} new files in an event you're attending!`;
+		const message = `📷 You have ${updatedObjectIds.length} new media files in an event you're attending!`;
 		const pushNotificationPayload = { title: 'New Files', body: message };
 
 		await handleNotification(
@@ -298,7 +298,7 @@ async function notifyEventCreatorOfAttendees(
 
 	const attendeeCount = updatedObjectIds.length;
 	const attendeeWord = attendeeCount === 1 ? 'attendee' : 'attendees';
-	const message = `${attendeeCount} new ${attendeeWord} ${attendeeCount === 1 ? 'is' : 'are'} now attending your event "${event.title}".`;
+	const message = `🍻 ${attendeeCount} new ${attendeeWord} ${attendeeCount === 1 ? 'is' : 'are'} now attending your event "${event.title}".`;
 
 	const pushNotificationPayload = { title: 'New Attendees', body: message };
 
@@ -343,7 +343,7 @@ async function notifyEventCreatorOfTemporaryAttendees(
 
 	const attendeeCount = updatedObjectIds.length;
 	const attendeeWord = attendeeCount === 1 ? 'attendee' : 'attendees';
-	const message = `${attendeeCount} new temporary account ${attendeeWord} ${attendeeCount === 1 ? 'is' : 'are'} now attending your event "${event.title}".`;
+	const message = `🍻 ${attendeeCount} new temporary account ${attendeeWord} ${attendeeCount === 1 ? 'is' : 'are'} now attending your event "${event.title}".`;
 
 	const pushNotificationPayload = { title: 'New Temporary Account Attendees', body: message };
 
@@ -382,7 +382,7 @@ async function notifyAttendeeOfTheirNewAdminRole(eventId: string, newAdminUserId
 			: [];
 		const updatedObjectIds = Array.from(new Set([...existingObjectIds, newAdminUserId]));
 
-		const message = `You have been made an admin for the event: "${event.title}".`;
+		const message = `🔐 You have been made an admin for the event: "${event.title}".`;
 		const pushNotificationPayload = { title: "You're now an event admin!", body: message };
 
 		await handleNotification(
