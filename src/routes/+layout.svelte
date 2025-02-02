@@ -74,8 +74,9 @@
 	<meta charset="utf-8" />
 	<meta
 		name="viewport"
-		content="viewport-fit=cover, width=device-width, initial-scale=1.0, shrink-to-fit=no, user-scalable=no, maximum-scale=1"
+		content="viewport-fit=cover, width=device-width, initial-scale=1.0, shrink-to-fit=no, user-scalable=no, maximum-scale=1, height=device-height"
 	/>
+
 	<title>{meta.title}</title>
 	<meta name="description" content={meta.description} />
 	<link rel="canonical" href={meta.canonicalUrl} />
