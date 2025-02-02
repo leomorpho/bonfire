@@ -11,6 +11,7 @@
 	import { updated } from '$app/state';
 	import { env as publicEnv } from '$env/dynamic/public';
 	import { toast } from 'svelte-sonner';
+	import PullToRefresh from '$lib/components/PullToRefresh.svelte';
 
 	let { children } = $props();
 
@@ -143,6 +144,7 @@
 	<meta name="twitter:card" content="summary_large_image" />
 </svelte:head>
 <div id="main-content-safe-area" class="h-screen">
+	<PullToRefresh />
 	<Header></Header>
 	{#if $flash}
 		<div
