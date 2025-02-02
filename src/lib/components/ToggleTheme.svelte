@@ -6,7 +6,7 @@
 
 <Button onclick={toggleMode} variant="link" size="icon">
 	<div
-		class="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700"
+		class="p-3 flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700"
 	>
 		<Sun
 			class="!h-6 !w-6 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0 sm:!h-5 sm:!w-5"

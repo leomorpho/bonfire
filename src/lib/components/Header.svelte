@@ -81,7 +81,7 @@
 		<div class="navbar-end">
 			{#if $page.data.user}
 				<form method="post" 
-				class="ml-auto hidden sm:block mx-2" 
+				class="ml-auto hidden lg:flex mx-2" 
 
 				action="/login?/signout" use:enhance>
 					<Button
@@ -109,7 +109,7 @@
 							<Menu class="h-6 w-6 sm:h-5 sm:w-5" />
 						</div>
 					</DropdownMenu.Trigger>
-					<DropdownMenu.Content class="m-2">
+					<DropdownMenu.Content class="m-2 dark:bg-slate-950">
 						<DropdownMenu.Group>
 							<!-- <DropdownMenu.Label>My Account</DropdownMenu.Label> -->
 							<!-- <DropdownMenu.Separator /> -->

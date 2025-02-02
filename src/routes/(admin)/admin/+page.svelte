@@ -8,9 +8,9 @@
 		<h1 class="mb-10 text-2xl font-bold">Admin Area</h1>
 		<div class="space-y-3">
 			<a href="admin/event-styles">
-				<Button class="w-full">
+				<Button class="w-full dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-white">
 					<Palette class="mr-1" />
-					Event Styles Settings
+					Event styles settings
 				</Button>
 			</a>
 		</div>

@@ -18,13 +18,13 @@
 </script>
 
 <a href={`/bonfire/${event.id}`} class="event-card">
-	<Card.Root class="relative my-4 w-full bg-slate-100 dark:bg-black" style={event.style}>
+	<Card.Root class="relative my-4 w-full bg-slate-100 dark:bg-slate-900" style={event.style}>
 		<!-- Overlay -->
 		<div style={overlayStyle} class="pointer-events-none absolute inset-0 rounded-xl"></div>
 
 		<!-- Content -->
 		<div class="relative z-10 p-4">
-			<Card.Header class="rounded-xl bg-slate-100 dark:bg-black pb-2 sm:mb-4">
+			<Card.Header class="rounded-xl bg-slate-100 dark:bg-slate-900 pb-2 sm:mb-4">
 				<Card.Title class="text-lg">{event.title}</Card.Title>
 				<Card.Description>{formatHumanReadable(event.start_time)}</Card.Description>
 				<Card.Description>Hosted by {eventCreatorName}</Card.Description>

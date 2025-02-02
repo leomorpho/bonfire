@@ -169,10 +169,10 @@
 
 <div class="mx-4 mb-16 flex flex-col items-center justify-center">
 	<section class="mt-8 w-full sm:w-[450px]">
-		<h1 class="mb-5 flex w-full justify-center rounded-xl bg-white p-2 text-lg font-semibold">
+		<h1 class="mb-5 flex w-full justify-center rounded-xl bg-white dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-white p-2 text-lg font-semibold">
 			Add an admin
 		</h1>
-		<Collapsible.Root class="mb-5 rounded-lg bg-slate-200">
+		<Collapsible.Root class="mb-5 rounded-lg bg-slate-200 dark:bg-slate-800 dark:text-white">
 			<Collapsible.Trigger class="flex w-full items-center justify-between space-x-4 px-4">
 				<div class="invisible"></div>
 				<h4 class="text-sm font-semibold">Admin Permissions</h4>
@@ -204,7 +204,7 @@
 		</Collapsible.Root>
 
 		<Popover.Root bind:open>
-			<Popover.Trigger bind:ref={triggerRef} class="w-full">
+			<Popover.Trigger bind:ref={triggerRef} class="w-full dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-white">
 				{#snippet child({ props })}
 					<Button
 						variant="outline"
@@ -251,13 +251,13 @@
 
 		{#if currentAdminAttendees.length > 0}
 			<h1
-				class="mb-5 mt-7 flex w-full justify-center rounded-xl bg-white p-2 text-lg font-semibold"
+				class="mb-5 mt-7 flex w-full justify-center rounded-xl bg-white dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-white p-2 text-lg font-semibold"
 			>
 				Current admins
 			</h1>
 			<div class="space-y-4">
 				{#each currentAdminAttendees as adminAttendee}
-					<Card.Root class="">
+					<Card.Root class="dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-white">
 						<Card.Header>
 							<Card.Title>{adminAttendee.user.username}</Card.Title>
 							{#if adminAttendee.admin_role}

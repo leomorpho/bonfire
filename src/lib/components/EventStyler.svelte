@@ -124,8 +124,8 @@
 
 <div class="sticky top-10 flex justify-center">
 	<Popover.Root>
-		<Popover.Trigger class="mt-3 flex w-full justify-center sm:w-[450px]">
-			<Button class="w-full ring-glow">
+		<Popover.Trigger class="mt-3 flex w-full justify-center sm:w-[450px] ">
+			<Button class="w-full ring-glow dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-white">
 				<PaintRoller class="mr-1" />
 				Edit overlay
 			</Button>
@@ -164,14 +164,14 @@
 <div class="gallery my-5 w-full">
 	<div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
 		{#each randomStylesGallery as style}
-			<div class="h-40 rounded-lg bg-white bg-opacity-100">
+			<div class="h-40 rounded-lg bg-white  bg-opacity-100">
 				<button
 					class="h-full w-full max-w-full rounded-lg style-button-{style.id} select-bordered flex items-center justify-center border-4"
 					class:selected={selectedStyle?.id === style.id}
 					style={style.cssTemplate}
 					onclick={() => applyStyle(style)}
 				>
-					<div class="rounded-lg bg-white p-1 text-xs sm:text-sm">{style.name}</div>
+					<div class="rounded-lg bg-white dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-white p-1 text-xs sm:text-sm">{style.name}</div>
 				</button>
 			</div>
 		{/each}

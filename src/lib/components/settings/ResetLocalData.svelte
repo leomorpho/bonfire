@@ -20,7 +20,9 @@
 
 <AlertDialog.Root bind:open={isOpen}>
 	<AlertDialog.Trigger class="w-full">
-		<Button class="w-full">Reset local data</Button>
+		<Button class="w-full dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
+			>Reset local data</Button
+		>
 	</AlertDialog.Trigger>
 	<AlertDialog.Content>
 		<AlertDialog.Header>
@@ -34,7 +36,9 @@
 		</AlertDialog.Header>
 		<AlertDialog.Footer>
 			<AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
-			<AlertDialog.Action onclick={handleResetLocalData}>Continue</AlertDialog.Action>
+			<AlertDialog.Action class="bg-red-500" onclick={handleResetLocalData}
+				>Reset</AlertDialog.Action
+			>
 		</AlertDialog.Footer>
 	</AlertDialog.Content>
 </AlertDialog.Root>

@@ -519,7 +519,7 @@
 		<div class="md:7/8 w-5/6">
 			<div class="sticky top-2 mt-2 flex justify-center">
 				<Button
-					class="w-full bg-violet-500 ring-glow hover:bg-violet-400 sm:w-[450px]"
+					class="w-full bg-violet-500 ring-glow hover:bg-violet-400 dark:bg-violet-700 dark:hover:bg-violet-600 dark:text-white sm:w-[450px]"
 					onclick={stopEditEventStyle}
 				>
 					<ChevronLeft class="mr-1" />
@@ -534,7 +534,7 @@
 		<div class="md:7/8 w-5/6">
 			<div class="sticky top-2 mt-2 flex justify-center">
 				<Button
-					class="w-full bg-violet-500 ring-glow hover:bg-violet-400 sm:w-[450px]"
+					class="w-full bg-violet-500 ring-glow hover:bg-violet-400 dark:bg-violet-700 dark:hover:bg-violet-600 dark:text-white sm:w-[450px]"
 					onclick={stopEditAdmins}
 				>
 					<ChevronLeft class="mr-1" />
