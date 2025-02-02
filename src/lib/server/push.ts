@@ -199,7 +199,8 @@ async function notifyAttendeesOfAnnouncements(
 			NotificationType.ANNOUNCEMENT,
 			updatedObjectIds,
 			message,
-			pushNotificationPayload
+			pushNotificationPayload,
+			[PermissionType.EVENT_ACTIVITY]
 		);
 	}
 }
@@ -248,7 +249,8 @@ async function notifyAttendeesOfFiles(eventId: string, fileIds: string[]): Promi
 			NotificationType.FILES,
 			updatedObjectIds,
 			message,
-			pushNotificationPayload
+			pushNotificationPayload,
+			[PermissionType.EVENT_ACTIVITY]
 		);
 	}
 }
@@ -293,7 +295,8 @@ async function notifyEventCreatorOfAttendees(
 		NotificationType.ATTENDEES,
 		updatedObjectIds,
 		message,
-		pushNotificationPayload
+		pushNotificationPayload,
+		[PermissionType.EVENT_ACTIVITY]
 	);
 }
 
@@ -337,7 +340,8 @@ async function notifyEventCreatorOfTemporaryAttendees(
 		NotificationType.TEMP_ATTENDEES,
 		updatedObjectIds,
 		message,
-		pushNotificationPayload
+		pushNotificationPayload,
+		[PermissionType.EVENT_ACTIVITY]
 	);
 }
 
@@ -350,30 +354,10 @@ async function handleNotification(
 	objectType: string,
 	updatedObjectIds: string[],
 	message: string,
-	pushNotificationPayload: PushNotificationPayload
+	pushNotificationPayload: PushNotificationPayload,
+	requiredPermissions: PermissionValue[]
 ): Promise<void> {
 	let pushNotificationSent = false;
-
-	let requiredPermissions: PermissionValue[] = [];
-
-	// Set required permissions based on objectType
-	switch (objectType) {
-		case NotificationType.ANNOUNCEMENT:
-			requiredPermissions = [PermissionType.EVENT_ACTIVITY];
-			break;
-		case NotificationType.ATTENDEES:
-			requiredPermissions = [PermissionType.EVENT_ACTIVITY];
-			break;
-		case NotificationType.TEMP_ATTENDEES:
-			requiredPermissions = [PermissionType.EVENT_ACTIVITY];
-			break;
-		case NotificationType.FILES:
-			requiredPermissions = [PermissionType.EVENT_ACTIVITY];
-			break;
-		default:
-			console.warn(`Unknown objectType: ${objectType}`);
-			return;
-	}
 
 	if (existingNotification) {
 		if (existingNotification.num_push_notifications_sent < MAX_NUM_PUSH_NOTIF_PER_NOTIFICATION) {
