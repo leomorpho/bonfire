@@ -87,7 +87,7 @@
 
 <AlertDialog.Root bind:open={isOpen}>
 	<AlertDialog.Trigger class="w-full">
-		<Button class="w-full bg-red-500 hover:bg-red-400">Delete Account</Button>
+		<Button class="w-full bg-red-500 hover:bg-red-400">Delete account</Button>
 	</AlertDialog.Trigger>
 	<AlertDialog.Content>
 		<AlertDialog.Header>

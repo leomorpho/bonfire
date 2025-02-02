@@ -38,8 +38,38 @@
 			.order('event.start_time', 'ASC');
 	}
 
+	const initEvents = async () => {
+		// let pastEventsQuery = createEventsQuery(client, userId, true);
+		// console.log('----> ??? ', await client.fetch(pastEventsQuery.build()));
+		if (dev) {
+			console.log(
+				'all events this user can see',
+				await client.fetch(client.query('events').build())
+			);
+			console.log('all users this user can see', await client.fetch(client.query('user').build()));
+			console.log(
+				'all profile_images this user can see',
+				await client.fetch(client.query('profile_images').build())
+			);
+			console.log(
+				'all attendees this user can see',
+				await client.fetch(client.query('attendees').build())
+			);
+			console.log('all files this user can see', await client.fetch(client.query('files').build()));
+			console.log(
+				'all announcement this user can see',
+				await client.fetch(client.query('announcement').build())
+			);
+		}
+	};
+
 	onMount(() => {
 		client = getFeTriplitClient($page.data.jwt) as TriplitClient;
+		client.connect();
+
+		initEvents().catch((error) => {
+			console.error('Failed to get events:', error);
+		});
 
 		userId = $page.data.user.id;
 
@@ -48,42 +78,6 @@
 
 		futureEvents = useQuery(client, futureEventsQuery);
 		pastEvents = useQuery(client, pastEventsQuery);
-
-		const initEvents = async () => {
-			// let pastEventsQuery = createEventsQuery(client, userId, true);
-			// console.log('----> ??? ', await client.fetch(pastEventsQuery.build()));
-
-			if (dev) {
-				console.log(
-					'all events this user can see',
-					await client.fetch(client.query('events').build())
-				);
-				console.log(
-					'all users this user can see',
-					await client.fetch(client.query('user').build())
-				);
-				console.log(
-					'all profile_images this user can see',
-					await client.fetch(client.query('profile_images').build())
-				);
-				console.log(
-					'all attendees this user can see',
-					await client.fetch(client.query('attendees').build())
-				);
-				console.log(
-					'all files this user can see',
-					await client.fetch(client.query('files').build())
-				);
-				console.log(
-					'all announcement this user can see',
-					await client.fetch(client.query('announcement').build())
-				);
-			}
-		};
-
-		// initEvents().catch((error) => {
-		// 	console.error('Failed to get events:', error);
-		// });
 	});
 </script>
 
