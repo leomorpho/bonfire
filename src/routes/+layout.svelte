@@ -137,25 +137,49 @@
 	  -->
 	<meta name="twitter:card" content="summary_large_image" />
 </svelte:head>
+<div id="main-content-safe-area">
+	<Header></Header>
+	{#if $flash}
+		<div
+			class={`m-2 mb-4 rounded-lg p-4 text-sm sm:m-4 md:m-8 ${
+				$flash.type === 'success'
+					? 'bg-green-50 text-green-800 dark:bg-gray-800 dark:text-green-400'
+					: $flash.type === 'error'
+						? 'bg-red-50 text-red-800 dark:bg-gray-800 dark:text-red-400'
+						: $flash.type === 'warning'
+							? 'bg-yellow-50 text-yellow-800 dark:bg-gray-800 dark:text-yellow-400'
+							: $flash.type === 'info'
+								? 'bg-blue-50 text-blue-800 dark:bg-gray-800 dark:text-blue-400'
+								: 'bg-gray-50 text-gray-800 dark:bg-gray-800 dark:text-gray-400'
+			}`}
+			role="alert"
+		>
+			{$flash.message}
+		</div>
+	{/if}
+	<Toaster richColors closeButton toastOptions={{}} />
+	{@render children()}
+</div>
 
-<Header></Header>
-{#if $flash}
-	<div
-		class={`m-2 mb-4 rounded-lg p-4 text-sm sm:m-4 md:m-8 ${
-			$flash.type === 'success'
-				? 'bg-green-50 text-green-800 dark:bg-gray-800 dark:text-green-400'
-				: $flash.type === 'error'
-					? 'bg-red-50 text-red-800 dark:bg-gray-800 dark:text-red-400'
-					: $flash.type === 'warning'
-						? 'bg-yellow-50 text-yellow-800 dark:bg-gray-800 dark:text-yellow-400'
-						: $flash.type === 'info'
-							? 'bg-blue-50 text-blue-800 dark:bg-gray-800 dark:text-blue-400'
-							: 'bg-gray-50 text-gray-800 dark:bg-gray-800 dark:text-gray-400'
-		}`}
-		role="alert"
-	>
-		{$flash.message}
-	</div>
-{/if}
-<Toaster richColors closeButton toastOptions={{}} />
-{@render children()}
+<style>
+	:root {
+		--safe-area-top: env(safe-area-inset-top, 0px);
+	}
+
+	#main-content-safe-area {
+		position: fixed;
+		top: var(--safe-area-top, 0);
+		left: 0;
+		width: 100%;
+		z-index: 1000; /* Keep it above other elements */
+		background: rgba(255, 255, 255, 0.95); /* Slight transparency */
+		padding-top: var(--safe-area-top, 10px); /* Ensure padding below the status bar */
+		box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+	}
+
+	@supports (padding-top: env(safe-area-inset-top)) {
+		#main-content-safe-area {
+			padding-top: env(safe-area-inset-top);
+		}
+	}
+</style>
