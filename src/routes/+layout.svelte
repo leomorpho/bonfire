@@ -74,8 +74,13 @@
 	<meta charset="utf-8" />
 	<meta
 		name="viewport"
-		content="viewport-fit=cover, width=device-width, initial-scale=1.0, shrink-to-fit=no, user-scalable=no, maximum-scale=1, height=device-height"
+		content="width=device-width, initial-scale=1.0, shrink-to-fit=no, user-scalable=no, maximum-scale=1"
 	/>
+
+	<!-- <meta
+		name="viewport"
+		content="viewport-fit=cover, width=device-width, initial-scale=1.0, shrink-to-fit=no, user-scalable=no, maximum-scale=1, height=device-height"
+	/> -->
 
 	<title>{meta.title}</title>
 	<meta name="description" content={meta.description} />
@@ -137,7 +142,7 @@
 	  -->
 	<meta name="twitter:card" content="summary_large_image" />
 </svelte:head>
-<div id="main-content-safe-area">
+<div id="main-content-safe-area" class="h-screen">
 	<Header></Header>
 	{#if $flash}
 		<div
@@ -161,7 +166,7 @@
 	{@render children()}
 </div>
 
-<style>
+<!-- <style>
 	:root {
 		--safe-area-top: env(safe-area-inset-top, 0px);
 	}
@@ -182,4 +187,4 @@
 			padding-top: env(safe-area-inset-top);
 		}
 	}
-</style>
+</style> -->
