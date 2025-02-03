@@ -67,7 +67,8 @@ export const schema = {
 						])
 					]
 				}
-			}
+			},
+			anon: {}
 		}
 	},
 	profile_images: {
@@ -110,7 +111,8 @@ export const schema = {
 						])
 					]
 				}
-			}
+			},
+			anon: {}
 		}
 	},
 	events: {
@@ -156,12 +158,12 @@ export const schema = {
 					filter: [
 						or([
 							['user_id', '=', '$role.userId'], // User can read their own events
-							['attendees.user_id', '=', '$role.userId'], // A user can only see events they are attending
-							['viewers.user_id', '=', '$role.userId'] // user is a viewer
+							['attendees.user_id', '=', '$role.userId'], // A user can see events they are attending
+							['viewers.user_id', '=', '$role.userId'] // Event viewers can see event
 						])
 					]
 				},
-				insert: { filter: [true] },
+				insert: { filter: [true] }, // Anyone can create an event
 				update: { filter: [['user_id', '=', '$role.userId']] },
 				delete: { filter: [['user_id', '=', '$role.userId']] }
 			},
@@ -174,7 +176,8 @@ export const schema = {
 						])
 					]
 				}
-			}
+			},
+			anon: {}
 		}
 	},
 	event_admins: {
@@ -233,7 +236,8 @@ export const schema = {
 						['event.temporary_attendees.id', '=', '$role.temporaryAttendeeId'] // Temp users can view event admins if they're part of the event
 					]
 				}
-			}
+			},
+			anon: {}
 		}
 	},
 	event_viewers: {
@@ -252,7 +256,9 @@ export const schema = {
 						['user_id', '=', '$role.userId'] // User can read their view objects
 					]
 				}
-			}
+			},
+			temp: {},
+			anon: {}
 		}
 	},
 	attendees: {
@@ -326,7 +332,8 @@ export const schema = {
 						])
 					]
 				}
-			}
+			},
+			anon: {}
 		}
 	},
 	temporary_attendees_secret_mapping: {
@@ -338,7 +345,8 @@ export const schema = {
 		}),
 		permissions: {
 			user: {},
-			temp: {}
+			temp: {},
+			anon: {}
 		}
 	},
 	temporary_attendees: {
@@ -392,7 +400,8 @@ export const schema = {
 						])
 					]
 				}
-			}
+			},
+			anon: {}
 		}
 	},
 	files: {
@@ -465,7 +474,8 @@ export const schema = {
 						])
 					]
 				}
-			}
+			},
+			anon: {}
 		}
 	},
 	banner_media: {
@@ -511,7 +521,8 @@ export const schema = {
 				read: {
 					filter: [['event.temporary_attendees.id', '=', '$role.temporaryAttendeeId']]
 				}
-			}
+			},
+			anon: {}
 		}
 	},
 	announcement: {
@@ -570,7 +581,8 @@ export const schema = {
 						['event.temporary_attendees.id', '=', '$role.temporaryAttendeeId']
 					]
 				}
-			}
+			},
+			anon: {}
 		}
 	},
 	seen_announcements: {
@@ -670,7 +682,8 @@ export const schema = {
 			},
 			temp: {
 				insert: { filter: [['user_id', '=', '$role.temporaryAttendeeId']] } // Users can read their own notifications
-			}
+			},
+			anon: {}
 		}
 	},
 	notifications: {
@@ -693,7 +706,9 @@ export const schema = {
 				read: { filter: [['user_id', '=', '$role.userId']] }, // Users can read their own notifications
 				update: { filter: [['user_id', '=', '$role.userId']] }, // Users can update their own notifications to mark them as read
 				delete: { filter: [['user_id', '=', '$role.userId']] } // Users can update their own notifications to mark them as read
-			}
+			},
+			temp: {},
+			anon: {}
 		}
 	},
 	seamless_tiles: {
@@ -721,7 +736,8 @@ export const schema = {
 					]
 				}
 			},
-			temp: {}
+			temp: {},
+			anon: {}
 		}
 	}
 } satisfies ClientSchema;
