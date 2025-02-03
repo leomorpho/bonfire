@@ -226,77 +226,69 @@
 				eventId = await generatePassphraseId('', 48);
 
 				try {
-					await client.transact(async (tx) => {
-						// Insert the event
-						await tx.insert('events', {
-							id: eventId,
-							title: eventName,
-							description: details || null,
-							location: location || null,
-							geocoded_location: JSON.stringify(geocodedLocation) || null,
-							start_time: eventStartDatetime,
-							end_time: eventEndDatetime,
-							user_id: userId,
-							style: finalStyleCss,
-							overlay_color: overlayColor,
-							overlay_opacity: overlayOpacity
-						});
+					// await client.transact(async (tx) => {
+					// Insert the event
+					await client.insert('events', {
+						id: eventId,
+						title: eventName,
+						description: details || null,
+						location: location || null,
+						geocoded_location: JSON.stringify(geocodedLocation) || null,
+						start_time: eventStartDatetime,
+						end_time: eventEndDatetime,
+						user_id: userId,
+						style: finalStyleCss,
+						overlay_color: overlayColor,
+						overlay_opacity: overlayOpacity
+					});
 
-						// Add the user as an attendee
-						await tx.insert('attendees', {
-							user_id: userId,
-							event_id: eventId as string,
-							status: Status.GOING
-						});
+					// Add the user as an attendee
+					await client.insert('attendees', {
+						user_id: userId,
+						event_id: eventId as string,
+						status: Status.GOING
 					});
 
 					// If the transaction succeeds
 					console.log('Event and attendee created successfully.');
+
+					// Set the stores so the event page updates with new style
+					styleStore.set(finalStyleCss);
+					overlayColorStore.set(overlayColor);
+					overlayOpacityStore.set(overlayOpacity);
+					goto(`/bonfire/${eventId}`);
 				} catch (transactionError) {
 					// Handle transaction failure
 					console.error('Transaction failed:', transactionError);
 					errorMessage = 'Failed to create event and add you as an attendee. Please try again.';
 					showError = true;
 				}
-
-				// Set the stores so the event page updates with new style
-				styleStore.set(finalStyleCss);
-				overlayColorStore.set(overlayColor);
-				overlayOpacityStore.set(overlayOpacity);
 			} else {
 				try {
-					await client.update('events', event.id, async (entity) => {
-						entity.title = eventName;
-						entity.description = details || null;
-						entity.location = location;
-						entity.geocoded_location = JSON.stringify(geocodedLocation);
-						entity.start_time = eventStartDatetime;
-						entity.end_time = eventEndDatetime;
-						entity.style = finalStyleCss;
-						entity.overlay_color = overlayColor;
-						entity.overlay_opacity = overlayOpacity;
-					});
-
 					styleStore.set(finalStyleCss);
 					overlayColorStore.set(overlayColor);
 					overlayOpacityStore.set(overlayOpacity);
+
+					await client
+						.update('events', event.id, async (entity) => {
+							entity.title = eventName;
+							entity.description = details || null;
+							entity.location = location;
+							entity.geocoded_location = JSON.stringify(geocodedLocation);
+							entity.start_time = eventStartDatetime;
+							entity.end_time = eventEndDatetime;
+							entity.style = finalStyleCss;
+							entity.overlay_color = overlayColor;
+							entity.overlay_opacity = overlayOpacity;
+						})
+						.then(() => {
+							goto(`/bonfire/${eventId}`);
+						});
 				} catch (error) {
 					errorMessage = 'Failed to update event. Please try again.';
 					showError = true;
 					return;
 				}
-			}
-
-			// Only redirect if everything succeeded
-			if (eventId) {
-				const event = await client.fetchOne(
-					client
-						.query('events')
-						.where([['id', '=', eventId]])
-						.build()
-				);
-				console.log('Got event in EventForm ===>', event);
-				// window.location.href = `/bonfire/${eventId}`;
 			}
 		} catch (e) {
 			console.error(`Failed to ${mode === EventFormType.CREATE ? 'create' : 'update'} event`, e);
@@ -309,10 +301,16 @@
 
 	const deleteEvent = async (e: Event) => {
 		try {
-			console.log('Event ID:', event.id);
-			await client.delete('events', event.id);
-			console.log('Deleted event!!!!');
-			goto('/dashboard');
+			const userId: string = (await waitForUserId()) as string;
+			client
+				.delete('events', event.id)
+				.then(() => {
+					console.log('Event deleted:', event.id);
+					goto('/dashboard');
+				})
+				.catch((error: any) => {
+					console.error('Error deleting event:', error);
+				});
 		} catch (error) {
 			console.error('Error deleting event:', error);
 		}
@@ -332,6 +330,10 @@
 		currentEventEditingMode = editingMainEvent;
 	};
 
+	function capitalize(str: string) {
+		return str.charAt(0).toUpperCase() + str.slice(1);
+	}
+
 	onMount(() => {
 		styleStore.set(finalStyleCss);
 		overlayColorStore.set(overlayColor);
@@ -343,10 +345,6 @@
 			console.log('generatePassphraseId()', await generatePassphraseId());
 		})();
 	});
-
-	function capitalize(str: string) {
-		return str.charAt(0).toUpperCase() + str.slice(1);
-	}
 </script>
 
 <div class="mx-4 flex flex-col items-center justify-center">
