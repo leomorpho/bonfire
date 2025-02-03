@@ -2,7 +2,7 @@ import { TriplitClient } from '@triplit/client';
 import { schema } from '../../triplit/schema';
 import { env as publicEnv } from '$env/dynamic/public';
 import { writable, get } from 'svelte/store';
-import { browser } from '$app/environment';
+import { browser, dev } from '$app/environment';
 import { LOCAL_INDEXEDDB_NAME } from './enums';
 
 export const userIdStore = writable<string | null>(null);
@@ -51,12 +51,33 @@ export function getFeTriplitClient(jwt: string) {
 				feTriplitClient.endSession();
 				feTriplitClient.clear();
 			}
-		}
+		},
+		refreshOptions: {
+			refreshHandler: async () => {
+				// get a new token
+				return await getFreshToken();
+			}
+		},
+		logLevel: dev ? 'debug' : 'info'
 	}) as TriplitClient;
 
 	console.log('Frontend TriplitClient initialized');
 
 	return feTriplitClient;
+}
+
+async function getFreshToken() {
+	try {
+		const response = await fetch('/jwt');
+		if (!response.ok) {
+			throw new Error(`Failed to fetch JWT: ${response.statusText}`);
+		}
+		const data = await response.json();
+		return data.jwt ?? null;
+	} catch (error) {
+		console.error('Error fetching JWT:', error);
+		return null;
+	}
 }
 
 export async function clearCache(client: TriplitClient) {

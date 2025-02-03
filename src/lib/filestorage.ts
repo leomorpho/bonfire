@@ -24,6 +24,7 @@ import { getPixels } from '@unpic/pixels';
 import { BannerMediaSize } from './enums';
 import { createReadStream } from 'fs';
 import { createNewFileNotificationQueueObject } from './notification';
+import { generateId } from 'lucia';
 
 ffmpeg.setFfmpegPath(ffmpegInstaller.path);
 
@@ -78,7 +79,10 @@ export async function processGalleryFile(
 			return Error('either userId or tempAttendeeId must be set');
 		}
 
-		const fileKey = `events/eventid_${eventId}/userid_${userId}/${filename}`;
+		// NOTE: we add a random component (with generateId) so that having 2 identical image uploaded, 
+		// if 1 gets deleted, we are not left with an object in DB representing the second one, but
+		// without an actual S3 file that exists for it.
+		const fileKey = `events/eventid_${eventId}/userid_${userId}/${generateId(5)}_${filename}`;
 		let frameFileId = null;
 		let h_pixel: number | null = null;
 		let w_pixel: number | null = null;

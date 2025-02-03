@@ -240,12 +240,16 @@
 			);
 		}
 
-		if (isAnonymousUser || !$page.data.isUserAnAttendee) {
+		console.log('$page.data ===> $page.data', $page.data);
+		if (
+			(isAnonymousUser || !$page.data.isUserAnAttendee) &&
+			$page.data.event.user_id != currUserId
+		) {
 			// If user is anonymous, load event data from page data. It will contain limited data.
 			// Also, if the user is logged in but is NOT YET attending, we don't want to pull live data
 			// since they won't have the permissions to.
 			console.log(
-				'not fetching event data because used is anonymous or not an attendee, and therefore only data returned from BE will be shown'
+				'not fetching event data because user is anonymous or not an attendee, and therefore only data returned from BE will be shown'
 			);
 			event = $page.data.event;
 			eventLoading = false;
@@ -559,7 +563,7 @@
 						</div>
 					{:else if currenUserIsEventAdmin}
 						<a class="flex w-full" href="banner/upload">
-							<Button class="w-full dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-white"
+							<Button class="w-full dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600"
 								>Set a banner image</Button
 							>
 						</a>
@@ -779,7 +783,7 @@
 
 				<Button
 					onclick={() => handleShare(event)}
-					class="mt-4 flex w-full items-center justify-center ring-glow dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-white"
+					class="mt-4 flex w-full items-center justify-center ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
 				>
 					<Share class="h-5 w-5" />
 					Share Bonfire</Button
@@ -796,7 +800,8 @@
 						</div>
 						{#if currenUserIsEventAdmin}
 							<a href="announcement/create">
-								<Button class="mt-1 w-full ring-glow dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-white"
+								<Button
+									class="mt-1 w-full ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
 									><Drum class="mr-1 h-4 w-4" /> Create new announcement</Button
 								>
 							</a>

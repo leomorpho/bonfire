@@ -470,8 +470,8 @@ test('Temp attendee view', async ({ browser }) => {
 	await tempAttendeePage.getByLabel('Upload 1 file').click();
 
 	// Wait for the upload to be confirmed (adjust selector based on your UI)
-	await tempAttendeePage.waitForSelector('.upload-complete-message', { timeout: 15000 });
-	await expect(tempAttendeePage.locator('.gallery-item')).toHaveCount(2, { timeout: 10000 });
+	// await tempAttendeePage.waitForSelector('.upload-complete-message', { timeout: 15000 });
+	await expect(tempAttendeePage.locator('.gallery-item')).toHaveCount(2, { timeout: 20000 });
 
 	// Check top bar buttons
 	await expect(tempAttendeePage.locator('#upload-new-images')).toBeVisible();

@@ -8,7 +8,7 @@
 	import Loader from '$lib/components/Loader.svelte';
 	import { EventFormType } from '$lib/enums';
 
-	let data;
+	let data: any;
 	let client: TriplitClient;
 
 	onMount(() => {

@@ -66,13 +66,13 @@
 	};
 </script>
 
-<div class="p-safe flex min-h-screen items-center justify-center bg-gray-100">
+<div class="p-safe flex min-h-screen items-center justify-center bg-gray-100 dark:bg-slate-800 dark:text-white">
 	<form class="m-2 w-full max-w-md space-y-4 text-center" onsubmit={handleSubmit}>
 		<div class="text-lg font-semibold">Choose Your Username</div>
 
-		<Input bind:value={username} type="text" placeholder="Charlotte Brönte" class="my-5 w-full" />
+		<Input bind:value={username} type="text" placeholder="Charlotte Brönte" class="my-5 w-full dark:bg-slate-700" />
 
-		<div class="text-sm text-gray-600">This is how friends will recognize you.</div>
+		<div class="text-sm text-yellow-600 dark:text-yellow-200">This is how friends will recognize you.</div>
 		<Button type="submit" disabled={!submitEnabled} class="w-full">Save</Button>
 	</form>
 </div>

@@ -65,8 +65,8 @@
 	onMount(() => {
 		const client = getFeTriplitClient($page.data.jwt);
 		client.onConnectionStatusChange((status) => {
-			if (status === 'OPEN') console.log('🌴🌴🌴 Connected to server');
-			if (status === 'CLOSED') console.log('😵😵😵 Disconnected from server');
+			if (status === 'OPEN') console.log('🌴 Connected to server');
+			if (status === 'CLOSED') console.log('😵 Disconnected from server');
 		}, true);
 	});
 </script>
