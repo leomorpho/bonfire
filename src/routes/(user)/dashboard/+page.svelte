@@ -153,5 +153,5 @@
 	>
 		<Plus aria-hidden="true" />
 	</a>
-	<span class="mt-2 text-sm text-gray-700" id="create-bonfire-label">Create a Bonfire</span>
+	<span class="mt-2 text-sm text-gray-700 dark:text-white" id="create-bonfire-label">Create a Bonfire</span>
 </div>

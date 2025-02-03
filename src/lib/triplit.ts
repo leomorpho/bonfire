@@ -43,7 +43,15 @@ export function getFeTriplitClient(jwt: string) {
 		schema,
 		serverUrl: publicEnv.PUBLIC_TRIPLIT_URL,
 		token: jwt ? jwt : publicEnv.PUBLIC_TRIPLIT_ANONYMOUS_TOKEN,
-		autoConnect: browser
+		autoConnect: browser,
+		onSessionError: (type) => {
+			console.log('💀💀💀 Triplit session error occured', type);
+			if (type === 'TOKEN_EXPIRED') {
+				// log the user out
+				feTriplitClient.endSession();
+				feTriplitClient.clear();
+			}
+		}
 	}) as TriplitClient;
 
 	console.log('Frontend TriplitClient initialized');

@@ -20,7 +20,7 @@
 	import { tempAttendeeSecretParam } from '$lib/enums';
 	import Tus from '@uppy/tus';
 	import { toast } from 'svelte-sonner';
-	import { browser } from '$app/environment';
+	import { detectTailwindTheme } from '$lib/utils';
 
 	let uppy: any;
 
@@ -33,16 +33,7 @@
 	let theme = 'light';
 	let observer: any;
 
-	function detectTailwindTheme(): 'light' | 'dark' {
-		if (browser) {
-			return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
-		}
-		return 'light';
-	}
-
 	onMount(() => {
-		if (!browser) return;
-
 		theme = detectTailwindTheme();
 
 		// Watch for Tailwind dark mode changes

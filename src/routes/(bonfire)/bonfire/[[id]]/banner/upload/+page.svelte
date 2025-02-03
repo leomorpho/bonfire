@@ -18,12 +18,15 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
+	import { detectTailwindTheme } from '$lib/utils';
 
 	let uppy;
 
 	const maxMbSize = 5;
 
 	onMount(() => {
+		const theme = detectTailwindTheme();
+
 		// Initialize Uppy instance with Tus for resumable uploads
 		uppy = new Uppy({
 			allowMultipleUploads: false,
@@ -41,7 +44,8 @@
 				target: '#uppy-dashboard',
 				autoOpen: 'imageEditor', // Automatically open the editor
 				showProgressDetails: true,
-				note: `Image only. Max size: ${maxMbSize}MB.`
+				note: `Image only. Max size: ${maxMbSize}MB.`,
+				theme: theme
 			})
 			.use(Webcam, {
 				mirror: true // Use mirror mode for webcam
@@ -87,7 +91,9 @@
 
 <div class="mx-2 flex flex-col items-center justify-center">
 	<section class="mt-8 w-full sm:w-[450px]">
-		<h2 class="my-6 flex justify-center rounded-lg bg-white p-2 text-2xl font-semibold">
+		<h2
+			class="my-6 flex justify-center rounded-lg bg-white p-2 text-2xl font-semibold dark:bg-slate-800 dark:text-white"
+		>
 			Set Banner
 		</h2>
 

@@ -17,12 +17,15 @@
 
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
+	import { detectTailwindTheme } from '$lib/utils';
 
 	let uppy;
 
 	const maxMbSize = 5;
 
 	onMount(() => {
+		const theme = detectTailwindTheme();
+
 		// Initialize Uppy instance with Tus for resumable uploads
 		uppy = new Uppy({
 			allowMultipleUploads: false,
@@ -40,7 +43,8 @@
 				target: '#uppy-dashboard',
 				autoOpen: 'imageEditor', // Automatically open the editor
 				showProgressDetails: true,
-				note: `Image only. Max size: ${maxMbSize}MB.`
+				note: `Image only. Max size: ${maxMbSize}MB.`,
+				theme: theme
 			})
 			.use(Webcam, {
 				mirror: true // Use mirror mode for webcam
@@ -76,7 +80,7 @@
 			})
 			.on('upload-success', (file, response) => {
 				console.log('Upload successful:', file, response);
-				goto('/profile')
+				goto('/profile');
 			})
 			.on('error', (error) => {
 				console.error('Upload error:', error);
@@ -86,9 +90,8 @@
 
 <div class="mx-2 flex flex-col items-center justify-center">
 	<section class="mt-8 w-full sm:w-[450px]">
-		<h2 class="my-6 text-2xl font-semibold flex justify-center">Edit Avatar</h2>
+		<h2 class="my-6 flex justify-center text-2xl font-semibold">Edit Avatar</h2>
 
 		<div id="uppy-dashboard"></div>
 	</section>
 </div>
-

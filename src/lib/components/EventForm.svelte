@@ -223,7 +223,7 @@
 			let eventId = event?.id;
 
 			if (mode == EventFormType.CREATE) {
-				eventId = await generatePassphraseId('', 64);
+				eventId = await generatePassphraseId('', 48);
 
 				try {
 					await client.transact(async (tx) => {
@@ -296,7 +296,7 @@
 						.build()
 				);
 				console.log('Got event in EventForm ===>', event);
-				window.location.href = `/bonfire/${eventId}`;
+				// window.location.href = `/bonfire/${eventId}`;
 			}
 		} catch (e) {
 			console.error(`Failed to ${mode === EventFormType.CREATE ? 'create' : 'update'} event`, e);
