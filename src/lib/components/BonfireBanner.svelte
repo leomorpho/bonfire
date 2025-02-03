@@ -28,7 +28,7 @@
 		alt={'Banner for mobile'}
 	/>
 	{#if currenUserIsEventAdmin}
-		<div class="absolute right-2 top-2 rounded-full bg-white p-1 shadow-md hover:bg-slate-100">
+		<div class="absolute right-2 top-2 rounded-full bg-white dark:bg-slate-800 p-1 shadow-md hover:bg-slate-100">
 			<a class="flex w-full" href="banner/upload" aria-label="Upload a new banner">
 				<svg
 					xmlns="http://www.w3.org/2000/svg"

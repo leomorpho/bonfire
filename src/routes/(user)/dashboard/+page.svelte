@@ -90,7 +90,9 @@
 			<p>Error: {futureEvents.error.message}</p>
 		{:else if futureEvents.results}
 			{#if futureEvents.results.length == 0}
-				<div class="flex items-center justify-center rounded-lg bg-slate-100 p-4">
+				<div
+					class="flex items-center justify-center rounded-lg bg-slate-100 p-4 dark:bg-slate-800 dark:text-white"
+				>
 					<Frown class="mr-2 h-4 w-4" />No events yet.
 				</div>
 			{:else}
@@ -153,5 +155,7 @@
 	>
 		<Plus aria-hidden="true" />
 	</a>
-	<span class="mt-2 text-sm text-gray-700 dark:text-white" id="create-bonfire-label">Create a Bonfire</span>
+	<span class="mt-2 text-sm text-gray-700 dark:text-white" id="create-bonfire-label"
+		>Create a Bonfire</span
+	>
 </div>

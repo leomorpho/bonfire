@@ -91,14 +91,14 @@
 
 <div class="mx-4 flex flex-col items-center justify-center">
 	<section class="mt-8 w-full sm:w-[450px]">
-		<h2 class="mb-4 rounded-xl bg-white p-2 text-lg font-semibold">
+		<h2 class="mb-4 rounded-xl bg-white dark:bg-slate-800 dark:text-white p-2 text-lg font-semibold">
 			{mode === 'create' ? 'Create' : 'Update'} an Announcement
 		</h2>
 		<form class="space-y-4" onsubmit={handleSubmit}>
 			<Textarea
 				placeholder="Type your announcement here"
 				bind:value={content}
-				class="h-64 w-full bg-white"
+				class="h-64 w-full bg-white dark:bg-slate-800 dark:text-white"
 			/>
 
 			<Button disabled={submitDisabled} type="submit" class="w-full ring-glow">

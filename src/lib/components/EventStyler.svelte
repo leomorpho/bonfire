@@ -164,7 +164,7 @@
 <div class="gallery my-5 w-full">
 	<div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
 		{#each randomStylesGallery as style}
-			<div class="h-40 rounded-lg bg-white  bg-opacity-100">
+			<div class="h-40 rounded-lg bg-white bg-opacity-100">
 				<button
 					class="h-full w-full max-w-full rounded-lg style-button-{style.id} select-bordered flex items-center justify-center border-4"
 					class:selected={selectedStyle?.id === style.id}

@@ -5,7 +5,7 @@
 </script>
 
 <Container>
-	<div id="terms-of-service" class="bg-white py-16">
+	<div id="terms-of-service" class="py-16 dark:text-white">
 		<div class="mx-auto max-w-2xl px-6 lg:px-8">
 			<div class="space-y-8">
 				<h1 class="text-center text-4xl font-bold">Terms of Service</h1>
