@@ -240,7 +240,7 @@
 				{/if}
 				<!-- OTP Verification Form -->
 				<div>
-					<button class="text-md btn mt-5 w-full font-semibold sm:text-lg"> Submit </button>
+					<button class="text-md btn mt-5 w-full font-semibold sm:text-lg dark:bg-slate-800 dark:text-white"> Submit </button>
 				</div>
 			</div>
 		{:else}
@@ -296,7 +296,7 @@
 						type="email"
 						name="email"
 						autocomplete="email"
-						class="input my-5 w-full bg-slate-100"
+						class="input my-5 w-full bg-slate-100 dark:bg-slate-800 dark:text-white"
 						class:hidden={!show_email_input}
 					/>
 					{#if $errors.email}

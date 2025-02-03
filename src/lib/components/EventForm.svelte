@@ -223,7 +223,7 @@
 			let eventId = event?.id;
 
 			if (mode == EventFormType.CREATE) {
-				eventId = await generatePassphraseId();
+				eventId = await generatePassphraseId('', 64);
 
 				try {
 					await client.transact(async (tx) => {
@@ -289,7 +289,14 @@
 
 			// Only redirect if everything succeeded
 			if (eventId) {
-				goto(`/bonfire/${eventId}`);
+				const event = await client.fetchOne(
+					client
+						.query('events')
+						.where([['id', '=', eventId]])
+						.build()
+				);
+				console.log('Got event in EventForm ===>', event);
+				window.location.href = `/bonfire/${eventId}`;
 			}
 		} catch (e) {
 			console.error(`Failed to ${mode === EventFormType.CREATE ? 'create' : 'update'} event`, e);
@@ -305,7 +312,7 @@
 			console.log('Event ID:', event.id);
 			await client.delete('events', event.id);
 			console.log('Deleted event!!!!');
-			goto('/dashboard'); // Uncomment if redirection is needed
+			goto('/dashboard');
 		} catch (error) {
 			console.error('Error deleting event:', error);
 		}
@@ -484,12 +491,12 @@
 					? capitalize(EventFormType.CREATE)
 					: capitalize(EventFormType.UPDATE)}
 			</Button>
-			{#if mode == EventFormType.UPDATE && currUserId == event.user_id}
+			{#if mode == EventFormType.UPDATE && event && currUserId == event.user_id}
 				<Dialog.Root>
 					<Dialog.Trigger class="w-full" disabled={submitDisabled || currUserId != event.user_id}
 						><Button
 							disabled={submitDisabled || currUserId != event.user_id}
-							class="mt-2 w-full bg-red-500 ring-glow hover:bg-red-400 dark:bg-red-700 dark:hover:bg-red-600 dark:text-white"
+							class="mt-2 w-full bg-red-500 ring-glow hover:bg-red-400 dark:bg-red-700 dark:text-white dark:hover:bg-red-600"
 						>
 							<Trash2 class="ml-1 mr-1 h-4 w-4" /> Delete
 						</Button></Dialog.Trigger
@@ -519,7 +526,7 @@
 		<div class="md:7/8 w-5/6">
 			<div class="sticky top-2 mt-2 flex justify-center">
 				<Button
-					class="w-full bg-violet-500 ring-glow hover:bg-violet-400 dark:bg-violet-700 dark:hover:bg-violet-600 dark:text-white sm:w-[450px]"
+					class="w-full bg-violet-500 ring-glow hover:bg-violet-400 dark:bg-violet-700 dark:text-white dark:hover:bg-violet-600 sm:w-[450px]"
 					onclick={stopEditEventStyle}
 				>
 					<ChevronLeft class="mr-1" />
@@ -534,7 +541,7 @@
 		<div class="md:7/8 w-5/6">
 			<div class="sticky top-2 mt-2 flex justify-center">
 				<Button
-					class="w-full bg-violet-500 ring-glow hover:bg-violet-400 dark:bg-violet-700 dark:hover:bg-violet-600 dark:text-white sm:w-[450px]"
+					class="w-full bg-violet-500 ring-glow hover:bg-violet-400 dark:bg-violet-700 dark:text-white dark:hover:bg-violet-600 sm:w-[450px]"
 					onclick={stopEditAdmins}
 				>
 					<ChevronLeft class="mr-1" />

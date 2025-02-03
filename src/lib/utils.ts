@@ -112,7 +112,7 @@ export const generatePassphraseId = async (prefix: string | null = null, wordsLe
 		const passphrasePart = passphrase.split(' ').join('-');
 
 		// Generate random ID
-		const randomId = generateId(7);
+		const randomId = generateId(4);
 
 		// Combine passphrase and random ID
 		let combined = `${passphrasePart}-${randomId}`;

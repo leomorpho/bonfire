@@ -12,7 +12,9 @@
 	import { env as publicEnv } from '$env/dynamic/public';
 	import { toast } from 'svelte-sonner';
 	import PullToRefresh from '$lib/components/PullToRefresh.svelte';
-	import { ModeWatcher } from "mode-watcher";
+	import { ModeWatcher } from 'mode-watcher';
+	import { onMount } from 'svelte';
+	import { getFeTriplitClient } from '$lib/triplit';
 
 	let { children } = $props();
 
@@ -59,17 +61,14 @@
 			},
 			{ passive: false }
 		);
-
-		// document.addEventListener(
-		// 	"wheel",
-		// 	(event) => {
-		// 		if (event.ctrlKey) {
-		// 			event.preventDefault(); // Block zooming via Ctrl + Scroll
-		// 		}
-		// 	},
-		// 	{ passive: false }
-		// );
 	}
+	onMount(() => {
+		const client = getFeTriplitClient($page.data.jwt);
+		client.onConnectionStatusChange((status) => {
+			if (status === 'OPEN') console.log('🌴🌴🌴 Connected to server');
+			if (status === 'CLOSED') console.log('😵😵😵 Disconnected from server');
+		}, true);
+	});
 </script>
 
 <svelte:head>
@@ -165,5 +164,5 @@
 	</div>
 {/if}
 <Toaster richColors closeButton toastOptions={{}} />
-<ModeWatcher/>
+<ModeWatcher />
 {@render children()}
