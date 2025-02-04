@@ -44,12 +44,9 @@
 	const editingStyles = 'editing_styles';
 	const editingAdmins = 'editing_admins';
 
-	// console.log(event);
-
-	let client: TriplitClient;
-
-	let dateValue: DateValue | undefined = $state<DateValue | undefined>();
+	// ✅ Form Fields
 	let eventName: string = $state(event?.title ?? ''); // State for event name
+	let dateValue: DateValue | undefined = $state<DateValue | undefined>();
 	let location: string = $state(event?.location ?? ''); // State for location
 	let geocodedLocation: any = $state(
 		event?.geocoded_location ? JSON.parse(event?.geocoded_location) : ''
@@ -62,12 +59,9 @@
 	let endMinute = $state(''); // State for minute
 	let ampmEnd: string = $state('PM'); // State for AM/PM
 
-	const defaultBackground = randomSort(stylesGallery)[0].cssTemplate;
-	console.log('defaultBackground', defaultBackground);
-	let finalStyleCss: string = $state(event?.style ?? defaultBackground);
-	let overlayColor: string = $state(event?.overlay_color ?? '#000000');
-	let overlayOpacity: number = $state(event?.overlay_opacity ?? 0.4);
-
+	// ✅ State Variables
+	let client: TriplitClient;
+	let eventId = event?.id;
 	let currentEventEditingMode = $state(editingMainEvent);
 	let cancelUrl = $state(event && event.id ? `/bonfire/${event.id}` : '/');
 	let timezone = $state({});
@@ -76,6 +70,60 @@
 	let isEventSaving = $state(false);
 	let errorMessage = $state('');
 	let showError = $state(false);
+
+	const defaultBackground = randomSort(stylesGallery)[0].cssTemplate;
+	console.log('defaultBackground', defaultBackground);
+	let finalStyleCss: string = $state(event?.style ?? defaultBackground);
+	let overlayColor: string = $state(event?.overlay_color ?? '#000000');
+	let overlayOpacity: number = $state(event?.overlay_opacity ?? 0.4);
+
+	let eventStartDatetime = $state();
+	let eventEndDatetime = $state();
+
+	// Build eventStartDatetime dynamically
+	$effect(() => {
+		if (dateValue) {
+			// Convert DateValue to a JS Date object for the event date
+			const date = dateValue?.toDate();
+
+			// Default startMinute to "00" if not provided
+			const startMinutes = startMinute ? parseInt(startMinute) : 0;
+
+			// Convert the hour to 24-hour format based on AM/PM for start time
+			const startHours = (parseInt(startHour) % 12) + (ampmStart === 'PM' ? 12 : 0);
+
+			// Set hours and minutes based on user input for start time
+			date.setHours(startHours, startMinutes, 0, 0);
+
+			// Convert the event date-time to the specified timezone for start time
+			eventStartDatetime = new Date(date.toLocaleString('en-US', { timeZone: timezone.value }));
+		}
+	});
+
+	// Build eventEndDatetime dynamically
+	$effect(() => {
+		if (dateValue && setEndTime) {
+			// Convert DateValue to a JS Date object for the event date
+			const date = dateValue?.toDate();
+			// If end time is set, calculate end datetime
+			const endHours = (parseInt(endHour) % 12) + (ampmEnd === 'PM' ? 12 : 0);
+			const endMinutes = endMinute ? parseInt(endMinute) : 0;
+
+			// Create a new Date object for end time, based on the same date
+			const endDate = new Date(date);
+			endDate.setHours(endHours, endMinutes, 0, 0);
+
+			// Check if end time is before start time
+			if (endDate < date) {
+				errorMessage = 'End time must be after start time';
+				showError = true;
+				return;
+			}
+
+			// Convert the event date-time to the specified timezone for end time
+			eventEndDatetime = new Date(endDate.toLocaleString('en-US', { timeZone: timezone.value }));
+		}
+	});
 
 	// NOTE: this is a hack and I dont like it. The way to go is refactor the code in EventStyler so it's reusable.
 	$effect(() => {
@@ -147,18 +195,30 @@
 		};
 	}
 
-	// $effect(() => {
-	// 	console.log(
-	// 		'submitDisabled',
-	// 		submitDisabled,
-	// 		'dateValue',
-	// 		dateValue,
-	// 		'eventName',
-	// 		eventName,
-	// 		'startHour',
-	// 		startHour
-	// 	);
-	// });
+	const createEvent = async () => {
+		try {
+			eventId = await generatePassphraseId('', 48);
+			await client.insert('events', {
+				id: eventId,
+				title: eventName,
+				start_time: new Date(dateValue).toISOString(),
+				user_id: userId,
+				style: finalStyleCss,
+				overlay_color: overlayColor,
+				overlay_opacity: overlayOpacity
+			});
+
+			// Add user as attendee
+			await client.insert('attendees', {
+				user_id: userId,
+				event_id: eventId,
+				status: Status.GOING
+			});
+			console.log('✅ Event created successfully');
+		} catch (error) {
+			console.error('❌ Error creating event:', error);
+		}
+	};
 
 	const handleSubmit = async (e: Event) => {
 		try {
@@ -173,23 +233,6 @@
 				showError = true;
 				return;
 			}
-
-			// Convert DateValue to a JS Date object for the event date
-			const date = dateValue?.toDate();
-
-			// Default startMinute to "00" if not provided
-			const startMinutes = startMinute ? parseInt(startMinute) : 0;
-
-			// Convert the hour to 24-hour format based on AM/PM for start time
-			const startHours = (parseInt(startHour) % 12) + (ampmStart === 'PM' ? 12 : 0);
-
-			// Set hours and minutes based on user input for start time
-			date.setHours(startHours, startMinutes, 0, 0);
-
-			// Convert the event date-time to the specified timezone for start time
-			const eventStartDatetime = new Date(
-				date.toLocaleString('en-US', { timeZone: timezone.value })
-			);
 
 			let eventEndDatetime = null;
 
@@ -219,8 +262,6 @@
 				showError = true;
 				return;
 			}
-
-			let eventId = event?.id;
 
 			if (mode == EventFormType.CREATE) {
 				eventId = await generatePassphraseId('', 48);
