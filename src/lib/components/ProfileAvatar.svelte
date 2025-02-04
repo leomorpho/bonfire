@@ -70,7 +70,7 @@
 </script>
 
 <Dialog.Root bind:open={dialogIsOpen}>
-	<Dialog.Trigger class="profile-avatar flex items-center justify-center">
+	<Dialog.Trigger class="profile-avatar flex items-center justify-center focus:outline-none focus-visible:ring-0">
 		{#if fullsizeUrl || url}
 			<Avatar.Root
 				class={`relative ${largeSizeMainAvatar ? 'h-24 w-24 border-2 sm:h-32 sm:w-32' : 'h-12 w-12 border-2 sm:h-14 sm:w-14'} ${
