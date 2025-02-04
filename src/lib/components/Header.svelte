@@ -112,16 +112,16 @@
 								<Menu class="h-6 w-6 sm:h-5 sm:w-5" />
 							</div>
 						</DropdownMenu.Trigger>
-						<DropdownMenu.Content class="m-2 dark:bg-slate-950">
+						<DropdownMenu.Content class="m-2 p-4 dark:bg-slate-950 ">
 							<DropdownMenu.Group>
 								<!-- <DropdownMenu.Label>My Account</DropdownMenu.Label> -->
 								<!-- <DropdownMenu.Separator /> -->
 
 								{#each links as link}
 									<a href={link.href}>
-										<DropdownMenu.Item class="cursor-pointer p-2 px-4">
+										<DropdownMenu.Item class="cursor-pointer p-2 px-4 text-xl sm:text-lg">
 											{#if link.icon}
-												<link.icon class="mr-1 h-6 w-6" />
+												<link.icon class="mr-1 !h-6 !w-6 sm:!h-5 sm:!w-5" />
 											{/if}
 											{link.name}
 										</DropdownMenu.Item>
@@ -138,14 +138,14 @@
 									>
 										<Button
 											type="submit"
-											class="mx-2 flex w-full items-center bg-slate-100 text-red-500 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700"
+											class="mx-2 flex w-full items-center bg-slate-100 text-red-500 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xl"
 										>
-											<LogOut class="mr-2 h-6 w-6" />
+											<LogOut class="mr-2 h-9 w-9" />
 											<span>Log out</span>
 										</Button>
 									</form>
 								{:else}
-									<a href="/login" onclick={toggleMenu} class="btn mx-2 mb-2 mt-5 sm:hidden">
+									<a href="/login" onclick={toggleMenu} class="btn mx-2 mb-2 mt-5 sm:hidden text-xl">
 										<FlameKindling />login</a
 									>
 								{/if}
