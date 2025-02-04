@@ -38,6 +38,7 @@
 	import LocationInput from './LocationInput.svelte';
 	import EventAdminEditor from './EventAdminEditor.svelte';
 	import { debounce } from 'lodash-es';
+	import MaxCapacity from './eventform/MaxCapacity.svelte';
 
 	let { mode, event = null, currUserId = null } = $props();
 
@@ -59,6 +60,7 @@
 	let endHour = $state(''); // State for hour
 	let endMinute = $state(''); // State for minute
 	let ampmEnd: string = $state('PM'); // State for AM/PM
+	let maxCapacity: number | null = $state(event?.max_capacity);
 
 	// ✅ State Variables
 	let client: TriplitClient;
@@ -225,7 +227,8 @@
 				user_id: userId,
 				style: finalStyleCss,
 				overlay_color: overlayColor,
-				overlay_opacity: overlayOpacity
+				overlay_opacity: overlayOpacity,
+				max_capacity: maxCapacity
 			});
 			event = output;
 
@@ -255,6 +258,7 @@
 				entity.style = finalStyleCss;
 				entity.overlay_color = overlayColor;
 				entity.overlay_opacity = overlayOpacity;
+				entity.max_capacity = maxCapacity;
 			});
 			console.log('🔄 Event udpated successfully');
 		} catch (error) {
@@ -488,6 +492,7 @@
 					bind:value={details}
 					oninput={debouncedUpdateEvent}
 				/>
+				<MaxCapacity oninput={debouncedUpdateEvent} bind:value={maxCapacity} />
 			</form>
 
 			<div class="mt-5 grid w-full grid-cols-1 gap-2 sm:grid-cols-2">

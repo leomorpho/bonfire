@@ -47,7 +47,7 @@
 	pattern="[0-9]*"
 	inputmode="numeric"
 	{placeholder}
-	class={`w-12 sm:w-16 md:w-18 text-center dark:bg-slate-900 ${styleClass}`}
+	class={`md:w-18 w-12 text-center dark:bg-slate-900 sm:w-16 ${styleClass}`}
 	onblur={() => handleBlur()}
 	{oninput}
 />

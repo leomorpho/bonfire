@@ -646,6 +646,13 @@
 				</div>
 
 				<div class="mx-3 mt-5 items-center">
+					{#if event?.max_capacity}
+						<div
+							class="my-2 flex justify-center rounded-lg bg-slate-100 p-2 text-center text-sm dark:bg-slate-800 opacity-70 dark:opacity-70"
+						>
+							Limited to a maximum of {event?.max_capacity} attendees by the organizer.
+						</div>
+					{/if}
 					{#if attendeesLoading}
 						<div class="flex flex-wrap items-center -space-x-3">
 							{#each Array(20).fill(null) as _, index}

@@ -94,4 +94,5 @@ export type EventTypescriptType = {
 	style?: string | null; // Nullable
 	overlay_color?: string | null; // Nullable and optional
 	overlay_opacity?: number | null; // Nullable and optional
+	max_capacity?: number | null;
 };
