@@ -20,6 +20,8 @@
 	import { downloadAsZip, shareImages } from '$lib/gallery';
 	import GalleryItem from '$lib/components/GalleryItem.svelte';
 	import LoaderPage from '$lib/components/LoaderPage.svelte';
+	import ChevronLeft from 'svelte-radix/ChevronLeft.svelte';
+	import BackButton from '$lib/components/BackButton.svelte';
 
 	let selectedImages: any = $state([]);
 	let selection: any;
@@ -594,17 +596,8 @@
 	<div
 		class="sticky top-0 z-10 mt-2 flex flex-col items-center justify-between rounded-xl bg-white bg-opacity-95 px-2 dark:bg-slate-900 dark:hover:bg-slate-800 min-[320px]:flex-row sm:w-[550px] md:w-[650px] lg:w-[950px]"
 	>
-		<Breadcrumb.Root>
-			<Breadcrumb.List class="ml-2 text-xs sm:ml-5 sm:text-sm">
-				<Breadcrumb.Item>
-					<Breadcrumb.Link href={`/bonfire/${$page.params.id}`}>Event</Breadcrumb.Link>
-				</Breadcrumb.Item>
-				<Breadcrumb.Separator />
-				<Breadcrumb.Item>
-					<Breadcrumb.Page>Gallery</Breadcrumb.Page>
-				</Breadcrumb.Item>
-			</Breadcrumb.List>
-		</Breadcrumb.Root>
+		<BackButton url={`/bonfire/${$page.params.id}`}/>
+
 		<div class="ml-4 flex py-1 sm:space-x-2">
 			<a href="add">
 				<Toggle id="upload-new-images" aria-label="toggle bold">
@@ -661,6 +654,7 @@
 				</Toggle>
 			{/if}
 		</div>
+		<div></div>
 	</div>
 	<section class="w-full sm:w-[550px] md:w-[650px] lg:w-[950px]">
 		{#if eventFiles.length > 0}
