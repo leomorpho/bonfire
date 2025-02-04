@@ -84,7 +84,7 @@
 
 <div class="mx-4 mb-48 flex flex-col items-center justify-center sm:mb-20">
 	<section class="md:2/3 mt-8 w-full sm:w-2/3 md:w-[700px]">
-		<h2 class="mb-4 text-lg font-semibold">Upcoming Bonfires</h2>
+		<h2 class="mb-4 text-lg font-semibold flex w-full justify-center">Upcoming Bonfires</h2>
 		{#if !futureEvents || futureEvents.fetching}
 			<Loader />
 		{:else if futureEvents.error}
@@ -92,7 +92,7 @@
 		{:else if futureEvents.results}
 			{#if futureEvents.results.length == 0}
 				<div
-					class="flex w-full max-w-sm flex-col items-center justify-center gap-2 rounded-lg bg-slate-100 p-6 text-center dark:bg-slate-800 dark:text-white space-y-5"
+					class="mt-10 sm:mt-16 mx-auto w-full sm:w-2/3 flex  max-w-sm flex-col items-center justify-center gap-2 rounded-lg bg-slate-100 p-6 text-center dark:bg-slate-800 dark:text-white space-y-5"
 				>
 					<div class="flex items-center text-sm">
 						<Frown class="mr-2 !h-5 !w-5" />
