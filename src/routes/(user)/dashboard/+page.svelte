@@ -13,12 +13,17 @@
 	import { dev } from '$app/environment';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import PullToRefresh from '$lib/components/PullToRefresh.svelte';
+	import { toast } from 'svelte-sonner';
 
 	let client: TriplitClient;
 
 	let futureEvents = $state({});
 	let pastEvents = $state({});
 	let userId = $state('');
+
+	$effect(() => {
+		console.log('futureEvents', futureEvents);
+	});
 
 	function createEventsQuery(client: TriplitClient, currUserID: string, future: boolean) {
 		// NOTE: we add 24h so that currently happening events are still shown in the main window until 24h later
@@ -78,9 +83,17 @@
 		let futureEventsQuery = createEventsQuery(client, userId, true);
 		let pastEventsQuery = createEventsQuery(client, userId, false);
 
-		futureEvents = useQuery(client, futureEventsQuery);
+		futureEvents = useQuery(client, futureEventsQuery, {
+			localOnly: false
+		});
 		pastEvents = useQuery(client, pastEventsQuery);
 	});
+
+	// $effect(() => {
+	// 	if (!futureEvents.fetching) {
+	// 		toast.info('Done refreshing events');
+	// 	}
+	// });
 </script>
 
 <PullToRefresh />
@@ -88,7 +101,8 @@
 <div class="mx-4 mb-48 flex flex-col items-center justify-center sm:mb-20">
 	<section class="md:2/3 mt-8 w-full sm:w-2/3 md:w-[700px]">
 		<h2 class="mb-4 flex w-full justify-center text-lg font-semibold">Upcoming Bonfires</h2>
-		{#if !futureEvents || futureEvents.fetching}
+		{#if !futureEvents}
+			<!-- We don't want to show if the query is loading as it could be showing cached data that can just be refreshed seamlessy-->
 			<Loader />
 		{:else if futureEvents.error}
 			<p>Error: {futureEvents.error.message}</p>
