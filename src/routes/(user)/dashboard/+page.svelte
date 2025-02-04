@@ -12,6 +12,7 @@
 	import { page } from '$app/stores';
 	import { dev } from '$app/environment';
 	import Button from '$lib/components/ui/button/button.svelte';
+	import PullToRefresh from '$lib/components/PullToRefresh.svelte';
 
 	let client: TriplitClient;
 
@@ -81,6 +82,7 @@
 		pastEvents = useQuery(client, pastEventsQuery);
 	});
 </script>
+<PullToRefresh />
 
 <div class="mx-4 mb-48 flex flex-col items-center justify-center sm:mb-20">
 	<section class="md:2/3 mt-8 w-full sm:w-2/3 md:w-[700px]">

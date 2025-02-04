@@ -11,7 +11,6 @@
 	import { updated } from '$app/state';
 	import { env as publicEnv } from '$env/dynamic/public';
 	import { toast } from 'svelte-sonner';
-	import PullToRefresh from '$lib/components/PullToRefresh.svelte';
 	import { ModeWatcher } from 'mode-watcher';
 	import { onMount } from 'svelte';
 	import { getFeTriplitClient } from '$lib/triplit';
@@ -143,7 +142,6 @@
 	  -->
 	<meta name="twitter:card" content="summary_large_image" />
 </svelte:head>
-<PullToRefresh />
 <Header></Header>
 {#if $flash}
 	<div
