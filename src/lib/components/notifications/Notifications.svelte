@@ -119,7 +119,7 @@
 				<Dialog.Title>Your Notifications</Dialog.Title>
 				<Dialog.Description>
 					{#if allUnreadNotifications.length == 0 && allSeenNotifications.length == 0}
-						<div class="my-5 flex items-center justify-center rounded-lg bg-slate-100 p-3">
+						<div class="my-5 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-700 dark:text-white p-3">
 							No notifications
 						</div>
 					{/if}

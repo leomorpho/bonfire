@@ -26,10 +26,14 @@ const loginSchema = z.object({
 	tempAttendeeIdFormName: z.string().optional()
 });
 
-export const load = async (e) => {
+export const load = async ({ locals }) => {
 	const form = await superValidate(zod(loginSchema));
+	const user = locals.user;
+	if (user) {
+		throw redirect(301, '/dashboard');
+	}
 
-	return { form, user: e.locals.user };
+	return { form, user: locals.user };
 };
 
 export const actions = {

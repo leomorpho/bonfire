@@ -67,7 +67,7 @@
 
 	onMount(() => {
 		client = getFeTriplitClient($page.data.jwt) as TriplitClient;
-		client.connect();
+		// client.connect();
 
 		initEvents().catch((error) => {
 			console.error('Failed to get events:', error);
@@ -100,10 +100,10 @@
 						<Frown class="mr-2 !h-5 !w-5" />
 						<span>No events found.</span>
 					</div>
-					<p class="text-xs text-slate-600 dark:text-slate-300">
+					<!-- <p class="text-xs text-slate-600 dark:text-slate-300">
 						This app uses a <strong>local-first database</strong>, meaning it works offline. If your
 						data seems out of sync, reloading should fix it.
-					</p>
+					</p> -->
 
 					<Button
 						class="w-full text-sm dark:bg-slate-600 dark:text-white dark:hover:bg-slate-500"
