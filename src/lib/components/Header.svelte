@@ -58,6 +58,14 @@
 	}
 </script>
 
+{#snippet loginButton()}
+	<Button
+		class="m-1 bg-orange-500 p-5 text-lg text-white hover:bg-orange-400 dark:bg-orange-800 dark:hover:bg-orange-700"
+	>
+		<FlameKindling class="!h-6 !w-6" />login
+	</Button>
+{/snippet}
+
 <div class="w-full">
 	<Container>
 		<header class="navbar px-0">
@@ -96,7 +104,7 @@
 						</Button>
 					</form>
 				{:else}
-					<a href="/login" class="btn ml-auto mr-2 hidden sm:flex"> <FlameKindling />login</a>
+					<a href="/login" class="hidden sm:flex"> {@render loginButton()}</a>
 				{/if}
 
 				<div class="hidden sm:mx-2 sm:block"><ToggleTheme /></div>
@@ -138,16 +146,16 @@
 									>
 										<Button
 											type="submit"
-											class="mx-2 flex w-full items-center bg-slate-100 text-red-500 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xl"
+											class="mx-2 flex w-full items-center bg-slate-100 text-xl text-red-500 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700"
 										>
 											<LogOut class="mr-2 h-9 w-9" />
 											<span>Log out</span>
 										</Button>
 									</form>
 								{:else}
-									<a href="/login" onclick={toggleMenu} class="btn mx-2 mb-2 mt-5 sm:hidden text-xl">
-										<FlameKindling />login</a
-									>
+									<a href="/login" onclick={toggleMenu} class="flex w-full justify-center">
+										{@render loginButton()}
+									</a>
 								{/if}
 							</DropdownMenu.Group>
 						</DropdownMenu.Content>

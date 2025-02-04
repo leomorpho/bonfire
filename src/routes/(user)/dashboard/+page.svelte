@@ -6,11 +6,12 @@
 	import { onMount } from 'svelte';
 	import type { TriplitClient } from '@triplit/client';
 	import Loader from '$lib/components/Loader.svelte';
-	import { Frown, Plus } from 'lucide-svelte';
+	import { DatabaseZap, Frown, Plus } from 'lucide-svelte';
 	import { useQuery } from '@triplit/svelte';
 	import EventCard from '$lib/components/EventCard.svelte';
 	import { page } from '$app/stores';
 	import { dev } from '$app/environment';
+	import Button from '$lib/components/ui/button/button.svelte';
 
 	let client: TriplitClient;
 
@@ -91,9 +92,23 @@
 		{:else if futureEvents.results}
 			{#if futureEvents.results.length == 0}
 				<div
-					class="flex items-center justify-center rounded-lg bg-slate-100 p-4 dark:bg-slate-800 dark:text-white"
+					class="flex w-full max-w-sm flex-col items-center justify-center gap-2 rounded-lg bg-slate-100 p-6 text-center dark:bg-slate-800 dark:text-white space-y-5"
 				>
-					<Frown class="mr-2 h-4 w-4" />No events yet.
+					<div class="flex items-center text-sm">
+						<Frown class="mr-2 !h-5 !w-5" />
+						<span>No events found.</span>
+					</div>
+					<p class="text-xs text-slate-600 dark:text-slate-300">
+						This app uses a <strong>local-first database</strong>, meaning it works offline. If your
+						data seems out of sync, reloading should fix it.
+					</p>
+
+					<Button
+						class="w-full text-sm dark:bg-slate-600 dark:text-white dark:hover:bg-slate-500"
+						onclick={() => location.reload()}
+					>
+						<DatabaseZap class="mr-2 !h-5 !w-5" /> Reload database
+					</Button>
 				</div>
 			{:else}
 				<div>
