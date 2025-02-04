@@ -343,7 +343,9 @@
 				attendeesMaybeGoing = results.filter((attendee) => attendee.status === Status.MAYBE);
 
 				// Fetch profile image map for attendees
-				const userIds = results.map((attendee) => attendee.user_id);
+				const userIds = [...new Set(results.map((attendee) => attendee.user_id))];
+				console.log('===> userIds', userIds);
+
 				(async () => {
 					await fetchProfileImageMap(userIds);
 					placeAttendeesWithProfilePicAtFrontOfLists(

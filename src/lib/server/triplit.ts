@@ -3,6 +3,7 @@ import type { AttendeeTypescriptType, FileTypescriptType } from '$lib/types';
 import { env as publicEnv } from '$env/dynamic/public';
 import { env as privateEnv } from '$env/dynamic/private';
 import { and, HttpClient } from '@triplit/client';
+import { createAttendeeId } from '$lib/utils';
 
 export const triplitHttpClient = new HttpClient({
 	serverUrl: publicEnv.PUBLIC_TRIPLIT_URL,
@@ -141,6 +142,7 @@ export const convertTempToPermanentUser = async (
 
 		if (attendances.length == 0) {
 			await triplitHttpClient.insert('attendees', {
+				id: createAttendeeId(eventId, userId),
 				user_id: userId,
 				event_id: eventId,
 				status: existingTempAttendeeStatus

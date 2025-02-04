@@ -205,6 +205,8 @@
 
 	const createEvent = async () => {
 		try {
+			eventCreated = true;
+
 			const userId: string = (await waitForUserId()) as string;
 			if (!userId) {
 				errorMessage = 'User authentication failed';
@@ -212,7 +214,7 @@
 				return;
 			}
 			eventId = await generatePassphraseId('', 48);
-			await client.insert('events', {
+			const { output } = await client.insert('events', {
 				id: eventId,
 				title: eventName,
 				description: details || null,
@@ -225,6 +227,7 @@
 				overlay_color: overlayColor,
 				overlay_opacity: overlayOpacity
 			});
+			event = output;
 
 			// Add user as attendee
 			await client.insert('attendees', {
@@ -233,8 +236,9 @@
 				status: Status.GOING
 			});
 			console.log('✅ Event created successfully');
-			eventCreated = true;
+			console.log('event ->', event);
 		} catch (error) {
+			eventCreated = false;
 			console.error('❌ Error creating event:', error);
 		}
 	};
@@ -253,7 +257,6 @@
 				entity.overlay_opacity = overlayOpacity;
 			});
 			console.log('🔄 Event udpated successfully');
-
 		} catch (error) {
 			console.error('❌ Error updating event:', error);
 		}
@@ -443,13 +446,25 @@
 							/>
 
 							<div class="font-mono">
-								<DoubleDigitsPicker maxValue={12} bind:value={endHour} placeholder="HH" oninput={debouncedUpdateEvent}/>
+								<DoubleDigitsPicker
+									maxValue={12}
+									bind:value={endHour}
+									placeholder="HH"
+									oninput={debouncedUpdateEvent}
+								/>
 							</div>
 							<div class="font-mono">
-								<DoubleDigitsPicker bind:value={endMinute} placeholder="mm" oninput={debouncedUpdateEvent} />
+								<DoubleDigitsPicker
+									bind:value={endMinute}
+									placeholder="mm"
+									oninput={debouncedUpdateEvent}
+								/>
 							</div>
 							<div class="w-18">
-								<AmPmPicker onValueChange={(newValue: any) => (ampmEnd = newValue)} oninput={debouncedUpdateEvent}/>
+								<AmPmPicker
+									onValueChange={(newValue: any) => (ampmEnd = newValue)}
+									oninput={debouncedUpdateEvent}
+								/>
 							</div>
 						</div>
 
@@ -459,10 +474,13 @@
 					</div>
 				{/if}
 
-				<TimezonePicker onValueChange={(newValue: any) => (timezone = newValue)} oninput={debouncedUpdateEvent}/>
+				<TimezonePicker
+					onValueChange={(newValue: any) => (timezone = newValue)}
+					oninput={debouncedUpdateEvent}
+				/>
 
 				<div class="flex flex-row items-center">
-					<LocationInput bind:location bind:geocodedLocation onclick={debouncedUpdateEvent}/>
+					<LocationInput bind:location bind:geocodedLocation onclick={debouncedUpdateEvent} />
 				</div>
 				<TextAreaAutoGrow
 					cls={'bg-white dark:bg-slate-900 dark:bg-slate-900'}

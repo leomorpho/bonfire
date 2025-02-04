@@ -9,6 +9,7 @@ import {
 } from '$lib/notification';
 import { env as publicEnv } from '$env/dynamic/public';
 import { env as privateEnv } from '$env/dynamic/private';
+import { createAttendeeId } from '$lib/utils';
 
 const client = new HttpClient({
 	serverUrl: publicEnv.PUBLIC_TRIPLIT_URL,
@@ -103,12 +104,14 @@ for (let i = 0; i < 100; i++) {
 		id: generateId(15),
 		email: faker.internet.email(),
 		email_verified: true,
-		num_logs: 3
+		num_logs: 3,
+		is_event_styles_admin:false,
 	});
 
 	await client.insert('user', { id: attendeeUser?.id, username: faker.internet.username() });
 
 	const newAttendeeResult = await client.insert('attendees', {
+		id: createAttendeeId(eventCreated.id, attendeeUser?.id as string),
 		event_id: eventCreated?.id, // TODO: rename to something sane, that's a shit name
 		user_id: attendeeUser?.id,
 		status: getRandomStatus()

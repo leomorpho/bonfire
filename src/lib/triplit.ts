@@ -30,14 +30,31 @@ export async function waitForUserId(timeout = 5000) {
 let feTriplitClient: WorkerClient | TriplitClient;
 
 export function getFeTriplitClient(jwt: string) {
-	// if (!browser) {
-	// 	throw new Error('TriplitClient can only be created in the browser.');
-	// }
+	if (!browser) {
+		throw new Error('TriplitClient can only be created in the browser.');
+	}
 
 	if (feTriplitClient) {
 		return feTriplitClient;
 	}
-	feTriplitClient = new WorkerClient({
+
+	if (window.client) {
+		feTriplitClient = window.client;
+		return window.client;
+	}
+
+	feTriplitClient = createNewTriplitClient(jwt);
+
+	console.log('Frontend TriplitClient initialized');
+
+	// Make client available on window to help inspection during debugging
+	if (typeof window !== 'undefined') window.client = feTriplitClient;
+
+	return feTriplitClient;
+}
+
+const createNewTriplitClient = (jwt: string) => {
+	return new WorkerClient({
 		workerUrl: dev ? workerUrl : undefined,
 		storage: {
 			type: 'indexeddb',
@@ -76,14 +93,7 @@ export function getFeTriplitClient(jwt: string) {
 		},
 		logLevel: dev ? 'debug' : 'info'
 	}) as WorkerClient;
-
-	console.log('Frontend TriplitClient initialized');
-
-	// Make client available on window to help inspection during debugging
-	if (typeof window !== 'undefined') window.client = feTriplitClient;
-
-	return feTriplitClient;
-}
+};
 
 async function getFreshToken() {
 	try {

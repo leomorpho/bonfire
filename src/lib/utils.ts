@@ -15,7 +15,7 @@ export function formatHumanReadable(date: Date): string {
 }
 
 export function formatHumanReadableHour(date: Date): string {
-	return format(date, "h:mma"); // Convert "AM/PM" to "am/pm"
+	return format(date, 'h:mma'); // Convert "AM/PM" to "am/pm"
 }
 
 /**
@@ -210,3 +210,7 @@ export function detectTailwindTheme(): 'light' | 'dark' {
 	}
 	return 'light';
 }
+
+export const createAttendeeId = (eventId: string, userId: string) => {
+	return eventId + '-' + userId;
+};

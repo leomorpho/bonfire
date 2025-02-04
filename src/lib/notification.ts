@@ -1,6 +1,7 @@
 import { and, type HttpClient, type TriplitClient } from '@triplit/client';
 import { isNonEmptyArray } from './utils';
 import { NotificationType } from './enums';
+import type { WorkerClient } from '@triplit/client/worker-client';
 
 /**
  * Create a new notification queue object for attendance.
@@ -9,7 +10,7 @@ import { NotificationType } from './enums';
  * @param attendeeIds - List of attendance IDs.
  */
 export async function createNewAttendanceNotificationQueueObject(
-	client: TriplitClient,
+	client: TriplitClient | WorkerClient | HttpClient,
 	userId: string,
 	eventId: string,
 	attendeeIds: string[]
@@ -39,7 +40,7 @@ export async function createNewAttendanceNotificationQueueObject(
  * @param attendeeIds - List of attendance IDs.
  */
 export async function createNewTemporaryAttendanceNotificationQueueObject(
-	client: TriplitClient | HttpClient,
+	client: TriplitClient | WorkerClient | HttpClient,
 	userId: string,
 	eventId: string,
 	attendeeIds: string[]
@@ -69,7 +70,7 @@ export async function createNewTemporaryAttendanceNotificationQueueObject(
  * @param announcementIds - List of announcement IDs.
  */
 export async function createNewAnnouncementNotificationQueueObject(
-	client: TriplitClient,
+	client: TriplitClient | WorkerClient | HttpClient,
 	userId: string,
 	eventId: string,
 	announcementIds: string[]
@@ -100,7 +101,7 @@ export async function createNewAnnouncementNotificationQueueObject(
  * @param fileIds - List of file IDs.
  */
 export async function createNewFileNotificationQueueObject(
-	client: TriplitClient | HttpClient,
+	client: TriplitClient | WorkerClient | HttpClient,
 	userId: string,
 	eventId: string,
 	fileIds: string[]
@@ -157,7 +158,7 @@ export async function createNewFileNotificationQueueObject(
  * @param adminIds - List of attendee IDs who are now admins.
  */
 export async function createNewAdminNotificationQueueObject(
-	client: TriplitClient | HttpClient,
+	client: TriplitClient | WorkerClient | HttpClient,
 	userId: string,
 	eventId: string,
 	userIdsBecomingAdmins: string[]

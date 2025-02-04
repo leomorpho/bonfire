@@ -76,12 +76,13 @@ async function createNewAnnouncement(
 }
 
 async function createNewAttendance(eventId: string, userId: string, status: Status) {
-	const announcement = {
+	const attendance = {
+		id: createAttendeeId(eventId, userId),
 		event_id: eventId,
 		user_id: userId,
 		status: status
 	};
-	const result = await serverTriplitClient.insert('attendees', announcement);
+	const result = await serverTriplitClient.insert('attendees', attendance);
 	return result.output;
 }
 
@@ -321,6 +322,9 @@ describe('Announcement notifications', () => {
 	});
 });
 
+function createAttendeeId(eventId: string, userId: string) {
+	throw new Error('Function not implemented.');
+}
 // function sleep(ms) {
 // 	return new Promise((resolve) => setTimeout(resolve, ms));
 // }
