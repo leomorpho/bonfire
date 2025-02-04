@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as Select from '$lib/components/ui/select/index.js';
-	let { onValueChange = $bindable(() => {}), styleClass="bg-white" } = $props();
+	let { oninput, onValueChange = $bindable(() => {}), styleClass="bg-white" } = $props();
 
 	// Options for AM/PM
 	const ampmOptions = [
@@ -17,7 +17,7 @@
 	$effect(() => onValueChange(value));
 </script>
 
-<Select.Root type="single" name="am/pm" bind:value >
+<Select.Root type="single" name="am/pm" bind:value {oninput}>
 	<Select.Trigger class={`w-full dark:bg-slate-900 ${styleClass}`}>
 		{triggerContent}
 	</Select.Trigger>

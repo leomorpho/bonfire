@@ -37,6 +37,7 @@
 	import ChevronLeft from 'svelte-radix/ChevronLeft.svelte';
 	import LocationInput from './LocationInput.svelte';
 	import EventAdminEditor from './EventAdminEditor.svelte';
+	import { debounce } from 'lodash-es';
 
 	let { mode, event = null, currUserId = null } = $props();
 
@@ -70,6 +71,7 @@
 	let isEventSaving = $state(false);
 	let errorMessage = $state('');
 	let showError = $state(false);
+	let eventCreated = $state(mode == EventFormType.CREATE ? false : true);
 
 	const defaultBackground = randomSort(stylesGallery)[0].cssTemplate;
 	console.log('defaultBackground', defaultBackground);
@@ -77,12 +79,12 @@
 	let overlayColor: string = $state(event?.overlay_color ?? '#000000');
 	let overlayOpacity: number = $state(event?.overlay_opacity ?? 0.4);
 
-	let eventStartDatetime = $state();
-	let eventEndDatetime = $state();
+	let eventStartDatetime = $state(null);
+	let eventEndDatetime = $state(null);
 
 	// Build eventStartDatetime dynamically
 	$effect(() => {
-		if (dateValue) {
+		if (dateValue && startHour) {
 			// Convert DateValue to a JS Date object for the event date
 			const date = dateValue?.toDate();
 
@@ -122,6 +124,12 @@
 
 			// Convert the event date-time to the specified timezone for end time
 			eventEndDatetime = new Date(endDate.toLocaleString('en-US', { timeZone: timezone.value }));
+		}
+	});
+
+	$effect(() => {
+		if (!eventCreated && eventName && eventStartDatetime) {
+			createEvent();
 		}
 	});
 
@@ -197,11 +205,21 @@
 
 	const createEvent = async () => {
 		try {
+			const userId: string = (await waitForUserId()) as string;
+			if (!userId) {
+				errorMessage = 'User authentication failed';
+				showError = true;
+				return;
+			}
 			eventId = await generatePassphraseId('', 48);
 			await client.insert('events', {
 				id: eventId,
 				title: eventName,
-				start_time: new Date(dateValue).toISOString(),
+				description: details || null,
+				location: location || null,
+				geocoded_location: JSON.stringify(geocodedLocation) || null,
+				start_time: eventStartDatetime,
+				end_time: eventEndDatetime,
 				user_id: userId,
 				style: finalStyleCss,
 				overlay_color: overlayColor,
@@ -215,9 +233,44 @@
 				status: Status.GOING
 			});
 			console.log('✅ Event created successfully');
+			eventCreated = true;
 		} catch (error) {
 			console.error('❌ Error creating event:', error);
 		}
+	};
+
+	const updateEvent = async () => {
+		try {
+			await client.update('events', event.id, async (entity) => {
+				entity.title = eventName;
+				entity.description = details || null;
+				entity.location = location;
+				entity.geocoded_location = JSON.stringify(geocodedLocation);
+				entity.start_time = eventStartDatetime;
+				entity.end_time = eventEndDatetime;
+				entity.style = finalStyleCss;
+				entity.overlay_color = overlayColor;
+				entity.overlay_opacity = overlayOpacity;
+			});
+			console.log('🔄 Event udpated successfully');
+
+		} catch (error) {
+			console.error('❌ Error updating event:', error);
+		}
+	};
+
+	const debouncedUpdateEvent = debounce(async () => {
+		if (!eventId) return;
+		await updateEvent();
+	}, 800); // Debounce delay: 800ms
+
+	const redirectToDashboard = () => {
+		// Set the stores so the event page updates with new style
+		styleStore.set(finalStyleCss);
+		overlayColorStore.set(overlayColor);
+		overlayOpacityStore.set(overlayOpacity);
+
+		goto(`/bonfire/${eventId}`);
 	};
 
 	const handleSubmit = async (e: Event) => {
@@ -234,28 +287,6 @@
 				return;
 			}
 
-			let eventEndDatetime = null;
-
-			if (setEndTime) {
-				// If end time is set, calculate end datetime
-				const endHours = (parseInt(endHour) % 12) + (ampmEnd === 'PM' ? 12 : 0);
-				const endMinutes = endMinute ? parseInt(endMinute) : 0;
-
-				// Create a new Date object for end time, based on the same date
-				const endDate = new Date(date);
-				endDate.setHours(endHours, endMinutes, 0, 0);
-
-				// Check if end time is before start time
-				if (endDate < date) {
-					errorMessage = 'End time must be after start time';
-					showError = true;
-					return;
-				}
-
-				// Convert the event date-time to the specified timezone for end time
-				eventEndDatetime = new Date(endDate.toLocaleString('en-US', { timeZone: timezone.value }));
-			}
-
 			const userId: string = (await waitForUserId()) as string;
 			if (!userId) {
 				errorMessage = 'User authentication failed';
@@ -263,73 +294,14 @@
 				return;
 			}
 
-			if (mode == EventFormType.CREATE) {
-				eventId = await generatePassphraseId('', 48);
-
-				try {
-					// await client.transact(async (tx) => {
-					// Insert the event
-					await client.insert('events', {
-						id: eventId,
-						title: eventName,
-						description: details || null,
-						location: location || null,
-						geocoded_location: JSON.stringify(geocodedLocation) || null,
-						start_time: eventStartDatetime,
-						end_time: eventEndDatetime,
-						user_id: userId,
-						style: finalStyleCss,
-						overlay_color: overlayColor,
-						overlay_opacity: overlayOpacity
-					});
-
-					// Add the user as an attendee
-					await client.insert('attendees', {
-						user_id: userId,
-						event_id: eventId as string,
-						status: Status.GOING
-					});
-
-					// If the transaction succeeds
-					console.log('Event and attendee created successfully.');
-
-					// Set the stores so the event page updates with new style
-					styleStore.set(finalStyleCss);
-					overlayColorStore.set(overlayColor);
-					overlayOpacityStore.set(overlayOpacity);
-					goto(`/bonfire/${eventId}`);
-				} catch (transactionError) {
-					// Handle transaction failure
-					console.error('Transaction failed:', transactionError);
-					errorMessage = 'Failed to create event and add you as an attendee. Please try again.';
-					showError = true;
-				}
+			if (mode == EventFormType.CREATE && !eventCreated) {
+				await createEvent().then(() => {
+					redirectToDashboard();
+				});
 			} else {
-				try {
-					styleStore.set(finalStyleCss);
-					overlayColorStore.set(overlayColor);
-					overlayOpacityStore.set(overlayOpacity);
-
-					await client
-						.update('events', event.id, async (entity) => {
-							entity.title = eventName;
-							entity.description = details || null;
-							entity.location = location;
-							entity.geocoded_location = JSON.stringify(geocodedLocation);
-							entity.start_time = eventStartDatetime;
-							entity.end_time = eventEndDatetime;
-							entity.style = finalStyleCss;
-							entity.overlay_color = overlayColor;
-							entity.overlay_opacity = overlayOpacity;
-						})
-						.then(() => {
-							goto(`/bonfire/${eventId}`);
-						});
-				} catch (error) {
-					errorMessage = 'Failed to update event. Please try again.';
-					showError = true;
-					return;
-				}
+				await updateEvent().then(() => {
+					redirectToDashboard();
+				});
 			}
 		} catch (e) {
 			console.error(`Failed to ${mode === EventFormType.CREATE ? 'create' : 'update'} event`, e);
@@ -402,8 +374,9 @@
 					placeholder="Event Name"
 					bind:value={eventName}
 					class="w-full bg-white dark:bg-slate-900"
+					oninput={debouncedUpdateEvent}
 				/>
-				<Datepicker bind:value={dateValue} />
+				<Datepicker bind:value={dateValue} oninput={debouncedUpdateEvent} />
 
 				<div class="flex flex-row items-center justify-between space-x-4">
 					<!-- Start Time Inputs -->
@@ -412,13 +385,25 @@
 							class="ml-4 mr-1 h-4 w-4 rounded-xl bg-white text-slate-500 ring-glow dark:bg-slate-900"
 						/>
 						<div class="font-mono">
-							<DoubleDigitsPicker maxValue={12} bind:value={startHour} placeholder="HH" />
+							<DoubleDigitsPicker
+								maxValue={12}
+								bind:value={startHour}
+								placeholder="HH"
+								oninput={debouncedUpdateEvent}
+							/>
 						</div>
 						<div class="font-mono">
-							<DoubleDigitsPicker bind:value={startMinute} placeholder="mm" />
+							<DoubleDigitsPicker
+								bind:value={startMinute}
+								placeholder="mm"
+								oninput={debouncedUpdateEvent}
+							/>
 						</div>
 						<div class="w-18">
-							<AmPmPicker onValueChange={(newValue: any) => (ampmStart = newValue)} />
+							<AmPmPicker
+								onValueChange={(newValue: any) => (ampmStart = newValue)}
+								oninput={debouncedUpdateEvent}
+							/>
 						</div>
 					</div>
 
@@ -458,13 +443,13 @@
 							/>
 
 							<div class="font-mono">
-								<DoubleDigitsPicker maxValue={12} bind:value={endHour} placeholder="HH" />
+								<DoubleDigitsPicker maxValue={12} bind:value={endHour} placeholder="HH" oninput={debouncedUpdateEvent}/>
 							</div>
 							<div class="font-mono">
-								<DoubleDigitsPicker bind:value={endMinute} placeholder="mm" />
+								<DoubleDigitsPicker bind:value={endMinute} placeholder="mm" oninput={debouncedUpdateEvent} />
 							</div>
 							<div class="w-18">
-								<AmPmPicker onValueChange={(newValue: any) => (ampmEnd = newValue)} />
+								<AmPmPicker onValueChange={(newValue: any) => (ampmEnd = newValue)} oninput={debouncedUpdateEvent}/>
 							</div>
 						</div>
 
@@ -474,15 +459,16 @@
 					</div>
 				{/if}
 
-				<TimezonePicker onValueChange={(newValue: any) => (timezone = newValue)} />
+				<TimezonePicker onValueChange={(newValue: any) => (timezone = newValue)} oninput={debouncedUpdateEvent}/>
 
 				<div class="flex flex-row items-center">
-					<LocationInput bind:location bind:geocodedLocation />
+					<LocationInput bind:location bind:geocodedLocation onclick={debouncedUpdateEvent}/>
 				</div>
 				<TextAreaAutoGrow
 					cls={'bg-white dark:bg-slate-900 dark:bg-slate-900'}
 					placeholder="Details"
 					bind:value={details}
+					oninput={debouncedUpdateEvent}
 				/>
 			</form>
 

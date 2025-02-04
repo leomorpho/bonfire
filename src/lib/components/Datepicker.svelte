@@ -10,7 +10,7 @@
 		dateStyle: 'long'
 	});
 
-	let { value = $bindable<DateValue | undefined>() } = $props();
+	let { value = $bindable<DateValue | undefined>(), oninput } = $props();
 	let contentRef = $state<HTMLElement | null>(null);
 	let isPopupOpen = $state(false);
 	let prevDateEntry = value;
@@ -41,6 +41,6 @@
 		<div></div>
 	</Popover.Trigger>
 	<Popover.Content bind:ref={contentRef} class="w-auto p-0">
-		<Calendar type="single" bind:value />
+		<Calendar type="single" bind:value {oninput}/>
 	</Popover.Content>
 </Popover.Root>

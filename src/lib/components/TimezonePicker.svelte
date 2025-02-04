@@ -11,7 +11,7 @@
 	import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
 
 	// Timezone data and selection
-	let { onValueChange = $bindable(() => {}), styleClass = 'bg-white' } = $props();
+	let { oninput, onValueChange = $bindable(() => {}), styleClass = 'bg-white' } = $props();
 	let value = $state({});
 	let timezoneOptions: any = $state([]);
 
@@ -103,6 +103,7 @@
 				<Command.Group>
 					{#each timezoneOptions as timezone}
 						<Command.Item
+							{oninput}
 							value={timezone.value}
 							onSelect={() => {
 								value = timezone;

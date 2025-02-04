@@ -3,7 +3,7 @@
 	import { Textarea } from '$lib/components/ui/textarea/index.js';
 	import { onMount } from 'svelte';
 
-	let { cls, value = $bindable<DateValue | undefined>(), placeholder } = $props();
+	let { oninput, cls, value = $bindable<DateValue | undefined>(), placeholder } = $props();
 
 	// Function to adjust the height dynamically
 	function autoGrow(event) {
@@ -27,4 +27,12 @@
 	});
 </script>
 
-<Textarea class={`resize-none ${cls}`} {placeholder} bind:value oninput={autoGrow} />
+<Textarea
+	class={`resize-none ${cls}`}
+	{placeholder}
+	bind:value
+	oninput={(event) => {
+		autoGrow(event);
+		oninput?.(event);
+	}}
+/>

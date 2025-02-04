@@ -9,7 +9,7 @@
 	import Check from 'lucide-svelte/icons/check';
 	import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
 
-	let { location = $bindable<string | undefined>(), geocodedLocation = $bindable<any>() } =
+	let { onclick, location = $bindable<string | undefined>(), geocodedLocation = $bindable<any>() } =
 		$props();
 
 	let open = $state(false);
@@ -176,6 +176,7 @@
 									geocodedLocation = suggestion.value;
 									closeAndFocusTrigger();
 								}}
+								{onclick}
 							>
 								<Check class={cn(selectedResult !== suggestion.value && 'text-transparent')} />
 								<span
