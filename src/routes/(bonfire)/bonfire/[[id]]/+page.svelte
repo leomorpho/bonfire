@@ -156,15 +156,26 @@
 			}
 
 			// Transform the fetched data into a plain object
-			const fetchedData: Record<string, { full_image_url: string; small_image_url: string }> =
-				await response.json();
+			const fetchedData: Record<
+				string,
+				{ filekey: string; full_image_url: string; small_image_url: string }
+			> = await response.json();
 
 			// Update the existing profileImageMap without removing old entries
 			if (!profileImageMap) {
 				profileImageMap = new Map(); // Initialize if not already a Map
 			}
+			// Update map: add new entries or update existing ones **only if the filekey changed**
 			for (const [key, value] of Object.entries(fetchedData)) {
-				profileImageMap.set(key, value); // Update or add new entries
+				const existingEntry = profileImageMap.get(key);
+
+				if (!existingEntry || existingEntry.filekey !== value.filekey) {
+					// ✅ Only update if the entry is new or the filekey has changed
+					profileImageMap.set(key, value);
+					console.log(`🔄 Updated profile image for ${key}`);
+				} else {
+					console.log(`✅ No change for ${key}, skipping update.`);
+				}
 			}
 		} catch (error) {
 			console.error('Error fetching profile image map:', error);

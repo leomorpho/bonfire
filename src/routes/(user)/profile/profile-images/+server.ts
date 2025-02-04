@@ -46,16 +46,17 @@ export const GET = async ({ locals, url }) => {
 		const profileImages = await triplitHttpClient.fetch(profileImageQuery);
 
 		// Generate signed URLs and construct the map
-		const profileImageMap = {};
+		const profileImageMap: any = {};
 		for (const image of profileImages) {
 			const fullImageUrl = await generateSignedUrl(image.full_image_key);
 			const smallImageUrl = await generateSignedUrl(image.small_image_key);
 			profileImageMap[image.user_id] = {
+				filekey: image.small_image_key,
 				full_image_url: fullImageUrl,
 				small_image_url: smallImageUrl
 			};
 		}
-
+		console.log('profileImageMap ===>', profileImageMap);
 		return json(profileImageMap);
 	} catch (error) {
 		console.error('Error fetching profile images:', error);
