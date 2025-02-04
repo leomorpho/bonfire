@@ -4,6 +4,8 @@ import { env as publicEnv } from '$env/dynamic/public';
 import { writable, get } from 'svelte/store';
 import { browser, dev } from '$app/environment';
 import { LOCAL_INDEXEDDB_NAME } from './enums';
+import { WorkerClient } from '@triplit/client/worker-client';
+import workerUrl from '@triplit/client/worker-client-operator?url';
 
 export const userIdStore = writable<string | null>(null);
 
@@ -25,7 +27,7 @@ export async function waitForUserId(timeout = 5000) {
 	});
 }
 
-let feTriplitClient: TriplitClient;
+let feTriplitClient: WorkerClient | TriplitClient;
 
 export function getFeTriplitClient(jwt: string) {
 	// if (!browser) {
@@ -35,7 +37,8 @@ export function getFeTriplitClient(jwt: string) {
 	if (feTriplitClient) {
 		return feTriplitClient;
 	}
-	feTriplitClient = new TriplitClient({
+	feTriplitClient = new WorkerClient({
+		workerUrl: dev ? workerUrl : undefined,
 		storage: {
 			type: 'indexeddb',
 			name: LOCAL_INDEXEDDB_NAME
@@ -44,12 +47,25 @@ export function getFeTriplitClient(jwt: string) {
 		serverUrl: publicEnv.PUBLIC_TRIPLIT_URL,
 		token: jwt ? jwt : publicEnv.PUBLIC_TRIPLIT_ANONYMOUS_TOKEN,
 		autoConnect: browser,
-		onSessionError: (type) => {
-			console.log('💀💀💀 Triplit session error occured', type);
+		onSessionError: async (type) => {
+			console.log('💀 Triplit session error occurred:', type);
 			if (type === 'TOKEN_EXPIRED') {
-				// log the user out
-				feTriplitClient.endSession();
-				feTriplitClient.clear();
+				console.warn('🔄 JWT expired, refreshing token...');
+				const newJwt = await getFreshToken();
+
+				if (newJwt) {
+					console.log('🔑 JWT refreshed, updating session...');
+					await feTriplitClient?.endSession();
+					await feTriplitClient?.startSession(newJwt, true, {
+						refreshHandler: async () => await getFreshToken()
+					});
+					feTriplitClient?.updateSessionToken(newJwt);
+					console.log('✅ Triplit session updated with new JWT');
+				} else {
+					console.error('❌ Failed to refresh JWT, logging out...');
+					await feTriplitClient?.endSession();
+					feTriplitClient?.clear();
+				}
 			}
 		},
 		refreshOptions: {
@@ -59,9 +75,12 @@ export function getFeTriplitClient(jwt: string) {
 			}
 		},
 		logLevel: dev ? 'debug' : 'info'
-	}) as TriplitClient;
+	}) as WorkerClient;
 
 	console.log('Frontend TriplitClient initialized');
+
+	// Make client available on window to help inspection during debugging
+	if (typeof window !== 'undefined') window.client = feTriplitClient;
 
 	return feTriplitClient;
 }

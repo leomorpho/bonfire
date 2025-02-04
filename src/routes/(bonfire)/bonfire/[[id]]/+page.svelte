@@ -183,7 +183,7 @@
 			const response = await fetch(url);
 			if (!response.ok) throw new Error(`Failed to fetch eventFiles: ${response.statusText}`);
 			eventFiles = await response.json();
-			console.log('eventFiles', eventFiles);
+			// console.log('eventFiles', eventFiles);
 		} catch (error) {
 			console.error('Error fetching event files:', error);
 		} finally {
