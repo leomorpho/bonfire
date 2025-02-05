@@ -666,6 +666,7 @@
 						</div>
 					{:else if rsvpStatus}
 						{#if attendeesGoing.length > 0}
+							<div class="mb-1 flex justify-center">{attendeesGoing.length} attendees going</div>
 							<div id="going-attendees" class="flex flex-wrap items-center -space-x-4">
 								{#each allAttendeesGoing.slice(0, showMaxNumPeople) as attendee}
 									<ProfileAvatar
@@ -702,7 +703,9 @@
 													<div class="mb-3 mt-5">
 														{#if allAttendeesGoing.length > 0}
 															{console.log('---> attendeesGoing', attendeesGoing)}
-															<h2 class="my-3 flex w-full justify-center font-semibold">Going</h2>
+															<h2 class="my-3 flex w-full justify-center font-semibold">
+																{attendeesGoing.length} going
+															</h2>
 															<div class="mx-5 flex flex-wrap -space-x-4 text-black">
 																{#each allAttendeesGoing as attendee}
 																	<ProfileAvatar
@@ -722,7 +725,12 @@
 													</div>
 													<div class="mb-3 mt-5">
 														{#if allAttendeesMaybeGoing.length > 0}
-															<h2 class="my-3 flex w-full justify-center font-semibold">Maybe</h2>
+															<h2 class="my-3 flex w-full justify-center font-semibold">
+																{allAttendeesMaybeGoing.length} maybe{allAttendeesMaybeGoing.length ==
+																0
+																	? ''
+																	: 's'}
+															</h2>
 															<div class="mx-5 flex flex-wrap -space-x-4 text-black">
 																{#each allAttendeesMaybeGoing as attendee}
 																	<ProfileAvatar
@@ -743,7 +751,7 @@
 													<div class="mb-3 mt-5">
 														{#if allAttendeesNotGoing.length > 0}
 															<h2 class="my-3 flex w-full justify-center font-semibold">
-																Not Going
+																{allAttendeesNotGoing.length} not going
 															</h2>
 															<div class="mx-5 flex flex-wrap -space-x-4 text-black">
 																{#each allAttendeesNotGoing as attendee}

@@ -39,6 +39,7 @@
 	import EventAdminEditor from './EventAdminEditor.svelte';
 	import { debounce } from 'lodash-es';
 	import MaxCapacity from './eventform/MaxCapacity.svelte';
+	import BackButton from './BackButton.svelte';
 
 	let { mode, event = null, currUserId = null } = $props();
 
@@ -233,7 +234,7 @@
 			event = output;
 
 			// Add user as attendee
-			await upsertUserAttendance(eventId, Status.GOING)
+			await upsertUserAttendance(eventId, Status.GOING);
 
 			console.log('✅ Event created successfully');
 		} catch (error) {
@@ -367,9 +368,13 @@
 	{#if currentEventEditingMode == editingMainEvent}
 		<section class="mt-8 w-full sm:w-[450px]">
 			<h2
-				class="mb-5 flex w-full justify-center rounded-xl bg-white p-2 text-lg font-semibold dark:bg-slate-900"
+				class="mb-5 flex w-full items-center justify-between rounded-xl bg-white p-2 text-lg font-semibold dark:bg-slate-900"
 			>
-				{mode === EventFormType.CREATE ? EventFormType.CREATE : EventFormType.UPDATE} a Bonfire
+				<BackButton url={`/bonfire/${eventId}`} />
+				<div>
+					{mode === EventFormType.CREATE ? EventFormType.CREATE : EventFormType.UPDATE} a Bonfire
+				</div>
+				<div></div>
 			</h2>
 			<form class="space-y-2">
 				<Input
@@ -493,14 +498,14 @@
 
 			<div class="mt-5 grid w-full grid-cols-1 gap-2 sm:grid-cols-2">
 				<Button
-					class="justify-centerp-4 flex items-center dark:bg-slate-700 dark:hover:bg-slate-500 dark:text-white"
+					class="justify-centerp-4 flex items-center dark:bg-slate-700 dark:text-white dark:hover:bg-slate-500"
 					onclick={startEditEventStyle}
 				>
 					<Palette class="mr-1" />
 					Edit event style
 				</Button>
 				<Button
-					class="flex items-center justify-center p-4 dark:bg-slate-700 dark:hover:bg-slate-500 dark:text-white"
+					class="flex items-center justify-center p-4 dark:bg-slate-700 dark:text-white dark:hover:bg-slate-500"
 					disabled={!event || event?.user_id != currUserId}
 					onclick={startEditAdmins}
 				>
@@ -511,7 +516,8 @@
 		</section>
 		<div class="my-10 w-full sm:w-[450px]">
 			<a href={cancelUrl}>
-				<Button class="sticky top-2 mt-2 w-full ring-glow dark:bg-slate-900 dark:hover:bg-slate-700 dark:text-white"
+				<Button
+					class="sticky top-2 mt-2 w-full ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-700"
 					>Cancel</Button
 				>
 			</a>

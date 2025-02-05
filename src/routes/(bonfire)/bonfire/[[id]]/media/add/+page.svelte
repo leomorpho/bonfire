@@ -21,6 +21,7 @@
 	import Tus from '@uppy/tus';
 	import { toast } from 'svelte-sonner';
 	import { detectTailwindTheme } from '$lib/utils';
+	import BackButton from '$lib/components/BackButton.svelte';
 
 	let uppy: any;
 
@@ -188,25 +189,13 @@
 
 <div class="mx-4 flex flex-col items-center justify-center">
 	<section class="mt-8 w-full sm:w-[450px]">
-		<Breadcrumb.Root
-			class="mb-10 mt-2 rounded-xl bg-white bg-opacity-95 p-2 dark:bg-slate-900 dark:hover:bg-slate-800"
+		<h2
+			class="mb-5 flex w-full items-center justify-between rounded-xl bg-white p-2 text-lg font-semibold dark:bg-slate-900"
 		>
-			<Breadcrumb.List class="ml-2 text-xs sm:ml-5 sm:text-sm">
-				<Breadcrumb.Item>
-					<Breadcrumb.Link href={`/bonfire/${$page.params.id}`}>Event</Breadcrumb.Link>
-				</Breadcrumb.Item>
-				<Breadcrumb.Separator />
-				<Breadcrumb.Item>
-					<Breadcrumb.Link href={`/bonfire/${$page.params.id}/media/gallery`}
-						>Gallery</Breadcrumb.Link
-					>
-				</Breadcrumb.Item>
-				<Breadcrumb.Separator />
-				<Breadcrumb.Item>
-					<Breadcrumb.Page>Upload</Breadcrumb.Page>
-				</Breadcrumb.Item>
-			</Breadcrumb.List>
-		</Breadcrumb.Root>
+			<BackButton url={`/bonfire/${$page.params.id}/media/gallery`} />
+			<div>Upload new media</div>
+			<div></div>
+		</h2>
 		<div id="uppy-dashboard"></div>
 	</section>
 </div>

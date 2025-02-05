@@ -20,7 +20,6 @@
 	import { downloadAsZip, shareImages } from '$lib/gallery';
 	import GalleryItem from '$lib/components/GalleryItem.svelte';
 	import LoaderPage from '$lib/components/LoaderPage.svelte';
-	import ChevronLeft from 'svelte-radix/ChevronLeft.svelte';
 	import BackButton from '$lib/components/BackButton.svelte';
 
 	let selectedImages: any = $state([]);
@@ -594,7 +593,7 @@
 <div class="mx-4 mb-48 flex flex-col items-center justify-center">
 	<!-- Breadcrumbs and Toggle Buttons -->
 	<div
-		class="sticky top-0 z-10 mt-2 flex flex-col items-center justify-between rounded-xl bg-white bg-opacity-95 px-2 dark:bg-slate-900 dark:hover:bg-slate-800 min-[320px]:flex-row sm:w-[550px] md:w-[650px] lg:w-[950px]"
+		class="sticky top-0 z-10 mt-2 flex flex-col items-center justify-between rounded-xl bg-white bg-opacity-95 px-2 dark:bg-slate-900 min-[320px]:flex-row sm:w-[550px] md:w-[650px] lg:w-[950px]"
 	>
 		<BackButton url={`/bonfire/${$page.params.id}`}/>
 
