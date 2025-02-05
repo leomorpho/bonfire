@@ -493,14 +493,14 @@
 
 			<div class="mt-5 grid w-full grid-cols-1 gap-2 sm:grid-cols-2">
 				<Button
-					class="justify-centerp-4 flex items-center dark:bg-slate-700 dark:text-white"
+					class="justify-centerp-4 flex items-center dark:bg-slate-700 dark:hover:bg-slate-500 dark:text-white"
 					onclick={startEditEventStyle}
 				>
 					<Palette class="mr-1" />
 					Edit event style
 				</Button>
 				<Button
-					class="flex items-center justify-center p-4 dark:bg-slate-700 dark:text-white"
+					class="flex items-center justify-center p-4 dark:bg-slate-700 dark:hover:bg-slate-500 dark:text-white"
 					disabled={!event || event?.user_id != currUserId}
 					onclick={startEditAdmins}
 				>
@@ -511,7 +511,7 @@
 		</section>
 		<div class="my-10 w-full sm:w-[450px]">
 			<a href={cancelUrl}>
-				<Button class="sticky top-2 mt-2 w-full ring-glow dark:bg-slate-700 dark:text-white"
+				<Button class="sticky top-2 mt-2 w-full ring-glow dark:bg-slate-900 dark:hover:bg-slate-700 dark:text-white"
 					>Cancel</Button
 				>
 			</a>

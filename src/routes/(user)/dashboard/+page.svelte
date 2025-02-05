@@ -14,6 +14,7 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import PullToRefresh from '$lib/components/PullToRefresh.svelte';
 	import { toast } from 'svelte-sonner';
+	import SvgLoader from '$lib/components/SvgLoader.svelte';
 
 	let client: TriplitClient;
 
@@ -144,7 +145,10 @@
 		{/if}
 	</section>
 	{#if pastEvents.fetching}
-		<Loader />
+		<div class="h-32">
+			<div class="font-mono">Loading...</div>
+			<SvgLoader />
+		</div>
 	{:else if pastEvents.error}
 		<p>Error: {pastEvents.error.message}</p>
 	{:else if pastEvents.results}
@@ -187,7 +191,7 @@
 	>
 		<Plus aria-hidden="true" />
 	</a>
-	<span class="mt-2 text-sm text-gray-700 dark:text-white" id="create-bonfire-label"
+	<span class="mt-2 text-sm md:text-base font-semibold text-black dark:text-white" id="create-bonfire-label"
 		>Create a Bonfire</span
 	>
 </div>

@@ -39,7 +39,8 @@
 		<!-- Description + Input -->
 		<div class="mt-4 flex flex-col items-center space-y-3">
 			<p class="text-center text-sm text-gray-700 dark:text-gray-300">
-				Set a maximum number of attendees. Once full, new users won’t be able to RSVP.
+				Attendance will be limited to a set number of confirmed attendees marked as going. New RSVPs
+				for "going" will only be possible if someone changes their status to "not going".
 			</p>
 			<Input
 				type="number"

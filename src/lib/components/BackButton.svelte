@@ -8,7 +8,7 @@
 	let isClient = browser;
 
 	// Props
-	let { url } = $props();
+	let { url = null } = $props();
 
 	// Handle navigation
 	function handleNavigation() {
@@ -23,7 +23,7 @@
 {#if isClient}
 	<Button
 		onclick={handleNavigation}
-		class="my-1 dark:bg-slate-700 dark:text-white dark:hover:bg-slate-500"
+		class="my-1 bg-slate-700 dark:bg-slate-700 dark:text-white dark:hover:bg-slate-500"
 	>
 		<ChevronLeft />
 	</Button>
