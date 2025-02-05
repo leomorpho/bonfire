@@ -730,5 +730,80 @@ export const schema = {
 			temp: {},
 			anon: {}
 		}
+	},
+	event_messages: {
+		schema: S.Schema({
+			id: S.Id(),
+			event_id: S.String(), // ID of the event this message belongs to
+			event: S.RelationById('events', '$event_id'), // Link to the event
+			user_id: S.String(), // ID of the user who sent the message
+			user: S.RelationById('user', '$user_id'), // Relation to the user
+			parent_message_id: S.String({ nullable: true, default: null }), // Supports future threading
+			parent_message: S.Optional(S.RelationById('event_messages', '$parent_message_id')), // Parent message relation
+			content: S.String({ nullable: true }), // Text content of the message
+			media_key: S.String({ nullable: true }), // If message contains media (image/video/audio)
+			media_type: S.String({ nullable: true }), // Type of media (image, video, gif, etc.)
+			seen_by: S.RelationMany('event_message_seen', { where: [['message_id', '=', '$id']] }), // Tracks who has seen the message
+			created_at: S.Date({ default: S.Default.now() }), // Timestamp when the message was sent
+			updated_at: S.Optional(S.Date({ nullable: true, default: null })) // Timestamp when the message was edited
+		}),
+		permissions: {
+			user: {
+				read: {
+					filter: [
+						or([
+							['event.attendees.user_id', '=', '$role.userId'], // Users can read messages in events they attend
+							['event.event_admins.user_id', '=', '$role.userId'] // Event admins can see all messages
+						])
+					]
+				},
+				insert: {
+					filter: [
+						or([
+							['event.attendees.user_id', '=', '$role.userId'], // Attendees can send messages
+							['event.event_admins.user_id', '=', '$role.userId'], // Event admins can send messages
+							['event.user_id', '=', '$role.userId'] // Event owner can send messages
+						])
+					]
+				},
+				update: {
+					filter: [['user_id', '=', '$role.userId']] // Users can only edit their own messages
+				},
+				delete: {
+					filter: [
+						or([
+							['user_id', '=', '$role.userId'], // Users can delete their own messages
+							['event.event_admins.user_id', '=', '$role.userId'], // Event admins can delete messages
+							['event.user_id', '=', '$role.userId'] // Event owner can delete any message
+						])
+					]
+				}
+			},
+			temp: {
+				// Temp users cannot actively participate in the conversation. They need to register to do so.
+				read: {
+					filter: [['event.temporary_attendees.id', '=', '$role.temporaryAttendeeId']] // Temp users can see messages in their event
+				}
+			},
+			anon: {}
+		}
+	},
+	event_message_seen: {
+		schema: S.Schema({
+			id: S.Id(),
+			message_id: S.String(), // ID of the message
+			message: S.RelationById('event_messages', '$message_id'), // Relation to the message
+			user_id: S.String(), // User who has seen the message
+			user: S.RelationById('user', '$user_id'), // Relation to the user
+			seen_at: S.Date({ default: S.Default.now() }) // Timestamp when the message was seen
+		}),
+		permissions: {
+			user: {
+				read: { filter: [['user_id', '=', '$role.userId']] }, // Users can see their own seen status
+				insert: { filter: [['user_id', '=', '$role.userId']] }, // Users can mark messages as seen
+				delete: { filter: [['user_id', '=', '$role.userId']] } // Users can remove their seen status (if needed)
+			},
+			anon: {}
+		}
 	}
 } satisfies ClientSchema;
