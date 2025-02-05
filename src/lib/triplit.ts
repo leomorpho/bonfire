@@ -177,7 +177,7 @@ export async function checkEventIsOpenForNewGoingAttendees(
 			.build()
 	);
 	// Check that max capacity is indeed set
-	if (!event.max_capacity) {
+	if (!event || !event.max_capacity) {
 		return;
 	}
 

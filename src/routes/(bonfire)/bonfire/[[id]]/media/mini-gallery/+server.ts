@@ -53,6 +53,9 @@ export const GET = async ({ locals, url, params }) => {
 			MAX_NUM_IMAGES_IN_MINI_GALLERY
 		);
 
+		if (!files) {
+			return json({});
+		}
 		// Format and return the files with signed URLs
 		const signedFiles = await Promise.all(
 			files.map(async (file) => ({

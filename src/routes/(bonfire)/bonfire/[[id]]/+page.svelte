@@ -296,6 +296,7 @@
 		console.log('$page.data ===> $page.data', $page.data);
 		if (
 			(isAnonymousUser || !$page.data.isUserAnAttendee) &&
+			$page.data.event &&
 			$page.data.event.user_id != currUserId
 		) {
 			// If user is anonymous, load event data from page data. It will contain limited data.
@@ -666,7 +667,15 @@
 						</div>
 					{:else if rsvpStatus}
 						{#if attendeesGoing.length > 0}
-							<div class="mb-1 flex justify-center">{attendeesGoing.length} attendees going</div>
+							{#if attendeesGoing.length > 5}
+								<div class="mb-3 flex w-full justify-center">
+									<div
+										class="flex w-fit justify-center rounded bg-slate-100 p-1 px-2 text-black opacity-70 dark:bg-slate-800 dark:text-white"
+									>
+										{attendeesGoing.length} attendee{attendeesGoing.length == 1 ? '' : 's'} going
+									</div>
+								</div>
+							{/if}
 							<div id="going-attendees" class="flex flex-wrap items-center -space-x-4">
 								{#each allAttendeesGoing.slice(0, showMaxNumPeople) as attendee}
 									<ProfileAvatar
@@ -727,7 +736,7 @@
 														{#if allAttendeesMaybeGoing.length > 0}
 															<h2 class="my-3 flex w-full justify-center font-semibold">
 																{allAttendeesMaybeGoing.length} maybe{allAttendeesMaybeGoing.length ==
-																0
+																1
 																	? ''
 																	: 's'}
 															</h2>

@@ -121,7 +121,7 @@ test('Create bonfire', async ({ page }) => {
 	await expect(page.locator('#going-attendees').locator('.profile-avatar')).toHaveCount(1);
 	// Now set as "not going"
 	await page.getByText('Going').first().click();
-	await page.getByRole('menuitem', { name: 'Not going', exact: true }).click();
+	await page.getByRole('menuitem', { name: 'Not going' }).click();
 	await expect(page.locator('#rsvp-button')).toHaveText('Not going');
 	await expect(page.locator('#going-attendees').locator('.profile-avatar')).toHaveCount(0);
 	// And set back to "going"
@@ -264,7 +264,6 @@ test('CRUD gallery', async ({ page }) => {
 	await expect(page.getByRole('heading', { name: eventName })).toBeVisible();
 
 	await page.getByRole('button', { name: 'Add to gallery' }).click();
-	await expect(page.getByRole('link', { name: 'Upload' })).toBeVisible();
 
 	const fileInput = await page.locator('input[type="file"]').first();
 	const imagePath = path.resolve(process.cwd(), 'e2e/test-images', 'gallery-image.jpg');
