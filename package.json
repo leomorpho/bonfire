@@ -114,7 +114,7 @@
 		"@uppy/tus": "^4.1.4",
 		"@uppy/webcam": "^4.0.2",
 		"@uppy/xhr-upload": "^4.2.2",
-		"@viselect/vanilla": "^3.7.0",
+		"@viselect/vanilla": "^3.9.0",
 		"arctic": "^2.0.1",
 		"blurhash": "^2.0.5",
 		"date-fns": "^4.1.0",
