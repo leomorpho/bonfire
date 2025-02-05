@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { dev } from '$app/environment';
 	import { page } from '$app/stores';
 	import { TriplitClient } from '@triplit/client';
 	import { getFeTriplitClient, waitForUserId } from '$lib/triplit';
@@ -60,12 +61,6 @@
 	let rsvpCanBeChanged = $state(false);
 
 	$effect(() => {
-		if (event) {
-			rsvpCanBeChanged = new Date(event.start_time) >= new Date();
-		}
-	});
-
-	$effect(() => {
 		console.log('==== rsvpStatus', rsvpStatus);
 	});
 
@@ -123,6 +118,53 @@
 			adminUserIds.has(currUserId)
 		) {
 			currenUserIsEventAdmin = true;
+		}
+	});
+
+	let allAttendees = $derived([
+		...(attendeesGoing || []),
+		...(attendeesNotGoing || []),
+		...(attendeesMaybeGoing || [])
+	]);
+
+	let allAttendeesGoing = $derived([...(attendeesGoing || []), ...(tempAttendeesGoing || [])]);
+	let allAttendeesNotGoing = $derived([
+		...(attendeesNotGoing || []),
+		...(tempAttendeesNotGoing || [])
+	]);
+	let allAttendeesMaybeGoing = $derived([
+		...(attendeesMaybeGoing || []),
+		...(tempAttendeesMaybeGoing || [])
+	]);
+
+	let rsvpEnabledForCapacity: boolean = $derived(
+		!event?.max_capacity ||
+			currentUserAttendee ||
+			(event?.max_capacity &&
+				allAttendeesGoing.length < event?.max_capacity &&
+				$page.data.numAttendingGoing < event?.max_capacity)
+	) as boolean;
+
+	$effect(() => {
+		if (event) {
+			rsvpCanBeChanged = new Date(event.start_time) >= new Date() && rsvpEnabledForCapacity;
+		}
+	});
+
+	$effect(() => {
+		// Ensure event data and currUserId are available
+		if ($page.data.user && allAttendees && currUserId) {
+			// Find the current user's RSVP status in the attendees list
+			const attendees = allAttendees;
+
+			if (attendees && attendees.length > 0) {
+				currentUserAttendee = attendees.find((attendee) => attendee.user_id == currUserId);
+				// Set RSVP status based on the attendee record, or keep it as default
+				rsvpStatus = currentUserAttendee ? currentUserAttendee.status : undefined;
+				if (dev) {
+					$inspect('### rsvpStatus', rsvpStatus);
+				}
+			}
 		}
 	});
 
@@ -344,7 +386,9 @@
 
 				// Fetch profile image map for attendees
 				const userIds = [...new Set(results.map((attendee) => attendee.user_id))];
-				console.log('===> userIds', userIds);
+				if (dev) {
+					console.log('===> userIds', userIds);
+				}
 
 				(async () => {
 					await fetchProfileImageMap(userIds);
@@ -428,38 +472,6 @@
 			}
 			unsubscribeFromFilesQuery();
 		};
-	});
-
-	let allAttendees = $derived([
-		...(attendeesGoing || []),
-		...(attendeesNotGoing || []),
-		...(attendeesMaybeGoing || [])
-	]);
-
-	let allAttendeesGoing = $derived([...(attendeesGoing || []), ...(tempAttendeesGoing || [])]);
-	let allAttendeesNotGoing = $derived([
-		...(attendeesNotGoing || []),
-		...(tempAttendeesNotGoing || [])
-	]);
-	let allAttendeesMaybeGoing = $derived([
-		...(attendeesMaybeGoing || []),
-		...(tempAttendeesMaybeGoing || [])
-	]);
-
-	$effect(() => {
-		// Ensure event data and currUserId are available
-		if ($page.data.user && allAttendees && currUserId) {
-			// Find the current user's RSVP status in the attendees list
-			const attendees = allAttendees;
-
-			if (attendees && attendees.length > 0) {
-				currentUserAttendee = attendees.find((attendee) => attendee.user_id == currUserId);
-				// Set RSVP status based on the attendee record, or keep it as default
-				rsvpStatus = currentUserAttendee ? currentUserAttendee.status : undefined;
-				$inspect('### rsvpStatus', rsvpStatus);
-				// Group attendees by their RSVP status
-			}
-		}
 	});
 
 	const handleShare = async (eventData: any) => {
@@ -646,13 +658,6 @@
 				</div>
 
 				<div class="mx-3 mt-5 items-center">
-					{#if event?.max_capacity}
-						<div
-							class="my-2 flex justify-center rounded-lg bg-slate-100 p-2 text-center text-sm dark:bg-slate-800 opacity-70 dark:opacity-70"
-						>
-							Limited to a maximum of {event?.max_capacity} attendees by the organizer.
-						</div>
-					{/if}
 					{#if attendeesLoading}
 						<div class="flex flex-wrap items-center -space-x-3">
 							{#each Array(20).fill(null) as _, index}
@@ -793,6 +798,35 @@
 						</div>
 					{/if}
 				</div>
+				<!-- Show RSVP if:
+				 (a) no max capacity is set
+				 (b) current user is attending
+				 (b) if max capacity is set, if it is not yet attained -->
+				<!-- {console.log(
+					'max capacity',
+					event?.max_capacity,
+					'currentUserAttendee',
+					currentUserAttendee,
+					'allAttendeesGoing.length',
+					allAttendeesGoing.length,
+					'$page.data.numAttendingGoing',
+					$page.data.numAttendingGoing,
+					'rsvpCanBeChanged',
+					rsvpCanBeChanged
+				)} -->
+				{#if event?.max_capacity}
+					<div
+						class="mt-5 flex justify-center rounded-lg bg-slate-100 p-2 text-center text-sm opacity-70 dark:bg-slate-800 dark:opacity-70"
+					>
+						{#if !rsvpEnabledForCapacity}
+							Sorry, this event has reached its maximum capacity of {event?.max_capacity} attendees,
+							as set by the organizer. If a spot opens up due to a cancellation, it will become available
+							for a new attendee.
+						{:else}
+							This event is limited to {event?.max_capacity} attendees, as set by the organizer.
+						{/if}
+					</div>
+				{/if}
 				<Rsvp
 					{rsvpStatus}
 					userId={currUserId}

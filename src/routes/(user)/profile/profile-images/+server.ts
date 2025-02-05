@@ -56,7 +56,6 @@ export const GET = async ({ locals, url }) => {
 				small_image_url: smallImageUrl
 			};
 		}
-		console.log('profileImageMap ===>', profileImageMap);
 		return json(profileImageMap);
 	} catch (error) {
 		console.error('Error fetching profile images:', error);

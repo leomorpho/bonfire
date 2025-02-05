@@ -17,7 +17,7 @@
 	import TimezonePicker from '$lib/components/TimezonePicker.svelte';
 	import Datepicker from '$lib/components/Datepicker.svelte';
 	import AmPmPicker from '$lib/components/AmPmPicker.svelte';
-	import { getFeTriplitClient, waitForUserId } from '$lib/triplit';
+	import { getFeTriplitClient, upsertUserAttendance, waitForUserId } from '$lib/triplit';
 	import { goto } from '$app/navigation';
 	import type { TriplitClient } from '@triplit/client';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
@@ -233,13 +233,9 @@
 			event = output;
 
 			// Add user as attendee
-			await client.insert('attendees', {
-				user_id: userId,
-				event_id: eventId,
-				status: Status.GOING
-			});
+			await upsertUserAttendance(eventId, Status.GOING)
+
 			console.log('✅ Event created successfully');
-			console.log('event ->', event);
 		} catch (error) {
 			eventCreated = false;
 			console.error('❌ Error creating event:', error);

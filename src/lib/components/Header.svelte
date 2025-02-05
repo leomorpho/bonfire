@@ -60,7 +60,7 @@
 
 {#snippet loginButton()}
 	<Button
-		class="m-1 bg-orange-500 p-5 text-lg text-white hover:bg-orange-400 dark:bg-orange-800 dark:hover:bg-orange-700"
+		class="m-1 bg-orange-500 p-5 text-lg text-white dark:text-slate-100 hover:bg-orange-400 dark:bg-orange-800 dark:hover:bg-orange-700"
 	>
 		<FlameKindling class="!h-6 !w-6" />login
 	</Button>

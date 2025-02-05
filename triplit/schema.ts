@@ -304,14 +304,7 @@ export const schema = {
 						])
 					]
 				},
-				insert: {
-					// Users can RSVP or add themselves as attendees
-					filter: [['user_id', '=', '$role.userId']]
-				},
-				update: {
-					// Users can update their RSVP or attendance
-					filter: [['user_id', '=', '$role.userId']]
-				},
+				// Update/insert is managed by BE
 				delete: {
 					filter: [
 						or([
@@ -394,12 +387,9 @@ export const schema = {
 						])
 					]
 				},
-				update: {
-					filter: [
-						or([
-							['id', '=', '$role.temporaryAttendeeId'] // User can read their own profile
-						])
-					]
+				// Update/insert is managed by BE
+				delete: {
+					filter: [['id', '=', '$role.temporaryAttendeeId']]
 				}
 			},
 			anon: {}

@@ -3,7 +3,7 @@
 	import { Smile, Meh, Frown, HandMetal, LogOut } from 'lucide-svelte';
 	import type { TriplitClient } from '@triplit/client';
 	import { and } from '@triplit/client';
-	import { getFeTriplitClient } from '$lib/triplit';
+	import { getFeTriplitClient, upsertUserAttendance } from '$lib/triplit';
 	import {
 		getStrValueOfRSVP,
 		NOTIFY_OF_ATTENDING_STATUS_CHANGE,
@@ -151,7 +151,7 @@
 			console.log('checking name availability');
 			tempNameCheckingState = TempNameCheckingState.CHECKING;
 
-			const response = await fetch(`/bonfire/${eventId}/temp/check-name`, {
+			const response = await fetch(`/bonfire/${eventId}/attend/temp/check-name`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
@@ -191,7 +191,7 @@
 				throw new Error('rsvp status is not set');
 			}
 			// Make a POST request to the backend endpoint
-			const response = await fetch(`/bonfire/${eventId}/temp/generate`, {
+			const response = await fetch(`/bonfire/${eventId}/attend/temp/generate`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
@@ -232,7 +232,7 @@
 		try {
 			// Call the SvelteKit endpoint to update RSVP
 			const response = await fetch(
-				`/bonfire/${eventId}/temp/update-rsvp?${tempAttendeeSecretParam}=${tempAttendeeSecret}`,
+				`/bonfire/${eventId}/attend/temp/update-rsvp?${tempAttendeeSecretParam}=${tempAttendeeSecret}`,
 				{
 					method: 'POST',
 					headers: {
@@ -286,12 +286,8 @@
 			let attendanceId = attendance?.id;
 			if (!attendance) {
 				try {
-					const { output } = await client.insert('attendees', {
-						event_id: eventId,
-						user_id: userId,
-						status: newValue
-					});
-					attendanceId = output?.id;
+					const attendance = await upsertUserAttendance(eventId, newValue as Status);
+					attendanceId = attendance?.id;
 				} catch (e) {
 					console.error(
 						`failed to create attendance for event ${eventId} and user ${userId}:`,
@@ -301,9 +297,7 @@
 				}
 			} else {
 				try {
-					attendance = await client.update('attendees', attendance.id, async (entity) => {
-						entity.status = newValue;
-					});
+					await upsertUserAttendance(eventId, newValue as Status);
 				} catch (e) {
 					console.error('failed to update attendance:', newValue, e);
 				}

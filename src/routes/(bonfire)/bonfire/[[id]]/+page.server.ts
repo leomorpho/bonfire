@@ -1,4 +1,4 @@
-import { tempAttendeeSecretParam } from '$lib/enums';
+import { Status, tempAttendeeSecretParam } from '$lib/enums';
 import { generateSignedUrl } from '$lib/filestorage.js';
 import { triplitHttpClient } from '$lib/server/triplit';
 import { redirect } from '@sveltejs/kit';
@@ -18,6 +18,7 @@ export const load = async ({ params, locals, url }) => {
 	console.log('logged in user', user);
 	let event = null;
 	let numAttendees = 0;
+	let numAttendingGoing = 0;
 	let numAnnouncements = null;
 	let numFiles = null;
 
@@ -87,11 +88,21 @@ export const load = async ({ params, locals, url }) => {
 			if (event.attendees != null) {
 				numAttendees += event.attendees.length;
 
+				// Count only attendees with status "GOING"
+				numAttendingGoing += event.attendees.filter(
+					(attendee) => attendee.status === Status.GOING
+				).length;
+
 				// Check if the current user is among the attendees
 				isUserAnAttendee = event.attendees.some((attendee) => attendee.user_id === user?.id);
 			}
 			if (event.temporary_attendees != null) {
 				numAttendees += event.temporary_attendees.length;
+
+				// Count only temporary attendees with status "GOING"
+				numAttendingGoing += event.temporary_attendees.filter(
+					(attendee) => attendee.status === Status.GOING
+				).length;
 
 				if (!isUserAnAttendee) {
 					isUserAnAttendee = event.temporary_attendees.some(
@@ -131,6 +142,7 @@ export const load = async ({ params, locals, url }) => {
 		user,
 		event,
 		numAttendees,
+		numAttendingGoing,
 		numAnnouncements,
 		numFiles,
 		tempAttendeeId,

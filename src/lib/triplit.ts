@@ -1,9 +1,9 @@
-import { TriplitClient } from '@triplit/client';
+import { and, HttpClient, TriplitClient } from '@triplit/client';
 import { schema } from '../../triplit/schema';
 import { env as publicEnv } from '$env/dynamic/public';
 import { writable, get } from 'svelte/store';
 import { browser, dev } from '$app/environment';
-import { LOCAL_INDEXEDDB_NAME } from './enums';
+import { LOCAL_INDEXEDDB_NAME, Status } from './enums';
 import { WorkerClient } from '@triplit/client/worker-client';
 import workerUrl from '@triplit/client/worker-client-operator?url';
 
@@ -112,4 +112,82 @@ async function getFreshToken() {
 export async function clearCache(client: TriplitClient) {
 	await client.endSession();
 	await client.clear();
+}
+
+export async function upsertUserAttendance(eventId: string, status: Status) {
+	try {
+		const response = await fetch(`/bonfire/${eventId}/attend/user`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ status })
+		});
+
+		if (!response.ok) {
+			const errorData = await response.json();
+			throw new Error(errorData.error || 'Failed to update attendance');
+		}
+
+		const data = await response.json();
+		console.log('✅ Attendance updated:', data);
+		return data.attendance; // Return updated attendance object
+	} catch (err) {
+		console.error('❌ Error updating attendance:', err);
+		throw err;
+	}
+}
+
+export async function checkEventIsOpenForNewGoingAttendees(
+	client: TriplitClient | WorkerClient | HttpClient,
+	bonfireId: string,
+	newStatus: Status
+) {
+	const event = await client.fetchOne(
+		client
+			.query('events')
+			.where([['id', '=', bonfireId]])
+			.select(['max_capacity'])
+			.subquery(
+				'going_users',
+				client
+					.query('attendees')
+					.where([
+						and([
+							['status', '=', Status.GOING],
+							['event_id', '=', '$1.id']
+						])
+					])
+					.select(['id'])
+					.build(),
+				'one'
+			)
+			.subquery(
+				'going_temps',
+				client
+					.query('temporary_attendees')
+					.where([
+						and([
+							['status', '=', Status.GOING],
+							['event_id', '=', '$1.id']
+						])
+					])
+					.select(['id'])
+					.build(),
+				'one'
+			)
+			.build()
+	);
+	// Check that max capacity is indeed set
+	if (!event.max_capacity) {
+		return;
+	}
+
+	// If the event is at capacity, prevent updates to GOING
+	if (newStatus === Status.GOING && event) {
+		const goingUsersCount = event.going_users ? event.going_users.length : 0;
+		const goingTempsCount = event.going_temps ? event.going_temps.length : 0;
+
+		if (goingUsersCount + goingTempsCount >= event.max_capacity) {
+			throw new Error('Event has reached maximum capacity');
+		}
+	}
 }
