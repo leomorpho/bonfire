@@ -486,7 +486,7 @@
 				intersect: 'touch',
 				startThreshold: { x: 10, y: 10 }
 			},
-			features: { singleTap: { allow: true, intersect: 'touch'} }
+			features: { singleTap: { allow: true, intersect: 'touch' } }
 		}).on('move', ({ store: { changed } }) => {
 			if (!selectionActive) return;
 			console.log('Added:', changed.added);
@@ -821,5 +821,9 @@
 	.pswp__zoom-wrap,
 	.pswp__viewport {
 		cursor: pointer !important; /* Ensure regular pointer cursor */
+	}
+	/* Ensure the PhotoSwipe buttons are visible on iOS */
+	.pswp__top-bar {
+		padding-top: env(safe-area-inset-top) !important;
 	}
 </style>

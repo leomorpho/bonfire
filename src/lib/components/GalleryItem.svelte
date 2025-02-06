@@ -70,6 +70,11 @@
 	data-pswp-width={wPixel}
 	data-pswp-height={hPixel}
 	data-pswp-is-video={isVideo}
+	onclick={(event) => {
+		if (!urlActive) {
+			event.preventDefault(); // Prevent opening in browser
+		}
+	}}
 >
 	<div class="relative aspect-[5/3] w-full overflow-hidden rounded-lg bg-gray-200">
 		{#if fileType.startsWith('image/')}
