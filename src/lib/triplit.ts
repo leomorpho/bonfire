@@ -91,7 +91,12 @@ const createNewTriplitClient = (jwt: string) => {
 				return await getFreshToken();
 			}
 		},
-		logLevel: dev ? 'debug' : 'info'
+		logLevel: dev ? 'debug' : 'info',
+		defaultQueryOptions: {
+			fetch: {
+				policy: 'local-and-remote'
+			}
+		}
 	}) as WorkerClient;
 };
 
