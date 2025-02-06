@@ -131,7 +131,7 @@
 				Set overlay
 			</Button>
 		</Popover.Trigger>
-		<Popover.Content class="bg-slate-200">
+		<Popover.Content class="bg-slate-200 dark:bg-slate-800 dark:text-white">
 			<div class="flex w-full justify-center">Overlay</div>
 			<div class="mt-7 flex w-full items-center justify-center space-x-5">
 				<div class="mb-4 flex items-center justify-center">
@@ -144,7 +144,7 @@
 				</div>
 
 				<div class="mb-4 flex w-full flex-col items-center">
-					<label for="overlay-opacity" class="my-4 block text-sm font-medium text-gray-700"
+					<label for="overlay-opacity" class="my-4 block text-sm font-medium text-gray-700 dark:text-slate-100"
 						>Opacity: {Math.round(overlayOpacity * 100)}%</label
 					>
 
@@ -172,8 +172,8 @@
 					style={style.cssTemplate}
 					onclick={() => applyStyle(style)}
 				>
-					<div class="rounded-lg bg-white p-1 text-xs sm:text-sm">{style.name}</div>
-				</button>
+				<div class="rounded-lg bg-white dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-white p-1 text-xs sm:text-sm">{style.name}</div>
+			</button>
 			</div>
 		{/each}
 	</div>

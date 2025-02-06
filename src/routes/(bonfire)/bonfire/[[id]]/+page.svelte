@@ -538,7 +538,7 @@
 				<!-- TODO: allow temp attendees to delete themselves -->
 				{#if isUnverifiedUser}
 					<div
-						class="my-4 flex flex-col items-center justify-center space-y-2 rounded-lg bg-gradient-to-r from-violet-200 to-pink-200 p-5 text-center"
+						class="my-4 flex flex-col items-center justify-center space-y-2 rounded-lg bg-gradient-to-r from-violet-200 to-pink-200 dark:from-violet-900 dark:to-pink-900 p-5 text-center"
 					>
 						{#if tempAttendee}
 							<p class="font-semibold">Hi {tempAttendee.name}! This is a temporary account</p>
@@ -553,7 +553,7 @@
 						<p class="text-sm">Sign up anytime to link your events to your email.</p>
 						<a href="/login" class="w-full">
 							<Button
-								class="mt-4 flex w-full items-center justify-center bg-blue-500 hover:bg-blue-400"
+								class="mt-4 flex w-full items-center justify-center bg-blue-500 hover:bg-blue-400 text-white"
 							>
 								<KeyRound class="h-5 w-5" />
 								Sign Up or Log In</Button
@@ -561,7 +561,7 @@
 						</a>
 						<Button
 							onclick={() => handleCopyingTempAccountUrl(event)}
-							class="mt-4 flex w-full items-center justify-center"
+							class="mt-4 flex w-full items-center justify-center dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-white"
 						>
 							<Copy class="h-5 w-5" />
 							Copy Link</Button
@@ -840,7 +840,7 @@
 							as set by the organizer. If a spot opens up due to a cancellation, it will become available
 							for a new attendee.
 						{:else}
-							This event is limited to {event?.max_capacity} attendees, as set by the organizer.
+							This event is limited to {event?.max_capacity} attendees going, as set by the organizer.
 						{/if}
 					</div>
 				{/if}

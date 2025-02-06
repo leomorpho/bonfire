@@ -108,7 +108,7 @@
 		<SvgLoader />
 	</div>
 {:else}
-	<div class="space-y-3">
+	<div class="space-y-2">
 		{#if totalCount > 0}
 			{#each announcementsSubset as announcement}
 				<Announcement

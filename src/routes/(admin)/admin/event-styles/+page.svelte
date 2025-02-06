@@ -10,7 +10,7 @@
 	<div class="bg-overlay-selector min-h-screen w-full">
 		<div class="mx-4 mb-48 flex flex-col items-center justify-center sm:mb-20">
 			<section class="md:2/3 mt-8 w-full sm:w-2/3 md:w-[700px]">
-				<h1 class="mb-10 rounded-xl bg-slate-100 p-4 text-2xl font-bold flex justify-center">Event Styles</h1>
+				<h1 class="mb-10 rounded-xl bg-slate-100 dark:bg-slate-800 dark:text-white p-4 text-2xl font-bold flex justify-center">Event Styles</h1>
 				<StyleSettings bind:overlayOpacity />
 			</section>
 		</div>
