@@ -799,7 +799,16 @@ export const schema = {
 		}),
 		permissions: {
 			user: {
-				read: { filter: [['user_id', '=', '$role.userId']] }, // Users can see their own seen status
+				read: {
+					filter: [
+						or([
+							['event.attendees.user_id', '=', '$role.userId'],
+							['event.event_admins.user_id', '=', '$role.userId'],
+							['event.user_id', '=', '$role.userId'],
+							['user_id', '=', '$role.userId'] // Users can see their own seen status
+						])
+					]
+				},
 				insert: { filter: [['user_id', '=', '$role.userId']] }, // Users can mark messages as seen
 				delete: { filter: [['user_id', '=', '$role.userId']] } // Users can remove their seen status (if needed)
 			},
