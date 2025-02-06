@@ -62,6 +62,11 @@
 			posterUrl = preview?.URL ?? URL.createObjectURL(dataURItoBlob(placeholder.dataUri));
 		}
 	});
+
+	function preventNavigation(event: Event) {
+		event.preventDefault();
+		event.stopPropagation();
+	}
 </script>
 
 <a
@@ -70,11 +75,10 @@
 	data-pswp-width={wPixel}
 	data-pswp-height={hPixel}
 	data-pswp-is-video={isVideo}
-	onclick={(event) => {
-		if (!urlActive) {
-			event.preventDefault(); // Prevent opening in browser
-		}
-	}}
+	onclick={(event) => { if (!urlActive) preventNavigation(event); }}
+	ontouchstart={(event) => { if (!urlActive) preventNavigation(event); }}
+	ontouchend={(event) => { if (!urlActive) preventNavigation(event); }}
+	onmousedown={(event) => { if (!urlActive) preventNavigation(event); }}
 >
 	<div class="relative aspect-[5/3] w-full overflow-hidden rounded-lg bg-gray-200">
 		{#if fileType.startsWith('image/')}
