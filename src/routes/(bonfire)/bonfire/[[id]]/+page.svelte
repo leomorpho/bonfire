@@ -38,6 +38,7 @@
 	import type { EventTypescriptType } from '$lib/types';
 	import BonfireBanner from '$lib/components/BonfireBanner.svelte';
 	import { env as publicEnv } from '$env/dynamic/public';
+	import ImThreadView from '$lib/components/im/ImThreadView.svelte';
 
 	let currUserId = $state('');
 
@@ -538,7 +539,7 @@
 				<!-- TODO: allow temp attendees to delete themselves -->
 				{#if isUnverifiedUser}
 					<div
-						class="my-4 flex flex-col items-center justify-center space-y-2 rounded-lg bg-gradient-to-r from-violet-200 to-pink-200 dark:from-violet-900 dark:to-pink-900 p-5 text-center"
+						class="my-4 flex flex-col items-center justify-center space-y-2 rounded-lg bg-gradient-to-r from-violet-200 to-pink-200 p-5 text-center dark:from-violet-900 dark:to-pink-900"
 					>
 						{#if tempAttendee}
 							<p class="font-semibold">Hi {tempAttendee.name}! This is a temporary account</p>
@@ -553,7 +554,7 @@
 						<p class="text-sm">Sign up anytime to link your events to your email.</p>
 						<a href="/login" class="w-full">
 							<Button
-								class="mt-4 flex w-full items-center justify-center bg-blue-500 hover:bg-blue-400 text-white"
+								class="mt-4 flex w-full items-center justify-center bg-blue-500 text-white hover:bg-blue-400"
 							>
 								<KeyRound class="h-5 w-5" />
 								Sign Up or Log In</Button
@@ -561,7 +562,7 @@
 						</a>
 						<Button
 							onclick={() => handleCopyingTempAccountUrl(event)}
-							class="mt-4 flex w-full items-center justify-center dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-white"
+							class="mt-4 flex w-full items-center justify-center dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
 						>
 							<Copy class="h-5 w-5" />
 							Copy Link</Button
@@ -882,6 +883,13 @@
 							<BonfireNoInfoCard text={$page.data.numAnnouncements + ' announcement(s)'} />
 						</div>
 					{/if}
+				</div>
+				<HorizRule />
+				<div class="my-10">
+					<div class=" rounded-xl bg-white p-5 dark:bg-slate-900">
+						<div class="font-semibold">Chats</div>
+					</div>
+					<div class="my-2"><ImThreadView /></div>
 				</div>
 				<HorizRule />
 				<div class="my-5">

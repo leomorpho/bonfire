@@ -1,3 +1,4 @@
+import { MAIN_THREAD } from '$lib/im';
 import { Schema as S, type Roles, type ClientSchema, or, and } from '@triplit/client';
 
 // Define roles
@@ -731,11 +732,64 @@ export const schema = {
 			anon: {}
 		}
 	},
+	event_threads: {
+		schema: S.Schema({
+			id: S.Id(),
+			event_id: S.String(), // ID of the event this message belongs to
+			event: S.RelationById('events', '$event_id'), // Link to the event
+			user_id: S.String({ nullable: true, default: null }), // ID of the user who created the thread
+			user: S.RelationById('user', '$user_id'), // Relation to the user
+			name: S.String({default: MAIN_THREAD}), // Thread name
+			created_at: S.Date({ default: S.Default.now() }), // Timestamp when the message was sent
+			updated_at: S.Optional(S.Date({ nullable: true, default: null })), // Timestamp when the message was edited
+			messages: S.RelationMany('event_messages', {
+				where: [['thread_id', '=', '$id']]
+			})
+		}),
+		permissions: {
+			user: {
+				read: {
+					filter: [
+						or([
+							['event.attendees.user_id', '=', '$role.userId'], // Users can read messages in events they attend
+							['event.event_admins.user_id', '=', '$role.userId'] // Event admins can see all messages
+						])
+					]
+				},
+				insert: {
+					filter: [
+						or([
+							['event.attendees.user_id', '=', '$role.userId'], // Attendees can send messages
+							['event.event_admins.user_id', '=', '$role.userId'], // Event admins can send messages
+							['event.user_id', '=', '$role.userId'] // Event owner can send messages
+						])
+					]
+				},
+				delete: {
+					filter: [
+						or([
+							['event.event_admins.user_id', '=', '$role.userId'], // Event admins can delete messages
+							['event.user_id', '=', '$role.userId'] // Event owner can delete any message
+						])
+					]
+				}
+			},
+			temp: {
+				// Temp users cannot actively participate in the conversation. They need to register to do so.
+				read: {
+					filter: [['event.temporary_attendees.id', '=', '$role.temporaryAttendeeId']] // Temp users can see messages in their event
+				}
+			},
+			anon: {}
+		}
+	},
 	event_messages: {
 		schema: S.Schema({
 			id: S.Id(),
 			event_id: S.String(), // ID of the event this message belongs to
 			event: S.RelationById('events', '$event_id'), // Link to the event
+			thread_id: S.String({ nullable: false }), // Message must belong to a thread
+			thread: S.RelationById('event_threads', '$thread_id'), // Relation to the thread
 			user_id: S.String(), // ID of the user who sent the message
 			user: S.RelationById('user', '$user_id'), // Relation to the user
 			parent_message_id: S.String({ nullable: true, default: null }), // Supports future threading

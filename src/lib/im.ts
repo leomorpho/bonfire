@@ -1,18 +1,45 @@
 import type { WorkerClient } from '@triplit/client/worker-client';
 
+export const MAIN_THREAD = 'main';
+
 /**
- * Send a new message in an event chat.
+ * Create a new thread within an event.
+ * @param {WorkerClient} client - The Triplit client instance.
  * @param {string} eventId - The ID of the event.
+ * @param {string} userId - The ID of the user creating the thread.
+ * @param {string} name - The name of the thread.
+ * @param {string | null} parentMessageId - Optional: If creating a thread from a message.
+ * @returns {Promise<object>} - The newly created thread object.
+ */
+export async function createNewThread(
+	client: WorkerClient,
+	eventId: string,
+	userId: string,
+	name: string
+): Promise<object> {
+	const thread = await client.insert('event_threads', {
+		event_id: eventId,
+		user_id: userId,
+		name
+	});
+
+	return thread;
+}
+
+/**
+ * Send a new message in an event thread.
+ * @param {WorkerClient} client - The Triplit client instance.
+ * @param {string} threadId - The ID of the thread to send the message in.
  * @param {string} userId - The ID of the sender.
  * @param {string} content - The text content of the message.
  * @param {string | null} mediaKey - Optional media file key.
  * @param {string | null} mediaType - Type of media (image, video, etc.).
- * @param {string | null} parentMessageId - ID of parent message (for threading, future-proof).
+ * @param {string | null} parentMessageId - Optional: If this is a reply.
  * @returns {Promise<object>} - The newly created message object.
  */
 export async function sendMessage(
 	client: WorkerClient,
-	eventId: string,
+	threadId: string,
 	userId: string,
 	content: string,
 	mediaKey: string | null = null,
@@ -20,12 +47,13 @@ export async function sendMessage(
 	parentMessageId: string | null = null
 ): Promise<object> {
 	const message = await client.insert('event_messages', {
-		event_id: eventId,
+		thread_id: threadId,
 		user_id: userId,
 		content,
 		media_key: mediaKey,
 		media_type: mediaType,
-		parent_message_id: parentMessageId
+		parent_message_id: parentMessageId,
+		created_at: new Date().toISOString()
 	});
 
 	return message;
@@ -33,6 +61,7 @@ export async function sendMessage(
 
 /**
  * Edit a message.
+ * @param {WorkerClient} client - The Triplit client instance.
  * @param {string} messageId - The ID of the message to edit.
  * @param {string} userId - The ID of the user editing the message.
  * @param {string} newContent - The updated message content.
@@ -57,6 +86,7 @@ export async function editMessage(
 
 /**
  * Delete a message.
+ * @param {WorkerClient} client - The Triplit client instance.
  * @param {string} messageId - The ID of the message to delete.
  * @param {string} userId - The ID of the user requesting deletion.
  * @returns {Promise<void>}
@@ -98,16 +128,16 @@ export async function deleteMessage(
 }
 
 /**
- * Fetch messages for an event, including seen status for the current user.
- * @param {string} eventId - The ID of the event.
- * @param {string} userId - The ID of the current user.
- * @returns {Promise<object[]>} - List of messages with seen status for the user.
+ * Fetch messages for a thread, including seen status for the current user.
+ * @param {WorkerClient} client - The Triplit client instance.
+ * @param {string} threadId - The ID of the thread.
+ * @returns {Promise<object[]>} - List of messages with seen status.
  */
-export async function getMessages(client: WorkerClient, eventId: string): Promise<object[]> {
+export async function getMessages(client: WorkerClient, threadId: string): Promise<object[]> {
 	const messages = await client.fetch(
 		client
 			.query('event_messages')
-			.where([['event_id', '=', eventId]])
+			.where([['thread_id', '=', threadId]])
 			.include('event_message_seen')
 			.build()
 	);
@@ -117,6 +147,7 @@ export async function getMessages(client: WorkerClient, eventId: string): Promis
 
 /**
  * Mark a message as seen.
+ * @param {WorkerClient} client - The Triplit client instance.
  * @param {string} messageId - The ID of the message.
  * @param {string} userId - The ID of the user marking the message as seen.
  * @returns {Promise<void>}
@@ -149,6 +180,7 @@ export async function markMessageAsSeen(
 
 /**
  * Get the seen status of a message for the current user.
+ * @param {WorkerClient} client - The Triplit client instance.
  * @param {string} messageId - The ID of the message.
  * @param {string} userId - The ID of the user.
  * @returns {Promise<string | null>} - Timestamp if seen, null otherwise.
