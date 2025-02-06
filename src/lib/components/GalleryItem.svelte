@@ -75,10 +75,10 @@
 	data-pswp-width={wPixel}
 	data-pswp-height={hPixel}
 	data-pswp-is-video={isVideo}
-	onclick={(event) => { if (!urlActive) preventNavigation(event); }}
-	ontouchstart={(event) => { if (!urlActive) preventNavigation(event); }}
-	ontouchend={(event) => { if (!urlActive) preventNavigation(event); }}
-	onmousedown={(event) => { if (!urlActive) preventNavigation(event); }}
+	onclick={(event) => { if (true) preventNavigation(event); }}
+	ontouchstart={(event) => { if (true) preventNavigation(event); }}
+	ontouchend={(event) => { if (true) preventNavigation(event); }}
+	onmousedown={(event) => { if (true) preventNavigation(event); }}
 >
 	<div class="relative aspect-[5/3] w-full overflow-hidden rounded-lg bg-gray-200">
 		{#if fileType.startsWith('image/')}
