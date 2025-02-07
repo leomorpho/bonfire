@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import { format } from 'date-fns';
+import { format, isToday, isYesterday } from 'date-fns'
 import { generateId } from 'lucia';
 import { tempAttendeeSecretStore, tempAttendeeSecretParam } from './enums';
 import { get } from 'svelte/store';
@@ -16,6 +16,23 @@ export function formatHumanReadable(date: Date): string {
 
 export function formatHumanReadableHour(date: Date): string {
 	return format(date, 'h:mma'); // Convert "AM/PM" to "am/pm"
+}
+
+export function formatHumanReadableWithContext(date: Date): string {
+	if (isToday(date)) {
+		return format(date, 'HH:mm'); // Today: "14:30"
+	}
+
+	if (isYesterday(date)) {
+		return `Yesterday ${format(date, 'HH:mm')}`; // Yesterday: "Yesterday 14:30"
+	}
+
+	// If the date is older, show "Month Day, HH:mm" (e.g., "March 5, 14:30")
+	const formatString = date.getFullYear() === new Date().getFullYear() 
+		? 'MMMM d, HH:mm' // This year: "March 5, 14:30"
+		: 'MMMM d, yyyy, HH:mm'; // Previous years: "March 5, 2023, 14:30"
+
+	return format(date, formatString);
 }
 
 /**

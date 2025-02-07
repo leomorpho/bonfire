@@ -96,3 +96,36 @@ export type EventTypescriptType = {
 	overlay_opacity?: number | null; // Nullable and optional
 	max_capacity?: number | null;
 };
+
+export interface EventThread {
+	id: string;
+	event_id: string;
+	name: string;
+}
+
+export interface User {
+	id: string;
+	name: string;
+}
+
+export interface EventMessageSeen {
+	message_id: string;
+	user_id: string;
+	seen_at: string;
+}
+
+export interface EventMessage {
+	id: string;
+	thread_id: string;
+	thread?: EventThread; // Relation to the thread
+	user_id: string;
+	user?: User; // Relation to the user
+	parent_message_id?: string | null; // Supports future threading
+	parent_message?: EventMessage | null; // Parent message relation
+	content?: string | null; // Text content of the message
+	media_key?: string | null; // If message contains media (image/video/audio)
+	media_type?: string | null; // Type of media (image, video, gif, etc.)
+	seen_by: EventMessageSeen[]; // Tracks who has seen the message
+	created_at: string; // ISO timestamp when the message was sent
+	updated_at?: string | null; // ISO timestamp when the message was edited
+}

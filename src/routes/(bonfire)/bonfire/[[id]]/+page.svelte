@@ -201,18 +201,24 @@
 			if (!profileImageMap) {
 				profileImageMap = new Map(); // Initialize if not already a Map
 			}
+
+			// Create a new Map instance to trigger reactivity
+			const updatedProfileImageMap = new Map(profileImageMap);
+
 			// Update map: add new entries or update existing ones **only if the filekey changed**
 			for (const [key, value] of Object.entries(fetchedData)) {
 				const existingEntry = profileImageMap.get(key);
 
 				if (!existingEntry || existingEntry.filekey !== value.filekey) {
 					// ✅ Only update if the entry is new or the filekey has changed
-					profileImageMap.set(key, value);
+					updatedProfileImageMap.set(key, value);
 					console.log(`🔄 Updated profile image for ${key}`);
 				} else {
 					console.log(`✅ No change for ${key}, skipping update.`);
 				}
 			}
+
+			profileImageMap = updatedProfileImageMap;
 		} catch (error) {
 			console.error('Error fetching profile image map:', error);
 		} finally {
@@ -882,7 +888,14 @@
 					<div class=" rounded-xl bg-white p-5 dark:bg-slate-900">
 						<div class="font-semibold">Chats</div>
 					</div>
-					<div class="my-2"><ImThreadView canSendIm={!!rsvpStatus} eventId={event.id} /></div>
+					<div class="my-2">
+						<ImThreadView
+							{currUserId}
+							canSendIm={!!rsvpStatus}
+							eventId={event.id}
+							{profileImageMap}
+						/>
+					</div>
 				</div>
 				<HorizRule />
 				<div class="my-5">
