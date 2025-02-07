@@ -40,26 +40,51 @@
 	import { env as publicEnv } from '$env/dynamic/public';
 	import ImThreadView from '$lib/components/im/ImThreadView.svelte';
 
+	const showMaxNumPeople = 50;
+	const tempAttendeeId = $page.data.tempAttendeeId;
+	const tempAttendeeSecret = $page.url.searchParams.get(tempAttendeeSecretParam);
+
+	let client: TriplitClient;
 	let currUserId = $state('');
-
-	$effect(() => {
-		if ($page.data.user) {
-			currUserId = $page.data.user.id;
-		}
-	});
-
 	let event = $state<EventTypescriptType>();
 	let eventLoading = $state(true);
 	let eventFailedLoading = $state(false);
 	let fileCount = $state(0);
 	let rsvpStatus = $state('');
 
-	const tempAttendeeId = $page.data.tempAttendeeId;
 	let isUnverifiedUser = $derived(!!tempAttendeeId);
-
-	const tempAttendeeSecret = $page.url.searchParams.get(tempAttendeeSecretParam);
 	let tempAttendee = $state(null);
+	let currentUserAttendee = $state();
+	let currenUserIsEventAdmin = $state(false);
+	let isAnonymousUser = $state(!$page.data.user);
+	let adminUserIds = $state(new Set<string>());
+
 	let rsvpCanBeChanged = $state(false);
+
+	let profileImageMap: Map<string, { full_image_url: string; small_image_url: string }> = $state(
+		new Map()
+	);
+	let loadingProfileImageMap = $state(false);
+	let eventFiles: any[] = $state([]);
+	let loadEventFiles = $state(true);
+
+	let attendeesGoing: any = $state([]);
+	let attendeesMaybeGoing: any = $state([]);
+	let attendeesNotGoing: any = $state([]);
+	let attendeesLoading = $state(true);
+	let tempAttendeesLoading = $state(true);
+	let tempAttendeesGoing: any = $state([]);
+	let tempAttendeesMaybeGoing: any = $state([]);
+	let tempAttendeesNotGoing: any = $state([]);
+
+	let latitude = $state(null);
+	let longitude = $state(null);
+
+	$effect(() => {
+		if ($page.data.user) {
+			currUserId = $page.data.user.id;
+		}
+	});
 
 	$effect(() => {
 		console.log('==== rsvpStatus', rsvpStatus);
@@ -68,8 +93,6 @@
 	if (tempAttendeeId) {
 		tempAttendeeSecretStore.set(tempAttendeeId);
 	}
-
-	let isAnonymousUser = $state(!$page.data.user);
 
 	$effect(() => {
 		if (isUnverifiedUser) {
@@ -83,42 +106,35 @@
 		);
 	});
 
-	let client: TriplitClient;
-
-	let profileImageMap: Map<string, { full_image_url: string; small_image_url: string }> = $state(
-		new Map()
-	);
-	let loadingProfileImageMap = $state(false);
-
-	let eventFiles: any[] = $state([]);
-	let loadEventFiles = $state(true);
-
-	let attendeesGoing: any = $state([]);
-	let attendeesMaybeGoing: any = $state([]);
-	let attendeesNotGoing: any = $state([]);
-	let attendeesLoading = $state(true);
-	let tempAttendeesLoading = $state(true);
-
-	let tempAttendeesGoing: any = $state([]);
-	let tempAttendeesMaybeGoing: any = $state([]);
-	let tempAttendeesNotGoing: any = $state([]);
-
-	let currentUserAttendee = $state();
-	const showMaxNumPeople = 50;
-
-	let currenUserIsEventAdmin = $state(false);
-
-	let latitude = $state(null);
-	let longitude = $state(null);
-
-	let adminUserIds = $state(new Set<string>());
-
 	$effect(() => {
 		if (
 			(event && currUserId && event.user_id == (currUserId as string)) ||
 			adminUserIds.has(currUserId)
 		) {
 			currenUserIsEventAdmin = true;
+		}
+	});
+
+	$effect(() => {
+		if (event) {
+			rsvpCanBeChanged = new Date(event.start_time) >= new Date() && rsvpEnabledForCapacity;
+		}
+	});
+
+	$effect(() => {
+		// Ensure event data and currUserId are available
+		if ($page.data.user && allAttendees && currUserId) {
+			// Find the current user's RSVP status in the attendees list
+			const attendees = allAttendees;
+
+			if (attendees && attendees.length > 0) {
+				currentUserAttendee = attendees.find((attendee) => attendee.user_id == currUserId);
+				// Set RSVP status based on the attendee record, or keep it as default
+				rsvpStatus = currentUserAttendee ? currentUserAttendee.status : undefined;
+				if (dev) {
+					$inspect('### rsvpStatus', rsvpStatus);
+				}
+			}
 		}
 	});
 
@@ -145,29 +161,6 @@
 				allAttendeesGoing.length < event?.max_capacity &&
 				$page.data.numAttendingGoing < event?.max_capacity)
 	) as boolean;
-
-	$effect(() => {
-		if (event) {
-			rsvpCanBeChanged = new Date(event.start_time) >= new Date() && rsvpEnabledForCapacity;
-		}
-	});
-
-	$effect(() => {
-		// Ensure event data and currUserId are available
-		if ($page.data.user && allAttendees && currUserId) {
-			// Find the current user's RSVP status in the attendees list
-			const attendees = allAttendees;
-
-			if (attendees && attendees.length > 0) {
-				currentUserAttendee = attendees.find((attendee) => attendee.user_id == currUserId);
-				// Set RSVP status based on the attendee record, or keep it as default
-				rsvpStatus = currentUserAttendee ? currentUserAttendee.status : undefined;
-				if (dev) {
-					$inspect('### rsvpStatus', rsvpStatus);
-				}
-			}
-		}
-	});
 
 	const convertGeocodedLocationToLatLon = (eventGeocodedLocation: any) => {
 		// console.log('###### eventGeocodedLocation -->', eventGeocodedLocation);
@@ -889,7 +882,7 @@
 					<div class=" rounded-xl bg-white p-5 dark:bg-slate-900">
 						<div class="font-semibold">Chats</div>
 					</div>
-					<div class="my-2"><ImThreadView /></div>
+					<div class="my-2"><ImThreadView canSendIm={!!rsvpStatus} eventId={event.id} /></div>
 				</div>
 				<HorizRule />
 				<div class="my-5">

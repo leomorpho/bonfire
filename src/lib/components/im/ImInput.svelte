@@ -1,14 +1,14 @@
 <script lang="ts">
 	import { Paperclip, Send, Smile } from 'lucide-svelte';
-	import { writable } from 'svelte/store';
 	import { onDestroy, onMount } from 'svelte';
 	import { Button } from '$lib/components/ui/button';
 	import * as Popover from '$lib/components/ui/popover/index.js';
 	import EmojiPicker from '../EmojiPicker.svelte';
 
-	let message = writable(''); // Chat input state
+	let { handleSendMessage } = $props();
+
+	let message = $state(''); // Chat input state
 	let textarea: HTMLTextAreaElement;
-	let emojiPickerContainer: HTMLDivElement | null = null;
 	let pickerInstance: any = null;
 
 	const MAX_HEIGHT = 100; // Set max height in pixels
@@ -30,9 +30,8 @@
 	};
 
 	// Handle emoji selection
-	const addEmoji = (detail:any) => {
-		console.log('received emoji', detail);
-		message.update((m) => m + detail.unicode);
+	const addEmoji = (detail: any) => {
+		message += detail.unicode;
 	};
 
 	onMount(() => {
@@ -54,7 +53,7 @@
 	<div class="relative flex-grow">
 		<textarea
 			bind:this={textarea}
-			bind:value={$message}
+			bind:value={message}
 			oninput={adjustTextareaHeight}
 			placeholder="Write a message..."
 			rows="1"
@@ -78,8 +77,9 @@
 		size="icon"
 		title="Send Message"
 		onclick={() => {
-			console.log('Message Sent:', $message);
-			message.set('');
+			handleSendMessage(message);
+			console.log('Message Sent:', message);
+			message = '';
 			adjustTextareaHeight();
 		}}
 	>

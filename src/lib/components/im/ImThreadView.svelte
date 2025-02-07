@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { MAIN_THREAD } from '$lib/im';
+	import { createNewThread, getThread, MAIN_THREAD, sendMessage } from '$lib/im';
 	import { getFeTriplitClient } from '$lib/triplit';
 	import { onMount } from 'svelte';
 	import ImInput from './ImInput.svelte';
+	import type { WorkerClient } from '@triplit/client/worker-client';
 
-	let { threadId = null } = $props();
+	let { eventId, threadId = null, canSendIm = true } = $props();
 
 	let messages: any = $state();
 	let loadMoreMessages: ((pageSize?: number) => void) | undefined = $state();
@@ -55,11 +56,40 @@
 			unsubscribeFromMessages();
 		};
 	});
+
+	const getOrCreateThread = async (client: WorkerClient, eventId: string, threadName: string) => {
+		let thread = await getThread(client, null, eventId, threadName);
+
+		if (thread) {
+			return thread.id;
+		}
+
+		thread = await createNewThread(client, eventId, $page.data.user.id, MAIN_THREAD);
+		return thread.id;
+	};
+
+	const handleSendMessage = async (message: string) => {
+		const client = getFeTriplitClient($page.data.jwt);
+
+		try {
+			if (!threadId) {
+				threadId = await getOrCreateThread(client, eventId, MAIN_THREAD);
+			}
+
+			await sendMessage(client, threadId, $page.data.user.id, message);
+		} catch (e) {
+			console.error(`failed to send message for threadId ${threadId}`, e);
+		}
+	};
 </script>
 
-<div class="flex flex-col h-40 rounded-xl bg-white bg-opacity-50 dark:bg-slate-700 dark:bg-opacity-50">
+<div
+	class="flex h-40 flex-col rounded-xl bg-white bg-opacity-50 dark:bg-slate-700 dark:bg-opacity-50"
+>
 	{#if messages && messages.length > 0}{:else}
 		<div class="flex h-full w-full items-center justify-center">No messages yet</div>
-		<ImInput />
+		{#if canSendIm}
+			<ImInput {handleSendMessage} />
+		{/if}
 	{/if}
 </div>

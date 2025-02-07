@@ -786,8 +786,6 @@ export const schema = {
 	event_messages: {
 		schema: S.Schema({
 			id: S.Id(),
-			event_id: S.String(), // ID of the event this message belongs to
-			event: S.RelationById('events', '$event_id'), // Link to the event
 			thread_id: S.String({ nullable: false }), // Message must belong to a thread
 			thread: S.RelationById('event_threads', '$thread_id'), // Relation to the thread
 			user_id: S.String(), // ID of the user who sent the message
@@ -806,17 +804,17 @@ export const schema = {
 				read: {
 					filter: [
 						or([
-							['event.attendees.user_id', '=', '$role.userId'], // Users can read messages in events they attend
-							['event.event_admins.user_id', '=', '$role.userId'] // Event admins can see all messages
+							['thread.event.attendees.user_id', '=', '$role.userId'], // Users can read messages in events they attend
+							['thread.event.event_admins.user_id', '=', '$role.userId'] // Event admins can see all messages
 						])
 					]
 				},
 				insert: {
 					filter: [
 						or([
-							['event.attendees.user_id', '=', '$role.userId'], // Attendees can send messages
-							['event.event_admins.user_id', '=', '$role.userId'], // Event admins can send messages
-							['event.user_id', '=', '$role.userId'] // Event owner can send messages
+							['thread.event.attendees.user_id', '=', '$role.userId'], // Attendees can send messages
+							['thread.event.event_admins.user_id', '=', '$role.userId'], // Event admins can send messages
+							['thread.event.user_id', '=', '$role.userId'] // Event owner can send messages
 						])
 					]
 				},
@@ -827,8 +825,8 @@ export const schema = {
 					filter: [
 						or([
 							['user_id', '=', '$role.userId'], // Users can delete their own messages
-							['event.event_admins.user_id', '=', '$role.userId'], // Event admins can delete messages
-							['event.user_id', '=', '$role.userId'] // Event owner can delete any message
+							['thread.event.event_admins.user_id', '=', '$role.userId'], // Event admins can delete messages
+							['thread.event.user_id', '=', '$role.userId'] // Event owner can delete any message
 						])
 					]
 				}
@@ -836,7 +834,7 @@ export const schema = {
 			temp: {
 				// Temp users cannot actively participate in the conversation. They need to register to do so.
 				read: {
-					filter: [['event.temporary_attendees.id', '=', '$role.temporaryAttendeeId']] // Temp users can see messages in their event
+					filter: [['thread.event.temporary_attendees.id', '=', '$role.temporaryAttendeeId']] // Temp users can see messages in their event
 				}
 			},
 			anon: {}

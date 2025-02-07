@@ -1,6 +1,48 @@
+import { and } from '@triplit/client';
 import type { WorkerClient } from '@triplit/client/worker-client';
 
 export const MAIN_THREAD = 'main';
+
+/**
+ * Fetch a thread by its ID, or by event ID and name.
+ * Either `threadId` or (`eventId` and `name`) is required.
+ *
+ * @param {WorkerClient} client - The Triplit client instance.
+ * @param {string | null} threadId - The ID of the thread (optional).
+ * @param {string | null} eventId - The ID of the event (optional, required if threadId is not provided).
+ * @param {string | null} name - The name of the thread (optional, required if threadId is not provided).
+ * @returns {Promise<object | null>} - The thread object if found, otherwise null.
+ * @throws {Error} - If neither `threadId` nor `eventId` + `name` are provided.
+ */
+export async function getThread(
+	client: WorkerClient,
+	threadId: string | null = null,
+	eventId: string | null = null,
+	name: string | null = null
+): Promise<object | null> {
+	// Ensure at least one valid identifier is provided
+	if (!threadId && (!eventId || !name)) {
+		throw new Error('Either threadId or both eventId and name must be provided');
+	}
+
+	// Build query dynamically
+	let query = client.query('event_threads');
+
+	if (threadId) {
+		query = query.where([['id', '=', threadId]]);
+	} else if (eventId && name) {
+		query = query.where([
+			and([
+				['event_id', '=', eventId],
+				['name', '=', name]
+			])
+		]);
+	}
+
+	const thread = await client.fetchOne(query.build());
+
+	return thread || null; // Return null if no thread is found
+}
 
 /**
  * Create a new thread within an event.
@@ -162,8 +204,10 @@ export async function markMessageAsSeen(
 		client
 			.query('event_message_seen')
 			.where([
-				['message_id', '=', messageId],
-				['user_id', '=', userId]
+				and([
+					['message_id', '=', messageId],
+					['user_id', '=', userId]
+				])
 			])
 			.build()
 	);
@@ -194,8 +238,10 @@ export async function getMessageSeenStatus(
 		client
 			.query('event_message_seen')
 			.where([
-				['message_id', '=', messageId],
-				['user_id', '=', userId]
+				and([
+					['message_id', '=', messageId],
+					['user_id', '=', userId]
+				])
 			])
 			.build()
 	);

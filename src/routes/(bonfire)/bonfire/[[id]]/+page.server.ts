@@ -19,8 +19,8 @@ export const load = async ({ params, locals, url }) => {
 	let event = null;
 	let numAttendees = 0;
 	let numAttendingGoing = 0;
-	let numAnnouncements = null;
-	let numFiles = null;
+	let numAnnouncements = 0;
+	let numFiles = 0;
 
 	let banneIsSet = false;
 	let bannerSmallSizeUrl = null;
