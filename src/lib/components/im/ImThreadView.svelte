@@ -9,9 +9,6 @@
 
 	let { eventId, currUserId, profileImageMap, threadId = null, canSendIm = true } = $props();
 
-	$effect(() => {
-		console.log('AAABC profileImageMap', profileImageMap);
-	});
 	let messages: any = $state([]);
 	let loadMoreMessages: ((pageSize?: number) => void) | undefined = $state();
 
@@ -39,7 +36,7 @@
 				messages = [...messages, ...uniqueResults].sort(
 					(a, b) => new Date(a.created_at) - new Date(b.created_at)
 				) as [];
-
+				console.log('New messages queried!', messages);
 				loadMoreMessages = loadMore; // Save the loadMore function for pagination
 			},
 			(error) => {

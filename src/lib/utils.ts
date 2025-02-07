@@ -20,17 +20,17 @@ export function formatHumanReadableHour(date: Date): string {
 
 export function formatHumanReadableWithContext(date: Date): string {
 	if (isToday(date)) {
-		return format(date, 'HH:mm'); // Today: "14:30"
+		return format(date, 'h:mm a'); // Today: "2:30 PM"
 	}
 
 	if (isYesterday(date)) {
-		return `Yesterday ${format(date, 'HH:mm')}`; // Yesterday: "Yesterday 14:30"
+		return `Yesterday ${format(date, 'h:mm a')}`; // Yesterday: "Yesterday 2:30 PM"
 	}
 
-	// If the date is older, show "Month Day, HH:mm" (e.g., "March 5, 14:30")
+	// If the date is older, show "Month Day, h:mm a" (e.g., "March 5, 2:30 PM")
 	const formatString = date.getFullYear() === new Date().getFullYear() 
-		? 'MMMM d, HH:mm' // This year: "March 5, 14:30"
-		: 'MMMM d, yyyy, HH:mm'; // Previous years: "March 5, 2023, 14:30"
+		? 'MMMM d, h:mm a' // This year: "March 5, 2:30 PM"
+		: 'MMMM d, yyyy, h:mm a'; // Previous years: "March 5, 2023, 2:30 PM"
 
 	return format(date, formatString);
 }
