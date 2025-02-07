@@ -59,12 +59,14 @@
 
 	const getOrCreateThread = async (client: WorkerClient, eventId: string, threadName: string) => {
 		let thread = await getThread(client, null, eventId, threadName);
+		console.log('A=>', thread);
 
 		if (thread) {
 			return thread.id;
 		}
 
 		thread = await createNewThread(client, eventId, $page.data.user.id, MAIN_THREAD);
+		console.log('B=>', thread);
 		return thread.id;
 	};
 
@@ -75,7 +77,10 @@
 			if (!threadId) {
 				threadId = await getOrCreateThread(client, eventId, MAIN_THREAD);
 			}
-
+			console.log('Creating message for thread', threadId);
+			if (!threadId) {
+				return;
+			}
 			await sendMessage(client, threadId, $page.data.user.id, message);
 		} catch (e) {
 			console.error(`failed to send message for threadId ${threadId}`, e);

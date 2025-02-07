@@ -59,13 +59,14 @@ export async function createNewThread(
 	userId: string,
 	name: string
 ): Promise<object> {
-	const thread = await client.insert('event_threads', {
+	const {output} = await client.insert('event_threads', {
+		id: `${eventId}-${name}`,
 		event_id: eventId,
 		user_id: userId,
 		name
 	});
 
-	return thread;
+	return output;
 }
 
 /**
