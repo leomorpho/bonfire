@@ -39,6 +39,7 @@
 	import BonfireBanner from '$lib/components/BonfireBanner.svelte';
 	import { env as publicEnv } from '$env/dynamic/public';
 	import ImThreadView from '$lib/components/im/ImThreadView.svelte';
+	import PopupImThreadView from '$lib/components/im/PopupImThreadView.svelte';
 
 	const showMaxNumPeople = 50;
 	const tempAttendeeId = $page.data.tempAttendeeId;
@@ -889,7 +890,7 @@
 						<div class="font-semibold">Chats</div>
 					</div>
 					<div class="my-2">
-						<ImThreadView
+						<PopupImThreadView
 							{currUserId}
 							canSendIm={!!rsvpStatus}
 							eventId={event.id}

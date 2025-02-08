@@ -6,8 +6,16 @@
 	import ImInput from './ImInput.svelte';
 	import type { WorkerClient } from '@triplit/client/worker-client';
 	import Message from './Message.svelte';
+	import { ScrollArea } from '../ui/scroll-area';
 
-	let { eventId, currUserId, profileImageMap, threadId = null, canSendIm = true } = $props();
+	let {
+		eventId,
+		currUserId,
+		profileImageMap,
+		threadId = null,
+		canSendIm = true,
+		maxNumMessages = null
+	} = $props();
 
 	let messages: any = $state([]);
 	let loadMoreMessages: ((pageSize?: number) => void) | undefined = $state();
@@ -23,6 +31,10 @@
 			threadMessagesQuery = threadMessagesQuery.where([['thread.name', '=', MAIN_THREAD]]);
 		}
 
+		if (maxNumMessages) {
+			threadMessagesQuery = threadMessagesQuery.limit(maxNumMessages);
+		}
+
 		threadMessagesQuery = threadMessagesQuery.include('user').order('created_at', 'DESC').build();
 
 		const { unsubscribe: unsubscribeFromMessages, loadMore } = client.subscribeWithExpand(
@@ -36,6 +48,10 @@
 				messages = [...messages, ...uniqueResults].sort(
 					(a, b) => new Date(a.created_at) - new Date(b.created_at)
 				) as [];
+
+				if (maxNumMessages) {
+					messages = messages.slice(-maxNumMessages);
+				}
 				console.log('New messages queried!', messages);
 				loadMoreMessages = loadMore; // Save the loadMore function for pagination
 			},
@@ -87,9 +103,11 @@
 	};
 </script>
 
-<div class="flex flex-col rounded-xl bg-white bg-opacity-50 dark:bg-slate-700 dark:bg-opacity-50">
-	{#if messages && messages.length > 0}
-		<div class="h-full w-full space-y-2">
+<div class="flex flex-col h-full w-full">
+	<ScrollArea
+		class="flex h-full w-full flex-col space-y-2 rounded-t-xl bg-white bg-opacity-50 dark:bg-slate-700 dark:bg-opacity-50"
+	>
+		{#if messages && messages.length > 0}
 			{#each messages as message}
 				<Message
 					url={profileImageMap.get(message.user_id)?.small_image_url}
@@ -97,10 +115,10 @@
 					{message}
 				/>
 			{/each}
-		</div>
-	{:else}
-		<div class="flex h-full w-full items-center justify-center">No messages yet</div>
-	{/if}
+		{:else}
+			<div class="flex w-full items-center justify-center">No messages yet</div>
+		{/if}
+	</ScrollArea>
 	{#if canSendIm}
 		<ImInput {handleSendMessage} />
 	{/if}
