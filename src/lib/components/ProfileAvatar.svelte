@@ -9,6 +9,7 @@
 	import type { TriplitClient } from '@triplit/client';
 	import { getFeTriplitClient } from '$lib/triplit';
 	import { toast } from 'svelte-sonner';
+	import { onMount } from 'svelte';
 
 	let {
 		url,
@@ -19,7 +20,7 @@
 		lastUpdatedAt = null,
 		viewerIsEventAdmin = false,
 		attendanceId = null, // NOTE: these can be either real or temp attendances (they are different object types)
-		largeSizeMainAvatar = false
+		baseHeightPx = 60
 	} = $props();
 
 	let attendanceIsAboutToBeDeleted = $state(false);
@@ -70,10 +71,12 @@
 </script>
 
 <Dialog.Root bind:open={dialogIsOpen}>
-	<Dialog.Trigger class="profile-avatar flex items-center justify-center focus:outline-none focus-visible:ring-0">
+	<Dialog.Trigger
+		class="profile-avatar flex items-center justify-center focus:outline-none focus-visible:ring-0"
+	>
 		{#if fullsizeUrl || url}
 			<Avatar.Root
-				class={`relative ${largeSizeMainAvatar ? 'h-24 w-24 border-2 sm:h-32 sm:w-32' : 'h-12 w-12 border-2 sm:h-14 sm:w-14'} ${
+				class={`relative h-[${baseHeightPx}px] w-[${baseHeightPx}px] ${
 					isTempUser ? 'border-yellow-300' : 'border-white'
 				}`}
 			>
@@ -92,7 +95,7 @@
 			</Avatar.Root>
 		{:else}
 			<div class="relative">
-				<GeneratedAvatar {username} size={largeSizeMainAvatar ? 120 : 60} />
+				<GeneratedAvatar {username} size={baseHeightPx} />
 				{#if isTempUser}
 					<div class="pointer-events-none absolute inset-0 rounded-full border-4 border-yellow-400">
 						<div class="flex h-full w-full items-center justify-center">{fallbackNameShort}</div>

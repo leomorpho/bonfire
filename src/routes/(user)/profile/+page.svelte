@@ -42,7 +42,7 @@
 					fullsizeUrl={full_image_url}
 					fallbackName={user.results[0].username}
 					username={user.results[0].username}
-					largeSizeMainAvatar={true}
+					baseHeightPx={120}
 				/>
 				<a href="profile/upload-profile-image"> <Button variant="link">Edit Avatar</Button></a>
 			</div>
