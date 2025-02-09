@@ -6,7 +6,6 @@
 	import ImInput from './ImInput.svelte';
 	import type { WorkerClient } from '@triplit/client/worker-client';
 	import Message from './Message.svelte';
-	import { ScrollArea } from '../ui/scroll-area';
 
 	let {
 		eventId,
@@ -17,6 +16,7 @@
 		maxNumMessages = null
 	} = $props();
 
+	let chatContainerRef: HTMLDivElement | null = null;
 	let messages: any = $state([]);
 	let loadMoreMessages: ((pageSize?: number) => void) | undefined = $state();
 
@@ -46,7 +46,7 @@
 
 				// // Update with unique messages only and sort by created_at
 				messages = [...messages, ...uniqueResults].sort(
-					(a, b) => new Date(a.created_at) - new Date(b.created_at)
+					(a, b) => new Date(b.created_at) - new Date(a.created_at)
 				) as [];
 
 				if (maxNumMessages) {
@@ -103,10 +103,11 @@
 	};
 </script>
 
-<div class="flex flex-col h-full w-full">
-	<ScrollArea
-		class="flex h-full w-full flex-col space-y-2 rounded-t-xl bg-white bg-opacity-50 dark:bg-slate-700 dark:bg-opacity-50"
+<div class="flex h-full w-full flex-col">
+	<div
+		class="container-scroll h-full space-y-2 overflow-y-auto rounded-t-xl bg-white p-2 dark:bg-black"
 	>
+		<!-- <div class="skip-me hidden"> -->
 		{#if messages && messages.length > 0}
 			{#each messages as message}
 				<Message
@@ -118,8 +119,59 @@
 		{:else}
 			<div class="flex w-full items-center justify-center">No messages yet</div>
 		{/if}
-	</ScrollArea>
+	</div>
+	<!-- </div> -->
 	{#if canSendIm}
 		<ImInput {handleSendMessage} />
 	{/if}
 </div>
+
+<style>
+	.container-scroll {
+		/* 
+		Taken from https://stackoverflow.com/a/44051405 
+		Makes the scrollable content start from the bottom
+		*/
+		display: flex;
+		flex-direction: column-reverse;
+	}
+
+	/* Initially hide scrollbar */
+	.container-scroll::-webkit-scrollbar {
+		width: 1px; /* Ultra-thin */
+		opacity: 0; /* Hidden by default */
+		transition: opacity 0.2s ease-in-out; /* Smooth fade-in */
+	}
+
+	/* Show scrollbar when scrolling */
+	.container-scroll:hover::-webkit-scrollbar,
+	.container-scroll:active::-webkit-scrollbar,
+	.container-scroll:focus-within::-webkit-scrollbar {
+		opacity: 1; /* Show scrollbar on hover, focus, or active scroll */
+	}
+
+	/* Scrollbar track */
+	.container-scroll::-webkit-scrollbar-track {
+		background: transparent; /* Keeps it clean */
+	}
+
+	/* Scrollbar thumb */
+	.container-scroll::-webkit-scrollbar-thumb {
+		background-color: rgba(100, 100, 100, 0.5);
+		border-radius: 1px;
+	}
+
+	/* Firefox scrollbar: Hide by default, show on hover */
+	.container-scroll {
+		scrollbar-width: thin;
+		scrollbar-color: transparent transparent; /* Hidden by default */
+		transition: scrollbar-color 0.2s ease-in-out;
+	}
+
+	/* Show scrollbar when interacting */
+	.container-scroll:hover,
+	.container-scroll:active,
+	.container-scroll:focus-within {
+		scrollbar-color: rgba(100, 100, 100, 0.5) transparent;
+	}
+</style>

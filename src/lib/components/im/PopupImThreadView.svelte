@@ -6,7 +6,7 @@
 </script>
 
 <Dialog.Root>
-	<Dialog.Trigger class="w-full">
+	<Dialog.Trigger class="w-full focus:outline-none focus-visible:ring-0">
 		<ImThreadView
 			{eventId}
 			{currUserId}

@@ -45,7 +45,7 @@
 
 <div class="flex w-full items-center gap-3 rounded-b-xl bg-white p-3 dark:bg-gray-900">
 	<!-- Attachments Button -->
-	<Button variant="ghost" size="icon" title="Attach File">
+	<Button variant="ghost" size="icon" title="Attach File" class="focus:outline-none focus-visible:ring-0">
 		<Paperclip class="h-5 w-5 text-gray-500 dark:text-gray-400" />
 	</Button>
 
@@ -62,7 +62,7 @@
 	</div>
 	<!-- Emoji Picker Popover -->
 	<Popover.Root>
-		<Popover.Trigger
+		<Popover.Trigger class="focus:outline-none focus-visible:ring-0"
 			><Smile
 				class="h-5 w-5 text-gray-500 focus:outline-none focus-visible:ring-0 dark:text-gray-400"
 			/></Popover.Trigger
@@ -82,6 +82,7 @@
 			message = '';
 			adjustTextareaHeight();
 		}}
+		class="focus:outline-none focus-visible:ring-0"
 	>
 		<Send class="h-5 w-5 text-white dark:text-black" />
 	</Button>
