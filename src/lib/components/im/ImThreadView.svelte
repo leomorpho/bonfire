@@ -20,7 +20,9 @@
 
 	let chatContainerRef: HTMLDivElement | null = null;
 	let userScrolledUp = $state(false);
-
+	let sentMessageJustNowFromNonBottom = $state(false);
+	let sentMessageJustNowFromBottom = $state(false);
+	let initialLoad = $state(true);
 	let messages: any = $state([]);
 	let loadMoreMessages: ((pageSize?: number) => void) | undefined = $state();
 
@@ -30,17 +32,22 @@
 		// Check if the user has scrolled up (not at the bottom)
 		const isAtBottom = chatContainerRef.scrollTop == 0;
 		userScrolledUp = !isAtBottom;
+	};
+
+	$effect(() => {
 		console.log(
 			'userScrolledUp',
 			userScrolledUp,
-			'chatContainerRef.scrollHeight',
-			chatContainerRef.scrollHeight,
-			'chatContainerRef.scrollTop',
-			chatContainerRef.scrollTop,
-			'chatContainerRef.clientHeight',
-			chatContainerRef.clientHeight
+			'sentMessageJustNowFromNonBottom',
+			sentMessageJustNowFromNonBottom,
+			'sentMessageJustNowFromBottom',
+			sentMessageJustNowFromBottom
 		);
-	};
+		if (!userScrolledUp) {
+			// Reset once we made it to bottom of scrollable area
+			sentMessageJustNowFromNonBottom = false;
+		}
+	});
 
 	onMount(() => {
 		const client = getFeTriplitClient($page.data.jwt);
@@ -64,16 +71,16 @@
 			(results, info) => {
 				if (!chatContainerRef) return;
 
-				// 1️⃣ Capture current scroll position BEFORE new messages load
+				// Capture current scroll position BEFORE new messages load
 				const prevScrollTop = chatContainerRef.scrollTop;
 				const prevScrollHeight = chatContainerRef.scrollHeight;
 
-				// 2️⃣ Temporarily disable scrolling
+				// Temporarily disable scrolling
 				const freezeScroll = () => {
 					window.scrollTo(0, prevScrollTop);
 				};
 
-				if (userScrolledUp) {
+				if (userScrolledUp || sentMessageJustNowFromNonBottom ) {
 					window.addEventListener('scroll', freezeScroll, { passive: false });
 				}
 
@@ -91,22 +98,24 @@
 				}
 				console.log('New messages queried!', messages);
 
-				// 4️⃣ Restore scroll position AFTER the DOM updates
+				// Restore scroll position AFTER the DOM updates
 				requestAnimationFrame(() => {
 					if (!chatContainerRef) return;
 					const newScrollHeight = chatContainerRef.scrollHeight;
-
-					if (!userScrolledUp) {
+					
+					if (!userScrolledUp || sentMessageJustNowFromNonBottom ) {
 						scrollToBottom();
 					} else {
 						chatContainerRef.scrollTop = prevScrollTop - (newScrollHeight - prevScrollHeight);
 					}
 
-					// 5️⃣ Re-enable scrolling
+					// Re-enable scrolling
 					window.removeEventListener('scroll', freezeScroll);
 				});
 
 				loadMoreMessages = loadMore; // Save the loadMore function for pagination
+
+				initialLoad = false;
 			},
 			(error) => {
 				// handle error
@@ -133,6 +142,7 @@
 	});
 
 	const scrollToBottom = () => {
+		console.log('scrolling to bottom');
 		if (chatContainerRef) {
 			chatContainerRef.scrollTo({
 				top: chatContainerRef.scrollHeight,
@@ -166,7 +176,11 @@
 			await sendMessage(client, threadId, $page.data.user.id, message);
 
 			// Always scroll to bottom when the user sends a message
-			setTimeout(() => scrollToBottom(), 50);
+			if (!userScrolledUp) {
+				sentMessageJustNowFromBottom = true;
+			} else {
+				sentMessageJustNowFromNonBottom = true;
+			}
 		} catch (e) {
 			console.error(`failed to send message for threadId ${threadId}`, e);
 		}
