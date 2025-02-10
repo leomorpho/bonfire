@@ -53,14 +53,14 @@
 
 <div class="flex w-full items-center gap-3 rounded-b-xl bg-white p-3 dark:bg-gray-900">
 	<!-- Attachments Button -->
-	<Button
+	<!-- <Button
 		variant="ghost"
 		size="icon"
 		title="Attach File"
 		class="focus:outline-none focus-visible:ring-0"
 	>
 		<Paperclip class="h-5 w-5 text-gray-500 dark:text-gray-400" />
-	</Button>
+	</Button> -->
 
 	<!-- Text Input -->
 	<div class="relative flex-grow">
@@ -96,6 +96,7 @@
 			adjustTextareaHeight();
 		}}
 		class="focus:outline-none focus-visible:ring-0"
+		disabled={message.length == 0}
 	>
 		<Send class="h-5 w-5 text-white dark:text-black" />
 	</Button>
