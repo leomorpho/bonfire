@@ -10,11 +10,11 @@
 	}>();
 
 	// Check if the message was sent by the current user
-	let isOwnMessage = message.user_id === currUserId;
+	let isOwnMessage = $derived(message.user_id == currUserId);
 </script>
 
 {#snippet avatar()}
-	<ProfileAvatar {url} username={message.user?.username} isTempUser={false} baseHeightPx={30}/>
+	<ProfileAvatar {url} username={message.user?.username} isTempUser={false} baseHeightPx={30} />
 {/snippet}
 
 <div class=" flex w-full items-end p-2 {isOwnMessage ? 'justify-end' : 'justify-start'} gap-2.5">
