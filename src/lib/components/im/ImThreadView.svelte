@@ -2,7 +2,7 @@
 	import { page } from '$app/stores';
 	import { createNewThread, getThread, MAIN_THREAD, sendMessage } from '$lib/im';
 	import { getFeTriplitClient } from '$lib/triplit';
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import ImInput from './ImInput.svelte';
 	import type { WorkerClient } from '@triplit/client/worker-client';
 	import Message from './Message.svelte';
@@ -17,8 +17,21 @@
 	} = $props();
 
 	let chatContainerRef: HTMLDivElement | null = null;
+	let userScrolledUp = false;
+
 	let messages: any = $state([]);
 	let loadMoreMessages: ((pageSize?: number) => void) | undefined = $state();
+
+	const handleScroll = () => {
+		if (!chatContainerRef) return;
+
+		// Check if the user has scrolled up (not at the bottom)
+		const isAtBottom =
+			chatContainerRef.scrollHeight - chatContainerRef.scrollTop <=
+			chatContainerRef.clientHeight + 5;
+		userScrolledUp = !isAtBottom;
+		console.log('userScrolledUp', userScrolledUp);
+	};
 
 	onMount(() => {
 		const client = getFeTriplitClient($page.data.jwt);
@@ -40,6 +53,13 @@
 		const { unsubscribe: unsubscribeFromMessages, loadMore } = client.subscribeWithExpand(
 			threadMessagesQuery,
 			(results, info) => {
+				if (!chatContainerRef) return;
+
+				// Capture current scroll position BEFORE updating messages
+				const prevScrollTop = chatContainerRef.scrollTop;
+				const prevScrollHeight = chatContainerRef.scrollHeight;
+				console.log('Before Update - ScrollTop:', prevScrollTop, 'ScrollHeight:', prevScrollHeight);
+
 				// Avoid duplicates by checking IDs
 				const existingIds = new Set(messages.map((m: any) => m.id));
 				const uniqueResults = results.filter((m: any) => !existingIds.has(m.id));
@@ -53,6 +73,26 @@
 					messages = messages.slice(-maxNumMessages);
 				}
 				console.log('New messages queried!', messages);
+
+				// Set a short timeout to allow the DOM to update before scrolling
+				setTimeout(() => {
+					if (!chatContainerRef) return;
+
+					// New scroll height after message update
+					const newScrollHeight = chatContainerRef.scrollHeight;
+
+					// Preserve user's scroll position if scrolled up
+					if (userScrolledUp) {
+						const scrollOffset = newScrollHeight - prevScrollHeight;
+						chatContainerRef.scrollTop = prevScrollTop - scrollOffset;
+						console.log('User Scrolled Up - Keeping position, Offset:', scrollOffset);
+					} else {
+						// Scroll to bottom if the user is at the bottom
+						scrollToBottom();
+						console.log('User at Bottom - Auto-scrolling');
+					}
+				}, 50);
+
 				loadMoreMessages = loadMore; // Save the loadMore function for pagination
 			},
 			(error) => {
@@ -68,11 +108,22 @@
 			}
 		);
 
+		if (chatContainerRef) {
+			console.log('chatContainerRef', chatContainerRef);
+			chatContainerRef.addEventListener('scroll', handleScroll);
+		}
+
 		// Ensure cleanup on component destruction
 		return () => {
 			unsubscribeFromMessages();
 		};
 	});
+
+	const scrollToBottom = () => {
+		if (chatContainerRef) {
+			chatContainerRef.scrollTop = chatContainerRef.scrollHeight;
+		}
+	};
 
 	const getOrCreateThread = async (client: WorkerClient, eventId: string, threadName: string) => {
 		let thread = await getThread(client, null, eventId, threadName);
@@ -97,17 +148,29 @@
 				return;
 			}
 			await sendMessage(client, threadId, $page.data.user.id, message);
+
+			// Always scroll to bottom when the user sends a message
+			setTimeout(() => scrollToBottom(), 50);
 		} catch (e) {
 			console.error(`failed to send message for threadId ${threadId}`, e);
 		}
 	};
+
+	onDestroy(() => {
+		if (chatContainerRef) {
+			chatContainerRef.removeEventListener('scroll', handleScroll);
+		}
+	});
 </script>
 
 <div class="flex h-full w-full flex-col">
 	<div
+		id="scroller"
+		bind:this={chatContainerRef}
 		class="container-scroll h-full space-y-2 overflow-y-auto rounded-t-xl bg-white p-2 dark:bg-black"
 	>
-		<!-- <div class="skip-me hidden"> -->
+		<div id="anchor"></div>
+
 		{#if messages && messages.length > 0}
 			{#each messages as message}
 				<Message
@@ -173,5 +236,17 @@
 	.container-scroll:active,
 	.container-scroll:focus-within {
 		scrollbar-color: rgba(100, 100, 100, 0.5) transparent;
+	}
+
+	/*
+	Prevent scrolling automatically when new messages are added by others
+	https://css-tricks.com/books/greatest-css-tricks/pin-scrolling-to-bottom/
+	*/
+	#scroller * {
+		overflow-anchor: none;
+	}
+	#anchor {
+		overflow-anchor: auto;
+		height: 1px;
 	}
 </style>
