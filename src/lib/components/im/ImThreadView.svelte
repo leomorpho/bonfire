@@ -6,6 +6,8 @@
 	import ImInput from './ImInput.svelte';
 	import type { WorkerClient } from '@triplit/client/worker-client';
 	import Message from './Message.svelte';
+	import Button from '../ui/button/button.svelte';
+	import { ChevronDown } from 'lucide-svelte';
 
 	let {
 		eventId,
@@ -17,7 +19,7 @@
 	} = $props();
 
 	let chatContainerRef: HTMLDivElement | null = null;
-	let userScrolledUp = false;
+	let userScrolledUp = $state(false);
 
 	let messages: any = $state([]);
 	let loadMoreMessages: ((pageSize?: number) => void) | undefined = $state();
@@ -26,11 +28,18 @@
 		if (!chatContainerRef) return;
 
 		// Check if the user has scrolled up (not at the bottom)
-		const isAtBottom =
-			chatContainerRef.scrollHeight - chatContainerRef.scrollTop <=
-			chatContainerRef.clientHeight + 5;
+		const isAtBottom = chatContainerRef.scrollTop == 0;
 		userScrolledUp = !isAtBottom;
-		console.log('userScrolledUp', userScrolledUp);
+		console.log(
+			'userScrolledUp',
+			userScrolledUp,
+			'chatContainerRef.scrollHeight',
+			chatContainerRef.scrollHeight,
+			'chatContainerRef.scrollTop',
+			chatContainerRef.scrollTop,
+			'chatContainerRef.clientHeight',
+			chatContainerRef.clientHeight
+		);
 	};
 
 	onMount(() => {
@@ -125,7 +134,10 @@
 
 	const scrollToBottom = () => {
 		if (chatContainerRef) {
-			chatContainerRef.scrollTop = chatContainerRef.scrollHeight;
+			chatContainerRef.scrollTo({
+				top: chatContainerRef.scrollHeight,
+				behavior: 'smooth'
+			});
 		}
 	};
 
@@ -167,7 +179,7 @@
 	});
 </script>
 
-<div class="flex h-full w-full flex-col">
+<div class="relative flex h-full w-full flex-col">
 	<div
 		id="scroller"
 		bind:this={chatContainerRef}
@@ -186,8 +198,20 @@
 		{:else}
 			<div class="flex w-full items-center justify-center">No messages yet</div>
 		{/if}
+
+		<!-- ✅ Position button at the bottom of the chat container -->
+		{#if userScrolledUp}
+			<div class="absolute bottom-20 z-10 flex w-full items-center justify-center">
+				<Button
+					onclick={scrollToBottom}
+					class="rounded-full bg-blue-700 p-2 px-5 text-white shadow-lg transition-opacity duration-200 hover:bg-gray-700"
+				>
+					<div><ChevronDown class="!h-4 !w-4 sm:!h-5 sm:!w-5" /></div>
+				</Button>
+			</div>
+		{/if}
 	</div>
-	<!-- </div> -->
+
 	{#if canSendIm}
 		<ImInput {handleSendMessage} />
 	{/if}
