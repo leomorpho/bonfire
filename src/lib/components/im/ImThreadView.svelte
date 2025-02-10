@@ -204,7 +204,7 @@
 			<div class="absolute bottom-20 z-10 flex w-full items-center justify-center">
 				<Button
 					onclick={scrollToBottom}
-					class="rounded-full bg-blue-700 p-2 px-5 text-white shadow-lg transition-opacity duration-200 hover:bg-gray-700"
+					class="rounded-full bg-blue-700 p-2 px-5 text-white shadow-lg transition-all duration-300 ease-in-out hover:bg-gray-700"
 				>
 					<div><ChevronDown class="!h-4 !w-4 sm:!h-5 sm:!w-5" /></div>
 				</Button>
