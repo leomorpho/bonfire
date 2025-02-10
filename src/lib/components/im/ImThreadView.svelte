@@ -55,10 +55,18 @@
 			(results, info) => {
 				if (!chatContainerRef) return;
 
-				// Capture current scroll position BEFORE updating messages
+				// 1️⃣ Capture current scroll position BEFORE new messages load
 				const prevScrollTop = chatContainerRef.scrollTop;
 				const prevScrollHeight = chatContainerRef.scrollHeight;
-				console.log('Before Update - ScrollTop:', prevScrollTop, 'ScrollHeight:', prevScrollHeight);
+
+				// 2️⃣ Temporarily disable scrolling
+				const freezeScroll = () => {
+					window.scrollTo(0, prevScrollTop);
+				};
+
+				if (userScrolledUp) {
+					window.addEventListener('scroll', freezeScroll, { passive: false });
+				}
 
 				// Avoid duplicates by checking IDs
 				const existingIds = new Set(messages.map((m: any) => m.id));
@@ -74,24 +82,20 @@
 				}
 				console.log('New messages queried!', messages);
 
-				// Set a short timeout to allow the DOM to update before scrolling
-				setTimeout(() => {
+				// 4️⃣ Restore scroll position AFTER the DOM updates
+				requestAnimationFrame(() => {
 					if (!chatContainerRef) return;
-
-					// New scroll height after message update
 					const newScrollHeight = chatContainerRef.scrollHeight;
 
-					// Preserve user's scroll position if scrolled up
-					if (userScrolledUp) {
-						const scrollOffset = newScrollHeight - prevScrollHeight;
-						chatContainerRef.scrollTop = prevScrollTop - scrollOffset;
-						console.log('User Scrolled Up - Keeping position, Offset:', scrollOffset);
-					} else {
-						// Scroll to bottom if the user is at the bottom
+					if (!userScrolledUp) {
 						scrollToBottom();
-						console.log('User at Bottom - Auto-scrolling');
+					} else {
+						chatContainerRef.scrollTop = prevScrollTop - (newScrollHeight - prevScrollHeight);
 					}
-				}, 50);
+
+					// 5️⃣ Re-enable scrolling
+					window.removeEventListener('scroll', freezeScroll);
+				});
 
 				loadMoreMessages = loadMore; // Save the loadMore function for pagination
 			},
