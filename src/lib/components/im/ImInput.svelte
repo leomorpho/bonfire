@@ -32,6 +32,14 @@
 	// Handle emoji selection
 	const addEmoji = (detail: any) => {
 		message += detail.unicode;
+
+		// Move caret to the end
+		requestAnimationFrame(() => {
+			if (textarea) {
+				textarea.focus();
+				textarea.selectionStart = textarea.selectionEnd = message.length;
+			}
+		});
 	};
 
 	onMount(() => {
@@ -45,7 +53,12 @@
 
 <div class="flex w-full items-center gap-3 rounded-b-xl bg-white p-3 dark:bg-gray-900">
 	<!-- Attachments Button -->
-	<Button variant="ghost" size="icon" title="Attach File" class="focus:outline-none focus-visible:ring-0">
+	<Button
+		variant="ghost"
+		size="icon"
+		title="Attach File"
+		class="focus:outline-none focus-visible:ring-0"
+	>
 		<Paperclip class="h-5 w-5 text-gray-500 dark:text-gray-400" />
 	</Button>
 
