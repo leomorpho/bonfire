@@ -11,13 +11,16 @@
 
 	// Check if the message was sent by the current user
 	let isOwnMessage = $derived(message.user_id == currUserId);
+
+	// Determine if the message is seen by the current user
+	let isUnseen = $derived(message.seen_by ? !message.seen_by.includes(currUserId) : true);
 </script>
 
 {#snippet avatar()}
 	<ProfileAvatar {url} username={message.user?.username} isTempUser={false} baseHeightPx={30} />
 {/snippet}
 
-<div class=" flex w-full items-end p-2 {isOwnMessage ? 'justify-end' : 'justify-start'} gap-2.5">
+<div class="message {isUnseen ? 'unseen' : ''} flex w-full items-end p-2 {isOwnMessage ? 'justify-end' : 'justify-start'} gap-2.5">
 	<div class="flex gap-2.5 ${isOwnMessage ? 'items-end' : 'items-start'}">
 		{#if !isOwnMessage}
 			<div class="self-end">{@render avatar()}</div>

@@ -64,7 +64,11 @@
 			threadMessagesQuery = threadMessagesQuery.limit(maxNumMessages);
 		}
 
-		threadMessagesQuery = threadMessagesQuery.include('user').order('created_at', 'DESC').build();
+		threadMessagesQuery = threadMessagesQuery
+			.include('user')
+			.include('seen_by')
+			.order('created_at', 'DESC')
+			.build();
 
 		const { unsubscribe: unsubscribeFromMessages, loadMore } = client.subscribeWithExpand(
 			threadMessagesQuery,
@@ -80,7 +84,7 @@
 					window.scrollTo(0, prevScrollTop);
 				};
 
-				if (userScrolledUp || sentMessageJustNowFromNonBottom ) {
+				if (userScrolledUp || sentMessageJustNowFromNonBottom) {
 					window.addEventListener('scroll', freezeScroll, { passive: false });
 				}
 
@@ -102,8 +106,8 @@
 				requestAnimationFrame(() => {
 					if (!chatContainerRef) return;
 					const newScrollHeight = chatContainerRef.scrollHeight;
-					
-					if (!userScrolledUp || sentMessageJustNowFromNonBottom ) {
+
+					if (!userScrolledUp || sentMessageJustNowFromNonBottom) {
 						scrollToBottom();
 					} else {
 						chatContainerRef.scrollTop = prevScrollTop - (newScrollHeight - prevScrollHeight);
