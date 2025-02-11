@@ -209,3 +209,34 @@ export async function createNewAdminNotificationQueueObject(
 		console.log('failed to create notification queue object for admin notification', e);
 	}
 }
+
+/**
+ * Create a new message queue object for messages.
+ * @param client - TriplitClient instance.
+ * @param userId - The ID of the user creating the notification queue object.
+ * @param messageIds - List of message IDs.
+ */
+export async function createNewMessageNotificationQueueObject(
+	client: TriplitClient | WorkerClient | HttpClient,
+	userId: string,
+	eventId: string,
+	messageIds: string[]
+): Promise<void> {
+	if (!isNonEmptyArray(messageIds)) {
+		throw new Error(
+			'messageIds in createNewMessageNotificationQueueObject cannot be empty.'
+		);
+	}
+
+	// TODO: check that announcementIds points to real objects
+
+	// Stringify the list of IDs, even if it's a single item
+	const objectIds = JSON.stringify(messageIds);
+
+	await client.insert('notifications_queue', {
+		user_id: userId,
+		event_id: eventId,
+		object_type: NotificationType.NEW_MESSAGE,
+		object_ids: objectIds
+	});
+}

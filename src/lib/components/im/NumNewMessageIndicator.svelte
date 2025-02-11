@@ -3,20 +3,15 @@
 	import { getFeTriplitClient } from '$lib/triplit';
 	import { onMount } from 'svelte';
 
+	let { bonfireId } = $props();
+
 	onMount(() => {
 		const client = getFeTriplitClient($page.data.jwt);
 
-		let threadMessagesQuery = client.query('event_messages');
+		let threadMessagesQuery = client
+			.query('event_messages')
+			.where([['thread.event_id', '=', bonfireId]]).where();
 
-		if (threadId) {
-			threadMessagesQuery = threadMessagesQuery.where([['thread_id', '=', threadId]]);
-		} else {
-			threadMessagesQuery = threadMessagesQuery.where([['thread.name', '=', MAIN_THREAD]]);
-		}
-
-		if (maxNumMessages) {
-			threadMessagesQuery = threadMessagesQuery.limit(maxNumMessages);
-		}
 
 		threadMessagesQuery = threadMessagesQuery
 			.include('user')

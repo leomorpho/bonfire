@@ -17,7 +17,7 @@
 		threadId = null,
 		canSendIm = true,
 		maxNumMessages = null,
-		datetimeUserJoinedBonfire = null,
+		datetimeUserJoinedBonfire = null
 	} = $props();
 
 	let chatContainerRef: HTMLDivElement | null = null;
@@ -212,12 +212,10 @@
 			if (!threadId) {
 				return;
 			}
-			await sendMessage(client, threadId, $page.data.user.id, message);
+			await sendMessage(client, eventId, threadId, $page.data.user.id, message);
 
 			// Always scroll to bottom when the user sends a message
-			if (!userScrolledUp) {
-				sentMessageJustNowFromBottom = true;
-			} else {
+			if (userScrolledUp) {
 				sentMessageJustNowFromNonBottom = true;
 			}
 		} catch (e) {

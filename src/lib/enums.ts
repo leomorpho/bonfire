@@ -81,6 +81,7 @@ export enum NotificationType {
 	ATTENDEES = 'attendees',
 	TEMP_ATTENDEES = 'temp_attendees',
 	ADMIN_ADDED = 'admin_added',
+	NEW_MESSAGE = 'new_message'
 }
 
 export const MAX_NUM_PUSH_NOTIF_PER_NOTIFICATION = 3;

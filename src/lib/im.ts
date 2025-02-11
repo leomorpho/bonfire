@@ -1,5 +1,6 @@
 import { and } from '@triplit/client';
 import type { WorkerClient } from '@triplit/client/worker-client';
+import { createNewMessageNotificationQueueObject } from './notification';
 
 export const MAIN_THREAD = 'main';
 
@@ -59,7 +60,7 @@ export async function createNewThread(
 	userId: string,
 	name: string
 ): Promise<object> {
-	const {output} = await client.insert('event_threads', {
+	const { output } = await client.insert('event_threads', {
 		id: `${eventId}-${name}`,
 		event_id: eventId,
 		user_id: userId,
@@ -82,12 +83,13 @@ export async function createNewThread(
  */
 export async function sendMessage(
 	client: WorkerClient,
+	eventId: string,
 	threadId: string,
 	userId: string,
 	content: string,
 	parentMessageId: string | null = null
-): Promise<object> {
-	const message = await client.insert('event_messages', {
+) {
+	const { output } = await client.insert('event_messages', {
 		thread_id: threadId,
 		user_id: userId,
 		content,
@@ -95,7 +97,8 @@ export async function sendMessage(
 		created_at: new Date().toISOString()
 	});
 
-	return message;
+	// Create notifications_queue entry
+	await createNewMessageNotificationQueueObject(client, userId, eventId, [output.id]);
 }
 
 /**
