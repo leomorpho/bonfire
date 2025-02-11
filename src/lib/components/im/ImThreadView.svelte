@@ -15,7 +15,8 @@
 		profileImageMap,
 		threadId = null,
 		canSendIm = true,
-		maxNumMessages = null
+		maxNumMessages = null,
+		datetimeUserJoinedBonfire = null
 	} = $props();
 
 	let chatContainerRef: HTMLDivElement | null = null;
@@ -36,14 +37,6 @@
 	};
 
 	$effect(() => {
-		console.log(
-			'userScrolledUp',
-			userScrolledUp,
-			'sentMessageJustNowFromNonBottom',
-			sentMessageJustNowFromNonBottom,
-			'sentMessageJustNowFromBottom',
-			sentMessageJustNowFromBottom
-		);
 		if (!userScrolledUp) {
 			// Reset once we made it to bottom of scrollable area
 			sentMessageJustNowFromNonBottom = false;
@@ -227,6 +220,14 @@
 			chatContainerRef.removeEventListener('scroll', handleScroll);
 		}
 	});
+
+	const scrollDownButton = ()=>{
+		if (numUnseenMessage){
+			scrollToOldestUnseenMessage()
+		}else{
+			scrollToBottom()
+		}
+	}
 </script>
 
 <div class="relative flex h-full w-full flex-col">
@@ -244,6 +245,7 @@
 					{currUserId}
 					{message}
 					onMessageSeen={countNumUnseenMessages}
+					ignoreSeenStatusPriorToThisDatetime={datetimeUserJoinedBonfire}
 				/>
 			{/each}
 		{:else}
@@ -254,7 +256,7 @@
 		{#if userScrolledUp}
 			<div class="absolute bottom-20 z-10 flex w-full items-center justify-center">
 				<Button
-					onclick={() => scrollToOldestUnseenMessage()}
+					onclick={scrollDownButton}
 					class="rounded-full bg-blue-700 p-2 px-5 text-white shadow-lg transition-all duration-300 ease-in-out hover:bg-gray-700"
 				>
 					<div class="flex flex-col items-center justify-center">

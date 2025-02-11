@@ -903,6 +903,7 @@
 							canSendIm={!!rsvpStatus}
 							eventId={event.id}
 							{profileImageMap}
+							datetimeUserJoinedBonfire={currentUserAttendee?.updated_at}
 
 						/>
 					</div>

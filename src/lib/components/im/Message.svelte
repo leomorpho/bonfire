@@ -10,12 +10,14 @@
 		currUserId,
 		message,
 		url,
-		onMessageSeen = null
+		onMessageSeen = null,
+		ignoreSeenStatusPriorToThisDatetime = null
 	} = $props<{
 		currUserId: string;
 		message: EventMessage;
 		url?: string; // Optional property
 		onMessageSeen?: () => void;
+		ignoreSeenStatusPriorToThisDatetime: string;
 	}>();
 
 	// Check if the message was sent by the current user
@@ -27,6 +29,16 @@
 	let isUnseen = $state(false);
 
 	$effect(() => {
+		if (ignoreSeenStatusPriorToThisDatetime) {
+			const ignoreBefore = new Date(ignoreSeenStatusPriorToThisDatetime);
+			const messageCreatedAt = new Date(message.created_at);
+
+			if (!isNaN(ignoreBefore.getTime()) && messageCreatedAt < ignoreBefore) {
+				isUnseen = false;
+				return;
+			}
+		}
+
 		isUnseen = message.seen_by
 			? !message.seen_by.some((seen: any) => seen.user_id === currUserId)
 			: true;
@@ -110,7 +122,7 @@
 		{/if}
 		<div
 			class="leading-1.5 flex w-full max-w-[320px] flex-col p-4
-			{isOwnMessage ? 'from-me rounded-s-xl rounded-se-xl bg-blue-100 p-4 dark:bg-blue-600':''}
+			{isOwnMessage ? 'from-me rounded-s-xl rounded-se-xl bg-blue-100 p-4 dark:bg-blue-600' : ''}
 	{!isOwnMessage && !isUnseen
 				? 'from-them rounded-e-xl rounded-ss-xl bg-gray-100 p-4 dark:bg-gray-800'
 				: ''}
