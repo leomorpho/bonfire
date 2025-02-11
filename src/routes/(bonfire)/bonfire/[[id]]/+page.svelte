@@ -5,6 +5,7 @@
 	import { getFeTriplitClient, waitForUserId } from '$lib/triplit';
 	import Loader from '$lib/components/Loader.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
+	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import {
 		Cog,
 		Share,
@@ -522,6 +523,13 @@
 			toast.success('Sorry, an error occurred, please try again later or contact support');
 		}
 	};
+
+	function scrollToBottom() {
+		window.scrollTo({
+			top: document.body.scrollHeight,
+			behavior: 'smooth'
+		});
+	}
 </script>
 
 {#if !isAnonymousUser && !isUnverifiedUser && eventLoading}
@@ -535,292 +543,310 @@
 		<EventDoesNotExist />
 	{:else}
 		<div class="mx-4 flex flex-col items-center justify-center">
-			<section class="mt-8 w-full sm:w-[450px] md:w-[550px] lg:w-[650px]">
-				<!-- TODO: allow temp attendees to delete themselves -->
-				{#if isUnverifiedUser}
-					<div
-						class="my-4 flex flex-col items-center justify-center space-y-2 rounded-lg bg-gradient-to-r from-violet-200 to-pink-200 p-5 text-center dark:from-violet-900 dark:to-pink-900"
-					>
-						{#if tempAttendee}
-							<p class="font-semibold">Hi {tempAttendee.name}! This is a temporary account</p>
-						{:else}
-							<p class="font-semibold">Hi! This is a temporary account</p>
-						{/if}
-						<p class="text-sm">
-							Keep this tab open for seamless access, or click the button below to copy the URL and
-							save it.
-						</p>
-						<p class="text-sm">This URL grants access to the event with your temporary identity.</p>
-						<p class="text-sm">Sign up anytime to link your events to your email.</p>
-						<a href="/login" class="w-full">
-							<Button
-								class="mt-4 flex w-full items-center justify-center bg-blue-500 text-white hover:bg-blue-400"
-							>
-								<KeyRound class="h-5 w-5" />
-								Sign Up or Log In</Button
-							>
-						</a>
-						<Button
-							onclick={() => handleCopyingTempAccountUrl(event)}
-							class="mt-4 flex w-full items-center justify-center dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
-						>
-							<Copy class="h-5 w-5" />
-							Copy Link</Button
-						>
-					</div>
-				{/if}
-				{#if currenUserIsEventAdmin}
+			<section class="mt-8 flex w-full justify-center sm:w-[450px] md:w-[550px] lg:w-[650px]">
+				<Tabs.Root value="about">
 					<div class="flex w-full justify-center">
-						<a href="update" id="edit-bonfire">
-							<Button variant="outline" class="m-2 rounded-full">
-								<Cog class="h-5 w-5" />
-							</Button>
-						</a>
+						<Tabs.List>
+							<Tabs.Trigger value="about" class="focus:outline-none focus-visible:ring-0">
+								About
+							</Tabs.Trigger>
+							<Tabs.Trigger
+								value="discussions"
+								class="focus:outline-none focus-visible:ring-0"
+								onclick={scrollToBottom}
+								>Discussions
+							</Tabs.Trigger>
+						</Tabs.List>
 					</div>
-				{/if}
-				<div class="space-y-3 rounded-xl bg-white p-5 dark:bg-slate-900">
-					{#if $page.data.bannerInfo && $page.data.bannerInfo.banneIsSet}
-						<div class="flex w-full justify-center">
-							<BonfireBanner
-								blurhash={$page.data.bannerInfo.bannerBlurHash}
-								bannerSmallSizeUrl={$page.data.bannerInfo.bannerSmallSizeUrl}
-								bannerLargeSizeUrl={$page.data.bannerInfo.bannerLargeSizeUrl}
-								{currenUserIsEventAdmin}
-							/>
-						</div>
-					{:else if currenUserIsEventAdmin}
-						<a class="flex w-full" href="banner/upload">
-							<Button class="w-full dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600"
-								>Set a banner image</Button
+					<Tabs.Content value="about" class="w-full">
+						<!-- TODO: allow temp attendees to delete themselves -->
+						{#if isUnverifiedUser}
+							<div
+								class="my-4 flex flex-col items-center justify-center space-y-2 rounded-lg bg-gradient-to-r from-violet-200 to-pink-200 p-5 text-center dark:from-violet-900 dark:to-pink-900"
 							>
-						</a>
-					{/if}
-					<h1 class="mb-4 flex justify-center text-xl sm:text-2xl">
-						{event.title}
-					</h1>
-					<div class="flex items-center justify-center font-medium">
-						<Calendar class="mr-2 h-4 w-4" />{formatHumanReadable(event.start_time)}
-						{#if event.end_time}to {formatHumanReadableHour(event.end_time)}{/if}
-					</div>
-					<div class="flex items-center justify-center font-light">
-						{#if event.organizer}
-							<UserRound class="mr-2 h-4 w-4" />Hosted by
-							{#if rsvpStatus}
-								<div class="ml-2">
-									<ProfileAvatar
-										url={profileImageMap.get(event.organizer['id'])?.small_image_url}
-										fullsizeUrl={profileImageMap.get(event.organizer['id'])?.full_image_url}
-										username={event.organizer['username']}
-										fallbackName={event.organizer['username']}
-										isTempUser={false}
-										lastUpdatedAt=""
+								{#if tempAttendee}
+									<p class="font-semibold">Hi {tempAttendee.name}! This is a temporary account</p>
+								{:else}
+									<p class="font-semibold">Hi! This is a temporary account</p>
+								{/if}
+								<p class="text-sm">
+									Keep this tab open for seamless access, or click the button below to copy the URL
+									and save it.
+								</p>
+								<p class="text-sm">
+									This URL grants access to the event with your temporary identity.
+								</p>
+								<p class="text-sm">Sign up anytime to link your events to your email.</p>
+								<a href="/login" class="w-full">
+									<Button
+										class="mt-4 flex w-full items-center justify-center bg-blue-500 text-white hover:bg-blue-400"
+									>
+										<KeyRound class="h-5 w-5" />
+										Sign Up or Log In</Button
+									>
+								</a>
+								<Button
+									onclick={() => handleCopyingTempAccountUrl(event)}
+									class="mt-4 flex w-full items-center justify-center dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
+								>
+									<Copy class="h-5 w-5" />
+									Copy Link</Button
+								>
+							</div>
+						{/if}
+						{#if currenUserIsEventAdmin}
+							<div class="flex w-full justify-center">
+								<a href="update" id="edit-bonfire">
+									<Button variant="outline" class="m-2 rounded-full">
+										<Cog class="h-5 w-5" />
+									</Button>
+								</a>
+							</div>
+						{/if}
+						<div class="space-y-3 rounded-xl bg-white p-5 dark:bg-slate-900">
+							{#if $page.data.bannerInfo && $page.data.bannerInfo.banneIsSet}
+								<div class="flex w-full justify-center">
+									<BonfireBanner
+										blurhash={$page.data.bannerInfo.bannerBlurHash}
+										bannerSmallSizeUrl={$page.data.bannerInfo.bannerSmallSizeUrl}
+										bannerLargeSizeUrl={$page.data.bannerInfo.bannerLargeSizeUrl}
+										{currenUserIsEventAdmin}
 									/>
 								</div>
-							{:else}
-								{event.organizer['username']}
-							{/if}
-						{/if}
-					</div>
-
-					<div class="flex items-center justify-center font-light">
-						<MapPin class="mr-2 h-4 w-4" />
-						{#if rsvpStatus}
-							{#if event.location}<div class="flex items-center justify-center">
-									{#if latitude && longitude}
-										<ShareLocation lat={latitude} lon={longitude}>
-											<div
-												id="share-location"
-												class="flex items-center justify-center rounded-xl bg-slate-100 p-2 dark:bg-slate-900"
-											>
-												{@html event.location}
-												<ArrowRightFromLine class="ml-2 h-4 w-4" />
-											</div>
-										</ShareLocation>
-									{:else}
-										<div class="flex items-center justify-center p-2">{event.location}</div>
-									{/if}
-								</div>
-							{:else}
-								<div>No location set</div>
-							{/if}
-						{:else}
-							Set RSVP status to see location
-						{/if}
-					</div>
-					<div
-						class="my-5 flex flex-col justify-center rounded-xl bg-slate-100 p-2 text-center dark:bg-slate-800"
-					>
-						<div class="font-semibold">Details</div>
-						{#if event.description}
-							{event.description}
-						{:else}
-							{'No details yet...'}
-						{/if}
-					</div>
-				</div>
-
-				<div class="mx-3 mt-5 items-center">
-					{#if attendeesLoading}
-						<div class="flex flex-wrap items-center -space-x-3">
-							{#each Array(20).fill(null) as _, index}
-								<Skeleton class="size-12 rounded-full" />
-							{/each}
-						</div>
-					{:else if rsvpStatus}
-						{#if attendeesGoing.length > 0}
-							{#if attendeesGoing.length > 5}
-								<div class="mb-3 flex w-full justify-center">
-									<div
-										class="flex w-fit justify-center rounded bg-slate-100 p-1 px-2 text-black opacity-70 dark:bg-slate-800 dark:text-white"
+							{:else if currenUserIsEventAdmin}
+								<a class="flex w-full" href="banner/upload">
+									<Button class="w-full dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600"
+										>Set a banner image</Button
 									>
-										{attendeesGoing.length} attendee{attendeesGoing.length == 1 ? '' : 's'} going
+								</a>
+							{/if}
+							<h1 class="mb-4 flex justify-center text-xl sm:text-2xl">
+								{event.title}
+							</h1>
+							<div class="flex items-center justify-center font-medium">
+								<Calendar class="mr-2 h-4 w-4" />{formatHumanReadable(event.start_time)}
+								{#if event.end_time}to {formatHumanReadableHour(event.end_time)}{/if}
+							</div>
+							<div class="flex items-center justify-center font-light">
+								{#if event.organizer}
+									<UserRound class="mr-2 h-4 w-4" />Hosted by
+									{#if rsvpStatus}
+										<div class="ml-2">
+											<ProfileAvatar
+												url={profileImageMap.get(event.organizer['id'])?.small_image_url}
+												fullsizeUrl={profileImageMap.get(event.organizer['id'])?.full_image_url}
+												username={event.organizer['username']}
+												fallbackName={event.organizer['username']}
+												isTempUser={false}
+												lastUpdatedAt=""
+											/>
+										</div>
+									{:else}
+										{event.organizer['username']}
+									{/if}
+								{/if}
+							</div>
+
+							<div class="flex items-center justify-center font-light">
+								<MapPin class="mr-2 h-4 w-4" />
+								{#if rsvpStatus}
+									{#if event.location}<div class="flex items-center justify-center">
+											{#if latitude && longitude}
+												<ShareLocation lat={latitude} lon={longitude}>
+													<div
+														id="share-location"
+														class="flex items-center justify-center rounded-xl bg-slate-100 p-2 dark:bg-slate-900"
+													>
+														{@html event.location}
+														<ArrowRightFromLine class="ml-2 h-4 w-4" />
+													</div>
+												</ShareLocation>
+											{:else}
+												<div class="flex items-center justify-center p-2">{event.location}</div>
+											{/if}
+										</div>
+									{:else}
+										<div>No location set</div>
+									{/if}
+								{:else}
+									Set RSVP status to see location
+								{/if}
+							</div>
+							<div
+								class="my-5 flex flex-col justify-center rounded-xl bg-slate-100 p-2 text-center dark:bg-slate-800"
+							>
+								<div class="font-semibold">Details</div>
+								{#if event.description}
+									{event.description}
+								{:else}
+									{'No details yet...'}
+								{/if}
+							</div>
+						</div>
+
+						<div class="mx-3 mt-5 items-center">
+							{#if attendeesLoading}
+								<div class="flex flex-wrap items-center -space-x-3">
+									{#each Array(20).fill(null) as _, index}
+										<Skeleton class="size-12 rounded-full" />
+									{/each}
+								</div>
+							{:else if rsvpStatus}
+								{#if attendeesGoing.length > 0}
+									{#if attendeesGoing.length > 5}
+										<div class="mb-3 flex w-full justify-center">
+											<div
+												class="flex w-fit justify-center rounded bg-slate-100 p-1 px-2 text-black opacity-70 dark:bg-slate-800 dark:text-white"
+											>
+												{attendeesGoing.length} attendee{attendeesGoing.length == 1 ? '' : 's'} going
+											</div>
+										</div>
+									{/if}
+									<div id="going-attendees" class="flex flex-wrap items-center -space-x-4">
+										{#each allAttendeesGoing.slice(0, showMaxNumPeople) as attendee}
+											<ProfileAvatar
+												url={profileImageMap.get(attendee.user_id)?.small_image_url}
+												fullsizeUrl={profileImageMap.get(attendee.user_id)?.full_image_url}
+												username={attendee.user?.username || attendee.name}
+												fallbackName={attendee.user?.username || attendee.name}
+												isTempUser={!!attendee.name}
+												lastUpdatedAt={attendee.updated_at}
+												viewerIsEventAdmin={currenUserIsEventAdmin}
+												attendanceId={attendee.id}
+											/>
+										{/each}
+										<Dialog.Root>
+											<Dialog.Trigger class="flex items-center"
+												>{#if allAttendeesGoing.length > showMaxNumPeople}
+													<div
+														class="rounded-xl bg-white text-sm text-gray-500 dark:bg-slate-900 dark:text-gray-100"
+													>
+														and {allAttendeesGoing.length - showMaxNumPeople} more
+													</div>
+												{/if}
+												<div class="flex h-12 w-12 items-center justify-center sm:h-14 sm:w-14">
+													<Plus
+														class="ml-1 h-4 w-4 rounded-xl bg-white dark:bg-slate-900 sm:h-5 sm:w-5"
+													/>
+												</div></Dialog.Trigger
+											>
+											<Dialog.Content class="h-full sm:h-[90vh]">
+												<ScrollArea>
+													<Dialog.Header>
+														<Dialog.Title class="flex w-full justify-center">Attendees</Dialog.Title
+														>
+														<Dialog.Description>
+															<div class="mb-3 mt-5">
+																{#if allAttendeesGoing.length > 0}
+																	{console.log('---> attendeesGoing', attendeesGoing)}
+																	<h2 class="my-3 flex w-full justify-center font-semibold">
+																		{attendeesGoing.length} going
+																	</h2>
+																	<div class="mx-5 flex flex-wrap -space-x-4 text-black">
+																		{#each allAttendeesGoing as attendee}
+																			<ProfileAvatar
+																				url={profileImageMap.get(attendee.user_id)?.small_image_url}
+																				fullsizeUrl={profileImageMap.get(attendee.user_id)
+																					?.full_image_url}
+																				username={attendee.user?.username || attendee.name}
+																				fallbackName={attendee.user?.username || attendee.name}
+																				isTempUser={!!attendee.name}
+																				lastUpdatedAt={attendee.updated_at}
+																				viewerIsEventAdmin={currenUserIsEventAdmin}
+																				attendanceId={attendee.id}
+																			/>
+																		{/each}
+																	</div>
+																{/if}
+															</div>
+															<div class="mb-3 mt-5">
+																{#if allAttendeesMaybeGoing.length > 0}
+																	<h2 class="my-3 flex w-full justify-center font-semibold">
+																		{allAttendeesMaybeGoing.length} maybe{allAttendeesMaybeGoing.length ==
+																		1
+																			? ''
+																			: 's'}
+																	</h2>
+																	<div class="mx-5 flex flex-wrap -space-x-4 text-black">
+																		{#each allAttendeesMaybeGoing as attendee}
+																			<ProfileAvatar
+																				url={profileImageMap.get(attendee.user_id)?.small_image_url}
+																				fullsizeUrl={profileImageMap.get(attendee.user_id)
+																					?.full_image_url}
+																				username={attendee.user?.username || attendee.name}
+																				fallbackName={attendee.user?.username || attendee.name}
+																				isTempUser={!!attendee.name}
+																				lastUpdatedAt={attendee.updated_at}
+																				viewerIsEventAdmin={currenUserIsEventAdmin}
+																				attendanceId={attendee.id}
+																			/>
+																		{/each}
+																	</div>
+																{/if}
+															</div>
+															<div class="mb-3 mt-5">
+																{#if allAttendeesNotGoing.length > 0}
+																	<h2 class="my-3 flex w-full justify-center font-semibold">
+																		{allAttendeesNotGoing.length} not going
+																	</h2>
+																	<div class="mx-5 flex flex-wrap -space-x-4 text-black">
+																		{#each allAttendeesNotGoing as attendee}
+																			<ProfileAvatar
+																				url={profileImageMap.get(attendee.user_id)?.small_image_url}
+																				fullsizeUrl={profileImageMap.get(attendee.user_id)
+																					?.full_image_url}
+																				username={attendee.user?.username || attendee.name}
+																				fallbackName={attendee.user?.username || attendee.name}
+																				isTempUser={!!attendee.name}
+																				lastUpdatedAt={attendee.updated_at}
+																				viewerIsEventAdmin={currenUserIsEventAdmin}
+																				attendanceId={attendee.id}
+																			/>
+																		{/each}
+																	</div>
+																{/if}
+															</div>
+														</Dialog.Description>
+													</Dialog.Header>
+												</ScrollArea>
+											</Dialog.Content>
+										</Dialog.Root>
+									</div>
+								{:else if allAttendeesGoing.length == 0}
+									<div class="flex justify-center">
+										<div
+											class="flex w-full items-center justify-center rounded-lg bg-slate-500 bg-opacity-75 p-2 text-sm text-white ring-glow sm:w-2/3"
+										>
+											<Avatar.Root
+												class="mr-2 h-12 w-12 border-2 border-white bg-white dark:bg-slate-900 sm:h-14 sm:w-14"
+											>
+												<Avatar.Image src={'/icon-128.png'} alt={''} />
+												<Avatar.Fallback>{'BO'}</Avatar.Fallback>
+											</Avatar.Root> No attendees yet
+										</div>
+									</div>
+								{/if}
+							{:else}
+								<div class="flex justify-center">
+									<div
+										class="flex w-full items-center justify-center rounded-lg bg-purple-500 bg-opacity-75 p-2 text-sm text-white ring-glow sm:w-2/3"
+									>
+										<Avatar.Root
+											class="mr-2 h-12 w-12 border-2 border-white bg-white dark:bg-slate-900 sm:h-14 sm:w-14"
+										>
+											<Avatar.Image src={'/icon-128.png'} alt={''} />
+											<Avatar.Fallback>{'BO'}</Avatar.Fallback>
+										</Avatar.Root>
+										{$page.data.numAttendees} attendee(s)
 									</div>
 								</div>
 							{/if}
-							<div id="going-attendees" class="flex flex-wrap items-center -space-x-4">
-								{#each allAttendeesGoing.slice(0, showMaxNumPeople) as attendee}
-									<ProfileAvatar
-										url={profileImageMap.get(attendee.user_id)?.small_image_url}
-										fullsizeUrl={profileImageMap.get(attendee.user_id)?.full_image_url}
-										username={attendee.user?.username || attendee.name}
-										fallbackName={attendee.user?.username || attendee.name}
-										isTempUser={!!attendee.name}
-										lastUpdatedAt={attendee.updated_at}
-										viewerIsEventAdmin={currenUserIsEventAdmin}
-										attendanceId={attendee.id}
-									/>
-								{/each}
-								<Dialog.Root>
-									<Dialog.Trigger class="flex items-center"
-										>{#if allAttendeesGoing.length > showMaxNumPeople}
-											<div
-												class="rounded-xl bg-white text-sm text-gray-500 dark:bg-slate-900 dark:text-gray-100"
-											>
-												and {allAttendeesGoing.length - showMaxNumPeople} more
-											</div>
-										{/if}
-										<div class="flex h-12 w-12 items-center justify-center sm:h-14 sm:w-14">
-											<Plus
-												class="ml-1 h-4 w-4 rounded-xl bg-white dark:bg-slate-900 sm:h-5 sm:w-5"
-											/>
-										</div></Dialog.Trigger
-									>
-									<Dialog.Content class="h-full sm:h-[90vh]">
-										<ScrollArea>
-											<Dialog.Header>
-												<Dialog.Title class="flex w-full justify-center">Attendees</Dialog.Title>
-												<Dialog.Description>
-													<div class="mb-3 mt-5">
-														{#if allAttendeesGoing.length > 0}
-															{console.log('---> attendeesGoing', attendeesGoing)}
-															<h2 class="my-3 flex w-full justify-center font-semibold">
-																{attendeesGoing.length} going
-															</h2>
-															<div class="mx-5 flex flex-wrap -space-x-4 text-black">
-																{#each allAttendeesGoing as attendee}
-																	<ProfileAvatar
-																		url={profileImageMap.get(attendee.user_id)?.small_image_url}
-																		fullsizeUrl={profileImageMap.get(attendee.user_id)
-																			?.full_image_url}
-																		username={attendee.user?.username || attendee.name}
-																		fallbackName={attendee.user?.username || attendee.name}
-																		isTempUser={!!attendee.name}
-																		lastUpdatedAt={attendee.updated_at}
-																		viewerIsEventAdmin={currenUserIsEventAdmin}
-																		attendanceId={attendee.id}
-																	/>
-																{/each}
-															</div>
-														{/if}
-													</div>
-													<div class="mb-3 mt-5">
-														{#if allAttendeesMaybeGoing.length > 0}
-															<h2 class="my-3 flex w-full justify-center font-semibold">
-																{allAttendeesMaybeGoing.length} maybe{allAttendeesMaybeGoing.length ==
-																1
-																	? ''
-																	: 's'}
-															</h2>
-															<div class="mx-5 flex flex-wrap -space-x-4 text-black">
-																{#each allAttendeesMaybeGoing as attendee}
-																	<ProfileAvatar
-																		url={profileImageMap.get(attendee.user_id)?.small_image_url}
-																		fullsizeUrl={profileImageMap.get(attendee.user_id)
-																			?.full_image_url}
-																		username={attendee.user?.username || attendee.name}
-																		fallbackName={attendee.user?.username || attendee.name}
-																		isTempUser={!!attendee.name}
-																		lastUpdatedAt={attendee.updated_at}
-																		viewerIsEventAdmin={currenUserIsEventAdmin}
-																		attendanceId={attendee.id}
-																	/>
-																{/each}
-															</div>
-														{/if}
-													</div>
-													<div class="mb-3 mt-5">
-														{#if allAttendeesNotGoing.length > 0}
-															<h2 class="my-3 flex w-full justify-center font-semibold">
-																{allAttendeesNotGoing.length} not going
-															</h2>
-															<div class="mx-5 flex flex-wrap -space-x-4 text-black">
-																{#each allAttendeesNotGoing as attendee}
-																	<ProfileAvatar
-																		url={profileImageMap.get(attendee.user_id)?.small_image_url}
-																		fullsizeUrl={profileImageMap.get(attendee.user_id)
-																			?.full_image_url}
-																		username={attendee.user?.username || attendee.name}
-																		fallbackName={attendee.user?.username || attendee.name}
-																		isTempUser={!!attendee.name}
-																		lastUpdatedAt={attendee.updated_at}
-																		viewerIsEventAdmin={currenUserIsEventAdmin}
-																		attendanceId={attendee.id}
-																	/>
-																{/each}
-															</div>
-														{/if}
-													</div>
-												</Dialog.Description>
-											</Dialog.Header>
-										</ScrollArea>
-									</Dialog.Content>
-								</Dialog.Root>
-							</div>
-						{:else if allAttendeesGoing.length == 0}
-							<div class="flex justify-center">
-								<div
-									class="flex w-full items-center justify-center rounded-lg bg-slate-500 bg-opacity-75 p-2 text-sm text-white ring-glow sm:w-2/3"
-								>
-									<Avatar.Root
-										class="mr-2 h-12 w-12 border-2 border-white bg-white dark:bg-slate-900 sm:h-14 sm:w-14"
-									>
-										<Avatar.Image src={'/icon-128.png'} alt={''} />
-										<Avatar.Fallback>{'BO'}</Avatar.Fallback>
-									</Avatar.Root> No attendees yet
-								</div>
-							</div>
-						{/if}
-					{:else}
-						<div class="flex justify-center">
-							<div
-								class="flex w-full items-center justify-center rounded-lg bg-purple-500 bg-opacity-75 p-2 text-sm text-white ring-glow sm:w-2/3"
-							>
-								<Avatar.Root
-									class="mr-2 h-12 w-12 border-2 border-white bg-white dark:bg-slate-900 sm:h-14 sm:w-14"
-								>
-									<Avatar.Image src={'/icon-128.png'} alt={''} />
-									<Avatar.Fallback>{'BO'}</Avatar.Fallback>
-								</Avatar.Root>
-								{$page.data.numAttendees} attendee(s)
-							</div>
 						</div>
-					{/if}
-				</div>
-				<!-- Show RSVP if:
+						<!-- Show RSVP if:
 				 (a) no max capacity is set
 				 (b) current user is attending
 				 (b) if max capacity is set, if it is not yet attained -->
-				<!-- {console.log(
+						<!-- {console.log(
 					'max capacity',
 					event?.max_capacity,
 					'currentUserAttendee',
@@ -832,94 +858,88 @@
 					'rsvpCanBeChanged',
 					rsvpCanBeChanged
 				)} -->
-				{#if event?.max_capacity}
-					<div
-						class="mt-5 flex justify-center rounded-lg bg-slate-100 p-2 text-center text-sm opacity-70 dark:bg-slate-800 dark:opacity-70"
-					>
-						{#if !rsvpEnabledForCapacity}
-							Sorry, this event has reached its maximum capacity of {event?.max_capacity} attendees,
-							as set by the organizer. If a spot opens up due to a cancellation, it will become available
-							for a new attendee.
-						{:else}
-							This event is limited to {event?.max_capacity} attendees going, as set by the organizer.
+						{#if event?.max_capacity}
+							<div
+								class="mt-5 flex justify-center rounded-lg bg-slate-100 p-2 text-center text-sm opacity-70 dark:bg-slate-800 dark:opacity-70"
+							>
+								{#if !rsvpEnabledForCapacity}
+									Sorry, this event has reached its maximum capacity of {event?.max_capacity} attendees,
+									as set by the organizer. If a spot opens up due to a cancellation, it will become available
+									for a new attendee.
+								{:else}
+									This event is limited to {event?.max_capacity} attendees going, as set by the organizer.
+								{/if}
+							</div>
 						{/if}
-					</div>
-				{/if}
-				<Rsvp
-					{rsvpStatus}
-					userId={currUserId}
-					eventId={event.id}
-					{isAnonymousUser}
-					{rsvpCanBeChanged}
-				/>
+						<Rsvp
+							{rsvpStatus}
+							userId={currUserId}
+							eventId={event.id}
+							{isAnonymousUser}
+							{rsvpCanBeChanged}
+						/>
 
-				<Button
-					onclick={() => handleShare(event)}
-					class="mt-4 flex w-full items-center justify-center ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
-				>
-					<Share class="h-5 w-5" />
-					Share Bonfire</Button
-				>
+						<Button
+							onclick={() => handleShare(event)}
+							class="mt-4 flex w-full items-center justify-center ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
+						>
+							<Share class="h-5 w-5" />
+							Share Bonfire</Button
+						>
 
-				<HorizRule />
-				<div class="my-10">
-					<div class=" rounded-xl bg-white p-5 dark:bg-slate-900">
-						<div class="font-semibold">Announcements</div>
-					</div>
-					{#if rsvpStatus}
-						<div class="my-2">
-							<Annoucements maxCount={3} {isUnverifiedUser} {currenUserIsEventAdmin} />
+						<HorizRule />
+						<div class="my-10">
+							<div class=" rounded-xl bg-white p-5 dark:bg-slate-900">
+								<div class="font-semibold">Announcements</div>
+							</div>
+							{#if rsvpStatus}
+								<div class="my-2">
+									<Annoucements maxCount={3} {isUnverifiedUser} {currenUserIsEventAdmin} />
+								</div>
+								{#if currenUserIsEventAdmin}
+									<a href="announcement/create">
+										<Button
+											class="mt-1 w-full ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
+											><Drum class="mr-1 h-4 w-4" /> Create new announcement</Button
+										>
+									</a>
+								{/if}
+							{:else}
+								<div class="my-2">
+									<BonfireNoInfoCard text={$page.data.numAnnouncements + ' announcement(s)'} />
+								</div>
+							{/if}
 						</div>
-						{#if currenUserIsEventAdmin}
-							<a href="announcement/create">
-								<Button
-									class="mt-1 w-full ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
-									><Drum class="mr-1 h-4 w-4" /> Create new announcement</Button
-								>
-							</a>
-						{/if}
-					{:else}
-						<div class="my-2">
-							<BonfireNoInfoCard text={$page.data.numAnnouncements + ' announcement(s)'} />
+						<HorizRule />
+						<div class="my-5">
+							<div class=" rounded-xl bg-white p-5 dark:bg-slate-900">
+								<div class="font-semibold">Gallery</div>
+							</div>
+							{#if rsvpStatus}
+								<div class="mb-10">
+									{#if eventFiles}
+										<MiniGallery fileCount={fileCount - eventFiles.length} {eventFiles} />
+									{:else if loadEventFiles}
+										<Loader />
+									{/if}
+								</div>
+							{:else}
+								<div class="my-2">
+									<BonfireNoInfoCard text={$page.data.numFiles + ' file(s)'} />
+								</div>
+							{/if}
 						</div>
-					{/if}
-				</div>
-				<HorizRule />
-				<div class="my-10">
-					<div class="flex justify-between rounded-xl bg-white p-5 dark:bg-slate-900">
-						<div class="font-semibold">Chats</div>
-					</div>
-					<div class="mt-3">
-						
-
-						<PopupImThreadView
+					</Tabs.Content>
+					<Tabs.Content value="discussions" class="mb-2 h-[calc(100vh-4rem)] w-full sm:w-[630px] md:w-[700px]">
+						<ImThreadView
 							{currUserId}
 							canSendIm={!!rsvpStatus}
 							eventId={event.id}
 							{profileImageMap}
 							datetimeUserJoinedBonfire={currentUserAttendee?.updated_at}
 						/>
-					</div>
-				</div>
-				<HorizRule />
-				<div class="my-5">
-					<div class=" rounded-xl bg-white p-5 dark:bg-slate-900">
-						<div class="font-semibold">Gallery</div>
-					</div>
-					{#if rsvpStatus}
-						<div class="mb-10">
-							{#if eventFiles}
-								<MiniGallery fileCount={fileCount - eventFiles.length} {eventFiles} />
-							{:else if loadEventFiles}
-								<Loader />
-							{/if}
-						</div>
-					{:else}
-						<div class="my-2">
-							<BonfireNoInfoCard text={$page.data.numFiles + ' file(s)'} />
-						</div>
-					{/if}
-				</div>
+					</Tabs.Content>
+				</Tabs.Root>
 			</section>
 		</div>
 	{/if}

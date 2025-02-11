@@ -236,7 +236,7 @@
 	<div
 		id="scroller"
 		bind:this={chatContainerRef}
-		class="container-scroll h-full space-y-2 overflow-y-auto rounded-t-xl bg-white p-2 dark:bg-black"
+		class="container-scroll h-full space-y-2 overflow-y-auto rounded-t-xl bg-white p-2 dark:bg-black bg-opacity-20 dark:bg-opacity-20"
 	>
 		<div id="anchor"></div>
 
