@@ -85,16 +85,12 @@ export async function sendMessage(
 	threadId: string,
 	userId: string,
 	content: string,
-	mediaKey: string | null = null,
-	mediaType: string | null = null,
 	parentMessageId: string | null = null
 ): Promise<object> {
 	const message = await client.insert('event_messages', {
 		thread_id: threadId,
 		user_id: userId,
 		content,
-		media_key: mediaKey,
-		media_type: mediaType,
 		parent_message_id: parentMessageId,
 		created_at: new Date().toISOString()
 	});
