@@ -24,6 +24,7 @@
 	let sentMessageJustNowFromBottom = $state(false);
 	let initialLoad = $state(true);
 	let messages: any = $state([]);
+	let numUnseenMessage: number = $state(0);
 	let loadMoreMessages: ((pageSize?: number) => void) | undefined = $state();
 
 	const handleScroll = () => {
@@ -116,9 +117,11 @@
 					// Re-enable scrolling
 					window.removeEventListener('scroll', freezeScroll);
 				});
-
+				if (initialLoad) {
+					scrollToOldestUnseenMessage(false);
+				}
 				loadMoreMessages = loadMore; // Save the loadMore function for pagination
-
+				countNumUnseenMessages();
 				initialLoad = false;
 			},
 			(error) => {
@@ -144,6 +147,35 @@
 			unsubscribeFromMessages();
 		};
 	});
+
+	const scrollToOldestUnseenMessage = (smooth = true) => {
+		requestAnimationFrame(() => {
+			if (!chatContainerRef) return;
+
+			// Get all elements with the 'unseen' class
+			const unseenMessages = chatContainerRef.querySelectorAll('.message.unseen');
+			numUnseenMessage = unseenMessages.length;
+
+			// Select the last unseen message
+			const lastUnseenMessage = unseenMessages[unseenMessages.length - 1];
+			console.log('lastUnseenMessage', lastUnseenMessage);
+
+			if (lastUnseenMessage) {
+				lastUnseenMessage.scrollIntoView({
+					block: 'center',
+					behavior: smooth ? 'smooth' : 'auto'
+				});
+			}
+		});
+	};
+
+	const countNumUnseenMessages = () => {
+		if (!chatContainerRef) return;
+
+		// Get all elements with the 'unseen' class
+		const unseenMessages = chatContainerRef.querySelectorAll('.message.unseen');
+		numUnseenMessage = unseenMessages.length;
+	};
 
 	const scrollToBottom = () => {
 		console.log('scrolling to bottom');
@@ -211,6 +243,7 @@
 					url={profileImageMap.get(message.user_id)?.small_image_url}
 					{currUserId}
 					{message}
+					onMessageSeen={countNumUnseenMessages}
 				/>
 			{/each}
 		{:else}
@@ -221,10 +254,16 @@
 		{#if userScrolledUp}
 			<div class="absolute bottom-20 z-10 flex w-full items-center justify-center">
 				<Button
-					onclick={scrollToBottom}
+					onclick={() => scrollToOldestUnseenMessage()}
 					class="rounded-full bg-blue-700 p-2 px-5 text-white shadow-lg transition-all duration-300 ease-in-out hover:bg-gray-700"
 				>
-					<div><ChevronDown class="!h-4 !w-4 sm:!h-5 sm:!w-5" /></div>
+					<div class="flex flex-col items-center justify-center">
+						{#if numUnseenMessage > 0}
+							<span class="text-xs">{numUnseenMessage} unread</span>
+						{:else}
+							<ChevronDown class="!h-4 !w-4 sm:!h-5 sm:!w-5" />
+						{/if}
+					</div>
 				</Button>
 			</div>
 		{/if}
