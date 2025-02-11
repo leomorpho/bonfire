@@ -8,6 +8,7 @@
 	import Message from './Message.svelte';
 	import Button from '../ui/button/button.svelte';
 	import { ChevronDown } from 'lucide-svelte';
+	import SvgLoader from '../SvgLoader.svelte';
 
 	let {
 		eventId,
@@ -16,13 +17,13 @@
 		threadId = null,
 		canSendIm = true,
 		maxNumMessages = null,
-		datetimeUserJoinedBonfire = null,
+		datetimeUserJoinedBonfire = null
 	} = $props();
 
 	let chatContainerRef: HTMLDivElement | null = null;
 	let userScrolledUp = $state(false);
 	let sentMessageJustNowFromNonBottom = $state(false);
-	let sentMessageJustNowFromBottom = $state(false);
+	let showMessagesLoading = $state(true);
 	let initialLoad = $state(true);
 	let messages: any = $state([]);
 	let numUnseenMessage: number = $state(0);
@@ -69,6 +70,7 @@
 			(results, info) => {
 				if (!chatContainerRef) return;
 
+				showMessagesLoading = false;
 				// Capture current scroll position BEFORE new messages load
 				const prevScrollTop = chatContainerRef.scrollTop;
 				const prevScrollHeight = chatContainerRef.scrollHeight;
@@ -110,6 +112,7 @@
 					// Re-enable scrolling
 					window.removeEventListener('scroll', freezeScroll);
 				});
+
 				if (initialLoad) {
 					scrollToOldestUnseenMessage(false);
 				}
@@ -236,7 +239,7 @@
 	<div
 		id="scroller"
 		bind:this={chatContainerRef}
-		class="container-scroll h-full space-y-2 overflow-y-auto rounded-t-xl bg-white p-2 dark:bg-black bg-opacity-20 dark:bg-opacity-20"
+		class="container-scroll h-full space-y-2 overflow-y-auto rounded-t-xl bg-white bg-opacity-20 p-2 dark:bg-black dark:bg-opacity-20"
 	>
 		<div id="anchor"></div>
 
@@ -250,6 +253,13 @@
 					ignoreSeenStatusPriorToThisDatetime={datetimeUserJoinedBonfire}
 				/>
 			{/each}
+		{:else if showMessagesLoading}
+			<div class="flex w-full items-center justify-center">
+				<div>
+					<div class="font-mono">Loading...</div>
+					<SvgLoader />
+				</div>
+			</div>
 		{:else}
 			<div class="flex w-full items-center justify-center">No messages yet</div>
 		{/if}
