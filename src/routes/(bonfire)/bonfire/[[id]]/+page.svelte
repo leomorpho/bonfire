@@ -16,7 +16,10 @@
 		UserRound,
 		Calendar,
 		KeyRound,
-		ArrowRightFromLine
+		ArrowRightFromLine,
+
+		FlameKindling
+
 	} from 'lucide-svelte';
 	import { formatHumanReadable, formatHumanReadableHour } from '$lib/utils';
 	import Rsvp from '$lib/components/Rsvp.svelte';
@@ -558,7 +561,7 @@
 							</Tabs.Trigger>
 						</Tabs.List>
 					</div>
-					<Tabs.Content value="about" class="w-full">
+					<Tabs.Content value="about" class="w-full sm:w-[630px] md:w-[700px]">
 						<!-- TODO: allow temp attendees to delete themselves -->
 						{#if isUnverifiedUser}
 							<div
@@ -930,14 +933,27 @@
 							{/if}
 						</div>
 					</Tabs.Content>
-					<Tabs.Content value="discussions" class="mb-2 h-[calc(100vh-4rem)] w-full sm:w-[630px] md:w-[700px]">
-						<ImThreadView
-							{currUserId}
-							canSendIm={!!rsvpStatus}
-							eventId={event.id}
-							{profileImageMap}
-							datetimeUserJoinedBonfire={currentUserAttendee?.updated_at}
-						/>
+					<Tabs.Content
+						value="discussions"
+						class="mb-2 h-[calc(100vh-4rem)] w-full sm:w-[630px] md:w-[700px]"
+					>
+						{#if rsvpStatus}
+							<ImThreadView
+								{currUserId}
+								canSendIm={!!rsvpStatus}
+								eventId={event.id}
+								{profileImageMap}
+								datetimeUserJoinedBonfire={currentUserAttendee?.updated_at}
+							/>
+						{:else}
+							<div class="flex h-40 items-center justify-center">
+								<div
+									class="w-3/4 m-1 bg-slate-500 p-5 text-lg text-white dark:bg-slate-800 dark:text-slate-100 h-24 flex justify-center items-center rounded-xl mt-10 opacity-80"
+								>
+									RSVP first!
+							</div>
+							</div>
+						{/if}
 					</Tabs.Content>
 				</Tabs.Root>
 			</section>

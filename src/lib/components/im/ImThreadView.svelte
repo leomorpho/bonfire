@@ -17,7 +17,7 @@
 		threadId = null,
 		canSendIm = true,
 		maxNumMessages = null,
-		datetimeUserJoinedBonfire = null
+		datetimeUserJoinedBonfire = null,
 	} = $props();
 
 	let chatContainerRef: HTMLDivElement | null = null;
@@ -61,7 +61,12 @@
 
 		threadMessagesQuery = threadMessagesQuery
 			.include('user')
-			.include('seen_by')
+			.include('seen_by', (rel) =>
+				rel('seen_by')
+					.where([['user_id', '=', currUserId]])
+					.build()
+			)
+			// .include('seen_by')
 			.order('created_at', 'DESC')
 			.build();
 

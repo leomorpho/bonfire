@@ -794,8 +794,8 @@ export const schema = {
 			parent_message_id: S.String({ nullable: true, default: null }), // Supports future threading
 			parent_message: S.Optional(S.RelationById('event_messages', '$parent_message_id')), // Parent message relation
 			content: S.String({ nullable: true }), // Text content of the message
-			media_key: S.String({ nullable: true }), // If message contains media (image/video/audio)
-			media_type: S.String({ nullable: true }), // Type of media (image, video, gif, etc.)
+			// media_key: S.String({ nullable: true }), // If message contains media (image/video/audio)
+			// media_type: S.String({ nullable: true }), // Type of media (image, video, gif, etc.)
 			seen_by: S.RelationMany('event_message_seen', { where: [['message_id', '=', '$id']] }), // Tracks who has seen the message
 			created_at: S.Date({ default: S.Default.now() }), // Timestamp when the message was sent
 			updated_at: S.Optional(S.Date({ nullable: true, default: null })) // Timestamp when the message was edited
