@@ -886,25 +886,18 @@
 				</div>
 				<HorizRule />
 				<div class="my-10">
-					<div class=" rounded-xl bg-white p-5 dark:bg-slate-900">
+					<div class="flex justify-between rounded-xl bg-white p-5 dark:bg-slate-900">
 						<div class="font-semibold">Chats</div>
 					</div>
-					<div class="h-80"><ImThreadView
-						{currUserId}
-						canSendIm={!!rsvpStatus}
-						eventId={event.id}
-						{profileImageMap}
+					<div class="mt-3">
 						
-					/></div>
-					
-					<div class="my-2">
+
 						<PopupImThreadView
 							{currUserId}
 							canSendIm={!!rsvpStatus}
 							eventId={event.id}
 							{profileImageMap}
 							datetimeUserJoinedBonfire={currentUserAttendee?.updated_at}
-
 						/>
 					</div>
 				</div>

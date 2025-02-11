@@ -16,7 +16,7 @@
 		threadId = null,
 		canSendIm = true,
 		maxNumMessages = null,
-		datetimeUserJoinedBonfire = null
+		datetimeUserJoinedBonfire = null,
 	} = $props();
 
 	let chatContainerRef: HTMLDivElement | null = null;
@@ -144,6 +144,8 @@
 	const scrollToOldestUnseenMessage = (smooth = true) => {
 		requestAnimationFrame(() => {
 			if (!chatContainerRef) return;
+			// Calling to make sure everyone gets latest number of unread messages
+			countNumUnseenMessages();
 
 			// Get all elements with the 'unseen' class
 			const unseenMessages = chatContainerRef.querySelectorAll('.message.unseen');
@@ -221,13 +223,13 @@
 		}
 	});
 
-	const scrollDownButton = ()=>{
-		if (numUnseenMessage){
-			scrollToOldestUnseenMessage()
-		}else{
-			scrollToBottom()
+	const scrollDownButton = () => {
+		if (numUnseenMessage) {
+			scrollToOldestUnseenMessage();
+		} else {
+			scrollToBottom();
 		}
-	}
+	};
 </script>
 
 <div class="relative flex h-full w-full flex-col">

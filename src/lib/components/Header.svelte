@@ -189,8 +189,8 @@
 	</Container>
 </div>
 
-{#if showStickyMenu}
+<!-- {#if showStickyMenu}
 	<div class="fixed right-1 sm:right-4 top-1 sm:top-4 z-50">
 		{@render dropdown()}
 	</div>
-{/if}
+{/if} -->
