@@ -20,6 +20,7 @@ import {
 	validateAnnouncements,
 	validateAttendees,
 	validateFiles,
+	validateMessageIds,
 	validateTempAttendees,
 	validateUserIds
 } from './triplit';
@@ -94,6 +95,9 @@ export async function processNotificationQueue(notificationQueueEntry: Notificat
 		case NotificationType.ADMIN_ADDED:
 			validObjectIds = await validateUserIds(objectIds);
 			break;
+		case NotificationType.NEW_MESSAGE:
+			validObjectIds = await validateMessageIds(objectIds);
+			break;
 		default:
 			console.error(`Unknown object_type: ${notificationQueueEntry.object_type}`);
 			return;
@@ -133,6 +137,9 @@ export async function processNotificationQueue(notificationQueueEntry: Notificat
 		case NotificationType.ADMIN_ADDED:
 			await notifyAttendeeOfTheirNewAdminRole(notificationQueueEntry.event_id, validObjectIds);
 			break;
+		case NotificationType.NEW_MESSAGE:
+			await notifyAttendeesOfNewMessages(notificationQueueEntry.event_id, validObjectIds);
+			break;
 		default:
 			console.error(`Unknown object_type: ${notificationQueueEntry.object_type}`);
 			return;
@@ -147,6 +154,8 @@ export async function processNotificationQueue(notificationQueueEntry: Notificat
 			entity.sent = true;
 		}
 	);
+
+	// TODO: do we need to delete any object older than X in notifications_queue?
 
 	// console.debug(`Notification ${notificationQueueEntry.id} marked as sent.`);
 }
@@ -203,7 +212,8 @@ async function notifyAttendeesOfAnnouncements(
 			: [];
 		const updatedObjectIds = Array.from(new Set([...existingObjectIds, ...announcementIds]));
 
-		const message = `📢 You have ${updatedObjectIds.length} new announcements in an event you're attending!`;
+		const numObjects = updatedObjectIds.length;
+		const message = `📢 You have ${numObjects} new ${numObjects > 1 ? 'announcements' : 'announcement'} in an event you're attending!`;
 		const pushNotificationPayload = { title: 'New Announcements', body: message };
 
 		await handleNotification(
@@ -252,8 +262,8 @@ async function notifyAttendeesOfFiles(eventId: string, fileIds: string[]): Promi
 			? stringRepresentationToArray(existingNotification.object_ids)
 			: [];
 		const updatedObjectIds = Array.from(new Set([...existingObjectIds, ...filteredFileIds]));
-
-		const message = `📷 You have ${updatedObjectIds.length} new media files in an event you're attending!`;
+		const numObjects = updatedObjectIds.length;
+		const message = `📷 You have ${numObjects} new media ${numObjects > 1 ? 'files' : 'file'} in an event you're attending!`;
 		const pushNotificationPayload = { title: 'New Files', body: message };
 
 		await handleNotification(
@@ -391,6 +401,38 @@ async function notifyAttendeeOfTheirNewAdminRole(eventId: string, newAdminUserId
 			eventId,
 			NotificationType.ADMIN_ADDED,
 			updatedObjectIds,
+			message,
+			pushNotificationPayload,
+			[PermissionType.EVENT_ACTIVITY]
+		);
+	}
+}
+
+async function notifyAttendeesOfNewMessages(
+	eventId: string,
+	newMessageIds: string[]
+): Promise<void> {
+	if (!newMessageIds.length) return;
+
+	const attendingUserIds = await getAttendeeUserIdsOfEvent(
+		eventId,
+		NOTIFY_OF_ATTENDING_STATUS_CHANGE,
+		true // Do not notify announcement creator, i.e., event creator
+	);
+
+	if (!attendingUserIds.length) return;
+
+	for (const attendeeUserId of attendingUserIds) {
+		const numMessages = newMessageIds.length;
+		const message = `💬 You have ${numMessages} new ${numMessages > 1 ? 'messages' : 'message'} in an event you're attending`;
+		const pushNotificationPayload = { title: 'New Announcements', body: message };
+
+		await handleNotification(
+			null,
+			attendeeUserId,
+			eventId,
+			NotificationType.ANNOUNCEMENT,
+			newMessageIds,
 			message,
 			pushNotificationPayload,
 			[PermissionType.EVENT_ACTIVITY]
