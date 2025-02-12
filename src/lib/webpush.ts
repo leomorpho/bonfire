@@ -1,6 +1,6 @@
 import { error } from '@sveltejs/kit';
 import webPush from 'web-push';
-import { env as privateEnv} from '$env/dynamic/private';
+import { env as privateEnv } from '$env/dynamic/private';
 import { env as publicEnv } from '$env/dynamic/public';
 
 import { dev } from '$app/environment';
@@ -8,6 +8,7 @@ import { notificationPermissionTable, pushSubscriptionTable } from './server/dat
 import { eq } from 'drizzle-orm';
 import { db } from './server/database/db';
 import type { PermissionValue } from './server/push';
+import { triplitHttpClient } from './server/triplit';
 
 if (
 	(dev && (!publicEnv.PUBLIC_DEV_VAPID_PUBLIC_KEY || !privateEnv.DEV_VAPID_PRIVATE_KEY)) ||
@@ -27,6 +28,32 @@ webPush.setVapidDetails(
 	privateKey as string
 );
 
+async function hasExceededUnreadNotificationLimitInTimeframe(
+	userId: string,
+	timeFrameMinutes: number = 60,
+	maxNotifications: number = 5
+): Promise<boolean> {
+	// Calculate the time frame for recent notifications
+	const timeFrameMillis = timeFrameMinutes * 60 * 1000; // Convert minutes to milliseconds
+	const timeFrameAgo = new Date(Date.now() - timeFrameMillis);
+
+	// Query the notifications to count unread notifications within the time frame
+	const unreadNotifications = await triplitHttpClient.fetch(
+		triplitHttpClient
+			.query('notifications')
+			.where([
+				['user_id', '=', userId],
+				['seen_at', '=', null],
+				['created_at', '>=', timeFrameAgo]
+			])
+			.select(['id'])
+			.build()
+	);
+
+	// Return true if the number of unread notifications exceeds the limit
+	return unreadNotifications.length > maxNotifications;
+}
+
 /**
  * Sends a push notification to a specific user by fetching their push subscriptions.
  * @param userId - The user ID to whom the notification is sent.
@@ -38,6 +65,10 @@ export async function sendPushNotification(
 	payload: { title: string; body: string; icon?: string; badge?: number },
 	requiredPermissions: PermissionValue[] // Array of required permissions
 ): Promise<void> {
+	if (await hasExceededUnreadNotificationLimitInTimeframe(userId)) {
+		// Don't send any new push notification.
+		return;
+	}
 	// Check user permissions
 	const userPermissions = await db
 		.select({

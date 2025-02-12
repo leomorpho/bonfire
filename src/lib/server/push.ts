@@ -443,6 +443,8 @@ async function notifyAttendeesOfNewMessages(
 	const message = `💬 You have ${numMessages} new ${numMessages > 1 ? 'messages' : 'message'} in an event you're attending`;
 	const pushNotificationPayload = { title: 'New Message', body: message };
 
+	// TODO: might want to check if user received more than X new message notifs in Y time, and not send notifs if that's the case
+
 	const notifications = filteredAttendingUserIds.map((attendeeUserId) => ({
 		event_id: eventId,
 		user_id: attendeeUserId,
