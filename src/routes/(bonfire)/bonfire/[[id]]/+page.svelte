@@ -17,9 +17,7 @@
 		Calendar,
 		KeyRound,
 		ArrowRightFromLine,
-
 		FlameKindling
-
 	} from 'lucide-svelte';
 	import { formatHumanReadable, formatHumanReadableHour } from '$lib/utils';
 	import Rsvp from '$lib/components/Rsvp.svelte';
@@ -44,6 +42,7 @@
 	import { env as publicEnv } from '$env/dynamic/public';
 	import ImThreadView from '$lib/components/im/ImThreadView.svelte';
 	import PopupImThreadView from '$lib/components/im/PopupImThreadView.svelte';
+	import NumNewMessageIndicator from '$lib/components/im/NumNewMessageIndicator.svelte';
 
 	const showMaxNumPeople = 50;
 	const tempAttendeeId = $page.data.tempAttendeeId;
@@ -557,7 +556,8 @@
 								value="discussions"
 								class="focus:outline-none focus-visible:ring-0"
 								onclick={scrollToBottom}
-								>Discussions
+								>
+								<NumNewMessageIndicator >Discussions</NumNewMessageIndicator>
 							</Tabs.Trigger>
 						</Tabs.List>
 					</div>
@@ -948,10 +948,10 @@
 						{:else}
 							<div class="flex h-40 items-center justify-center">
 								<div
-									class="w-3/4 m-1 bg-slate-500 p-5 text-lg text-white dark:bg-slate-800 dark:text-slate-100 h-24 flex justify-center items-center rounded-xl mt-10 opacity-80"
+									class="m-1 mt-10 flex h-24 w-3/4 items-center justify-center rounded-xl bg-slate-500 p-5 text-lg text-white opacity-80 dark:bg-slate-800 dark:text-slate-100"
 								>
 									RSVP first!
-							</div>
+								</div>
 							</div>
 						{/if}
 					</Tabs.Content>

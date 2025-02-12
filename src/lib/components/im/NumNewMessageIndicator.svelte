@@ -2,8 +2,10 @@
 	import { onMount } from 'svelte';
 	import { getFeTriplitClient, waitForUserId } from '$lib/triplit';
 	import { page } from '$app/stores';
-	import { TriplitClient } from '@triplit/client';
-	import { Bell } from 'lucide-svelte';
+	import { and, TriplitClient } from '@triplit/client';
+	import { NotificationType } from '$lib/enums';
+
+	let { children } = $props();
 
 	let userId = $state('');
 	let notificationsCount = $state(0);
@@ -11,17 +13,20 @@
 	const createNotificationsQuery = (client: TriplitClient, userId: string) => {
 		return client
 			.query('notifications')
-			.where([
-				['user_id', '=', userId],
-				['seen_at', '=', null]
-			])
+			.where(
+				and([
+					['user_id', '=', userId],
+					['seen_at', '=', null],
+					['object_type', '=', NotificationType.NEW_MESSAGE]
+				])
+			)
 			.select(['id'])
 			.order('created_at', 'DESC');
 	};
 
 	onMount(() => {
 		let client = getFeTriplitClient($page.data.jwt) as TriplitClient;
-		console.log('loading notifications in NotificationsLoader');
+
 		const init = async () => {
 			userId = (await waitForUserId()) as string;
 
@@ -31,10 +36,9 @@
 				notificationsQuery.build(),
 				(results, info) => {
 					notificationsCount = results.length;
-					console.log('NotificationsIndication new count:', notificationsCount);
 				},
 				(error) => {
-					console.error('Error fetching announcements:', error);
+					console.error('Error fetching new message count:', error);
 				},
 				// Optional
 				{
@@ -55,11 +59,9 @@
 </script>
 
 <div class="relative">
-	<!-- Notification Button -->
-	<div
-		class="m-1 flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700"
-	>
-		<Bell class="h-6 w-6 sm:h-5 sm:w-5" />
+	<!-- Name -->
+	<div class="pr-6">
+		{@render children?.()}
 	</div>
 
 	<!-- Notification Badge -->
@@ -67,10 +69,10 @@
 		<div
 			class="absolute right-0 top-0 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-xs font-bold text-white sm:h-5 sm:w-5 sm:text-sm"
 		>
-			{#if notificationsCount <= 5}
+			{#if notificationsCount <= 10}
 				{notificationsCount}
 			{:else}
-				<span class="sr-only"></span>
+				<span class="sr-only">{notificationsCount}</span>
 			{/if}
 		</div>
 	{/if}
