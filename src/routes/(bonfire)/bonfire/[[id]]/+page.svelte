@@ -546,7 +546,7 @@
 	{:else}
 		<div class="mx-4 flex flex-col items-center justify-center">
 			<section class="mt-8 flex w-full justify-center sm:w-[450px] md:w-[550px] lg:w-[650px]">
-				<Tabs.Root value="about">
+				<Tabs.Root value="about" class="w-full">
 					<div class="flex w-full justify-center">
 						<Tabs.List class="w-full bg-transparent">
 							<div class="bg-slate-700 p-2 rounded-lg">
@@ -563,7 +563,7 @@
 							</div>
 						</Tabs.List>
 					</div>
-					<Tabs.Content value="about" class="w-full sm:w-[630px] md:w-[700px]">
+					<Tabs.Content value="about" class="w-full">
 						<!-- TODO: allow temp attendees to delete themselves -->
 						{#if isUnverifiedUser}
 							<div
@@ -937,7 +937,7 @@
 					</Tabs.Content>
 					<Tabs.Content
 						value="discussions"
-						class="mb-2 h-[calc(100vh-4rem)] w-full sm:w-[630px] md:w-[700px]"
+						class="mb-2 h-[calc(100vh-4rem)] w-full"
 					>
 						{#if rsvpStatus}
 							<ImThreadView

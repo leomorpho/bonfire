@@ -9,6 +9,9 @@
 	import Button from '../ui/button/button.svelte';
 	import { ChevronDown } from 'lucide-svelte';
 	import SvgLoader from '../SvgLoader.svelte';
+	import { and } from '@triplit/client';
+	import { stringRepresentationToArray } from '$lib/utils';
+	import { NotificationType } from '$lib/enums';
 
 	let {
 		eventId,
@@ -43,6 +46,40 @@
 			sentMessageJustNowFromNonBottom = false;
 		}
 	});
+
+	let notificationIdsNeedToBeMarkedAsSeen = $state(new Set());
+	let markNotificationAsReadLockAvailable = $state(true);
+
+	$effect(() => {
+		if (markNotificationAsReadLockAvailable && notificationIdsNeedToBeMarkedAsSeen.size !== 0) {
+			// Mark lock as taken
+			markNotificationAsReadLockAvailable = false;
+			const id = notificationIdsNeedToBeMarkedAsSeen.values().next().value;
+
+			markNotifAsRead(id as string);
+		}
+	});
+
+	const markNotifAsRead = async (id: string) => {
+		console.log(`marking notification with id ${id} as seen`);
+		try {
+			const client = getFeTriplitClient($page.data.jwt);
+
+			// Update the notification to mark it as seen
+			await client.update('notifications', id, async (e: any) => {
+				e.seen_at = new Date();
+			});
+
+			// If the update is successful, remove the ID from the Set
+			notificationIdsNeedToBeMarkedAsSeen.delete(id);
+		} catch (error) {
+			// Handle any errors that occur during the update
+			console.error(`Failed to update notification as seen for ID ${id}`, error);
+		} finally {
+			markNotificationAsReadLockAvailable = true;
+		}
+		console.log(`marked notification with id ${id} as seen`);
+	};
 
 	onMount(() => {
 		const client = getFeTriplitClient($page.data.jwt);
@@ -138,6 +175,63 @@
 			}
 		);
 
+		const unsubscribeFromUnreadThreadNotifs = client.subscribe(
+			client
+				.query('notifications')
+				.where([
+					and([
+						['event_id', '=', eventId],
+						['extra_id', '=', threadId],
+						['user_id', '=', currUserId],
+						['seen_at', '=', null],
+						['object_type', '=', NotificationType.NEW_MESSAGE]
+					])
+				])
+				.select(['id', 'object_ids'])
+				.build(),
+			(results, info) => {
+				// Create an array to store the IDs of messages that are marked as seen
+				const seenMessageIds: Set<string> = new Set();
+
+				// Iterate over `messages` to check if the message ID is in `seenMessageIds`
+				messages.forEach((message: any) => {
+					if (message.seen_by && message.seen_by.length > 0) {
+						seenMessageIds.add(message.id);
+					}
+				});
+
+				// Iterate over the results to collect message IDs
+				results.forEach((notification: any) => {
+					console.log('==> notification', notification);
+					const messageIds = stringRepresentationToArray(notification.object_ids);
+					const messageId = messageIds[0];
+					console.log('==> seenMessageIds', seenMessageIds);
+					if (seenMessageIds.has(messageId)) {
+						console.log(
+							'==> notificationIdsNeedToBeMarkedAsSeen',
+							notificationIdsNeedToBeMarkedAsSeen
+						);
+						// We need to mark that notification as seen
+						notificationIdsNeedToBeMarkedAsSeen.add(notification.id);
+						notificationIdsNeedToBeMarkedAsSeen = new Set(notificationIdsNeedToBeMarkedAsSeen);
+					}
+				});
+			},
+			(error) => {
+				// handle error
+				console.error('Error fetching unread notifications for thread:', error);
+			},
+			// Optional
+			{
+				localOnly: false,
+				onRemoteFulfilled: () => {
+					console.log(
+						"server has sent back results for the unread notifications for this thread's subscription"
+					);
+				}
+			}
+		);
+
 		if (chatContainerRef) {
 			console.log('chatContainerRef', chatContainerRef);
 			chatContainerRef.addEventListener('scroll', handleScroll);
@@ -146,6 +240,7 @@
 		// Ensure cleanup on component destruction
 		return () => {
 			unsubscribeFromMessages();
+			unsubscribeFromUnreadThreadNotifs();
 		};
 	});
 

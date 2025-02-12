@@ -127,7 +127,7 @@
 						</Button>
 					</form>
 				{:else}
-					<a href="/login" onclick={toggleMenu} class="flex w-full justify-center">
+					<a href="/login" class="flex w-full justify-center">
 						{@render loginButton()}
 					</a>
 				{/if}

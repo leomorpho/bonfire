@@ -25,6 +25,7 @@ import {
 	validateUserIds
 } from './triplit';
 import { getTaskLockState, updateTaskLockState } from './database/tasklock';
+import { log } from 'console';
 
 export const runNotificationProcessor = async () => {
 	const taskName = TaskName.PROCESS_NOTIFICATION_QUEUE;
@@ -433,7 +434,16 @@ async function notifyAttendeesOfNewMessages(
 
 	// Extract user_ids from the messages
 	const senderIds: Array<string> = messages.map((message: { user_id: string }) => message.user_id);
+	const threadIds: Set<string> = new Set(
+		messages.map((message: { thread_id: string }) => message.thread_id)
+	);
 
+
+	if (threadIds.size != 1) {
+		console.error(
+			`notifyAttendeesOfNewMessages should be called for a single thread but has the following: ${threadIds}`
+		);
+	}
 	// Filter out sender IDs from the list of attendees
 	const filteredAttendingUserIds = attendingUserIds.filter(
 		(attendeeUserId) => !senderIds.includes(attendeeUserId)
@@ -451,7 +461,8 @@ async function notifyAttendeesOfNewMessages(
 		message,
 		object_type: NotificationType.NEW_MESSAGE,
 		object_ids: arrayToStringRepresentation(newMessageIds),
-		num_push_notifications_sent: 1
+		num_push_notifications_sent: 1,
+		extra_id: Array.from(threadIds)[0] // Convert Set to Array to access the first element
 	}));
 
 	await triplitHttpClient.bulkInsert({

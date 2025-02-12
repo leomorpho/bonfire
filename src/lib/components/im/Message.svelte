@@ -49,34 +49,57 @@
 	const markMessageAsSeen = async (messageId: string) => {
 		const client = getFeTriplitClient($page.data.jwt);
 
-		try {
-			await client.insert('event_message_seen', {
-				message_id: messageId,
-				user_id: $page.data.user.id
-			});
+		let existingNotif: any;
 
-			try {
-				const { output } = await client.fetchOne(
-					client.query('notifications').where(
+		try {
+			// Fetch the notification
+			const results = await client.fetch(
+				client
+					.query('notifications')
+					.where([
 						and([
 							['user_id', '=', $page.data.user.id],
 							['seen_at', '=', null],
 							['object_ids', '=', arrayToStringRepresentation([messageId])],
 							['object_type', '=', NotificationType.NEW_MESSAGE]
 						])
-					)
-				);
-				if (output) {
-					await client.update('notifications', output.id, async (e: any) => {
-						e.seen_at = new Date();
-					});
-				}
-			} catch (e) {
-				console.log(
-					`failed to set notification as seen for user ${$page.data.user.id} and message ${messageId}`,
-					e
-				);
+					])
+					.build()
+			);
+			if (results.length == 1) {
+				existingNotif = results[0];
 			}
+		} catch (e) {
+			console.error(
+				`Failed to get existing unseen notification for user ${$page.data.user.id} and message ${messageId}`,
+				e
+			);
+		}
+
+		try {
+			await client.transact(async (tx: any) => {
+				try {
+					// Insert the 'event_message_seen' record
+					await tx.insert('event_message_seen', {
+						message_id: messageId,
+						user_id: $page.data.user.id
+					});
+
+					if (existingNotif) {
+						// Update the notification to mark it as seen
+						await tx.update('notifications', existingNotif.id, async (e: any) => {
+							e.seen_at = new Date();
+						});
+					}
+				} catch (error) {
+					console.error(
+						`Failed to set notification as seen for user ${$page.data.user.id} and message ${messageId}`,
+						error
+					);
+					// Optionally, you can decide to cancel the transaction if any part fails
+					await tx.cancel();
+				}
+			});
 
 			// ✅ Update local `seen_by` array for reactivity
 			message.seen_by = [...(message.seen_by || []), { user_id: currUserId }];

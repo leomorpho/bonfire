@@ -689,6 +689,7 @@ export const schema = {
 			message: S.String(), // Notification content
 			object_type: S.String(),
 			object_ids: S.String(), // TODO: should have made this a set of IDs, would make so much more sense for checking with triplit logic (has/nothas filters)
+			extra_id: S.Optional(S.String()),
 			created_at: S.Date({ default: S.Default.now() }), // Timestamp of when the notification was sent
 			seen_at: S.Date({ nullable: true, default: null }),
 			num_push_notifications_sent: S.Number({ default: 0 })
@@ -740,7 +741,7 @@ export const schema = {
 			event: S.RelationById('events', '$event_id'), // Link to the event
 			user_id: S.String({ nullable: true, default: null }), // ID of the user who created the thread
 			user: S.RelationById('user', '$user_id'), // Relation to the user
-			name: S.String({default: MAIN_THREAD}), // Thread name
+			name: S.String({ default: MAIN_THREAD }), // Thread name
 			created_at: S.Date({ default: S.Default.now() }), // Timestamp when the message was sent
 			updated_at: S.Optional(S.Date({ nullable: true, default: null })), // Timestamp when the message was edited
 			messages: S.RelationMany('event_messages', {

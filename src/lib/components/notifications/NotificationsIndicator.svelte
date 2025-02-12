@@ -16,7 +16,7 @@
 				['user_id', '=', userId],
 				['seen_at', '=', null]
 			])
-			.select(['id'])
+			.select(['id', 'object_type', 'object_ids'])
 			.order('created_at', 'DESC');
 	};
 
@@ -28,7 +28,7 @@
 
 			let notificationsQuery = createNotificationsQuery(client, userId);
 
-			const unsubscribe = client.subscribe(
+			const unsubscribeFromNotificationsQuery = client.subscribe(
 				notificationsQuery.build(),
 				(results, info) => {
 					notificationsCount = results.length;
@@ -47,7 +47,7 @@
 			);
 
 			return () => {
-				unsubscribe();
+				unsubscribeFromNotificationsQuery();
 			};
 		};
 
