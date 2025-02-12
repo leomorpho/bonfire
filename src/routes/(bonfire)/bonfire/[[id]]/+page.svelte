@@ -548,17 +548,19 @@
 			<section class="mt-8 flex w-full justify-center sm:w-[450px] md:w-[550px] lg:w-[650px]">
 				<Tabs.Root value="about">
 					<div class="flex w-full justify-center">
-						<Tabs.List>
-							<Tabs.Trigger value="about" class="focus:outline-none focus-visible:ring-0">
-								About
-							</Tabs.Trigger>
-							<Tabs.Trigger
-								value="discussions"
-								class="focus:outline-none focus-visible:ring-0"
-								onclick={scrollToBottom}
+						<Tabs.List class="w-full bg-transparent">
+							<div class="bg-slate-700 p-2 rounded-lg">
+								<Tabs.Trigger value="about" class="focus:outline-none focus-visible:ring-0">
+									About
+								</Tabs.Trigger>
+								<Tabs.Trigger
+									value="discussions"
+									class="focus:outline-none focus-visible:ring-0"
+									onclick={scrollToBottom}
 								>
-								<NumNewMessageIndicator >Discussions</NumNewMessageIndicator>
-							</Tabs.Trigger>
+									<NumNewMessageIndicator>Discussions</NumNewMessageIndicator>
+								</Tabs.Trigger>
+							</div>
 						</Tabs.List>
 					</div>
 					<Tabs.Content value="about" class="w-full sm:w-[630px] md:w-[700px]">

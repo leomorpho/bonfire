@@ -4,7 +4,6 @@ import { format, isToday, isYesterday } from 'date-fns'
 import { generateId } from 'lucia';
 import { tempAttendeeSecretStore, tempAttendeeSecretParam } from './enums';
 import { get } from 'svelte/store';
-import { browser } from '$app/environment';
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
@@ -222,10 +221,10 @@ export const debounce = (func, delay = 300) => {
 };
 
 export function detectTailwindTheme(): 'light' | 'dark' {
-	if (browser) {
-		return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
-	}
-	return 'light';
+    if (typeof window !== 'undefined') {
+        return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+    }
+    return 'light';
 }
 
 export const createAttendeeId = (eventId: string, userId: string) => {

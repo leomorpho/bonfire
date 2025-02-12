@@ -688,7 +688,7 @@ export const schema = {
 			user: S.RelationById('user', '$user_id'), // Link to the user
 			message: S.String(), // Notification content
 			object_type: S.String(),
-			object_ids: S.String(),
+			object_ids: S.String(), // TODO: should have made this a set of IDs, would make so much more sense for checking with triplit logic (has/nothas filters)
 			created_at: S.Date({ default: S.Default.now() }), // Timestamp of when the notification was sent
 			seen_at: S.Date({ nullable: true, default: null }),
 			num_push_notifications_sent: S.Number({ default: 0 })

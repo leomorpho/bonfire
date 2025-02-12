@@ -417,26 +417,34 @@ async function notifyAttendeesOfNewMessages(
 	const attendingUserIds = await getAttendeeUserIdsOfEvent(
 		eventId,
 		NOTIFY_OF_ATTENDING_STATUS_CHANGE,
-		true // Do not notify announcement creator, i.e., event creator
+		false
 	);
+
+	// TODO: Remove sender ID from list of attendees
 
 	if (!attendingUserIds.length) return;
 
-	for (const attendeeUserId of attendingUserIds) {
-		const numMessages = newMessageIds.length;
-		const message = `💬 You have ${numMessages} new ${numMessages > 1 ? 'messages' : 'message'} in an event you're attending`;
-		const pushNotificationPayload = { title: 'New Announcements', body: message };
+	const numMessages = newMessageIds.length;
+	const message = `💬 You have ${numMessages} new ${numMessages > 1 ? 'messages' : 'message'} in an event you're attending`;
+	const pushNotificationPayload = { title: 'New Message', body: message };
 
-		await handleNotification(
-			null,
-			attendeeUserId,
-			eventId,
-			NotificationType.ANNOUNCEMENT,
-			newMessageIds,
-			message,
-			pushNotificationPayload,
-			[PermissionType.EVENT_ACTIVITY]
-		);
+	const notifications = attendingUserIds.map((attendeeUserId) => ({
+		event_id: eventId,
+		user_id: attendeeUserId,
+		message,
+		object_type: NotificationType.NEW_MESSAGE,
+		object_ids: arrayToStringRepresentation(newMessageIds),
+		num_push_notifications_sent: 1
+	}));
+
+	await triplitHttpClient.bulkInsert({
+		notifications: notifications
+	});
+
+	for (const attendeeUserId of attendingUserIds) {
+		await sendPushNotification(attendeeUserId, pushNotificationPayload, [
+			PermissionType.EVENT_ACTIVITY
+		]);
 	}
 }
 
@@ -459,7 +467,6 @@ async function handleNotification(
 			await sendPushNotification(recipientUserId, pushNotificationPayload, requiredPermissions);
 			pushNotificationSent = true;
 		}
-
 		await triplitHttpClient.update('notifications', existingNotification.id, (entity: any) => {
 			entity.object_ids = arrayToStringRepresentation(updatedObjectIds);
 			entity.message = message;

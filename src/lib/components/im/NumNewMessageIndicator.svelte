@@ -58,16 +58,14 @@
 	});
 </script>
 
-<div class="relative">
+<div class="relative flex items-center">
 	<!-- Name -->
-	<div class="pr-6">
-		{@render children?.()}
-	</div>
+	{@render children?.()}
 
 	<!-- Notification Badge -->
 	{#if notificationsCount > 0}
 		<div
-			class="absolute right-0 top-0 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-xs font-bold text-white sm:h-5 sm:w-5 sm:text-sm"
+			class="absolute -right-7 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-xs font-bold text-white sm:h-5 sm:w-5 sm:text-sm"
 		>
 			{#if notificationsCount <= 10}
 				{notificationsCount}

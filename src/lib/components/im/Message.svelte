@@ -2,9 +2,11 @@
 	import { page } from '$app/stores';
 	import { getFeTriplitClient } from '$lib/triplit';
 	import type { EventMessage } from '$lib/types';
-	import { formatHumanReadableWithContext } from '$lib/utils';
+	import { arrayToStringRepresentation, formatHumanReadableWithContext } from '$lib/utils';
 	import { onDestroy, onMount } from 'svelte';
 	import ProfileAvatar from '../ProfileAvatar.svelte';
+	import { and } from '@triplit/client';
+	import { NotificationType } from '$lib/enums';
 
 	let {
 		currUserId,
@@ -52,6 +54,29 @@
 				message_id: messageId,
 				user_id: $page.data.user.id
 			});
+
+			try {
+				const { output } = await client.fetchOne(
+					client.query('notifications').where(
+						and([
+							['user_id', '=', $page.data.user.id],
+							['seen_at', '=', null],
+							['object_ids', '=', arrayToStringRepresentation([messageId])],
+							['object_type', '=', NotificationType.NEW_MESSAGE]
+						])
+					)
+				);
+				if (output) {
+					await client.update('notifications', output.id, async (e: any) => {
+						e.seen_at = new Date();
+					});
+				}
+			} catch (e) {
+				console.log(
+					`failed to set notification as seen for user ${$page.data.user.id} and message ${messageId}`,
+					e
+				);
+			}
 
 			// ✅ Update local `seen_by` array for reactivity
 			message.seen_by = [...(message.seen_by || []), { user_id: currUserId }];

@@ -242,7 +242,9 @@
 	<div
 		id="scroller"
 		bind:this={chatContainerRef}
-		class="container-scroll h-full space-y-2 overflow-y-auto rounded-t-xl bg-white bg-opacity-20 p-2 dark:bg-black dark:bg-opacity-20"
+		class="{messages.length > 0
+			? 'container-scroll overflow-y-auto'
+			: ''} h-full space-y-2 rounded-t-xl bg-white bg-opacity-20 p-2 dark:bg-black dark:bg-opacity-20"
 	>
 		<div id="anchor"></div>
 
@@ -257,14 +259,16 @@
 				/>
 			{/each}
 		{:else if showMessagesLoading}
-			<div class="flex w-full items-center justify-center">
+			<div class="flex h-full w-full items-center justify-center">
 				<div>
 					<div class="font-mono">Loading...</div>
 					<SvgLoader />
 				</div>
 			</div>
 		{:else}
-			<div class="flex w-full items-center justify-center">No messages yet</div>
+			<div class="flex h-full w-full items-center justify-center">
+				<div class="rounded-xl bg-white p-4 dark:bg-slate-900">No messages yet</div>
+			</div>
 		{/if}
 
 		<!-- ✅ Position button at the bottom of the chat container -->
