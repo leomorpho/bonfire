@@ -421,14 +421,29 @@ async function notifyAttendeesOfNewMessages(
 	);
 
 	// TODO: Remove sender ID from list of attendees
+	const messages = await triplitHttpClient.fetch(
+		triplitHttpClient
+			.query('event_messages')
+			.where(['id', 'in', newMessageIds])
+			.select(['user_id'])
+			.build()
+	);
 
 	if (!attendingUserIds.length) return;
+
+	// Extract user_ids from the messages
+	const senderIds: Array<string> = messages.map((message: { user_id: string }) => message.user_id);
+
+	// Filter out sender IDs from the list of attendees
+	const filteredAttendingUserIds = attendingUserIds.filter(
+		(attendeeUserId) => !senderIds.includes(attendeeUserId)
+	);
 
 	const numMessages = newMessageIds.length;
 	const message = `💬 You have ${numMessages} new ${numMessages > 1 ? 'messages' : 'message'} in an event you're attending`;
 	const pushNotificationPayload = { title: 'New Message', body: message };
 
-	const notifications = attendingUserIds.map((attendeeUserId) => ({
+	const notifications = filteredAttendingUserIds.map((attendeeUserId) => ({
 		event_id: eventId,
 		user_id: attendeeUserId,
 		message,
@@ -441,7 +456,7 @@ async function notifyAttendeesOfNewMessages(
 		notifications: notifications
 	});
 
-	for (const attendeeUserId of attendingUserIds) {
+	for (const attendeeUserId of filteredAttendingUserIds) {
 		await sendPushNotification(attendeeUserId, pushNotificationPayload, [
 			PermissionType.EVENT_ACTIVITY
 		]);
