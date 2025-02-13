@@ -62,6 +62,7 @@
 
 	const onReport = async (messageId: string) => {
 		// TODO
+		showAlert = false;
 	};
 
 	const onDelete = async (messageId: string) => {
@@ -70,6 +71,7 @@
 			entity.content = '';
 			entity.deleted_by_user_id = $page.data.user.id;
 		});
+		showAlert = false;
 	};
 </script>
 
@@ -144,7 +146,7 @@
 
 <AlertDialog.Root bind:open={showAlert}>
 	<AlertDialog.Content
-		class="w-3/4 rounded-3xl border-0 bg-transparent animate-in fade-in zoom-in sm:max-w-[400px]"
+		class="w-full rounded-3xl border-0 bg-transparent animate-in fade-in zoom-in max-w-[400px] sm:max-w-[400px]"
 		interactOutsideBehavior="close"
 	>
 		<div class="flex w-full justify-center">

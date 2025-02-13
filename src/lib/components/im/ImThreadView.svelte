@@ -21,7 +21,7 @@
 		canSendIm = true,
 		maxNumMessages = null,
 		datetimeUserJoinedBonfire = null,
-		currenUserIsEventAdmin=false,
+		currenUserIsEventAdmin = false
 	} = $props();
 
 	let chatContainerRef: HTMLDivElement | null = null;
@@ -127,12 +127,16 @@
 					window.addEventListener('scroll', freezeScroll, { passive: false });
 				}
 
-				// Avoid duplicates by checking IDs
-				const existingIds = new Set(messages.map((m: any) => m.id));
-				const uniqueResults = results.filter((m: any) => !existingIds.has(m.id));
+				// Convert messages array to a Map for quick lookup by ID
+				const messageMap = new Map(messages.map((m: any) => [m.id, m]));
 
-				// // Update with unique messages only and sort by created_at
-				messages = [...messages, ...uniqueResults].sort(
+				// Replace old messages with new ones (if they exist), or add them if they don’t
+				for (const newMessage of results) {
+					messageMap.set(newMessage.id, newMessage);
+				}
+
+				// Convert back to an array and sort by created_at
+				messages = Array.from(messageMap.values()).sort(
 					(a, b) => new Date(b.created_at) - new Date(a.created_at)
 				) as [];
 
