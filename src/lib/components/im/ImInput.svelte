@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Paperclip, Send, Smile } from 'lucide-svelte';
+	import { Send, Smile } from 'lucide-svelte';
 	import { onDestroy, onMount } from 'svelte';
 	import { Button } from '$lib/components/ui/button';
 	import * as Popover from '$lib/components/ui/popover/index.js';
@@ -51,7 +51,9 @@
 	});
 </script>
 
-<div class="flex w-full items-center gap-3 rounded-b-xl bg-white p-3 dark:bg-gray-900 bg-opacity-90 dark:bg-opacity-90">
+<div
+	class="flex w-full items-center gap-3 rounded-b-xl bg-white bg-opacity-90 p-3 dark:bg-gray-900 dark:bg-opacity-90"
+>
 	<!-- Attachments Button -->
 	<!-- <Button
 		variant="ghost"

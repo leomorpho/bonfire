@@ -31,7 +31,11 @@
 	onDestroy(() => {
 		// Cleanup event listener
 		if (emojiPicker) {
-			emojiPicker.removeEventListener('emoji-click', handleEmojiSelect);
+			try {
+				emojiPicker?.removeEventListener('emoji-click', handleEmojiSelect);
+			} catch (e) {
+				console.log('failed to remove event listener', e);
+			}
 		}
 	});
 </script>
@@ -41,7 +45,7 @@
 
 <style>
 	emoji-picker {
-		--num-columns: 7; 
+		--num-columns: 7;
 		height: 20rem; /* Adjust this to control the number of visible rows */
 		--emoji-padding: 0.3rem; /* Reduce spacing between emojis */
 		--emoji-size: 1.6rem; /* Adjust emoji size if needed */
@@ -52,7 +56,7 @@
 	/* Mobile (Max-width 768px) */
 	@media (max-width: 768px) {
 		emoji-picker {
-			--num-columns: 7; 
+			--num-columns: 7;
 			height: 17rem; /* Shorter picker for mobile */
 			--emoji-padding: 0.2rem;
 			--emoji-size: 1.4rem;

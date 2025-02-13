@@ -2,6 +2,7 @@
 	import * as AlertDialog from '$lib/components/ui/alert-dialog/index.ts';
 
 	let {
+		cls=null,
 		children = null,
 		continueCallback,
 		isOpen = $bindable(false),
@@ -27,7 +28,7 @@
 		isOpen = open; // Synchronize dialog state
 	}}
 >
-	<AlertDialog.Trigger {disabled}>
+	<AlertDialog.Trigger {disabled} class={cls}>
 		{#if children}
 			{@render children()}
 		{/if}
