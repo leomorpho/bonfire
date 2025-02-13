@@ -20,7 +20,8 @@
 		threadId = null,
 		canSendIm = true,
 		maxNumMessages = null,
-		datetimeUserJoinedBonfire = null
+		datetimeUserJoinedBonfire = null,
+		currenUserIsEventAdmin=false,
 	} = $props();
 
 	let chatContainerRef: HTMLDivElement | null = null;
@@ -351,6 +352,7 @@
 					{message}
 					onMessageSeen={countNumUnseenMessages}
 					ignoreSeenStatusPriorToThisDatetime={datetimeUserJoinedBonfire}
+					{currenUserIsEventAdmin}
 				/>
 			{/each}
 		{:else if showMessagesLoading}

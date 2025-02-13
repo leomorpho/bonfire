@@ -548,7 +548,7 @@
 			<section class="mt-8 flex w-full justify-center sm:w-[450px] md:w-[550px] lg:w-[650px]">
 				<Tabs.Root value="about" class="w-full">
 					<div class="flex w-full justify-center">
-						<Tabs.List class="w-full bg-transparent">
+						<Tabs.List class="w-full bg-transparent animate-in fade-in zoom-in">
 							<div class="bg-slate-700 p-2 rounded-lg">
 								<Tabs.Trigger value="about" class="focus:outline-none focus-visible:ring-0">
 									About
@@ -946,6 +946,7 @@
 								eventId={event.id}
 								{profileImageMap}
 								datetimeUserJoinedBonfire={currentUserAttendee?.updated_at}
+								{currenUserIsEventAdmin}
 							/>
 						{:else}
 							<div class="flex h-40 items-center justify-center">

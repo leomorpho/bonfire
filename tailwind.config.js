@@ -7,6 +7,7 @@ const config = {
 	darkMode: ['class'],
 	plugins: [
 		require('@tailwindcss/typography'),
+		require("tailwindcss-animate"),
 		require('daisyui'),
 		plugin(function ({ addUtilities }) {
 			addUtilities({

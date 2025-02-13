@@ -7,19 +7,22 @@
 	import ProfileAvatar from '../ProfileAvatar.svelte';
 	import { and } from '@triplit/client';
 	import { NotificationType } from '$lib/enums';
+	import MessageContextMenu from './MessageContextMenu.svelte';
 
 	let {
 		currUserId,
 		message,
 		url,
 		onMessageSeen = null,
-		ignoreSeenStatusPriorToThisDatetime = null
+		ignoreSeenStatusPriorToThisDatetime = null,
+		currenUserIsEventAdmin = false
 	} = $props<{
 		currUserId: string;
 		message: EventMessage;
 		url?: string; // Optional property
 		onMessageSeen?: () => void;
 		ignoreSeenStatusPriorToThisDatetime: string;
+		currenUserIsEventAdmin: boolean;
 	}>();
 
 	// Check if the message was sent by the current user
@@ -179,29 +182,31 @@
 		{#if !isOwnMessage}
 			<div class="self-end">{@render avatar()}</div>
 		{/if}
-		<div
-			class="leading-1.5 flex w-full max-w-[320px] flex-col p-4
+		<MessageContextMenu messageId={message.id} {isOwnMessage}>
+			<div
+				class="leading-1.5 flex w-full max-w-[320px] flex-col p-4
 			{isOwnMessage ? 'from-me rounded-s-xl rounded-se-xl bg-blue-100 p-4 dark:bg-blue-600' : ''}
 	{!isOwnMessage && !isUnseen
-				? 'from-them rounded-e-xl rounded-ss-xl bg-gray-100 p-4 dark:bg-gray-800'
-				: ''}
+					? 'from-them rounded-e-xl rounded-ss-xl bg-gray-100 p-4 dark:bg-gray-800'
+					: ''}
 				{!isOwnMessage && isUnseen
-				? 'from-them rounded-e-xl rounded-ss-xl bg-green-100 p-4 dark:bg-green-900'
-				: ''}"
-		>
-			<div class="flex items-center space-x-2 rtl:space-x-reverse">
-				<span class="text-sm font-semibold text-gray-900 dark:text-white"
-					>{message.user?.username}</span
-				>
-				<span class="text-sm font-normal text-gray-500 dark:text-gray-400"
-					>{formatHumanReadableWithContext(message.created_at)}</span
-				>
+					? 'from-them rounded-e-xl rounded-ss-xl bg-green-100 p-4 dark:bg-green-900'
+					: ''}"
+			>
+				<div class="flex items-center space-x-2 rtl:space-x-reverse">
+					<span class="text-sm font-semibold text-gray-900 dark:text-white"
+						>{message.user?.username}</span
+					>
+					<span class="text-sm font-normal text-gray-500 dark:text-gray-400"
+						>{formatHumanReadableWithContext(message.created_at)}</span
+					>
+				</div>
+				<p class="py-2.5 text-sm font-normal text-gray-900 dark:text-white">
+					{message.content}
+				</p>
+				<!-- <span class="text-sm font-normal text-gray-500 dark:text-gray-400">{Delivered}</span> -->
 			</div>
-			<p class="py-2.5 text-sm font-normal text-gray-900 dark:text-white">
-				{message.content}
-			</p>
-			<!-- <span class="text-sm font-normal text-gray-500 dark:text-gray-400">{Delivered}</span> -->
-		</div>
+		</MessageContextMenu>
 		{#if isOwnMessage}
 			<div class="self-end">
 				{@render avatar()}
