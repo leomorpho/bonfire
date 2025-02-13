@@ -20,6 +20,7 @@
 	let isHolding = $state(false);
 	let showAlert = $state(false);
 	let showSmiley = $state(false);
+	let showSmileyPicker = $state(false);
 
 	const isMobile = () => {
 		return typeof window !== 'undefined' && 'ontouchstart' in window;
@@ -79,13 +80,21 @@
 	tabindex="0"
 	onmouseenter={() => (showSmiley = true)}
 	onmouseleave={() => (showSmiley = false)}
+	onclick={() => {
+		showSmileyPicker = true;
+	}}
+	onkeydown={(event) => {
+		if (event.key === 'Enter' || event.key === ' ') showSmileyPicker = true;
+	}}
 >
 	{@render children()}
 
-	{#if showSmiley}
+	{#if showSmiley || showSmileyPicker}
 		<Popover.Root>
 			<Popover.Trigger
-				class="absolute -bottom-4 left-1/2 -translate-x-1/2 transform rounded-full bg-slate-500 p-2 opacity-50 shadow-lg hover:opacity-100 focus:outline-none focus-visible:ring-0"
+				class="{showSmileyPicker
+					? 'opacity-100'
+					: 'opacity-50'} absolute -bottom-4 left-1/2 -translate-x-1/2 transform rounded-full bg-slate-500 p-2 shadow-lg hover:opacity-100 focus:outline-none focus-visible:ring-0"
 			>
 				<div>
 					<Smile class="h-5 w-5 cursor-pointer text-white" />
@@ -99,7 +108,7 @@
 
 	{#if !isMobile()}
 		<button
-			class={`absolute top-1 ${isOwnMessage ? 'right-2' : 'left-2'} rounded bg-slate-400 dark:bg-slate-600 px-1 py-0 opacity-30 focus:outline-none focus-visible:ring-0 text-black dark:text-white`}
+			class={`absolute top-1 ${isOwnMessage ? 'right-2' : 'left-2'} rounded bg-slate-400 px-1 py-0 text-black opacity-30 focus:outline-none focus-visible:ring-0 dark:bg-slate-600 dark:text-white`}
 			onclick={openNonMobileMenu}
 		>
 			<ChevronDown class="!h-3 !w-3" />
@@ -144,7 +153,8 @@
 				dialogDescription={"This message will be reported to this bonfire's admins. This cannot be undone."}
 				cls={'w-full'}
 			>
-				<Button class="w-full flex justify-between bg-slate-200 text-red-500 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700"
+				<Button
+					class="flex w-full justify-between bg-slate-200 text-red-500 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700"
 					>Delete <Trash2 /></Button
 				>
 			</CustomAlertDialog>
@@ -154,7 +164,8 @@
 				dialogDescription={"This message will be reported to this bonfire's admins. This cannot be undone."}
 				cls={'w-full'}
 			>
-				<Button class="w-full flex justify-between bg-slate-200 text-black dark:text-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700"
+				<Button
+					class="flex w-full justify-between bg-slate-200 text-black hover:bg-slate-100 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
 					>Report <Flag /></Button
 				>
 			</CustomAlertDialog>
