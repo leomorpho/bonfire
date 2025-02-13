@@ -13,7 +13,7 @@
 	import * as Popover from '$lib/components/ui/popover/index.js';
 	import CustomAlertDialog from '../CustomAlertDialog.svelte';
 
-	let { children, message, isOwnMessage } = $props();
+	let { children, message, isOwnMessage, currenUserIsEventAdmin } = $props();
 
 	let contextMenuRef: HTMLElement | null = $state(null);
 	let pressTimer: NodeJS.Timeout | null = $state(null);
@@ -81,7 +81,7 @@
 	onmouseenter={() => (showSmiley = true)}
 	onmouseleave={() => (showSmiley = false)}
 	onclick={() => {
-		showSmileyPicker = true;
+		showSmileyPicker = !showSmileyPicker;
 	}}
 	onkeydown={(event) => {
 		if (event.key === 'Enter' || event.key === ' ') showSmileyPicker = true;
@@ -100,7 +100,10 @@
 					<Smile class="h-5 w-5 cursor-pointer text-white" />
 				</div>
 			</Popover.Trigger>
-			<Popover.Content class="w-fit">
+			<Popover.Content
+				class="w-fit rounded-2xl bg-slate-900"
+				onfocusout={() => (showSmileyPicker = false)}
+			>
 				<EmojiPicker handleEmojiSelect={addEmoji} />
 			</Popover.Content>
 		</Popover.Root>
@@ -137,7 +140,7 @@
 
 <AlertDialog.Root bind:open={showAlert}>
 	<AlertDialog.Content
-		class="w-3/4 rounded-3xl animate-in fade-in zoom-in"
+		class="w-3/4 rounded-3xl border-0 bg-transparent animate-in fade-in zoom-in sm:max-w-[400px]"
 		interactOutsideBehavior="close"
 	>
 		<div class="flex w-full justify-center">
@@ -147,10 +150,10 @@
 			<div class="flex w-full justify-center"><EmojiPicker handleEmojiSelect={''} /></div>
 		</div>
 
-		{#if isOwnMessage}
+		{#if isOwnMessage || currenUserIsEventAdmin}
 			<CustomAlertDialog
 				continueCallback={() => onDelete(message.id)}
-				dialogDescription={"This message will be reported to this bonfire's admins. This cannot be undone."}
+				dialogDescription={'This message will be deleted. This cannot be undone.'}
 				cls={'w-full'}
 			>
 				<Button
