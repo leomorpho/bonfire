@@ -25,7 +25,6 @@ import {
 	validateUserIds
 } from './triplit';
 import { getTaskLockState, updateTaskLockState } from './database/tasklock';
-import { log } from 'console';
 
 export const runNotificationProcessor = async () => {
 	const taskName = TaskName.PROCESS_NOTIFICATION_QUEUE;
@@ -191,6 +190,8 @@ async function getUnreadExistingNotification(
 	}
 	return null;
 }
+
+// TODO: update all notification handlers to bulk insert for efficiency
 
 async function notifyAttendeesOfAnnouncements(
 	eventId: string,

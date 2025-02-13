@@ -88,18 +88,18 @@
 	tabindex="0"
 	onmouseenter={() => (showSmiley = true)}
 	onmouseleave={() => (showSmiley = false)}
-	onclick={() => {
-		showSmileyPicker = !showSmileyPicker;
-	}}
-	onkeydown={(event) => {
-		if (event.key === 'Enter' || event.key === ' ') showSmileyPicker = true;
-	}}
 >
 	{@render children()}
 
 	{#if showSmiley || showSmileyPicker}
 		<Popover.Root>
 			<Popover.Trigger
+				onclick={() => {
+					showSmileyPicker = !showSmileyPicker;
+				}}
+				onkeydown={(event) => {
+					if (event.key === 'Enter' || event.key === ' ') showSmileyPicker = !showSmileyPicker;
+				}}
 				class="{showSmileyPicker
 					? 'opacity-100'
 					: 'opacity-50'} absolute -bottom-4 left-1/2 -translate-x-1/2 transform rounded-full bg-slate-500 p-2 shadow-lg hover:opacity-100 focus:outline-none focus-visible:ring-0"

@@ -868,6 +868,36 @@ export const schema = {
 				insert: { filter: [['user_id', '=', '$role.userId']] }, // Users can mark messages as seen
 				delete: { filter: [['user_id', '=', '$role.userId']] } // Users can remove their seen status (if needed)
 			},
+			temp: {},
+			anon: {}
+		}
+	},
+	reported_entities: {
+		schema: S.Schema({
+			id: S.Id(),
+			entity_id: S.String(), // ID of the message
+			user_id: S.String(), // User who has seen the message
+			user: S.RelationById('user', '$user_id'), // Relation to the user
+			event_id: S.String(),
+			event: S.RelationById('events', '$event_id'),
+			created_at: S.Date({ default: S.Default.now() }) // Timestamp when the message was seen
+		}),
+		permissions: {
+			user: {
+				read: {
+					filter: [
+						or([
+							// ['event.attendees.user_id', '=', '$role.userId'],
+							['event.event_admins.user_id', '=', '$role.userId'],
+							['event.user_id', '=', '$role.userId'],
+							['user_id', '=', '$role.userId'] // Users can see their own reported things
+						])
+					]
+				},
+				insert: { filter: [['user_id', '=', '$role.userId']] }, // Users can report stuff
+				delete: { filter: [['user_id', '=', '$role.userId']] } // Users can remove stuff they report
+			},
+			temp: {},
 			anon: {}
 		}
 	}
