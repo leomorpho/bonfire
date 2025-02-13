@@ -172,7 +172,7 @@
 {/snippet}
 
 <div
-	id="message-{message.id}"
+	data-message-id={message.id}
 	bind:this={messageRef}
 	class="message {!isOwnMessage && isUnseen ? 'unseen' : ''} flex w-full items-end p-2 {isOwnMessage
 		? 'justify-end'

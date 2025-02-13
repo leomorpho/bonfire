@@ -39,6 +39,11 @@
 
 	const handlePointerDown = (event: PointerEvent) => {
 		if (isMobile()) {
+			const targetMessage = event.target.closest('[data-message-id]');
+			if (!targetMessage || targetMessage.dataset.messageId !== message.id) {
+				return;
+			}
+
 			pressTimer = setTimeout(() => {
 				isHolding = true;
 				openMenu(event);
@@ -51,15 +56,15 @@
 	};
 
 	onMount(() => {
-		document.addEventListener('pointerdown', handlePointerDown);
-		document.addEventListener('pointerup', handlePointerUp);
-		document.addEventListener('contextmenu', openMenu);
+		if (contextMenuRef) {
+			contextMenuRef.addEventListener('pointerdown', handlePointerDown);
+		}
 	});
 
 	onDestroy(() => {
-		document.removeEventListener('pointerdown', handlePointerDown);
-		document.removeEventListener('pointerup', handlePointerUp);
-		document.removeEventListener('contextmenu', openMenu);
+		if (contextMenuRef) {
+			contextMenuRef.removeEventListener('pointerdown', handlePointerDown);
+		}
 	});
 
 	// Handle emoji selection
@@ -141,7 +146,11 @@
 			>
 		</div>
 		<p class="py-2.5 text-sm font-normal text-gray-900 dark:text-white">
-			{message.content}
+			{#if message.deleted_by_user_id}
+				<span class="italic">This message was deleted</span>
+			{:else}
+				{message.content}
+			{/if}
 		</p>
 	</div>
 {/snippet}
