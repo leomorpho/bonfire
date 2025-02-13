@@ -8,7 +8,7 @@
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Label } from '$lib/components/ui/label/index.js';
 	import Button from '../ui/button/button.svelte';
-	import { formatHumanReadableWithContext } from '$lib/utils';
+	import { formatHumanReadableWithContext, isMobile } from '$lib/utils';
 	import EmojiPicker from '../EmojiPicker.svelte';
 	import * as Popover from '$lib/components/ui/popover/index.js';
 	import CustomAlertDialog from '../CustomAlertDialog.svelte';
@@ -24,10 +24,6 @@
 	let showSmiley = $state(false);
 	let showSmileyPicker = $state(false);
 
-	const isMobile = () => {
-		return typeof window !== 'undefined' && 'ontouchstart' in window;
-	};
-
 	const openMenu = (event?: PointerEvent) => {
 		if (event) event.preventDefault();
 		showAlert = true;
@@ -39,20 +35,11 @@
 
 	const handlePointerDown = (event: PointerEvent) => {
 		if (isMobile()) {
-			const targetMessage = event.target.closest('[data-message-id]');
-			if (!targetMessage || targetMessage.dataset.messageId !== message.id) {
-				return;
-			}
-
 			pressTimer = setTimeout(() => {
 				isHolding = true;
 				openMenu(event);
-			}, 500); // Long press time
+			}, 100); // Long press time
 		}
-	};
-
-	const handlePointerUp = () => {
-		if (pressTimer) clearTimeout(pressTimer);
 	};
 
 	onMount(() => {

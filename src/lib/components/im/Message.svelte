@@ -2,7 +2,11 @@
 	import { page } from '$app/stores';
 	import { getFeTriplitClient } from '$lib/triplit';
 	import type { EventMessage } from '$lib/types';
-	import { arrayToStringRepresentation, formatHumanReadableWithContext } from '$lib/utils';
+	import {
+		arrayToStringRepresentation,
+		formatHumanReadableWithContext,
+		isMobile
+	} from '$lib/utils';
 	import { onDestroy, onMount } from 'svelte';
 	import ProfileAvatar from '../ProfileAvatar.svelte';
 	import { and } from '@triplit/client';
@@ -132,6 +136,33 @@
 
 	let messageRef: HTMLDivElement | null = null;
 	let observer: IntersectionObserver;
+	let pressTimer: NodeJS.Timeout | null = $state(null);
+	let isHolding = $state(false);
+
+	const handlePointerDown = (event: PointerEvent) => {
+		if (isMobile()) {
+			pressTimer = setTimeout(() => {
+				isHolding = true;
+
+				// Reset `isHolding` after 500ms
+				setTimeout(() => {
+					isHolding = false;
+				}, 500);
+			}, 0); // Long press time
+		}
+	};
+
+	onMount(() => {
+		if (messageRef) {
+			messageRef.addEventListener('pointerdown', handlePointerDown);
+		}
+	});
+
+	onDestroy(() => {
+		if (messageRef) {
+			messageRef.removeEventListener('pointerdown', handlePointerDown);
+		}
+	});
 
 	$effect(() => {
 		if (!isOwnMessage && isUnseen && messageRef) {
@@ -191,7 +222,8 @@
 					: ''}
 				{!isOwnMessage && isUnseen
 					? 'from-them rounded-e-xl rounded-ss-xl bg-green-100 p-4 dark:bg-green-900'
-					: ''}"
+					: ''}
+					{isHolding ? 'scale-110 transition-transform duration-150 ease-in-out' : ''}"
 			>
 				<div class="flex items-center space-x-2 rtl:space-x-reverse">
 					<span class="text-sm font-semibold text-gray-900 dark:text-white"

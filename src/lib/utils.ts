@@ -230,3 +230,7 @@ export function detectTailwindTheme(): 'light' | 'dark' {
 export const createAttendeeId = (eventId: string, userId: string) => {
 	return eventId + '-' + userId;
 };
+
+export const isMobile = () => {
+	return typeof window !== 'undefined' && 'ontouchstart' in window;
+};
