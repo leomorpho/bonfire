@@ -139,7 +139,12 @@ export async function processNotificationQueue(notificationQueueEntry: Notificat
 			await notifyAttendeeOfTheirNewAdminRole(notificationQueueEntry.event_id, validObjectIds);
 			break;
 		case NotificationType.NEW_MESSAGE:
-			await notifyAttendeesOfNewMessages(notificationQueueEntry.event_id, validObjectIds);
+			if (validObjectIds.length != 1) {
+				throw new Error(
+					`new message notification created with not exactly 1 message: ${validObjectIds}`
+				);
+			}
+			await notifyAttendeesOfNewMessages(notificationQueueEntry.event_id, validObjectIds[0]);
 			break;
 		default:
 			console.error(`Unknown object_type: ${notificationQueueEntry.object_type}`);
@@ -409,11 +414,8 @@ async function notifyAttendeeOfTheirNewAdminRole(eventId: string, newAdminUserId
 	}
 }
 
-async function notifyAttendeesOfNewMessages(
-	eventId: string,
-	newMessageIds: string[]
-): Promise<void> {
-	if (!newMessageIds.length) return;
+async function notifyAttendeesOfNewMessages(eventId: string, newMessageId: string): Promise<void> {
+	if (!newMessageId) return;
 
 	const attendingUserIds = await getAttendeeUserIdsOfEvent(
 		eventId,
@@ -421,11 +423,11 @@ async function notifyAttendeesOfNewMessages(
 		false
 	);
 
-	// TODO: Remove sender ID from list of attendees
+	// Remove sender ID from list of attendees
 	const messages = await triplitHttpClient.fetch(
 		triplitHttpClient
 			.query('event_messages')
-			.where(['id', 'in', newMessageIds])
+			.where(['id', '=', newMessageId])
 			.select(['user_id'])
 			.build()
 	);
@@ -438,19 +440,35 @@ async function notifyAttendeesOfNewMessages(
 		messages.map((message: { thread_id: string }) => message.thread_id)
 	);
 
-
 	if (threadIds.size != 1) {
 		console.error(
 			`notifyAttendeesOfNewMessages should be called for a single thread but has the following: ${threadIds}`
 		);
 	}
 	// Filter out sender IDs from the list of attendees
-	const filteredAttendingUserIds = attendingUserIds.filter(
+	let filteredAttendingUserIds = attendingUserIds.filter(
 		(attendeeUserId) => !senderIds.includes(attendeeUserId)
 	);
 
-	const numMessages = newMessageIds.length;
-	const message = `💬 You have ${numMessages} new ${numMessages > 1 ? 'messages' : 'message'} in an event you're attending`;
+	// Get users who've already seen the message
+	const seen_by = await triplitHttpClient.fetch(
+		triplitHttpClient
+			.query('event_message_seen')
+			.where(['message_id', '=', newMessageId])
+			.select(['user_id'])
+			.build()
+	);
+
+	const seenByUserIds: Set<string> = new Set(
+		seen_by.map((seen_by: { user_id: string }) => seen_by.user_id)
+	);
+
+	// Filter out users who've already seen the message
+	filteredAttendingUserIds = filteredAttendingUserIds.filter(
+		(attendeeUserId) => !seenByUserIds.has(attendeeUserId)
+	);
+
+	const message = `💬 You have a new message in an event you're attending`;
 	const pushNotificationPayload = { title: 'New Message', body: message };
 
 	// TODO: might want to check if user received more than X new message notifs in Y time, and not send notifs if that's the case
@@ -460,7 +478,7 @@ async function notifyAttendeesOfNewMessages(
 		user_id: attendeeUserId,
 		message,
 		object_type: NotificationType.NEW_MESSAGE,
-		object_ids: arrayToStringRepresentation(newMessageIds),
+		object_ids: arrayToStringRepresentation([newMessageId]),
 		num_push_notifications_sent: 1,
 		extra_id: Array.from(threadIds)[0] // Convert Set to Array to access the first element
 	}));

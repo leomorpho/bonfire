@@ -46,6 +46,17 @@
 			: true;
 	});
 
+	const isElementReallyVisible = (element: HTMLElement) => {
+		if (!element) return false;
+
+		// If the element is `display: none`, `offsetParent` will be null
+		if (!element.offsetParent) return false;
+
+		// Check if it's inside the viewport
+		const rect = element.getBoundingClientRect();
+		return rect.top >= 0 && rect.bottom <= window.innerHeight;
+	};
+
 	const markMessageAsSeen = async (messageId: string) => {
 		const client = getFeTriplitClient($page.data.jwt);
 
@@ -129,7 +140,7 @@
 			observer = new IntersectionObserver(
 				(entries) => {
 					entries.forEach((entry) => {
-						if (entry.isIntersecting) {
+						if (entry.isIntersecting && isElementReallyVisible(entry.target as HTMLElement)) {
 							// ✅ Mark as seen & update UI
 							markMessageAsSeen(message.id);
 							observer?.unobserve(entry.target); // Stop observing
