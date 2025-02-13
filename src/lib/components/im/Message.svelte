@@ -182,7 +182,7 @@
 		{#if !isOwnMessage}
 			<div class="self-end">{@render avatar()}</div>
 		{/if}
-		<MessageContextMenu message={message} {isOwnMessage} {currenUserIsEventAdmin}>
+		<MessageContextMenu {message} {isOwnMessage} {currenUserIsEventAdmin}>
 			<div
 				class="leading-1.5 flex w-full max-w-[320px] flex-col p-4
 			{isOwnMessage ? 'from-me rounded-s-xl rounded-se-xl bg-blue-100 p-4 dark:bg-blue-600' : ''}
@@ -202,7 +202,11 @@
 					>
 				</div>
 				<p class="py-2.5 text-sm font-normal text-gray-900 dark:text-white">
-					{message.content}
+					{#if message.deleted_by_user_id}
+						<span class="italic">This message was deleted</span>
+					{:else}
+						{message.content}
+					{/if}
 				</p>
 				<!-- <span class="text-sm font-normal text-gray-500 dark:text-gray-400">{Delivered}</span> -->
 			</div>

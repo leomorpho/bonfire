@@ -12,6 +12,8 @@
 	import EmojiPicker from '../EmojiPicker.svelte';
 	import * as Popover from '$lib/components/ui/popover/index.js';
 	import CustomAlertDialog from '../CustomAlertDialog.svelte';
+	import { getFeTriplitClient } from '$lib/triplit';
+	import { page } from '$app/stores';
 
 	let { children, message, isOwnMessage, currenUserIsEventAdmin } = $props();
 
@@ -70,7 +72,13 @@
 		// TODO
 	};
 
-	const onDelete = async (messageId: string) => {};
+	const onDelete = async (messageId: string) => {
+		const client = await getFeTriplitClient($page.data.jwt);
+		await client.update('event_messages', messageId, async (entity: any) => {
+			entity.content = '';
+			entity.deleted_by_user_id = $page.data.user.id;
+		});
+	};
 </script>
 
 <div
@@ -151,16 +159,18 @@
 		</div>
 
 		{#if isOwnMessage || currenUserIsEventAdmin}
-			<CustomAlertDialog
-				continueCallback={() => onDelete(message.id)}
-				dialogDescription={'This message will be deleted. This cannot be undone.'}
-				cls={'w-full'}
-			>
-				<Button
-					class="flex w-full justify-between bg-slate-200 text-red-500 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700"
-					>Delete <Trash2 /></Button
+			{#if !message.deleted_by_user_id}
+				<CustomAlertDialog
+					continueCallback={() => onDelete(message.id)}
+					dialogDescription={'This message will be deleted. This cannot be undone.'}
+					cls={'w-full'}
 				>
-			</CustomAlertDialog>
+					<Button
+						class="flex w-full justify-between bg-slate-200 text-red-500 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700"
+						>Delete <Trash2 /></Button
+					>
+				</CustomAlertDialog>
+			{/if}
 		{:else}
 			<CustomAlertDialog
 				continueCallback={() => onReport(message.id)}

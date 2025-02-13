@@ -799,7 +799,9 @@ export const schema = {
 			// media_type: S.String({ nullable: true }), // Type of media (image, video, gif, etc.)
 			seen_by: S.RelationMany('event_message_seen', { where: [['message_id', '=', '$id']] }), // Tracks who has seen the message
 			created_at: S.Date({ default: S.Default.now() }), // Timestamp when the message was sent
-			updated_at: S.Optional(S.Date({ nullable: true, default: null })) // Timestamp when the message was edited
+			updated_at: S.Optional(S.Date({ nullable: true, default: null })), // Timestamp when the message was edited
+			deleted_by_user_id: S.String({ nullable: true, default: null }), // ID of the user who sent the message
+			deleted_by_user: S.RelationById('user', '$user_id') // Relation to the user
 		}),
 		permissions: {
 			user: {
