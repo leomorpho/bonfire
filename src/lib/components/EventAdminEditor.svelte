@@ -292,7 +292,7 @@
 			</div>
 		{:else}
 			<div class="mb-5 flex w-full justify-center">
-				<div class="rounded-xl bg-white p-2 px-4 text-xs">No admins yet</div>
+				<div class="rounded-xl bg-white dark:bg-slate-700 p-2 px-4 text-xs">No admins yet</div>
 			</div>
 		{/if}
 	</section>
