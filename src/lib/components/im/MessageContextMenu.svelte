@@ -170,7 +170,7 @@
 				</CustomAlertDialog>
 			{/if}
 		{:else}
-			<CustomAlertDialog
+			<!-- <CustomAlertDialog
 				continueCallback={() => onReport(message.id)}
 				dialogDescription={"This message will be reported to this bonfire's admins. This cannot be undone."}
 				cls={'w-full'}
@@ -179,7 +179,7 @@
 					class="flex w-full justify-between bg-slate-200 text-black hover:bg-slate-100 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
 					>Report <Flag /></Button
 				>
-			</CustomAlertDialog>
+			</CustomAlertDialog> -->
 		{/if}
 	</AlertDialog.Content>
 </AlertDialog.Root>
