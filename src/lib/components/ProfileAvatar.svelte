@@ -9,7 +9,6 @@
 	import type { TriplitClient } from '@triplit/client';
 	import { getFeTriplitClient } from '$lib/triplit';
 	import { toast } from 'svelte-sonner';
-	import { onMount } from 'svelte';
 
 	let {
 		url,
@@ -20,7 +19,7 @@
 		lastUpdatedAt = null,
 		viewerIsEventAdmin = false,
 		attendanceId = null, // NOTE: these can be either real or temp attendances (they are different object types)
-		baseHeightPx = 60
+		baseHeightPx = 50
 	} = $props();
 
 	let attendanceIsAboutToBeDeleted = $state(false);
@@ -76,9 +75,10 @@
 	>
 		{#if fullsizeUrl || url}
 			<Avatar.Root
-				class={`relative h-[${baseHeightPx}px] w-[${baseHeightPx}px] ${
+				class={`relative ${
 					isTempUser ? 'border-yellow-300' : 'border-white'
 				}`}
+				style="height: {baseHeightPx}px; width: {baseHeightPx}px;"
 			>
 				<!-- Avatar Image -->
 				<Avatar.Image src={url} alt={username} class="h-full w-full" />

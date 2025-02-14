@@ -40,6 +40,7 @@ export const GET = async ({ locals, url }) => {
 		// Fetch profile images for the given user IDs
 		const profileImageQuery = triplitHttpClient
 			.query('profile_images')
+			.include('user')
 			.where('user_id', 'in', userIds)
 			.build();
 
@@ -51,6 +52,7 @@ export const GET = async ({ locals, url }) => {
 			const fullImageUrl = await generateSignedUrl(image.full_image_key);
 			const smallImageUrl = await generateSignedUrl(image.small_image_key);
 			profileImageMap[image.user_id] = {
+				username: image.user.username,
 				filekey: image.small_image_key,
 				full_image_url: fullImageUrl,
 				small_image_url: smallImageUrl

@@ -17,7 +17,6 @@
 		Calendar,
 		KeyRound,
 		ArrowRightFromLine,
-		FlameKindling
 	} from 'lucide-svelte';
 	import { formatHumanReadable, formatHumanReadableHour } from '$lib/utils';
 	import Rsvp from '$lib/components/Rsvp.svelte';
