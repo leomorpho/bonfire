@@ -9,7 +9,7 @@
 	import type { TriplitClient } from '@triplit/client';
 	import { getFeTriplitClient } from '$lib/triplit';
 	import { toast } from 'svelte-sonner';
-	import { getUser } from '$lib/profilestore';
+	import { deleteUser, getUser } from '$lib/profilestore';
 	import { onMount } from 'svelte';
 
 	let {
@@ -51,6 +51,8 @@
 			} else {
 				deleteRealAttendee();
 			}
+			await deleteUser(userId)
+			
 			toast.success(`Deleted ${username ? username : 'attendee'} from event`);
 			dialogIsOpen = false;
 		} catch (e) {

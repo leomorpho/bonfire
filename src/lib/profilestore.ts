@@ -65,6 +65,15 @@ export async function getUsers(userIds: string[]): Promise<UserData[]> {
 	return users.filter(Boolean) as UserData[];
 }
 
+/**
+ * Deletes a user from IndexedDB by ID.
+ */
+export async function deleteUser(userId: string): Promise<void> {
+	const db = await getDB();
+	await db.delete(STORE_NAME, userId);
+	console.log(`🗑️ Deleted user with ID: ${userId}`);
+}
+
 export async function fetchAndCacheUsers(
 	userIds: string[],
 	tempAttendeeSecret: string | null = null
