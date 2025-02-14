@@ -1,4 +1,4 @@
-service: bonfire
+service: bonfire-prod
 image: leomorpho/bonfire
 
 servers:
