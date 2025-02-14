@@ -107,3 +107,7 @@ export const BannerMediaSize = {
 	SMALL_WIDTH: 600,
 	SMALL_HEIGHT: 300
 };
+
+export const EMOJI_REACTION_TYPE = {
+	MESSAGE: 'message'
+}

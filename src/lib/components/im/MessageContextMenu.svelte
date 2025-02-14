@@ -1,12 +1,7 @@
 <script lang="ts">
-	import { onMount, onDestroy, createEventDispatcher } from 'svelte';
-	import Terminal from 'lucide-svelte/icons/terminal';
+	import { onMount, onDestroy } from 'svelte';
 	import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
 	import { ChevronDown, Flag, Smile, Trash2 } from 'lucide-svelte';
-	import * as Sheet from '$lib/components/ui/sheet/index.js';
-	import { buttonVariants } from '$lib/components/ui/button/index.js';
-	import { Input } from '$lib/components/ui/input/index.js';
-	import { Label } from '$lib/components/ui/label/index.js';
 	import Button from '../ui/button/button.svelte';
 	import { formatHumanReadableWithContext, isMobile } from '$lib/utils';
 	import EmojiPicker from '../EmojiPicker.svelte';
@@ -14,8 +9,10 @@
 	import CustomAlertDialog from '../CustomAlertDialog.svelte';
 	import { getFeTriplitClient } from '$lib/triplit';
 	import { page } from '$app/stores';
+	import { toggleEmojiReaction } from '$lib/emoji';
+	import { EMOJI_REACTION_TYPE } from '$lib/enums';
 
-	let { children, message, isOwnMessage, currenUserIsEventAdmin } = $props();
+	let { children, message, isOwnMessage, currenUserIsEventAdmin, eventId } = $props();
 
 	let contextMenuRef: HTMLElement | null = $state(null);
 	let pressTimer: NodeJS.Timeout | null = $state(null);
@@ -55,9 +52,18 @@
 	});
 
 	// Handle emoji selection
-	const addEmoji = (detail: any) => {
-		// detail.unicode;
-		// TODO
+	const toggleEmoji = async (detail: any) => {
+		const client = await getFeTriplitClient($page.data.jwt);
+		await toggleEmojiReaction(
+			client,
+			$page.data.user.id,
+			eventId,
+			message.id,
+			EMOJI_REACTION_TYPE.MESSAGE,
+			detail.unicode
+		);
+
+		showSmileyPicker = false;
 	};
 
 	const onReport = async (messageId: string) => {
@@ -104,9 +110,8 @@
 			</Popover.Trigger>
 			<Popover.Content
 				class="w-fit rounded-2xl bg-slate-900"
-				onfocusout={() => (showSmileyPicker = false)}
 			>
-				<EmojiPicker handleEmojiSelect={addEmoji} />
+				<EmojiPicker handleEmojiSelect={toggleEmoji} />
 			</Popover.Content>
 		</Popover.Root>
 	{/if}
@@ -146,7 +151,7 @@
 
 <AlertDialog.Root bind:open={showAlert}>
 	<AlertDialog.Content
-		class="w-full rounded-3xl border-0 bg-transparent animate-in fade-in zoom-in max-w-[400px] sm:max-w-[400px]"
+		class="w-full max-w-[400px] rounded-3xl border-0 bg-transparent animate-in fade-in zoom-in sm:max-w-[400px]"
 		interactOutsideBehavior="close"
 	>
 		<div class="flex w-full justify-center">

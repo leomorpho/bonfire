@@ -795,9 +795,8 @@ export const schema = {
 			parent_message_id: S.String({ nullable: true, default: null }), // Supports future threading
 			parent_message: S.Optional(S.RelationById('event_messages', '$parent_message_id')), // Parent message relation
 			content: S.String({ nullable: true }), // Text content of the message
-			// media_key: S.String({ nullable: true }), // If message contains media (image/video/audio)
-			// media_type: S.String({ nullable: true }), // Type of media (image, video, gif, etc.)
 			seen_by: S.RelationMany('event_message_seen', { where: [['message_id', '=', '$id']] }), // Tracks who has seen the message
+			emoji_reactions: S.RelationMany('emoji_reactions', { where: [['entity_id', '=', '$id']] }), // Tracks who has seen the message
 			created_at: S.Date({ default: S.Default.now() }), // Timestamp when the message was sent
 			updated_at: S.Optional(S.Date({ nullable: true, default: null })), // Timestamp when the message was edited
 			deleted_by_user_id: S.String({ nullable: true, default: null }), // ID of the user who sent the message
@@ -876,6 +875,7 @@ export const schema = {
 		schema: S.Schema({
 			id: S.Id(),
 			entity_id: S.String(), // ID of the message
+			entity_type: S.String(), // Type of the entity: message, announcement etc
 			user_id: S.String(), // User who has seen the message
 			user: S.RelationById('user', '$user_id'), // Relation to the user
 			event_id: S.String(),
@@ -895,9 +895,57 @@ export const schema = {
 					]
 				},
 				insert: { filter: [['user_id', '=', '$role.userId']] }, // Users can report stuff
-				delete: { filter: [['user_id', '=', '$role.userId']] } // Users can remove stuff they report
+				delete: {
+					filter: [
+						or([
+							['event.event_admins.user_id', '=', '$role.userId'],
+							['event.user_id', '=', '$role.userId'],
+							['user_id', '=', '$role.userId']
+						])
+					]
+				}
 			},
 			temp: {},
+			anon: {}
+		}
+	},
+	emoji_reactions: {
+		schema: S.Schema({
+			id: S.Id(),
+			emoji: S.String(),
+			entity_id: S.String(), // ID of the message
+			entity_type: S.String(), // Type of the entity: message, announcement etc
+			user_id: S.String(), // User who has seen the message
+			user: S.RelationById('user', '$user_id'), // Relation to the user
+			event_id: S.String(),
+			event: S.RelationById('events', '$event_id'),
+			created_at: S.Date({ default: S.Default.now() }) // Timestamp when the message was seen
+		}),
+		permissions: {
+			user: {
+				read: {
+					filter: [
+						or([
+							['event.attendees.user_id', '=', '$role.userId'],
+							['event.event_admins.user_id', '=', '$role.userId'],
+							['event.user_id', '=', '$role.userId'],
+							['user_id', '=', '$role.userId'] // Users can see their own reported things
+						])
+					]
+				},
+				insert: { filter: [['user_id', '=', '$role.userId']] }, // Users can report stuff
+				delete: { filter: [['user_id', '=', '$role.userId']] } // Users can remove stuff they report
+			},
+			temp: {
+				read: {
+					filter: [
+						or([
+							// A user should be able to only query for users and attendees who are attending a same event:
+							['event.temporary_attendees.id', '=', '$role.temporaryAttendeeId']
+						])
+					]
+				}
+			},
 			anon: {}
 		}
 	}

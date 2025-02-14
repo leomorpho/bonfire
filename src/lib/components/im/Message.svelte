@@ -19,7 +19,8 @@
 		url,
 		onMessageSeen = null,
 		ignoreSeenStatusPriorToThisDatetime = null,
-		currenUserIsEventAdmin = false
+		currenUserIsEventAdmin = false,
+		eventId
 	} = $props<{
 		currUserId: string;
 		message: EventMessage;
@@ -213,7 +214,7 @@
 		{#if !isOwnMessage}
 			<div class="self-end">{@render avatar()}</div>
 		{/if}
-		<MessageContextMenu {message} {isOwnMessage} {currenUserIsEventAdmin}>
+		<MessageContextMenu {message} {isOwnMessage} {currenUserIsEventAdmin} {eventId}>
 			<div
 				class="leading-1.5 flex w-full max-w-[320px] flex-col p-4
 			{isOwnMessage ? 'from-me rounded-s-xl rounded-se-xl bg-blue-100 p-4 dark:bg-blue-600' : ''}

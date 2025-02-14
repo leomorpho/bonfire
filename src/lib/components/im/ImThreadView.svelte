@@ -104,7 +104,11 @@
 					.where([['user_id', '=', currUserId]])
 					.build()
 			)
-			// .include('seen_by')
+			.include('emoji_reactions', (rel) =>
+				rel('emoji_reactions')
+					.select(['id', 'emoji', 'user_id'])
+					.build()
+			)
 			.order('created_at', 'DESC')
 			.build();
 
@@ -357,6 +361,7 @@
 					onMessageSeen={countNumUnseenMessages}
 					ignoreSeenStatusPriorToThisDatetime={datetimeUserJoinedBonfire}
 					{currenUserIsEventAdmin}
+					{eventId}
 				/>
 			{/each}
 		{:else if showMessagesLoading}
