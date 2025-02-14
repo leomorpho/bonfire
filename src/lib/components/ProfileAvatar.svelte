@@ -25,7 +25,7 @@
 	let username = $state();
 	let isTempUser: boolean = $state(true);
 	let lastUpdatedAt: Date | null = $state(null);
-	let fallbackNameShort: string | null = $state();
+	let fallbackNameShort: string | null = $state(null);
 
 	let attendanceIsAboutToBeDeleted = $state(false);
 	const eventId = $page.params.id;
@@ -52,7 +52,7 @@
 				deleteRealAttendee();
 			}
 			await deleteUser(userId)
-			
+
 			toast.success(`Deleted ${username ? username : 'attendee'} from event`);
 			dialogIsOpen = false;
 		} catch (e) {
@@ -77,7 +77,7 @@
 	onMount(async () => {
 		if (userId) {
 			const user = await getUser(userId);
-			fallbackNameShort = user?.username.slice(0, 2) ?? null;
+			fallbackNameShort = user?.username?.slice(0, 2) ?? null;
 			fullsizeUrl = user?.fullProfilePicURL;
 			fallbackName = user?.username;
 			username = user?.username;

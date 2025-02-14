@@ -25,10 +25,10 @@
 	<Popover.Trigger>
 		{@render children()}
 	</Popover.Trigger>
-	<Popover.Content class="w-fit bg-slate-900 text-sm p-1">
+	<Popover.Content class="w-fit bg-slate-900 text-sm p-1 rounded-xl">
 		{#each reactions as reaction}
 			<div class="{reaction.user_id == currUserId?'hover:bg-slate-800 hover:rounded-lg':''} p-2 flex items-center justify-between">
-				<span class="mr-2"><ProfileAvatar username={'a'} baseHeightPx={25} /></span>
+				<span class="mr-2"><ProfileAvatar userId={reaction.user_id} baseHeightPx={25} /></span>
 				{#if reaction.user_id == currUserId}
 					<button onclick={removeEmoji}>
 						<div>{reaction.user_id}</div>

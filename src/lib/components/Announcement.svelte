@@ -6,6 +6,7 @@
 	import { Pencil } from 'lucide-svelte';
 	import { getFeTriplitClient } from '$lib/triplit';
 	import { page } from '$app/stores';
+	import ProfileAvatar from './ProfileAvatar.svelte';
 
 	let {
 		eventId,
@@ -66,12 +67,18 @@
 </script>
 
 <Card.Root
-	class="announcement bg-opacity-90 dark:bg-opacity-90 border-0 {announcement.seen_by.length == 0 && !isUnverifiedUser
+	class="announcement border-0 bg-opacity-90 dark:bg-opacity-90 {announcement.seen_by.length == 0 &&
+	!isUnverifiedUser
 		? 'bg-yellow-200 dark:bg-yellow-700'
 		: 'bg-slate-200 dark:bg-slate-800'} dark:text-white "
 >
 	<Card.Header>
-		<Card.Title class="font-normal">{announcement.content}</Card.Title>
+		<Card.Title class="flex font-normal">
+			<div class="mr-2">
+				<ProfileAvatar userId={announcement.user_id} baseHeightPx={30} />
+			</div>
+			{announcement.content}
+		</Card.Title>
 		<Card.Description
 			><div bind:this={cardRef}>
 				{formatHumanReadable(announcement.created_at)}
