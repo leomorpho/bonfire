@@ -203,51 +203,64 @@
 	<ProfileAvatar {url} username={message.user?.username} isTempUser={false} baseHeightPx={30} />
 {/snippet}
 
-<div
-	data-message-id={message.id}
-	bind:this={messageRef}
-	class="message {!isOwnMessage && isUnseen ? 'unseen' : ''} flex w-full items-end p-2 {isOwnMessage
-		? 'justify-end'
-		: 'justify-start'} gap-2.5"
->
-	<div class="flex gap-2.5 ${isOwnMessage ? 'items-end' : 'items-start'}">
-		{#if !isOwnMessage}
-			<div class="self-end">{@render avatar()}</div>
-		{/if}
-		<MessageContextMenu {message} {isOwnMessage} {currenUserIsEventAdmin} {eventId}>
-			<div
-				class="leading-1.5 flex w-full max-w-[320px] flex-col p-4
+<div class="relative py-3">
+	<div
+		data-message-id={message.id}
+		bind:this={messageRef}
+		class="message {!isOwnMessage && isUnseen
+			? 'unseen'
+			: ''} flex w-full items-end p-2 {isOwnMessage ? 'justify-end' : 'justify-start'} gap-2.5"
+	>
+		<div class="flex gap-2.5 ${isOwnMessage ? 'items-end' : 'items-start'}">
+			{#if !isOwnMessage}
+				<div class="self-end">{@render avatar()}</div>
+			{/if}
+			<MessageContextMenu {message} {isOwnMessage} {currenUserIsEventAdmin} {eventId}>
+				<div
+					class="leading-1.5 flex w-full max-w-[320px] flex-col p-4
 			{isOwnMessage ? 'from-me rounded-s-xl rounded-se-xl bg-blue-100 p-4 dark:bg-blue-600' : ''}
 	{!isOwnMessage && !isUnseen
-					? 'from-them rounded-e-xl rounded-ss-xl bg-gray-100 p-4 dark:bg-gray-800'
-					: ''}
+						? 'from-them rounded-e-xl rounded-ss-xl bg-gray-100 p-4 dark:bg-gray-800'
+						: ''}
 				{!isOwnMessage && isUnseen
-					? 'from-them rounded-e-xl rounded-ss-xl bg-green-100 p-4 dark:bg-green-900'
-					: ''}
+						? 'from-them rounded-e-xl rounded-ss-xl bg-green-100 p-4 dark:bg-green-900'
+						: ''}
 					{isHolding ? 'scale-110 transition-transform duration-150 ease-in-out' : ''}"
-			>
-				<div class="flex items-center space-x-2 rtl:space-x-reverse">
-					<span class="text-sm font-semibold text-gray-900 dark:text-white"
-						>{message.user?.username}</span
-					>
-					<span class="text-sm font-normal text-gray-500 dark:text-gray-400"
-						>{formatHumanReadableWithContext(message.created_at)}</span
-					>
+				>
+					<div class="flex items-center space-x-2 rtl:space-x-reverse">
+						<span class="text-sm font-semibold text-gray-900 dark:text-white"
+							>{message.user?.username}</span
+						>
+						<span class="text-sm font-normal text-gray-500 dark:text-gray-400"
+							>{formatHumanReadableWithContext(message.created_at)}</span
+						>
+					</div>
+					<p class="py-2.5 text-sm font-normal text-gray-900 dark:text-white">
+						{#if message.deleted_by_user_id}
+							<span class="italic">This message was deleted</span>
+						{:else}
+							{message.content}
+						{/if}
+					</p>
+					<!-- <span class="text-sm font-normal text-gray-500 dark:text-gray-400">{Delivered}</span> -->
 				</div>
-				<p class="py-2.5 text-sm font-normal text-gray-900 dark:text-white">
-					{#if message.deleted_by_user_id}
-						<span class="italic">This message was deleted</span>
-					{:else}
-						{message.content}
-					{/if}
-				</p>
-				<!-- <span class="text-sm font-normal text-gray-500 dark:text-gray-400">{Delivered}</span> -->
-			</div>
-		</MessageContextMenu>
-		{#if isOwnMessage}
-			<div class="self-end">
-				{@render avatar()}
-			</div>
+			</MessageContextMenu>
+			{#if isOwnMessage}
+				<div class="self-end">
+					{@render avatar()}
+				</div>
+			{/if}
+		</div>
+	</div>
+	<div class="z-5 absolute -bottom-2 {isOwnMessage ? 'right-8' : 'left-8'}">
+		{#if message.emoji_reactions}
+			<span class="flex w-fit flex-wrap items-center rounded-full bg-slate-700 bg-opacity-50 px-2 text-xl">
+				{#each message.emoji_reactions as emojiReaction}
+					<span class="p-0 transition-all duration-200 ease-in-out hover:px-1 hover:text-2xl">
+						{emojiReaction.emoji}
+					</span>
+				{/each}
+			</span>
 		{/if}
 	</div>
 </div>
