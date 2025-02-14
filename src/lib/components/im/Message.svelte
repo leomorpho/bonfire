@@ -13,6 +13,7 @@
 	import { EMOJI_REACTION_TYPE, NotificationType } from '$lib/enums';
 	import MessageContextMenu from './MessageContextMenu.svelte';
 	import { toggleEmojiReaction } from '$lib/emoji';
+	import EmojiContextMenu from './EmojiContextMenu.svelte';
 
 	let {
 		currUserId,
@@ -41,19 +42,29 @@
 
 	// Create a map of emoji count to emojis
 	let emojiCountMap = $state(new Map());
+	let emojiReactionsMap = $state(new Map());
 
 	$effect(() => {
 		if (!message || !message.emoji_reactions) return;
 
-		// Create a fresh map every time
+		// Create fresh maps every time
 		const newEmojiCountMap = new Map();
+		const newEmojiReactionsMap = new Map();
 
 		for (const reaction of message.emoji_reactions) {
+			// Count each emoji
 			newEmojiCountMap.set(reaction.emoji, (newEmojiCountMap.get(reaction.emoji) || 0) + 1);
+
+			// Collect all reactions for each emoji
+			if (!newEmojiReactionsMap.has(reaction.emoji)) {
+				newEmojiReactionsMap.set(reaction.emoji, []);
+			}
+			newEmojiReactionsMap.get(reaction.emoji).push(reaction);
 		}
 
-		// Assign new map to trigger reactivity
+		// Assign new maps to trigger reactivity
 		emojiCountMap = newEmojiCountMap;
+		emojiReactionsMap = newEmojiReactionsMap;
 	});
 
 	$effect(() => {
@@ -284,19 +295,20 @@
 			{/if}
 		</div>
 	</div>
-	<div class="z-5 absolute -bottom-2 {isOwnMessage ? 'right-8' : 'left-8'}">
+	<div class="z-5 absolute -bottom-3 {isOwnMessage ? 'right-8' : 'left-8'}">
 		{#if message.emoji_reactions}
 			<span class="mx-1 flex w-fit flex-wrap items-center px-1 text-xl">
 				{#each Array.from(emojiCountMap.entries()) as [emoji, count]}
-					<button
-						onclick={() => toggleEmoji(emoji)}
-						class="flex flex-row items-center rounded-full bg-slate-700 bg-opacity-50 p-1 transition-all duration-200 ease-in-out hover:cursor-pointer hover:text-2xl"
-					>
-						{emoji}
-						{#if count > 1}
-							<span class="mx-1 text-sm text-gray-300">{count}</span>
-						{/if}
-					</button>
+					<EmojiContextMenu toggleEmoji={toggleEmoji(emoji)} reactions={emojiReactionsMap.get(emoji)} {currUserId}>
+						<button
+							class="flex flex-row items-center rounded-full bg-slate-700 bg-opacity-50 p-1 transition-all duration-200 ease-in-out hover:cursor-pointer hover:text-2xl"
+						>
+							{emoji}
+							{#if count > 1}
+								<span class="mx-1 text-sm text-gray-300">{count}</span>
+							{/if}
+						</button>
+					</EmojiContextMenu>
 				{/each}
 			</span>
 		{/if}

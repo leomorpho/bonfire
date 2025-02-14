@@ -116,7 +116,7 @@
 >
 	{@render children()}
 
-	<div class="z-50 absolute -bottom-4 left-1/2 -translate-x-1/2">
+	<div class="z-50 absolute -bottom-2 left-1/2 -translate-x-1/2">
 		<div class="flex flex-wrap items-center gap-1">
 			{#if showSmiley || showSmileyPicker}
 				{@render emojiPicker()}
