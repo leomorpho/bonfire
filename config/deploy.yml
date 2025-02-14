@@ -1,4 +1,4 @@
-# This is ALPHA deployment
+# This is BETA deployment
 service: bonfire
 image: leomorpho/bonfire
 
@@ -54,11 +54,15 @@ env:
     - SPLITWISE_CONSUMER_KEY
     - SPLITWISE_CONSUMER_SECRET
     - BODY_SIZE_LIMIT
+  env:
+    PORT: 4000
+    PUBLIC_ORIGIN: 'https://bnfr-events.beta.app'
+    PUBLIC_DEFAULT_TITLE: 'Bonfire Beta'
 
 proxy:
-  app_port: 3000
+  app_port: 4000
   ssl: true
-  host: bnfr-events.alpha.app
+  host: bnfr-events.beta.app
   forward_headers: true
   buffering:
     requests: false
