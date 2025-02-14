@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import { format, isToday, isYesterday } from 'date-fns'
+import { format, isToday, isYesterday } from 'date-fns';
 import { generateId } from 'lucia';
 import { tempAttendeeSecretStore, tempAttendeeSecretParam } from './enums';
 import { get } from 'svelte/store';
@@ -9,7 +9,10 @@ export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
 }
 
-export function formatHumanReadable(date: Date): string {
+export function formatHumanReadable(date: Date | null): string {
+	if (!date) {
+		return '';
+	}
 	return format(date, "MMMM d, yyyy 'at' h:mma"); // Convert "AM/PM" to "am/pm"
 }
 
@@ -27,9 +30,10 @@ export function formatHumanReadableWithContext(date: Date): string {
 	}
 
 	// If the date is older, show "Month Day, h:mm a" (e.g., "March 5, 2:30 PM")
-	const formatString = date.getFullYear() === new Date().getFullYear() 
-		? 'MMMM d, h:mm a' // This year: "March 5, 2:30 PM"
-		: 'MMMM d, yyyy, h:mm a'; // Previous years: "March 5, 2023, 2:30 PM"
+	const formatString =
+		date.getFullYear() === new Date().getFullYear()
+			? 'MMMM d, h:mm a' // This year: "March 5, 2:30 PM"
+			: 'MMMM d, yyyy, h:mm a'; // Previous years: "March 5, 2023, 2:30 PM"
 
 	return format(date, formatString);
 }
@@ -221,10 +225,10 @@ export const debounce = (func, delay = 300) => {
 };
 
 export function detectTailwindTheme(): 'light' | 'dark' {
-    if (typeof window !== 'undefined') {
-        return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
-    }
-    return 'light';
+	if (typeof window !== 'undefined') {
+		return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+	}
+	return 'light';
 }
 
 export const createAttendeeId = (eventId: string, userId: string) => {

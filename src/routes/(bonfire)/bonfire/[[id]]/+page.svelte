@@ -16,7 +16,7 @@
 		UserRound,
 		Calendar,
 		KeyRound,
-		ArrowRightFromLine,
+		ArrowRightFromLine
 	} from 'lucide-svelte';
 	import { formatHumanReadable, formatHumanReadableHour } from '$lib/utils';
 	import Rsvp from '$lib/components/Rsvp.svelte';
@@ -42,6 +42,7 @@
 	import ImThreadView from '$lib/components/im/ImThreadView.svelte';
 	import PopupImThreadView from '$lib/components/im/PopupImThreadView.svelte';
 	import NumNewMessageIndicator from '$lib/components/im/NumNewMessageIndicator.svelte';
+	import { fetchAndCacheUsers } from '$lib/profilestore';
 
 	const showMaxNumPeople = 50;
 	const tempAttendeeId = $page.data.tempAttendeeId;
@@ -188,40 +189,8 @@
 			if (isUnverifiedUser) {
 				queryString = `${queryString}&${tempAttendeeSecretParam}=${tempAttendeeSecret}`;
 			}
-			const response = await fetch(`/profile/profile-images?${queryString}`);
 
-			if (!response.ok) {
-				throw new Error(`Failed to fetch profileImageMap: ${response.statusText}`);
-			}
-
-			// Transform the fetched data into a plain object
-			const fetchedData: Record<
-				string,
-				{ filekey: string; full_image_url: string; small_image_url: string }
-			> = await response.json();
-
-			// Update the existing profileImageMap without removing old entries
-			if (!profileImageMap) {
-				profileImageMap = new Map(); // Initialize if not already a Map
-			}
-
-			// Create a new Map instance to trigger reactivity
-			const updatedProfileImageMap = new Map(profileImageMap);
-
-			// Update map: add new entries or update existing ones **only if the filekey changed**
-			for (const [key, value] of Object.entries(fetchedData)) {
-				const existingEntry = profileImageMap.get(key);
-
-				if (!existingEntry || existingEntry.filekey !== value.filekey) {
-					// ✅ Only update if the entry is new or the filekey has changed
-					updatedProfileImageMap.set(key, value);
-					console.log(`🔄 Updated profile image for ${key}`);
-				} else {
-					console.log(`✅ No change for ${key}, skipping update.`);
-				}
-			}
-
-			profileImageMap = updatedProfileImageMap;
+			await fetchAndCacheUsers(userIds, isUnverifiedUser ? tempAttendeeSecret : null);
 		} catch (error) {
 			console.error('Error fetching profile image map:', error);
 		} finally {
@@ -548,7 +517,7 @@
 				<Tabs.Root value="about" class="w-full">
 					<div class="flex w-full justify-center">
 						<Tabs.List class="w-full bg-transparent animate-in fade-in zoom-in">
-							<div class="bg-slate-700 p-2 rounded-lg">
+							<div class="rounded-lg bg-slate-700 p-2">
 								<Tabs.Trigger value="about" class="focus:outline-none focus-visible:ring-0">
 									About
 								</Tabs.Trigger>
@@ -636,14 +605,7 @@
 									<UserRound class="mr-2 h-4 w-4" />Hosted by
 									{#if rsvpStatus}
 										<div class="ml-2">
-											<ProfileAvatar
-												url={profileImageMap.get(event.organizer['id'])?.small_image_url}
-												fullsizeUrl={profileImageMap.get(event.organizer['id'])?.full_image_url}
-												username={event.organizer['username']}
-												fallbackName={event.organizer['username']}
-												isTempUser={false}
-												lastUpdatedAt=""
-											/>
+											<ProfileAvatar userId={event.organizer['id']} />
 										</div>
 									{:else}
 										{event.organizer['username']}
@@ -709,12 +671,7 @@
 									<div id="going-attendees" class="flex flex-wrap items-center -space-x-4">
 										{#each allAttendeesGoing.slice(0, showMaxNumPeople) as attendee}
 											<ProfileAvatar
-												url={profileImageMap.get(attendee.user_id)?.small_image_url}
-												fullsizeUrl={profileImageMap.get(attendee.user_id)?.full_image_url}
-												username={attendee.user?.username || attendee.name}
-												fallbackName={attendee.user?.username || attendee.name}
-												isTempUser={!!attendee.name}
-												lastUpdatedAt={attendee.updated_at}
+												userId={attendee.user_id}
 												viewerIsEventAdmin={currenUserIsEventAdmin}
 												attendanceId={attendee.id}
 											/>
@@ -749,13 +706,7 @@
 																	<div class="mx-5 flex flex-wrap -space-x-4 text-black">
 																		{#each allAttendeesGoing as attendee}
 																			<ProfileAvatar
-																				url={profileImageMap.get(attendee.user_id)?.small_image_url}
-																				fullsizeUrl={profileImageMap.get(attendee.user_id)
-																					?.full_image_url}
-																				username={attendee.user?.username || attendee.name}
-																				fallbackName={attendee.user?.username || attendee.name}
-																				isTempUser={!!attendee.name}
-																				lastUpdatedAt={attendee.updated_at}
+																				userId={attendee.user_id}
 																				viewerIsEventAdmin={currenUserIsEventAdmin}
 																				attendanceId={attendee.id}
 																			/>
@@ -774,13 +725,7 @@
 																	<div class="mx-5 flex flex-wrap -space-x-4 text-black">
 																		{#each allAttendeesMaybeGoing as attendee}
 																			<ProfileAvatar
-																				url={profileImageMap.get(attendee.user_id)?.small_image_url}
-																				fullsizeUrl={profileImageMap.get(attendee.user_id)
-																					?.full_image_url}
-																				username={attendee.user?.username || attendee.name}
-																				fallbackName={attendee.user?.username || attendee.name}
-																				isTempUser={!!attendee.name}
-																				lastUpdatedAt={attendee.updated_at}
+																				userId={attendee.user_id}
 																				viewerIsEventAdmin={currenUserIsEventAdmin}
 																				attendanceId={attendee.id}
 																			/>
@@ -796,13 +741,7 @@
 																	<div class="mx-5 flex flex-wrap -space-x-4 text-black">
 																		{#each allAttendeesNotGoing as attendee}
 																			<ProfileAvatar
-																				url={profileImageMap.get(attendee.user_id)?.small_image_url}
-																				fullsizeUrl={profileImageMap.get(attendee.user_id)
-																					?.full_image_url}
-																				username={attendee.user?.username || attendee.name}
-																				fallbackName={attendee.user?.username || attendee.name}
-																				isTempUser={!!attendee.name}
-																				lastUpdatedAt={attendee.updated_at}
+																				userId={attendee.user_id}
 																				viewerIsEventAdmin={currenUserIsEventAdmin}
 																				attendanceId={attendee.id}
 																			/>
@@ -934,10 +873,7 @@
 							{/if}
 						</div>
 					</Tabs.Content>
-					<Tabs.Content
-						value="discussions"
-						class="mb-2 h-[calc(100vh-4rem)] w-full"
-					>
+					<Tabs.Content value="discussions" class="mb-2 h-[calc(100vh-4rem)] w-full">
 						{#if rsvpStatus}
 							<ImThreadView
 								{currUserId}

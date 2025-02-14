@@ -9,21 +9,25 @@
 	import type { TriplitClient } from '@triplit/client';
 	import { getFeTriplitClient } from '$lib/triplit';
 	import { toast } from 'svelte-sonner';
+	import { getUser } from '$lib/profilestore';
+	import { onMount } from 'svelte';
 
 	let {
-		url,
-		fullsizeUrl = null,
-		fallbackName = '',
-		username,
-		isTempUser = false,
-		lastUpdatedAt = null,
+		userId = null,
 		viewerIsEventAdmin = false,
 		attendanceId = null, // NOTE: these can be either real or temp attendances (they are different object types)
 		baseHeightPx = 50
 	} = $props();
 
+	let url = $state();
+	let fullsizeUrl = $state();
+	let fallbackName = $state();
+	let username = $state();
+	let isTempUser: boolean = $state(true);
+	let lastUpdatedAt: Date | null = $state(null);
+	let fallbackNameShort: string | null = $state();
+
 	let attendanceIsAboutToBeDeleted = $state(false);
-	const fallbackNameShort = fallbackName.slice(0, 2);
 	const eventId = $page.params.id;
 	let dialogIsOpen = $state(false);
 
@@ -67,6 +71,24 @@
 	const handleCancelRemoveUser = () => {
 		attendanceIsAboutToBeDeleted = false;
 	};
+
+	onMount(async () => {
+		if (userId) {
+			const user = await getUser(userId);
+			fallbackNameShort = user?.username.slice(0, 2) ?? null;
+			fullsizeUrl = user?.fullProfilePicURL;
+			fallbackName = user?.username;
+			username = user?.username;
+			isTempUser = user?.isTempUser ?? false;
+
+			const lastUpdatedAtDate = user?.userUpdatedAt ? new Date(user?.userUpdatedAt) : null;
+			lastUpdatedAt = lastUpdatedAtDate; // TODO: get latest of that or image updated at
+
+			if (user?.smallProfilePic) {
+				url = URL.createObjectURL(user.smallProfilePic); // ✅ Convert Blob to URL
+			}
+		}
+	});
 </script>
 
 <Dialog.Root bind:open={dialogIsOpen}>
@@ -75,9 +97,7 @@
 	>
 		{#if fullsizeUrl || url}
 			<Avatar.Root
-				class={`relative ${
-					isTempUser ? 'border-yellow-300' : 'border-white'
-				}`}
+				class={`relative ${isTempUser ? 'border-yellow-300' : 'border-white'}`}
 				style="height: {baseHeightPx}px; width: {baseHeightPx}px;"
 			>
 				<!-- Avatar Image -->

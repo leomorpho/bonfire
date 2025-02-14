@@ -1,131 +1,163 @@
-// import { openDB } from 'idb';
-// import { tempAttendeeSecretParam } from './enums';
+import { openDB, type IDBPDatabase } from 'idb';
+import { tempAttendeeSecretParam } from './enums';
 
-// // IndexedDB setup
-// const DB_NAME = 'userDB';
-// const STORE_NAME = 'users';
+// IndexedDB setup
+const DB_NAME = 'userDB';
+const STORE_NAME = 'users';
 
-// const dbPromise = openDB(DB_NAME, 1, {
-// 	upgrade(db) {
-// 		if (!db.objectStoreNames.contains(STORE_NAME)) {
-// 			db.createObjectStore(STORE_NAME, { keyPath: 'id' });
-// 		}
-// 	}
-// });
+let dbPromise: Promise<IDBPDatabase<any>> | null = null;
 
-// // Define the User type
-// export type UserData = {
-// 	id: string;
-// 	username: string;
-// 	profilePic?: Blob;
-// };
+/**
+ * Lazily initializes IndexedDB only in the browser.
+ */
+async function getDB() {
+	if (typeof indexedDB === 'undefined') {
+		console.warn('IndexedDB is not available in this environment.');
+		return null;
+	}
 
-// /**
-//  * Fetches a user from IndexedDB by ID.
-//  */
-// export async function getUser(userId: string): Promise<UserData | null> {
-// 	const db = await dbPromise;
-// 	return (await db.get(STORE_NAME, userId)) || null;
-// }
+	if (!dbPromise) {
+		dbPromise = openDB(DB_NAME, 1, {
+			upgrade(db) {
+				if (!db.objectStoreNames.contains(STORE_NAME)) {
+					db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+				}
+			}
+		});
+	}
 
-// /**
-//  * Stores or updates a user in IndexedDB.
-//  */
-// export async function upsertUser(user: UserData): Promise<void> {
-// 	const db = await dbPromise;
-// 	await db.put(STORE_NAME, user);
-// }
+	return dbPromise;
+}
 
-// /**
-//  * Fetches multiple users from IndexedDB.
-//  */
-// export async function getUsers(userIds: string[]): Promise<UserData[]> {
-// 	const db = await dbPromise;
-// 	const users = await Promise.all(userIds.map((id) => db.get(STORE_NAME, id)));
-// 	return users.filter(Boolean) as UserData[];
-// }
+// Define the User type
+export type UserData = {
+	id: string;
+	username: string | null;
+	userUpdatedAt?: Date | null;
+	smallProfilePic?: Blob | null; // Store the image blob
+	fullProfilePicURL?: string | null; // Let's not store the image blob for now
+	profilePicUpdatedAt?: Date | null;
+	isTempUser: boolean;
+};
 
-// /**
-//  * Fetches user data from the backend, downloads profile images, and caches them.
-//  */
-// export async function fetchAndCacheUsers(userIds: string[]): Promise<UserData[]> {
-// 	try {
-// 		// Fetch user metadata from the backend
-// 		const queryString = `userIds=${userIds.join(',')}`;
-// 		const response = await fetch(`/api/users?${queryString}`);
-// 		if (!response.ok) throw new Error(`Failed to fetch users: ${response.statusText}`);
+/**
+ * Fetches a user from IndexedDB by ID.
+ */
+export async function getUser(userId: string): Promise<UserData | null> {
+	const db = await getDB();
+	return (await db.get(STORE_NAME, userId)) || null;
+}
 
-// 		const users: Record<string, { username: string; profile_pic_url: string }> =
-// 			await response.json();
+/**
+ * Stores or updates a user in IndexedDB.
+ */
+export async function upsertUser(user: UserData): Promise<void> {
+	const db = await getDB();
+	await db.put(STORE_NAME, user);
+}
 
-// 		// Fetch & cache profile images
-// 		const userData: UserData[] = [];
+/**
+ * Fetches multiple users from IndexedDB.
+ */
+export async function getUsers(userIds: string[]): Promise<UserData[]> {
+	const db = await getDB();
+	const users = await Promise.all(userIds.map((id) => db.get(STORE_NAME, id)));
+	return users.filter(Boolean) as UserData[];
+}
 
-// 		await Promise.all(
-// 			Object.entries(users).map(async ([id, userData]) => {
-// 				const imgResponse = await fetch(userData.profile_pic_url);
-// 				const blob = await imgResponse.blob();
+export async function fetchAndCacheUsers(
+	userIds: string[],
+	tempAttendeeSecret: string | null = null
+): Promise<UserData[]> {
+	try {
+		// Get existing users from IndexedDB
+		const existingUsers = new Map((await getUsers(userIds)).map((user) => [user.id, user]));
 
-// 				const user: UserData = { id, username: userData.username, profilePic: blob };
-// 				await upsertUser(user);
-// 				userData.push(user);
-// 			})
-// 		);
+		// Construct query string
+		let queryString = `userIds=${userIds.join(',')}`;
+		if (tempAttendeeSecret) {
+			queryString += `&${tempAttendeeSecretParam}=${tempAttendeeSecret}`;
+		}
 
-// 		return userData;
-// 	} catch (error) {
-// 		console.error('Error fetching user data:', error);
-// 		return [];
-// 	}
-// }
+		const response = await fetch(`/profile/profile-images?${queryString}`);
+		if (!response.ok) throw new Error(`Failed to fetch profile images: ${response.statusText}`);
 
+		// Fetch user data
+		const usersData: Record<
+			string,
+			{
+				username: string;
+				user_updated_at: string;
+				filekey: string;
+				full_image_url: string;
+				small_image_url: string;
+				profile_image_updated_at: string;
+				is_temp_user: boolean;
+			}
+		> = await response.json();
 
-// const fetchProfileImageMap = async (userIds: string[], tempAttendeeSecret=null) => {
-// 	// TODO: we can make this more performant by passing a last queried at timestamp (UTC) and the server will only returned changed users (added/updated/deleted images)
-// 	// This function never removes any profile pic entry, only upserts them.
-// 	try {
-// 		// Construct the query string with comma-separated user IDs
-// 		let queryString = `userIds=${userIds.join(',')}`;
-// 		if (tempAttendeeSecret) {
-// 			queryString = `${queryString}&${tempAttendeeSecretParam}=${tempAttendeeSecret}`;
-// 		}
-// 		const response = await fetch(`/profile/profile-images?${queryString}`);
+		const updatedUsers: UserData[] = [];
 
-// 		if (!response.ok) {
-// 			throw new Error(`Failed to fetch profileImageMap: ${response.statusText}`);
-// 		}
+		await Promise.all(
+			Object.entries(usersData).map(async ([id, userData]) => {
+				const existingUser = existingUsers.get(id);
 
-// 		// Transform the fetched data into a plain object
-// 		const fetchedData: Record<
-// 			string,
-// 			{ filekey: string; full_image_url: string; small_image_url: string }
-// 		> = await response.json();
+				// Check if we need to update
+				const needsUsernameUpdate = !existingUser || existingUser.username !== userData.username;
 
-// 		// Update the existing profileImageMap without removing old entries
-// 		if (!profileImageMap) {
-// 			profileImageMap = new Map(); // Initialize if not already a Map
-// 		}
+				const remoteProfilePicUpdatedAt = new Date(userData.profile_image_updated_at);
+				const needsImageUpdate =
+					!existingUser || existingUser.profilePicUpdatedAt !== remoteProfilePicUpdatedAt;
 
-// 		// Create a new Map instance to trigger reactivity
-// 		const updatedProfileImageMap = new Map(profileImageMap);
+				// If no update is needed, skip
+				if (!needsUsernameUpdate && !needsImageUpdate) {
+					// console.log(`✅ No change for ${id}, skipping update.`);
+					updatedUsers.push(existingUser);
+					return;
+				}
 
-// 		// Update map: add new entries or update existing ones **only if the filekey changed**
-// 		for (const [key, value] of Object.entries(fetchedData)) {
-// 			const existingEntry = profileImageMap.get(key);
+				let smallProfilePic = existingUser?.smallProfilePic; // Keep old pic if no update needed
 
-// 			if (!existingEntry || existingEntry.filekey !== value.filekey) {
-// 				// ✅ Only update if the entry is new or the filekey has changed
-// 				updatedProfileImageMap.set(key, value);
-// 				console.log(`🔄 Updated profile image for ${key}`);
-// 			} else {
-// 				console.log(`✅ No change for ${key}, skipping update.`);
-// 			}
-// 		}
+				// Fetch new image if profile image is updated
+				if (needsImageUpdate && userData.small_image_url) {
+					try {
+						const imgResponse = await fetch(userData.small_image_url);
+						if (imgResponse.ok) {
+							smallProfilePic = await imgResponse.blob();
+							console.log(`🔄 Updated profile image for ${id}`);
+						} else {
+							console.warn(`⚠️ Failed to fetch profile image for ${id}: ${imgResponse.statusText}`);
+						}
+					} catch (e) {
+						console.error(`❌ Error fetching profile image for ${id}:`, e);
+					}
+				}
 
-// 		profileImageMap = updatedProfileImageMap;
-// 	} catch (error) {
-// 		console.error('Error fetching profile image map:', error);
-// 	} finally {
-// 		loadingProfileImageMap = false;
-// 	}
-// };
+				const userUpdatedAtDate = userData.user_updated_at
+					? new Date(userData.user_updated_at)
+					: null;
+				const profileUpdatedAtDate = userData.profile_image_updated_at
+					? new Date(userData.profile_image_updated_at)
+					: null;
+
+				// Store in IndexedDB
+				const user: UserData = {
+					id,
+					username: userData.username,
+					userUpdatedAt: userUpdatedAtDate,
+					smallProfilePic,
+					fullProfilePicURL: userData.full_image_url,
+					profilePicUpdatedAt: profileUpdatedAtDate,
+					isTempUser: userData.is_temp_user
+				};
+				console.log('===?> user', user);
+				await upsertUser(user);
+				updatedUsers.push(user);
+			})
+		);
+		return updatedUsers;
+	} catch (error) {
+		console.error('Error fetching and caching users:', error);
+		return [];
+	}
+}

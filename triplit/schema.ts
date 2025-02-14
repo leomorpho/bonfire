@@ -1,5 +1,6 @@
 import { MAIN_THREAD } from '$lib/im';
 import { Schema as S, type Roles, type ClientSchema, or, and } from '@triplit/client';
+import { nullable } from 'zod';
 
 // Define roles
 export const roles: Roles = {
@@ -39,7 +40,8 @@ export const schema = {
 			attendances: S.RelationMany('attendees', {
 				where: [['user_id', '=', '$id']]
 			}),
-			created_at: S.Optional(S.Date({ default: S.Default.now() }))
+			created_at: S.Optional(S.Date({ default: S.Default.now() })),
+			updated_at: S.Optional(S.Date({ default: null, nullable: true }))
 		}),
 		permissions: {
 			user: {

@@ -79,7 +79,7 @@ export async function processGalleryFile(
 			return Error('either userId or tempAttendeeId must be set');
 		}
 
-		// NOTE: we add a random component (with generateId) so that having 2 identical image uploaded, 
+		// NOTE: we add a random component (with generateId) so that having 2 identical image uploaded,
 		// if 1 gets deleted, we are not left with an object in DB representing the second one, but
 		// without an actual S3 file that exists for it.
 		const fileKey = `events/eventid_${eventId}/userid_${userId}/${generateId(5)}_${filename}`;
@@ -269,6 +269,7 @@ export async function uploadProfileImage(file: File, userId: string) {
 			e.full_image_key = fullImageKey;
 			e.small_image_key = smallImageKey;
 			e.blurr_hash = blurhash;
+			e.uploaded_at = new Date();
 		});
 	} else {
 		// Insert a new entry

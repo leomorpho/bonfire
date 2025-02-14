@@ -3,6 +3,7 @@ import { triplitHttpClient } from '$lib/server/triplit';
 import { generateSignedUrl } from '$lib/filestorage';
 import { tempAttendeeSecretParam } from '$lib/enums';
 
+// TODO: move this endpoint to /profile/data as it's not only for profile images anymore
 export const GET = async ({ locals, url }) => {
 	// Only temp users and logged in users can query this endpoint
 	let tempAttendeeExists: boolean = false;
@@ -37,30 +38,41 @@ export const GET = async ({ locals, url }) => {
 	}
 
 	try {
-		// Fetch profile images for the given user IDs
-		const profileImageQuery = triplitHttpClient
-			.query('profile_images')
-			.include('user')
-			.where('user_id', 'in', userIds)
+		// Fetch all users and include profile images
+		const usersQuery = triplitHttpClient
+			.query('user')
+			.include('profile_image') // Ensure the relation exists
 			.build();
 
-		const profileImages = await triplitHttpClient.fetch(profileImageQuery);
+		const users = await triplitHttpClient.fetch(usersQuery);
 
 		// Generate signed URLs and construct the map
-		const profileImageMap: any = {};
-		for (const image of profileImages) {
-			const fullImageUrl = await generateSignedUrl(image.full_image_key);
-			const smallImageUrl = await generateSignedUrl(image.small_image_key);
-			profileImageMap[image.user_id] = {
-				username: image.user.username,
-				filekey: image.small_image_key,
+		const userMap: Record<string, any> = {};
+
+		for (const userData of users) {
+			const profileImage = userData.profile_image; // Related profile image
+
+			let fullImageUrl = null;
+			let smallImageUrl = null;
+
+			if (profileImage) {
+				fullImageUrl = await generateSignedUrl(profileImage.full_image_key);
+				smallImageUrl = await generateSignedUrl(profileImage.small_image_key);
+			}
+
+			userMap[userData.id] = {
+				username: userData.username ?? '',
+				user_updated_at: userData.updated_at ?? null,
+				filekey: profileImage?.small_image_key || null,
 				full_image_url: fullImageUrl,
-				small_image_url: smallImageUrl
+				small_image_url: smallImageUrl,
+				profile_image_updated_at: profileImage?.uploaded_at || null,
+				is_temp_user: !!userData.is_temp_user
 			};
 		}
-		return json(profileImageMap);
+		return json(userMap);
 	} catch (error) {
-		console.error('Error fetching profile images:', error);
+		console.error('Error fetching users with profile images:', error);
 		return json({ error: 'Internal server error' }, { status: 500 });
 	}
 };

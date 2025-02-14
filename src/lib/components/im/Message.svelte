@@ -243,7 +243,7 @@
 </script>
 
 {#snippet avatar()}
-	<ProfileAvatar {url} username={message.user?.username} isTempUser={false} baseHeightPx={30} />
+	<ProfileAvatar userId={message.user?.id} baseHeightPx={30} />
 {/snippet}
 
 <div class="relative py-3">
