@@ -1,4 +1,3 @@
-# This is ALPHA deployment
 service: bonfire
 image: leomorpho/bonfire
 
@@ -58,7 +57,7 @@ env:
 proxy:
   app_port: 3000
   ssl: true
-  host: bnfr-events.alpha.app
+  host: bnfr-events.app
   forward_headers: true
   buffering:
     requests: false
