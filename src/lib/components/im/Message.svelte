@@ -10,8 +10,9 @@
 	import { onDestroy, onMount } from 'svelte';
 	import ProfileAvatar from '../ProfileAvatar.svelte';
 	import { and } from '@triplit/client';
-	import { NotificationType } from '$lib/enums';
+	import { EMOJI_REACTION_TYPE, NotificationType } from '$lib/enums';
 	import MessageContextMenu from './MessageContextMenu.svelte';
+	import { toggleEmojiReaction } from '$lib/emoji';
 
 	let {
 		currUserId,
@@ -37,6 +38,23 @@
 
 	// Determine if the message is seen by the current user
 	let isUnseen = $state(false);
+
+	// Create a map of emoji count to emojis
+	let emojiCountMap = $state(new Map());
+
+	$effect(() => {
+		if (!message || !message.emoji_reactions) return;
+
+		// Create a fresh map every time
+		const newEmojiCountMap = new Map();
+
+		for (const reaction of message.emoji_reactions) {
+			newEmojiCountMap.set(reaction.emoji, (newEmojiCountMap.get(reaction.emoji) || 0) + 1);
+		}
+
+		// Assign new map to trigger reactivity
+		emojiCountMap = newEmojiCountMap;
+	});
 
 	$effect(() => {
 		if (ignoreSeenStatusPriorToThisDatetime) {
@@ -197,6 +215,20 @@
 			observer.disconnect();
 		}
 	});
+
+	// Handle emoji selection
+	const toggleEmoji = async (emoji: any) => {
+		console.log('Add emoji', emoji);
+		const client = await getFeTriplitClient($page.data.jwt);
+		await toggleEmojiReaction(
+			client,
+			$page.data.user.id,
+			eventId,
+			message.id,
+			EMOJI_REACTION_TYPE.MESSAGE,
+			emoji
+		);
+	};
 </script>
 
 {#snippet avatar()}
@@ -254,11 +286,17 @@
 	</div>
 	<div class="z-5 absolute -bottom-2 {isOwnMessage ? 'right-8' : 'left-8'}">
 		{#if message.emoji_reactions}
-			<span class="flex w-fit flex-wrap items-center rounded-full bg-slate-700 bg-opacity-50 px-2 text-xl">
-				{#each message.emoji_reactions as emojiReaction}
-					<span class="p-0 transition-all duration-200 ease-in-out hover:px-1 hover:text-2xl">
-						{emojiReaction.emoji}
-					</span>
+			<span class="mx-1 flex w-fit flex-wrap items-center px-1 text-xl">
+				{#each Array.from(emojiCountMap.entries()) as [emoji, count]}
+					<button
+						onclick={() => toggleEmoji(emoji)}
+						class="flex flex-row items-center rounded-full bg-slate-700 bg-opacity-50 p-1 transition-all duration-200 ease-in-out hover:cursor-pointer hover:text-2xl"
+					>
+						{emoji}
+						{#if count > 1}
+							<span class="mx-1 text-sm text-gray-300">{count}</span>
+						{/if}
+					</button>
 				{/each}
 			</span>
 		{/if}
