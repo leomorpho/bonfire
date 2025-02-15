@@ -17,6 +17,7 @@ env:
     PORT: 4000
     PUBLIC_ORIGIN: 'https://bnfr-events.beta.app'
     PUBLIC_DEFAULT_TITLE: 'Bonfire Beta'
+    EXTERNAL_JWT_SECRET: 'MARqNaDknliSN0G0rnUt5gVagthfLv7ucfR9W4tyJEVMvpsCd40PvoLtM3slsfl1XvGGd3vz99hRFcRHz7SGLNdn1zu0Wxh0FjrEgh4VFt8U4sZFc5gm3nEQJfbqcb1x'
   secret:
     - TURSO_DB_AUTH_TOKEN
     - TURSO_DB_URL
@@ -34,7 +35,6 @@ env:
     - PUBLIC_TRIPLIT_URL
     - PUBLIC_TRIPLIT_ANONYMOUS_TOKEN
     - TRIPLIT_SERVICE_TOKEN
-    - EXTERNAL_JWT_SECRET
     - S3_REGION
     - S3_ENDPOINT
     - DEV_S3_BUCKET_NAME
@@ -68,3 +68,17 @@ proxy:
 
 volumes:
   - "/mnt/data/uploads:/app/uploads"
+
+accessories:
+  turso:
+    service: libsql-beta
+    image: ghcr.io/tursodatabase/libsql-server:latest
+    host: 5.78.67.78
+  triplit:
+    service: triplit-beta
+    image: aspencloud/triplit-server
+    host: 5.78.67.78
+    env:
+      PROJECT_ID: 'oK357Fa46uNmgGcIgxtdpUULUDN79IW642Pyoqs6cIJgkaX47pPqnbRNLoe6FWawsCkkXraJwWvx1Q7v69uUjotBhZIOctr2k3juCc2KTgeXzRwECy09lkgVVIHz2Gb4'
+      JWT_SECRET: 'RT88L31gzkbwjtFzotCrzsSB0qjbmSUXKk5i40ueqMWKhc6AnzdFaM0g7Ab449werlfXUX9g303Dga6LueZzXmXbuzOHFVgs4FbzmKQjsoddddVB0CqVM5gjx7F2MpGi'
+      EXTERNAL_JWT_SECRET: 'MARqNaDknliSN0G0rnUt5gVagthfLv7ucfR9W4tyJEVMvpsCd40PvoLtM3slsfl1XvGGd3vz99hRFcRHz7SGLNdn1zu0Wxh0FjrEgh4VFt8U4sZFc5gm3nEQJfbqcb1x'
