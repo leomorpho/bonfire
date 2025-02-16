@@ -22,4 +22,4 @@ playwright-report
 temp
 uploads
 
-.kamal/secrets
+.kamal/secrets*

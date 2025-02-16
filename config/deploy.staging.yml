@@ -1,0 +1,88 @@
+# This is staging deployment
+service: bonfire-staging
+image: leomorpho/bonfire
+
+servers:
+  - 5.78.67.78
+
+registry:
+  server: ghcr.io
+  username: leomorpho
+  password:
+    - KAMAL_REGISTRY_PASSWORD
+builder:
+  arch: amd64
+env:
+  clear:
+    PORT: 4000
+    PUBLIC_ORIGIN: 'https://bnfr-events.beta.app'
+    PUBLIC_DEFAULT_TITLE: 'Bonfire staging'
+    EXTERNAL_JWT_SECRET: 'MARqNaDknliSN0G0rnUt5gVagthfLv7ucfR9W4tyJEVMvpsCd40PvoLtM3slsfl1XvGGd3vz99hRFcRHz7SGLNdn1zu0Wxh0FjrEgh4VFt8U4sZFc5gm3nEQJfbqcb1x'
+  secret:
+    - TURSO_DB_AUTH_TOKEN
+    - TURSO_DB_URL
+    - GOOGLE_CLIENT_ID
+    - GOOGLE_CLIENT_SECRET
+    - RESEND_SERVER_TOKEN
+    - PUBLIC_FROM_EMAIL
+    - STRIPE_SECRET_KEY
+    - STRIPE_WEBHOOK_SECRET
+    - DEV_STRIPE_SECRET_KEY
+    - DEV_STRIPE_WEBHOOK_SECRET
+    - SIGNIN_IP_RATELIMIT
+    - PUBLIC_PROJECT_NAME
+    - PUBLIC_DEFAULT_DESCRIPTION
+    - PUBLIC_TRIPLIT_URL
+    - PUBLIC_TRIPLIT_ANONYMOUS_TOKEN
+    - TRIPLIT_SERVICE_TOKEN
+    - S3_REGION
+    - S3_ENDPOINT
+    - DEV_S3_BUCKET_NAME
+    - DEV_S3_ACCESS_KEY_ID
+    - DEV_S3_SECRET_ACCESS_KEY
+    - S3_BUCKET_NAME
+    - S3_ACCESS_KEY_ID
+    - S3_SECRET_ACCESS_KEY
+    - PUBLIC_S3_BONFIRE_PUCLIC_BUCKET_NAME
+    - S3_BONFIRE_PUBLIC_ACCESS_KEY_ID
+    - S3_BONFIRE_PUBLIC_SECRET_ACCESS_KEY
+    - PUBLIC_DEV_VAPID_PUBLIC_KEY
+    - DEV_VAPID_PRIVATE_KEY
+    - PUBLIC_VAPID_PUBLIC_KEY
+    - VAPID_PRIVATE_KEY
+    - HERE_GEOCODING_APP_ID
+    - HERE_GEOCODING_APP_KEY
+    - GOOGLE_GEOCODING_API_KEY
+    - SPLITWISE_CONSUMER_KEY
+    - SPLITWISE_CONSUMER_SECRET
+    - BODY_SIZE_LIMIT
+
+proxy:
+  app_port: 4000
+  ssl: true
+  host: beta.bnfr-events.app
+  forward_headers: true
+  buffering:
+    requests: false
+    responses: false
+
+volumes:
+  - "/mnt/data/uploads:/app/uploads"
+
+accessories:
+  turso-staging:
+    service: libsql-staging
+    image: ghcr.io/tursodatabase/libsql-server:latest
+    host: 5.78.67.78
+    env:
+      secret:
+        - TURSO_DB_AUTH_TOKEN
+        - TURSO_DB_URL
+  triplit-staging:
+    service: triplit-staging
+    image: aspencloud/triplit-server
+    host: 5.78.67.78
+    env:
+      PROJECT_ID: 'oK357Fa46uNmgGcIgxtdpUULUDN79IW642Pyoqs6cIJgkaX47pPqnbRNLoe6FWawsCkkXraJwWvx1Q7v69uUjotBhZIOctr2k3juCc2KTgeXzRwECy09lkgVVIHz2Gb4'
+      JWT_SECRET: 'RT88L31gzkbwjtFzotCrzsSB0qjbmSUXKk5i40ueqMWKhc6AnzdFaM0g7Ab449werlfXUX9g303Dga6LueZzXmXbuzOHFVgs4FbzmKQjsoddddVB0CqVM5gjx7F2MpGi'
+      EXTERNAL_JWT_SECRET: 'MARqNaDknliSN0G0rnUt5gVagthfLv7ucfR9W4tyJEVMvpsCd40PvoLtM3slsfl1XvGGd3vz99hRFcRHz7SGLNdn1zu0Wxh0FjrEgh4VFt8U4sZFc5gm3nEQJfbqcb1x'
