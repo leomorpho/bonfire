@@ -1,23 +1,29 @@
 import * as dotenv from 'dotenv';
 import { runDrizzleMigrations } from '$lib/cli_drizzle_migrations';
 
-// Load environment variables from .env.production file explicitly
-dotenv.config({ path: '.env.prod' });
-
 // Get the command-line arguments
 const args = process.argv.slice(2);
+
+const isProd = args.includes('--prod');
+const isStaging = args.includes('--staging');
+
+// Load environment variables from .env.production file explicitly
+if (isProd) {
+	dotenv.config({ path: '.env.prod' });
+} else if (isStaging) {
+	dotenv.config({ path: '.env.staging' });
+}
+
 const argMap = new Map(
 	args
 		.map((arg) => arg.split('=')) // Split into key-value pairs
 		.filter((pair) => pair.length === 2) as [string, string][] // Ensure only valid [key, value] pairs
 );
 
-const isProd = args.includes('--prod');
-
 // Get values from CLI args, falling back to environment variables
 const dbUrl =
 	(argMap.get('TURSO_DB_URL') as string | undefined) ??
-	(isProd ? (process.env.TURSO_DB_URL ?? '') : 'file:local.db');
+	(isProd || isStaging ? (process.env.TURSO_DB_URL ?? '') : 'file:local.db');
 
 const authToken =
 	(argMap.get('TURSO_DB_AUTH_TOKEN') as string | undefined) ??

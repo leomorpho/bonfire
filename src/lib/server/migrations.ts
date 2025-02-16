@@ -1,8 +1,9 @@
 import { env as privateEnv } from '$env/dynamic/private';
 import { dev } from '$app/environment';
 import { runDrizzleMigrations } from '$lib/cli_drizzle_migrations';
-import { pushTriplitSchema } from './triplit';
+// import { pushTriplitSchema } from './triplit';
 
+// TODO: fuck, neither drizzle nor triplit migrations working
 /**
  * Run migrations and schema push **without blocking event loop**
  */
