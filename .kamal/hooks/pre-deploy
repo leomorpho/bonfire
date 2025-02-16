@@ -1,5 +1,3 @@
-#!/usr/bin/env ruby
-#
 # These environment variables are available:
 # KAMAL_RECORDED_AT
 # KAMAL_PERFORMER
