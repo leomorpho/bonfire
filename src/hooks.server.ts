@@ -14,24 +14,30 @@ import { triplitHttpClient } from '$lib/server/triplit';
 import { env as publicEnv } from '$env/dynamic/public';
 import { Readable } from 'stream';
 import { EventEmitter } from 'events';
+import type { ServerInit } from '@sveltejs/kit';
+import { initializeDatabaseSchemas } from '$lib/server/migrations';
 
-if (!dev) {
-	Sentry.init({
-		dsn: 'https://3b8c1776298855f9184a78a5d271ec6d@o4505031789314048.ingest.us.sentry.io/4508626481774592',
-		tracesSampleRate: 1
+export const init: ServerInit = async () => {
+	if (!dev) {
+		Sentry.init({
+			dsn: 'https://3b8c1776298855f9184a78a5d271ec6d@o4505031789314048.ingest.us.sentry.io/4508626481774592',
+			tracesSampleRate: 1
+		});
+	}
+
+	console.log('App started!');
+	console.log('PUBLIC_TRIPLIT_URL', publicEnv.PUBLIC_TRIPLIT_URL);
+
+	process.on('uncaughtException', (err) => {
+		console.error('Uncaught Exception:', err.stack || err.message || err);
 	});
-}
 
-console.log('App started!');
-console.log('PUBLIC_TRIPLIT_URL', publicEnv.PUBLIC_TRIPLIT_URL);
+	process.on('unhandledRejection', (reason, promise) => {
+		console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+	});
 
-process.on('uncaughtException', (err) => {
-	console.error('Uncaught Exception:', err.stack || err.message || err);
-});
-
-process.on('unhandledRejection', (reason, promise) => {
-	console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-});
+	// initializeDatabaseSchemas().catch(console.error);
+};
 
 /**
  * Setup the TUS server

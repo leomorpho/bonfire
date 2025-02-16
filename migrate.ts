@@ -1,7 +1,5 @@
-import { createClient } from '@libsql/client';
 import * as dotenv from 'dotenv';
-import { drizzle } from 'drizzle-orm/libsql';
-import { migrate } from 'drizzle-orm/libsql/migrator';
+import { runDrizzleMigrations } from '$lib/cli_drizzle_migrations';
 
 // Load environment variables from .env.production file explicitly
 dotenv.config({ path: '.env.prod' });
@@ -41,27 +39,4 @@ if (!authToken && dbUrl.startsWith('libsql://')) {
 	process.exit(1);
 }
 
-// Log the connection details (excluding auth token for security)
-console.log(`🔹 Connecting to database at: ${dbUrl}`);
-
-// Create the database client
-const dbClient = createClient({
-	url: dbUrl,
-	authToken: authToken as string
-});
-
-// Create the drizzle client
-const drizzleClient = drizzle(dbClient);
-
-// Run the migration
-migrate(drizzleClient, {
-	migrationsFolder: './drizzle'
-})
-	.then(() => {
-		console.log('✅ Migrations completed successfully.');
-		process.exit(0);
-	})
-	.catch((err) => {
-		console.error('❌ Migration failed:', err);
-		throw err;
-	});
+runDrizzleMigrations(dbUrl, authToken);

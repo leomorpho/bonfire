@@ -53,35 +53,35 @@ if [ "$KAMAL_VERSION" != "$remote_head" ]; then
   exit 1
 fi
 
-# Ensure required env vars exist
-if [ -z "$TURSO_DB_URL" ]; then
-  echo "❌ ERROR: TURSO_DB_URL is not set!"
-  exit 1
-fi
+# # Ensure required env vars exist
+# if [ -z "$TURSO_DB_URL" ]; then
+#   echo "❌ ERROR: TURSO_DB_URL is not set!"
+#   exit 1
+# fi
 
-if [ -z "$TURSO_DB_AUTH_TOKEN" ]; then
-  echo "❌ ERROR: TURSO_DB_AUTH_TOKEN is not set!"
-  exit 1
-fi
+# if [ -z "$TURSO_DB_AUTH_TOKEN" ]; then
+#   echo "❌ ERROR: TURSO_DB_AUTH_TOKEN is not set!"
+#   exit 1
+# fi
 
-if [ -z "$TRIPLIT_SERVICE_TOKEN" ]; then
-  echo "❌ ERROR: TRIPLIT_SERVICE_TOKEN is not set!"
-  exit 1
-fi
+# if [ -z "$TRIPLIT_SERVICE_TOKEN" ]; then
+#   echo "❌ ERROR: TRIPLIT_SERVICE_TOKEN is not set!"
+#   exit 1
+# fi
 
-if [ -z "$PUBLIC_TRIPLIT_URL" ]; then
-  echo "❌ ERROR: PUBLIC_TRIPLIT_URL is not set!"
-  exit 1
-fi
+# if [ -z "$PUBLIC_TRIPLIT_URL" ]; then
+#   echo "❌ ERROR: PUBLIC_TRIPLIT_URL is not set!"
+#   exit 1
+# fi
 
 
-# Run Drizzle migrations locally
-echo "🔄 Running Drizzle migrations..."
-TURSO_DB_URL="$TURSO_DB_URL" TURSO_DB_AUTH_TOKEN="$TURSO_DB_AUTH_TOKEN" npm run migrate
+# # Run Drizzle migrations locally
+# echo "🔄 Running Drizzle migrations..."
+# TURSO_DB_URL="$TURSO_DB_URL" TURSO_DB_AUTH_TOKEN="$TURSO_DB_AUTH_TOKEN" npm run migrate
 
-# Run Triplit schema push locally
-echo "🔄 Pushing Triplit schema..."
-npx triplit schema push --token "$TRIPLIT_SERVICE_TOKEN" --remote "$PUBLIC_TRIPLIT_URL"
+# # Run Triplit schema push locally
+# echo "🔄 Pushing Triplit schema..."
+# npx triplit schema push --token "$TRIPLIT_SERVICE_TOKEN" --remote "$PUBLIC_TRIPLIT_URL"
 
 echo "✅ Pre-deploy steps completed successfully."
 

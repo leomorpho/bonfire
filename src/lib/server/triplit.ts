@@ -4,11 +4,47 @@ import { env as publicEnv } from '$env/dynamic/public';
 import { env as privateEnv } from '$env/dynamic/private';
 import { and, HttpClient } from '@triplit/client';
 import { createAttendeeId } from '$lib/utils';
+import { spawn } from 'child_process';
 
 export const triplitHttpClient = new HttpClient({
 	serverUrl: publicEnv.PUBLIC_TRIPLIT_URL,
 	token: privateEnv.TRIPLIT_SERVICE_TOKEN
 });
+
+export function pushTriplitSchema() {
+	const triplitToken = privateEnv.TRIPLIT_SERVICE_TOKEN;
+	const triplitUrl = publicEnv.PUBLIC_TRIPLIT_URL;
+
+	if (!triplitToken || !triplitUrl) {
+		console.error('❌ ERROR: Triplit credentials are missing.');
+		process.exit(1);
+	}
+
+	try {
+		console.log('🔄 Pushing Triplit schema...');
+		const result = spawn(
+			'npx',
+			['triplit', 'schema', 'push', '--token', triplitToken, '--remote', triplitUrl],
+			{
+				stdio: 'inherit', // Ensures proper output passthrough
+				shell: true
+			}
+		);
+
+		if (result.error) {
+			throw result.error; // Explicitly catch and throw the error
+		}
+
+		if (result.status !== 0) {
+			throw new Error(`Triplit schema push failed with exit code ${result.status}`);
+		}
+
+		console.log('✅ Triplit schema push complete.');
+	} catch (error) {
+		console.error('❌ Triplit schema push failed:', error);
+		process.exit(1); // 🚨 Ensure failure actually stops the app
+	}
+}
 
 export async function getAttendeeUserIdsOfEvent(
 	eventId: string,
@@ -114,7 +150,7 @@ export async function validateMessageIds(userIds: string[]): Promise<string[]> {
 	const query = triplitHttpClient
 		.query('event_messages')
 		.where([['id', 'in', userIds]])
-		.select(['id']) 
+		.select(['id'])
 		.build();
 
 	// Fetch and return only the IDs
