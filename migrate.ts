@@ -4,6 +4,7 @@ import { runDrizzleMigrations } from '$lib/cli_drizzle_migrations';
 // Get the command-line arguments
 const args = process.argv.slice(2);
 
+// TODO: fuck this shit. I am just running migrations from my local machine for now because doing so from app doesn't seem to work.
 const isProd = args.includes('--prod');
 const isStaging = args.includes('--staging');
 

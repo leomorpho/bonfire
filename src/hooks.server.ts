@@ -15,7 +15,7 @@ import { env as publicEnv } from '$env/dynamic/public';
 import { Readable } from 'stream';
 import { EventEmitter } from 'events';
 import type { ServerInit } from '@sveltejs/kit';
-import { initializeDatabaseSchemas } from '$lib/server/migrations';
+// import { initializeDatabaseSchemas } from '$lib/server/migrations';
 
 export const init: ServerInit = async () => {
 	if (!dev) {
@@ -36,7 +36,7 @@ export const init: ServerInit = async () => {
 		console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 	});
 
-	initializeDatabaseSchemas().catch(console.error);
+	// initializeDatabaseSchemas().catch(console.error);
 };
 
 /**
