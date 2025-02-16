@@ -25,6 +25,79 @@ import {
 } from './triplit';
 import { getTaskLockState, updateTaskLockState } from './database/tasklock';
 
+export type PushSubscription = {
+	endpoint: string;
+	keys: {
+		p256dh: string;
+		auth: string;
+	};
+};
+
+export async function getPushSubscriptions(userId: string) {
+	return await triplitHttpClient.fetch(
+		triplitHttpClient.query('push_subscription').where('user_id', '=', userId).build()
+	);
+}
+
+export async function getNotificationPermissions(userId: string) {
+	return await triplitHttpClient.fetchOne(
+		triplitHttpClient.query('notification_permission').where('user_id', '=', userId).build()
+	);
+}
+
+export async function savePushSubscription(userId: string, subscription: PushSubscription) {
+	await triplitHttpClient.insert('push_subscription', {
+		user_id: userId,
+		endpoint: subscription.endpoint,
+		p256dh: subscription.keys.p256dh,
+		auth: subscription.keys.auth
+	});
+}
+
+export async function toggleNotificationPermission(userId: string, type: string) {
+	const existingPermission = await triplitHttpClient.fetchOne(
+		triplitHttpClient.query('notification_permission').where('user_id', '=', userId).build()
+	);
+
+	if (!existingPermission) {
+		await triplitHttpClient.insert('notification_permission', {
+			user_id: userId,
+			oneDayReminder: false,
+			eventActivity: false,
+			updated_at: new Date().toISOString()
+		});
+	}
+
+	const currentValue = existingPermission ? (existingPermission[type] ?? false) : false;
+	const newValue = !currentValue;
+
+	await triplitHttpClient.insert('notification_permission', {
+		id: existingPermission?.id,
+		user_id: userId,
+		[type]: newValue,
+		updated_at: new Date().toISOString()
+	});
+}
+
+export async function removePushSubscription(userId: string, endpoint: string) {
+	const existingSubscription = await triplitHttpClient.fetchOne(
+		triplitHttpClient
+			.query('push_subscription')
+			.where([
+				['user_id', '=', userId],
+				['endpoint', '=', endpoint]
+			])
+			.build()
+	);
+
+	if (!existingSubscription) {
+		return { success: false, message: 'Subscription not found', status: 404 };
+	}
+
+	await triplitHttpClient.delete('push_subscription', existingSubscription.id);
+	return { success: true, message: 'Subscription removed successfully', status: 200 };
+}
+
 export const runNotificationProcessor = async () => {
 	const taskName = TaskName.PROCESS_NOTIFICATION_QUEUE;
 

@@ -1,5 +1,4 @@
-import { db } from '$lib/server/database/db';
-import { pushSubscriptionTable } from '$lib/server/database/schema';
+import { savePushSubscription } from '$lib/server/push';
 import { json } from '@sveltejs/kit';
 
 export async function POST({ request, locals }) {
@@ -13,15 +12,12 @@ export async function POST({ request, locals }) {
 		}
 
 		// Save the subscription to the database
-		await db
-			.insert(pushSubscriptionTable)
-			.values({
-				userId,
-				endpoint: subscription.endpoint,
-				p256dh: subscription.keys.p256dh,
-				auth: subscription.keys.auth
-			})
-			.execute();
+		await savePushSubscription(userId, {
+			userId,
+			endpoint: subscription.endpoint,
+			p256dh: subscription.keys.p256dh,
+			auth: subscription.keys.auth
+		});
 
 		return json({ success: true, message: 'Subscription saved successfully' });
 	} catch (error) {

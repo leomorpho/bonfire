@@ -31,6 +31,8 @@ export const schema = {
 	user_info: {
 		schema: S.Schema({
 			id: S.String(),
+			user_id: S.String(), // ID of the user who owns the image
+			user: S.RelationById('user', '$user_id'), // Relation to the user table
 			created_at: S.Date({ default: S.Default.now() }),
 			email: S.String(),
 			email_verified: S.Boolean({ default: false }),

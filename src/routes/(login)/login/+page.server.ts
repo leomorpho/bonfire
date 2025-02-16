@@ -2,23 +2,20 @@ import { z } from 'zod';
 import { superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { error, fail, redirect } from '@sveltejs/kit';
-import { createNewUser, getUserByEmail } from '$lib/server/database/user.model.js';
 import { generateId } from 'lucia';
-import {
-	createEmailVerificationOTP,
-	deleteAllEmailOTPsForUser
-} from '$lib/server/database/emailtoken.model.js';
 import { loginEmailHtmlTemplate, sendEmail } from '$lib/server/email/email.js';
 import { env as privateEnv } from '$env/dynamic/private';
 import { env as publicEnv } from '$env/dynamic/public';
 import { lucia } from '$lib/server/auth';
-import { createSigninEntry, getSignins } from '$lib/server/database/signin.model';
 import { dev } from '$app/environment';
 import {
 	LOGIN_TYPE_ACTIVATION,
 	LOGIN_TYPE_MAGIC_LINK,
 	NUM_DEFAULT_LOGS_NEW_SIGNUP
 } from '$lib/enums';
+import { createNewUser, getUserByEmail } from '$lib/server/user';
+import { createEmailVerificationOTP, deleteAllEmailOTPsForUser } from '$lib/server/emailtoken';
+import { createSigninEntry, getSignins } from '$lib/server/signin';
 
 // Zod validation schema for login_with_email (requires email)
 const loginSchema = z.object({

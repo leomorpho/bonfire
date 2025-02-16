@@ -1,4 +1,3 @@
-import { createNewUser } from '$lib/server/database/user.model';
 import { generateId } from 'lucia';
 import { faker } from '@faker-js/faker';
 import { HttpClient } from '@triplit/client';
@@ -10,6 +9,7 @@ import {
 import { env as publicEnv } from '$env/dynamic/public';
 import { env as privateEnv } from '$env/dynamic/private';
 import { createAttendeeId } from '$lib/utils';
+import { createNewUser } from '$lib/server/user';
 
 const client = new HttpClient({
 	serverUrl: publicEnv.PUBLIC_TRIPLIT_URL,
@@ -105,7 +105,7 @@ for (let i = 0; i < 100; i++) {
 		email: faker.internet.email(),
 		email_verified: true,
 		num_logs: 3,
-		is_event_styles_admin:false,
+		is_event_styles_admin: false
 	});
 
 	await client.insert('user', { id: attendeeUser?.id, username: faker.internet.username() });

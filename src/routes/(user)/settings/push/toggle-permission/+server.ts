@@ -1,6 +1,4 @@
-import { db } from '$lib/server/database/db';
-import { notificationPermissionTable } from '$lib/server/database/schema';
-import { eq, sql } from 'drizzle-orm';
+import { toggleNotificationPermission } from '$lib/server/push.js';
 
 export async function POST({ request, locals }) {
 	try {
@@ -11,33 +9,7 @@ export async function POST({ request, locals }) {
 
 		const { type } = await request.json();
 
-		// Query the existing permission record
-		const existingPermission = await db
-			.select()
-			.from(notificationPermissionTable)
-			.where(eq(notificationPermissionTable.userId, userId))
-			.limit(1);
-
-		if (!existingPermission.length) {
-			// If no record exists, insert a default record
-			await db.insert(notificationPermissionTable).values({
-				userId,
-				oneDayReminder: false,
-				eventActivity: false,
-				created_at: sql`(current_timestamp)`,
-				updated_at: sql`(current_timestamp)`
-			});
-		}
-
-		// Determine the current value and toggle it
-		const currentValue = existingPermission[0]?.[type] ?? false;
-		const newValue = !currentValue;
-
-		// Update the permission
-		await db
-			.update(notificationPermissionTable)
-			.set({ [type]: newValue, updated_at: sql`(current_timestamp)` })
-			.where(eq(notificationPermissionTable.userId, userId));
+		const newValue = await toggleNotificationPermission(userId, type);
 
 		return new Response(JSON.stringify({ success: true, newValue }), { status: 200 });
 	} catch (error) {

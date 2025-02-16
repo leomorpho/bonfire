@@ -1,6 +1,4 @@
-import { db } from '$lib/server/database/db';
-import { notificationPermissionTable, pushSubscriptionTable } from '$lib/server/database/schema';
-import { eq } from 'drizzle-orm';
+import { getNotificationPermissions, getPushSubscriptions } from '$lib/server/push';
 
 export async function load({ locals }) {
 	const userId = locals.user?.id;
@@ -10,17 +8,10 @@ export async function load({ locals }) {
 	}
 
 	// Get push subscriptions for the user
-	const subscriptions = await db
-		.select()
-		.from(pushSubscriptionTable)
-		.where(eq(pushSubscriptionTable.userId, userId));
+	const subscriptions = await getPushSubscriptions(userId);
 
 	// Get notification permissions for the user
-	const permissions = await db
-		.select()
-		.from(notificationPermissionTable)
-		.where(eq(notificationPermissionTable.userId, userId))
-		.limit(1);
+	const permissions = await getNotificationPermissions(userId);
 
 	return {
 		subscriptions,

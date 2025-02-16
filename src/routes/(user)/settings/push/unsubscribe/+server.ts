@@ -1,7 +1,5 @@
-import { db } from '$lib/server/database/db';
-import { pushSubscriptionTable } from '$lib/server/database/schema';
-import { and, eq } from 'drizzle-orm';
 import { json } from '@sveltejs/kit';
+import { removePushSubscription } from '$lib/server/push';
 
 export async function POST({ request, locals }) {
 	try {
@@ -18,15 +16,7 @@ export async function POST({ request, locals }) {
 		}
 
 		// Delete the subscription from the database
-		const deleteResult = await db
-			.delete(pushSubscriptionTable)
-			.where(
-				and(eq(pushSubscriptionTable.endpoint, endpoint), eq(pushSubscriptionTable.userId, userId))
-			).execute();
-
-		if (deleteResult.rowCount === 0) {
-			return json({ success: false, message: 'Subscription not found' }, { status: 404 });
-		}
+		await removePushSubscription(userId, endpoint);
 
 		return json({ success: true, message: 'Subscription removed successfully' });
 	} catch (error) {

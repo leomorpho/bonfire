@@ -2,13 +2,13 @@ import { triplitHttpClient } from './triplit';
 
 export const getUserByEmail = async (email: string) => {
 	return await triplitHttpClient.fetchOne(
-		triplitHttpClient.query('user').where('email', '=', email).build()
+		triplitHttpClient.query('user_info').where('email', '=', email).build()
 	);
 };
 
 export const getUserById = async (id: string) => {
 	return await triplitHttpClient.fetchOne(
-		triplitHttpClient.query('user').where('id', '=', id).build()
+		triplitHttpClient.query('user_info').where('user_id', '=', id).build()
 	);
 };
 
@@ -21,7 +21,7 @@ type UpdateUser = Partial<{
 }>;
 
 export const updateUser = async (id: string, user: UpdateUser) => {
-	await triplitHttpClient.insert('user', { id, ...user });
+	await triplitHttpClient.insert('user_info', { id, ...user });
 	return await getUserById(id);
 };
 
@@ -34,6 +34,6 @@ type NewUser = {
 };
 
 export const createNewUser = async (user: NewUser) => {
-	const { output } = await triplitHttpClient.insert('user', user);
+	const { output } = await triplitHttpClient.insert('user_info', user);
 	return output;
 };

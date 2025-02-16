@@ -4,7 +4,7 @@ import { generateId } from 'lucia';
 import { parseJWT } from 'oslo/jwt';
 
 import type { RequestEvent } from '@sveltejs/kit';
-import { createNewUser, getUserByEmail } from '$lib/server/database/user.model';
+import { createNewUser, getUserByEmail } from '$lib/server/user';
 
 type GoogleUser = {
 	iss: string;

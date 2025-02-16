@@ -1,6 +1,6 @@
 import { Status } from '$lib/enums';
 import { createNewAnnouncementNotificationQueueObject } from '$lib/notification';
-import { createNewUser } from '$lib/server/database/user.model';
+import { createNewUser } from '$lib/server/user';
 import { runNotificationProcessor } from '$lib/server/push';
 import { serverTriplitClient } from '$lib/server/triplit';
 import { arrayToStringRepresentation, stringRepresentationToArray } from '$lib/utils';
