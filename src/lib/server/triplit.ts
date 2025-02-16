@@ -5,6 +5,7 @@ import { env as privateEnv } from '$env/dynamic/private';
 import { and, HttpClient } from '@triplit/client';
 import { createAttendeeId } from '$lib/utils';
 import { spawn } from 'child_process';
+import { dev } from '$app/environment';
 
 export const triplitHttpClient = new HttpClient({
 	serverUrl: publicEnv.PUBLIC_TRIPLIT_URL,
@@ -22,14 +23,23 @@ export function pushTriplitSchema() {
 
 	try {
 		console.log('🔄 Pushing Triplit schema...');
-		const result = spawn(
-			'npx',
-			['triplit', 'schema', 'push', '--token', triplitToken, '--remote', triplitUrl],
-			{
-				stdio: 'inherit', // Ensures proper output passthrough
-				shell: true
-			}
-		);
+
+		let triplitOptions = ['triplit', 'schema', 'push'];
+		if (!dev) {
+			triplitOptions = [
+				'triplit',
+				'schema',
+				'push',
+				'--token',
+				triplitToken,
+				'--remote',
+				triplitUrl
+			];
+		}
+		const result = spawn('npx', triplitOptions, {
+			stdio: 'inherit', // Ensures proper output passthrough
+			shell: true
+		});
 
 		if (result.error) {
 			throw result.error; // Explicitly catch and throw the error

@@ -36,7 +36,7 @@ export const init: ServerInit = async () => {
 		console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 	});
 
-	// initializeDatabaseSchemas().catch(console.error);
+	initializeDatabaseSchemas().catch(console.error);
 };
 
 /**
