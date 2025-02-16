@@ -12,9 +12,9 @@ export async function initializeDatabaseSchemas() {
 		await runDrizzleMigrationsWithDefaultParams();
 		console.log('✅ Drizzle migrations complete.');
 
-		console.log('🔄 Pushing Triplit schema before app starts...');
-		await pushTriplitSchema();
-		console.log('✅ Triplit schema push complete.');
+		// console.log('🔄 Pushing Triplit schema before app starts...');
+		// await pushTriplitSchema();
+		// console.log('✅ Triplit schema push complete.');
 	} catch (error) {
 		console.error('❌ Migration or schema push failed:', error);
 		process.exit(1); // 🚨 Stop the app if migrations fail
