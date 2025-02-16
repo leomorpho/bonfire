@@ -34,6 +34,9 @@ COPY --from=build /app/node_modules ./node_modules
 # Include migrations
 COPY --from=build /app/drizzle ./drizzle
 
+# Ensure @triplit/cli is installed in production
+RUN npm install -g @triplit/cli
+
 # Expose the app port
 EXPOSE 3000
 

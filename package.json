@@ -34,7 +34,6 @@
 		"@tailwindcss/typography": "^0.5.14",
 		"@testing-library/jest-dom": "^6.6.3",
 		"@testing-library/svelte": "^5.2.6",
-		"@triplit/cli": "^0.6.36",
 		"@types/better-sqlite3": "^7.6.11",
 		"@types/eslint": "^9.6.1",
 		"@types/fluent-ffmpeg": "^2.1.27",

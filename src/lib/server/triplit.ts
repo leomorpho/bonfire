@@ -27,7 +27,8 @@ export function pushTriplitSchema() {
 		let triplitOptions = ['triplit', 'schema', 'push'];
 		if (!dev) {
 			triplitOptions = [
-				'triplit',
+				'--no-install',
+				'@triplit/cli',
 				'schema',
 				'push',
 				'--token',
@@ -36,10 +37,17 @@ export function pushTriplitSchema() {
 				triplitUrl
 			];
 		}
+
+		console.log(`🛠️  Running command: npx ${triplitOptions}`);
+
 		const result = spawn('npx', triplitOptions, {
 			stdio: 'inherit', // Ensures proper output passthrough
 			shell: true
 		});
+
+		// ✅ Log output and errors
+		if (result.stdout) console.log(`stdout: ${result.stdout.toString()}`);
+		if (result.stderr) console.error(`stderr: ${result.stderr.toString()}`);
 
 		if (result.error) {
 			throw result.error; // Explicitly catch and throw the error
