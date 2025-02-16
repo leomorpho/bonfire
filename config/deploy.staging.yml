@@ -3,7 +3,7 @@ service: bonfire-staging
 image: leomorpho/bonfire
 
 servers:
-  - 164.92.76.143
+  - 5.78.67.78
 
 registry:
   server: ghcr.io
