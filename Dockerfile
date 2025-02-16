@@ -31,6 +31,8 @@ RUN mkdir -p /app/uploads && chmod -R 777 /app/uploads
 COPY --from=build /app/build ./build
 COPY --from=build /app/package.json ./package.json
 COPY --from=build /app/node_modules ./node_modules
+# Include migrations
+COPY --from=build /app/drizzle ./drizzle
 
 # Expose the app port
 EXPOSE 3000
