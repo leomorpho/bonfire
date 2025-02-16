@@ -70,11 +70,15 @@ volumes:
   - "/mnt/data/uploads:/app/uploads"
 
 accessories:
-  turso:
+  turso-beta:
     service: libsql-beta
     image: ghcr.io/tursodatabase/libsql-server:latest
     host: 5.78.67.78
-  triplit:
+    env:
+      secret:
+        - TURSO_DB_AUTH_TOKEN
+        - TURSO_DB_URL
+  triplit-beta:
     service: triplit-beta
     image: aspencloud/triplit-server
     host: 5.78.67.78
