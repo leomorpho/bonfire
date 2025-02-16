@@ -28,6 +28,132 @@ export const roles: Roles = {
 
 // Define schema with permissions
 export const schema = {
+	user_info: {
+		schema: S.Schema({
+			id: S.String(),
+			created_at: S.Date({ default: S.Default.now() }),
+			email: S.String(),
+			email_verified: S.Boolean({ default: false }),
+			num_logs: S.Number({ default: 3 }),
+			is_event_styles_admin: S.Boolean({ default: false })
+		}),
+		permissions: {
+			user: {},
+			temp: {},
+			anon: {}
+		}
+	},
+	session: {
+		schema: S.Schema({
+			id: S.String(),
+			created_at: S.Date({ default: S.Default.now() }),
+			user_id: S.String(),
+			user: S.RelationById('user', '$user_id'),
+			expires_at: S.Number()
+		}),
+		permissions: {
+			user: {},
+			temp: {},
+			anon: {}
+		}
+	},
+	email_verification_otp: {
+		schema: S.Schema({
+			id: S.String(),
+			user_id: S.String(),
+			email: S.String(),
+			otp: S.String(),
+			created_at: S.Date({ default: S.Default.now() }),
+			expires_at: S.Date()
+		}),
+		permissions: {
+			user: {},
+			temp: {},
+			anon: {}
+		}
+	},
+	signin: {
+		schema: S.Schema({
+			id: S.Id(),
+			logged_in_at: S.Date(),
+			ip_address: S.String(),
+			email: S.String()
+		}),
+		permissions: {
+			user: {},
+			temp: {},
+			anon: {}
+		}
+	},
+	task_locks: {
+		schema: S.Schema({
+			id: S.String(),
+			task_name: S.String(),
+			locked: S.Boolean({ default: false }),
+			updated_at: S.Date({ default: S.Default.now() })
+		}),
+		permissions: {
+			user: {},
+			temp: {},
+			anon: {}
+		}
+	},
+	event_transaction_logs: {
+		schema: S.Schema({
+			id: S.Id(),
+			created_at: S.Date({ default: S.Default.now() }),
+			num_logs_change: S.Number()
+		}),
+		permissions: {
+			user: {},
+			temp: {},
+			anon: {}
+		}
+	},
+	push_subscription: {
+		schema: S.Schema({
+			id: S.Id(),
+			user_id: S.String(),
+			user: S.RelationById('user', '$user_id'),
+			endpoint: S.String(),
+			p256dh: S.String(),
+			auth: S.String(),
+			created_at: S.Date({ default: S.Default.now() })
+		}),
+		permissions: {
+			user: {},
+			temp: {},
+			anon: {}
+		}
+	},
+	notification_permission: {
+		schema: S.Schema({
+			id: S.Id(),
+			user_id: S.String(),
+			user: S.RelationById('user', '$user_id'),
+			one_day_reminder: S.Boolean({ default: false }),
+			event_activity: S.Boolean({ default: false }),
+			created_at: S.Date({ default: S.Default.now() }),
+			updated_at: S.Date({ default: S.Default.now() })
+		}),
+		permissions: {
+			user: {},
+			temp: {},
+			anon: {}
+		}
+	},
+	deleted_user: {
+		schema: S.Schema({
+			id: S.Id(),
+			user_id: S.String(),
+			deleted_at: S.Date({ default: S.Default.now() })
+		}),
+		permissions: {
+			user: {},
+			temp: {},
+			anon: {}
+		}
+	},
 	user: {
 		schema: S.Schema({
 			id: S.String(),
