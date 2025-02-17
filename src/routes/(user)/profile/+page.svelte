@@ -47,7 +47,10 @@
 				<a href="profile/upload-profile-image"> <Button variant="link">Edit Avatar</Button></a>
 			</div>
 			<div class="mt-10 flex items-center justify-center text-xl font-semibold">
-				<a href="profile/username" class={`flex ${user.results[0].username? '': 'bg-yellow-200 hover:bg-yellow-100 rounded-lg p-2'}`}>
+				<a
+					href="profile/username"
+					class={`flex ${user.results[0].username ? '' : 'rounded-lg bg-yellow-200 p-2 hover:bg-yellow-100 dark:bg-yellow-700 dark:hover:bg-yellow-600'}`}
+				>
 					{user.results[0].username ? user.results[0].username : 'Set your username'}
 					<div
 						class="ml-1 flex items-center justify-center p-1 hover:rounded-lg hover:bg-slate-200"

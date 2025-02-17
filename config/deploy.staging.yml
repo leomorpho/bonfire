@@ -17,7 +17,7 @@ builder:
 env:
   clear:
     PORT: 4000
-    PUBLIC_ORIGIN: 'https://beta.bnfr-events.app'
+    PUBLIC_ORIGIN: 'https://staging.bnfr-events.app'
     PUBLIC_DEFAULT_TITLE: 'Bonfire staging'
   secret:
     - TURSO_DB_AUTH_TOKEN
@@ -62,8 +62,7 @@ env:
 proxy:
   app_port: 4000
   ssl: true
-  # TODO: change from beta to staging (need to update A record on DNS too)
-  host: beta.bnfr-events.app 
+  host: staging.bnfr-events.app 
   forward_headers: true
   buffering:
     requests: false
