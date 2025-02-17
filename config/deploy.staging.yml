@@ -10,14 +10,15 @@ registry:
   username: leomorpho
   password:
     - KAMAL_REGISTRY_PASSWORD
+
 builder:
   arch: amd64
+
 env:
   clear:
     PORT: 4000
     PUBLIC_ORIGIN: 'https://beta.bnfr-events.app'
     PUBLIC_DEFAULT_TITLE: 'Bonfire staging'
-    EXTERNAL_JWT_SECRET: 'MARqNaDknliSN0G0rnUt5gVagthfLv7ucfR9W4tyJEVMvpsCd40PvoLtM3slsfl1XvGGd3vz99hRFcRHz7SGLNdn1zu0Wxh0FjrEgh4VFt8U4sZFc5gm3nEQJfbqcb1x'
   secret:
     - TURSO_DB_AUTH_TOKEN
     - TURSO_DB_URL
@@ -35,6 +36,7 @@ env:
     - PUBLIC_TRIPLIT_URL
     - PUBLIC_TRIPLIT_ANONYMOUS_TOKEN
     - TRIPLIT_SERVICE_TOKEN
+    - EXTERNAL_JWT_SECRET
     - S3_REGION
     - S3_ENDPOINT
     - DEV_S3_BUCKET_NAME

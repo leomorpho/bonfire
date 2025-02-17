@@ -9,8 +9,10 @@ registry:
   username: leomorpho
   password:
     - KAMAL_REGISTRY_PASSWORD
+    
 builder:
   arch: amd64
+
 env:
   secret:
     - TURSO_DB_AUTH_TOKEN
