@@ -21,7 +21,8 @@ export const init: ServerInit = async () => {
 	if (!dev) {
 		Sentry.init({
 			dsn: 'https://3b8c1776298855f9184a78a5d271ec6d@o4505031789314048.ingest.us.sentry.io/4508626481774592',
-			tracesSampleRate: 1
+			tracesSampleRate: 1,
+			environment: publicEnv.PUBLIC_ENVIRONMENT,
 		});
 	}
 
