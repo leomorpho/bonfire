@@ -125,7 +125,7 @@ test('Create bonfire', async ({ page }) => {
 	await expect(page.locator('#rsvp-button')).toHaveText('Not going');
 	await expect(page.locator('#going-attendees').locator('.profile-avatar')).toHaveCount(0);
 	// And set back to "going"
-	await page.getByText('Not going').click();
+	await page.getByText('Not going').last().click();
 	await page.getByRole('menuitem', { name: 'Going', exact: true }).click();
 	await expect(page.locator('#rsvp-button').first()).toHaveText('Going');
 	await expect(page.locator('#going-attendees').locator('.profile-avatar')).toHaveCount(1);
@@ -220,12 +220,8 @@ test('CRUD announcements', async ({ page }) => {
 	await expect(page.locator('.announcement')).toHaveCount(1);
 
 	// Update
-	await page
-		.locator('section div')
-		.filter({ hasText: 'Announcements An announcement' })
-		.getByRole('button')
-		.first()
-		.click();
+	await page.locator('.update-announcement').first().click();
+
 	await page.getByPlaceholder('Type your announcement here').click();
 	await page.getByPlaceholder('Type your announcement here').press('ControlOrMeta+a');
 	await page.getByPlaceholder('Type your announcement here').fill('Updated announcement');
@@ -237,12 +233,8 @@ test('CRUD announcements', async ({ page }) => {
 	await expect(page.locator('.announcement')).toHaveCount(1);
 
 	// Delete
-	await page
-		.locator('section div')
-		.filter({ hasText: 'Announcements Updated' })
-		.getByRole('button')
-		.first()
-		.click();
+	await page.locator('.update-announcement').first().click();
+
 	await page.getByText('Delete Announcement').click();
 	await expect(page.getByRole('heading', { name: 'Are you sure?' })).toBeVisible();
 	await expect(page.getByText('This action cannot be undone')).toBeVisible();
@@ -458,15 +450,7 @@ test('Temp attendee view', async ({ browser }) => {
 	await tempAttendeePage.keyboard.press('Escape'); // Close dropdown
 
 	// Upload image to gallery
-	await tempAttendeePage.getByRole('button', { name: 'Add to gallery' }).click();
-
-	await expect(tempAttendeePage.getByRole('link', { name: 'Upload' })).toBeVisible();
-
-	const fileInput = await tempAttendeePage.locator('input[type="file"]').first();
-	await fileInput.setInputFiles([]); // Clears previous file selection
-	const imagePath = path.resolve(process.cwd(), 'e2e/test-images', 'gallery-image.jpg');
-	await fileInput.setInputFiles(imagePath);
-	await tempAttendeePage.getByLabel('Upload 1 file').click();
+	await uploadGalleryImage(tempAttendeePage, eventUrl, 2);
 
 	// Wait for the upload to be confirmed (adjust selector based on your UI)
 	// await tempAttendeePage.waitForSelector('.upload-complete-message', { timeout: 15000 });

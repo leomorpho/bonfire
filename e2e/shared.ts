@@ -212,7 +212,7 @@ export async function addAnnouncementAsEventCreator(page, eventUrl) {
 	console.log(`Added announcement: "${announcementText}" to the event at ${eventUrl}`);
 }
 
-export async function uploadGalleryImage(page, eventUrl) {
+export async function uploadGalleryImage(page, eventUrl, expectedTotalImageCount=1) {
 	// Navigate to the event
 	await navigateTo(page, eventUrl);
 
@@ -224,7 +224,7 @@ export async function uploadGalleryImage(page, eventUrl) {
 	const imagePath = path.resolve(process.cwd(), 'e2e/test-images', 'gallery-image.jpg');
 	await fileInput.setInputFiles(imagePath);
 	await page.getByLabel('Upload 1 file').click();
-	await expect(page.locator('.gallery-item')).toHaveCount(1);
+	await expect(page.locator('.gallery-item')).toHaveCount(expectedTotalImageCount);
 	console.log(`Uploaded a gallery image to the event at ${eventUrl}`);
 }
 

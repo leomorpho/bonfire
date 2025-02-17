@@ -7,6 +7,7 @@
 	import { overlayColorStore, overlayOpacityStore, parseColor, styleStore } from '$lib/styles';
 	import { tempAttendeeSecretStore, tempAttendeeSecretParam } from '$lib/enums';
 	import { get } from 'svelte/store';
+	import { goto } from '$app/navigation';
 
 	let { data, children }: { data: LayoutData; children: Snippet } = $props();
 
@@ -56,12 +57,33 @@
 		overlayOpacityStore.set(0.2);
 	}
 
+	// Function to get query parameters from the URL
+	function getQueryParam(param: string) {
+		const urlParams = new URLSearchParams(window.location.search);
+		return urlParams.get(param);
+	}
+
 	onMount(async () => {
 		if (tempAttendeeSecret) {
 			tempAttendeeSecretStore.set(tempAttendeeSecret);
 		} else {
 			tempAttendeeSecret = get(tempAttendeeSecretStore);
 		}
+
+		// TODO: ONLY use sessionStorage instead of the tempAttendeeSecretStore
+		// Store the temp-secret if it exists
+		const tempSecret = getQueryParam(tempAttendeeSecretParam);
+		if (tempSecret) {
+			sessionStorage.setItem(tempAttendeeSecretParam, tempSecret);
+		}
+
+		page.subscribe(($page) => {
+			console.log('Page URL changed:', $page.url);
+			const storedSecret = sessionStorage.getItem(tempAttendeeSecretParam);
+			if (storedSecret && !$page.url.searchParams.has(tempAttendeeSecretParam)) {
+				updateURLWithSecret(storedSecret);
+			}
+		});
 
 		if ($page.data.user || tempAttendeeSecret) {
 			// User is logged in
@@ -90,6 +112,17 @@
 	let overlayStyle = $derived(
 		`background-color: rgba(var(--overlay-color-rgb, ${parseColor(overlayColor)}), ${overlayOpacity});`
 	);
+
+	// Function to update the URL with the temp-secret
+	function updateURLWithSecret(secret: string) {
+		if (!secret) return;
+
+		const url = new URL(window.location.href);
+		url.searchParams.set(tempAttendeeSecretParam, secret);
+
+		// Use `goto()` to update the URL and trigger reactivity
+		goto(url.toString(), { replaceState: true });
+	}
 </script>
 
 <div class="bg-color min-h-screen w-full" style={styles}>

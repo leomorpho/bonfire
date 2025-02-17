@@ -274,6 +274,10 @@
 		overlayColorStore.set(overlayColor);
 		overlayOpacityStore.set(overlayOpacity);
 
+		if (!event || eventId) {
+			goto(`/dashboard`);
+		}
+
 		goto(`/bonfire/${eventId}`);
 	};
 
