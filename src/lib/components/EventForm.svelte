@@ -65,12 +65,15 @@
 
 	// ✅ State Variables
 	let client: TriplitClient;
-	let eventId = event?.id;
+	let eventId = $state(event?.id);
 	let currentEventEditingMode = $state(editingMainEvent);
 	let cancelUrl = $state(event && event.id ? `/bonfire/${event.id}` : '/');
 	let timezone = $state({});
 	let setEndTime = $state(false);
-	let submitDisabled = $derived(!(dateValue && eventName.length > 0 && startHour.length > 0));
+	// Make sure event actually exists before enabling any BE processing
+	let submitDisabled = $derived(
+		!(dateValue && eventName.length > 0 && startHour.length > 0) || !event
+	);
 	let isEventSaving = $state(false);
 	let errorMessage = $state('');
 	let showError = $state(false);
