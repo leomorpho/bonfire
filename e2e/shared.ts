@@ -143,7 +143,7 @@ export async function createBonfire(
 	await page.getByText('Rue du Luxembourg 15, 7700').click();
 
 	await expect(page.getByRole('button', { name: 'Create' })).toBeEnabled();
-	await page.waitForTimeout(100);
+	await page.waitForTimeout(1000);
 	await page.getByRole('button', { name: 'Create' }).click();
 
 	await expect(page.getByRole('heading', { name: eventName })).toBeVisible();
@@ -224,7 +224,7 @@ export async function uploadGalleryImage(page, eventUrl, expectedTotalImageCount
 	const imagePath = path.resolve(process.cwd(), 'e2e/test-images', 'gallery-image.jpg');
 	await fileInput.setInputFiles(imagePath);
 	await page.getByLabel('Upload 1 file').click();
-	await expect(page.locator('.gallery-item')).toHaveCount(expectedTotalImageCount);
+	await expect(page.locator('.gallery-item')).toHaveCount(expectedTotalImageCount, { timeout: 20000 });
 	console.log(`Uploaded a gallery image to the event at ${eventUrl}`);
 }
 

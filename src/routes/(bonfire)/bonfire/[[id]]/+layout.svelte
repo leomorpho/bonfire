@@ -78,8 +78,14 @@
 		}
 
 		page.subscribe(($page) => {
-			console.log('Page URL changed:', $page.url);
 			const storedSecret = sessionStorage.getItem(tempAttendeeSecretParam);
+
+			// 🔥 If user is logged in, remove the temp-secret param
+			if ($page.data.user) {
+				updateURLWithoutSecret();
+			}
+
+			// Otherwise, ensure temp-secret is restored when missing
 			if (storedSecret && !$page.url.searchParams.has(tempAttendeeSecretParam)) {
 				updateURLWithSecret(storedSecret);
 			}
@@ -113,15 +119,26 @@
 		`background-color: rgba(var(--overlay-color-rgb, ${parseColor(overlayColor)}), ${overlayOpacity});`
 	);
 
-	// Function to update the URL with the temp-secret
 	function updateURLWithSecret(secret: string) {
 		if (!secret) return;
 
 		const url = new URL(window.location.href);
 		url.searchParams.set(tempAttendeeSecretParam, secret);
 
-		// Use `goto()` to update the URL and trigger reactivity
-		goto(url.toString(), { replaceState: true });
+		// 🔥 Forcefully update the URL and reload the page BEFORE back navigation happens
+		location.replace(url.toString());
+	}
+
+	function updateURLWithoutSecret() {
+		const url = new URL(window.location.href);
+		url.searchParams.delete(tempAttendeeSecretParam);
+
+		// Remove the param from sessionStorage
+		sessionStorage.removeItem(tempAttendeeSecretParam);
+		tempAttendeeSecretStore.set('');
+
+		// Replace the current state with the updated URL
+		window.history.replaceState(null, '', url.toString());
 	}
 </script>
 
