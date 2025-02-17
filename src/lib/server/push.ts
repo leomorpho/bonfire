@@ -207,6 +207,8 @@ async function notifyAttendeesOfAnnouncements(
 
 	if (!attendingUserIds.length) return;
 
+	// TODO: filter out people who've already seen it
+
 	for (const attendeeUserId of attendingUserIds) {
 		const existingNotification = await getUnreadExistingNotification(
 			attendeeUserId,

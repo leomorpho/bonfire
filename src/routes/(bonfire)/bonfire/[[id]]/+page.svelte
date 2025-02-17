@@ -9,7 +9,6 @@
 	import {
 		Cog,
 		Share,
-		Plus,
 		Drum,
 		Copy,
 		MapPin,
@@ -22,9 +21,7 @@
 	import Rsvp from '$lib/components/Rsvp.svelte';
 	import { onMount } from 'svelte';
 	import { Status, tempAttendeeSecretStore, tempAttendeeSecretParam } from '$lib/enums';
-	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import ProfileAvatar from '$lib/components/ProfileAvatar.svelte';
-	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
 	import { Skeleton } from '$lib/components/ui/skeleton/index.js';
 	import MiniGallery from '$lib/components/MiniGallery.svelte';
 	import { toast } from 'svelte-sonner';
@@ -40,9 +37,9 @@
 	import BonfireBanner from '$lib/components/BonfireBanner.svelte';
 	import { env as publicEnv } from '$env/dynamic/public';
 	import ImThreadView from '$lib/components/im/ImThreadView.svelte';
-	import PopupImThreadView from '$lib/components/im/PopupImThreadView.svelte';
 	import NumNewMessageIndicator from '$lib/components/im/NumNewMessageIndicator.svelte';
 	import { fetchAndCacheUsers } from '$lib/profilestore';
+	import AttendeesDialog from '$lib/components/AttendeesDialog.svelte';
 
 	const showMaxNumPeople = 50;
 	const tempAttendeeId = $page.data.tempAttendeeId;
@@ -658,13 +655,15 @@
 									{/each}
 								</div>
 							{:else if rsvpStatus}
-								{#if attendeesGoing.length > 0}
-									{#if attendeesGoing.length > 5}
+								{#if allAttendeesGoing.length > 0}
+									{#if allAttendeesGoing.length > 5}
 										<div class="mb-3 flex w-full justify-center">
 											<div
 												class="flex w-fit justify-center rounded bg-slate-100 p-1 px-2 text-black opacity-70 dark:bg-slate-800 dark:text-white"
 											>
-												{attendeesGoing.length} attendee{attendeesGoing.length == 1 ? '' : 's'} going
+												{allAttendeesGoing.length} attendee{allAttendeesGoing.length == 1
+													? ''
+													: 's'} going
 											</div>
 										</div>
 									{/if}
@@ -676,84 +675,13 @@
 												attendanceId={attendee.id}
 											/>
 										{/each}
-										<Dialog.Root>
-											<Dialog.Trigger class="flex items-center"
-												>{#if allAttendeesGoing.length > showMaxNumPeople}
-													<div
-														class="rounded-xl bg-white text-sm text-gray-500 dark:bg-slate-900 dark:text-gray-100"
-													>
-														and {allAttendeesGoing.length - showMaxNumPeople} more
-													</div>
-												{/if}
-												<div class="flex h-12 w-12 items-center justify-center sm:h-14 sm:w-14">
-													<Plus
-														class="ml-1 h-4 w-4 rounded-xl bg-white dark:bg-slate-900 sm:h-5 sm:w-5"
-													/>
-												</div></Dialog.Trigger
-											>
-											<Dialog.Content class="h-full sm:h-[90vh]">
-												<ScrollArea>
-													<Dialog.Header>
-														<Dialog.Title class="flex w-full justify-center">Attendees</Dialog.Title
-														>
-														<Dialog.Description>
-															<div class="mb-3 mt-5">
-																{#if allAttendeesGoing.length > 0}
-																	{console.log('---> attendeesGoing', attendeesGoing)}
-																	<h2 class="my-3 flex w-full justify-center font-semibold">
-																		{attendeesGoing.length} going
-																	</h2>
-																	<div class="mx-5 flex flex-wrap -space-x-4 text-black">
-																		{#each allAttendeesGoing as attendee}
-																			<ProfileAvatar
-																				userId={attendee.user_id}
-																				viewerIsEventAdmin={currenUserIsEventAdmin}
-																				attendanceId={attendee.id}
-																			/>
-																		{/each}
-																	</div>
-																{/if}
-															</div>
-															<div class="mb-3 mt-5">
-																{#if allAttendeesMaybeGoing.length > 0}
-																	<h2 class="my-3 flex w-full justify-center font-semibold">
-																		{allAttendeesMaybeGoing.length} maybe{allAttendeesMaybeGoing.length ==
-																		1
-																			? ''
-																			: 's'}
-																	</h2>
-																	<div class="mx-5 flex flex-wrap -space-x-4 text-black">
-																		{#each allAttendeesMaybeGoing as attendee}
-																			<ProfileAvatar
-																				userId={attendee.user_id}
-																				viewerIsEventAdmin={currenUserIsEventAdmin}
-																				attendanceId={attendee.id}
-																			/>
-																		{/each}
-																	</div>
-																{/if}
-															</div>
-															<div class="mb-3 mt-5">
-																{#if allAttendeesNotGoing.length > 0}
-																	<h2 class="my-3 flex w-full justify-center font-semibold">
-																		{allAttendeesNotGoing.length} not going
-																	</h2>
-																	<div class="mx-5 flex flex-wrap -space-x-4 text-black">
-																		{#each allAttendeesNotGoing as attendee}
-																			<ProfileAvatar
-																				userId={attendee.user_id}
-																				viewerIsEventAdmin={currenUserIsEventAdmin}
-																				attendanceId={attendee.id}
-																			/>
-																		{/each}
-																	</div>
-																{/if}
-															</div>
-														</Dialog.Description>
-													</Dialog.Header>
-												</ScrollArea>
-											</Dialog.Content>
-										</Dialog.Root>
+										<AttendeesDialog
+											{allAttendeesGoing}
+											{allAttendeesMaybeGoing}
+											{allAttendeesNotGoing}
+											{showMaxNumPeople}
+											{currenUserIsEventAdmin}
+										/>
 									</div>
 								{:else if allAttendeesGoing.length == 0}
 									<div class="flex justify-center">
