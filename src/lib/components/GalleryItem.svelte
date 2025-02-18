@@ -64,13 +64,7 @@
 	});
 </script>
 
-<a
-	href={url}
-	class={`gallery-item ${urlActive ? 'disabled-link' : ''}`}
-	data-pswp-width={wPixel}
-	data-pswp-height={hPixel}
-	data-pswp-is-video={isVideo}
->
+{#snippet image()}
 	<div class="relative aspect-[5/3] w-full overflow-hidden rounded-lg bg-gray-200">
 		{#if fileType.startsWith('image/')}
 			<Image
@@ -122,7 +116,21 @@
 			{/if}
 		{/if}
 	</div>
-</a>
+{/snippet}
+
+{#if !urlActive}
+	<a
+		href={url}
+		class={`gallery-item ${urlActive ? 'disabled-link' : ''}`}
+		data-pswp-width={wPixel}
+		data-pswp-height={hPixel}
+		data-pswp-is-video={isVideo}
+	>
+		{@render image()}
+	</a>
+{:else}
+	{@render image()}
+{/if}
 
 <style>
 	.disabled-link {

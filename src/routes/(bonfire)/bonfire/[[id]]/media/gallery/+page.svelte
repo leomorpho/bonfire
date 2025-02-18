@@ -480,11 +480,13 @@
 		selection = new SelectionArea({
 			selectionAreaClass: 'selection-area',
 			selectables: ['.image-item'], // Selector for images
-			startareas: ['.gallery-container'], // Start selection only within this container
+			startAreas: ['.gallery-container'], // Start selection only within this container
 			behaviour: {
 				overlap: 'invert',
-				intersect: 'touch'
-			}
+				intersect: 'touch',
+				startThreshold: { x: 10, y: 10 }
+			},
+			features: { singleTap: { allow: true, intersect: 'touch' } }
 		}).on('move', ({ store: { changed } }) => {
 			if (!selectionActive) return;
 			console.log('Added:', changed.added);
@@ -595,7 +597,7 @@
 	<div
 		class="sticky top-0 z-10 mt-2 flex flex-col items-center justify-between rounded-xl bg-white bg-opacity-95 px-2 dark:bg-slate-900 min-[320px]:flex-row sm:w-[550px] md:w-[650px] lg:w-[950px]"
 	>
-		<BackButton url={`/bonfire/${$page.params.id}`}/>
+		<BackButton url={`/bonfire/${$page.params.id}`} />
 
 		<div class="ml-4 flex py-1 sm:space-x-2">
 			<a href="add">
@@ -819,5 +821,9 @@
 	.pswp__zoom-wrap,
 	.pswp__viewport {
 		cursor: pointer !important; /* Ensure regular pointer cursor */
+	}
+	/* Ensure the PhotoSwipe buttons are visible on iOS */
+	.pswp__top-bar {
+		padding-top: env(safe-area-inset-top) !important;
 	}
 </style>

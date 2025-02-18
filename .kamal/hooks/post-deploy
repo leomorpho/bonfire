@@ -1,0 +1,25 @@
+#!/bin/sh
+
+# A sample post-deploy hook
+#
+# These environment variables are available:
+# KAMAL_RECORDED_AT
+# KAMAL_PERFORMER
+# KAMAL_VERSION
+# KAMAL_HOSTS
+# KAMAL_ROLE (if set)
+# KAMAL_DESTINATION (if set)
+# KAMAL_RUNTIME
+
+echo "$KAMAL_PERFORMER deployed $KAMAL_VERSION to $KAMAL_DESTINATION in $KAMAL_RUNTIME seconds"
+
+#!/bin/sh
+
+# Add deployment flag to the latest commit message
+DEPLOY_MESSAGE=" [deployed: $(date -u +'%Y-%m-%dT%H:%M:%SZ')]"
+
+# Amend the latest commit with the deploy flag
+git commit --amend --no-edit -m "$(git log -1 --pretty=%B)${DEPLOY_MESSAGE}"
+
+# Force push to update the remote (optional, only if needed)
+git push --force-with-lease
