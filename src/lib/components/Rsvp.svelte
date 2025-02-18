@@ -151,7 +151,7 @@
 			console.log('checking name availability');
 			tempNameCheckingState = TempNameCheckingState.CHECKING;
 
-			const response = await fetch(`/bonfire/${eventId}/attend/temp/check-name`, {
+			const response = await fetch(`/bonfire/${eventId}/attend/temp-user/check-name`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
@@ -191,7 +191,7 @@
 				throw new Error('rsvp status is not set');
 			}
 			// Make a POST request to the backend endpoint
-			const response = await fetch(`/bonfire/${eventId}/attend/temp/generate`, {
+			const response = await fetch(`/bonfire/${eventId}/attend/temp-user/generate`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
@@ -232,7 +232,7 @@
 		try {
 			// Call the SvelteKit endpoint to update RSVP
 			const response = await fetch(
-				`/bonfire/${eventId}/attend/temp/update-rsvp?${tempAttendeeSecretParam}=${tempAttendeeSecret}`,
+				`/bonfire/${eventId}/attend/temp-user/update-rsvp?${tempAttendeeSecretParam}=${tempAttendeeSecret}`,
 				{
 					method: 'POST',
 					headers: {
