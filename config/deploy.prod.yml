@@ -1,13 +1,18 @@
 service: bonfire-prod
 image: leomorpho/bonfire
 
+servers:
+  - 5.78.67.78
+
 registry:
   server: ghcr.io
   username: leomorpho
   password:
     - KAMAL_REGISTRY_PASSWORD
+    
 builder:
   arch: amd64
+
 env:
   secret:
     - TURSO_DB_AUTH_TOKEN
@@ -50,3 +55,15 @@ env:
     - SPLITWISE_CONSUMER_KEY
     - SPLITWISE_CONSUMER_SECRET
     - BODY_SIZE_LIMIT
+
+proxy:
+  app_port: 3000
+  ssl: true
+  host: bnfr-events.app
+  forward_headers: true
+  buffering:
+    requests: false
+    responses: false
+
+volumes:
+  - "/mnt/data/uploads:/app/uploads"

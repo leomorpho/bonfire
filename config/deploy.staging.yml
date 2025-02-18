@@ -1,14 +1,24 @@
-service: bonfire-prod
+# This is staging deployment
+service: bonfire
 image: leomorpho/bonfire
+
+servers:
+  - 5.78.67.78
 
 registry:
   server: ghcr.io
   username: leomorpho
   password:
     - KAMAL_REGISTRY_PASSWORD
+
 builder:
   arch: amd64
+
 env:
+  clear:
+    PORT: 4000
+    PUBLIC_ORIGIN: 'https://staging.bnfr-events.app'
+    PUBLIC_DEFAULT_TITLE: 'Bonfire staging'
   secret:
     - TURSO_DB_AUTH_TOKEN
     - TURSO_DB_URL
@@ -22,8 +32,6 @@ env:
     - DEV_STRIPE_WEBHOOK_SECRET
     - SIGNIN_IP_RATELIMIT
     - PUBLIC_PROJECT_NAME
-    - PUBLIC_ORIGIN
-    - PUBLIC_DEFAULT_TITLE
     - PUBLIC_DEFAULT_DESCRIPTION
     - PUBLIC_TRIPLIT_URL
     - PUBLIC_TRIPLIT_ANONYMOUS_TOKEN
@@ -50,3 +58,15 @@ env:
     - SPLITWISE_CONSUMER_KEY
     - SPLITWISE_CONSUMER_SECRET
     - BODY_SIZE_LIMIT
+
+proxy:
+  app_port: 4000
+  ssl: true
+  host: staging.bnfr-events.app 
+  forward_headers: true
+  buffering:
+    requests: false
+    responses: false
+
+volumes:
+  - "/mnt/data/uploads-alpha:/app/uploads"
