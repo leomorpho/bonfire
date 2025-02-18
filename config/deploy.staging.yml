@@ -1,5 +1,5 @@
 # This is staging deployment
-service: bonfire-staging
+service: bonfire
 image: leomorpho/bonfire
 
 servers:
