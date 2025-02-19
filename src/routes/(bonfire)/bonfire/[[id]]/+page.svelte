@@ -467,10 +467,19 @@
 		<EventDoesNotExist />
 	{:else}
 		<div class="mx-4 flex flex-col items-center justify-center">
-			<section class="mt-8 flex w-full justify-center sm:w-[450px] md:w-[550px] lg:w-[650px]">
+			{#if currenUserIsEventAdmin}
+				<div class="flex w-full justify-center">
+					<a href="update" id="edit-bonfire">
+						<Button variant="outline" class="m-2 rounded-full">
+							<Cog class="h-5 w-5" />
+						</Button>
+					</a>
+				</div>
+			{/if}
+			<section class="mt-4  flex w-full justify-center sm:w-[450px] md:w-[550px] lg:w-[650px]">
 				<Tabs.Root value="about" class="w-full">
 					<div class="flex w-full justify-center">
-						<Tabs.List class="w-full bg-transparent animate-in fade-in zoom-in">
+						<Tabs.List class="w-full bg-transparent animate-in fade-in zoom-in mb-1">
 							<div class="rounded-lg bg-slate-700 p-2">
 								<Tabs.Trigger value="about" class="focus:outline-none focus-visible:ring-0">
 									About
@@ -521,15 +530,7 @@
 								>
 							</div>
 						{/if}
-						{#if currenUserIsEventAdmin}
-							<div class="flex w-full justify-center">
-								<a href="update" id="edit-bonfire">
-									<Button variant="outline" class="m-2 rounded-full">
-										<Cog class="h-5 w-5" />
-									</Button>
-								</a>
-							</div>
-						{/if}
+
 						<div class="space-y-3 rounded-xl bg-white p-5 dark:bg-slate-900">
 							{#if $page.data.bannerInfo && $page.data.bannerInfo.banneIsSet}
 								<div class="flex w-full justify-center">
