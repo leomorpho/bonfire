@@ -1,5 +1,39 @@
 import { openDB, type IDBPDatabase } from 'idb';
 import { tempAttendeeSecretParam } from './enums';
+import { get, writable } from 'svelte/store';
+
+// Store to track the currently needed user IDs
+export const userIdsStore = writable<string[]>([]);
+
+userIdsStore.subscribe(async (userIds) => {
+	if (userIds.length > 0) {
+		await fetchAndCacheUsers(userIds);
+	}
+});
+
+// Define the User type
+export type UserData = {
+	id: string;
+	username: string | null;
+	userUpdatedAt?: Date | null;
+	smallProfilePic?: Blob | null; // Store the image blob
+	fullProfilePicURL?: string | null; // Let's not store the image blob for now
+	profilePicUpdatedAt?: Date | null;
+	isTempUser: boolean;
+};
+
+export const usersLiveDataStore = writable(new Map<string, UserData>());
+
+/**
+ * Updates the user store reactively.
+ */
+function updateStore(user: UserData) {
+	usersLiveDataStore.update((users) => {
+		const updatedUsers = new Map(users);
+		updatedUsers.set(user.id, user);
+		return updatedUsers;
+	});
+}
 
 // IndexedDB setup
 const DB_NAME = 'userDB';
@@ -29,40 +63,73 @@ async function getDB() {
 	return dbPromise;
 }
 
-// Define the User type
-export type UserData = {
-	id: string;
-	username: string | null;
-	userUpdatedAt?: Date | null;
-	smallProfilePic?: Blob | null; // Store the image blob
-	fullProfilePicURL?: string | null; // Let's not store the image blob for now
-	profilePicUpdatedAt?: Date | null;
-	isTempUser: boolean;
-};
+// /**
+//  * Fetches a user from IndexedDB by ID.
+//  */
+// export async function getUser(userId: string): Promise<UserData | null> {
+// 	const users = get(usersLiveDataStore);
+// 	if (users.has(userId)) return users.get(userId) || null;
 
-/**
- * Fetches a user from IndexedDB by ID.
- */
-export async function getUser(userId: string): Promise<UserData | null> {
-	const db = await getDB();
-	return (await db.get(STORE_NAME, userId)) || null;
-}
+// 	const db = await getDB();
+// 	const user = (await db.get(STORE_NAME, userId)) || null;
+// 	if (user) updateStore(user);
+// 	return user;
+// }
 
 /**
  * Stores or updates a user in IndexedDB.
  */
 export async function upsertUser(user: UserData): Promise<void> {
 	const db = await getDB();
-	await db.put(STORE_NAME, user);
+	await db?.put(STORE_NAME, user);
+	updateStore(user);
 }
 
 /**
  * Fetches multiple users from IndexedDB.
  */
 export async function getUsers(userIds: string[]): Promise<UserData[]> {
+	// Ensure userIds is a valid non-empty array
+	if (!userIds || userIds.length === 0) {
+		return [];
+	}
+
+	const users = get(usersLiveDataStore);
+	const cachedUsers: UserData[] = [];
+	const missingIds: string[] = [];
+
+	for (const id of userIds) {
+		if (id && users.has(id)) {
+			cachedUsers.push(users.get(id)!);
+		} else if (id) {
+			// Ensure ID is not undefined
+			missingIds.push(id);
+		}
+	}
+
+	// Skip IndexedDB lookup if all users are already cached
+	if (missingIds.length === 0) {
+		return cachedUsers;
+	}
+
+	// Fetch missing users from IndexedDB
 	const db = await getDB();
-	const users = await Promise.all(userIds.map((id) => db.get(STORE_NAME, id)));
-	return users.filter(Boolean) as UserData[];
+	if (!db) {
+		console.error('IndexedDB is not available.');
+		return cachedUsers; // Return whatever we have in cache
+	}
+
+	// Ensure we only query IndexedDB with valid IDs
+	const indexedDBUsers = await Promise.all(
+		missingIds.map((id) => (id ? db.get(STORE_NAME, id) : Promise.resolve(null)))
+	);
+	const foundUsers = indexedDBUsers.filter(Boolean) as UserData[];
+
+	// Update store and return all users
+	foundUsers.forEach(updateStore);
+	cachedUsers.push(...foundUsers);
+
+	return cachedUsers;
 }
 
 /**
@@ -70,8 +137,12 @@ export async function getUsers(userIds: string[]): Promise<UserData[]> {
  */
 export async function deleteUser(userId: string): Promise<void> {
 	const db = await getDB();
-	await db.delete(STORE_NAME, userId);
-	console.log(`🗑️ Deleted user with ID: ${userId}`);
+	await db?.delete(STORE_NAME, userId);
+	usersLiveDataStore.update((users) => {
+		const updatedUsers = new Map(users);
+		updatedUsers.delete(userId);
+		return updatedUsers;
+	});
 }
 
 export async function fetchAndCacheUsers(
@@ -107,7 +178,7 @@ export async function fetchAndCacheUsers(
 
 		const updatedUsers: UserData[] = [];
 
-		await Promise.all(
+		const imagePromises = await Promise.all(
 			Object.entries(usersData).map(async ([id, userData]) => {
 				const existingUser = existingUsers.get(id);
 
@@ -159,11 +230,33 @@ export async function fetchAndCacheUsers(
 					profilePicUpdatedAt: profileUpdatedAtDate,
 					isTempUser: userData.is_temp_user
 				};
-				console.log('===?> user', user);
-				await upsertUser(user);
+				// Batch store updates
 				updatedUsers.push(user);
 			})
 		);
+
+		// Wait for all images to be fetched before opening a transaction
+		await Promise.all(imagePromises);
+
+		// Open a single IndexedDB transaction
+		const db = await getDB();
+		if (!db) throw new Error('IndexedDB is not available');
+		const tx = db.transaction(STORE_NAME, 'readwrite');
+		const store = tx.objectStore(STORE_NAME);
+
+		// Store updates in one go
+		updatedUsers.forEach((user) => store.put(user));
+
+		// Complete the transaction
+		await tx.done;
+
+		// Update the Svelte store
+		usersLiveDataStore.update((users) => {
+			const updatedStore = new Map(users);
+			updatedUsers.forEach((user) => updatedStore.set(user.id, user));
+			return updatedStore;
+		});
+
 		return updatedUsers;
 	} catch (error) {
 		console.error('Error fetching and caching users:', error);

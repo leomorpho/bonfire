@@ -9,14 +9,15 @@
 	import type { TriplitClient } from '@triplit/client';
 	import { getFeTriplitClient } from '$lib/triplit';
 	import { toast } from 'svelte-sonner';
-	import { deleteUser, getUser } from '$lib/profilestore';
-	import { onMount } from 'svelte';
+	import { deleteUser, usersLiveDataStore } from '$lib/profilestore';
+	import { onDestroy, onMount } from 'svelte';
 
 	let {
 		userId = null,
 		viewerIsEventAdmin = false,
 		attendanceId = null, // NOTE: these can be either real or temp attendances (they are different object types)
-		baseHeightPx = 50
+		baseHeightPx = 50,
+		tempUserName = null
 	} = $props();
 
 	let url = $state();
@@ -51,7 +52,7 @@
 			} else {
 				deleteRealAttendee();
 			}
-			await deleteUser(userId)
+			await deleteUser(userId);
 
 			toast.success(`Deleted ${username ? username : 'attendee'} from event`);
 			dialogIsOpen = false;
@@ -74,9 +75,23 @@
 		attendanceIsAboutToBeDeleted = false;
 	};
 
+	let unsubscribe: any; // Store unsubscribe function
+
 	onMount(async () => {
-		if (userId) {
-			const user = await getUser(userId);
+		if (tempUserName) {
+			fallbackNameShort = tempUserName?.slice(0, 2) ?? null;
+			fallbackName = tempUserName;
+			username = tempUserName;
+			isTempUser = true;
+			return
+		}
+
+		if (!userId) {
+			return;
+		}
+
+		unsubscribe = usersLiveDataStore.subscribe((users) => {
+			const user = users.get(userId);
 			fallbackNameShort = user?.username?.slice(0, 2) ?? null;
 			fullsizeUrl = user?.fullProfilePicURL;
 			fallbackName = user?.username;
@@ -89,6 +104,12 @@
 			if (user?.smallProfilePic) {
 				url = URL.createObjectURL(user.smallProfilePic); // ✅ Convert Blob to URL
 			}
+		});
+	});
+
+	onDestroy(() => {
+		if (unsubscribe) {
+			unsubscribe();
 		}
 	});
 </script>

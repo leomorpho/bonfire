@@ -222,12 +222,7 @@
 								<div class="flex flex-wrap space-x-1 space-y-1">
 									{#each linkedObjects as attendee}
 										<ProfileAvatar
-											url={attendee.profileImage?.small_image_url}
-											fullsizeUrl={attendee.profileImage?.full_image_url}
-											username={attendee.user?.username}
-											fallbackName={attendee.user?.username}
-											isTempUser={false}
-											lastUpdatedAt=""
+											userId={attendee.user_id}
 											viewerIsEventAdmin={currenUserIsEventAdmin}
 										/>
 									{/each}
@@ -238,12 +233,7 @@
 						<div class="grid grid-cols-4 gap-2 text-black">
 							{#each linkedObjects as attendee}
 								<ProfileAvatar
-									url={attendee.profileImage?.small_image_url}
-									fullsizeUrl={attendee.profileImage?.full_image_url}
-									username={attendee.user?.username}
-									fallbackName={attendee.user?.username}
-									isTempUser={false}
-									lastUpdatedAt=""
+									userId={attendee.user_id}
 									viewerIsEventAdmin={currenUserIsEventAdmin}
 								/>
 							{/each}
@@ -269,13 +259,7 @@
 							<Collapsible.Content>
 								<div class="flex flex-wrap space-x-1 space-y-1">
 									{#each linkedObjects as attendee}
-										<ProfileAvatar
-											url=""
-											username={attendee.name}
-											fallbackName={attendee.name}
-											isTempUser={true}
-											viewerIsEventAdmin={currenUserIsEventAdmin}
-										/>
+										<ProfileAvatar tempUserName={attendee.name} />
 									{/each}
 								</div>
 							</Collapsible.Content>
@@ -283,13 +267,7 @@
 					{:else}
 						<div class="grid grid-cols-4 gap-2">
 							{#each linkedObjects as attendee}
-								<ProfileAvatar
-									url=""
-									username={attendee.name}
-									fallbackName={attendee.name}
-									isTempUser={true}
-									viewerIsEventAdmin={currenUserIsEventAdmin}
-								/>
+								<ProfileAvatar tempUserName={attendee.name} />
 							{/each}
 						</div>
 					{/if}{/if}

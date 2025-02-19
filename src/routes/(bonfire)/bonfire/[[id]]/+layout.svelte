@@ -7,7 +7,6 @@
 	import { overlayColorStore, overlayOpacityStore, parseColor, styleStore } from '$lib/styles';
 	import { tempAttendeeSecretStore, tempAttendeeSecretParam } from '$lib/enums';
 	import { get } from 'svelte/store';
-	import { goto } from '$app/navigation';
 
 	let { data, children }: { data: LayoutData; children: Snippet } = $props();
 

@@ -53,6 +53,7 @@
 									{#each allAttendeesGoing as attendee}
 										<ProfileAvatar
 											userId={attendee.user_id}
+											tempUserName={attendee.name}
 											viewerIsEventAdmin={currenUserIsEventAdmin}
 											attendanceId={attendee.id}
 										/>
@@ -71,6 +72,7 @@
 									{#each allAttendeesMaybeGoing as attendee}
 										<ProfileAvatar
 											userId={attendee.user_id}
+											tempUserName={attendee.name}
 											viewerIsEventAdmin={currenUserIsEventAdmin}
 											attendanceId={attendee.id}
 										/>
@@ -87,6 +89,7 @@
 									{#each allAttendeesNotGoing as attendee}
 										<ProfileAvatar
 											userId={attendee.user_id}
+											tempUserName={attendee.name}
 											viewerIsEventAdmin={currenUserIsEventAdmin}
 											attendanceId={attendee.id}
 										/>

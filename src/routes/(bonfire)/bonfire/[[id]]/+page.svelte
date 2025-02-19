@@ -38,7 +38,7 @@
 	import { env as publicEnv } from '$env/dynamic/public';
 	import ImThreadView from '$lib/components/im/ImThreadView.svelte';
 	import NumNewMessageIndicator from '$lib/components/im/NumNewMessageIndicator.svelte';
-	import { fetchAndCacheUsers } from '$lib/profilestore';
+	import { fetchAndCacheUsers, userIdsStore } from '$lib/profilestore';
 	import AttendeesDialog from '$lib/components/AttendeesDialog.svelte';
 
 	const showMaxNumPeople = 50;
@@ -175,7 +175,7 @@
 		}
 	};
 
-	const fetchProfileImageMap = async (userIds: string[]) => {
+	const fetchAndCacheUsersData = async (userIds: string[]) => {
 		// TODO: we can make this more performant by passing a last queried at timestamp (UTC) and the server will only returned changed users (added/updated/deleted images)
 		// This function never removes any profile pic entry, only upserts them.
 		try {
@@ -361,7 +361,7 @@
 				}
 
 				(async () => {
-					await fetchProfileImageMap(userIds);
+					userIdsStore.update((ids) => [...new Set(userIds)]);
 					placeAttendeesWithProfilePicAtFrontOfLists(
 						attendeesGoing,
 						attendeesNotGoing,
@@ -390,7 +390,7 @@
 				// Fetch profile image map for attendees
 				const userIds = results.map((attendee) => attendee.user_id);
 				(async () => {
-					await fetchProfileImageMap(userIds);
+					await fetchAndCacheUsersData(userIds);
 				})();
 				tempAttendeesLoading = false;
 			},
@@ -671,6 +671,7 @@
 										{#each allAttendeesGoing.slice(0, showMaxNumPeople) as attendee}
 											<ProfileAvatar
 												userId={attendee.user_id}
+												tempUserName={attendee.name}
 												viewerIsEventAdmin={currenUserIsEventAdmin}
 												attendanceId={attendee.id}
 											/>
