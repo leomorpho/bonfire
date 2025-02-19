@@ -36,14 +36,10 @@
 		{:else if user.error}
 			<p>Error: {user.error.message}</p>
 		{:else if user.results}
-			<div class="flex w-full flex-col items-center justify-center">
-				<ProfileAvatar
-					url={small_image_url}
-					fullsizeUrl={full_image_url}
-					fallbackName={user.results[0].username}
-					username={user.results[0].username}
-					baseHeightPx={120}
-				/>
+		{console.log('user.results', user.results)}
+		{console.log('user.results[0]', user.results[0].id)}
+		<div class="flex w-full flex-col items-center justify-center">
+				<ProfileAvatar userId={user.results[0].id} baseHeightPx={120} />
 				<a href="profile/upload-profile-image"> <Button variant="link">Edit Avatar</Button></a>
 			</div>
 			<div class="mt-10 flex items-center justify-center text-xl font-semibold">

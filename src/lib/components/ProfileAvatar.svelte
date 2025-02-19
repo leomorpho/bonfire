@@ -9,7 +9,7 @@
 	import type { TriplitClient } from '@triplit/client';
 	import { getFeTriplitClient } from '$lib/triplit';
 	import { toast } from 'svelte-sonner';
-	import { deleteUser, usersLiveDataStore } from '$lib/profilestore';
+	import { deleteUser, userIdsStore, usersLiveDataStore } from '$lib/profilestore';
 	import { onDestroy, onMount } from 'svelte';
 
 	let {
@@ -83,12 +83,14 @@
 			fallbackName = tempUserName;
 			username = tempUserName;
 			isTempUser = true;
-			return
+			return;
 		}
 
 		if (!userId) {
 			return;
 		}
+
+		userIdsStore.update((ids) => [...new Set([...ids, userId])]);
 
 		unsubscribe = usersLiveDataStore.subscribe((users) => {
 			const user = users.get(userId);
