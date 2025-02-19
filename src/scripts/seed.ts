@@ -1,7 +1,7 @@
 import { createNewUser } from '$lib/server/database/user.model';
 import { generateId } from 'lucia';
 import { faker } from '@faker-js/faker';
-import { HttpClient } from '@triplit/client';
+import { and, HttpClient } from '@triplit/client';
 import { Status } from '$lib/enums';
 import {
 	createNewAnnouncementNotificationQueueObject,
@@ -10,6 +10,7 @@ import {
 import { env as publicEnv } from '$env/dynamic/public';
 import { env as privateEnv } from '$env/dynamic/private';
 import { createAttendeeId } from '$lib/utils';
+import { createNewThread, MAIN_THREAD, sendMessage } from '$lib/im';
 
 const client = new HttpClient({
 	serverUrl: publicEnv.PUBLIC_TRIPLIT_URL,
@@ -58,6 +59,8 @@ const { output } = await client.insert('events', {
 });
 const eventCreated = output;
 
+await createNewThread(client, output.id, user?.id, MAIN_THREAD);
+
 await client.insert('events', {
 	title: 'Hangout at Cactus',
 	description: 'Come and chill with friends and good food',
@@ -79,7 +82,7 @@ function getRandomStatus() {
 const announcements = [];
 const daysBack = 5; // Start 5 days back
 
-for (let i = 0; i < 5; i++) {
+for (let i = 0; i < 4; i++) {
 	const createdAt = new Date();
 	createdAt.setDate(createdAt.getDate() - (daysBack - i)); // Spread dates from 5 days back to today
 
@@ -99,13 +102,13 @@ for (let i = 0; i < 5; i++) {
 	announcements.push(announcementId);
 }
 
-for (let i = 0; i < 100; i++) {
+for (let i = 0; i < 30; i++) {
 	const attendeeUser = await createNewUser({
 		id: generateId(15),
 		email: faker.internet.email(),
 		email_verified: true,
 		num_logs: 3,
-		is_event_styles_admin:false,
+		is_event_styles_admin: false
 	});
 
 	await client.insert('user', { id: attendeeUser?.id, username: faker.internet.username() });
@@ -140,4 +143,38 @@ for (let i = 0; i < 100; i++) {
 	console.log(`User ${i + 1} created and events/announcements seeded:`, {
 		user: attendeeUser?.email
 	});
+}
+
+// Seed messages for Mike's event
+const messageCount = 70; // Number of messages to generate
+const attendees = await client.fetch(
+	client.query('attendees').where(['event_id', '=', eventCreated?.id]).build()
+);
+
+const thread = await client.fetchOne(
+	client
+		.query('event_threads')
+		.where([
+			and([
+				['event_id', '=', eventCreated?.id],
+				['name', '=', MAIN_THREAD]
+			])
+		])
+		.build()
+);
+if (!thread) {
+	throw new Error('thread not created');
+}
+
+if (!attendees || attendees.length === 0) {
+	console.error('No attendees found for the event.');
+} else {
+	for (let i = 0; i < messageCount; i++) {
+		const randomAttendee = attendees[Math.floor(Math.random() * attendees.length)]; // Pick random user
+		const randomContent = faker.lorem.sentence(); // Generate a random message
+
+		await sendMessage(client, eventCreated?.id, thread?.id, randomAttendee.user_id, randomContent);
+	}
+
+	console.log(`Seeded ${messageCount} messages for Mike's event.`);
 }

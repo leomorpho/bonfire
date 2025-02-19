@@ -1,4 +1,4 @@
-import { and } from '@triplit/client';
+import { and, HttpClient, TriplitClient } from '@triplit/client';
 import type { WorkerClient } from '@triplit/client/worker-client';
 import { createNewMessageNotificationQueueObject } from './notification';
 
@@ -55,7 +55,7 @@ export async function getThread(
  * @returns {Promise<object>} - The newly created thread object.
  */
 export async function createNewThread(
-	client: WorkerClient,
+	client: WorkerClient | TriplitClient | HttpClient,
 	eventId: string,
 	userId: string,
 	name: string
@@ -82,7 +82,7 @@ export async function createNewThread(
  * @returns {Promise<object>} - The newly created message object.
  */
 export async function sendMessage(
-	client: WorkerClient,
+	client: WorkerClient | HttpClient,
 	eventId: string,
 	threadId: string,
 	userId: string,

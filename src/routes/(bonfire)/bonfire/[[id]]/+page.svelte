@@ -61,11 +61,6 @@
 	let adminUserIds = $state(new Set<string>());
 
 	let rsvpCanBeChanged = $state(false);
-
-	let profileImageMap: Map<string, { full_image_url: string; small_image_url: string }> = $state(
-		new Map()
-	);
-	let loadingProfileImageMap = $state(false);
 	let eventFiles: any[] = $state([]);
 	let loadEventFiles = $state(true);
 
@@ -179,8 +174,6 @@
 		// TODO: we can make this more performant by passing a last queried at timestamp (UTC) and the server will only returned changed users (added/updated/deleted images)
 		// This function never removes any profile pic entry, only upserts them.
 		try {
-			loadingProfileImageMap = true;
-
 			// Construct the query string with comma-separated user IDs
 			let queryString = `userIds=${userIds.join(',')}`;
 			if (isUnverifiedUser) {
@@ -190,8 +183,6 @@
 			await fetchAndCacheUsers(userIds, isUnverifiedUser ? tempAttendeeSecret : null);
 		} catch (error) {
 			console.error('Error fetching profile image map:', error);
-		} finally {
-			loadingProfileImageMap = false;
 		}
 	};
 
@@ -211,32 +202,6 @@
 		} finally {
 			loadEventFiles = false;
 		}
-	};
-
-	const orderAttendeesByProfileImage = (attendees, profileImageMap) => {
-		return attendees.sort((a, b) => {
-			const hasImageA = profileImageMap.has(a.user_id);
-			const hasImageB = profileImageMap.has(b.user_id);
-
-			if (hasImageA && !hasImageB) {
-				return -1;
-			} else if (!hasImageA && hasImageB) {
-				return 1;
-			} else {
-				return 0;
-			}
-		});
-	};
-
-	const placeAttendeesWithProfilePicAtFrontOfLists = (
-		attendeesGoing: any,
-		attendeesNotGoing: any,
-		attendeesMaybeGoing: any,
-		profileImageMap: any
-	) => {
-		attendeesGoing = orderAttendeesByProfileImage(attendeesGoing, profileImageMap);
-		attendeesNotGoing = orderAttendeesByProfileImage(attendeesNotGoing, profileImageMap);
-		attendeesMaybeGoing = orderAttendeesByProfileImage(attendeesMaybeGoing, profileImageMap);
 	};
 
 	onMount(() => {
@@ -360,15 +325,7 @@
 					console.log('===> userIds', userIds);
 				}
 
-				(async () => {
-					userIdsStore.update((ids) => [...new Set(userIds)]);
-					placeAttendeesWithProfilePicAtFrontOfLists(
-						attendeesGoing,
-						attendeesNotGoing,
-						attendeesMaybeGoing,
-						profileImageMap
-					);
-				})();
+				userIdsStore.update((ids) => [...new Set(userIds)]);
 				attendeesLoading = false;
 				console.log('results', results);
 			},
@@ -808,7 +765,6 @@
 								{currUserId}
 								canSendIm={!!rsvpStatus}
 								eventId={event.id}
-								{profileImageMap}
 								datetimeUserJoinedBonfire={currentUserAttendee?.updated_at}
 								{currenUserIsEventAdmin}
 							/>

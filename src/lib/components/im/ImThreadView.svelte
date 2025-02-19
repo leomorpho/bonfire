@@ -16,7 +16,6 @@
 	let {
 		eventId,
 		currUserId,
-		profileImageMap,
 		threadId = null,
 		canSendIm = true,
 		maxNumMessages = null,
@@ -108,6 +107,7 @@
 				rel('emoji_reactions').select(['id', 'emoji', 'user_id']).build()
 			)
 			.order('created_at', 'DESC')
+			.limit(20)
 			.build();
 
 		const { unsubscribe: unsubscribeFromMessages, loadMore } = client.subscribeWithExpand(
@@ -145,6 +145,7 @@
 				if (maxNumMessages) {
 					messages = messages.slice(-maxNumMessages);
 				}
+				console.log('New messages queried! results', results);
 				console.log('New messages queried!', messages);
 
 				// Restore scroll position AFTER the DOM updates
@@ -209,15 +210,14 @@
 
 				// Iterate over the results to collect message IDs
 				results.forEach((notification: any) => {
-					console.log('==> notification', notification);
 					const messageIds = stringRepresentationToArray(notification.object_ids);
 					const messageId = messageIds[0];
-					console.log('==> seenMessageIds', seenMessageIds);
+					// console.log('==> seenMessageIds', seenMessageIds);
 					if (seenMessageIds.has(messageId)) {
-						console.log(
-							'==> notificationIdsNeedToBeMarkedAsSeen',
-							notificationIdsNeedToBeMarkedAsSeen
-						);
+						// console.log(
+						// 	'==> notificationIdsNeedToBeMarkedAsSeen',
+						// 	notificationIdsNeedToBeMarkedAsSeen
+						// );
 						// We need to mark that notification as seen
 						notificationIdsNeedToBeMarkedAsSeen.add(notification.id);
 						notificationIdsNeedToBeMarkedAsSeen = new Set(notificationIdsNeedToBeMarkedAsSeen);
