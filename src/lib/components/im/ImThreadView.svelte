@@ -105,9 +105,7 @@
 					.build()
 			)
 			.include('emoji_reactions', (rel) =>
-				rel('emoji_reactions')
-					.select(['id', 'emoji', 'user_id'])
-					.build()
+				rel('emoji_reactions').select(['id', 'emoji', 'user_id']).build()
 			)
 			.order('created_at', 'DESC')
 			.build();
@@ -355,7 +353,6 @@
 		{#if messages && messages.length > 0}
 			{#each messages as message}
 				<Message
-					url={profileImageMap.get(message.user_id)?.small_image_url}
 					{currUserId}
 					{message}
 					onMessageSeen={countNumUnseenMessages}

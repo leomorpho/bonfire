@@ -76,7 +76,7 @@ self.addEventListener('fetch', (event) => {
 			// Try serving from cache first
 			const cachedResponse = await cache.match(fileKey);
 			if (cachedResponse) {
-				console.log(`[SW] Serving ${fileKey} from cache`);
+				console.debug(`[SW] Serving ${fileKey} from cache`);
 				return cachedResponse;
 			}
 
@@ -85,7 +85,7 @@ self.addEventListener('fetch', (event) => {
 				const response = await fetch(event.request);
 				if (response.ok) {
 					cache.put(fileKey, response.clone());
-					console.log(`[SW] Cached ${fileKey} from network`);
+					console.debug(`[SW] Cached ${fileKey} from network`);
 				}
 				return response;
 			} catch {

@@ -18,11 +18,10 @@
 	let {
 		currUserId,
 		message,
-		url,
+		eventId,
 		onMessageSeen = null,
 		ignoreSeenStatusPriorToThisDatetime = null,
-		currenUserIsEventAdmin = false,
-		eventId
+		currenUserIsEventAdmin = false
 	} = $props<{
 		currUserId: string;
 		message: EventMessage;
@@ -299,7 +298,11 @@
 		{#if message.emoji_reactions}
 			<span class="mx-1 flex w-fit flex-wrap items-center px-1 text-xl">
 				{#each Array.from(emojiCountMap.entries()) as [emoji, count]}
-					<EmojiContextMenu toggleEmoji={toggleEmoji(emoji)} reactions={emojiReactionsMap.get(emoji)} {currUserId}>
+					<EmojiContextMenu
+						toggleEmoji={toggleEmoji(emoji)}
+						reactions={emojiReactionsMap.get(emoji)}
+						{currUserId}
+					>
 						<button
 							class="flex flex-row items-center rounded-full bg-slate-700 bg-opacity-50 p-1 transition-all duration-200 ease-in-out hover:cursor-pointer hover:text-2xl"
 						>

@@ -204,7 +204,7 @@ export async function fetchAndCacheUsers(
 						const imgResponse = await fetch(userData.small_image_url);
 						if (imgResponse.ok) {
 							smallProfilePic = await imgResponse.blob();
-							console.log(`🔄 Updated profile image for ${id}`);
+							// console.log(`🔄 Updated profile image for ${id}`);
 						} else {
 							console.warn(`⚠️ Failed to fetch profile image for ${id}: ${imgResponse.statusText}`);
 						}

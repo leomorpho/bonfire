@@ -10,6 +10,8 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import Announcement from '../Announcement.svelte';
 	import { NotificationType } from '$lib/enums';
+	import Message from '../im/Message.svelte';
+	import MessageContent from '../im/MessageContent.svelte';
 
 	let { notification, toggleDialog, currenUserIsEventAdmin = false } = $props();
 
@@ -52,6 +54,16 @@
 				// Nothing needed
 				isLoading = false;
 				return;
+			case NotificationType.NEW_MESSAGE:
+				query = client
+					.query('event_messages')
+					.where(['id', 'in', objectIds])
+					.include('user')
+					.include('emoji_reactions', (rel) =>
+						rel('emoji_reactions').select(['id', 'emoji', 'user_id']).build()
+					)
+					.build();
+				break;
 			default:
 				console.error(`Unknown object_type: ${notification.object_type}`);
 				return;
@@ -201,6 +213,20 @@
 					<a class="my-2" href={`/bonfire/${obj.event_id}`} onclick={toggleDialog}>
 						{notification.}
 					</a> -->
+				{:else if notification.object_type === NotificationType.NEW_MESSAGE}
+					{#each linkedObjects as message}
+						<a href={`/bonfire/${notification.event_id}`} onclick={toggleDialog}>
+							<div class="flex w-full items-center justify-center space-x-3">
+								<ProfileAvatar userId={message.user.id} baseHeightPx={30}/>
+								<MessageContent
+									username={message.user?.username}
+									content={message.content}
+									created_at={message.created_at}
+									deleted_by_user_id={message.deleted_by_user_id}
+								/>
+							</div>
+						</a>
+					{/each}
 				{:else if notification.object_type === NotificationType.ATTENDEES}
 					{#if linkedObjects.length > maxNumAttendeesToShowInline}
 						<Collapsible.Root class="space-y-2">
