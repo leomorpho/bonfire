@@ -75,6 +75,7 @@
 		attendanceIsAboutToBeDeleted = false;
 	};
 
+	let previousUser = null; // Store the last known user state
 	let unsubscribe: any; // Store unsubscribe function
 
 	onMount(async () => {
@@ -94,6 +95,13 @@
 
 		unsubscribe = usersLiveDataStore.subscribe((users) => {
 			const user = users.get(userId);
+
+			// Only update if the user object has changed
+			if (!user || JSON.stringify(user) === JSON.stringify(previousUser)) {
+				return;
+			}
+			previousUser = user; // Update the reference
+
 			fallbackNameShort = user?.username?.slice(0, 2) ?? null;
 			fullsizeUrl = user?.fullProfilePicURL;
 			fallbackName = user?.username;
