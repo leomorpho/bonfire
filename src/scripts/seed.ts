@@ -102,7 +102,7 @@ for (let i = 0; i < 4; i++) {
 	announcements.push(announcementId);
 }
 
-for (let i = 0; i < 30; i++) {
+for (let i = 0; i < 10; i++) {
 	const attendeeUser = await createNewUser({
 		id: generateId(15),
 		email: faker.internet.email(),
@@ -146,7 +146,7 @@ for (let i = 0; i < 30; i++) {
 }
 
 // Seed messages for Mike's event
-const messageCount = 70; // Number of messages to generate
+const messageCount = 30; // Number of messages to generate
 const attendees = await client.fetch(
 	client.query('attendees').where(['event_id', '=', eventCreated?.id]).build()
 );
@@ -169,11 +169,23 @@ if (!thread) {
 if (!attendees || attendees.length === 0) {
 	console.error('No attendees found for the event.');
 } else {
+	const startTime = new Date(); // Start time (current time or any specific time you want)
+	startTime.setDate(startTime.getDate() - 1); // Subtract one day to get yesterday
+	const interval = 5 * 60 * 1000; // 5 minutes in milliseconds
+
 	for (let i = 0; i < messageCount; i++) {
 		const randomAttendee = attendees[Math.floor(Math.random() * attendees.length)]; // Pick random user
 		const randomContent = faker.lorem.sentence(); // Generate a random message
 
-		await sendMessage(client, eventCreated?.id, thread?.id, randomAttendee.user_id, randomContent);
+		// Calculate the time for this message (start time + 5 minutes * i)
+		const messageTime = new Date(startTime.getTime() + interval * i).toISOString();
+
+		await client.insert('event_messages', {
+			thread_id: thread?.id,
+			user_id: randomAttendee.user_id,
+			content: randomContent, // Fixed "randomContent" to match the column name
+			created_at: messageTime
+		});
 	}
 
 	console.log(`Seeded ${messageCount} messages for Mike's event.`);

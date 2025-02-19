@@ -20,7 +20,9 @@
 	let loadMoreSeen: ((pageSize?: number) => void) | undefined = $state();
 	let lastNumSeenLoaded = $state(0);
 
-	const NUM_TO_LOAD = 20;
+	// TODO: properly do paged loading, right now it is not 
+	// working because i just set a crazy high number to prevent it from working.
+	const NUM_TO_LOAD = 2000;
 
 	// Initialize the seen notifications subscription
 	async function initLoadNotifications() {
@@ -99,6 +101,7 @@
 		isDialogOpen = !isDialogOpen;
 	}
 
+	// TODO: Not sure that actually works
 	function loadMoreSeenNotifications() {
 		if (loadMoreSeen) {
 			loadMoreSeen(10); // Load the next 10 notifications

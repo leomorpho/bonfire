@@ -245,7 +245,7 @@
 	<ProfileAvatar userId={message.user?.id} baseHeightPx={30} />
 {/snippet}
 
-<div class="relative py-3">
+<div class="relative py-1">
 	<div
 		data-message-id={message.id}
 		bind:this={messageRef}

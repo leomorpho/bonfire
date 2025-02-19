@@ -12,6 +12,9 @@
 	import { and } from '@triplit/client';
 	import { stringRepresentationToArray } from '$lib/utils';
 	import { NotificationType } from '$lib/enums';
+	import { loaderState } from './infiniteLoader/loaderState.svelte';
+	import InfiniteLoader from './infiniteLoader/InfiniteLoader.svelte';
+	// import { InfiniteLoader, loaderState } from 'svelte-infinite';
 
 	let {
 		eventId,
@@ -31,9 +34,37 @@
 	let messages: any = $state([]);
 	let numUnseenMessage: number = $state(0);
 	let loadMoreMessages: ((pageSize?: number) => void) | undefined = $state();
+	let loadMoreMessagesCalled = $state(false);
 
-	const handleScroll = () => {
+	const maxNumMessagesLoadedPerRequest = 50;
+
+	$effect(() => {
+		console.log('loadMoreMessagesCalled', loadMoreMessagesCalled);
+	});
+
+	const handleScroll = async () => {
 		if (!chatContainerRef) return;
+
+		const offset = 0; // Set your desired offset
+		const scrollTop = -chatContainerRef.scrollTop;
+
+		// Check if the user is at the top or within the offset from the top
+		const isAtTopOrWithinOffset =
+			scrollTop >= chatContainerRef.scrollHeight - chatContainerRef.clientHeight - offset;
+
+		// console.log(
+		// 	'scrollTop',
+		// 	scrollTop,
+		// 	'chatContainerRef.scrollHeight',
+		// 	chatContainerRef.scrollHeight,
+		// 	'chatContainerRef.clientHeight',
+		// 	chatContainerRef.clientHeight
+		// );
+
+		// If user is at the top or within the offset, we handle it here
+		if (isAtTopOrWithinOffset && loadMoreMessages && !loadMoreMessagesCalled) {
+			await loadMoreOlderMessages();
+		}
 
 		// Check if the user has scrolled up (not at the bottom)
 		const isAtBottom = chatContainerRef.scrollTop == 0;
@@ -94,6 +125,8 @@
 
 		if (maxNumMessages) {
 			threadMessagesQuery = threadMessagesQuery.limit(maxNumMessages);
+		} else {
+			threadMessagesQuery = threadMessagesQuery.limit(maxNumMessagesLoadedPerRequest);
 		}
 
 		threadMessagesQuery = threadMessagesQuery
@@ -107,7 +140,6 @@
 				rel('emoji_reactions').select(['id', 'emoji', 'user_id']).build()
 			)
 			.order('created_at', 'DESC')
-			.limit(20)
 			.build();
 
 		const { unsubscribe: unsubscribeFromMessages, loadMore } = client.subscribeWithExpand(
@@ -115,18 +147,8 @@
 			(results, info) => {
 				if (!chatContainerRef) return;
 
-				showMessagesLoading = false;
-				// Capture current scroll position BEFORE new messages load
-				const prevScrollTop = chatContainerRef.scrollTop;
-				const prevScrollHeight = chatContainerRef.scrollHeight;
-
-				// Temporarily disable scrolling
-				const freezeScroll = () => {
-					window.scrollTo(0, prevScrollTop);
-				};
-
-				if (userScrolledUp || sentMessageJustNowFromNonBottom) {
-					window.addEventListener('scroll', freezeScroll, { passive: false });
+				if (results.length == 0) {
+					loaderState.complete();
 				}
 
 				// Convert messages array to a Map for quick lookup by ID
@@ -139,34 +161,16 @@
 
 				// Convert back to an array and sort by created_at
 				messages = Array.from(messageMap.values()).sort(
-					(a, b) => new Date(b.created_at) - new Date(a.created_at)
+					(a, b) => new Date(a.created_at) - new Date(b.created_at)
 				) as [];
 
 				if (maxNumMessages) {
 					messages = messages.slice(-maxNumMessages);
 				}
-				console.log('New messages queried! results', results);
-				console.log('New messages queried!', messages);
-
-				// Restore scroll position AFTER the DOM updates
-				requestAnimationFrame(() => {
-					if (!chatContainerRef) return;
-					const newScrollHeight = chatContainerRef.scrollHeight;
-
-					if (!userScrolledUp || sentMessageJustNowFromNonBottom) {
-						scrollToBottom();
-					} else {
-						chatContainerRef.scrollTop = prevScrollTop - (newScrollHeight - prevScrollHeight);
-					}
-
-					// Re-enable scrolling
-					window.removeEventListener('scroll', freezeScroll);
-				});
 
 				if (initialLoad) {
 					scrollToOldestUnseenMessage(false);
 				}
-				loadMoreMessages = loadMore; // Save the loadMore function for pagination
 				countNumUnseenMessages();
 				initialLoad = false;
 			},
@@ -182,6 +186,8 @@
 				}
 			}
 		);
+
+		loadMoreMessages = loadMore; // Save the loadMore function for pagination
 
 		const unsubscribeFromUnreadThreadNotifs = client.subscribe(
 			client
@@ -316,12 +322,32 @@
 			}
 			await sendMessage(client, eventId, threadId, $page.data.user.id, message);
 
-			// Always scroll to bottom when the user sends a message
-			if (userScrolledUp) {
-				sentMessageJustNowFromNonBottom = true;
-			}
+			// // Always scroll to bottom when the user sends a message
+			// if (userScrolledUp) {
+			// 	sentMessageJustNowFromNonBottom = true;
+			// }
+			scrollToBottom();
 		} catch (e) {
 			console.error(`failed to send message for threadId ${threadId}`, e);
+		}
+	};
+
+	const loadMoreOlderMessages = async () => {
+		loadMoreMessagesCalled = true;
+		try {
+			if (loadMoreMessages && chatContainerRef) {
+				await loadMoreMessages();
+				console.log('data loaded!');
+				loaderState.loaded();
+			} else {
+				console.log('no more data');
+				loaderState.complete();
+			}
+		} catch (e) {
+			console.error(e);
+			loaderState.error();
+		} finally {
+			loadMoreMessagesCalled = false;
 		}
 	};
 
@@ -351,16 +377,33 @@
 		<div id="anchor"></div>
 
 		{#if messages && messages.length > 0}
-			{#each messages as message}
-				<Message
-					{currUserId}
-					{message}
-					onMessageSeen={countNumUnseenMessages}
-					ignoreSeenStatusPriorToThisDatetime={datetimeUserJoinedBonfire}
-					{currenUserIsEventAdmin}
-					{eventId}
-				/>
-			{/each}
+			<InfiniteLoader
+				triggerLoad={loadMoreOlderMessages}
+				intersectionOptions={{ rootMargin: '0px 0px 1000px 0px' }}
+			>
+				<!-- {#snippet loading()}
+					<p class="text-black">Loading older messages...</p>
+					<div class="flex w-full justify-center"><SvgLoader /></div>
+				{/snippet} -->
+
+				{#snippet error()}
+					<p>Error loading messages. <button onclick={loadMoreOlderMessages}>Retry</button></p>
+				{/snippet}
+
+				{#snippet noData()}
+					<p>No more messages.</p>
+				{/snippet}
+				{#each messages as message (message.id)}
+					<Message
+						{currUserId}
+						{message}
+						onMessageSeen={countNumUnseenMessages}
+						ignoreSeenStatusPriorToThisDatetime={datetimeUserJoinedBonfire}
+						{currenUserIsEventAdmin}
+						{eventId}
+					/>
+				{/each}
+			</InfiniteLoader>
 		{:else if showMessagesLoading}
 			<div class="flex h-full w-full items-center justify-center">
 				<div>
