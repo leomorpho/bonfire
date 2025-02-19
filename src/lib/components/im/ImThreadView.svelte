@@ -28,7 +28,6 @@
 
 	let chatContainerRef: HTMLDivElement | null = null;
 	let userScrolledUp = $state(false);
-	let sentMessageJustNowFromNonBottom = $state(false);
 	let showMessagesLoading = $state(true);
 	let initialLoad = $state(true);
 	let messages: any = $state([]);
@@ -71,13 +70,6 @@
 		userScrolledUp = !isAtBottom;
 	};
 
-	$effect(() => {
-		if (!userScrolledUp) {
-			// Reset once we made it to bottom of scrollable area
-			sentMessageJustNowFromNonBottom = false;
-		}
-	});
-
 	let notificationIdsNeedToBeMarkedAsSeen = $state(new Set());
 	let markNotificationAsReadLockAvailable = $state(true);
 
@@ -118,9 +110,19 @@
 		let threadMessagesQuery = client.query('event_messages');
 
 		if (threadId) {
-			threadMessagesQuery = threadMessagesQuery.where([['thread_id', '=', threadId]]);
+			threadMessagesQuery = threadMessagesQuery.where([
+				and([
+					['thread_id', '=', threadId],
+					['thread.event_id', '=', eventId]
+				])
+			]);
 		} else {
-			threadMessagesQuery = threadMessagesQuery.where([['thread.name', '=', MAIN_THREAD]]);
+			threadMessagesQuery = threadMessagesQuery.where([
+				and([
+					['thread.name', '=', MAIN_THREAD],
+					['thread.event_id', '=', eventId]
+				])
+			]);
 		}
 
 		if (maxNumMessages) {
@@ -173,6 +175,7 @@
 				}
 				countNumUnseenMessages();
 				initialLoad = false;
+				showMessagesLoading = false;
 			},
 			(error) => {
 				// handle error
