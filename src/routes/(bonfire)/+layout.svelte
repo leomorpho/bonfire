@@ -21,7 +21,6 @@
 			const user = await client.fetchOne(
 				client.query('user').where(['id', '=', $page.data.user.id]).build()
 			);
-			console.log('### user', user);
 			if (user && !user.username) {
 				goto('/profile/username');
 			}
