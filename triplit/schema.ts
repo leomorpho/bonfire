@@ -27,6 +27,65 @@ export const roles: Roles = {
 	}
 };
 
+export const bringSchema = {
+	bring_categories: {
+		schema: S.Schema({
+			id: S.Id(),
+			event_id: S.String(),
+			event: S.RelationById('events', '$event_id'),
+			name: S.String(),
+			description: S.String({ nullable: true }),
+			people_coverage: S.Number({ default: 1 }),
+			created_by: S.String(),
+			created_by_user: S.RelationById('user', '$created_by'),
+			created_at: S.Date({ default: S.Default.now() })
+		}),
+		permissions: {
+			user: {
+				read: { filter: [['event.attendees.user_id', '=', '$role.userId']] },
+				insert: { filter: [['event.event_admins.user_id', '=', '$role.userId']] },
+				delete: { filter: [['event.event_admins.user_id', '=', '$role.userId']] }
+			},
+			temp: {
+				read: { filter: [['event.temporary_attendees.id', '=', '$role.temporaryAttendeeId']] }
+			},
+			anon: {}
+		}
+	},
+	bring_commitments: {
+		schema: S.Schema({
+			id: S.Id(),
+			bring_category_id: S.String(),
+			bring_category: S.RelationById('bring_categories', '$bring_category_id'),
+			committed_by: S.String(),
+			committed_by_user: S.RelationById('user', '$committed_by'),
+			item_name: S.String(),
+			message: S.String({ nullable: true }),
+			people_coverage: S.Number(),
+			status: S.String({ enum: ['pending', 'approved', 'rejected'] as const }),
+			approved_by: S.String({ nullable: true }),
+			approved_by_user: S.Optional(S.RelationById('user', '$approved_by')),
+			created_at: S.Date({ default: S.Default.now() })
+		}),
+		permissions: {
+			user: {
+				read: { filter: [['bring_category.event.attendees.user_id', '=', '$role.userId']] },
+				insert: { filter: [['bring_category.event.attendees.user_id', '=', '$role.userId']] },
+				update: { filter: [['committed_by', '=', '$role.userId']] },
+				delete: { filter: [['committed_by', '=', '$role.userId']] }
+			},
+			temp: {
+				read: {
+					filter: [
+						['bring_category.event.temporary_attendees.id', '=', '$role.temporaryAttendeeId']
+					]
+				}
+			},
+			anon: {}
+		}
+	}
+} satisfies ClientSchema;
+
 // Define schema with permissions
 export const schema = {
 	user: {
@@ -949,5 +1008,6 @@ export const schema = {
 			},
 			anon: {}
 		}
-	}
+	},
+	...bringSchema
 } satisfies ClientSchema;
