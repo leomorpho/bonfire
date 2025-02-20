@@ -629,7 +629,7 @@
 											{/if}
 										</div>
 									</div>
-									<div id="going-attendees" class="flex flex-wrap items-center -space-x-4">
+									<div id="going-attendees" class="flex flex-wrap justify-center items-center -space-x-4">
 										{#each allAttendeesGoing.slice(0, showMaxNumPeople) as attendee}
 											<ProfileAvatar
 												userId={attendee.user_id}
@@ -671,7 +671,7 @@
 											<Avatar.Image src={'/icon-128.png'} alt={''} />
 											<Avatar.Fallback>{'BO'}</Avatar.Fallback>
 										</Avatar.Root>
-										{$page.data.numAttendees} attendee(s)
+										{$page.data.numAttendingGoing} going
 									</div>
 								</div>
 							{/if}
