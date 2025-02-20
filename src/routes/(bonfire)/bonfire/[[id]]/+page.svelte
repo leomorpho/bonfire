@@ -476,10 +476,10 @@
 					</a>
 				</div>
 			{/if}
-			<section class="mt-4  flex w-full justify-center sm:w-[450px] md:w-[550px] lg:w-[650px]">
+			<section class="mt-4 flex w-full justify-center sm:w-[450px] md:w-[550px] lg:w-[650px]">
 				<Tabs.Root value="about" class="w-full">
 					<div class="flex w-full justify-center">
-						<Tabs.List class="w-full bg-transparent animate-in fade-in zoom-in mb-1">
+						<Tabs.List class="mb-1 w-full bg-transparent animate-in fade-in zoom-in">
 							<div class="rounded-lg bg-slate-700 p-2">
 								<Tabs.Trigger value="about" class="focus:outline-none focus-visible:ring-0">
 									About
@@ -614,17 +614,21 @@
 								</div>
 							{:else if rsvpStatus}
 								{#if allAttendeesGoing.length > 0}
-									{#if allAttendeesGoing.length > 5}
-										<div class="mb-3 flex w-full justify-center">
-											<div
-												class="flex w-fit justify-center rounded bg-slate-100 p-1 px-2 text-black opacity-70 dark:bg-slate-800 dark:text-white"
-											>
-												{allAttendeesGoing.length} attendee{allAttendeesGoing.length == 1
-													? ''
-													: 's'} going
-											</div>
+									<div class="mb-3 flex w-full justify-center">
+										<div
+											class="flex w-fit justify-center rounded bg-slate-100 p-1 px-2 text-black opacity-70 dark:bg-slate-800 dark:text-white"
+										>
+											{allAttendeesGoing.length} going
+											{#if allAttendeesMaybeGoing.length > 0}
+												, {allAttendeesMaybeGoing.length} maybe{allAttendeesMaybeGoing.length > 1
+													? 's'
+													: ''}
+											{/if}
+											{#if allAttendeesNotGoing.length > 0}
+												, {allAttendeesNotGoing.length} not going
+											{/if}
 										</div>
-									{/if}
+									</div>
 									<div id="going-attendees" class="flex flex-wrap items-center -space-x-4">
 										{#each allAttendeesGoing.slice(0, showMaxNumPeople) as attendee}
 											<ProfileAvatar
