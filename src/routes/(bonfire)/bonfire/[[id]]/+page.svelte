@@ -82,9 +82,9 @@
 		}
 	});
 
-	$effect(() => {
-		console.log('==== rsvpStatus', rsvpStatus);
-	});
+	// $effect(() => {
+	// 	console.log('==== rsvpStatus', rsvpStatus);
+	// });
 
 	if (tempAttendeeId) {
 		tempAttendeeSecretStore.set(tempAttendeeId);
@@ -96,11 +96,11 @@
 		}
 	});
 
-	$effect(() => {
-		console.log(
-			`isAnonymousUser: ${isAnonymousUser}, isUnverifiedUser: ${isUnverifiedUser}, $page.data.user: ${$page.data.user}`
-		);
-	});
+	// $effect(() => {
+	// 	console.log(
+	// 		`isAnonymousUser: ${isAnonymousUser}, isUnverifiedUser: ${isUnverifiedUser}, $page.data.user: ${$page.data.user}`
+	// 	);
+	// });
 
 	$effect(() => {
 		if (
