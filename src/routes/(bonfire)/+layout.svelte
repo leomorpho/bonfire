@@ -25,7 +25,9 @@
 				goto('/profile/username');
 			}
 		};
-		enforceUserHasUsername();
+		if ($page.data.user) {
+			enforceUserHasUsername();
+		}
 	});
 </script>
 
