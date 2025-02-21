@@ -123,6 +123,7 @@ test('Create bonfire', async ({ page }) => {
 	await page.getByText('Going').first().click();
 	await page.getByRole('menuitem', { name: 'Not going' }).click();
 	await expect(page.locator('#rsvp-button')).toHaveText('Not going');
+	
 	await expect(page.locator('#going-attendees').locator('.profile-avatar')).toHaveCount(0);
 	// And set back to "going"
 	await page.getByText('Not going').last().click();
@@ -352,7 +353,7 @@ test('User attendee view', async ({ browser }) => {
 	await expect(userAttendeePage.getByText('Set RSVP status to see location')).toBeVisible();
 
 	await expect(userAttendeePage.getByText(eventDetails)).toBeVisible();
-	await expect(userAttendeePage.getByText('1 attendee(s)')).toBeVisible();
+	await expect(userAttendeePage.getByText('1 going')).toBeVisible();
 	await expect(userAttendeePage.getByText('1 announcement(s)')).toBeVisible();
 	await expect(userAttendeePage.getByText('1 file(s)')).toBeVisible();
 
@@ -403,7 +404,7 @@ test('Temp attendee view', async ({ browser }) => {
 	await expect(tempAttendeePage.getByText(`Hosted by ${username}`)).toBeVisible();
 	await expect(tempAttendeePage.getByText('Set RSVP status to see location')).toBeVisible();
 	await expect(tempAttendeePage.getByText(eventDetails)).toBeVisible();
-	await expect(tempAttendeePage.getByText('1 attendee(s)')).toBeVisible();
+	await expect(tempAttendeePage.getByText('1 going')).toBeVisible();
 	await expect(tempAttendeePage.getByText('1 announcement(s)')).toBeVisible();
 	await expect(tempAttendeePage.getByText('1 file(s)')).toBeVisible();
 
@@ -557,7 +558,7 @@ test('Event admins', async ({ browser }) => {
 	await loginUser(adminPage, adminEmail, adminUsername);
 
 	await adminPage.goto(eventUrl);
-	await expect(adminPage.getByText('1 attendee(s)')).toBeVisible();
+	await expect(adminPage.getByText('1 going')).toBeVisible();
 	await adminPage.getByText('RSVP', { exact: true }).click();
 	await adminPage.getByText('Going').first().click();
 

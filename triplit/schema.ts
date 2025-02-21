@@ -374,7 +374,6 @@ export const schema = {
 					filter: [
 						or([
 							['event.user_id', '=', '$role.userId'], // Event creator can delete anyone attending
-							['id', '=', '$role.temporaryAttendeeId'], // Temp users can remove themselves from the event
 							['event.event_admins.user_id', '=', '$role.userId'] // Event admins can update files
 						])
 					]

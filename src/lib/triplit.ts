@@ -94,7 +94,7 @@ const createNewTriplitClient = (jwt: string) => {
 		logLevel: dev ? 'debug' : 'info',
 		defaultQueryOptions: {
 			fetch: {
-				policy: 'local-and-remote'
+				policy: 'remote-first'
 			}
 		}
 	}) as WorkerClient;

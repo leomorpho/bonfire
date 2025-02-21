@@ -51,14 +51,14 @@
 				deleteTempAttendee();
 			} else {
 				deleteRealAttendee();
+				await deleteUser(userId);
 			}
-			await deleteUser(userId);
 
 			toast.success(`Deleted ${username ? username : 'attendee'} from event`);
 			dialogIsOpen = false;
 		} catch (e) {
 			console.error(
-				`failed to remove ${isTempUser ?? 'temp'} attendee from event with id ${eventId}`,
+				`failed to remove ${isTempUser ? 'temp' : 'full'} attendee from event with id ${eventId}`,
 				e
 			);
 		} finally {
