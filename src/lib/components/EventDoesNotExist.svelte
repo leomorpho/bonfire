@@ -1,14 +1,16 @@
 <script lang="ts">
-	// Any TypeScript logic can go here if needed
-
 	import { RefreshCw } from 'lucide-svelte';
 	import CenterScreenMessage from './CenterScreenMessage.svelte';
 	import Button from './ui/button/button.svelte';
+	import { getFeTriplitClient } from '$lib/triplit';
+	import { page } from '$app/stores';
 
 	// Function to reload the page
-	function reloadPage() {
+	const reloadPage = async () => {
+		const client = await getFeTriplitClient($page.data.jwt);
+		client?.endSession();
 		window.location.reload();
-	}
+	};
 </script>
 
 <CenterScreenMessage>

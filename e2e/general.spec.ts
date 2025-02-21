@@ -630,3 +630,6 @@ test('Event admins', async ({ browser }) => {
 	await expect(adminPage.getByRole('img', { name: 'Banner for large screens' })).toBeVisible();
 	await expect(adminPage.getByLabel('Upload a new banner')).toBeVisible();
 });
+
+// TODO: test max capacity of bonfire
+// TODO: only logged in "users" can message, not temp users
