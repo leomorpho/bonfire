@@ -28,57 +28,70 @@ export const roles: Roles = {
 };
 
 export const bringSchema = {
-	bring_categories: {
+	bring_items: {
 		schema: S.Schema({
 			id: S.Id(),
 			event_id: S.String(),
 			event: S.RelationById('events', '$event_id'),
-			name: S.String(),
-			description: S.String({ nullable: true }),
-			people_coverage: S.Number({ default: 1 }),
-			created_by: S.String(),
+			name: S.String(), // Item name (e.g., "Coca Cola", "Buns", "Beers")
+			unit: S.String({ enum: ['per_person', 'count'] as const }),
+			quantity_needed: S.Number(), // How much is requested
+			created_by: S.String(), // Only admins can create items
 			created_by_user: S.RelationById('user', '$created_by'),
-			created_at: S.Date({ default: S.Default.now() })
+			created_at: S.Date({ default: S.Default.now() }),
+			bring_assignments: S.RelationMany('bring_assignments', {
+				where: [['bring_item', '=', '$id']]
+			})
 		}),
 		permissions: {
 			user: {
 				read: { filter: [['event.attendees.user_id', '=', '$role.userId']] },
-				insert: { filter: [['event.event_admins.user_id', '=', '$role.userId']] },
+				insert: { filter: [['event.event_admins.user_id', '=', '$role.userId']] }, // Only admins can create items
 				delete: { filter: [['event.event_admins.user_id', '=', '$role.userId']] }
 			},
 			temp: {
-				read: { filter: [['event.temporary_attendees.id', '=', '$role.temporaryAttendeeId']] }
+				read: {
+					filter: [['event.temporary_attendees.id', '=', '$role.temporaryAttendeeId']]
+				}
 			},
 			anon: {}
 		}
 	},
-	bring_commitments: {
+	bring_assignments: {
 		schema: S.Schema({
 			id: S.Id(),
-			bring_category_id: S.String(),
-			bring_category: S.RelationById('bring_categories', '$bring_category_id'),
-			committed_by: S.String(),
-			committed_by_user: S.RelationById('user', '$committed_by'),
-			item_name: S.String(),
-			message: S.String({ nullable: true }),
-			people_coverage: S.Number(),
-			status: S.String({ enum: ['pending', 'approved', 'rejected'] as const }),
-			approved_by: S.String({ nullable: true }),
-			approved_by_user: S.Optional(S.RelationById('user', '$approved_by')),
+			bring_item_id: S.String(), // Item being assigned
+			bring_item: S.RelationById('bring_items', '$bring_item_id'), // Relation to item
+			assigned_to: S.String(), // User assigned
+			assigned_to_user: S.RelationById('user', '$assigned_to'),
+			assigned_by: S.String(), // Who assigned it (null if self-assigned)
+			assigned_by_user: S.Optional(S.RelationById('user', '$assigned_by')),
+			quantity: S.Number(), // How much they are bringing
 			created_at: S.Date({ default: S.Default.now() })
 		}),
 		permissions: {
 			user: {
-				read: { filter: [['bring_category.event.attendees.user_id', '=', '$role.userId']] },
-				insert: { filter: [['bring_category.event.attendees.user_id', '=', '$role.userId']] },
-				update: { filter: [['committed_by', '=', '$role.userId']] },
-				delete: { filter: [['committed_by', '=', '$role.userId']] }
+				read: { filter: [['bring_item.event.attendees.user_id', '=', '$role.userId']] },
+				insert: {
+					filter: [
+						or([
+							['bring_item.event.attendees.user_id', '=', '$role.userId'], // Attendees can self-assign
+							['bring_item.event.event_admins.user_id', '=', '$role.userId'] // Admins can assign anyone
+						])
+					]
+				},
+				delete: {
+					filter: [
+						or([
+							['assigned_to', '=', '$role.userId'], // Users can remove their own assignment
+							['bring_item.event.event_admins.user_id', '=', '$role.userId'] // Admins can remove assignments
+						])
+					]
+				}
 			},
 			temp: {
 				read: {
-					filter: [
-						['bring_category.event.temporary_attendees.id', '=', '$role.temporaryAttendeeId']
-					]
+					filter: [['event.temporary_attendees.id', '=', '$role.temporaryAttendeeId']]
 				}
 			},
 			anon: {}
