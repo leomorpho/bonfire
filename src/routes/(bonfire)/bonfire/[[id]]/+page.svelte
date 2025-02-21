@@ -47,7 +47,7 @@
 
 	let client: TriplitClient;
 	let currUserId = $state('');
-	let event = $state<EventTypescriptType>();
+	let event = $state<EventTypescriptType | null>(null);
 	let eventLoading = $state(true);
 	let eventFailedLoading = $state(false);
 	let fileCount = $state(0);
@@ -254,7 +254,7 @@
 				.build(),
 			(results) => {
 				if (results.length == 1) {
-					event = results[0];
+					event = results[0] as EventTypescriptType;
 					// console.log('EVENT', event);
 					if (event) {
 						if (event.geocoded_location) {
@@ -458,6 +458,7 @@
 {:else if !eventLoading}
 	{#if !event}
 		<EventDoesNotExist />
+		{console.error(`EventDoesNotExist shown for url ${window.location.href}`)}
 	{:else}
 		<div class="mx-4 flex flex-col items-center justify-center">
 			{#if currenUserIsEventAdmin}
