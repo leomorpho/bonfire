@@ -5,13 +5,15 @@
 	import * as Popover from '$lib/components/ui/popover/index.js';
 	import EmojiPicker from '../EmojiPicker.svelte';
 
-	let { handleSendMessage } = $props();
+	let { handleSendMessage, canSendIm = true } = $props();
 
 	let message = $state(''); // Chat input state
 	let textarea: HTMLTextAreaElement;
 	let pickerInstance: any = null;
 
 	const MAX_HEIGHT = 100; // Set max height in pixels
+
+	const textInputPlaceholder = canSendIm ? 'Write a message...' : 'Temporary users can\'t interact. Please log in or sign up to participate.';
 
 	// Adjust textarea height dynamically with a max height
 	const adjustTextareaHeight = () => {
@@ -67,10 +69,11 @@
 	<!-- Text Input -->
 	<div class="relative flex-grow">
 		<textarea
+			disabled={!canSendIm}
 			bind:this={textarea}
 			bind:value={message}
 			oninput={adjustTextareaHeight}
-			placeholder="Write a message..."
+			placeholder={textInputPlaceholder}
 			rows="1"
 			class="min-h-[40px] w-full resize-none rounded-lg bg-gray-100 px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100"
 		></textarea>
@@ -98,7 +101,7 @@
 			adjustTextareaHeight();
 		}}
 		class="focus:outline-none focus-visible:ring-0"
-		disabled={message.length == 0}
+		disabled={message.length == 0 || !canSendIm}
 	>
 		<Send class="h-5 w-5 text-white dark:text-black" />
 	</Button>

@@ -765,7 +765,7 @@
 						{#if rsvpStatus}
 							<ImThreadView
 								{currUserId}
-								canSendIm={!!rsvpStatus}
+								canSendIm={!!rsvpStatus && !!currUserId}
 								eventId={event.id}
 								datetimeUserJoinedBonfire={currentUserAttendee?.updated_at}
 								{currenUserIsEventAdmin}

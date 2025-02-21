@@ -404,6 +404,7 @@
 						ignoreSeenStatusPriorToThisDatetime={datetimeUserJoinedBonfire}
 						{currenUserIsEventAdmin}
 						{eventId}
+						canInteract={canSendIm}
 					/>
 				{/each}
 			</InfiniteLoader>
@@ -439,9 +440,7 @@
 		{/if}
 	</div>
 
-	{#if canSendIm}
-		<ImInput {handleSendMessage} />
-	{/if}
+	<ImInput {handleSendMessage} {canSendIm} />
 </div>
 
 <style>
