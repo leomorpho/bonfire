@@ -208,6 +208,7 @@
 
 			// Redirect if the attendee was created successfully
 			if (result.success && result.redirectUrl) {
+				client.endSession();
 				window.location.href = result.redirectUrl;
 			} else {
 				throw new Error('Unexpected response from the server');
@@ -333,6 +334,7 @@
 
 {#snippet rsvpButton()}
 	<Button
+		id="rsvp-btn"
 		disabled={!rsvpCanBeChanged}
 		variant="outline"
 		class="mt-4 flex w-full items-center justify-center {rsvpStatus === Status.GOING
@@ -361,18 +363,21 @@
 			<DropdownMenu.Content class="w-full">
 				<DropdownMenu.Group>
 					<DropdownMenu.Item
+						id="rsvp-button-going"
 						class={rsvpStatus === Status.GOING ? 'bg-green-400 dark:bg-green-600' : ''}
 						onclick={(event) => updateRSVP(event, Status.GOING)}
 					>
 						<Smile /> Going
 					</DropdownMenu.Item>
 					<DropdownMenu.Item
+						id="rsvp-button-maybe"
 						class={rsvpStatus === Status.MAYBE ? 'bg-yellow-400 dark:bg-yellow-600' : ''}
 						onclick={(event) => updateRSVP(event, Status.MAYBE)}
 					>
 						<Meh /> Maybe
 					</DropdownMenu.Item>
 					<DropdownMenu.Item
+						id="rsvp-button-not-going"
 						class={rsvpStatus === Status.NOT_GOING ? 'bg-red-400 dark:bg-red-600' : ''}
 						onclick={(event) => updateRSVP(event, Status.NOT_GOING)}
 					>
@@ -380,6 +385,7 @@
 					</DropdownMenu.Item>
 					{#if rsvpStatus != Status.DEFAULT}
 						<DropdownMenu.Item
+							id="rsvp-button-leave"
 							class={rsvpStatus === Status.NOT_GOING ? '' : ''}
 							onclick={(event) => deleteAttendance(event)}
 						>

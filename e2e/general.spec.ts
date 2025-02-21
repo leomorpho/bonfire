@@ -120,10 +120,12 @@ test('Create bonfire', async ({ page }) => {
 	// Verify that there is exactly one user attending
 	await expect(page.locator('#going-attendees').locator('.profile-avatar')).toHaveCount(1);
 	// Now set as "not going"
-	await page.getByText('Going').first().click();
+
+	await page.locator('#rsvp-btn').click();
 	await page.getByRole('menuitem', { name: 'Not going' }).click();
-	await expect(page.locator('#rsvp-button')).toHaveText('Not going');
 	
+	await expect(page.locator('#rsvp-button')).toHaveText('Not going');
+
 	await expect(page.locator('#going-attendees').locator('.profile-avatar')).toHaveCount(0);
 	// And set back to "going"
 	await page.getByText('Not going').last().click();
@@ -560,7 +562,7 @@ test('Event admins', async ({ browser }) => {
 	await adminPage.goto(eventUrl);
 	await expect(adminPage.getByText('1 going')).toBeVisible();
 	await adminPage.getByText('RSVP', { exact: true }).click();
-	await adminPage.getByText('Going').first().click();
+	await adminPage.locator('#rsvp-button-going').click();
 
 	// Now event creator will add above attendee as an admin
 	await eventCreatorPage.locator('#edit-bonfire').getByRole('button').click();
