@@ -629,13 +629,17 @@
 											{/if}
 										</div>
 									</div>
-									<div id="going-attendees" class="flex flex-wrap justify-center items-center -space-x-4">
+									<div
+										id="going-attendees"
+										class="flex flex-wrap items-center justify-center -space-x-4"
+									>
 										{#each allAttendeesGoing.slice(0, showMaxNumPeople) as attendee}
 											<ProfileAvatar
 												userId={attendee.user_id}
 												tempUserName={attendee.name}
 												viewerIsEventAdmin={currenUserIsEventAdmin}
 												attendanceId={attendee.id}
+												baseHeightPx={allAttendeesGoing.length < 10 ? 60 : 50}
 											/>
 										{/each}
 										<AttendeesDialog
