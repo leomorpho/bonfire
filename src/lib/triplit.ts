@@ -50,11 +50,10 @@ export async function waitForUserId(timeout = 5000) {
 let feTriplitClient: WorkerClient | TriplitClient | null;
 
 export function getFeTriplitClient(jwt: string) {
-	console.log('........................... jwt', jwt);
 	if (!browser) {
 		throw new Error('TriplitClient can only be created in the browser.');
 	}
-
+	return createNewTriplitClient(jwt);
 	try {
 		const decoded = jwtDecode(jwt); // Decode the JWT safely
 		const currentType = decoded?.type; // Extract the 'type' field
