@@ -47,7 +47,7 @@
 
 	let client: TriplitClient;
 	let currUserId = $state('');
-	let event = $state<EventTypescriptType>();
+	let event = $state<EventTypescriptType | null>(null);
 	let eventLoading = $state(true);
 	let eventFailedLoading = $state(false);
 	let fileCount = $state(0);
@@ -82,9 +82,9 @@
 		}
 	});
 
-	$effect(() => {
-		console.log('==== rsvpStatus', rsvpStatus);
-	});
+	// $effect(() => {
+	// 	console.log('==== rsvpStatus', rsvpStatus);
+	// });
 
 	if (tempAttendeeId) {
 		tempAttendeeSecretStore.set(tempAttendeeId);
@@ -96,11 +96,11 @@
 		}
 	});
 
-	$effect(() => {
-		console.log(
-			`isAnonymousUser: ${isAnonymousUser}, isUnverifiedUser: ${isUnverifiedUser}, $page.data.user: ${$page.data.user}`
-		);
-	});
+	// $effect(() => {
+	// 	console.log(
+	// 		`isAnonymousUser: ${isAnonymousUser}, isUnverifiedUser: ${isUnverifiedUser}, $page.data.user: ${$page.data.user}`
+	// 	);
+	// });
 
 	$effect(() => {
 		if (
@@ -174,12 +174,6 @@
 		// TODO: we can make this more performant by passing a last queried at timestamp (UTC) and the server will only returned changed users (added/updated/deleted images)
 		// This function never removes any profile pic entry, only upserts them.
 		try {
-			// Construct the query string with comma-separated user IDs
-			let queryString = `userIds=${userIds.join(',')}`;
-			if (isUnverifiedUser) {
-				queryString = `${queryString}&${tempAttendeeSecretParam}=${tempAttendeeSecret}`;
-			}
-
 			await fetchAndCacheUsers(userIds, isUnverifiedUser ? tempAttendeeSecret : null);
 		} catch (error) {
 			console.error('Error fetching profile image map:', error);
@@ -227,7 +221,6 @@
 			);
 		}
 
-		console.log('$page.data ===> $page.data', $page.data);
 		if (
 			(isAnonymousUser || !$page.data.isUserAnAttendee) &&
 			$page.data.event &&
@@ -261,7 +254,7 @@
 				.build(),
 			(results) => {
 				if (results.length == 1) {
-					event = results[0];
+					event = results[0] as EventTypescriptType;
 					// console.log('EVENT', event);
 					if (event) {
 						if (event.geocoded_location) {
@@ -476,10 +469,10 @@
 					</a>
 				</div>
 			{/if}
-			<section class="mt-4  flex w-full justify-center sm:w-[450px] md:w-[550px] lg:w-[650px]">
+			<section class="mt-4 flex w-full justify-center sm:w-[450px] md:w-[550px] lg:w-[650px]">
 				<Tabs.Root value="about" class="w-full">
 					<div class="flex w-full justify-center">
-						<Tabs.List class="w-full bg-transparent animate-in fade-in zoom-in mb-1">
+						<Tabs.List class="mb-1 w-full bg-transparent animate-in fade-in zoom-in">
 							<div class="rounded-lg bg-slate-700 p-2">
 								<Tabs.Trigger value="about" class="focus:outline-none focus-visible:ring-0">
 									About
@@ -614,24 +607,32 @@
 								</div>
 							{:else if rsvpStatus}
 								{#if allAttendeesGoing.length > 0}
-									{#if allAttendeesGoing.length > 5}
-										<div class="mb-3 flex w-full justify-center">
-											<div
-												class="flex w-fit justify-center rounded bg-slate-100 p-1 px-2 text-black opacity-70 dark:bg-slate-800 dark:text-white"
-											>
-												{allAttendeesGoing.length} attendee{allAttendeesGoing.length == 1
-													? ''
-													: 's'} going
-											</div>
+									<div class="mb-3 flex w-full justify-center">
+										<div
+											class="flex w-fit justify-center rounded bg-slate-100 p-1 px-2 text-black opacity-70 dark:bg-slate-800 dark:text-white"
+										>
+											{allAttendeesGoing.length} going
+											{#if allAttendeesMaybeGoing.length > 0}
+												, {allAttendeesMaybeGoing.length} maybe{allAttendeesMaybeGoing.length > 1
+													? 's'
+													: ''}
+											{/if}
+											{#if allAttendeesNotGoing.length > 0}
+												, {allAttendeesNotGoing.length} not going
+											{/if}
 										</div>
-									{/if}
-									<div id="going-attendees" class="flex flex-wrap items-center -space-x-4">
+									</div>
+									<div
+										id="going-attendees"
+										class="flex flex-wrap items-center justify-center -space-x-4"
+									>
 										{#each allAttendeesGoing.slice(0, showMaxNumPeople) as attendee}
 											<ProfileAvatar
 												userId={attendee.user_id}
 												tempUserName={attendee.name}
 												viewerIsEventAdmin={currenUserIsEventAdmin}
 												attendanceId={attendee.id}
+												baseHeightPx={allAttendeesGoing.length < 10 ? 60 : 50}
 											/>
 										{/each}
 										<AttendeesDialog
@@ -667,7 +668,7 @@
 											<Avatar.Image src={'/icon-128.png'} alt={''} />
 											<Avatar.Fallback>{'BO'}</Avatar.Fallback>
 										</Avatar.Root>
-										{$page.data.numAttendees} attendee(s)
+										{$page.data.numAttendingGoing} going
 									</div>
 								</div>
 							{/if}
@@ -764,7 +765,7 @@
 						{#if rsvpStatus}
 							<ImThreadView
 								{currUserId}
-								canSendIm={!!rsvpStatus}
+								canSendIm={!!rsvpStatus && !!currUserId}
 								eventId={event.id}
 								datetimeUserJoinedBonfire={currentUserAttendee?.updated_at}
 								{currenUserIsEventAdmin}

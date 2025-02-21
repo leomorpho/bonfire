@@ -3,54 +3,99 @@ import { schema } from '../../triplit/schema';
 import { env as publicEnv } from '$env/dynamic/public';
 import { writable, get } from 'svelte/store';
 import { browser, dev } from '$app/environment';
-import { LOCAL_INDEXEDDB_NAME, Status } from './enums';
+import { LOCAL_INDEXEDDB_NAME, Status, UserTypes } from './enums';
 import { WorkerClient } from '@triplit/client/worker-client';
 import workerUrl from '@triplit/client/worker-client-operator?url';
+import { jwtDecode } from 'jwt-decode';
+
+const TRIPLIT_TOKEN_TYPE_KEY = 'type'; // LocalStorage key for storing user type
 
 export const userIdStore = writable<string | null>(null);
+export const userTypeStore = writable<string | null>(null);
 
 export async function waitForUserId(timeout = 5000) {
-	return new Promise((resolve, reject) => {
+	return new Promise((resolve) => {
 		const start = Date.now();
 
 		const checkUserId = () => {
-			const value = get(userIdStore);
-			if (value) {
-				resolve(value);
-			} else if (Date.now() - start > timeout) {
-				reject(new Error('Timed out waiting for user ID'));
-			} else {
-				setTimeout(checkUserId, 100); // Check again after a short delay
+			const userId = get(userIdStore);
+			const userType = get(userTypeStore); // Retrieve the user's type
+
+			// If user ID is available, resolve it
+			if (userId) {
+				resolve(userId);
+				return;
 			}
+
+			// If the user is anonymous or temp, resolve with null
+			if (userType != UserTypes.USER) {
+				resolve(null);
+				return;
+			}
+
+			// If the timeout is reached, resolve with null (instead of rejecting)
+			if (Date.now() - start > timeout) {
+				resolve(null);
+				return;
+			}
+
+			// Retry after a short delay
+			setTimeout(checkUserId, 100);
 		};
+
 		checkUserId();
 	});
 }
 
-let feTriplitClient: WorkerClient | TriplitClient;
+let feTriplitClient: WorkerClient | TriplitClient | null;
 
 export function getFeTriplitClient(jwt: string) {
+	console.log('........................... jwt', jwt);
 	if (!browser) {
 		throw new Error('TriplitClient can only be created in the browser.');
 	}
 
-	if (feTriplitClient) {
+	try {
+		const decoded = jwtDecode(jwt); // Decode the JWT safely
+		const currentType = decoded?.type; // Extract the 'type' field
+		userTypeStore.set(currentType);
+
+		if (!currentType) {
+			throw new Error('Invalid JWT: Missing type key.');
+		}
+
+		// Get previously stored type
+		const storedType = localStorage.getItem(TRIPLIT_TOKEN_TYPE_KEY);
+
+		// If the type has changed, reset the client
+		if (storedType && storedType !== currentType) {
+			console.log('User type changed, creating a new Triplit client...');
+			feTriplitClient?.endSession();
+			feTriplitClient = null;
+			window.client = null;
+		}
+
+		// Store the current type for future checks
+		localStorage.setItem(TRIPLIT_TOKEN_TYPE_KEY, currentType);
+
+		// Return existing client if available
+		if (feTriplitClient) return feTriplitClient;
+		if (window.client) {
+			feTriplitClient = window.client;
+			return window.client;
+		}
+
+		// Create a new client if no existing one is found
+		feTriplitClient = createNewTriplitClient(jwt);
+		console.log('Frontend TriplitClient initialized');
+
+		// Expose client on window for debugging
+		window.client = feTriplitClient;
 		return feTriplitClient;
+	} catch (error) {
+		console.error('Error initializing TriplitClient:', error);
+		throw new Error('Failed to initialize TriplitClient.');
 	}
-
-	if (window.client) {
-		feTriplitClient = window.client;
-		return window.client;
-	}
-
-	feTriplitClient = createNewTriplitClient(jwt);
-
-	console.log('Frontend TriplitClient initialized');
-
-	// Make client available on window to help inspection during debugging
-	if (typeof window !== 'undefined') window.client = feTriplitClient;
-
-	return feTriplitClient;
 }
 
 const createNewTriplitClient = (jwt: string) => {
@@ -94,7 +139,7 @@ const createNewTriplitClient = (jwt: string) => {
 		logLevel: dev ? 'debug' : 'info',
 		defaultQueryOptions: {
 			fetch: {
-				policy: 'local-and-remote'
+				policy: 'remote-first'
 			}
 		}
 	}) as WorkerClient;

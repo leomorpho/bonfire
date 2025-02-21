@@ -41,6 +41,12 @@ export const tempAttendeeIdFormName = 'tempAttendeeIdFormName';
 export const TEMP_ATTENDEE_MIN_NAME_LEN = 2;
 export const MAX_NUM_IMAGES_IN_MINI_GALLERY = 3;
 
+export enum UserTypes {
+	USER = 'user',
+	TEMP = 'temp',
+	ANON = 'anon'
+}
+
 export enum Status {
 	GOING = 'going',
 	NOT_GOING = 'not_going',
@@ -110,4 +116,4 @@ export const BannerMediaSize = {
 
 export const EMOJI_REACTION_TYPE = {
 	MESSAGE: 'message'
-}
+};

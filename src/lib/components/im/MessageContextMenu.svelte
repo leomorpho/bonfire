@@ -12,9 +12,16 @@
 	import { toggleEmojiReaction } from '$lib/emoji';
 	import { EMOJI_REACTION_TYPE } from '$lib/enums';
 	import MessageContent from './MessageContent.svelte';
+	import { toast } from 'svelte-sonner';
 
-	let { children, message, isOwnMessage, currenUserIsEventAdmin, eventId } =
-		$props();
+	let {
+		children,
+		message,
+		isOwnMessage,
+		currenUserIsEventAdmin,
+		eventId,
+		canInteract = true
+	} = $props();
 
 	let contextMenuRef: HTMLElement | null = $state(null);
 	let pressTimer: NodeJS.Timeout | null = $state(null);
@@ -55,6 +62,11 @@
 
 	// Handle emoji selection
 	const toggleEmoji = async (detail: any) => {
+		if (!canInteract) {
+			showSmileyPicker = false;
+			toast.warning("Temporary users can't interact. Please log in or sign up to participate.");
+			return;
+		}
 		const client = await getFeTriplitClient($page.data.jwt);
 		await toggleEmojiReaction(
 			client,
@@ -116,14 +128,13 @@
 >
 	{@render children()}
 
-	<div class="z-50 absolute -bottom-2 left-1/2 -translate-x-1/2">
+	<div class="absolute -bottom-2 left-1/2 z-50 -translate-x-1/2">
 		<div class="flex flex-wrap items-center gap-1">
 			{#if showSmiley || showSmileyPicker}
 				{@render emojiPicker()}
 			{/if}
 		</div>
 	</div>
-	
 
 	{#if !isMobile()}
 		<button
