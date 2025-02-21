@@ -458,7 +458,7 @@
 {:else if !eventLoading}
 	{#if !event}
 		<EventDoesNotExist />
-		{console.error(`EventDoesNotExist shown for url ${window.location.href}`)}
+		{console.error(`EventDoesNotExist shown for url ${window.location.href}, event: ${event} and $page.data: ${$page.data}`)}
 	{:else}
 		<div class="mx-4 flex flex-col items-center justify-center">
 			{#if currenUserIsEventAdmin}
