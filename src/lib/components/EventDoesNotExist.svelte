@@ -4,6 +4,9 @@
 	import Button from './ui/button/button.svelte';
 	import { getFeTriplitClient } from '$lib/triplit';
 	import { page } from '$app/stores';
+	import { onMount } from 'svelte';
+	import * as Sentry from '@sentry/sveltekit';
+	import { dev } from '$app/environment';
 
 	// Function to reload the page
 	const reloadPage = async () => {
@@ -11,6 +14,14 @@
 		client?.endSession();
 		window.location.reload();
 	};
+
+	// Log the event in Sentry when the component renders
+	onMount(() => {
+		if (!dev) {
+			Sentry.captureException(new Error(`Event not found - User landed on missing event page at ${window.location}`));
+			console.error(`Event not found - User landed on missing event page at ${window.location}`);
+		}
+	});
 </script>
 
 <CenterScreenMessage>
