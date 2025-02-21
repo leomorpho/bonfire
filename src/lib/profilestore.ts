@@ -1,13 +1,15 @@
 import { openDB, type IDBPDatabase } from 'idb';
-import { tempAttendeeSecretParam } from './enums';
+import { tempAttendeeSecretParam, tempAttendeeSecretStore } from './enums';
 import { get, writable } from 'svelte/store';
 
 // Store to track the currently needed user IDs
 export const userIdsStore = writable<string[]>([]);
 
 userIdsStore.subscribe(async (userIds) => {
+	const tempAttendeeId = tempAttendeeSecretStore.get();
+
 	if (userIds.length > 0) {
-		await fetchAndCacheUsers(userIds);
+		await fetchAndCacheUsers(userIds, tempAttendeeId);
 	}
 });
 

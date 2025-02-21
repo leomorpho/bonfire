@@ -174,12 +174,6 @@
 		// TODO: we can make this more performant by passing a last queried at timestamp (UTC) and the server will only returned changed users (added/updated/deleted images)
 		// This function never removes any profile pic entry, only upserts them.
 		try {
-			// Construct the query string with comma-separated user IDs
-			let queryString = `userIds=${userIds.join(',')}`;
-			if (isUnverifiedUser) {
-				queryString = `${queryString}&${tempAttendeeSecretParam}=${tempAttendeeSecret}`;
-			}
-
 			await fetchAndCacheUsers(userIds, isUnverifiedUser ? tempAttendeeSecret : null);
 		} catch (error) {
 			console.error('Error fetching profile image map:', error);
@@ -227,7 +221,6 @@
 			);
 		}
 
-		console.log('$page.data ===> $page.data', $page.data);
 		if (
 			(isAnonymousUser || !$page.data.isUserAnAttendee) &&
 			$page.data.event &&

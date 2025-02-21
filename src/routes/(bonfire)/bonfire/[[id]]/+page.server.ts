@@ -15,7 +15,7 @@ export const load = async ({ params, locals, url }) => {
 
 	// Get the user from locals
 	const user = locals.user;
-	console.log('logged in user', user);
+	// console.log('logged in user', user);
 	let event = null;
 	let numAttendingGoing = 0;
 	let numAnnouncements = 0;
