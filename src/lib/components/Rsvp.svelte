@@ -208,6 +208,7 @@
 
 			// Redirect if the attendee was created successfully
 			if (result.success && result.redirectUrl) {
+				client.endSession();
 				window.location.href = result.redirectUrl;
 			} else {
 				throw new Error('Unexpected response from the server');

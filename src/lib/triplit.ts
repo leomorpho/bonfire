@@ -53,29 +53,31 @@ export function getFeTriplitClient(jwt: string) {
 	if (!browser) {
 		throw new Error('TriplitClient can only be created in the browser.');
 	}
-	return createNewTriplitClient(jwt);
+
 	try {
-		const decoded = jwtDecode(jwt); // Decode the JWT safely
-		const currentType = decoded?.type; // Extract the 'type' field
-		userTypeStore.set(currentType);
+		if (jwt) {
+			const decoded = jwtDecode(jwt); // Decode the JWT safely
+			const currentType = decoded?.type; // Extract the 'type' field
+			userTypeStore.set(currentType);
 
-		if (!currentType) {
-			throw new Error('Invalid JWT: Missing type key.');
+			if (!currentType) {
+				throw new Error('Invalid JWT: Missing type key.');
+			}
+
+			// Get previously stored type
+			const storedType = localStorage.getItem(TRIPLIT_TOKEN_TYPE_KEY);
+
+			// If the type has changed, reset the client
+			if (storedType && storedType !== currentType) {
+				console.log('User type changed, creating a new Triplit client...');
+				feTriplitClient?.endSession();
+				feTriplitClient = null;
+				window.client = null;
+			}
+
+			// Store the current type for future checks
+			localStorage.setItem(TRIPLIT_TOKEN_TYPE_KEY, currentType);
 		}
-
-		// Get previously stored type
-		const storedType = localStorage.getItem(TRIPLIT_TOKEN_TYPE_KEY);
-
-		// If the type has changed, reset the client
-		if (storedType && storedType !== currentType) {
-			console.log('User type changed, creating a new Triplit client...');
-			feTriplitClient?.endSession();
-			feTriplitClient = null;
-			window.client = null;
-		}
-
-		// Store the current type for future checks
-		localStorage.setItem(TRIPLIT_TOKEN_TYPE_KEY, currentType);
 
 		// Return existing client if available
 		if (feTriplitClient) return feTriplitClient;
