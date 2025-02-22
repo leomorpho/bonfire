@@ -4,7 +4,6 @@
 	import { Cog, Tally5, UserRound } from 'lucide-svelte';
 	import { Button } from '../ui/button';
 	import BringListItem from './BringListItem.svelte';
-	import { onMount } from 'svelte';
 	import CrudItem from './CrudItem.svelte';
 	import { getFeTriplitClient } from '$lib/triplit';
 	import { page } from '$app/stores';
@@ -34,8 +33,6 @@
 		) || {}
 	);
 
-	let userIdToNumBroughtCopy = { ...userIdToNumBrought };
-
 	// If the user has an assignment, use that quantity, otherwise default to max needed
 	let numCommittedByuser = $state(
 		userAssignment ? userAssignment.quantity : item.quantity_needed - item.total_brought
@@ -43,36 +40,40 @@
 
 	let isOpen = $state(false);
 
-	const updateUserIdToNumBrought = () => {
-		userIdToNumBrought = {
-			...userIdToNumBrought,
-			[currUserId]: numCommittedByuser
-		};
-	};
-
-	const upsertAssignment = async () => {
+	const upsertAssignment = async (closeAfterSave = false, showToasts = false) => {
 		const client = getFeTriplitClient($page.data.jwt);
 		if (userAssignment) {
 			try {
 				await updateBringAssignment(client, userAssignment.id, { quantity: numCommittedByuser });
-				toast.success("Successfully updated the number you're bringing");
+				if (showToasts) {
+					toast.success("Successfully updated the number you're bringing");
+				}
+				userIdToNumBrought = {
+					...userIdToNumBrought,
+					[currUserId]: numCommittedByuser
+				};
 			} catch (e) {
 				console.error('failed to update bring assignment', e);
 			}
 		} else {
 			try {
 				await assignBringItem(client, item.id, currUserId, currUserId, numCommittedByuser);
-				toast.success("Successfully set the number you're bringing");
+				if (showToasts) {
+					toast.success("Successfully set the number you're bringing");
+				}
+				userIdToNumBrought = {
+					...userIdToNumBrought,
+					[currUserId]: numCommittedByuser
+				};
 			} catch (e) {
 				console.error('failed to assign bring assignment', e);
 			}
 		}
-		isOpen = false;
-	};
 
-	onMount(() => {
-		updateUserIdToNumBrought();
-	});
+		if (closeAfterSave) {
+			isOpen = false;
+		}
+	};
 </script>
 
 <Dialog.Root bind:open={isOpen}>
@@ -82,7 +83,7 @@
 				itemName={item.name}
 				itemUnit={item.unit}
 				itemQuantityNeeded={item.quantity_needed}
-				userIdToNumBrought={userIdToNumBroughtCopy}
+				{userIdToNumBrought}
 			/>
 		</button>
 	</Dialog.Trigger>
@@ -116,7 +117,9 @@
 				max={item.quantity_needed - numBroughtByOthers}
 				bind:value={numCommittedByuser}
 				class="w-full cursor-pointer"
-				oninput={updateUserIdToNumBrought}
+				oninput={() => {
+					upsertAssignment();
+				}}
 			/>
 			<span class="flex items-center">
 				{#if item.unit == BringListCountTypes.PER_PERSON}
@@ -128,7 +131,13 @@
 			</span>
 		</div>
 		<Dialog.Footer>
-			<Button type="submit" class="w-full" onclick={upsertAssignment}>Submit</Button>
+			<Button
+				type="submit"
+				class="w-full"
+				onclick={() => {
+					upsertAssignment(true, true);
+				}}>Submit</Button
+			>
 		</Dialog.Footer>
 	</Dialog.Content>
 </Dialog.Root>
