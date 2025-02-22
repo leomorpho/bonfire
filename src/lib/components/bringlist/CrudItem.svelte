@@ -11,7 +11,7 @@
 	import { page } from '$app/stores';
 	import { toast } from 'svelte-sonner';
 
-	let { eventId, isOpen = false, item = null, numAttendeesGoing = 5 } = $props();
+	let { eventId, numAttendeesGoing, isOpen = false, item = null } = $props();
 
 	let itemName = $state('');
 	let unitType = $state(BringListCountTypes.PER_PERSON);

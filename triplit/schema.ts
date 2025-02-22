@@ -44,7 +44,7 @@ export const bringSchema = {
 			created_by_user: S.RelationById('user', '$created_by'),
 			created_at: S.Date({ default: S.Default.now() }),
 			bring_assignments: S.RelationMany('bring_assignments', {
-				where: [['bring_item', '=', '$id']]
+				where: [['bring_item_id', '=', '$id']]
 			})
 		}),
 		permissions: {

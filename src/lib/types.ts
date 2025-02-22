@@ -129,3 +129,32 @@ export interface EventMessage {
 	created_at: string; // ISO timestamp when the message was sent
 	updated_at?: string | null; // ISO timestamp when the message was edited
 }
+
+export enum BringListCountTypes {
+	PER_PERSON = 'per_person',
+	COUNT = 'count'
+}
+
+/** Type for Bring Items (things like "Coca Cola", "Buns", "Beers") */
+export type BringItem = {
+	id: string;
+	event_id: string;
+	name: string;
+	unit: BringListCountTypes; // "per_person" or "count"
+	quantity_needed: number;
+	details?: string | null; // Additional item details
+	created_by: string; // User ID of the creator (admin)
+	created_at: string; // Timestamp of creation
+	bring_assignments?: BringAssignment[]; // List of assignments (optional)
+	total_brought?: number,
+};
+
+/** Type for Bring Assignments (who is bringing what) */
+export type BringAssignment = {
+	id: string;
+	bring_item_id: string; // ID of the related bring item
+	assigned_to: string; // User ID of the assigned attendee
+	assigned_by?: string | null; // User ID of who assigned it (null if self-assigned)
+	quantity: number; // Amount of the item the user is bringing
+	created_at: string; // Timestamp of assignment creation
+};
