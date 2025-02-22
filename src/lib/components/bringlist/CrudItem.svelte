@@ -11,11 +11,11 @@
 	import { page } from '$app/stores';
 	import { toast } from 'svelte-sonner';
 
-	let { eventId, numAttendeesGoing, isOpen = false, item = null } = $props();
+	let { children, eventId, numAttendeesGoing, isOpen = false, item = null, cls = null } = $props();
 
-	let itemName = $state('');
-	let unitType = $state(BringListCountTypes.PER_PERSON);
-	let count = $state(numAttendeesGoing);
+	let itemName = $state(item ? item.name : '');
+	let unitType = $state(item ? item.unit : BringListCountTypes.PER_PERSON);
+	let count = $state(item ? item.quantity_needed : numAttendeesGoing);
 	let details = $state('');
 
 	let submitEnabled = $derived(itemName && count != 0);
@@ -63,15 +63,14 @@
 </script>
 
 <Dialog.Root bind:open={isOpen}>
-	<Dialog.Trigger class="mt-5 w-full">
-		<Button
-			class="flex w-full items-center justify-center ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
-			>Add</Button
-		>
+	<Dialog.Trigger class={cls}>
+		{@render children()}
 	</Dialog.Trigger>
 	<Dialog.Content class="rounded-xl">
 		<Dialog.Header>
-			<Dialog.Title class="flex w-full justify-center">Bring list item</Dialog.Title>
+			<Dialog.Title class="flex w-full justify-center"
+				>{item ? 'Edit' : 'Add'} list item</Dialog.Title
+			>
 			<!-- <Dialog.Description>
 				This action cannot be undone. This will permanently delete your account and remove your data
 				from our servers.

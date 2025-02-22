@@ -16,8 +16,7 @@
 	$effect(() => {
 		// Compute progress percentage (0 - 100)
 		progress = Math.min(100, Math.round((totalBrought / itemQuantityNeeded) * 100));
-		console.log('totalBrought', totalBrought, userIdToNumBrought);
-		console.log('itemQuantityNeeded', itemQuantityNeeded);
+
 		// 🎨 Regular HSL transition (Red → Yellow → Green)
 		progressColor = `hsl(${120 * (progress / 100)}, 100%, 30%)`;
 

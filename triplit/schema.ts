@@ -57,7 +57,15 @@ export const bringSchema = {
 							['event.user_id', '=', '$role.userId']
 						])
 					]
-				}, // Only admins can create items
+				},
+				update: {
+					filter: [
+						or([
+							['event.event_admins.user_id', '=', '$role.userId'],
+							['event.user_id', '=', '$role.userId']
+						])
+					]
+				},
 				delete: {
 					filter: [
 						or([
@@ -91,6 +99,15 @@ export const bringSchema = {
 			user: {
 				read: { filter: [['bring_item.event.attendees.user_id', '=', '$role.userId']] },
 				insert: {
+					filter: [
+						or([
+							['bring_item.event.attendees.user_id', '=', '$role.userId'], // Attendees can self-assign
+							['bring_item.event.event_admins.user_id', '=', '$role.userId'], // Admins can assign anyone
+							['bring_item.event.user_id', '=', '$role.userId'] // Event owner can assign anyone
+						])
+					]
+				},
+				update: {
 					filter: [
 						or([
 							['bring_item.event.attendees.user_id', '=', '$role.userId'], // Attendees can self-assign

@@ -7,6 +7,7 @@
 	import CrudItem from './CrudItem.svelte';
 	import type { BringAssignment, BringItem } from '$lib/types';
 	import BringItemProgressBar from './BringItemProgressBar.svelte';
+	import { Button } from '../ui/button';
 
 	let { eventId, currUserId, isAdmin = false, numAttendeesGoing = 5 } = $props();
 	let initialLoad = $state(true);
@@ -64,10 +65,15 @@
 		<div class="flex w-full items-center justify-center"><SvgLoader /></div>
 	{:else}
 		{#each bringItems as item}
-			<BringItemProgressBar {item} {currUserId} />
+			<BringItemProgressBar {eventId} {item} {numAttendeesGoing} {currUserId} {isAdmin} />
 		{/each}
 	{/if}
 </div>
 {#if isAdmin}
-	<CrudItem {eventId} {numAttendeesGoing} />
+	<CrudItem {eventId} {numAttendeesGoing} cls={'mt-5 w-full'}>
+		<Button
+			class="flex w-full items-center justify-center ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
+			>Add</Button
+		>
+	</CrudItem>
 {/if}

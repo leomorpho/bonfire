@@ -1,16 +1,27 @@
 <script lang="ts">
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { BringListCountTypes } from '$lib/enums';
-	import { Tally5, UserRound } from 'lucide-svelte';
+	import { Cog, Tally5, UserRound } from 'lucide-svelte';
 	import { Button } from '../ui/button';
 	import BringListItem from './BringListItem.svelte';
 	import { onMount } from 'svelte';
+	import CrudItem from './CrudItem.svelte';
+	import { getFeTriplitClient } from '$lib/triplit';
+	import { page } from '$app/stores';
+	import { assignBringItem, updateBringAssignment } from '$lib/bringlist';
+	import { toast } from 'svelte-sonner';
 
-	let { item, currUserId } = $props();
+	let { item, currUserId, isAdmin, eventId, numAttendeesGoing } = $props();
 
 	// Find the current user's assignment (if any)
 	let userAssignment = item.bring_assignments?.find(
 		(assignment) => assignment.assigned_to === currUserId
+	);
+
+	let numBroughtByOthers = $state(
+		item.bring_assignments?.reduce((total, assignment) => {
+			return assignment.assigned_to !== currUserId ? total + assignment.quantity : total;
+		}, 0) || 0
 	);
 
 	let userIdToNumBrought = $state(
@@ -39,6 +50,26 @@
 		};
 	};
 
+	const upsertAssignment = async () => {
+		const client = getFeTriplitClient($page.data.jwt);
+		if (userAssignment) {
+			try {
+				await updateBringAssignment(client, userAssignment.id, { quantity: numCommittedByuser });
+				toast.success("Successfully updated the number you're bringing");
+			} catch (e) {
+				console.error('failed to update bring assignment', e);
+			}
+		} else {
+			try {
+				await assignBringItem(client, item.id, currUserId, currUserId, numCommittedByuser);
+				toast.success("Successfully set the number you're bringing");
+			} catch (e) {
+				console.error('failed to assign bring assignment', e);
+			}
+		}
+		isOpen = false;
+	};
+
 	onMount(() => {
 		updateUserIdToNumBrought();
 	});
@@ -57,6 +88,18 @@
 	</Dialog.Trigger>
 	<Dialog.Content class="rounded-xl">
 		<Dialog.Header class="mt-3">
+			{#if isAdmin}
+				<div class="flex w-full justify-center">
+					<CrudItem {eventId} {numAttendeesGoing} {item}>
+						<Button
+							variant="outline"
+							class="m-2 rounded-full focus:outline-none focus-visible:ring-0"
+						>
+							<Cog class="h-5 w-5" />
+						</Button>
+					</CrudItem>
+				</div>
+			{/if}
 			<Dialog.Description>Set the amount you're bringing.</Dialog.Description>
 			<BringListItem
 				itemName={item.name}
@@ -70,7 +113,7 @@
 			<input
 				type="range"
 				min="0"
-				max={item.quantity_needed - item.total_brought}
+				max={item.quantity_needed - numBroughtByOthers}
 				bind:value={numCommittedByuser}
 				class="w-full cursor-pointer"
 				oninput={updateUserIdToNumBrought}
@@ -85,7 +128,7 @@
 			</span>
 		</div>
 		<Dialog.Footer>
-			<Button type="submit" class="w-full">Submit</Button>
+			<Button type="submit" class="w-full" onclick={upsertAssignment}>Submit</Button>
 		</Dialog.Footer>
 	</Dialog.Content>
 </Dialog.Root>
