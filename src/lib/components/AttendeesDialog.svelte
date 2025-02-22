@@ -9,7 +9,7 @@
 		allAttendeesMaybeGoing,
 		allAttendeesNotGoing,
 		showMaxNumPeople = 30,
-		currenUserIsEventAdmin = false
+		isCurrenUserEventAdmin = false
 	} = $props();
 
 	let isDialogOpen = $state(false);
@@ -54,7 +54,7 @@
 										<ProfileAvatar
 											userId={attendee.user_id}
 											tempUserName={attendee.name}
-											viewerIsEventAdmin={currenUserIsEventAdmin}
+											viewerIsEventAdmin={isCurrenUserEventAdmin}
 											attendanceId={attendee.id}
 										/>
 									{/each}
@@ -73,7 +73,7 @@
 										<ProfileAvatar
 											userId={attendee.user_id}
 											tempUserName={attendee.name}
-											viewerIsEventAdmin={currenUserIsEventAdmin}
+											viewerIsEventAdmin={isCurrenUserEventAdmin}
 											attendanceId={attendee.id}
 										/>
 									{/each}
@@ -90,7 +90,7 @@
 										<ProfileAvatar
 											userId={attendee.user_id}
 											tempUserName={attendee.name}
-											viewerIsEventAdmin={currenUserIsEventAdmin}
+											viewerIsEventAdmin={isCurrenUserEventAdmin}
 											attendanceId={attendee.id}
 										/>
 									{/each}

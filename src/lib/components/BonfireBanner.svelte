@@ -3,7 +3,7 @@
 	import { blurhashToCssGradientString } from '@unpic/placeholder';
 	import { Image } from '@unpic/svelte';
 
-	let { bannerSmallSizeUrl, bannerLargeSizeUrl, currenUserIsEventAdmin, blurhash } = $props();
+	let { bannerSmallSizeUrl, bannerLargeSizeUrl, isCurrenUserEventAdmin, blurhash } = $props();
 
 	const placeholder = blurhashToCssGradientString(blurhash ?? 'LEHV6nWB2yk8pyo0adR*.7kCMdnj');
 </script>
@@ -27,7 +27,7 @@
 		aspectRatio={2 / 1}
 		alt={'Banner for mobile'}
 	/>
-	{#if currenUserIsEventAdmin}
+	{#if isCurrenUserEventAdmin}
 		<div class="absolute right-2 top-2 rounded-full bg-white dark:bg-slate-800 dark:text-white p-1 shadow-md hover:bg-slate-100">
 			<a class="flex w-full" href="banner/upload" aria-label="Upload a new banner">
 				<svg

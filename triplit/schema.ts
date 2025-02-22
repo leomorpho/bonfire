@@ -1,3 +1,4 @@
+import { BringListCountTypes } from '$lib/enums';
 import { MAIN_THREAD } from '$lib/im';
 import { Schema as S, type Roles, type ClientSchema, or, and } from '@triplit/client';
 
@@ -34,8 +35,11 @@ export const bringSchema = {
 			event_id: S.String(),
 			event: S.RelationById('events', '$event_id'),
 			name: S.String(), // Item name (e.g., "Coca Cola", "Buns", "Beers")
-			unit: S.String({ enum: ['per_person', 'count'] as const }),
+			unit: S.String({
+				enum: [BringListCountTypes.PER_PERSON, BringListCountTypes.COUNT] as const
+			}),
 			quantity_needed: S.Number(), // How much is requested
+			details: S.String({ nullable: true, default: null }),
 			created_by: S.String(), // Only admins can create items
 			created_by_user: S.RelationById('user', '$created_by'),
 			created_at: S.Date({ default: S.Default.now() }),
@@ -46,8 +50,22 @@ export const bringSchema = {
 		permissions: {
 			user: {
 				read: { filter: [['event.attendees.user_id', '=', '$role.userId']] },
-				insert: { filter: [['event.event_admins.user_id', '=', '$role.userId']] }, // Only admins can create items
-				delete: { filter: [['event.event_admins.user_id', '=', '$role.userId']] }
+				insert: {
+					filter: [
+						or([
+							['event.event_admins.user_id', '=', '$role.userId'],
+							['event.user_id', '=', '$role.userId']
+						])
+					]
+				}, // Only admins can create items
+				delete: {
+					filter: [
+						or([
+							['event.event_admins.user_id', '=', '$role.userId'],
+							['event.user_id', '=', '$role.userId']
+						])
+					]
+				}
 			},
 			temp: {
 				read: {
@@ -76,7 +94,8 @@ export const bringSchema = {
 					filter: [
 						or([
 							['bring_item.event.attendees.user_id', '=', '$role.userId'], // Attendees can self-assign
-							['bring_item.event.event_admins.user_id', '=', '$role.userId'] // Admins can assign anyone
+							['bring_item.event.event_admins.user_id', '=', '$role.userId'], // Admins can assign anyone
+							['bring_item.event.user_id', '=', '$role.userId'] // Event owner can assign anyone
 						])
 					]
 				},
@@ -84,7 +103,8 @@ export const bringSchema = {
 					filter: [
 						or([
 							['assigned_to', '=', '$role.userId'], // Users can remove their own assignment
-							['bring_item.event.event_admins.user_id', '=', '$role.userId'] // Admins can remove assignments
+							['bring_item.event.event_admins.user_id', '=', '$role.userId'], // Admins can remove assignments
+							['bring_item.event.user_id', '=', '$role.userId'] // Event owner
 						])
 					]
 				}

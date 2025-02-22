@@ -18,7 +18,7 @@
 		children,
 		message,
 		isOwnMessage,
-		currenUserIsEventAdmin,
+		isCurrenUserEventAdmin,
 		eventId,
 		canInteract = true
 	} = $props();
@@ -163,7 +163,7 @@
 			<div class="flex w-full justify-center"><EmojiPicker handleEmojiSelect={''} /></div>
 		</div>
 
-		{#if isOwnMessage || currenUserIsEventAdmin}
+		{#if isOwnMessage || isCurrenUserEventAdmin}
 			{#if !message.deleted_by_user_id}
 				<CustomAlertDialog
 					continueCallback={() => onDelete(message.id)}

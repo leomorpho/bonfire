@@ -117,3 +117,8 @@ export const BannerMediaSize = {
 export const EMOJI_REACTION_TYPE = {
 	MESSAGE: 'message'
 };
+
+export const BringListCountTypes = {
+	PER_PERSON: 'per_person',
+	COUNT: 'count'
+};

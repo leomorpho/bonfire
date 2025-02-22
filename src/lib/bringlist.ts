@@ -15,8 +15,9 @@ export async function createBringItem(
 	eventId: string,
 	userId: string,
 	name: string,
-	unit: 'per_person' | 'count',
-	quantityNeeded: number
+	unit: string,
+	quantityNeeded: number,
+	details: string
 ): Promise<object> {
 	const { output } = await client.insert('bring_items', {
 		event_id: eventId,
@@ -24,7 +25,8 @@ export async function createBringItem(
 		unit,
 		quantity_needed: quantityNeeded,
 		created_by: userId,
-		created_at: new Date().toISOString()
+		created_at: new Date().toISOString(),
+		details: details
 	});
 
 	return output;
@@ -41,7 +43,12 @@ export async function createBringItem(
 export async function updateBringItem(
 	client: WorkerClient,
 	itemId: string,
-	updates: Partial<{ name: string; unit: 'per_person' | 'count'; quantity_needed: number }>
+	updates: Partial<{
+		name: string;
+		unit: string;
+		quantity_needed: number;
+		details: string;
+	}>
 ): Promise<object> {
 	// Ensure the user is an admin
 	const item = await client.fetchOne(
@@ -153,7 +160,7 @@ export async function updateBringAssignment(
  */
 export async function deleteBringAssignment(
 	client: WorkerClient,
-	assignmentId: string,
+	assignmentId: string
 ): Promise<void> {
 	// Ensure the assignment exists
 	const assignment = await client.fetchOne(

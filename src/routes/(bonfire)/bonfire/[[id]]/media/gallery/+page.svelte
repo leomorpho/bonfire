@@ -42,20 +42,20 @@
 	let currUserId = $state('');
 	let eventOwnerUserId = $state('');
 	let adminUserIds: Set<string> = $state(new Set<string>());
-	let currenUserIsEventAdmin = $state(false);
+	let isCurrenUserEventAdmin = $state(false);
 
 	let deleteButtonEnabled = $state(true);
 	let downloadButtonEnabled = $state(true);
 
 	$effect(() => {
 		if (eventOwnerUserId == currUserId) {
-			currenUserIsEventAdmin = true;
+			isCurrenUserEventAdmin = true;
 		}
 	});
 
 	$effect(() => {
 		if ($page.data.isAdmin || adminUserIds.has(currUserId)) {
-			currenUserIsEventAdmin = true;
+			isCurrenUserEventAdmin = true;
 		}
 	});
 
@@ -404,7 +404,7 @@
 					if (
 						dataUploaderId == tempAttendeeId ||
 						($page.data.user && dataUploaderId === $page.data.user.id) ||
-						currenUserIsEventAdmin
+						isCurrenUserEventAdmin
 					) {
 						// Close PhotoSwipe viewer
 						pswp.close();
@@ -436,7 +436,7 @@
 						if (imageDiv) {
 							const dataUploaderId = imageDiv.getAttribute('data-uploader-id');
 							el.style.display =
-								($page.data.user && dataUploaderId === $page.data.user.id) || currenUserIsEventAdmin
+								($page.data.user && dataUploaderId === $page.data.user.id) || isCurrenUserEventAdmin
 									? 'block'
 									: 'none';
 						} else {
@@ -686,7 +686,7 @@
 								</ContextMenu.Trigger>
 								<ContextMenu.Content>
 									<ContextMenu.Item>Download</ContextMenu.Item>
-									{#if $page.data.user.id == file.uploader_id || currenUserIsEventAdmin}
+									{#if $page.data.user.id == file.uploader_id || isCurrenUserEventAdmin}
 										<CustomAlertDialogue
 											continueCallback={() => handleDelete(file.id)}
 											dialogDescription={`This action cannot be undone. This will permanently delete ${selectedImages.length} this file from our servers.`}
@@ -694,7 +694,7 @@
 											<ContextMenu.Item>Delete this file</ContextMenu.Item></CustomAlertDialogue
 										>
 									{/if}
-									{#if currenUserIsEventAdmin && selectedImages.length > 1}
+									{#if isCurrenUserEventAdmin && selectedImages.length > 1}
 										<CustomAlertDialogue
 											continueCallback={() => handleDelete()}
 											dialogDescription={`This action cannot be undone. This will permanently delete ${selectedImages.length} this file from our servers.`}
@@ -763,7 +763,7 @@
 						</Tooltip.Content>
 					</Tooltip.Root>
 				</Tooltip.Provider>
-				{#if currenUserIsEventAdmin || canBulkDelete()}
+				{#if isCurrenUserEventAdmin || canBulkDelete()}
 					<Tooltip.Provider>
 						<Tooltip.Root>
 							<Tooltip.Trigger>

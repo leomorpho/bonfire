@@ -13,7 +13,7 @@
 	import Message from '../im/Message.svelte';
 	import MessageContent from '../im/MessageContent.svelte';
 
-	let { notification, toggleDialog, currenUserIsEventAdmin = false } = $props();
+	let { notification, toggleDialog, isCurrenUserEventAdmin = false } = $props();
 
 	let userId = $state('');
 	let linkedObjects = $state([]);
@@ -249,7 +249,7 @@
 									{#each linkedObjects as attendee}
 										<ProfileAvatar
 											userId={attendee.user_id}
-											viewerIsEventAdmin={currenUserIsEventAdmin}
+											viewerIsEventAdmin={isCurrenUserEventAdmin}
 										/>
 									{/each}
 								</div>
@@ -260,7 +260,7 @@
 							{#each linkedObjects as attendee}
 								<ProfileAvatar
 									userId={attendee.user_id}
-									viewerIsEventAdmin={currenUserIsEventAdmin}
+									viewerIsEventAdmin={isCurrenUserEventAdmin}
 								/>
 							{/each}
 						</div>

@@ -40,6 +40,7 @@
 	import NumNewMessageIndicator from '$lib/components/im/NumNewMessageIndicator.svelte';
 	import { fetchAndCacheUsers, userIdsStore } from '$lib/profilestore';
 	import AttendeesDialog from '$lib/components/AttendeesDialog.svelte';
+	import BringList from '$lib/components/bringlist/BringList.svelte';
 
 	const showMaxNumPeople = 50;
 	const tempAttendeeId = $page.data.tempAttendeeId;
@@ -56,7 +57,7 @@
 	let isUnverifiedUser = $derived(!!tempAttendeeId);
 	let tempAttendee = $state(null);
 	let currentUserAttendee = $state();
-	let currenUserIsEventAdmin = $state(false);
+	let isCurrenUserEventAdmin = $state(false);
 	let isAnonymousUser = $state(!$page.data.user);
 	let adminUserIds = $state(new Set<string>());
 
@@ -107,7 +108,7 @@
 			(event && currUserId && event.user_id == (currUserId as string)) ||
 			adminUserIds.has(currUserId)
 		) {
-			currenUserIsEventAdmin = true;
+			isCurrenUserEventAdmin = true;
 		}
 	});
 
@@ -460,7 +461,7 @@
 		<EventDoesNotExist />
 	{:else}
 		<div class="mx-4 flex flex-col items-center justify-center">
-			{#if currenUserIsEventAdmin}
+			{#if isCurrenUserEventAdmin}
 				<div class="flex w-full justify-center">
 					<a href="update" id="edit-bonfire">
 						<Button variant="outline" class="m-2 rounded-full">
@@ -531,10 +532,10 @@
 										blurhash={$page.data.bannerInfo.bannerBlurHash}
 										bannerSmallSizeUrl={$page.data.bannerInfo.bannerSmallSizeUrl}
 										bannerLargeSizeUrl={$page.data.bannerInfo.bannerLargeSizeUrl}
-										{currenUserIsEventAdmin}
+										{isCurrenUserEventAdmin}
 									/>
 								</div>
-							{:else if currenUserIsEventAdmin}
+							{:else if isCurrenUserEventAdmin}
 								<a class="flex w-full" href="banner/upload">
 									<Button class="w-full dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600"
 										>Set a banner image</Button
@@ -630,7 +631,7 @@
 											<ProfileAvatar
 												userId={attendee.user_id}
 												tempUserName={attendee.name}
-												viewerIsEventAdmin={currenUserIsEventAdmin}
+												viewerIsEventAdmin={isCurrenUserEventAdmin}
 												attendanceId={attendee.id}
 												baseHeightPx={allAttendeesGoing.length < 10 ? 60 : 50}
 											/>
@@ -640,7 +641,7 @@
 											{allAttendeesMaybeGoing}
 											{allAttendeesNotGoing}
 											{showMaxNumPeople}
-											{currenUserIsEventAdmin}
+											{isCurrenUserEventAdmin}
 										/>
 									</div>
 								{:else if allAttendeesGoing.length == 0}
@@ -725,9 +726,9 @@
 							</div>
 							{#if rsvpStatus}
 								<div class="my-2">
-									<Annoucements maxCount={3} {isUnverifiedUser} {currenUserIsEventAdmin} />
+									<Annoucements maxCount={3} {isUnverifiedUser} {isCurrenUserEventAdmin} />
 								</div>
-								{#if currenUserIsEventAdmin}
+								{#if isCurrenUserEventAdmin}
 									<a href="announcement/create">
 										<Button
 											class="mt-1 w-full ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
@@ -742,8 +743,12 @@
 							{/if}
 						</div>
 						<HorizRule />
+						<div class="my-5 w-full">
+							<BringList eventId={$page.data.event.id} isAdmin={isCurrenUserEventAdmin} numAttendeesGoing={allAttendeesGoing.length}/>
+						</div>
+						<HorizRule />
 						<div class="my-5">
-							<div class=" rounded-xl bg-white p-5 dark:bg-slate-900">
+							<div class="rounded-xl bg-white p-5 dark:bg-slate-900">
 								<div class="font-semibold">Gallery</div>
 							</div>
 							{#if rsvpStatus}
@@ -768,7 +773,7 @@
 								canSendIm={!!rsvpStatus && !!currUserId}
 								eventId={event.id}
 								datetimeUserJoinedBonfire={currentUserAttendee?.updated_at}
-								{currenUserIsEventAdmin}
+								{isCurrenUserEventAdmin}
 							/>
 						{:else}
 							<div class="flex h-40 items-center justify-center">
