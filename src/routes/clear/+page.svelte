@@ -1,14 +1,14 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import type { TriplitClient } from '@triplit/client';
-	import { clearCache, getFeTriplitClient } from '$lib/triplit';
+	import { clearCache, getFeWorkerTriplitClient } from '$lib/triplit';
 	import { page } from '$app/stores';
 	import { Button } from '$lib/components/ui/button';
 
 	let client: TriplitClient;
 
 	onMount(() => {
-		client = getFeTriplitClient($page.data.jwt) as TriplitClient;
+		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
 		clearCache(client).catch((error) => {
 			console.error('Failed to reset Triplit local DB on logout:', error);

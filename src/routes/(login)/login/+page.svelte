@@ -10,7 +10,7 @@
 	import Minus from 'lucide-svelte/icons/minus';
 	import LoaderPage from '$lib/components/LoaderPage.svelte';
 	import type { TriplitClient } from '@triplit/client';
-	import { clearCache, getFeTriplitClient } from '$lib/triplit.js';
+	import { clearCache, getFeWorkerTriplitClient } from '$lib/triplit.js';
 	import Button from '$lib/components/ui/button/button.svelte';
 
 	const { data } = $props();
@@ -27,7 +27,7 @@
 	let client: TriplitClient;
 
 	onMount(() => {
-		client = getFeTriplitClient($page.data.jwt) as TriplitClient;
+		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
 		clearCache(client).catch((error) => {
 			console.error('Failed to reset triplit local db on logout:', error);

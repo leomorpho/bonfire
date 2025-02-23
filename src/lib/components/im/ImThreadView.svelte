@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { createNewThread, getThread, MAIN_THREAD, sendMessage } from '$lib/im';
-	import { getFeTriplitClient } from '$lib/triplit';
+	import { getFeWorkerTriplitClient } from '$lib/triplit';
 	import { onDestroy, onMount } from 'svelte';
 	import ImInput from './ImInput.svelte';
 	import type { WorkerClient } from '@triplit/client/worker-client';
@@ -86,7 +86,7 @@
 	const markNotifAsRead = async (id: string) => {
 		console.log(`marking notification with id ${id} as seen`);
 		try {
-			const client = getFeTriplitClient($page.data.jwt);
+			const client = getFeWorkerTriplitClient($page.data.jwt);
 
 			// Update the notification to mark it as seen
 			await client.update('notifications', id, async (e: any) => {
@@ -105,7 +105,7 @@
 	};
 
 	onMount(() => {
-		const client = getFeTriplitClient($page.data.jwt);
+		const client = getFeWorkerTriplitClient($page.data.jwt);
 
 		let threadMessagesQuery = client.query('event_messages');
 
@@ -313,7 +313,7 @@
 	};
 
 	const handleSendMessage = async (message: string) => {
-		const client = getFeTriplitClient($page.data.jwt);
+		const client = getFeWorkerTriplitClient($page.data.jwt);
 
 		try {
 			if (!threadId) {

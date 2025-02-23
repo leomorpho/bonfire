@@ -2,7 +2,7 @@
 	import { dev } from '$app/environment';
 	import { page } from '$app/stores';
 	import { TriplitClient } from '@triplit/client';
-	import { getFeTriplitClient, waitForUserId } from '$lib/triplit';
+	import { getFeWorkerTriplitClient, waitForUserId } from '$lib/triplit';
 	import Loader from '$lib/components/Loader.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
@@ -199,7 +199,7 @@
 	};
 
 	onMount(() => {
-		client = getFeTriplitClient($page.data.jwt) as TriplitClient;
+		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
 		// TODO: below can be squashed into the above unsubscribeTempAttendeesQuery
 		let unsubscribeTemporaryUserQuery = null;

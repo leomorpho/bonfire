@@ -4,7 +4,7 @@
 	import Button from './ui/button/button.svelte';
 	import { onMount } from 'svelte';
 	import { Pencil } from 'lucide-svelte';
-	import { getFeTriplitClient } from '$lib/triplit';
+	import { getFeWorkerTriplitClient } from '$lib/triplit';
 	import { page } from '$app/stores';
 	import ProfileAvatar from './ProfileAvatar.svelte';
 
@@ -25,7 +25,7 @@
 
 		if (announcement.seen_by.length != 0) return;
 
-		const client = getFeTriplitClient($page.data.jwt);
+		const client = getFeWorkerTriplitClient($page.data.jwt);
 
 		try {
 			// Insert new seen_announcements record

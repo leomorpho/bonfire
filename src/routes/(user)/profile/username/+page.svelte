@@ -3,7 +3,7 @@
 	import { page } from '$app/stores';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { Input } from '$lib/components/ui/input/index.js';
-	import { getFeTriplitClient, waitForUserId } from '$lib/triplit';
+	import { getFeWorkerTriplitClient, waitForUserId } from '$lib/triplit';
 	import type { TriplitClient } from '@triplit/client';
 	import { onMount } from 'svelte';
 
@@ -24,7 +24,7 @@
 	let client: TriplitClient;
 
 	onMount(() => {
-		client = getFeTriplitClient($page.data.jwt) as TriplitClient;
+		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 		console.log('user with id', $page.data.user.id);
 
 		// NOTE: we need to subscribe because if the user is new, they may still be in the creating

@@ -2,7 +2,7 @@
 	import Notification from './Notification.svelte';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
-	import { getFeTriplitClient, waitForUserId } from '$lib/triplit';
+	import { getFeWorkerTriplitClient, waitForUserId } from '$lib/triplit';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 	import { and } from '@triplit/client';
@@ -26,7 +26,7 @@
 
 	// Initialize the seen notifications subscription
 	async function initLoadNotifications() {
-		const client = getFeTriplitClient($page.data.jwt);
+		const client = getFeWorkerTriplitClient($page.data.jwt);
 		const unseenQuery = client
 			.query('notifications')
 			.where([

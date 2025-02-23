@@ -17,7 +17,7 @@
 	import TimezonePicker from '$lib/components/TimezonePicker.svelte';
 	import Datepicker from '$lib/components/Datepicker.svelte';
 	import AmPmPicker from '$lib/components/AmPmPicker.svelte';
-	import { getFeHttpTriplitClient, getFeTriplitClient, upsertUserAttendance, waitForUserId } from '$lib/triplit';
+	import { getFeHttpTriplitClient, getFeWorkerTriplitClient, upsertUserAttendance, waitForUserId } from '$lib/triplit';
 	import { goto } from '$app/navigation';
 	import type { TriplitClient } from '@triplit/client';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
@@ -364,7 +364,7 @@
 		overlayColorStore.set(overlayColor);
 		overlayOpacityStore.set(overlayOpacity);
 
-		client = getFeTriplitClient($page.data.jwt) as TriplitClient;
+		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 		(async () => {
 			// NOTE: for testing
 			console.log('generatePassphraseId()', await generatePassphraseId());

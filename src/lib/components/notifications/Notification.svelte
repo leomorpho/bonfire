@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getFeTriplitClient, waitForUserId } from '$lib/triplit';
+	import { getFeWorkerTriplitClient, waitForUserId } from '$lib/triplit';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 	import { TriplitClient } from '@triplit/client';
@@ -26,7 +26,7 @@
 		// console.log('notification', notification);
 		if (!notification.object_ids || !notification.object_type) return;
 
-		const client = getFeTriplitClient($page.data.jwt) as TriplitClient;
+		const client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 		const objectIds = stringRepresentationToArray(notification.object_ids);
 
 		let query;
@@ -120,7 +120,7 @@
 	const markAsRead = async () => {
 		if (notification.seen_at) return;
 
-		const client = getFeTriplitClient($page.data.jwt) as TriplitClient;
+		const client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
 		try {
 			// Update the notification as read

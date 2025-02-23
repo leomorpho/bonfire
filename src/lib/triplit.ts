@@ -56,9 +56,9 @@ export function getFeHttpTriplitClient(jwt: string) {
 	});
 }
 
-let feTriplitClient: WorkerClient | TriplitClient | null;
+let feWorkerTriplitClient: WorkerClient | TriplitClient | null;
 
-export function getFeTriplitClient(jwt: string) {
+export function getFeWorkerTriplitClient(jwt: string) {
 	if (!browser) {
 		throw new Error('TriplitClient can only be created in the browser.');
 	}
@@ -79,8 +79,8 @@ export function getFeTriplitClient(jwt: string) {
 			// If the type has changed, reset the client
 			if (storedType && storedType !== currentType) {
 				console.log('User type changed, creating a new Triplit client...');
-				feTriplitClient?.endSession();
-				feTriplitClient = null;
+				feWorkerTriplitClient?.endSession();
+				feWorkerTriplitClient = null;
 				window.client = null;
 			}
 
@@ -89,26 +89,26 @@ export function getFeTriplitClient(jwt: string) {
 		}
 
 		// Return existing client if available
-		if (feTriplitClient) return feTriplitClient;
+		if (feWorkerTriplitClient) return feWorkerTriplitClient;
 		if (window.client) {
-			feTriplitClient = window.client;
+			feWorkerTriplitClient = window.client;
 			return window.client;
 		}
 
 		// Create a new client if no existing one is found
-		feTriplitClient = createNewTriplitClient(jwt);
+		feWorkerTriplitClient = createNewWorkerTriplitClient(jwt);
 		console.log('Frontend TriplitClient initialized');
 
 		// Expose client on window for debugging
-		window.client = feTriplitClient;
-		return feTriplitClient;
+		window.client = feWorkerTriplitClient;
+		return feWorkerTriplitClient;
 	} catch (error) {
 		console.error('Error initializing TriplitClient:', error);
 		throw new Error('Failed to initialize TriplitClient.');
 	}
 }
 
-const createNewTriplitClient = (jwt: string) => {
+const createNewWorkerTriplitClient = (jwt: string) => {
 	return new WorkerClient({
 		workerUrl: dev ? workerUrl : undefined,
 		storage: {
@@ -127,16 +127,16 @@ const createNewTriplitClient = (jwt: string) => {
 
 				if (newJwt) {
 					console.log('🔑 JWT refreshed, updating session...');
-					await feTriplitClient?.endSession();
-					await feTriplitClient?.startSession(newJwt, true, {
+					await feWorkerTriplitClient?.endSession();
+					await feWorkerTriplitClient?.startSession(newJwt, true, {
 						refreshHandler: async () => await getFreshToken()
 					});
-					feTriplitClient?.updateSessionToken(newJwt);
+					feWorkerTriplitClient?.updateSessionToken(newJwt);
 					console.log('✅ Triplit session updated with new JWT');
 				} else {
 					console.error('❌ Failed to refresh JWT, logging out...');
-					await feTriplitClient?.endSession();
-					feTriplitClient?.clear();
+					await feWorkerTriplitClient?.endSession();
+					feWorkerTriplitClient?.clear();
 				}
 			}
 		},

@@ -2,7 +2,7 @@
 	import { toast } from 'svelte-sonner';
 	import { Button } from '$lib/components/ui/button';
 	import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
-	import { getFeTriplitClient } from '$lib/triplit';
+	import { getFeWorkerTriplitClient } from '$lib/triplit';
 	import type { TriplitClient } from '@triplit/client';
 	import { page } from '$app/stores';
 	import Loader from '../Loader.svelte';
@@ -21,7 +21,7 @@
 	const handleDeleteAccount = async () => {
 		isOpen = false;
 
-		const client = getFeTriplitClient($page.data.jwt) as TriplitClient;
+		const client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
 		try {
 			const userId = $page.data.user.id;

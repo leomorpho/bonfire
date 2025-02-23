@@ -2,7 +2,7 @@
 	import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
 	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
 	import { buttonVariants } from '$lib/components/ui/button/index.js';
-	import { getFeTriplitClient, waitForUserId } from '$lib/triplit';
+	import { getFeWorkerTriplitClient, waitForUserId } from '$lib/triplit';
 	import { onMount } from 'svelte';
 	import type { FetchOptions, TriplitClient } from '@triplit/client';
 	import Loader from '$lib/components/Loader.svelte';
@@ -72,7 +72,7 @@
 	};
 
 	onMount(() => {
-		client = getFeTriplitClient($page.data.jwt) as TriplitClient;
+		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 		// client.connect();
 
 		initEvents().catch((error) => {

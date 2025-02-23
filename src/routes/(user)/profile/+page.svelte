@@ -8,7 +8,7 @@
 	import { Pencil } from 'lucide-svelte';
 	import { Plus } from 'lucide-svelte';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
-	import { getFeTriplitClient } from '$lib/triplit';
+	import { getFeWorkerTriplitClient } from '$lib/triplit';
 	import ProfileAvatar from '$lib/components/ProfileAvatar.svelte';
 
 	let user = $state();
@@ -19,7 +19,7 @@
 	const small_image_url = $page.data.small_image_url;
 
 	onMount(() => {
-		client = getFeTriplitClient($page.data.jwt) as TriplitClient;
+		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
 		user = useQuery(client, client.query('user').where(['id', '=', $page.data.user.id]));
 		console.log('$page.data.user', $page.data.user);

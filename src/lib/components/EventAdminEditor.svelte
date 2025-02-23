@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { getFeTriplitClient } from '$lib/triplit';
+	import { getFeWorkerTriplitClient } from '$lib/triplit';
 	import { and, type TriplitClient } from '@triplit/client';
 	import { onMount } from 'svelte';
 	import Check from 'lucide-svelte/icons/check';
@@ -30,7 +30,7 @@
 	let inputRef = $state<HTMLInputElement>(null!);
 
 	onMount(() => {
-		client = getFeTriplitClient($page.data.jwt) as TriplitClient;
+		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
 		const unsubscribeFromEventAttendeesQuery = client.subscribe(
 			client
