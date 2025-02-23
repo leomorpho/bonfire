@@ -47,6 +47,15 @@ export async function waitForUserId(timeout = 5000) {
 	});
 }
 
+export let feHttpTriplitClient: HttpClient | null;
+
+export function getFeHttpTriplitClient(jwt: string) {
+	return new HttpClient({
+		serverUrl: publicEnv.PUBLIC_TRIPLIT_URL,
+		token: jwt ? jwt : publicEnv.PUBLIC_TRIPLIT_ANONYMOUS_TOKEN
+	});
+}
+
 let feTriplitClient: WorkerClient | TriplitClient | null;
 
 export function getFeTriplitClient(jwt: string) {
