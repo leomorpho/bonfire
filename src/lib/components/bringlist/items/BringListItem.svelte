@@ -27,12 +27,14 @@
 
 			// Gradient fill for progress
 			progressGradient = `linear-gradient(to right, ${progressColor} ${progress}%, transparent ${progress}%)`;
+		} else if (totalBrought == 0) {
+			progressGradient = '';
 		}
 	});
 </script>
 
 <div
-	style="background-image: {progressGradient}; transition: background-image 1s ease-in-out;"
+	style="background-image: {progressGradient};"
 	class="flex h-8 w-full items-center justify-between rounded-xl bg-slate-100 p-3 text-black outline-none ring-0 focus:outline-none focus-visible:ring-0 dark:bg-slate-800 dark:text-white sm:h-10"
 >
 	<div>{itemName}</div>

@@ -38,32 +38,34 @@
 		userAssignment ? userAssignment.quantity : item.quantity_needed - item.total_brought
 	);
 
+	let tempUserCommitment = $state(numCommittedByuser); // Temp state for the slider in the dialog
+
 	let isOpen = $state(false);
 
 	const upsertAssignment = async (closeAfterSave = false, showToasts = false) => {
 		const client = getFeTriplitClient($page.data.jwt);
 		if (userAssignment) {
 			try {
-				await updateBringAssignment(client, userAssignment.id, { quantity: numCommittedByuser });
+				await updateBringAssignment(client, userAssignment.id, { quantity: tempUserCommitment });
 				if (showToasts) {
 					toast.success("Successfully updated the number you're bringing");
 				}
 				userIdToNumBrought = {
 					...userIdToNumBrought,
-					[currUserId]: numCommittedByuser
+					[currUserId]: tempUserCommitment
 				};
 			} catch (e) {
 				console.error('failed to update bring assignment', e);
 			}
 		} else {
 			try {
-				await assignBringItem(client, item.id, currUserId, currUserId, numCommittedByuser);
+				await assignBringItem(client, item.id, currUserId, currUserId, tempUserCommitment);
 				if (showToasts) {
 					toast.success("Successfully set the number you're bringing");
 				}
 				userIdToNumBrought = {
 					...userIdToNumBrought,
-					[currUserId]: numCommittedByuser
+					[currUserId]: tempUserCommitment
 				};
 			} catch (e) {
 				console.error('failed to assign bring assignment', e);
@@ -106,7 +108,10 @@
 				itemName={item.name}
 				itemUnit={item.unit}
 				itemQuantityNeeded={item.quantity_needed}
-				{userIdToNumBrought}
+				userIdToNumBrought={{
+					...userIdToNumBrought,
+					[currUserId]: tempUserCommitment // Use temp state inside the dialog
+				}}
 			/>
 		</Dialog.Header>
 		<!-- Slider to adjust the user's contribution -->
@@ -115,18 +120,15 @@
 				type="range"
 				min="0"
 				max={item.quantity_needed - numBroughtByOthers}
-				bind:value={numCommittedByuser}
+				bind:value={tempUserCommitment}
 				class="w-full cursor-pointer"
-				oninput={() => {
-					upsertAssignment();
-				}}
 			/>
 			<span class="flex items-center">
 				{#if item.unit == BringListCountTypes.PER_PERSON}
-					<UserRound class="mr-2 h-4 w-4 sm:h-5 sm:w-5" /> You're bringing enough for {numCommittedByuser}
+					<UserRound class="mr-2 h-4 w-4 sm:h-5 sm:w-5" /> You're bringing enough for {tempUserCommitment}
 					people
 				{:else if item.unit == BringListCountTypes.COUNT}
-					<Tally5 class="mr-2 h-4 w-4 sm:h-5 sm:w-5" /> You're bringing {numCommittedByuser} of this
+					<Tally5 class="mr-2 h-4 w-4 sm:h-5 sm:w-5" /> You're bringing {tempUserCommitment} of this
 				{/if}
 			</span>
 		</div>
