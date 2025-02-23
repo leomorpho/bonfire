@@ -82,8 +82,8 @@
 		userId = $page.data.user.id;
 
 		const queryOptions = {
-			policy: 'local-and-remote',
-			timeout: 3000 // Optional: Wait for up to 3s before showing local data
+			policy: 'remote-first',
+			timeout: 2000 // Optional: Wait for up to 2s before showing local data
 		} as FetchOptions;
 
 		let futureEventsQuery = createEventsQuery(client, userId, true);
