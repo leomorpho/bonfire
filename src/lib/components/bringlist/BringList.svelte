@@ -64,7 +64,7 @@
 	{#if initialLoad}
 		<div class="flex w-full items-center justify-center"><SvgLoader /></div>
 	{:else}
-		{#each bringItems as item}
+		{#each bringItems as item (item.id)}
 			<BringItemProgressBar {eventId} {item} {numAttendeesGoing} {currUserId} {isAdmin} />
 		{/each}
 	{/if}

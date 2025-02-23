@@ -18,7 +18,7 @@
 		progress = Math.min(100, Math.round((totalBrought / itemQuantityNeeded) * 100));
 
 		// 🎨 Regular HSL transition (Red → Yellow → Green)
-		progressColor = `hsl(${120 * (progress / 100)}, 100%, 30%)`;
+		progressColor = `hsl(${120 * (progress / 100)}, 100%, 40%)`;
 
 		if (progress === 0) {
 			progressColor = `hsl(0, 100%, 30%)`; // Pure red
@@ -30,7 +30,7 @@
 </script>
 
 <div
-	style="background-image: {progressGradient};"
+	style="background-image: {progressGradient}; transition: background-image 1s ease-in-out;"
 	class="flex w-full justify-between rounded-xl bg-slate-100 p-3 text-black outline-none ring-0 focus:outline-none focus-visible:ring-0 dark:bg-slate-800 dark:text-white"
 >
 	<div>{itemName}</div>

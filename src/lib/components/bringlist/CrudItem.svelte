@@ -6,10 +6,12 @@
 	import ItemCategory from './ItemCategory.svelte';
 	import { BringListCountTypes } from '$lib/enums';
 	import TextAreaAutoGrow from '../TextAreaAutoGrow.svelte';
-	import { createBringItem, updateBringItem } from '$lib/bringlist';
+	import { createBringItem, deleteBringItem, updateBringItem } from '$lib/bringlist';
 	import { getFeTriplitClient } from '$lib/triplit';
 	import { page } from '$app/stores';
 	import { toast } from 'svelte-sonner';
+	import CustomAlertDialog from '../CustomAlertDialog.svelte';
+	import { Trash2 } from 'lucide-svelte';
 
 	let { children, eventId, numAttendeesGoing, isOpen = false, item = null, cls = null } = $props();
 
@@ -19,6 +21,20 @@
 	let details = $state('');
 
 	let submitEnabled = $derived(itemName && count != 0);
+
+	const deleteItem = async () => {
+		const client = await getFeTriplitClient($page.data.jwt);
+		if (!item) {
+			return;
+		}
+
+		try {
+			await deleteBringItem(client, item.id);
+			toast.success(`Successfully deleted bring item "${itemName}"`);
+		} catch (e) {
+			console.error(`failed to delete bring item with id ${item.id}`, e);
+		}
+	};
 
 	const upsertItem = async () => {
 		const client = await getFeTriplitClient($page.data.jwt);
@@ -106,7 +122,19 @@
 			/>
 		</div>
 		<Dialog.Footer>
-			<Button disabled={!submitEnabled} onclick={upsertItem} type="submit" class="w-full"
+			{#if item}
+				<CustomAlertDialog
+					continueCallback={() => deleteItem()}
+					dialogDescription={'This bring item will be deleted. This cannot be undone.'}
+					cls={'w-full'}
+				>
+					<Button
+						class="m-1 flex w-full justify-center bg-slate-200 text-red-500 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700"
+						><Trash2 class="mr-1"/> Delete </Button
+					>
+				</CustomAlertDialog>
+			{/if}
+			<Button disabled={!submitEnabled} onclick={upsertItem} type="submit" class="m-1 w-full"
 				>{item ? 'Save Changes' : 'Add'}</Button
 			>
 		</Dialog.Footer>
