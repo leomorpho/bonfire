@@ -15,6 +15,35 @@ set -o pipefail  # Fail if any piped command fails
 
 echo "🚀 Running pre-deploy hook for Kamal (Locally)"
 
+# Check if KAMAL_DESTINATION is set
+if [ ! -z "$KAMAL_DESTINATION" ]; then
+  echo "🛠️ KAMAL_DESTINATION is set to $KAMAL_DESTINATION"
+
+  # Load environment variables from the appropriate secrets file
+  if [ "$KAMAL_DESTINATION" = "staging" ]; then
+    echo "🔐 Loading secrets for Staging..."
+    if [ -f "$HOME/.kamal/secrets.staging" ]; then
+      export $(cat "$HOME/.kamal/secrets.staging" | xargs)
+    else
+      echo "❌ ERROR: Secrets file for Staging not found at ~/.kamal/secrets.staging!"
+      exit 1
+    fi
+  elif [ "$KAMAL_DESTINATION" = "prod" ]; then
+    echo "🔐 Loading secrets for Production..."
+    if [ -f "$HOME/.kamal/secrets.prod" ]; then
+      export $(cat "$HOME/.kamal/secrets.prod" | xargs)
+    else
+      echo "❌ ERROR: Secrets file for Production not found at ~/.kamal/secrets.prod!"
+      exit 1
+    fi
+  else
+    echo "❌ ERROR: Invalid KAMAL_DESTINATION value! It must be either 'staging' or 'prod'."
+    exit 1
+  fi
+else
+  echo "⚠️ KAMAL_DESTINATION is not set, skipping environment-specific secret loading."
+fi
+
 # Ensure required env vars exist
 if [ -z "$TURSO_DB_URL" ]; then
   echo "❌ ERROR: TURSO_DB_URL is not set!"
