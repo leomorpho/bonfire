@@ -3,7 +3,7 @@
 	import { BringListCountTypes } from '$lib/enums';
 	import { Cog, Tally5, UserRound } from 'lucide-svelte';
 	import { Button } from '../ui/button';
-	import BringListItem from './BringListItem.svelte';
+	import BringListItem from './items/BringListItem.svelte';
 	import CrudItem from './CrudItem.svelte';
 	import { getFeTriplitClient } from '$lib/triplit';
 	import { page } from '$app/stores';

@@ -3,7 +3,7 @@
 	import { Button } from '../ui/button';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Label } from '$lib/components/ui/label/index.js';
-	import ItemCategory from './ItemCategory.svelte';
+	import ItemCategory from './items/ItemCategory.svelte';
 	import { BringListCountTypes } from '$lib/enums';
 	import TextAreaAutoGrow from '../TextAreaAutoGrow.svelte';
 	import { createBringItem, deleteBringItem, updateBringItem } from '$lib/bringlist';
