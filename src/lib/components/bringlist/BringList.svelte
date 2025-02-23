@@ -8,6 +8,7 @@
 	import type { BringAssignment, BringItem } from '$lib/types';
 	import BringItemProgressBar from './BringItemProgressBar.svelte';
 	import { Button } from '../ui/button';
+	import BonfireNoInfoCard from '../BonfireNoInfoCard.svelte';
 
 	let { eventId, currUserId, isAdmin = false, numAttendeesGoing = 5 } = $props();
 	let initialLoad = $state(true);
@@ -63,14 +64,18 @@
 <div class="my-2">
 	{#if initialLoad}
 		<div class="flex w-full items-center justify-center"><SvgLoader /></div>
+	{:else if bringItems.length > 0}
+		<div class="my-2">
+			{#each bringItems as item (item.id)}
+				<BringItemProgressBar {eventId} {item} {numAttendeesGoing} {currUserId} {isAdmin} />
+			{/each}
+		</div>
 	{:else}
-		{#each bringItems as item (item.id)}
-			<BringItemProgressBar {eventId} {item} {numAttendeesGoing} {currUserId} {isAdmin} />
-		{/each}
+		<BonfireNoInfoCard text={'No items to bring yet'} />
 	{/if}
 </div>
 {#if isAdmin}
-	<CrudItem {eventId} {numAttendeesGoing} cls={'mt-5 w-full'}>
+	<CrudItem {eventId} {numAttendeesGoing} cls={'w-full'}>
 		<Button
 			class="flex w-full items-center justify-center ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
 			>Add</Button

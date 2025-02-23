@@ -14,24 +14,26 @@
 	);
 
 	$effect(() => {
-		// Compute progress percentage (0 - 100)
-		progress = Math.min(100, Math.round((totalBrought / itemQuantityNeeded) * 100));
+		if (totalBrought) {
+			// Compute progress percentage (0 - 100)
+			progress = Math.min(100, Math.round((totalBrought / itemQuantityNeeded) * 100));
 
-		// 🎨 Regular HSL transition (Red → Yellow → Green)
-		progressColor = `hsl(${120 * (progress / 100)}, 100%, 40%)`;
+			// 🎨 Regular HSL transition (Red → Yellow → Green)
+			progressColor = `hsl(${120 * (progress / 100)}, 100%, 40%)`;
 
-		if (progress === 0) {
-			progressColor = `hsl(0, 100%, 30%)`; // Pure red
+			if (progress === 0) {
+				progressColor = `hsl(0, 100%, 30%)`; // Pure red
+			}
+
+			// Gradient fill for progress
+			progressGradient = `linear-gradient(to right, ${progressColor} ${progress}%, transparent ${progress}%)`;
 		}
-
-		// Gradient fill for progress
-		progressGradient = `linear-gradient(to right, ${progressColor} ${progress}%, transparent ${progress}%)`;
 	});
 </script>
 
 <div
 	style="background-image: {progressGradient}; transition: background-image 1s ease-in-out;"
-	class="h-8 sm:h-10 flex w-full items-center justify-between rounded-xl bg-slate-100 p-3 text-black outline-none ring-0 focus:outline-none focus-visible:ring-0 dark:bg-slate-800 dark:text-white"
+	class="flex h-8 w-full items-center justify-between rounded-xl bg-slate-100 p-3 text-black outline-none ring-0 focus:outline-none focus-visible:ring-0 dark:bg-slate-800 dark:text-white sm:h-10"
 >
 	<div>{itemName}</div>
 	<div class="flex items-center">
