@@ -588,7 +588,9 @@
 							>
 								<div class="font-semibold">Details</div>
 								{#if event.description}
-									{event.description}
+									<div class="whitespace-pre-wrap">
+										{event.description}
+									</div>
 								{:else}
 									{'No details yet...'}
 								{/if}

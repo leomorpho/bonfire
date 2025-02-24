@@ -13,7 +13,7 @@
 
 	const MAX_HEIGHT = 100; // Set max height in pixels
 
-	const textInputPlaceholder = canSendIm ? 'Write a message...' : 'Temporary users can\'t interact. Please log in or sign up to participate.';
+	const textInputPlaceholder = canSendIm ? 'Write a message...' : 'Login to interact';
 
 	// Adjust textarea height dynamically with a max height
 	const adjustTextareaHeight = () => {
@@ -80,7 +80,7 @@
 	</div>
 	<!-- Emoji Picker Popover -->
 	<Popover.Root>
-		<Popover.Trigger class="focus:outline-none focus-visible:ring-0"
+		<Popover.Trigger class="focus:outline-none focus-visible:ring-0" disabled={!canSendIm}
 			><Smile
 				class="h-5 w-5 text-gray-500 focus:outline-none focus-visible:ring-0 dark:text-gray-400"
 			/></Popover.Trigger

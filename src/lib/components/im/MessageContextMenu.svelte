@@ -64,7 +64,7 @@
 	const toggleEmoji = async (detail: any) => {
 		if (!canInteract) {
 			showSmileyPicker = false;
-			toast.warning("Temporary users can't interact. Please log in or sign up to participate.");
+			toast.warning("Temporary users can't interact in the discussions. Please log in or sign up to participate.");
 			return;
 		}
 		const client = await getFeWorkerTriplitClient($page.data.jwt);
