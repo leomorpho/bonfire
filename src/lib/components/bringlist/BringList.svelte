@@ -10,7 +10,18 @@
 	import { Button } from '../ui/button';
 	import BonfireNoInfoCard from '../BonfireNoInfoCard.svelte';
 
-	let { eventId, currUserId, isAdmin = false, numAttendeesGoing = 5 } = $props();
+	let {
+		eventId,
+		currUserId = null,
+		tempAttendeeId = null,
+		isAdmin = false,
+		numAttendeesGoing = 5
+	} = $props();
+
+	if (!tempAttendeeId && !currUserId) {
+		throw new Error('either temp or user id must be set for bring list');
+	}
+
 	let initialLoad = $state(true);
 	let bringItems: Array<BringItem> = $state([]);
 
@@ -67,7 +78,13 @@
 	{:else if bringItems.length > 0}
 		<div class="my-2">
 			{#each bringItems as item (item.id)}
-				<BringItemProgressBar {eventId} {item} {numAttendeesGoing} {currUserId} {isAdmin} />
+				<BringItemProgressBar
+					{eventId}
+					{item}
+					{numAttendeesGoing}
+					currUserId={currUserId ? currUserId : tempAttendeeId}
+					{isAdmin}
+				/>
 			{/each}
 		</div>
 	{:else}

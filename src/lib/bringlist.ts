@@ -24,7 +24,7 @@ export async function createBringItem(
 		name,
 		unit,
 		quantity_needed: quantityNeeded,
-		created_by: userId,
+		created_by_user_id: userId,
 		created_at: new Date().toISOString(),
 		details: details
 	});
@@ -98,10 +98,14 @@ export async function deleteBringItem(client: WorkerClient, itemId: string): Pro
 export async function assignBringItem(
 	client: WorkerClient,
 	itemId: string,
-	assignedToUserId: string,
-	assignedByUserId: string,
+	assignedToUserId: string | null,
+	assignedToTempUserId: string | null,
+	assignedByUserId: string | null,
 	quantity: number
 ): Promise<object> {
+	if (!assignedToUserId && !assignedToTempUserId) {
+		throw new Error('bring item must be assigned to a user or a temp user');
+	}
 	// Ensure the item exists
 	const item = await client.fetchOne(
 		client
@@ -113,8 +117,9 @@ export async function assignBringItem(
 
 	const { output } = await client.insert('bring_assignments', {
 		bring_item_id: itemId,
-		assigned_to: assignedToUserId,
-		assigned_by: assignedByUserId,
+		assigned_to_user_id: assignedToUserId,
+		assigned_to_temp_attendee_id: assignedToTempUserId,
+		assigned_by_user_id: assignedByUserId,
 		quantity,
 		created_at: new Date().toISOString()
 	});

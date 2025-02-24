@@ -40,8 +40,8 @@ export const bringSchema = {
 			}),
 			quantity_needed: S.Number(), // How much is requested
 			details: S.String({ nullable: true, default: null }),
-			created_by: S.String(), // Only admins can create items
-			created_by_user: S.RelationById('user', '$created_by'),
+			created_by_user_id: S.String(), // Only admins can create items
+			created_by_user: S.RelationById('user', '$created_by_user_id'),
 			created_at: S.Date({ default: S.Default.now() }),
 			bring_assignments: S.RelationMany('bring_assignments', {
 				where: [['bring_item_id', '=', '$id']]
@@ -87,11 +87,16 @@ export const bringSchema = {
 		schema: S.Schema({
 			id: S.Id(),
 			bring_item_id: S.String(), // Item being assigned
-			bring_item: S.RelationById('bring_items', '$bring_item_id'), // Relation to item
-			assigned_to: S.String(), // User assigned
-			assigned_to_user: S.RelationById('user', '$assigned_to'),
-			assigned_by: S.String(), // Who assigned it (null if self-assigned)
-			assigned_by_user: S.Optional(S.RelationById('user', '$assigned_by')),
+			bring_item: S.RelationById('bring_items', '$bring_item_id'),
+			assigned_to_user_id: S.String({ nullable: true }),
+			assigned_to_user: S.RelationById('user', '$assigned_to_user_id'),
+			assigned_to_temp_attendee_id: S.String({ nullable: true }),
+			assigned_to_temp_attendee: S.RelationById(
+				'temporary_attendees',
+				'$assigned_to_temp_attendee_id'
+			),
+			assigned_by_user_id: S.String(), // Who assigned it (null if self-assigned)
+			assigned_by_user: S.Optional(S.RelationById('user', '$assigned_by_user_id')),
 			quantity: S.Number(), // How much they are bringing
 			created_at: S.Date({ default: S.Default.now() })
 		}),
@@ -128,7 +133,16 @@ export const bringSchema = {
 			},
 			temp: {
 				read: {
-					filter: [['event.temporary_attendees.id', '=', '$role.temporaryAttendeeId']]
+					filter: [['bring_item.event.temporary_attendees.id', '=', '$role.temporaryAttendeeId']]
+				},
+				insert: {
+					filter: [['bring_item.event.temporary_attendees.id', '=', '$role.temporaryAttendeeId']]
+				},
+				update: {
+					filter: [['assigned_to_temp_attendee_id', '=', '$role.temporaryAttendeeId']]
+				},
+				delete: {
+					filter: [['assigned_to_temp_attendee_id', '=', '$role.temporaryAttendeeId']]
 				}
 			},
 			anon: {}

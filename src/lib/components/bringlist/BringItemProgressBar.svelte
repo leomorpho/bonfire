@@ -12,21 +12,45 @@
 
 	let { item, currUserId, isAdmin, eventId, numAttendeesGoing } = $props();
 
-	// Find the current user's assignment (if any)
+	const isTempUser = !currUserId;
+
+	/** Helper function to generate a unique key for both permanent and temporary users */
+	const getUserKey = (userId: string, isTemp: boolean) =>
+		isTemp ? `temp_${userId}` : `user_${userId}`;
+
+	/** Helper function to extract the original ID from a key for DB interactions */
+	const extractUserId = (userKey: string) => userKey.replace(/^user_|^temp_/, '');
+
+	// Find the current user's assignment (checking both user types)
 	let userAssignment = item.bring_assignments?.find(
-		(assignment) => assignment.assigned_to === currUserId
+		(assignment: any) =>
+			(isTempUser && assignment.assigned_to_temp_attendee_id === currUserId) ||
+			(!isTempUser && assignment.assigned_to_user_id === currUserId)
 	);
 
+	// Calculate items brought by others
 	let numBroughtByOthers = $state(
 		item.bring_assignments?.reduce((total, assignment) => {
-			return assignment.assigned_to !== currUserId ? total + assignment.quantity : total;
+			const isOtherUser =
+				(isTempUser && assignment.assigned_to_temp_attendee_id !== currUserId) ||
+				(!isTempUser && assignment.assigned_to_user_id !== currUserId);
+			return isOtherUser ? total + assignment.quantity : total;
 		}, 0) || 0
 	);
 
+	// Create userIdToNumBrought to support both user types
 	let userIdToNumBrought = $state(
 		item.bring_assignments?.reduce(
 			(acc, assignment) => {
-				acc[assignment.assigned_to] = (acc[assignment.assigned_to] || 0) + assignment.quantity;
+				if (assignment.assigned_to_user_id) {
+					acc[getUserKey(assignment.assigned_to_user_id, false)] =
+						(acc[getUserKey(assignment.assigned_to_user_id, false)] || 0) + assignment.quantity;
+				}
+				if (assignment.assigned_to_temp_attendee_id) {
+					acc[getUserKey(assignment.assigned_to_temp_attendee_id, true)] =
+						(acc[getUserKey(assignment.assigned_to_temp_attendee_id, true)] || 0) +
+						assignment.quantity;
+				}
 				return acc;
 			},
 			{} as Record<string, number>
@@ -44,6 +68,13 @@
 
 	const upsertAssignment = async (closeAfterSave = false, showToasts = false) => {
 		const client = getFeTriplitClient($page.data.jwt);
+		const userKey = getUserKey(currUserId, isTempUser);
+		const extractedUserId = extractUserId(userKey);
+
+		// Determine correct assignment fields
+		const assignedToUserId = isTempUser ? null : extractedUserId;
+		const assignedToTempUserId = isTempUser ? extractedUserId : null;
+
 		if (userAssignment) {
 			try {
 				await updateBringAssignment(client, userAssignment.id, { quantity: tempUserCommitment });
@@ -52,20 +83,27 @@
 				}
 				userIdToNumBrought = {
 					...userIdToNumBrought,
-					[currUserId]: tempUserCommitment
+					[userKey]: tempUserCommitment
 				};
 			} catch (e) {
 				console.error('failed to update bring assignment', e);
 			}
 		} else {
 			try {
-				await assignBringItem(client, item.id, currUserId, currUserId, tempUserCommitment);
+				await assignBringItem(
+					client,
+					item.id,
+					assignedToUserId,
+					assignedToTempUserId,
+					assignedToUserId,
+					tempUserCommitment
+				);
 				if (showToasts) {
 					toast.success("Successfully set the number you're bringing");
 				}
 				userIdToNumBrought = {
 					...userIdToNumBrought,
-					[currUserId]: tempUserCommitment
+					[userKey]: tempUserCommitment
 				};
 			} catch (e) {
 				console.error('failed to assign bring assignment', e);
