@@ -39,7 +39,7 @@
 	);
 
 	// Create userIdToNumBrought to support both user types
-	let userIdToNumBrought = $state(
+	let userIdToNumBrought = $derived(
 		item.bring_assignments?.reduce(
 			(acc, assignment) => {
 				if (assignment.assigned_to_user_id) {
@@ -81,10 +81,10 @@
 				if (showToasts) {
 					toast.success("Successfully updated the number you're bringing");
 				}
-				userIdToNumBrought = {
-					...userIdToNumBrought,
-					[userKey]: tempUserCommitment
-				};
+				// userIdToNumBrought = {
+				// 	...userIdToNumBrought,
+				// 	[userKey]: tempUserCommitment
+				// };
 			} catch (e) {
 				console.error('failed to update bring assignment', e);
 			}
@@ -101,10 +101,10 @@
 				if (showToasts) {
 					toast.success("Successfully set the number you're bringing");
 				}
-				userIdToNumBrought = {
-					...userIdToNumBrought,
-					[userKey]: tempUserCommitment
-				};
+				// userIdToNumBrought = {
+				// 	...userIdToNumBrought,
+				// 	[userKey]: tempUserCommitment
+				// };
 			} catch (e) {
 				console.error('failed to assign bring assignment', e);
 			}
