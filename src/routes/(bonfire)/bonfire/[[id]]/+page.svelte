@@ -742,16 +742,18 @@
 								</div>
 							{/if}
 						</div>
-						<HorizRule />
-						<div class="my-5 w-full">
-							<BringList
-								eventId={$page.data.event.id}
-								isAdmin={isCurrenUserEventAdmin}
-								numAttendeesGoing={allAttendeesGoing.length}
-								{currUserId}
-								{tempAttendeeId}
-							/>
-						</div>
+						{#if currUserId || tempAttendeeId}
+							<HorizRule />
+							<div class="my-5 w-full">
+								<BringList
+									eventId={$page.data.event.id}
+									isAdmin={isCurrenUserEventAdmin}
+									numAttendeesGoing={allAttendeesGoing.length}
+									{currUserId}
+									{tempAttendeeId}
+								/>
+							</div>
+						{/if}
 						<HorizRule />
 						<div class="my-5">
 							<div class="rounded-xl bg-white p-5 dark:bg-slate-900">

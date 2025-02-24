@@ -83,6 +83,7 @@
 					{item}
 					{numAttendeesGoing}
 					currUserId={currUserId ? currUserId : tempAttendeeId}
+					isTempUser={!currUserId}
 					{isAdmin}
 				/>
 			{/each}

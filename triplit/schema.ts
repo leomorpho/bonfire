@@ -95,7 +95,7 @@ export const bringSchema = {
 				'temporary_attendees',
 				'$assigned_to_temp_attendee_id'
 			),
-			assigned_by_user_id: S.String(), // Who assigned it (null if self-assigned)
+			assigned_by_user_id: S.String({ nullable: true }), // Who assigned it (null if self-assigned)
 			assigned_by_user: S.Optional(S.RelationById('user', '$assigned_by_user_id')),
 			quantity: S.Number(), // How much they are bringing
 			created_at: S.Date({ default: S.Default.now() })
@@ -124,7 +124,7 @@ export const bringSchema = {
 				delete: {
 					filter: [
 						or([
-							['assigned_to', '=', '$role.userId'], // Users can remove their own assignment
+							['assigned_to_user_id', '=', '$role.userId'], // Users can remove their own assignment
 							['bring_item.event.event_admins.user_id', '=', '$role.userId'], // Admins can remove assignments
 							['bring_item.event.user_id', '=', '$role.userId'] // Event owner
 						])

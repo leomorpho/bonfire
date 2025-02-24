@@ -116,7 +116,7 @@
 			</div>
 			<TextAreaAutoGrow
 				cls={''}
-				placeholder="We need enough to feed 5 people!"
+				placeholder={`We need enough to feed ${count} people!`}
 				bind:value={details}
 				oninput={() => {}}
 			/>
@@ -130,8 +130,8 @@
 				>
 					<Button
 						class="m-1 flex w-full justify-center bg-slate-200 text-red-500 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700"
-						><Trash2 class="mr-1"/> Delete </Button
-					>
+						><Trash2 class="mr-1" /> Delete
+					</Button>
 				</CustomAlertDialog>
 			{/if}
 			<Button disabled={!submitEnabled} onclick={upsertItem} type="submit" class="m-1 w-full"
