@@ -15,7 +15,7 @@
 	import { toast } from 'svelte-sonner';
 	import { User, Users } from 'lucide-svelte';
 	import { and, type TriplitClient } from '@triplit/client';
-	import { getFeTriplitClient } from '$lib/triplit';
+	import { getFeWorkerTriplitClient } from '$lib/triplit';
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 	import { downloadAsZip, shareImages } from '$lib/gallery';
 	import GalleryItem from '$lib/components/GalleryItem.svelte';
@@ -507,7 +507,7 @@
 
 		lightbox = createPhotoSwipe();
 
-		let client = getFeTriplitClient($page.data.jwt) as TriplitClient;
+		let client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
 		const unsubscribeFromFileQuery = client.subscribe(
 			client

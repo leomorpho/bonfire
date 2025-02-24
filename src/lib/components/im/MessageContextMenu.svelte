@@ -7,7 +7,7 @@
 	import EmojiPicker from '../EmojiPicker.svelte';
 	import * as Popover from '$lib/components/ui/popover/index.js';
 	import CustomAlertDialog from '../CustomAlertDialog.svelte';
-	import { getFeTriplitClient } from '$lib/triplit';
+	import { getFeWorkerTriplitClient } from '$lib/triplit';
 	import { page } from '$app/stores';
 	import { toggleEmojiReaction } from '$lib/emoji';
 	import { EMOJI_REACTION_TYPE } from '$lib/enums';
@@ -67,7 +67,7 @@
 			toast.warning("Temporary users can't interact. Please log in or sign up to participate.");
 			return;
 		}
-		const client = await getFeTriplitClient($page.data.jwt);
+		const client = await getFeWorkerTriplitClient($page.data.jwt);
 		await toggleEmojiReaction(
 			client,
 			$page.data.user.id,
@@ -86,7 +86,7 @@
 	};
 
 	const onDelete = async (messageId: string) => {
-		const client = await getFeTriplitClient($page.data.jwt);
+		const client = await getFeWorkerTriplitClient($page.data.jwt);
 		await client.update('event_messages', messageId, async (entity: any) => {
 			entity.content = '';
 			entity.deleted_by_user_id = $page.data.user.id;

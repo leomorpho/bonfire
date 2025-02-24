@@ -2,7 +2,7 @@
 	import { RefreshCw } from 'lucide-svelte';
 	import CenterScreenMessage from './CenterScreenMessage.svelte';
 	import Button from './ui/button/button.svelte';
-	import { getFeTriplitClient } from '$lib/triplit';
+	import { getFeWorkerTriplitClient } from '$lib/triplit';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 	import * as Sentry from '@sentry/sveltekit';
@@ -10,7 +10,7 @@
 
 	// Function to reload the page
 	const reloadPage = async () => {
-		const client = await getFeTriplitClient($page.data.jwt);
+		const client = await getFeWorkerTriplitClient($page.data.jwt);
 		client?.endSession();
 		window.location.reload();
 	};

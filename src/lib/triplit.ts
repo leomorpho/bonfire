@@ -6,9 +6,6 @@ import { browser, dev } from '$app/environment';
 import { LOCAL_INDEXEDDB_NAME, Status, UserTypes } from './enums';
 import { WorkerClient } from '@triplit/client/worker-client';
 import workerUrl from '@triplit/client/worker-client-operator?url';
-import { jwtDecode } from 'jwt-decode';
-
-const TRIPLIT_TOKEN_TYPE_KEY = 'type'; // LocalStorage key for storing user type
 
 export const userIdStore = writable<string | null>(null);
 export const userTypeStore = writable<string | null>(null);
@@ -47,59 +44,40 @@ export async function waitForUserId(timeout = 5000) {
 	});
 }
 
-let feTriplitClient: WorkerClient | TriplitClient | null;
+export let feHttpTriplitClient: HttpClient | null;
 
-export function getFeTriplitClient(jwt: string) {
+export function getFeHttpTriplitClient(jwt: string) {
+	return new HttpClient({
+		serverUrl: publicEnv.PUBLIC_TRIPLIT_URL,
+		token: jwt ? jwt : publicEnv.PUBLIC_TRIPLIT_ANONYMOUS_TOKEN
+	});
+}
+
+let feWorkerTriplitClient: WorkerClient | TriplitClient | null;
+
+export function getFeWorkerTriplitClient(jwt: string) {
 	if (!browser) {
 		throw new Error('TriplitClient can only be created in the browser.');
 	}
 
 	try {
-		if (jwt) {
-			const decoded = jwtDecode(jwt); // Decode the JWT safely
-			const currentType = decoded?.type; // Extract the 'type' field
-			userTypeStore.set(currentType);
-
-			if (!currentType) {
-				throw new Error('Invalid JWT: Missing type key.');
-			}
-
-			// Get previously stored type
-			const storedType = localStorage.getItem(TRIPLIT_TOKEN_TYPE_KEY);
-
-			// If the type has changed, reset the client
-			if (storedType && storedType !== currentType) {
-				console.log('User type changed, creating a new Triplit client...');
-				feTriplitClient?.endSession();
-				feTriplitClient = null;
-				window.client = null;
-			}
-
-			// Store the current type for future checks
-			localStorage.setItem(TRIPLIT_TOKEN_TYPE_KEY, currentType);
-		}
-
 		// Return existing client if available
-		if (feTriplitClient) return feTriplitClient;
-		if (window.client) {
-			feTriplitClient = window.client;
-			return window.client;
-		}
+		if (feWorkerTriplitClient) return feWorkerTriplitClient;
 
 		// Create a new client if no existing one is found
-		feTriplitClient = createNewTriplitClient(jwt);
+		feWorkerTriplitClient = createNewWorkerTriplitClient(jwt);
 		console.log('Frontend TriplitClient initialized');
 
 		// Expose client on window for debugging
-		window.client = feTriplitClient;
-		return feTriplitClient;
+		window.client = feWorkerTriplitClient;
+		return feWorkerTriplitClient;
 	} catch (error) {
 		console.error('Error initializing TriplitClient:', error);
 		throw new Error('Failed to initialize TriplitClient.');
 	}
 }
 
-const createNewTriplitClient = (jwt: string) => {
+const createNewWorkerTriplitClient = (jwt: string) => {
 	return new WorkerClient({
 		workerUrl: dev ? workerUrl : undefined,
 		storage: {
@@ -110,27 +88,27 @@ const createNewTriplitClient = (jwt: string) => {
 		serverUrl: publicEnv.PUBLIC_TRIPLIT_URL,
 		token: jwt ? jwt : publicEnv.PUBLIC_TRIPLIT_ANONYMOUS_TOKEN,
 		autoConnect: browser,
-		onSessionError: async (type) => {
-			console.log('💀 Triplit session error occurred:', type);
-			if (type === 'TOKEN_EXPIRED') {
-				console.warn('🔄 JWT expired, refreshing token...');
-				const newJwt = await getFreshToken();
+		// onSessionError: async (type) => {
+		// 	console.log('💀 Triplit session error occurred:', type);
+		// 	if (type === 'TOKEN_EXPIRED') {
+		// 		console.warn('🔄 JWT expired, refreshing token...');
+		// 		const newJwt = await getFreshToken();
 
-				if (newJwt) {
-					console.log('🔑 JWT refreshed, updating session...');
-					await feTriplitClient?.endSession();
-					await feTriplitClient?.startSession(newJwt, true, {
-						refreshHandler: async () => await getFreshToken()
-					});
-					feTriplitClient?.updateSessionToken(newJwt);
-					console.log('✅ Triplit session updated with new JWT');
-				} else {
-					console.error('❌ Failed to refresh JWT, logging out...');
-					await feTriplitClient?.endSession();
-					feTriplitClient?.clear();
-				}
-			}
-		},
+		// 		if (newJwt) {
+		// 			console.log('🔑 JWT refreshed, updating session...');
+		// 			await feWorkerTriplitClient?.endSession();
+		// 			await feWorkerTriplitClient?.startSession(newJwt, true, {
+		// 				refreshHandler: async () => await getFreshToken()
+		// 			});
+		// 			feWorkerTriplitClient?.updateSessionToken(newJwt);
+		// 			console.log('✅ Triplit session updated with new JWT');
+		// 		} else {
+		// 			console.error('❌ Failed to refresh JWT, logging out...');
+		// 			await feWorkerTriplitClient?.endSession();
+		// 			feWorkerTriplitClient?.clear();
+		// 		}
+		// 	}
+		// },
 		refreshOptions: {
 			refreshHandler: async () => {
 				// get a new token

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { getFeTriplitClient, userIdStore } from '$lib/triplit';
+	import { getFeWorkerTriplitClient, userIdStore } from '$lib/triplit';
 	import { onMount, type Snippet } from 'svelte';
 	import type { LayoutData } from './$types';
 	import { setTempAttendeeIdParam } from '$lib/utils';
@@ -16,7 +16,7 @@
 		setTempAttendeeIdParam();
 
 		const enforceUserHasUsername = async () => {
-			const client = getFeTriplitClient($page.data.jwt);
+			const client = getFeWorkerTriplitClient($page.data.jwt);
 
 			const user = await client.fetchOne(
 				client.query('user').where(['id', '=', $page.data.user.id]).build()

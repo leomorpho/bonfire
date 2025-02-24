@@ -4,7 +4,7 @@
 	import { useQuery } from '@triplit/svelte';
 	import { TriplitClient } from '@triplit/client';
 	import { onMount } from 'svelte';
-	import { getFeTriplitClient } from '$lib/triplit';
+	import { getFeWorkerTriplitClient } from '$lib/triplit';
 	import Loader from '$lib/components/Loader.svelte';
 	import { EventFormType } from '$lib/enums';
 
@@ -12,7 +12,7 @@
 	let client: TriplitClient;
 
 	onMount(() => {
-		client = getFeTriplitClient($page.data.jwt) as TriplitClient;
+		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 		data = useQuery(client, client.query('events').where(['id', '=', $page.params.id]));
 	});
 </script>

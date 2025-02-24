@@ -2,7 +2,7 @@
 	import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
 	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
 	import { buttonVariants } from '$lib/components/ui/button/index.js';
-	import { getFeTriplitClient, waitForUserId } from '$lib/triplit';
+	import { getFeWorkerTriplitClient, waitForUserId } from '$lib/triplit';
 	import { onMount } from 'svelte';
 	import type { FetchOptions, TriplitClient } from '@triplit/client';
 	import Loader from '$lib/components/Loader.svelte';
@@ -72,7 +72,7 @@
 	};
 
 	onMount(() => {
-		client = getFeTriplitClient($page.data.jwt) as TriplitClient;
+		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 		// client.connect();
 
 		initEvents().catch((error) => {
@@ -82,8 +82,8 @@
 		userId = $page.data.user.id;
 
 		const queryOptions = {
-			policy: 'local-and-remote',
-			timeout: 3000 // Optional: Wait for up to 3s before showing local data
+			policy: 'remote-first',
+			timeout: 2000 // Optional: Wait for up to 2s before showing local data
 		} as FetchOptions;
 
 		let futureEventsQuery = createEventsQuery(client, userId, true);

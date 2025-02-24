@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { getFeTriplitClient, waitForUserId } from '$lib/triplit';
+	import { getFeWorkerTriplitClient, waitForUserId } from '$lib/triplit';
 	import { TriplitClient } from '@triplit/client';
 	import SvgLoader from './SvgLoader.svelte';
 	import Button from './ui/button/button.svelte';
@@ -30,7 +30,7 @@
 	};
 
 	const getAllAnnouncements = async () => {
-		let client = getFeTriplitClient($page.data.jwt) as TriplitClient;
+		let client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
 		allUnreadNotifications = await client.fetch(createAnnouncementsQuery(client).build());
 		isDialogOpen = true;
@@ -38,7 +38,7 @@
 	};
 
 	onMount(() => {
-		let client = getFeTriplitClient($page.data.jwt) as TriplitClient;
+		let client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
 		const init = async () => {
 			if ($page.data.user) {

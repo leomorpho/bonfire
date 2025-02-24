@@ -3,7 +3,7 @@
 	import { page } from '$app/stores';
 	import AnnouncementForm from '$lib/components/AnnouncementForm.svelte';
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
-	import { getFeTriplitClient } from '$lib/triplit';
+	import { getFeWorkerTriplitClient } from '$lib/triplit';
 	import SvgLoader from '$lib/components/SvgLoader.svelte';
 	import { onMount } from 'svelte';
 
@@ -11,7 +11,7 @@
 
 	onMount(() => {
 		const init = async () => {
-			let client = getFeTriplitClient($page.data.jwt) as TriplitClient;
+			let client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
 			let announcementQuery = client
 				.query('announcement')

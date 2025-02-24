@@ -2,7 +2,7 @@
 	import { TriplitClient } from '@triplit/client';
 	import { Textarea } from '$lib/components/ui/textarea/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
-	import {  getFeTriplitClient, waitForUserId } from '$lib/triplit';
+	import {  getFeWorkerTriplitClient, waitForUserId } from '$lib/triplit';
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
@@ -20,7 +20,7 @@
 	let submitDisabled = $state(true);
 
 	onMount(async () => {
-		client = getFeTriplitClient($page.data.jwt);
+		client = getFeWorkerTriplitClient($page.data.jwt);
 		userId = await waitForUserId();
 	});
 

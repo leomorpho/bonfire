@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { getFeTriplitClient } from '$lib/triplit';
+	import { getFeWorkerTriplitClient } from '$lib/triplit';
 	import type { EventMessage } from '$lib/types';
 	import {
 		arrayToStringRepresentation,
@@ -95,7 +95,7 @@
 	};
 
 	const markMessageAsSeen = async (messageId: string) => {
-		const client = getFeTriplitClient($page.data.jwt);
+		const client = getFeWorkerTriplitClient($page.data.jwt);
 
 		let existingNotif: any;
 
@@ -230,7 +230,7 @@
 	// Handle emoji selection
 	const toggleEmoji = async (emoji: any) => {
 		console.log('Add emoji', emoji);
-		const client = await getFeTriplitClient($page.data.jwt);
+		const client = await getFeWorkerTriplitClient($page.data.jwt);
 		await toggleEmojiReaction(
 			client,
 			$page.data.user.id,

@@ -7,7 +7,7 @@
 	import { BringListCountTypes } from '$lib/enums';
 	import TextAreaAutoGrow from '../TextAreaAutoGrow.svelte';
 	import { createBringItem, deleteBringItem, updateBringItem } from '$lib/bringlist';
-	import { getFeTriplitClient } from '$lib/triplit';
+	import { getFeWorkerTriplitClient } from '$lib/triplit';
 	import { page } from '$app/stores';
 	import { toast } from 'svelte-sonner';
 	import CustomAlertDialog from '../CustomAlertDialog.svelte';
@@ -23,7 +23,7 @@
 	let submitEnabled = $derived(itemName && count != 0);
 
 	const deleteItem = async () => {
-		const client = await getFeTriplitClient($page.data.jwt);
+		const client = await getFeWorkerTriplitClient($page.data.jwt);
 		if (!item) {
 			return;
 		}
@@ -37,7 +37,7 @@
 	};
 
 	const upsertItem = async () => {
-		const client = await getFeTriplitClient($page.data.jwt);
+		const client = await getFeWorkerTriplitClient($page.data.jwt);
 		if (!itemName || count == 0) {
 			return;
 		}

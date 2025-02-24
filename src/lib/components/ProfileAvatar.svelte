@@ -7,7 +7,7 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { page } from '$app/stores';
 	import type { TriplitClient } from '@triplit/client';
-	import { getFeTriplitClient } from '$lib/triplit';
+	import { getFeWorkerTriplitClient } from '$lib/triplit';
 	import { toast } from 'svelte-sonner';
 	import {
 		deleteUserLiveDataStoreEntry,
@@ -39,12 +39,12 @@
 	let dialogIsOpen = $state(false);
 
 	const deleteRealAttendee = async () => {
-		const client = getFeTriplitClient($page.data.jwt) as TriplitClient;
+		const client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 		await client.delete('attendees', attendanceId);
 	};
 
 	const deleteTempAttendee = async () => {
-		const client = getFeTriplitClient($page.data.jwt) as TriplitClient;
+		const client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 		await client.delete('temporary_attendees', attendanceId);
 	};
 

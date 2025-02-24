@@ -5,7 +5,7 @@
 	import { Button } from '../ui/button';
 	import BringListItem from './items/BringListItem.svelte';
 	import CrudItem from './CrudItem.svelte';
-	import { getFeTriplitClient } from '$lib/triplit';
+	import { getFeWorkerTriplitClient } from '$lib/triplit';
 	import { page } from '$app/stores';
 	import { assignBringItem, deleteBringAssignment, updateBringAssignment } from '$lib/bringlist';
 	import { toast } from 'svelte-sonner';
@@ -98,7 +98,7 @@
 	// });
 
 	const upsertAssignment = async (closeAfterSave = false, showToasts = false) => {
-		const client = getFeTriplitClient($page.data.jwt);
+		const client = getFeWorkerTriplitClient($page.data.jwt);
 		const userKey = getUserKey(currUserId, isTempUser);
 		const extractedUserId = extractUserId(userKey);
 
@@ -179,20 +179,21 @@
 				itemQuantityNeeded={item.quantity_needed}
 				userIdToNumBrought={userIdToNumBroughtWhenDialogOpen}
 			/>
+			<div class="p-2">{item.details}</div>
 		</Dialog.Header>
 		<div>
-			{#each Object.entries(userIdToNumBroughtWhenDialogOpen) as [userKey, quantity]}
-				<div class="my-2 rounded-xl bg-slate-800 p-1">
-					{#if !isTempUserKey(userKey)}
-						<div class="flex items-center justify-around">
-							<ProfileAvatar userId={extractUserId(userKey)} /><span>bringing {quantity}</span>
+			{#each Object.entries(userIdToNumBroughtWhenDialogOpen).sort(([, aQuantity], [, bQuantity]) => bQuantity - aQuantity) as [userKey, quantity]}
+				{#if quantity > 0}
+					<div class="my-2 rounded-xl bg-slate-100 p-1 dark:bg-slate-900">
+						<div class="flex items-center justify-around py-1">
+							<ProfileAvatar
+								userId={isTempUserKey(userKey) ? null : extractUserId(userKey)}
+								tempUserId={isTempUserKey(userKey) ? extractUserId(userKey) : null}
+								baseHeightPx={40}
+							/><span>bringing {quantity}</span>
 						</div>
-					{:else}
-						<div class="flex items-center justify-around">
-							<ProfileAvatar tempUserId={extractUserId(userKey)} /><span>bringing {quantity}</span>
-						</div>
-					{/if}
-				</div>
+					</div>
+				{/if}
 			{/each}
 		</div>
 		<!-- Slider to adjust the user's contribution -->

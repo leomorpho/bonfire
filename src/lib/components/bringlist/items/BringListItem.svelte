@@ -35,7 +35,7 @@
 
 <div
 	style="background-image: {progressGradient};"
-	class="flex h-8 w-full items-center justify-between rounded-xl bg-slate-100 p-3 text-black outline-none ring-0 focus:outline-none focus-visible:ring-0 dark:bg-slate-800 dark:text-white sm:h-10"
+	class="flex h-8 w-full items-center justify-between rounded-xl bg-slate-200 p-3 text-black outline-none ring-0 focus:outline-none focus-visible:ring-0 dark:bg-slate-800 dark:text-white sm:h-10"
 >
 	<div>{itemName}</div>
 	<div class="flex items-center">

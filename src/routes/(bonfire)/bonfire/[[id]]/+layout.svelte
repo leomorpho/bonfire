@@ -3,7 +3,7 @@
 	import { onMount, type Snippet } from 'svelte';
 	import type { LayoutData } from './$types';
 	import { page } from '$app/stores';
-	import { getFeTriplitClient } from '$lib/triplit';
+	import { getFeWorkerTriplitClient } from '$lib/triplit';
 	import { overlayColorStore, overlayOpacityStore, parseColor, styleStore } from '$lib/styles';
 	import { tempAttendeeSecretStore, tempAttendeeSecretParam } from '$lib/enums';
 	import { get } from 'svelte/store';
@@ -92,7 +92,7 @@
 
 		if ($page.data.user || tempAttendeeSecret) {
 			// User is logged in
-			client = getFeTriplitClient($page.data.jwt);
+			client = getFeWorkerTriplitClient($page.data.jwt);
 			const styleDataQuery = client
 				.query('events')
 				.where(['id', '=', $page.params.id])

@@ -3,7 +3,7 @@
 	import { Smile, Meh, Frown, HandMetal, LogOut } from 'lucide-svelte';
 	import type { TriplitClient } from '@triplit/client';
 	import { and } from '@triplit/client';
-	import { getFeTriplitClient, upsertUserAttendance } from '$lib/triplit';
+	import { getFeWorkerTriplitClient, upsertUserAttendance } from '$lib/triplit';
 	import {
 		getStrValueOfRSVP,
 		NOTIFY_OF_ATTENDING_STATUS_CHANGE,
@@ -76,7 +76,7 @@
 	let client: TriplitClient;
 
 	onMount(() => {
-		client = getFeTriplitClient($page.data.jwt) as TriplitClient;
+		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 	});
 
 	let showAddToCalendarStatuses = new Set([Status.GOING, Status.MAYBE]);

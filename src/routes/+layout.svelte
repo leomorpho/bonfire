@@ -13,7 +13,7 @@
 	import { toast } from 'svelte-sonner';
 	import { ModeWatcher } from 'mode-watcher';
 	import { onMount } from 'svelte';
-	import { getFeTriplitClient } from '$lib/triplit';
+	import { getFeWorkerTriplitClient } from '$lib/triplit';
 
 	let { children } = $props();
 
@@ -62,7 +62,7 @@
 		);
 	}
 	onMount(() => {
-		const client = getFeTriplitClient($page.data.jwt);
+		const client = getFeWorkerTriplitClient($page.data.jwt);
 		client.onConnectionStatusChange((status) => {
 			if (status === 'OPEN') console.log('🌴 Connected to server');
 			if (status === 'CLOSED') console.log('😵 Disconnected from server');

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { getFeTriplitClient } from '$lib/triplit';
+	import { getFeWorkerTriplitClient } from '$lib/triplit';
 	import type { TriplitClient } from '@triplit/client';
 	import { onMount } from 'svelte';
 	import SvgLoader from '../SvgLoader.svelte';
@@ -37,7 +37,7 @@
 	}
 
 	onMount(() => {
-		let client = getFeTriplitClient($page.data.jwt) as TriplitClient;
+		let client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
 		const unsubscribe = client.subscribe(
 			client

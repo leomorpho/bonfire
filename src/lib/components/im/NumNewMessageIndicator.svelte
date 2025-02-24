@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { getFeTriplitClient, waitForUserId } from '$lib/triplit';
+	import { getFeWorkerTriplitClient, waitForUserId } from '$lib/triplit';
 	import { page } from '$app/stores';
 	import { and, TriplitClient } from '@triplit/client';
 	import { NotificationType } from '$lib/enums';
@@ -25,7 +25,7 @@
 	};
 
 	onMount(() => {
-		let client = getFeTriplitClient($page.data.jwt) as TriplitClient;
+		let client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
 		const init = async () => {
 			userId = (await waitForUserId()) as string;
