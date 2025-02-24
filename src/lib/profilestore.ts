@@ -9,7 +9,7 @@ userIdsStore.subscribe(async (userIds) => {
 	const tempAttendeeId = tempAttendeeSecretStore.get();
 
 	if (userIds.length > 0) {
-		await fetchAndCacheUsers(userIds, tempAttendeeId);
+		await fetchAndCacheUsersInLiveUsersDataStore(userIds, tempAttendeeId);
 	}
 });
 
@@ -21,15 +21,32 @@ export type UserData = {
 	smallProfilePic?: Blob | null; // Store the image blob
 	fullProfilePicURL?: string | null; // Let's not store the image blob for now
 	profilePicUpdatedAt?: Date | null;
-	isTempUser: boolean;
+};
+
+// Define the Temp User type
+export type TempUserData = {
+	id: string;
+	username: string | null;
 };
 
 export const usersLiveDataStore = writable(new Map<string, UserData>());
+export const tempUsersLiveDataStore = writable(new Map<string, TempUserData>());
 
 /**
  * Updates the user store reactively.
  */
-function updateStore(user: UserData) {
+export function updateTempUsersLiveDataStoreEntry(tempUser: TempUserData) {
+	tempUsersLiveDataStore.update((tempUsers) => {
+		const updatedTempUsers = new Map(tempUsers);
+		updatedTempUsers.set(tempUser.id, tempUser);
+		return updatedTempUsers;
+	});
+}
+
+/**
+ * Updates the user store reactively.
+ */
+function updateUsersLiveDataStoreEntry(user: UserData) {
 	usersLiveDataStore.update((users) => {
 		const updatedUsers = new Map(users);
 		updatedUsers.set(user.id, user);
@@ -46,7 +63,7 @@ let dbPromise: Promise<IDBPDatabase<any>> | null = null;
 /**
  * Lazily initializes IndexedDB only in the browser.
  */
-async function getDB() {
+async function getUserDataDB() {
 	if (typeof indexedDB === 'undefined') {
 		console.warn('IndexedDB is not available in this environment.');
 		return null;
@@ -72,25 +89,25 @@ async function getDB() {
 // 	const users = get(usersLiveDataStore);
 // 	if (users.has(userId)) return users.get(userId) || null;
 
-// 	const db = await getDB();
+// 	const db = await getUserDataDB();
 // 	const user = (await db.get(STORE_NAME, userId)) || null;
-// 	if (user) updateStore(user);
+// 	if (user) updateUsersLiveDataStoreEntry(user);
 // 	return user;
 // }
 
 /**
  * Stores or updates a user in IndexedDB.
  */
-export async function upsertUser(user: UserData): Promise<void> {
-	const db = await getDB();
+export async function upsertUserLiveDataStoreEntry(user: UserData): Promise<void> {
+	const db = await getUserDataDB();
 	await db?.put(STORE_NAME, user);
-	updateStore(user);
+	updateUsersLiveDataStoreEntry(user);
 }
 
 /**
  * Fetches multiple users from IndexedDB.
  */
-export async function getUsers(userIds: string[]): Promise<UserData[]> {
+export async function getUsersFromrLiveDataStore(userIds: string[]): Promise<UserData[]> {
 	// Ensure userIds is a valid non-empty array
 	if (!userIds || userIds.length === 0) {
 		return [];
@@ -115,7 +132,7 @@ export async function getUsers(userIds: string[]): Promise<UserData[]> {
 	}
 
 	// Fetch missing users from IndexedDB
-	const db = await getDB();
+	const db = await getUserDataDB();
 	if (!db) {
 		console.error('IndexedDB is not available.');
 		return cachedUsers; // Return whatever we have in cache
@@ -128,7 +145,7 @@ export async function getUsers(userIds: string[]): Promise<UserData[]> {
 	const foundUsers = indexedDBUsers.filter(Boolean) as UserData[];
 
 	// Update store and return all users
-	foundUsers.forEach(updateStore);
+	foundUsers.forEach(updateUsersLiveDataStoreEntry);
 	cachedUsers.push(...foundUsers);
 
 	return cachedUsers;
@@ -137,8 +154,8 @@ export async function getUsers(userIds: string[]): Promise<UserData[]> {
 /**
  * Deletes a user from IndexedDB by ID.
  */
-export async function deleteUser(userId: string): Promise<void> {
-	const db = await getDB();
+export async function deleteUserLiveDataStoreEntry(userId: string): Promise<void> {
+	const db = await getUserDataDB();
 	await db?.delete(STORE_NAME, userId);
 	usersLiveDataStore.update((users) => {
 		const updatedUsers = new Map(users);
@@ -147,13 +164,15 @@ export async function deleteUser(userId: string): Promise<void> {
 	});
 }
 
-export async function fetchAndCacheUsers(
+export async function fetchAndCacheUsersInLiveUsersDataStore(
 	userIds: string[],
 	tempAttendeeSecret: string | null = null
 ): Promise<UserData[]> {
 	try {
 		// Get existing users from IndexedDB
-		const existingUsers = new Map((await getUsers(userIds)).map((user) => [user.id, user]));
+		const existingUsers = new Map(
+			(await getUsersFromrLiveDataStore(userIds)).map((user) => [user.id, user])
+		);
 
 		// Construct query string
 		let queryString = `userIds=${userIds.join(',')}`;
@@ -229,8 +248,7 @@ export async function fetchAndCacheUsers(
 					userUpdatedAt: userUpdatedAtDate,
 					smallProfilePic,
 					fullProfilePicURL: userData.full_image_url,
-					profilePicUpdatedAt: profileUpdatedAtDate,
-					isTempUser: userData.is_temp_user
+					profilePicUpdatedAt: profileUpdatedAtDate
 				};
 				// Batch store updates
 				updatedUsers.push(user);
@@ -241,7 +259,7 @@ export async function fetchAndCacheUsers(
 		await Promise.all(imagePromises);
 
 		// Open a single IndexedDB transaction
-		const db = await getDB();
+		const db = await getUserDataDB();
 		if (!db) throw new Error('IndexedDB is not available');
 		const tx = db.transaction(STORE_NAME, 'readwrite');
 		const store = tx.objectStore(STORE_NAME);

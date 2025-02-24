@@ -67,7 +67,6 @@ export const GET = async ({ locals, url }) => {
 				full_image_url: fullImageUrl,
 				small_image_url: smallImageUrl,
 				profile_image_updated_at: profileImage?.uploaded_at || null,
-				is_temp_user: !!userData.is_temp_user
 			};
 		}
 		return json(userMap);

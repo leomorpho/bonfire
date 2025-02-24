@@ -46,10 +46,12 @@
 				.include('bring_assignments')
 				.build(),
 			(results, info) => {
-				bringItems = results.map((item) => ({
-					...item,
-					total_brought: calculateTotalBrought(item)
-				}));
+				bringItems = results
+					.map((item) => ({
+						...item,
+						total_brought: calculateTotalBrought(item)
+					}))
+					.sort((a, b) => a.total_brought - b.total_brought); // 🔥 Sort ascending by total_brought;
 				initialLoad = false;
 			},
 			(error) => {

@@ -38,7 +38,11 @@
 	import { env as publicEnv } from '$env/dynamic/public';
 	import ImThreadView from '$lib/components/im/ImThreadView.svelte';
 	import NumNewMessageIndicator from '$lib/components/im/NumNewMessageIndicator.svelte';
-	import { fetchAndCacheUsers, userIdsStore } from '$lib/profilestore';
+	import {
+		type TempUserData,
+		updateTempUsersLiveDataStoreEntry,
+		userIdsStore
+	} from '$lib/profilestore';
 	import AttendeesDialog from '$lib/components/AttendeesDialog.svelte';
 	import BringList from '$lib/components/bringlist/BringList.svelte';
 
@@ -168,16 +172,6 @@
 		if (eventGeocodedLocation.data.latitude && eventGeocodedLocation.data.longitude) {
 			latitude = eventGeocodedLocation.data.latitude;
 			longitude = eventGeocodedLocation.data.longitude;
-		}
-	};
-
-	const fetchAndCacheUsersData = async (userIds: string[]) => {
-		// TODO: we can make this more performant by passing a last queried at timestamp (UTC) and the server will only returned changed users (added/updated/deleted images)
-		// This function never removes any profile pic entry, only upserts them.
-		try {
-			await fetchAndCacheUsers(userIds, isUnverifiedUser ? tempAttendeeSecret : null);
-		} catch (error) {
-			console.error('Error fetching profile image map:', error);
 		}
 	};
 
@@ -313,7 +307,6 @@
 				attendeesNotGoing = results.filter((attendee) => attendee.status === Status.NOT_GOING);
 				attendeesMaybeGoing = results.filter((attendee) => attendee.status === Status.MAYBE);
 
-				// Fetch profile image map for attendees
 				const userIds = [...new Set(results.map((attendee) => attendee.user_id))];
 				if (dev) {
 					console.log('===> userIds', userIds);
@@ -338,11 +331,14 @@
 				tempAttendeesGoing = results.filter((attendee) => attendee.status === Status.GOING);
 				tempAttendeesNotGoing = results.filter((attendee) => attendee.status === Status.NOT_GOING);
 				tempAttendeesMaybeGoing = results.filter((attendee) => attendee.status === Status.MAYBE);
-				// Fetch profile image map for attendees
-				const userIds = results.map((attendee) => attendee.user_id);
-				(async () => {
-					await fetchAndCacheUsersData(userIds);
-				})();
+
+				for (let attendee of results) {
+					const tempUser: TempUserData = {
+						id: attendee.id,
+						username: attendee.name
+					};
+					updateTempUsersLiveDataStoreEntry(tempUser);
+				}
 				tempAttendeesLoading = false;
 			},
 			(error) => {

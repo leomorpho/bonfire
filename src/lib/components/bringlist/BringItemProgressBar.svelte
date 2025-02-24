@@ -77,9 +77,7 @@
 				}, 0) || 0;
 
 			// If the user has an assignment, use that quantity, otherwise default to max needed
-			numCommittedByuser = userAssignment
-				? userAssignment.quantity
-				: item.quantity_needed - item.total_brought;
+			numCommittedByuser = userAssignment ? userAssignment.quantity : 0;
 			tempUserCommitment = numCommittedByuser; // Temp state for the slider in the dialog
 		}
 	});
@@ -88,16 +86,16 @@
 		userIdToNumBroughtWhenDialogOpen[getUserKey(currUserId, isTempUser)] = tempUserCommitment;
 	});
 
-	$effect(() => {
-		console.log('---------------------------');
-		console.log('item.name', item.name);
-		console.log('userAssignment', userAssignment);
-		console.log('item.bring_assignments', item.bring_assignments);
-		console.log('numCommittedByuser', numCommittedByuser);
-		console.log('numBroughtByOthers', numBroughtByOthers);
-		console.log('userIdToNumBrought', userIdToNumBrought);
-		console.log('tempUserCommitment', tempUserCommitment);
-	});
+	// $effect(() => {
+	// 	console.log('---------------------------');
+	// 	console.log('item.name', item.name);
+	// 	console.log('userAssignment', userAssignment);
+	// 	console.log('item.bring_assignments', item.bring_assignments);
+	// 	console.log('numCommittedByuser', numCommittedByuser);
+	// 	console.log('numBroughtByOthers', numBroughtByOthers);
+	// 	console.log('userIdToNumBrought', userIdToNumBrought);
+	// 	console.log('tempUserCommitment', tempUserCommitment);
+	// });
 
 	const upsertAssignment = async (closeAfterSave = false, showToasts = false) => {
 		const client = getFeTriplitClient($page.data.jwt);
@@ -114,14 +112,12 @@
 				if (tempUserCommitment == 0) {
 					await deleteBringAssignment(client, userAssignment.id);
 					if (showToasts) {
-						toast.success(
-							`Successfully removed all items you were planning to bring for "${item.name}"`
-						);
+						toast.success(`You're now bringing no "${item.name}""`);
 					}
 				} else {
 					await updateBringAssignment(client, userAssignment.id, { quantity: tempUserCommitment });
 					if (showToasts) {
-						toast.success(`Successfully updated the number you're bringing for "${item.name}"`);
+						toast.success(`You're now bringing ${tempUserCommitment} "${item.name}""`);
 					}
 				}
 			} catch (e) {
@@ -138,7 +134,7 @@
 					tempUserCommitment
 				);
 				if (showToasts) {
-					toast.success(`Successfully set the number you're bringing for "${item.name}"`);
+					toast.success(`You're now bringing ${tempUserCommitment} "${item.name}""`);
 				}
 			} catch (e) {
 				console.error('failed to assign bring assignment', e);
@@ -187,12 +183,14 @@
 		<div>
 			{#each Object.entries(userIdToNumBroughtWhenDialogOpen) as [userKey, quantity]}
 				<div class="my-2 rounded-xl bg-slate-800 p-1">
-					{#if isTempUserKey(userKey)}
-						<div class="flex items-center justify-between">
-							<ProfileAvatar userId={userKey} />- Bringing: {quantity}
+					{#if !isTempUserKey(userKey)}
+						<div class="flex items-center justify-around">
+							<ProfileAvatar userId={extractUserId(userKey)} /><span>bringing {quantity}</span>
 						</div>
 					{:else}
-						<p>User: {userKey} - Bringing: {quantity}</p>
+						<div class="flex items-center justify-around">
+							<ProfileAvatar tempUserId={extractUserId(userKey)} /><span>bringing {quantity}</span>
+						</div>
 					{/if}
 				</div>
 			{/each}

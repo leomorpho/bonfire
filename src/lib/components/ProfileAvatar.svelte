@@ -9,11 +9,17 @@
 	import type { TriplitClient } from '@triplit/client';
 	import { getFeTriplitClient } from '$lib/triplit';
 	import { toast } from 'svelte-sonner';
-	import { deleteUser, userIdsStore, usersLiveDataStore } from '$lib/profilestore';
+	import {
+		deleteUserLiveDataStoreEntry,
+		tempUsersLiveDataStore,
+		userIdsStore,
+		usersLiveDataStore
+	} from '$lib/profilestore';
 	import { onDestroy, onMount } from 'svelte';
 
 	let {
 		userId = null,
+		tempUserId = null,
 		viewerIsEventAdmin = false,
 		attendanceId = null, // NOTE: these can be either real or temp attendances (they are different object types)
 		baseHeightPx = 50,
@@ -51,7 +57,7 @@
 				deleteTempAttendee();
 			} else {
 				deleteRealAttendee();
-				await deleteUser(userId);
+				await deleteUserLiveDataStoreEntry(userId);
 			}
 
 			toast.success(`Deleted ${username ? username : 'attendee'} from event`);
@@ -87,34 +93,44 @@
 			return;
 		}
 
-		if (!userId) {
+		if (!userId && !tempUserId) {
 			return;
 		}
 
-		userIdsStore.update((ids) => [...new Set([...ids, userId])]);
+		if (userId) {
+			userIdsStore.update((ids) => [...new Set([...ids, userId])]);
 
-		unsubscribe = usersLiveDataStore.subscribe((users) => {
-			const user = users.get(userId);
+			unsubscribe = usersLiveDataStore.subscribe((users) => {
+				const user = users.get(userId);
 
-			// Only update if the user object has changed
-			if (!user || JSON.stringify(user) === JSON.stringify(previousUser)) {
-				return;
-			}
-			previousUser = user; // Update the reference
+				// Only update if the user object has changed
+				if (!user || JSON.stringify(user) === JSON.stringify(previousUser)) {
+					return;
+				}
+				previousUser = user; // Update the reference
 
-			fallbackNameShort = user?.username?.slice(0, 2) ?? null;
-			fullsizeUrl = user?.fullProfilePicURL;
-			fallbackName = user?.username;
-			username = user?.username;
-			isTempUser = user?.isTempUser ?? false;
+				fallbackNameShort = user?.username?.slice(0, 2) ?? null;
+				fullsizeUrl = user?.fullProfilePicURL;
+				fallbackName = user?.username;
+				username = user?.username;
+				isTempUser = user?.isTempUser ?? false;
 
-			const lastUpdatedAtDate = user?.userUpdatedAt ? new Date(user?.userUpdatedAt) : null;
-			lastUpdatedAt = lastUpdatedAtDate; // TODO: get latest of that or image updated at
+				const lastUpdatedAtDate = user?.userUpdatedAt ? new Date(user?.userUpdatedAt) : null;
+				lastUpdatedAt = lastUpdatedAtDate; // TODO: get latest of that or image updated at
 
-			if (user?.smallProfilePic) {
-				url = URL.createObjectURL(user.smallProfilePic); // ✅ Convert Blob to URL
-			}
-		});
+				if (user?.smallProfilePic) {
+					url = URL.createObjectURL(user.smallProfilePic); // ✅ Convert Blob to URL
+				}
+			});
+		} else {
+			unsubscribe = tempUsersLiveDataStore.subscribe((tempUsers) => {
+				const tempUser = tempUsers.get(tempUserId);
+				fallbackNameShort = tempUser?.username?.slice(0, 2) ?? null;
+				fallbackName = tempUser?.username;
+				username = tempUser?.username;
+				isTempUser = true;
+			});
+		}
 	});
 
 	onDestroy(() => {
