@@ -123,7 +123,7 @@ test('Create bonfire', async ({ page }) => {
 
 	await page.locator('#rsvp-btn').click();
 	await page.getByRole('menuitem', { name: 'Not going' }).click();
-	
+
 	await expect(page.locator('#rsvp-button')).toHaveText('Not going');
 
 	await expect(page.locator('#going-attendees').locator('.profile-avatar')).toHaveCount(0);
@@ -631,6 +631,57 @@ test('Event admins', async ({ browser }) => {
 
 	await expect(adminPage.getByRole('img', { name: 'Banner for large screens' })).toBeVisible();
 	await expect(adminPage.getByLabel('Upload a new banner')).toBeVisible();
+});
+
+test('Bring list items', async ({ browser }) => {
+	const context1 = await browser.newContext();
+	const context2 = await browser.newContext();
+	const eventCreatorPage = await context1.newPage();
+	const tempAttendeePage = await context2.newPage();
+
+	await eventCreatorPage.goto(WEBSITE_URL);
+
+	// Create event from creator POV
+	const eventOwnerEmail = faker.internet.email();
+	const eventOwnerUsername = faker.person.firstName();
+	await loginUser(eventCreatorPage, eventOwnerEmail, eventOwnerUsername);
+
+	const eventName = `${faker.animal.dog()} birthday party!`;
+	const eventDetails = 'It will be fun!';
+	await createBonfire(eventCreatorPage, eventName, eventDetails);
+	await expect(eventCreatorPage.getByRole('heading', { name: eventName })).toBeVisible();
+
+	const eventUrl = eventCreatorPage.url();
+
+	// Have temp attendee go to event and attend
+	await tempAttendeePage.goto(eventUrl);
+	await tempAttendeePage.getByText('RSVP', { exact: true }).click();
+	await tempAttendeePage.getByRole('menuitem', { name: 'Going', exact: true }).click();
+	await tempAttendeePage.getByPlaceholder('Tony Garfunkel').click();
+	await tempAttendeePage.getByPlaceholder('Tony Garfunkel').fill('Matthieu');
+	await tempAttendeePage.getByRole('button', { name: 'Generate URL' }).click();
+	await expect(tempAttendeePage.getByRole('heading', { name: 'Hey There!' })).toBeVisible();
+
+	// Have event owner create bring list items
+	await eventCreatorPage.locator('#add-bring-list-item-btn').click();
+	await eventCreatorPage.getByRole('textbox', { name: 'Item name' }).click();
+	await eventCreatorPage.getByRole('textbox', { name: 'Item name' }).fill('Dogs');
+	await eventCreatorPage.locator('#item-category-btn').click();
+	await expect(eventCreatorPage.getByRole('menuitem', { name: 'By Person' })).toBeVisible();
+	await expect(eventCreatorPage.getByRole('menuitem', { name: 'Total Count' })).toBeVisible();
+	// await eventCreatorPage.getByRole('textbox', { name: 'We need enough to feed 1' }).click();
+	await eventCreatorPage
+		.getByRole('textbox', { name: 'We need enough to feed 1' })
+		.fill('Because dogs are fantastic');
+	await eventCreatorPage.getByLabel('Add list item').getByRole('button', { name: 'Add' }).click();
+	await expect(
+		eventCreatorPage.locator('.bring-list-item-btn').getByRole('button', { name: 'Dogs' })
+	).toBeVisible();
+
+	// Check tempAttendee can see it too
+	await expect(
+		tempAttendeePage.locator('.bring-list-item-btn').getByRole('button', { name: 'Dogs' })
+	).toBeVisible();
 });
 
 // TODO: test max capacity of bonfire

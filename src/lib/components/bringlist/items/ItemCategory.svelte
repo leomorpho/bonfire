@@ -18,7 +18,7 @@
 </script>
 
 <DropdownMenu.Root>
-	<DropdownMenu.Trigger
+	<DropdownMenu.Trigger id="item-category-btn"
 		class="w-fit rounded-xl bg-slate-200 p-2 hover:bg-slate-100 dark:bg-slate-800 hover:dark:bg-slate-700"
 	>
 		{#if currentlySelectedType == BringListCountTypes.PER_PERSON}

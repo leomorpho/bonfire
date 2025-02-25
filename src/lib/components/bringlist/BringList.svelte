@@ -96,7 +96,7 @@
 </div>
 {#if isAdmin}
 	<CrudItem {eventId} {numAttendeesGoing} cls={'w-full'}>
-		<Button
+		<Button id="add-bring-list-item-btn"
 			class="flex w-full items-center justify-center ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
 			>Add</Button
 		>

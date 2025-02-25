@@ -148,7 +148,7 @@
 </script>
 
 <Dialog.Root bind:open={isOpen}>
-	<Dialog.Trigger class="mt-2 w-full">
+	<Dialog.Trigger class="bring-list-item-btn mt-2 w-full">
 		<button class="w-full">
 			<BringListItem
 				itemName={item.name}
@@ -161,7 +161,7 @@
 	<Dialog.Content class="rounded-xl">
 		<Dialog.Header class="mt-3">
 			{#if isAdmin}
-				<div class="flex w-full justify-center">
+				<div id="edit-bring-list-item" class="flex w-full justify-center">
 					<CrudItem {eventId} {numAttendeesGoing} {item}>
 						<Button
 							variant="outline"
