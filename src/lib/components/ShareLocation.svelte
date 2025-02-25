@@ -33,7 +33,7 @@
 						id="google-maps-icon"
 						class="flex h-full w-full items-center justify-center"
 					>
-						<div class="m-4 h-16 w-16 sm:h-20 sm:w-20"><GoogleMapsIcon /></div>
+						<div class="m-1 h-16 w-16 sm:m-4 sm:h-20 sm:w-20"><GoogleMapsIcon /></div>
 					</a>
 					<a
 						href={appleMapsUrl}
@@ -41,7 +41,7 @@
 						id="apple-icon"
 						class="flex h-full w-full items-center justify-center"
 					>
-						<div class="m-4 h-16 w-16 sm:h-20 sm:w-20"><AppleMapsIcon /></div>
+						<div class="m-1 h-16 w-16 sm:m-4 sm:h-20 sm:w-20"><AppleMapsIcon /></div>
 					</a>
 					<a
 						href={wazeUrl}
@@ -49,7 +49,7 @@
 						id="waze-icon"
 						class="flex h-full w-full items-center justify-center"
 					>
-						<div class="m-4 h-16 w-16 sm:h-20 sm:w-20"><WazeIcon /></div>
+						<div class="sm:h-26 sm:w-26 m-1 h-20 w-20 sm:m-4"><WazeIcon /></div>
 					</a>
 					<a
 						href={bingMapsUrl}
@@ -57,10 +57,10 @@
 						id="bing-icon"
 						class="flex h-full w-full items-center justify-center"
 					>
-						<div class="m-4 h-16 w-16 sm:h-20 sm:w-20"><BingIcon /></div>
+						<div class="m-1 h-16 w-16 sm:m-4 sm:h-20 sm:w-20"><BingIcon /></div>
 					</a>
 					<!-- <a href={mapsMe} target="_blank" id="maps-me-icon">
-                <div class="m-4 h-16 w-16 sm:h-20 sm:w-20"><MapsMeIcon /></div>
+                <div class="m-1 sm:m-4 h-16 w-16 sm:h-20 sm:w-20"><MapsMeIcon /></div>
             </a> -->
 				</div>
 			</Dialog.Description>
