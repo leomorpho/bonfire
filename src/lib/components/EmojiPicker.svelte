@@ -52,14 +52,4 @@
 		--border-size: 0;
 		--border-color: transparent;
 	}
-
-	/* Mobile (Max-width 768px) */
-	@media (max-width: 768px) {
-		emoji-picker {
-			--num-columns: 7;
-			height: 17rem; /* Shorter picker for mobile */
-			--emoji-padding: 0.2rem;
-			--emoji-size: 1.4rem;
-		}
-	}
 </style>
