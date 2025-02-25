@@ -118,7 +118,7 @@
 				const lastUpdatedAtDate = user?.userUpdatedAt ? new Date(user?.userUpdatedAt) : null;
 				lastUpdatedAt = lastUpdatedAtDate; // TODO: get latest of that or image updated at
 
-				if (user?.smallProfilePic) {
+				if (!url && user?.smallProfilePic) {
 					url = URL.createObjectURL(user.smallProfilePic); // ✅ Convert Blob to URL
 				}
 			});

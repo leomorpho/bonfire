@@ -176,6 +176,8 @@
 
 	const handlePointerDown = (event: PointerEvent) => {
 		if (!isHolding && isMobile()) {
+			event.preventDefault(); // Prevent text selection
+
 			pressTimer = setTimeout(() => {
 				isHolding = true;
 				releasePointer(); // Programmatically release pointer

@@ -88,6 +88,13 @@
 			console.error('Failed to copy:', err);
 		}
 	};
+
+	const preventHoldingInteraction = (event: PointerEvent) => {
+		if (isHolding) {
+			event.stopPropagation(); // Stop the event from propagating
+			event.preventDefault(); // Prevent unintended clicks/taps
+		}
+	};
 </script>
 
 {#snippet emojiPicker()}
@@ -141,8 +148,12 @@
 
 <Dialog.Root bind:open={showAlert}>
 	<Dialog.Content
-		class="w-full max-w-[400px] rounded-3xl border-0 animate-in fade-in zoom-in sm:max-w-[400px]"
+		class="w-full max-w-[400px] rounded-3xl border-0 animate-in fade-in zoom-in sm:max-w-[400px] {isHolding
+			? 'pointer-events-none'
+			: 'pointer-events-auto'}"
 		interactOutsideBehavior="close"
+		ontouchstart={preventHoldingInteraction}
+		onpointerdown={preventHoldingInteraction}
 	>
 		<div class="flex h-fit w-full justify-center">
 			<MessageContent
