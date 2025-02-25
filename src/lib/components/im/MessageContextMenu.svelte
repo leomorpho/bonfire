@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { onMount, onDestroy } from 'svelte';
-	import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
 	import { ChevronDown, Smile, Trash2 } from 'lucide-svelte';
 	import Button from '../ui/button/button.svelte';
 	import { isMobile } from '$lib/utils';
@@ -13,19 +11,18 @@
 	import { EMOJI_REACTION_TYPE } from '$lib/enums';
 	import MessageContent from './MessageContent.svelte';
 	import { toast } from 'svelte-sonner';
+	import * as Dialog from '$lib/components/ui/dialog/index.js';
 
 	let {
 		children,
 		message,
+		isHolding,
 		isOwnMessage,
 		isCurrenUserEventAdmin,
 		eventId,
 		canInteract = true
 	} = $props();
 
-	let contextMenuRef: HTMLElement | null = $state(null);
-	let pressTimer: NodeJS.Timeout | null = $state(null);
-	let isHolding = $state(false);
 	let showAlert = $state(false);
 	let showSmiley = $state(false);
 	let showSmileyPicker = $state(false);
@@ -39,32 +36,20 @@
 		showAlert = true;
 	};
 
-	const handlePointerDown = (event: PointerEvent) => {
-		if (isMobile()) {
-			pressTimer = setTimeout(() => {
-				isHolding = true;
-				openMenu(event);
-			}, 100); // Long press time
-		}
-	};
-
-	onMount(() => {
-		if (contextMenuRef) {
-			contextMenuRef.addEventListener('pointerdown', handlePointerDown);
-		}
-	});
-
-	onDestroy(() => {
-		if (contextMenuRef) {
-			contextMenuRef.removeEventListener('pointerdown', handlePointerDown);
+	$effect(() => {
+		if (isHolding) {
+			openMenu();
 		}
 	});
 
 	// Handle emoji selection
 	const toggleEmoji = async (detail: any) => {
+		console.log('Selected emoji', detail.unicode);
 		if (!canInteract) {
 			showSmileyPicker = false;
-			toast.warning("Temporary users can't interact in the discussions. Please log in or sign up to participate.");
+			toast.warning(
+				"Temporary users can't interact in the discussions. Please log in or sign up to participate."
+			);
 			return;
 		}
 		const client = await getFeWorkerTriplitClient($page.data.jwt);
@@ -78,6 +63,7 @@
 		);
 
 		showSmileyPicker = false;
+		showAlert = false;
 	};
 
 	const onReport = async (messageId: string) => {
@@ -119,7 +105,6 @@
 {/snippet}
 
 <div
-	bind:this={contextMenuRef}
 	class="relative"
 	role="button"
 	tabindex="0"
@@ -128,15 +113,14 @@
 >
 	{@render children()}
 
-	<div class="absolute -bottom-2 left-1/2 z-50 -translate-x-1/2">
-		<div class="flex flex-wrap items-center gap-1">
-			{#if showSmiley || showSmileyPicker}
-				{@render emojiPicker()}
-			{/if}
-		</div>
-	</div>
-
 	{#if !isMobile()}
+		<div class="absolute -bottom-2 left-1/2 z-50 -translate-x-1/2">
+			<div class="flex flex-wrap items-center gap-1">
+				{#if showSmiley || showSmileyPicker}
+					{@render emojiPicker()}
+				{/if}
+			</div>
+		</div>
 		<button
 			class={`absolute top-1 ${isOwnMessage ? 'right-2' : 'left-2'} rounded bg-slate-400 px-1 py-0 text-black opacity-30 focus:outline-none focus-visible:ring-0 dark:bg-slate-600 dark:text-white`}
 			onclick={openNonMobileMenu}
@@ -146,12 +130,12 @@
 	{/if}
 </div>
 
-<AlertDialog.Root bind:open={showAlert}>
-	<AlertDialog.Content
+<Dialog.Root bind:open={showAlert}>
+	<Dialog.Content
 		class="w-full max-w-[400px] rounded-3xl border-0 bg-transparent animate-in fade-in zoom-in sm:max-w-[400px]"
 		interactOutsideBehavior="close"
 	>
-		<div class="flex w-full justify-center">
+		<div class="flex h-fit w-full justify-center">
 			<MessageContent
 				username={message.user?.username}
 				content={message.content}
@@ -160,7 +144,7 @@
 			/>
 		</div>
 		<div class="block w-full sm:hidden">
-			<div class="flex w-full justify-center"><EmojiPicker handleEmojiSelect={''} /></div>
+			<div class="flex w-full justify-center"><EmojiPicker handleEmojiSelect={toggleEmoji} /></div>
 		</div>
 
 		{#if isOwnMessage || isCurrenUserEventAdmin}
@@ -188,5 +172,5 @@
 				>
 			</CustomAlertDialog> -->
 		{/if}
-	</AlertDialog.Content>
-</AlertDialog.Root>
+	</Dialog.Content>
+</Dialog.Root>

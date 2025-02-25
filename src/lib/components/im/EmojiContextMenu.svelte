@@ -1,8 +1,6 @@
 <script lang="ts">
 	import * as Popover from '$lib/components/ui/popover/index.js';
 	import ProfileAvatar from '../ProfileAvatar.svelte';
-	import Avatar from '../ui/avatar/avatar.svelte';
-	import Button from '../ui/button/button.svelte';
 
 	let { children, toggleEmoji, reactions, currUserId } = $props();
 

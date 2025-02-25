@@ -169,28 +169,45 @@
 	let pressTimer: NodeJS.Timeout | null = $state(null);
 	let isHolding = $state(false);
 
+	const releasePointer = () => {
+		const event = new PointerEvent('pointerup', { bubbles: true, cancelable: true });
+		document.dispatchEvent(event); // Dispatch it globally
+	};
+
 	const handlePointerDown = (event: PointerEvent) => {
-		if (isMobile()) {
+		if (!isHolding && isMobile()) {
 			pressTimer = setTimeout(() => {
 				isHolding = true;
+				releasePointer(); // Programmatically release pointer
 
 				// Reset `isHolding` after 500ms
 				setTimeout(() => {
 					isHolding = false;
 				}, 500);
-			}, 0); // Long press time
+			}, 200); // Long press time
+		}
+	};
+
+	const handlePointerUp = () => {
+		if (pressTimer) {
+			clearTimeout(pressTimer);
+			pressTimer = null;
 		}
 	};
 
 	onMount(() => {
 		if (messageRef) {
 			messageRef.addEventListener('pointerdown', handlePointerDown);
+			messageRef.addEventListener('pointerup', handlePointerUp);
+			messageRef.addEventListener('pointercancel', handlePointerUp); // Also cancel on interruption
 		}
 	});
 
 	onDestroy(() => {
 		if (messageRef) {
 			messageRef.removeEventListener('pointerdown', handlePointerDown);
+			messageRef.removeEventListener('pointerup', handlePointerUp);
+			messageRef.removeEventListener('pointercancel', handlePointerUp);
 		}
 	});
 
@@ -258,7 +275,14 @@
 			{#if !isOwnMessage}
 				<div class="self-end">{@render avatar()}</div>
 			{/if}
-			<MessageContextMenu {message} {isOwnMessage} {isCurrenUserEventAdmin} {eventId} {canInteract}>
+			<MessageContextMenu
+				{isHolding}
+				{message}
+				{isOwnMessage}
+				{isCurrenUserEventAdmin}
+				{eventId}
+				{canInteract}
+			>
 				<div
 					class="leading-1.5 flex w-full max-w-[320px] flex-col p-4
 			{isOwnMessage ? 'from-me rounded-s-xl rounded-se-xl bg-blue-100 p-4 dark:bg-blue-600' : ''}
@@ -267,8 +291,7 @@
 						: ''}
 				{!isOwnMessage && isUnseen
 						? 'from-them rounded-e-xl rounded-ss-xl bg-green-100 p-4 dark:bg-green-900'
-						: ''}
-					{isHolding ? 'scale-110 transition-transform duration-150 ease-in-out' : ''}"
+						: ''}"
 				>
 					<div class="flex items-center space-x-2 rtl:space-x-reverse">
 						<span class="text-sm font-semibold text-gray-900 dark:text-white"
@@ -300,7 +323,7 @@
 			<span class="mx-1 flex w-fit flex-wrap items-center px-1 text-xl">
 				{#each Array.from(emojiCountMap.entries()) as [emoji, count]}
 					<EmojiContextMenu
-						toggleEmoji={toggleEmoji(emoji)}
+						toggleEmoji={() => toggleEmoji(emoji)}
 						reactions={emojiReactionsMap.get(emoji)}
 						{currUserId}
 					>
