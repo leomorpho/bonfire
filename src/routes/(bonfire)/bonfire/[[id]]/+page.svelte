@@ -29,7 +29,6 @@
 	import HorizRule from '$lib/components/HorizRule.svelte';
 	import EventDoesNotExist from '$lib/components/EventDoesNotExist.svelte';
 	import CenterScreenMessage from '$lib/components/CenterScreenMessage.svelte';
-	import * as Avatar from '$lib/components/ui/avatar/index.js';
 	import BonfireNoInfoCard from '$lib/components/BonfireNoInfoCard.svelte';
 	import { overlayColorStore, overlayOpacityStore, styleStore } from '$lib/styles';
 	import ShareLocation from '$lib/components/ShareLocation.svelte';
@@ -45,6 +44,10 @@
 	} from '$lib/profilestore';
 	import AttendeesDialog from '$lib/components/AttendeesDialog.svelte';
 	import BringList from '$lib/components/bringlist/BringList.svelte';
+	import AttendeesCount from '$lib/components/attendance/AttendeesCount.svelte';
+	import NoAttendeesYet from '$lib/components/attendance/NoAttendeesYet.svelte';
+	import AnonAttendeesView from '$lib/components/attendance/AnonAttendeesView.svelte';
+	import MaxCapacityInfo from '$lib/components/attendance/MaxCapacityInfo.svelte';
 
 	const showMaxNumPeople = 50;
 	const tempAttendeeId = $page.data.tempAttendeeId;
@@ -449,8 +452,8 @@
 
 	// Function to programmatically change tabs
 	const changeToDiscussionsTab = () => {
-		activeTab = ""; // NOTE: this is a hack to make it work, otherwise it only works the first time.
-		activeTab = "discussions";
+		activeTab = ''; // NOTE: this is a hack to make it work, otherwise it only works the first time.
+		activeTab = 'discussions';
 	};
 </script>
 
@@ -614,21 +617,12 @@
 								</div>
 							{:else if rsvpStatus}
 								{#if allAttendeesGoing.length > 0}
-									<div class="mb-3 flex w-full justify-center">
-										<div
-											class="flex w-fit justify-center rounded bg-slate-100 p-1 px-2 text-black opacity-70 dark:bg-slate-800 dark:text-white"
-										>
-											{allAttendeesGoing.length} going
-											{#if allAttendeesMaybeGoing.length > 0}
-												, {allAttendeesMaybeGoing.length} maybe{allAttendeesMaybeGoing.length > 1
-													? 's'
-													: ''}
-											{/if}
-											{#if allAttendeesNotGoing.length > 0}
-												, {allAttendeesNotGoing.length} not going
-											{/if}
-										</div>
-									</div>
+									<AttendeesCount
+										{allAttendeesGoing}
+										{allAttendeesMaybeGoing}
+										{allAttendeesNotGoing}
+									/>
+
 									<div
 										id="going-attendees"
 										class="flex flex-wrap items-center justify-center -space-x-4"
@@ -651,33 +645,10 @@
 										/>
 									</div>
 								{:else if allAttendeesGoing.length == 0}
-									<div class="flex justify-center">
-										<div
-											class="flex w-full items-center justify-center rounded-lg bg-slate-500 bg-opacity-75 p-2 text-sm text-white ring-glow sm:w-2/3"
-										>
-											<Avatar.Root
-												class="mr-2 h-12 w-12 border-2 border-white bg-white dark:bg-slate-900 sm:h-14 sm:w-14"
-											>
-												<Avatar.Image src={'/icon-128.png'} alt={''} />
-												<Avatar.Fallback>{'BO'}</Avatar.Fallback>
-											</Avatar.Root> No attendees yet
-										</div>
-									</div>
+									<NoAttendeesYet />
 								{/if}
 							{:else}
-								<div class="flex justify-center">
-									<div
-										class="flex w-full items-center justify-center rounded-lg bg-purple-500 bg-opacity-75 p-2 text-sm text-white ring-glow sm:w-2/3"
-									>
-										<Avatar.Root
-											class="mr-2 h-12 w-12 border-2 border-white bg-white dark:bg-slate-900 sm:h-14 sm:w-14"
-										>
-											<Avatar.Image src={'/icon-128.png'} alt={''} />
-											<Avatar.Fallback>{'BO'}</Avatar.Fallback>
-										</Avatar.Root>
-										{$page.data.numAttendingGoing} going
-									</div>
-								</div>
+								<AnonAttendeesView numAttendingGoing={$page.data.numAttendingGoing} />
 							{/if}
 						</div>
 						<!-- Show RSVP if:
@@ -697,17 +668,7 @@
 					rsvpCanBeChanged
 				)} -->
 						{#if event?.max_capacity}
-							<div
-								class="mt-5 flex justify-center rounded-lg bg-slate-100 p-2 text-center text-sm opacity-70 dark:bg-slate-800 dark:opacity-70"
-							>
-								{#if !rsvpEnabledForCapacity}
-									Sorry, this event has reached its maximum capacity of {event?.max_capacity} attendees,
-									as set by the organizer. If a spot opens up due to a cancellation, it will become available
-									for a new attendee.
-								{:else}
-									This event is limited to {event?.max_capacity} attendees going, as set by the organizer.
-								{/if}
-							</div>
+							<MaxCapacityInfo maxCapacity={event?.max_capacity} rsvpEnabled={rsvpEnabledForCapacity} />
 						{/if}
 						<Rsvp
 							{rsvpStatus}
