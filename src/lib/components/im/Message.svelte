@@ -330,7 +330,7 @@
 						{currUserId}
 					>
 						<button
-							class="flex flex-row items-center rounded-full bg-slate-700 bg-opacity-50 p-1 transition-all duration-200 ease-in-out hover:cursor-pointer hover:text-2xl"
+							class="flex flex-row items-center rounded-full bg-slate-700 bg-opacity-50 p-1 hover:cursor-pointer hover:bg-slate-600 hover:bg-opacity-50"
 						>
 							{emoji}
 							{#if count > 1}
