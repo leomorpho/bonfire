@@ -166,52 +166,7 @@
 
 	let messageRef: HTMLDivElement | null = null;
 	let observer: IntersectionObserver;
-	let pressTimer: NodeJS.Timeout | null = $state(null);
-	let isHolding = $state(false);
-
-	const releasePointer = () => {
-		const event = new PointerEvent('pointerup', { bubbles: true, cancelable: true });
-		document.dispatchEvent(event); // Dispatch it globally
-	};
-
-	const handlePointerDown = (event: PointerEvent) => {
-		if (!isHolding && isMobile()) {
-			event.preventDefault(); // Prevent text selection
-
-			pressTimer = setTimeout(() => {
-				isHolding = true;
-				releasePointer(); // Programmatically release pointer
-
-				// Reset `isHolding` after 500ms
-				setTimeout(() => {
-					isHolding = false;
-				}, 500);
-			}, 200); // Long press time
-		}
-	};
-
-	const handlePointerUp = () => {
-		if (pressTimer) {
-			clearTimeout(pressTimer);
-			pressTimer = null;
-		}
-	};
-
-	onMount(() => {
-		if (messageRef) {
-			messageRef.addEventListener('pointerdown', handlePointerDown);
-			messageRef.addEventListener('pointerup', handlePointerUp);
-			messageRef.addEventListener('pointercancel', handlePointerUp); // Also cancel on interruption
-		}
-	});
-
-	onDestroy(() => {
-		if (messageRef) {
-			messageRef.removeEventListener('pointerdown', handlePointerDown);
-			messageRef.removeEventListener('pointerup', handlePointerUp);
-			messageRef.removeEventListener('pointercancel', handlePointerUp);
-		}
-	});
+	let showContextMenu: boolean | null = $state(false);
 
 	$effect(() => {
 		if (!isOwnMessage && isUnseen && messageRef) {
@@ -266,7 +221,11 @@
 {/snippet}
 
 <div class="relative py-1">
-	<div
+	<button
+		onclick={() => {
+			showContextMenu = null; // NOTE: hack to make sure it works more than once
+			showContextMenu = true;
+		}}
 		data-message-id={message.id}
 		bind:this={messageRef}
 		class="message {!isOwnMessage && isUnseen
@@ -278,7 +237,7 @@
 				<div class="self-end">{@render avatar()}</div>
 			{/if}
 			<MessageContextMenu
-				{isHolding}
+				{showContextMenu}
 				{message}
 				{isOwnMessage}
 				{isCurrenUserEventAdmin}
@@ -319,7 +278,7 @@
 				</div>
 			{/if}
 		</div>
-	</div>
+	</button>
 	<div class="z-5 absolute -bottom-3 {isOwnMessage ? 'right-8' : 'left-8'}">
 		{#if message.emoji_reactions}
 			<span class="mx-1 flex w-fit flex-wrap items-center px-1 text-xl">

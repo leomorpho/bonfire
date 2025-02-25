@@ -16,7 +16,7 @@
 	let {
 		children,
 		message,
-		isHolding,
+		showContextMenu,
 		isOwnMessage,
 		isCurrenUserEventAdmin,
 		eventId,
@@ -28,7 +28,6 @@
 	let showSmileyPicker = $state(false);
 
 	const openMenu = (event?: PointerEvent) => {
-		if (event) event.preventDefault();
 		showAlert = true;
 	};
 
@@ -37,7 +36,7 @@
 	};
 
 	$effect(() => {
-		if (isHolding) {
+		if (showContextMenu) {
 			openMenu();
 		}
 	});
@@ -86,13 +85,6 @@
 			showAlert = false;
 		} catch (err) {
 			console.error('Failed to copy:', err);
-		}
-	};
-
-	const preventHoldingInteraction = (event: PointerEvent) => {
-		if (isHolding) {
-			event.stopPropagation(); // Stop the event from propagating
-			event.preventDefault(); // Prevent unintended clicks/taps
 		}
 	};
 </script>
@@ -148,12 +140,10 @@
 
 <Dialog.Root bind:open={showAlert}>
 	<Dialog.Content
-		class="w-full max-w-[400px] rounded-3xl border-0 animate-in fade-in zoom-in sm:max-w-[400px] {isHolding
+		class="w-full rounded-3xl border-0 animate-in fade-in zoom-in sm:max-w-[400px] {showContextMenu
 			? 'pointer-events-none'
 			: 'pointer-events-auto'}"
 		interactOutsideBehavior="close"
-		ontouchstart={preventHoldingInteraction}
-		onpointerdown={preventHoldingInteraction}
 	>
 		<div class="flex h-fit w-full justify-center">
 			<MessageContent
@@ -163,23 +153,10 @@
 				deleted_by_user_id={message.deleted_by_user_id}
 			/>
 		</div>
+		<div class="flex w-full items-center justify-center">
+			<EmojiPicker handleEmojiSelect={toggleEmoji} />
+		</div>
 
-		<Popover.Root>
-			<Popover.Trigger
-				onclick={() => {
-					showSmileyPicker = !showSmileyPicker;
-				}}
-				onkeydown={(event) => {
-					if (event.key === 'Enter' || event.key === ' ') showSmileyPicker = !showSmileyPicker;
-				}}
-				class="flex w-full"
-			>
-				<Button class="flex w-full justify-between ">React <Smile /></Button>
-			</Popover.Trigger>
-			<Popover.Content class="w-fit rounded-2xl bg-slate-900">
-				<EmojiPicker handleEmojiSelect={toggleEmoji} />
-			</Popover.Content>
-		</Popover.Root>
 		<Button onclick={onCopy} class="flex w-full justify-between ">Copy <Copy /></Button>
 		{#if isOwnMessage || isCurrenUserEventAdmin}
 			{#if !message.deleted_by_user_id}
