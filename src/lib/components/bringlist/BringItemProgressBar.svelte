@@ -86,17 +86,6 @@
 		userIdToNumBroughtWhenDialogOpen[getUserKey(currUserId, isTempUser)] = tempUserCommitment;
 	});
 
-	// $effect(() => {
-	// 	console.log('---------------------------');
-	// 	console.log('item.name', item.name);
-	// 	console.log('userAssignment', userAssignment);
-	// 	console.log('item.bring_assignments', item.bring_assignments);
-	// 	console.log('numCommittedByuser', numCommittedByuser);
-	// 	console.log('numBroughtByOthers', numBroughtByOthers);
-	// 	console.log('userIdToNumBrought', userIdToNumBrought);
-	// 	console.log('tempUserCommitment', tempUserCommitment);
-	// });
-
 	const upsertAssignment = async (closeAfterSave = false, showToasts = false) => {
 		const client = getFeWorkerTriplitClient($page.data.jwt);
 		const userKey = getUserKey(currUserId, isTempUser);

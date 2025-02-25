@@ -37,7 +37,18 @@
 	style="background-image: {progressGradient};"
 	class="flex h-8 w-full items-center justify-between rounded-xl bg-slate-200 p-3 text-black outline-none ring-0 focus:outline-none focus-visible:ring-0 dark:bg-slate-800 dark:text-white sm:h-10"
 >
-	<div>{itemName}</div>
+	<div class="flex items-center">
+		{itemName}
+		{console.log('progress', progress)}
+		{#if progress == 0}
+			<div
+				class="ml-2 flex h-4 w-4 animate-pulse items-center justify-center rounded-full bg-red-600 text-xs font-bold text-white sm:ml-5 sm:h-5 sm:w-5 sm:text-sm md:h-6 md:w-6"
+			>
+				<span class="sr-only"></span>
+			</div>
+			<span class="ml-1 text-red-600 text-sm">Help needed</span>
+		{/if}
+	</div>
 	<div class="flex items-center">
 		{#if itemUnit == BringListCountTypes.PER_PERSON}
 			<UserRound class="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
