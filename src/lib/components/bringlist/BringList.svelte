@@ -15,7 +15,8 @@
 		currUserId = null,
 		tempAttendeeId = null,
 		isAdmin = false,
-		numAttendeesGoing = 5
+		numAttendeesGoing = 5,
+		changeToDiscussionsTab = null
 	} = $props();
 
 	if (!tempAttendeeId && !currUserId) {
@@ -94,9 +95,19 @@
 		<BonfireNoInfoCard text={'No items to bring yet'} />
 	{/if}
 </div>
+<div class="flex w-full justify-center">
+	<button
+		onclick={changeToDiscussionsTab}
+		class="mb-2 w-fit rounded-xl bg-blue-200 bg-opacity-40 p-2 text-sm hover:bg-blue-300 hover:bg-opacity-40 dark:bg-blue-700 dark:bg-opacity-40 dark:hover:bg-blue-600 dark:hover:bg-opacity-40"
+	>
+		Have a suggestion? Click here to share it in the bonfire's discussion!
+	</button>
+</div>
+
 {#if isAdmin}
 	<CrudItem {eventId} {numAttendeesGoing} cls={'w-full'}>
-		<Button id="add-bring-list-item-btn"
+		<Button
+			id="add-bring-list-item-btn"
 			class="flex w-full items-center justify-center ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
 			>Add</Button
 		>

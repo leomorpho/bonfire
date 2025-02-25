@@ -444,6 +444,14 @@
 			behavior: 'smooth'
 		});
 	}
+
+	let activeTab = $state('about');
+
+	// Function to programmatically change tabs
+	const changeToDiscussionsTab = () => {
+		activeTab = ""; // NOTE: this is a hack to make it work, otherwise it only works the first time.
+		activeTab = "discussions";
+	};
 </script>
 
 {#if !isAnonymousUser && !isUnverifiedUser && eventLoading}
@@ -467,7 +475,7 @@
 				</div>
 			{/if}
 			<section class="mt-4 flex w-full justify-center sm:w-[450px] md:w-[550px] lg:w-[650px]">
-				<Tabs.Root value="about" class="w-full">
+				<Tabs.Root value={activeTab} class="w-full">
 					<div class="flex w-full justify-center">
 						<Tabs.List class="mb-1 w-full bg-transparent animate-in fade-in zoom-in">
 							<div class="rounded-lg bg-slate-700 p-2">
@@ -749,6 +757,7 @@
 									numAttendeesGoing={allAttendeesGoing.length}
 									{currUserId}
 									{tempAttendeeId}
+									{changeToDiscussionsTab}
 								/>
 							</div>
 						{/if}

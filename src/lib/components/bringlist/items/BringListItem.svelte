@@ -39,10 +39,9 @@
 >
 	<div class="flex items-center">
 		{itemName}
-		{console.log('progress', progress)}
 		{#if progress == 0}
 			<div
-				class="ml-2 flex h-4 w-4 animate-pulse items-center justify-center rounded-full bg-red-600 text-xs font-bold text-white sm:ml-5 sm:h-5 sm:w-5 sm:text-sm md:h-6 md:w-6"
+				class="ml-2 flex h-4 w-4 animate-bounce items-center justify-center rounded-full bg-red-600 text-xs font-bold text-white sm:ml-5 sm:h-5 sm:w-5 sm:text-sm md:h-6 md:w-6"
 			>
 				<span class="sr-only"></span>
 			</div>
