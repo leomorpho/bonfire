@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ChevronDown, Smile, Trash2 } from 'lucide-svelte';
+	import { ChevronDown, Copy, Smile, Trash2 } from 'lucide-svelte';
 	import Button from '../ui/button/button.svelte';
 	import { isMobile } from '$lib/utils';
 	import EmojiPicker from '../EmojiPicker.svelte';
@@ -79,6 +79,15 @@
 		});
 		showAlert = false;
 	};
+
+	const onCopy = async () => {
+		try {
+			await navigator.clipboard.writeText(message.content);
+			showAlert = false;
+		} catch (err) {
+			console.error('Failed to copy:', err);
+		}
+	};
 </script>
 
 {#snippet emojiPicker()}
@@ -132,7 +141,7 @@
 
 <Dialog.Root bind:open={showAlert}>
 	<Dialog.Content
-		class="w-full max-w-[400px] rounded-3xl border-0 bg-transparent animate-in fade-in zoom-in sm:max-w-[400px]"
+		class="w-full max-w-[400px] rounded-3xl border-0 animate-in fade-in zoom-in sm:max-w-[400px]"
 		interactOutsideBehavior="close"
 	>
 		<div class="flex h-fit w-full justify-center">
@@ -143,10 +152,24 @@
 				deleted_by_user_id={message.deleted_by_user_id}
 			/>
 		</div>
-		<div class="block w-full sm:hidden">
-			<div class="flex w-full justify-center"><EmojiPicker handleEmojiSelect={toggleEmoji} /></div>
-		</div>
 
+		<Popover.Root>
+			<Popover.Trigger
+				onclick={() => {
+					showSmileyPicker = !showSmileyPicker;
+				}}
+				onkeydown={(event) => {
+					if (event.key === 'Enter' || event.key === ' ') showSmileyPicker = !showSmileyPicker;
+				}}
+				class="flex w-full"
+			>
+				<Button class="flex w-full justify-between ">React <Smile /></Button>
+			</Popover.Trigger>
+			<Popover.Content class="w-fit rounded-2xl bg-slate-900">
+				<EmojiPicker handleEmojiSelect={toggleEmoji} />
+			</Popover.Content>
+		</Popover.Root>
+		<Button onclick={onCopy} class="flex w-full justify-between ">Copy <Copy /></Button>
 		{#if isOwnMessage || isCurrenUserEventAdmin}
 			{#if !message.deleted_by_user_id}
 				<CustomAlertDialog

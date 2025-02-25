@@ -13,19 +13,22 @@
 </script>
 
 {#snippet emojiDef(emoji: string)}
-	<span class="text-2xl ml-2">
+	<span class="ml-2 text-2xl">
 		{emoji}
 	</span>
 {/snippet}
-
 
 <Popover.Root bind:open={isOpen}>
 	<Popover.Trigger>
 		{@render children()}
 	</Popover.Trigger>
-	<Popover.Content class="w-fit bg-slate-900 text-sm p-1 rounded-xl">
+	<Popover.Content class="w-fit rounded-xl bg-slate-300 p-1 text-sm dark:bg-slate-900">
 		{#each reactions as reaction}
-			<div class="{reaction.user_id == currUserId?'hover:bg-slate-800 hover:rounded-lg':''} p-2 flex items-center justify-between">
+			<div
+				class="{reaction.user_id == currUserId
+					? 'hover:rounded-lg hover:bg-slate-400 dark:hover:bg-slate-800'
+					: ''} flex items-center justify-between p-2"
+			>
 				<span class="mr-2"><ProfileAvatar userId={reaction.user_id} baseHeightPx={25} /></span>
 				{#if reaction.user_id == currUserId}
 					<button onclick={removeEmoji}>
