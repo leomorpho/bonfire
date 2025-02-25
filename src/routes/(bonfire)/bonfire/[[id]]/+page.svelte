@@ -553,12 +553,12 @@
 								{event.title}
 							</h1>
 							<div class="flex items-center justify-center font-medium">
-								<Calendar class="mr-2 h-4 w-4" />{formatHumanReadable(event.start_time)}
+								<Calendar class="mr-2 !h-4 !w-4 shrink-0" />{formatHumanReadable(event.start_time)}
 								{#if event.end_time}to {formatHumanReadableHour(event.end_time)}{/if}
 							</div>
 							<div class="flex items-center justify-center font-light">
 								{#if event.organizer}
-									<UserRound class="mr-2 h-4 w-4" />Hosted by
+									<UserRound class="mr-2 !h-4 !w-4 shrink-0" />Hosted by
 									{#if rsvpStatus}
 										<div class="ml-2">
 											<ProfileAvatar userId={event.organizer['id']} />
@@ -570,7 +570,7 @@
 							</div>
 
 							<div class="flex items-center justify-center font-light">
-								<MapPin class="mr-2 h-4 w-4" />
+								<MapPin class="mr-2 !h-4 !w-4 shrink-0" />
 								{#if rsvpStatus}
 									{#if event.location}<div class="flex items-center justify-center">
 											{#if latitude && longitude}
@@ -580,7 +580,7 @@
 														class="flex items-center justify-center rounded-xl bg-slate-100 p-2 dark:bg-slate-900"
 													>
 														{@html event.location}
-														<ArrowRightFromLine class="ml-2 h-4 w-4" />
+														<ArrowRightFromLine class="ml-2 !h-4 !w-4 shrink-0" />
 													</div>
 												</ShareLocation>
 											{:else}
