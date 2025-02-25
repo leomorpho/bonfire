@@ -669,10 +669,11 @@ test('Bring list items', async ({ browser }) => {
 	await eventCreatorPage.locator('#item-category-btn').click();
 	await expect(eventCreatorPage.getByRole('menuitem', { name: 'By Person' })).toBeVisible();
 	await expect(eventCreatorPage.getByRole('menuitem', { name: 'Total Count' })).toBeVisible();
-	// await eventCreatorPage.getByRole('textbox', { name: 'We need enough to feed 1' }).click();
+	await eventCreatorPage.getByPlaceholder('5').fill('5');
+	const bringItemDetails = 'Because dogs are fantastic';
 	await eventCreatorPage
-		.getByRole('textbox', { name: 'We need enough to feed 1' })
-		.fill('Because dogs are fantastic');
+		.getByRole('textbox', { name: 'We need enough to feed 5' })
+		.fill(bringItemDetails);
 	await eventCreatorPage.getByLabel('Add list item').getByRole('button', { name: 'Add' }).click();
 	await expect(
 		eventCreatorPage.locator('.bring-list-item-btn').getByRole('button', { name: 'Dogs' })
@@ -682,6 +683,60 @@ test('Bring list items', async ({ browser }) => {
 	await expect(
 		tempAttendeePage.locator('.bring-list-item-btn').getByRole('button', { name: 'Dogs' })
 	).toBeVisible();
+
+	await eventCreatorPage
+		.locator('.bring-list-item-btn')
+		.getByRole('button', { name: 'Dogs' })
+		.click();
+	// Let event creator update the details
+	await eventCreatorPage.locator('#edit-bring-list-item').click();
+	const bringItemDetailsImproved = bringItemDetails + ', but cats are ok';
+	await eventCreatorPage
+		.getByRole('textbox', { name: 'We need enough to feed 5' })
+		.fill(bringItemDetailsImproved);
+	await eventCreatorPage.getByRole('button', { name: 'Save Changes' }).click();
+	// Let event creator bring 1 dog
+	const slider = eventCreatorPage.locator('input[type="range"]');
+	await expect(slider).toBeAttached(); // Ensure it's in the DOM
+	await expect(slider).toBeVisible();
+	await expect(slider).toBeEnabled();
+	await slider.evaluate((el) => {
+		el.value = 1;
+		el.dispatchEvent(new Event('input', { bubbles: true })); // Ensure event triggers
+	});
+	await eventCreatorPage.getByRole('button', { name: 'Submit' }).click();
+
+	// Let temp attendee bring one dog, and verify the details is updated
+	await tempAttendeePage
+		.locator('.bring-list-item-btn')
+		.getByRole('button', { name: 'Dogs' })
+		.click();
+	await expect(tempAttendeePage.getByText(bringItemDetailsImproved)).toBeVisible();
+	const slider2 = tempAttendeePage.locator('input[type="range"]');
+
+	await expect(slider2).toBeAttached(); // Ensure it's in the DOM
+	await expect(slider2).toBeVisible();
+	await expect(slider2).toBeEnabled();
+
+	await slider2.evaluate((el) => {
+		el.value = 1;
+		el.dispatchEvent(new Event('input', { bubbles: true })); // Ensure event triggers
+	});
+	await tempAttendeePage.getByRole('button', { name: 'Submit' }).click();
+
+	// Check event owner can see who's bringing what
+	await eventCreatorPage
+		.locator('.bring-list-item-btn')
+		.getByRole('button', { name: 'Dogs' })
+		.click();
+	await expect(eventCreatorPage.getByText('bringing for')).toHaveCount(2, { timeout: 2000 });
+	await expect(eventCreatorPage.getByText("You're bringing enough for 1 person")).toBeVisible();
+
+	// Have event owner delete bring list item and check it's gone
+	await eventCreatorPage.locator('#edit-bring-list-item').click();
+	await eventCreatorPage.getByText('Delete').click();
+	await eventCreatorPage.getByRole('button', { name: 'Continue' }).click();
+	await expect(eventCreatorPage.getByText('.bring-list-item-btn')).toHaveCount(0);
 });
 
 // TODO: test max capacity of bonfire

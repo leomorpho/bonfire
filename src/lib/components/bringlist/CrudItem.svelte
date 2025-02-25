@@ -102,7 +102,7 @@
 				<div class="flex space-x-2">
 					<ItemCategory bind:currentlySelectedType={unitType} />
 					<Input
-						id="count"
+						id="bring-list-item-count"
 						type="number"
 						min="1"
 						pattern="[0-9]*"

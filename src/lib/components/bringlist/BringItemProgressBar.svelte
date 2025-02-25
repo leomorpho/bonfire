@@ -115,16 +115,23 @@
 						toast.success(`You're now bringing no "${item.name}""`);
 					}
 				} else {
+					const preSaveTempUserCommitment = tempUserCommitment;
+
 					await updateBringAssignment(client, userAssignment.id, { quantity: tempUserCommitment });
 					if (showToasts) {
-						toast.success(`You're now bringing ${tempUserCommitment} "${item.name}""`);
+						toast.success(`You're now bringing ${preSaveTempUserCommitment} "${item.name}""`);
 					}
 				}
 			} catch (e) {
 				console.error('failed to update bring assignment', e);
 			}
 		} else {
+			if (tempUserCommitment == 0) {
+				isOpen = false;
+				return;
+			}
 			try {
+				const preSaveTempUserCommitment = tempUserCommitment;
 				await assignBringItem(
 					client,
 					item.id,
@@ -134,7 +141,7 @@
 					tempUserCommitment
 				);
 				if (showToasts) {
-					toast.success(`You're now bringing ${tempUserCommitment} "${item.name}""`);
+					toast.success(`You're now bringing ${preSaveTempUserCommitment} "${item.name}""`);
 				}
 			} catch (e) {
 				console.error('failed to assign bring assignment', e);
@@ -190,7 +197,11 @@
 								userId={isTempUserKey(userKey) ? null : extractUserId(userKey)}
 								tempUserId={isTempUserKey(userKey) ? extractUserId(userKey) : null}
 								baseHeightPx={40}
-							/><span>bringing {#if item.unit == BringListCountTypes.PER_PERSON}for {/if} {quantity}</span>
+							/><span
+								>bringing {#if item.unit == BringListCountTypes.PER_PERSON}for
+								{/if}
+								{quantity}</span
+							>
 						</div>
 					</div>
 				{/if}
