@@ -32,7 +32,7 @@
 	import BonfireNoInfoCard from '$lib/components/BonfireNoInfoCard.svelte';
 	import { overlayColorStore, overlayOpacityStore, styleStore } from '$lib/styles';
 	import ShareLocation from '$lib/components/ShareLocation.svelte';
-	import type { EventTypescriptType } from '$lib/types';
+	import type { BannerInfo, EventTypescriptType } from '$lib/types';
 	import BonfireBanner from '$lib/components/BonfireBanner.svelte';
 	import { env as publicEnv } from '$env/dynamic/public';
 	import ImThreadView from '$lib/components/im/ImThreadView.svelte';
@@ -83,6 +83,8 @@
 
 	let latitude = $state(null);
 	let longitude = $state(null);
+
+	let bannerInfo: BannerInfo = $state($page.data.bannerInfo);
 
 	$effect(() => {
 		if ($page.data.user) {
@@ -196,6 +198,52 @@
 		}
 	};
 
+	/**
+	 * Fetches banner information for a given Bonfire (event) ID.
+	 *
+	 * @param {string} bonfireId - The ID of the bonfire (event).
+	 * @param {string | null} tempAttendeeSecret - (Optional) Temporary attendee secret.
+	 * @returns {Promise<BannerInfo | null>} - The banner information or null if not found.
+	 */
+	async function fetchBannerInfo(bonfireId: string, tempAttendeeSecret: string | null = null) {
+		try {
+			// Construct the URL with optional temp attendee authentication
+			let url = `/bonfire/${bonfireId}/media/get-banner`;
+			if (tempAttendeeSecret) {
+				url += `?${tempAttendeeSecretParam}=${encodeURIComponent(tempAttendeeSecret)}`;
+			}
+
+			// Fetch the banner data
+			const response = await fetch(url, {
+				method: 'GET',
+				credentials: 'include', // Ensure cookies and auth tokens are sent
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			});
+
+			// Handle non-OK responses (403, 404, etc.)
+			if (!response.ok) {
+				if (response.status === 403) {
+					console.warn('User is not an attendee of this event.');
+					return null;
+				}
+				if (response.status === 404) {
+					console.warn('No banner found for this event.');
+					return null;
+				}
+				throw new Error(`Failed to fetch banner: ${response.statusText}`);
+			}
+			console.log("OLD bannerInfo", bannerInfo)
+			// Parse the response JSON
+			bannerInfo = await response.json();
+			console.log("NEW bannerInfo", bannerInfo)
+		} catch (error) {
+			console.error('Error fetching banner info:', error);
+			return null;
+		}
+	}
+
 	onMount(() => {
 		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
@@ -271,6 +319,10 @@
 							adminUserIds = new Set(
 								event.event_admins.map((admin: { user_id: string }) => admin.user_id)
 							);
+						}
+
+						if (event.banner_media.blurr_hash != bannerInfo.bannerBlurHash) {
+							fetchBannerInfo($page.params.id, tempAttendeeSecret);
 						}
 					}
 				}
@@ -533,12 +585,12 @@
 						{/if}
 
 						<div class="space-y-3 rounded-xl bg-white p-5 dark:bg-slate-900">
-							{#if $page.data.bannerInfo && $page.data.bannerInfo.banneIsSet}
+							{#if bannerInfo && bannerInfo.bannerIsSet}
 								<div class="flex w-full justify-center">
 									<BonfireBanner
-										blurhash={$page.data.bannerInfo.bannerBlurHash}
-										bannerSmallSizeUrl={$page.data.bannerInfo.bannerSmallSizeUrl}
-										bannerLargeSizeUrl={$page.data.bannerInfo.bannerLargeSizeUrl}
+										blurhash={bannerInfo.bannerBlurHash}
+										bannerSmallSizeUrl={bannerInfo.bannerSmallSizeUrl}
+										bannerLargeSizeUrl={bannerInfo.bannerLargeSizeUrl}
 										{isCurrenUserEventAdmin}
 									/>
 								</div>
@@ -668,7 +720,10 @@
 					rsvpCanBeChanged
 				)} -->
 						{#if event?.max_capacity}
-							<MaxCapacityInfo maxCapacity={event?.max_capacity} rsvpEnabled={rsvpEnabledForCapacity} />
+							<MaxCapacityInfo
+								maxCapacity={event?.max_capacity}
+								rsvpEnabled={rsvpEnabledForCapacity}
+							/>
 						{/if}
 						<Rsvp
 							{rsvpStatus}

@@ -2,6 +2,7 @@
 	import { BannerMediaSize } from '$lib/enums';
 	import { blurhashToCssGradientString } from '@unpic/placeholder';
 	import { Image } from '@unpic/svelte';
+	import { Pen } from 'lucide-svelte';
 
 	let { bannerSmallSizeUrl, bannerLargeSizeUrl, isCurrenUserEventAdmin, blurhash } = $props();
 
@@ -28,18 +29,11 @@
 		alt={'Banner for mobile'}
 	/>
 	{#if isCurrenUserEventAdmin}
-		<div class="absolute right-2 top-2 rounded-full bg-white dark:bg-slate-800 dark:text-white p-1 shadow-md hover:bg-slate-100">
+		<div
+			class="absolute right-2 top-2 rounded-full bg-white p-2 shadow-md hover:bg-slate-100 dark:bg-slate-800 dark:text-white"
+		>
 			<a class="flex w-full" href="banner/upload" aria-label="Upload a new banner">
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					fill="none"
-					viewBox="0 0 24 24"
-					stroke-width="1.5"
-					stroke="currentColor"
-					class="h-6 w-6"
-				>
-					<path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-				</svg>
+				<Pen  class="w-5 h-5 no-shrink"/>
 			</a>
 		</div>
 	{/if}

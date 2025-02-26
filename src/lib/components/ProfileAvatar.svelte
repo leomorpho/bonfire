@@ -122,8 +122,6 @@
 				const lastUpdatedAtDate = user?.userUpdatedAt ? new Date(user?.userUpdatedAt) : null;
 				lastUpdatedAt = lastUpdatedAtDate; // TODO: get latest of that or image updated at
 
-				console.log('user?.smallProfilePic ====>', user?.smallProfilePic);
-
 				if (user?.smallProfilePic) {
 					if (url) {
 						URL.revokeObjectURL(url); // Revoke the old object URL to free memory

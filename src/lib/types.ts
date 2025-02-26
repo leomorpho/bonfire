@@ -146,7 +146,7 @@ export type BringItem = {
 	created_by: string; // User ID of the creator (admin)
 	created_at: string; // Timestamp of creation
 	bring_assignments?: BringAssignment[]; // List of assignments (optional)
-	total_brought?: number,
+	total_brought?: number;
 };
 
 /** Type for Bring Assignments (who is bringing what) */
@@ -157,4 +157,14 @@ export type BringAssignment = {
 	assigned_by?: string | null; // User ID of who assigned it (null if self-assigned)
 	quantity: number; // Amount of the item the user is bringing
 	created_at: string; // Timestamp of assignment creation
+};
+
+/**
+ * Type definition for banner information.
+ */
+export type BannerInfo = {
+	bannerIsSet: boolean;
+	bannerSmallSizeUrl: string;
+	bannerLargeSizeUrl: string;
+	bannerBlurHash: string;
 };

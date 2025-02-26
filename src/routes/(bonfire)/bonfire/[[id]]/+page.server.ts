@@ -21,7 +21,7 @@ export const load = async ({ params, locals, url }) => {
 	let numAnnouncements = 0;
 	let numFiles = 0;
 
-	let banneIsSet = false;
+	let bannerIsSet = false;
 	let bannerSmallSizeUrl = null;
 	let bannerLargeSizeUrl = null;
 	let bannerBlurHash = '';
@@ -112,7 +112,7 @@ export const load = async ({ params, locals, url }) => {
 				numFiles = event.files.length;
 			}
 			if (event.banner_media) {
-				banneIsSet = true;
+				bannerIsSet = true;
 				const image = event.banner_media;
 				bannerLargeSizeUrl = await generateSignedUrl(image.full_image_key);
 				bannerSmallSizeUrl = await generateSignedUrl(image.small_image_key);
@@ -127,7 +127,7 @@ export const load = async ({ params, locals, url }) => {
 	}
 
 	const bannerInfo = {
-		banneIsSet,
+		bannerIsSet,
 		bannerSmallSizeUrl,
 		bannerLargeSizeUrl,
 		bannerBlurHash
