@@ -70,8 +70,14 @@ export async function processGalleryFile(
 	filetype: string,
 	userId: string | null,
 	tempAttendeeId: string | null,
-	eventId: string
+	eventId: string | null
 ) {
+	if (!eventId) {
+		throw new Error('eventId must be set for processGalleryFile');
+	}
+
+	verifyFilePathExists(filePath);
+
 	const tempFiles = [filePath];
 
 	try {
@@ -205,6 +211,8 @@ export async function uploadProfileImage(filePath: string, userId: string | null
 		throw new Error('missing userId in call to uploadProfileImage');
 	}
 
+	verifyFilePathExists(filePath);
+
 	// NOTE: Profile pics are always named the same for a same user, to overwrite their previous pic.
 
 	// Generate keys
@@ -295,17 +303,31 @@ export async function uploadProfileImage(filePath: string, userId: string | null
 	return { fullImageKey, smallImageKey };
 }
 
-export async function uploadBannerImage(file: File, userId: string, eventId: string) {
-	// Extract file metadata
-	const filetype = file.type; // MIME type, e.g., 'image/jpeg'
-	const filesize = file.size; // File size in bytes
+export async function uploadBannerImage(
+	filePath: string,
+	userId: string | null,
+	eventId: string | null
+) {
+	if (!userId) {
+		throw new Error('userId should be set in call to uploadBannerImage');
+	}
+	if (!eventId) {
+		throw new Error('eventId should be set in call to uploadBannerImage');
+	}
+
+	verifyFilePathExists(filePath);
 
 	// Generate keys
-	const largeImageKey = `banner/${eventId}/lg.jpg`;
-	const smallImageKey = `banner/${eventId}/sm.jpg`;
+	const cacheBusterRandomId = generateId(5);
+	const largeImageKey = `banner/${eventId}/lg_cb${cacheBusterRandomId}.jpg`;
+	const smallImageKey = `banner/${eventId}/sm_cb${cacheBusterRandomId}.jpg`;
 
 	// Convert File to Buffer
-	const fileBuffer = Buffer.from(await file.arrayBuffer());
+	const fileBuffer = await sharp(filePath).toFormat('png').toBuffer();
+
+	// Extract file metadata
+	const filetype = 'image/png'; // MIME type, e.g., 'image/jpeg'
+	const filesize = (await fs.stat(filePath)).size; // File size in bytes
 
 	// Resize the image for the full version (400x400)
 	const largeImageBuffer = await sharp(fileBuffer)
@@ -330,26 +352,36 @@ export async function uploadBannerImage(file: File, userId: string, eventId: str
 	}
 
 	// Upload large version
-	await s3.send(
-		new PutObjectCommand({
-			Bucket: bucketName,
-			Key: largeImageKey,
-			Body: largeImageBuffer,
-			ContentType: 'image/jpeg',
-			ACL: 'private'
-		})
-	);
+	try {
+		await s3.send(
+			new PutObjectCommand({
+				Bucket: bucketName,
+				Key: largeImageKey,
+				Body: largeImageBuffer,
+				ContentType: 'image/jpeg',
+				ACL: 'private'
+			})
+		);
+	} catch (error) {
+		console.error(`Failed to upload ${largeImageKey}:`, error);
+		throw new Error(`Upload failed for ${largeImageKey}`);
+	}
 
 	// Upload small version
-	await s3.send(
-		new PutObjectCommand({
-			Bucket: bucketName,
-			Key: smallImageKey,
-			Body: smallImageBuffer,
-			ContentType: 'image/jpeg',
-			ACL: 'private'
-		})
-	);
+	try {
+		await s3.send(
+			new PutObjectCommand({
+				Bucket: bucketName,
+				Key: smallImageKey,
+				Body: smallImageBuffer,
+				ContentType: 'image/jpeg',
+				ACL: 'private'
+			})
+		);
+	} catch (error) {
+		console.error(`Failed to upload ${smallImageKey}:`, error);
+		throw new Error(`Upload failed for ${smallImageKey}`);
+	}
 
 	// Check if a profile image entry exists for the user
 	const query = triplitHttpClient
@@ -361,6 +393,9 @@ export async function uploadBannerImage(file: File, userId: string, eventId: str
 	const existingEntry = await triplitHttpClient.fetchOne(query);
 
 	if (existingEntry) {
+		const oldFullImageKey = existingEntry.full_image_key;
+		const oldSmallImageKey = existingEntry.small_image_key;
+
 		// Update the existing entry
 		await triplitHttpClient.update('banner_media', existingEntry.id, async (e) => {
 			e.full_image_key = largeImageKey;
@@ -375,10 +410,13 @@ export async function uploadBannerImage(file: File, userId: string, eventId: str
 			e.uploader_id = userId;
 			e.event_id = eventId;
 		});
+
+		// Delete old profile pic files from S3
+		await deleteFilesFromS3([oldFullImageKey, oldSmallImageKey]);
 	} else {
 		// Insert a new entry
 		await triplitHttpClient.insert('banner_media', {
-			full_image_key: smallImageKey,
+			full_image_key: largeImageKey,
 			small_image_key: smallImageKey,
 			file_type: filetype,
 			h_pixel_lg: BannerMediaSize.LARGE_HEIGHT,
@@ -411,6 +449,11 @@ export async function generateSignedUrl(key: string, expiresIn = 3600 * 24) {
 	}
 }
 
+const verifyFilePathExists = async (filePath: string) => {
+	if (!(await fs.stat(filePath).catch(() => false))) {
+		throw new Error(`File not found: ${filePath}`);
+	}
+};
 // Define types for the parameters
 interface UploadLargeFileToS3Params {
 	fileStream: Readable; // A readable stream for the file

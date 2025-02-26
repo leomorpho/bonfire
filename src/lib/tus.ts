@@ -5,7 +5,7 @@ import { Server } from '@tus/server';
 import { FileStore } from '@tus/file-store';
 import { IncomingMessage, ServerResponse } from 'http';
 import { EVENTS } from '@tus/server';
-import { processGalleryFile, uploadProfileImage } from '$lib/filestorage';
+import { processGalleryFile, uploadBannerImage, uploadProfileImage } from '$lib/filestorage';
 import { tempAttendeeSecretParam, UploadFileTypes } from '$lib/enums';
 import { triplitHttpClient } from '$lib/server/triplit';
 import { Readable } from 'stream';
@@ -97,6 +97,7 @@ tusServer.on(EVENTS.POST_FINISH, async (req, res, upload) => {
 				console.log('📸 Gallery file processed successfully');
 				break;
 			case UploadFileTypes.BONFIRE_COVER_PHOTO:
+				await uploadBannerImage(filePath, userId, eventId)
 				break;
 			case UploadFileTypes.PROFILE_PHOTO:
 				await uploadProfileImage(filePath, userId);

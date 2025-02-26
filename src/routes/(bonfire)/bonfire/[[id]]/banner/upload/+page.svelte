@@ -3,10 +3,10 @@
 
 	import Uppy from '@uppy/core';
 	import Webcam from '@uppy/webcam';
-	import XHR from '@uppy/xhr-upload';
 	import GoldenRetriever from '@uppy/golden-retriever';
 	import Compressor from '@uppy/compressor';
 	import ImageEditor from '@uppy/image-editor';
+	import Tus from '@uppy/tus';
 
 	// Import CSS for Uppy components and plugins
 	import '@uppy/core/dist/style.css';
@@ -20,8 +20,10 @@
 	import { page } from '$app/stores';
 	import { detectTailwindTheme } from '$lib/utils';
 	import BackButton from '$lib/components/BackButton.svelte';
+	import { toast } from 'svelte-sonner';
+	import { UploadFileTypes } from '$lib/enums';
 
-	let uppy;
+	let uppy: any;
 
 	const maxMbSize = 5;
 
@@ -71,21 +73,63 @@
 				}
 			})
 			.use(Compressor)
-			.use(XHR, {
-				endpoint: `/bonfire/${$page.params.id}/banner/upload`,
-				method: 'POST',
-				formData: true,
-				fieldName: 'file', // Ensure this matches the backend expectation
-				headers: {
-					Authorization: `Bearer ${window.localStorage.getItem('token')}`
+			.use(Tus, {
+				endpoint: `/api/tus/files?eventId=${$page.params.id}`, // Remove trailing slashes
+				removeFingerprintOnSuccess: true, // 🔹 Remove tracking ID after success
+				chunkSize: 1 * 1024 * 1024, // 1MB chunk size
+				retryDelays: [0, 3000, 5000, 10000], // Retry logic
+				// 🔹 Prevent auto-resume
+				onShouldRetry: (err, retryAttempt, options) => {
+					console.log('⚠️ Upload error, clearing old sessions:', err);
+					uppy.getFiles().forEach((file) => {
+						uppy.removeFile(file.id);
+					});
+					return false; // 🚀 Stop retries for failed uploads
 				}
+			})
+			.on('upload-retry', (file) => {
+				console.warn(`🔄 Retrying upload: ${file.name}`);
 			})
 			.on('upload-success', (file, response) => {
 				console.log('Upload successful:', file, response);
+				toast.success(
+					'Upload successful! Your banner is being optimized and will appear shortly in the app.',
+					{
+						duration: 10000 // 10 seconds
+					}
+				);
 				goto(`/bonfire/${$page.params.id}`);
 			})
+			.on('upload-error', (file, error) => {
+				console.error(`❌ Upload failed for banner`, error);
+				toast.error(
+					'❌ Upload failed. Please try again later or contact support if the issue persists.',
+					{
+						duration: 6000 // 6 seconds
+					}
+				);
+			})
 			.on('error', (error) => {
-				console.error('Upload error:', error);
+				console.error(`❌ Upload failed for banner`, error);
+				toast.error(
+					'❌ Upload failed. Please try again later or contact support if the issue persists.',
+					{
+						duration: 6000 // 6 seconds
+					}
+				);
+			})
+			.on('file-added', (file) => {
+				console.log('📄 File added:', file.name);
+
+				uppy.setFileMeta(file.id, {
+					originalName: file.name,
+					mimeType: file.type,
+					size: file.size,
+					uploadStartTime: new Date().toISOString(),
+					userId: $page.data.user?.id,
+					eventId: typeof $page.params.id !== 'undefined' ? $page.params.id : '',
+					uploadFileType: UploadFileTypes.BONFIRE_COVER_PHOTO
+				});
 			});
 	});
 </script>
