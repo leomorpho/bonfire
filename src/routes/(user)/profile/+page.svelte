@@ -10,6 +10,7 @@
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { getFeWorkerTriplitClient } from '$lib/triplit';
 	import ProfileAvatar from '$lib/components/ProfileAvatar.svelte';
+	import SvgLoader from '$lib/components/SvgLoader.svelte';
 
 	let user = $state();
 	let client: TriplitClient;
@@ -21,8 +22,24 @@
 	onMount(() => {
 		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
-		user = useQuery(client, client.query('user').where(['id', '=', $page.data.user.id]));
+		const unsubscribeFromUserQuery = client.subscribe(
+			client.query('user').include('profile_image').where(['id', '=', $page.data.user.id]).build(),
+			(results) => {
+				user = results[0];
+			},
+			(error) => {
+				console.error('Error fetching current temporary attendee:', error);
+			},
+			{
+				localOnly: false,
+				onRemoteFulfilled: () => {}
+			}
+		);
 		console.log('$page.data.user', $page.data.user);
+
+		return () => {
+			unsubscribeFromUserQuery();
+		};
 	});
 </script>
 
@@ -31,23 +48,19 @@
 	<section class="mt-8 flex w-full flex-col items-center justify-center sm:w-[450px]">
 		<h2 class="my-6 text-2xl font-semibold">My Profile</h2>
 
-		{#if !user || user.fetching}
-			<!-- <Loader /> -->
-		{:else if user.error}
-			<p>Error: {user.error.message}</p>
-		{:else if user.results}
-		{console.log('user.results', user.results)}
-		{console.log('user.results[0]', user.results[0].id)}
-		<div class="flex w-full flex-col items-center justify-center">
-				<ProfileAvatar userId={user.results[0].id} baseHeightPx={120} />
+		{#if !user}
+			<SvgLoader />
+		{:else}
+			<div class="flex w-full flex-col items-center justify-center">
+				<ProfileAvatar userId={user.id} baseHeightPx={120} />
 				<a href="profile/upload-profile-image"> <Button variant="link">Edit Avatar</Button></a>
 			</div>
 			<div class="mt-10 flex items-center justify-center text-xl font-semibold">
 				<a
 					href="profile/username"
-					class={`flex ${user.results[0].username ? '' : 'rounded-lg bg-yellow-200 p-2 hover:bg-yellow-100 dark:bg-yellow-700 dark:hover:bg-yellow-600'}`}
+					class={`flex ${user.username ? '' : 'rounded-lg bg-yellow-200 p-2 hover:bg-yellow-100 dark:bg-yellow-700 dark:hover:bg-yellow-600'}`}
 				>
-					{user.results[0].username ? user.results[0].username : 'Set your username'}
+					{user.username ? user.username : 'Set your username'}
 					<div
 						class="ml-1 flex items-center justify-center p-1 hover:rounded-lg hover:bg-slate-200"
 					>

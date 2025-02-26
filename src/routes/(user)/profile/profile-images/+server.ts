@@ -41,6 +41,7 @@ export const GET = async ({ locals, url }) => {
 		// Fetch all users and include profile images
 		const usersQuery = triplitHttpClient
 			.query('user')
+			.where('id', 'in', userIds)
 			.include('profile_image') // Ensure the relation exists
 			.build();
 
@@ -66,7 +67,7 @@ export const GET = async ({ locals, url }) => {
 				filekey: profileImage?.small_image_key || null,
 				full_image_url: fullImageUrl,
 				small_image_url: smallImageUrl,
-				profile_image_updated_at: profileImage?.uploaded_at || null,
+				profile_image_updated_at: profileImage?.uploaded_at || null
 			};
 		}
 		return json(userMap);

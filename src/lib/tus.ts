@@ -5,7 +5,7 @@ import { Server } from '@tus/server';
 import { FileStore } from '@tus/file-store';
 import { IncomingMessage, ServerResponse } from 'http';
 import { EVENTS } from '@tus/server';
-import { processGalleryFile } from '$lib/filestorage';
+import { processGalleryFile, uploadProfileImage } from '$lib/filestorage';
 import { tempAttendeeSecretParam, UploadFileTypes } from '$lib/enums';
 import { triplitHttpClient } from '$lib/server/triplit';
 import { Readable } from 'stream';
@@ -62,7 +62,7 @@ tusServer.on(EVENTS.POST_FINISH, async (req, res, upload) => {
 			filetype
 		});
 
-		if ((!userId && !tempAttendeeSecret) || !eventId) {
+		if (!userId && !tempAttendeeSecret) {
 			console.warn('⚠️ Missing required metadata:', { userId, tempAttendeeSecret, eventId });
 			return;
 		}
@@ -99,6 +99,7 @@ tusServer.on(EVENTS.POST_FINISH, async (req, res, upload) => {
 			case UploadFileTypes.BONFIRE_COVER_PHOTO:
 				break;
 			case UploadFileTypes.PROFILE_PHOTO:
+				await uploadProfileImage(filePath, userId);
 				break;
 			default:
 				throw new Error(
@@ -233,11 +234,11 @@ export const tusHandler: Handle = async ({ event, resolve }) => {
 			return new Response('Unauthorized', { status: 401 });
 		}
 
-		// Validate eventId for POST and PATCH requests (new uploads and continuations)
-		if (event.request.method === 'POST' && !eventId) {
-			console.warn('⚠️ Missing eventId in upload request');
-			return new Response('Bad Request: Missing eventId', { status: 400 });
-		}
+		// // Validate eventId for POST and PATCH requests (new uploads and continuations)
+		// if (event.request.method === 'POST' && !eventId) {
+		// 	console.warn('⚠️ Missing eventId in upload request');
+		// 	return new Response('Bad Request: Missing eventId', { status: 400 });
+		// }
 
 		// Forward authentication and metadata to TUS server
 		const headers = new Headers(event.request.headers);

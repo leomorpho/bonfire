@@ -200,7 +200,11 @@ export async function processGalleryFile(
 	}
 }
 
-export async function uploadProfileImage(file: File, userId: string) {
+export async function uploadProfileImage(filePath: string, userId: string | null) {
+	if (!userId) {
+		throw new Error('missing userId in call to uploadProfileImage');
+	}
+
 	// NOTE: Profile pics are always named the same for a same user, to overwrite their previous pic.
 
 	// Generate keys
@@ -208,7 +212,7 @@ export async function uploadProfileImage(file: File, userId: string) {
 	const smallImageKey = `profile-images/${userId}/small.jpg`;
 
 	// Convert File to Buffer
-	const fileBuffer = Buffer.from(await file.arrayBuffer());
+	const fileBuffer = await sharp(filePath).toFormat('png').toBuffer();
 
 	// Generate BlurHash for the small image
 	let blurhash: string | null = null;
@@ -258,7 +262,7 @@ export async function uploadProfileImage(file: File, userId: string) {
 	const query = triplitHttpClient
 		.query('profile_images')
 		.where(['user_id', '=', userId])
-		// .select(['id']) // TODO: bug with select for http client
+		.select(['id'])
 		.build();
 
 	const existingEntry = await triplitHttpClient.fetchOne(query);
@@ -269,7 +273,7 @@ export async function uploadProfileImage(file: File, userId: string) {
 			e.full_image_key = fullImageKey;
 			e.small_image_key = smallImageKey;
 			e.blurr_hash = blurhash;
-			e.uploaded_at = new Date();
+			e.uploaded_at = new Date().toISOString();
 		});
 	} else {
 		// Insert a new entry

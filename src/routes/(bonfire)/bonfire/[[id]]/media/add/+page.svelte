@@ -16,7 +16,6 @@
 	import { onDestroy, onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
-	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
 	import { tempAttendeeSecretParam, UploadFileTypes } from '$lib/enums';
 	import Tus from '@uppy/tus';
 	import { toast } from 'svelte-sonner';

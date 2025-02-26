@@ -2,6 +2,9 @@ import { openDB, type IDBPDatabase } from 'idb';
 import { tempAttendeeSecretParam, tempAttendeeSecretStore } from './enums';
 import { get, writable } from 'svelte/store';
 
+const REFRESH_INTERVAL_MINUTES = 10; // ✅ Adjust as needed
+const REFRESH_INTERVAL_MS = REFRESH_INTERVAL_MINUTES * 60 * 1000;
+
 // Store to track the currently needed user IDs
 export const userIdsStore = writable<string[]>([]);
 
@@ -9,6 +12,7 @@ userIdsStore.subscribe(async (userIds) => {
 	const tempAttendeeId = tempAttendeeSecretStore.get();
 
 	if (userIds.length > 0) {
+		userIdsStore.set([]);
 		await fetchAndCacheUsersInLiveUsersDataStore(userIds, tempAttendeeId);
 	}
 });
@@ -21,6 +25,7 @@ export type UserData = {
 	smallProfilePic?: Blob | null; // Store the image blob
 	fullProfilePicURL?: string | null; // Let's not store the image blob for now
 	profilePicUpdatedAt?: Date | null;
+	lastFetchedAt?: Date | null;
 };
 
 // Define the Temp User type
@@ -107,7 +112,7 @@ export async function upsertUserLiveDataStoreEntry(user: UserData): Promise<void
 /**
  * Fetches multiple users from IndexedDB.
  */
-export async function getUsersFromrLiveDataStore(userIds: string[]): Promise<UserData[]> {
+export async function getUsersFromLiveDataStore(userIds: string[]): Promise<UserData[]> {
 	// Ensure userIds is a valid non-empty array
 	if (!userIds || userIds.length === 0) {
 		return [];
@@ -171,11 +176,28 @@ export async function fetchAndCacheUsersInLiveUsersDataStore(
 	try {
 		// Get existing users from IndexedDB
 		const existingUsers = new Map(
-			(await getUsersFromrLiveDataStore(userIds)).map((user) => [user.id, user])
+			(await getUsersFromLiveDataStore(userIds)).map((user) => [user.id, user])
 		);
 
+		// Get current timestamp
+		const now = Date.now();
+
+		// ✅ Filter out users that were fetched recently
+		const usersToFetch = userIds.filter((id) => {
+			const existingUser = existingUsers.get(id);
+			return (
+				!existingUser?.lastFetchedAt || // No fetch history
+				now - existingUser.lastFetchedAt.getTime() > REFRESH_INTERVAL_MS // Last fetch was too long ago
+			);
+		});
+
+		// 🛑 If no users need updating, return early
+		if (usersToFetch.length === 0) {
+			return Array.from(existingUsers.values());
+		}
+
 		// Construct query string
-		let queryString = `userIds=${userIds.join(',')}`;
+		let queryString = `userIds=${usersToFetch.join(',')}`;
 		if (tempAttendeeSecret) {
 			queryString += `&${tempAttendeeSecretParam}=${tempAttendeeSecret}`;
 		}
@@ -209,7 +231,6 @@ export async function fetchAndCacheUsersInLiveUsersDataStore(
 				const remoteProfilePicUpdatedAt = new Date(userData.profile_image_updated_at);
 				const needsImageUpdate =
 					!existingUser || existingUser.profilePicUpdatedAt !== remoteProfilePicUpdatedAt;
-
 				// If no update is needed, skip
 				if (!needsUsernameUpdate && !needsImageUpdate) {
 					// console.log(`✅ No change for ${id}, skipping update.`);
@@ -220,7 +241,8 @@ export async function fetchAndCacheUsersInLiveUsersDataStore(
 				let smallProfilePic = existingUser?.smallProfilePic; // Keep old pic if no update needed
 
 				// Fetch new image if profile image is updated
-				if (needsImageUpdate && userData.small_image_url) {
+				if (userData.small_image_url) {
+					// if (needsImageUpdate && userData.small_image_url) {
 					try {
 						const imgResponse = await fetch(userData.small_image_url);
 						if (imgResponse.ok) {
@@ -265,7 +287,12 @@ export async function fetchAndCacheUsersInLiveUsersDataStore(
 		const store = tx.objectStore(STORE_NAME);
 
 		// Store updates in one go
-		updatedUsers.forEach((user) => store.put(user));
+		await Promise.all(
+			updatedUsers.map(async (user) => {
+				await store.delete(user.id);
+				await store.put(user);
+			})
+		);
 
 		// Complete the transaction
 		await tx.done;

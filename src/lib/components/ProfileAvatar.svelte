@@ -81,7 +81,7 @@
 		attendanceIsAboutToBeDeleted = false;
 	};
 
-	let previousUser = null; // Store the last known user state
+	let previousUser: any = null; // Store the last known user state
 	let unsubscribe: any; // Store unsubscribe function
 
 	onMount(async () => {
@@ -103,10 +103,14 @@
 			unsubscribe = usersLiveDataStore.subscribe((users) => {
 				const user = users.get(userId);
 
-				// Only update if the user object has changed
-				if (!user || JSON.stringify(user) === JSON.stringify(previousUser)) {
-					return;
-				}
+				// // Only update if the user object has changed
+				// if (
+				// 	!user ||
+				// 	(JSON.stringify(user) === JSON.stringify(previousUser) &&
+				// 		previousUser.profilePicUpdatedAt === user.profilePicUpdatedAt)
+				// ) {
+				// 	return;
+				// }
 				previousUser = user; // Update the reference
 
 				fallbackNameShort = user?.username?.slice(0, 2) ?? null;
@@ -118,8 +122,13 @@
 				const lastUpdatedAtDate = user?.userUpdatedAt ? new Date(user?.userUpdatedAt) : null;
 				lastUpdatedAt = lastUpdatedAtDate; // TODO: get latest of that or image updated at
 
-				if (!url && user?.smallProfilePic) {
-					url = URL.createObjectURL(user.smallProfilePic); // ✅ Convert Blob to URL
+				console.log('user?.smallProfilePic ====>', user?.smallProfilePic);
+
+				if (user?.smallProfilePic) {
+					if (url) {
+						URL.revokeObjectURL(url); // Revoke the old object URL to free memory
+					}
+					url = URL.createObjectURL(user.smallProfilePic);
 				}
 			});
 		} else {
