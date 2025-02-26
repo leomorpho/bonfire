@@ -10,7 +10,7 @@
 	import { useQuery } from '@triplit/svelte';
 	import EventCard from '$lib/components/EventCard.svelte';
 	import { page } from '$app/stores';
-	import { dev } from '$app/environment';
+	import { browser, dev } from '$app/environment';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import PullToRefresh from '$lib/components/PullToRefresh.svelte';
 	import { toast } from 'svelte-sonner';
@@ -19,7 +19,9 @@
 	let client: TriplitClient;
 
 	let futureEvents = $state({});
+	let futureEventsLoading = $state(true);
 	let pastEvents = $state({});
+	let pastEventsLoading = $state(true);
 	let userId = $state('');
 
 	$effect(() => {
@@ -43,7 +45,8 @@
 				'one'
 			)
 			.include('event')
-			.order('event.start_time', 'ASC');
+			.order('event.start_time', 'ASC')
+			.build();
 	}
 
 	const initEvents = async () => {
@@ -73,31 +76,55 @@
 
 	onMount(() => {
 		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
-		// client.connect();
 
 		initEvents().catch((error) => {
 			console.error('Failed to get events:', error);
 		});
 
-		userId = $page.data.user.id;
-
 		const queryOptions = {
-			policy: 'remote-first',
+			policy: 'local-and-remote',
 			timeout: 2000 // Optional: Wait for up to 2s before showing local data
 		} as FetchOptions;
 
-		let futureEventsQuery = createEventsQuery(client, userId, true);
-		let pastEventsQuery = createEventsQuery(client, userId, false);
+		let futureEventsQuery = createEventsQuery(client, $page.data.user.id, true);
+		let pastEventsQuery = createEventsQuery(client, $page.data.user.id, false);
 
-		futureEvents = useQuery(client, futureEventsQuery, queryOptions);
-		pastEvents = useQuery(client, pastEventsQuery, queryOptions);
+		const unsubscribeFromFutureEvents = client.subscribe(
+			futureEventsQuery,
+			(results) => {
+				futureEvents = results;
+				futureEventsLoading = false;
+			},
+			(error) => {
+				console.error('Error fetching current temporary attendee:', error);
+			},
+			{
+				localOnly: false,
+				onRemoteFulfilled: () => {}
+			}
+		);
+
+		const unsubscribeFromPastEvents = client.subscribe(
+			pastEventsQuery,
+			(results) => {
+				pastEvents = results;
+				pastEventsLoading = false;
+			},
+			(error) => {
+				console.error('Error fetching current temporary attendee:', error);
+			},
+			{
+				localOnly: false,
+				onRemoteFulfilled: () => {}
+			}
+		);
+
+		return () => {
+			// Cleanup
+			unsubscribeFromFutureEvents();
+			unsubscribeFromPastEvents();
+		};
 	});
-
-	// $effect(() => {
-	// 	if (!futureEvents.fetching) {
-	// 		toast.info('Done refreshing events');
-	// 	}
-	// });
 </script>
 
 <PullToRefresh />
@@ -105,79 +132,71 @@
 <div class="mx-4 mb-48 flex flex-col items-center justify-center sm:mb-20">
 	<section class="md:2/3 mt-8 w-full sm:w-2/3 md:w-[700px]">
 		<h2 class="mb-4 flex w-full justify-center text-lg font-semibold">Upcoming Bonfires</h2>
-		{#if !futureEvents}
+		{#if futureEventsLoading}
 			<!-- We don't want to show if the query is loading as it could be showing cached data that can just be refreshed seamlessy-->
 			<Loader />
-		{:else if futureEvents.error}
-			<p>Error: {futureEvents.error.message}</p>
-		{:else if futureEvents.results}
-			{#if futureEvents.results.length == 0}
-				<div
-					class="mx-auto mt-10 flex w-full max-w-sm flex-col items-center justify-center gap-2 space-y-5 rounded-lg bg-slate-100 p-6 text-center dark:bg-slate-800 dark:text-white sm:mt-16 sm:w-2/3"
-				>
-					<div class="flex items-center text-sm">
-						<Frown class="mr-2 !h-5 !w-5" />
-						<span>No events found.</span>
-					</div>
-					<!-- <p class="text-xs text-slate-600 dark:text-slate-300">
+		{:else if futureEvents.length == 0}
+			<div
+				class="mx-auto mt-10 flex w-full max-w-sm flex-col items-center justify-center gap-2 space-y-5 rounded-lg bg-slate-100 p-6 text-center dark:bg-slate-800 dark:text-white sm:mt-16 sm:w-2/3"
+			>
+				<div class="flex items-center text-sm">
+					<Frown class="mr-2 !h-5 !w-5" />
+					<span>No events found.</span>
+				</div>
+				<!-- <p class="text-xs text-slate-600 dark:text-slate-300">
 						This app uses a <strong>local-first database</strong>, meaning it works offline. If your
 						data seems out of sync, reloading should fix it.
 					</p> -->
 
-					<Button
-						class="w-full text-sm dark:bg-slate-600 dark:text-white dark:hover:bg-slate-500"
-						onclick={() => location.reload()}
-					>
-						<DatabaseZap class="mr-2 !h-5 !w-5" /> Reload database
-					</Button>
-				</div>
-			{:else}
-				<div>
-					{#each futureEvents.results as attendance}
-						<div class="my-7 sm:my-10">
-							<EventCard
-								event={attendance.event}
-								{userId}
-								eventCreatorName={attendance.organizer_name['username']}
-								rsvpStatus={attendance.status}
-							/>
-						</div>
-					{/each}
-				</div>
-			{/if}
-		{/if}
-	</section>
-	{#if pastEvents.fetching}
-		<div class="h-32">
-			<div class="font-mono">Loading...</div>
-			<SvgLoader />
-		</div>
-	{:else if pastEvents.error}
-		<p>Error: {pastEvents.error.message}</p>
-	{:else if pastEvents.results}
-		{#if pastEvents.results.length > 0}
-			<Collapsible.Root class="md:2/3 mt-8 w-full sm:w-2/3 md:w-[700px]">
-				<div class="flex items-center justify-between space-x-4 px-4">
-					<h4 class="text-sm font-semibold">{pastEvents.results.length} past events</h4>
-					<Collapsible.Trigger
-						class={buttonVariants({ variant: 'ghost', size: 'sm', class: 'w-9 p-0' })}
-					>
-						<ChevronsUpDown />
-						<span class="sr-only">Toggle</span>
-					</Collapsible.Trigger>
-				</div>
-				<Collapsible.Content class="space-y-2">
-					{#each pastEvents.results as attendance}
+				<Button
+					class="w-full text-sm dark:bg-slate-600 dark:text-white dark:hover:bg-slate-500"
+					onclick={() => location.reload()}
+				>
+					<DatabaseZap class="mr-2 !h-5 !w-5" /> Reload database
+				</Button>
+			</div>
+		{:else}
+			<div>
+				{#each futureEvents as attendance}
+					<div class="my-7 sm:my-10">
 						<EventCard
 							event={attendance.event}
 							{userId}
 							eventCreatorName={attendance.organizer_name['username']}
 							rsvpStatus={attendance.status}
 						/>
-					{/each}
-				</Collapsible.Content>
-			</Collapsible.Root>
+					</div>
+				{/each}
+			</div>
 		{/if}
+	</section>
+	{#if pastEventsLoading}
+		<div class="h-32">
+			<div class="font-mono">Loading...</div>
+			<SvgLoader />
+		</div>
+	{:else if pastEvents.length > 0}
+		<Collapsible.Root class="md:2/3 mt-8 w-full sm:w-2/3 md:w-[700px]">
+			<div class="flex items-center justify-between space-x-4 px-4">
+				<h4 class="text-sm font-semibold">{pastEvents.length} past events</h4>
+				<Collapsible.Trigger
+					class={buttonVariants({ variant: 'ghost', size: 'sm', class: 'w-9 p-0' })}
+				>
+					<ChevronsUpDown />
+					<span class="sr-only">Toggle</span>
+				</Collapsible.Trigger>
+			</div>
+			<Collapsible.Content class="space-y-2">
+				{#each pastEvents as attendance}
+					<EventCard
+						event={attendance.event}
+						{userId}
+						eventCreatorName={attendance.organizer_name['username']}
+						rsvpStatus={attendance.status}
+					/>
+				{/each}
+			</Collapsible.Content>
+		</Collapsible.Root>
 	{/if}
 </div>
 
