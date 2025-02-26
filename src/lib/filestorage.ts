@@ -208,8 +208,9 @@ export async function uploadProfileImage(filePath: string, userId: string | null
 	// NOTE: Profile pics are always named the same for a same user, to overwrite their previous pic.
 
 	// Generate keys
-	const fullImageKey = `profile-images/${userId}/full.jpg`;
-	const smallImageKey = `profile-images/${userId}/small.jpg`;
+	const cacheBusterRandomId = generateId(5);
+	const fullImageKey = `profile-images/${userId}/full_cb${cacheBusterRandomId}.jpg`;
+	const smallImageKey = `profile-images/${userId}/small_cb${cacheBusterRandomId}.jpg`;
 
 	// Convert File to Buffer
 	const fileBuffer = await sharp(filePath).toFormat('png').toBuffer();
@@ -262,12 +263,15 @@ export async function uploadProfileImage(filePath: string, userId: string | null
 	const query = triplitHttpClient
 		.query('profile_images')
 		.where(['user_id', '=', userId])
-		.select(['id'])
+		.select(['id', 'full_image_key', 'small_image_key'])
 		.build();
 
-	const existingEntry = await triplitHttpClient.fetchOne(query);
+	const existingEntry: any = await triplitHttpClient.fetchOne(query);
 
 	if (existingEntry) {
+		const oldFullImageKey = existingEntry.full_image_key;
+		const oldSmallImageKey = existingEntry.small_image_key;
+
 		// Update the existing entry
 		await triplitHttpClient.update('profile_images', existingEntry.id, async (e) => {
 			e.full_image_key = fullImageKey;
@@ -275,6 +279,9 @@ export async function uploadProfileImage(filePath: string, userId: string | null
 			e.blurr_hash = blurhash;
 			e.uploaded_at = new Date().toISOString();
 		});
+
+		// Delete old profile pic files from S3
+		await deleteFilesFromS3([oldFullImageKey, oldSmallImageKey]);
 	} else {
 		// Insert a new entry
 		await triplitHttpClient.insert('profile_images', {
