@@ -3,11 +3,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
-	import * as Avatar from '$lib/components/ui/avatar/index.js';
-	import { useQuery } from '@triplit/svelte';
 	import { Pencil } from 'lucide-svelte';
-	import { Plus } from 'lucide-svelte';
-	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { getFeWorkerTriplitClient } from '$lib/triplit';
 	import ProfileAvatar from '$lib/components/ProfileAvatar.svelte';
 	import SvgLoader from '$lib/components/SvgLoader.svelte';
@@ -15,10 +11,6 @@
 
 	let user = $state();
 	let client: TriplitClient;
-
-	const full_image_url = $page.data.full_image_url;
-	console.log(full_image_url);
-	const small_image_url = $page.data.small_image_url;
 
 	onMount(() => {
 		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
