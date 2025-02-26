@@ -6,7 +6,7 @@ import { FileStore } from '@tus/file-store';
 import { IncomingMessage, ServerResponse } from 'http';
 import { EVENTS } from '@tus/server';
 import { processGalleryFile } from '$lib/filestorage';
-import { tempAttendeeSecretParam } from '$lib/enums';
+import { tempAttendeeSecretParam, UploadFileTypes } from '$lib/enums';
 import { triplitHttpClient } from '$lib/server/triplit';
 import { Readable } from 'stream';
 import { EventEmitter } from 'events';
@@ -52,6 +52,7 @@ tusServer.on(EVENTS.POST_FINISH, async (req, res, upload) => {
 		const userId = upload.metadata.userId || null;
 		const tempAttendeeSecret = upload.metadata.tempAttendeeSecret || null;
 		const eventId = upload.metadata.eventId;
+		const uploadFileType = upload.metadata.uploadFileType;
 
 		console.log('📝 Processing with metadata:', {
 			userId,
@@ -90,8 +91,20 @@ tusServer.on(EVENTS.POST_FINISH, async (req, res, upload) => {
 			return new Response('Internal Server Error', { status: 500 });
 		}
 
-		await processGalleryFile(filePath, filename, filetype, userId, tempAttendeeId, eventId);
-		console.log('📸 Gallery file processed successfully');
+		switch (uploadFileType) {
+			case UploadFileTypes.GALLERY:
+				await processGalleryFile(filePath, filename, filetype, userId, tempAttendeeId, eventId);
+				console.log('📸 Gallery file processed successfully');
+				break;
+			case UploadFileTypes.BONFIRE_COVER_PHOTO:
+				break;
+			case UploadFileTypes.PROFILE_PHOTO:
+				break;
+			default:
+				throw new Error(
+					`unknown file type received by tus server: ${uploadFileType}, userId: ${userId}`
+				);
+		}
 	} catch (error) {
 		console.error('❌ Error in POST_FINISH hook:', error);
 	}

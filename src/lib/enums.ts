@@ -122,3 +122,9 @@ export const BringListCountTypes = {
 	PER_PERSON: 'per_person',
 	COUNT: 'count'
 };
+
+export const UploadFileTypes = {
+	GALLERY: 'gallery',
+	BONFIRE_COVER_PHOTO: 'bonfire_cover_photo',
+	PROFILE_PHOTO: 'profile_photo'
+};

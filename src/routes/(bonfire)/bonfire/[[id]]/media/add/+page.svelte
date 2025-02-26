@@ -17,7 +17,7 @@
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
-	import { tempAttendeeSecretParam } from '$lib/enums';
+	import { tempAttendeeSecretParam, UploadFileTypes } from '$lib/enums';
 	import Tus from '@uppy/tus';
 	import { toast } from 'svelte-sonner';
 	import { detectTailwindTheme } from '$lib/utils';
@@ -154,7 +154,8 @@
 				uploadStartTime: new Date().toISOString(),
 				eventId: typeof $page.params.id !== 'undefined' ? $page.params.id : '',
 				userId: $page.data.user?.id,
-				tempAttendeeSecret: tempAttendeeSecret
+				tempAttendeeSecret: tempAttendeeSecret,
+				uploadFileType: UploadFileTypes.GALLERY
 			});
 		});
 
