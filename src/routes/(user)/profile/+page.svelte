@@ -7,7 +7,7 @@
 	import { getFeWorkerTriplitClient } from '$lib/triplit';
 	import ProfileAvatar from '$lib/components/ProfileAvatar.svelte';
 	import SvgLoader from '$lib/components/SvgLoader.svelte';
-	import { userIdsStore } from '$lib/profilestore';
+	import { addUserRequest } from '$lib/profilestore';
 
 	let user = $state();
 	let client: TriplitClient;
@@ -21,7 +21,7 @@
 				user = results[0];
 
 				// if refresh occurs, it's likely due to profile image so we want to retrigger the UI refresh
-				userIdsStore.update((ids) => [...new Set([...ids, $page.data.user.id])]);
+				addUserRequest($page.data.user.id, true);
 			},
 			(error) => {
 				console.error('Error fetching current temporary attendee:', error);

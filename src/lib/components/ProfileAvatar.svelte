@@ -10,9 +10,9 @@
 	import { getFeWorkerTriplitClient } from '$lib/triplit';
 	import { toast } from 'svelte-sonner';
 	import {
+	addUserRequest,
 		deleteUserLiveDataStoreEntry,
 		tempUsersLiveDataStore,
-		userIdsStore,
 		usersLiveDataStore
 	} from '$lib/profilestore';
 	import { onDestroy, onMount } from 'svelte';
@@ -98,7 +98,7 @@
 		}
 
 		if (userId) {
-			userIdsStore.update((ids) => [...new Set([...ids, userId])]);
+			addUserRequest(userId)
 
 			unsubscribe = usersLiveDataStore.subscribe((users) => {
 				const user = users.get(userId);

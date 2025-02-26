@@ -38,9 +38,9 @@
 	import ImThreadView from '$lib/components/im/ImThreadView.svelte';
 	import NumNewMessageIndicator from '$lib/components/im/NumNewMessageIndicator.svelte';
 	import {
+		addUserRequests,
 		type TempUserData,
-		updateTempUsersLiveDataStoreEntry,
-		userIdsStore
+		updateTempUsersLiveDataStoreEntry
 	} from '$lib/profilestore';
 	import AttendeesDialog from '$lib/components/AttendeesDialog.svelte';
 	import BringList from '$lib/components/bringlist/BringList.svelte';
@@ -234,10 +234,10 @@
 				}
 				throw new Error(`Failed to fetch banner: ${response.statusText}`);
 			}
-			console.log("OLD bannerInfo", bannerInfo)
+			console.log('OLD bannerInfo', bannerInfo);
 			// Parse the response JSON
 			bannerInfo = await response.json();
-			console.log("NEW bannerInfo", bannerInfo)
+			console.log('NEW bannerInfo', bannerInfo);
 		} catch (error) {
 			console.error('Error fetching banner info:', error);
 			return null;
@@ -367,7 +367,7 @@
 					console.log('===> userIds', userIds);
 				}
 
-				userIdsStore.update((ids) => [...new Set(userIds)]);
+				addUserRequests(userIds);
 				attendeesLoading = false;
 				console.log('results', results);
 			},

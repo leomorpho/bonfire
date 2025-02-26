@@ -5,15 +5,86 @@ import { get, writable } from 'svelte/store';
 const REFRESH_INTERVAL_MINUTES = 10; // ✅ Adjust as needed
 const REFRESH_INTERVAL_MS = REFRESH_INTERVAL_MINUTES * 60 * 1000;
 
-// Store to track the currently needed user IDs
-export const userIdsStore = writable<string[]>([]);
+type UserRequest = {
+	userId: string;
+	bypassCache: boolean;
+};
 
-userIdsStore.subscribe(async (userIds) => {
+// Store to track the currently needed user IDs
+const userIdsStore = writable<UserRequest[]>([]);
+
+/**
+ * Adds or updates a user in the store.
+ * If the user already exists, it updates the bypassCache flag.
+ *
+ * @param {string} userId - The user ID to add.
+ * @param {boolean} bypassCache - Whether to bypass caching for this user.
+ */
+export function addUserRequest(userId: string, bypassCache = false) {
+	userIdsStore.update((requests) => {
+		const uniqueRequests = new Map(requests.map((req) => [req.userId, req.bypassCache]));
+
+		// Update or insert the user request
+		uniqueRequests.set(userId, bypassCache);
+
+		return Array.from(uniqueRequests, ([id, cache]) => ({ userId: id, bypassCache: cache }));
+	});
+}
+
+/**
+ * Adds multiple users to the store.
+ * Ensures unique user IDs and respects the latest bypassCache flag.
+ *
+ * @param {UserRequest[]} newRequests - An array of user requests.
+ */
+export function addUserRequests(newRequests: UserRequest[]) {
+	userIdsStore.update((requests) => {
+		const uniqueRequests = new Map(requests.map((req) => [req.userId, req.bypassCache]));
+
+		// Merge new requests, overwriting existing ones if necessary
+		newRequests.forEach(({ userId, bypassCache }) => {
+			uniqueRequests.set(userId, bypassCache);
+		});
+
+		return Array.from(uniqueRequests, ([id, cache]) => ({ userId: id, bypassCache: cache }));
+	});
+}
+
+/**
+ * Removes a user from the store.
+ *
+ * @param {string} userId - The user ID to remove.
+ */
+export function removeUserRequest(userId: string) {
+	userIdsStore.update((requests) => requests.filter((req) => req.userId !== userId));
+}
+
+/**
+ * Checks if a user exists in the store.
+ *
+ * @param {string} userId - The user ID to check.
+ * @returns {Promise<boolean>} - Resolves to true if the user exists, false otherwise.
+ */
+export async function hasUserRequest(userId: string): Promise<boolean> {
+	const requests = await new Promise<UserRequest[]>((resolve) => {
+		userIdsStore.subscribe(resolve)();
+	});
+	return requests.some((req) => req.userId === userId);
+}
+
+/**
+ * Resets the store by clearing all user requests.
+ */
+export function resetUserRequests() {
+	userIdsStore.set([]);
+}
+
+userIdsStore.subscribe(async (userRequests) => {
 	const tempAttendeeId = tempAttendeeSecretStore.get();
 
-	if (userIds.length > 0) {
+	if (userRequests.length > 0) {
 		userIdsStore.set([]);
-		await fetchAndCacheUsersInLiveUsersDataStore(userIds, tempAttendeeId);
+		await fetchAndCacheUsersInLiveUsersDataStore(userRequests, tempAttendeeId);
 	}
 });
 
@@ -87,19 +158,6 @@ async function getUserDataDB() {
 	return dbPromise;
 }
 
-// /**
-//  * Fetches a user from IndexedDB by ID.
-//  */
-// export async function getUser(userId: string): Promise<UserData | null> {
-// 	const users = get(usersLiveDataStore);
-// 	if (users.has(userId)) return users.get(userId) || null;
-
-// 	const db = await getUserDataDB();
-// 	const user = (await db.get(STORE_NAME, userId)) || null;
-// 	if (user) updateUsersLiveDataStoreEntry(user);
-// 	return user;
-// }
-
 /**
  * Stores or updates a user in IndexedDB.
  */
@@ -169,15 +227,25 @@ export async function deleteUserLiveDataStoreEntry(userId: string): Promise<void
 	});
 }
 
+export function convertUserRequestsToMap(userRequests: UserRequest[]): Map<string, boolean> {
+	return new Map(userRequests.map(({ userId, bypassCache }) => [userId, bypassCache]));
+}
+
 export async function fetchAndCacheUsersInLiveUsersDataStore(
-	userIds: string[],
+	userRequests: UserRequest[],
 	tempAttendeeSecret: string | null = null
-): Promise<UserData[]> {
+) {
 	try {
+		const userIds = userRequests
+			.map((req) => req.userId)
+			.filter((id): id is string => typeof id === 'string'); // Ensures only strings are included
+
 		// Get existing users from IndexedDB
 		const existingUsers = new Map(
 			(await getUsersFromLiveDataStore(userIds)).map((user) => [user.id, user])
 		);
+
+		const userRequestsMap = convertUserRequestsToMap(userRequests);
 
 		// Get current timestamp
 		const now = Date.now();
@@ -185,17 +253,22 @@ export async function fetchAndCacheUsersInLiveUsersDataStore(
 		// ✅ Filter out users that were fetched recently
 		const usersToFetch = userIds.filter((id) => {
 			const existingUser = existingUsers.get(id);
+			const bypassCache = userRequestsMap.get(id) ?? false; // Default to false if not found
+
+			// Skip filtering if bypassCache is true
+			if (bypassCache) return true;
+
+			// Only fetch if no cache exists OR if it's expired
 			return (
 				!existingUser?.lastFetchedAt || // No fetch history
-				now - existingUser.lastFetchedAt.getTime() > REFRESH_INTERVAL_MS // Last fetch was too long ago
+				now - existingUser.lastFetchedAt.getTime() > REFRESH_INTERVAL_MS // Cache expired
 			);
 		});
 
 		// 🛑 If no users need updating, return early
 		if (usersToFetch.length === 0) {
-			return Array.from(existingUsers.values());
+			return;
 		}
-
 		// Construct query string
 		let queryString = `userIds=${usersToFetch.join(',')}`;
 		if (tempAttendeeSecret) {
@@ -270,7 +343,8 @@ export async function fetchAndCacheUsersInLiveUsersDataStore(
 					userUpdatedAt: userUpdatedAtDate,
 					smallProfilePic,
 					fullProfilePicURL: userData.full_image_url,
-					profilePicUpdatedAt: profileUpdatedAtDate
+					profilePicUpdatedAt: profileUpdatedAtDate,
+					lastFetchedAt: new Date()
 				};
 				// Batch store updates
 				updatedUsers.push(user);
@@ -297,16 +371,23 @@ export async function fetchAndCacheUsersInLiveUsersDataStore(
 		// Complete the transaction
 		await tx.done;
 
-		// Update the Svelte store
 		usersLiveDataStore.update((users) => {
-			const updatedStore = new Map(users);
-			updatedUsers.forEach((user) => updatedStore.set(user.id, user));
-			return updatedStore;
-		});
+			let hasChanges = false; // ✅ Track if we need to update the store
 
-		return updatedUsers;
+			updatedUsers.forEach((user) => {
+				const existingUser = users.get(user.id);
+
+				// ✅ Check if data has actually changed
+				if (!existingUser || JSON.stringify(existingUser) !== JSON.stringify(user)) {
+					users.set(user.id, user);
+					hasChanges = true; // ✅ Mark as modified
+				}
+			});
+
+			// ✅ Only return a new Map if changes were made
+			return hasChanges ? new Map(users) : users;
+		});
 	} catch (error) {
 		console.error('Error fetching and caching users:', error);
-		return [];
 	}
 }
