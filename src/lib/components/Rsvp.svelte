@@ -273,9 +273,9 @@
 				.build();
 			let attendance = await client.fetchOne(query);
 
-			console.log('user_id ---+', userId);
-			console.log('event_id ---+', eventId);
-			console.log('attendance ---+', attendance);
+			// console.log('user_id ---+', userId);
+			// console.log('event_id ---+', eventId);
+			// console.log('attendance ---+', attendance);
 
 			if (!userId || !eventId) {
 				console.error(

@@ -88,27 +88,34 @@ const createNewWorkerTriplitClient = (jwt: string) => {
 		serverUrl: publicEnv.PUBLIC_TRIPLIT_URL,
 		token: jwt ? jwt : publicEnv.PUBLIC_TRIPLIT_ANONYMOUS_TOKEN,
 		autoConnect: browser,
-		// onSessionError: async (type) => {
-		// 	console.log('💀 Triplit session error occurred:', type);
-		// 	if (type === 'TOKEN_EXPIRED') {
-		// 		console.warn('🔄 JWT expired, refreshing token...');
-		// 		const newJwt = await getFreshToken();
+		onSessionError: async (type) => {
+			console.log('💀 Triplit session error occurred:', type);
+			if (type === 'ROLES_MISMATCH') {
+				await feWorkerTriplitClient?.endSession();
+				const newJwt = await getFreshToken();
+				await feWorkerTriplitClient?.startSession(newJwt, true, {
+					refreshHandler: async () => await getFreshToken()
+				});
+			}
+			if (type === 'TOKEN_EXPIRED') {
+				console.warn('🔄 JWT expired, refreshing token...');
+				const newJwt = await getFreshToken();
 
-		// 		if (newJwt) {
-		// 			console.log('🔑 JWT refreshed, updating session...');
-		// 			await feWorkerTriplitClient?.endSession();
-		// 			await feWorkerTriplitClient?.startSession(newJwt, true, {
-		// 				refreshHandler: async () => await getFreshToken()
-		// 			});
-		// 			feWorkerTriplitClient?.updateSessionToken(newJwt);
-		// 			console.log('✅ Triplit session updated with new JWT');
-		// 		} else {
-		// 			console.error('❌ Failed to refresh JWT, logging out...');
-		// 			await feWorkerTriplitClient?.endSession();
-		// 			feWorkerTriplitClient?.clear();
-		// 		}
-		// 	}
-		// },
+				if (newJwt) {
+					console.log('🔑 JWT refreshed, updating session...');
+					await feWorkerTriplitClient?.endSession();
+					await feWorkerTriplitClient?.startSession(newJwt, true, {
+						refreshHandler: async () => await getFreshToken()
+					});
+					feWorkerTriplitClient?.updateSessionToken(newJwt);
+					console.log('✅ Triplit session updated with new JWT');
+				} else {
+					console.error('❌ Failed to refresh JWT, logging out...');
+					await feWorkerTriplitClient?.endSession();
+					feWorkerTriplitClient?.clear();
+				}
+			}
+		},
 		refreshOptions: {
 			refreshHandler: async () => {
 				// get a new token
@@ -138,9 +145,14 @@ async function getFreshToken() {
 	}
 }
 
-export async function clearCache(client: TriplitClient) {
-	await client.endSession();
-	await client.clear();
+export async function clearCache(client: TriplitClient | null) {
+	if (!client) {
+		await feWorkerTriplitClient?.endSession();
+		await feWorkerTriplitClient?.clear();
+	} else {
+		await client.endSession();
+		await client.clear();
+	}
 }
 
 export async function upsertUserAttendance(eventId: string, status: Status) {

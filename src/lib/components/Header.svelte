@@ -21,6 +21,7 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import ToggleTheme from './ToggleTheme.svelte';
 	import { onDestroy, onMount } from 'svelte';
+	import { clearCache } from '$lib/triplit';
 
 	let isAdmin = false;
 
@@ -120,6 +121,7 @@
 					>
 						<Button
 							type="submit"
+							onclick={clearCache}
 							class="mx-2 flex w-full items-center bg-slate-100 text-xl text-red-500 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700"
 						>
 							<LogOut class="mr-2 h-9 w-9" />

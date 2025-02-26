@@ -238,3 +238,26 @@ export const createAttendeeId = (eventId: string, userId: string) => {
 export const isMobile = () => {
 	return typeof window !== 'undefined' && 'ontouchstart' in window;
 };
+
+export const setTempAttendeeInfoInLocalstorage = async (
+	bonfireId: string,
+	tempAttendeeSecret: string | null
+) => {
+	if (!tempAttendeeSecret) {
+		return;
+	}
+	localStorage.setItem('tempAttendeeSecret', tempAttendeeSecret);
+	localStorage.setItem('bonfireId', bonfireId);
+};
+
+export const redirectToTempAttendanceInBonfireIfAvailable = async () => {
+	console.log('check for redirectToTempAttendanceInBonfireIfAvailable');
+	const tempAttendeeSecret = localStorage.getItem('tempAttendeeSecret');
+	const bonfireId = localStorage.getItem('bonfireId');
+	localStorage.removeItem('tempAttendeeSecret');
+	localStorage.removeItem('bonfireId');
+
+	if (bonfireId && tempAttendeeSecretParam) {
+		return `/bonfire/${bonfireId}?${tempAttendeeSecretParam}=${tempAttendeeSecret}`;
+	}
+};

@@ -7,6 +7,7 @@
 	import { overlayColorStore, overlayOpacityStore, parseColor, styleStore } from '$lib/styles';
 	import { tempAttendeeSecretStore, tempAttendeeSecretParam } from '$lib/enums';
 	import { get } from 'svelte/store';
+	import { setTempAttendeeInfoInLocalstorage } from '$lib/utils';
 
 	let { data, children }: { data: LayoutData; children: Snippet } = $props();
 
@@ -65,6 +66,9 @@
 	onMount(async () => {
 		if (tempAttendeeSecret) {
 			tempAttendeeSecretStore.set(tempAttendeeSecret);
+			if (!$page.data.user) {
+				setTempAttendeeInfoInLocalstorage($page.params.id, tempAttendeeSecret);
+			}
 		} else {
 			tempAttendeeSecret = get(tempAttendeeSecretStore);
 		}

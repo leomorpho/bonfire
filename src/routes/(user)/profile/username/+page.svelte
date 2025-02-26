@@ -4,6 +4,7 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { getFeWorkerTriplitClient, waitForUserId } from '$lib/triplit';
+	import { redirectToTempAttendanceInBonfireIfAvailable } from '$lib/utils';
 	import type { TriplitClient } from '@triplit/client';
 	import { onMount } from 'svelte';
 
@@ -62,7 +63,10 @@
 			entity.username = username;
 			entity.updated_at = new Date();
 		});
-
+		const tempAttendanceUrl = await redirectToTempAttendanceInBonfireIfAvailable();
+		if (tempAttendanceUrl) {
+			goto(tempAttendanceUrl);
+		}
 		goto('/dashboard');
 	};
 </script>
