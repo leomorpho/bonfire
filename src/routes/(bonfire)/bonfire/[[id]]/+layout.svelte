@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { TriplitClient } from '@triplit/client';
 	import { onMount, type Snippet } from 'svelte';
 	import type { LayoutData } from './$types';
 	import { page } from '$app/stores';
@@ -8,13 +7,15 @@
 	import { tempAttendeeSecretStore, tempAttendeeSecretParam } from '$lib/enums';
 	import { get } from 'svelte/store';
 	import { setTempAttendeeInfoInLocalstorage } from '$lib/utils';
+	import { addUserRequests } from '$lib/profilestore';
+	import type { WorkerClient } from '@triplit/client/worker-client';
 
 	let { data, children }: { data: LayoutData; children: Snippet } = $props();
 
 	let styles: string = $state('');
 	let overlayColor: string = $state('#000000');
 	let overlayOpacity: number = $state(0.5);
-	let client: TriplitClient = $state();
+	let client: WorkerClient | undefined = $state();
 	let styleData = $state();
 
 	// Subscribe to the stores for reactive updates, this allows updating the styles
@@ -62,6 +63,63 @@
 		const urlParams = new URLSearchParams(window.location.search);
 		return urlParams.get(param);
 	}
+
+	onMount(() => {
+		let unsubscribeFromUserQuery: any;
+		let previousUsers: Record<string, string> = {}; // Stores previous user data as stringified JSON
+
+		if ($page.data.user) {
+			client = getFeWorkerTriplitClient($page.data.jwt);
+
+			// Subscribe to live updates of attendees and their profile images
+			unsubscribeFromUserQuery = client.subscribe(
+				client
+					.query('user')
+					.include('profile_image')
+					.where(['attendances.event.id', '=', $page.params.id])
+					.build(),
+				(results) => {
+					// Map new users into an object for quick lookup
+					const currentUsers: Record<string, string> = {};
+					const userIdsWhoChanged: string[] = [];
+
+					results.forEach((user) => {
+						const userId = user.id;
+						const userHash = JSON.stringify(user); // Serialize user data
+
+						currentUsers[userId] = userHash;
+
+						// If user changed OR does not exist in previousUsers, mark for update
+						if (!previousUsers[userId] || previousUsers[userId] !== userHash) {
+							userIdsWhoChanged.push(userId);
+						}
+					});
+
+					// Update previousUsers reference
+					previousUsers = currentUsers;
+
+					// If changes detected, refresh those users with bypassCache = true
+					if (userIdsWhoChanged.length > 0) {
+						addUserRequests(userIdsWhoChanged.map((userId) => ({ userId, bypassCache: true })));
+					}
+				},
+				(error) => {
+					console.error('Error fetching current temporary attendee:', error);
+				},
+				{
+					localOnly: false,
+					onRemoteFulfilled: () => {}
+				}
+			);
+		}
+
+		// Cleanup function to unsubscribe when component unmounts
+		return () => {
+			if (unsubscribeFromUserQuery) {
+				unsubscribeFromUserQuery();
+			}
+		};
+	});
 
 	onMount(async () => {
 		if (tempAttendeeSecret) {
