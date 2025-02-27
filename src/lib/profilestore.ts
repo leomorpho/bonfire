@@ -1,6 +1,6 @@
 import { openDB, type IDBPDatabase } from 'idb';
 import { tempAttendeeSecretParam, tempAttendeeSecretStore } from './enums';
-import { get, writable } from 'svelte/store';
+import { writable } from 'svelte/store';
 
 const REFRESH_INTERVAL_MINUTES = 10; // ✅ Adjust as needed
 const REFRESH_INTERVAL_MS = REFRESH_INTERVAL_MINUTES * 60 * 1000;
@@ -105,7 +105,18 @@ export type TempUserData = {
 	username: string | null;
 };
 
-export const usersLiveDataStore = writable(new Map<string, UserData>());
+export const usersLiveDataStore = writable<Record<string, UserData>>({});
+
+export function updateUsersLiveDataStoreEntry(user: UserData) {
+	usersLiveDataStore.update((users) => {
+		// ✅ Only update if the user has changed
+		if (!users[user.id] || JSON.stringify(users[user.id]) !== JSON.stringify(user)) {
+			return { ...users, [user.id]: user }; // ✅ Only modifies one user, keeps others unchanged
+		}
+		return users; // ✅ No changes, prevents unnecessary updates
+	});
+}
+
 export const tempUsersLiveDataStore = writable(new Map<string, TempUserData>());
 
 /**
@@ -116,17 +127,6 @@ export function updateTempUsersLiveDataStoreEntry(tempUser: TempUserData) {
 		const updatedTempUsers = new Map(tempUsers);
 		updatedTempUsers.set(tempUser.id, tempUser);
 		return updatedTempUsers;
-	});
-}
-
-/**
- * Updates the user store reactively.
- */
-function updateUsersLiveDataStoreEntry(user: UserData) {
-	usersLiveDataStore.update((users) => {
-		const updatedUsers = new Map(users);
-		updatedUsers.set(user.id, user);
-		return updatedUsers;
 	});
 }
 
@@ -176,13 +176,16 @@ export async function getUsersFromLiveDataStore(userIds: string[]): Promise<User
 		return [];
 	}
 
-	const users = get(usersLiveDataStore);
+	// Get all users from the live data store
+	const allUsers = await getAllUsersFromLiveDataStore();
+	const usersMap = new Map(allUsers.map((user) => [user.id, user]));
+
 	const cachedUsers: UserData[] = [];
 	const missingIds: string[] = [];
 
 	for (const id of userIds) {
-		if (id && users.has(id)) {
-			cachedUsers.push(users.get(id)!);
+		if (id && usersMap.has(id)) {
+			cachedUsers.push(usersMap.get(id)!);
 		} else if (id) {
 			// Ensure ID is not undefined
 			missingIds.push(id);
@@ -212,6 +215,19 @@ export async function getUsersFromLiveDataStore(userIds: string[]): Promise<User
 	cachedUsers.push(...foundUsers);
 
 	return cachedUsers;
+}
+
+/**
+ * Retrieves all users currently stored in `usersLiveDataStore`.
+ *
+ * @returns {Promise<UserData[]>} - A list of all stored users.
+ */
+async function getAllUsersFromLiveDataStore(): Promise<UserData[]> {
+	return new Promise<UserData[]>((resolve) => {
+		usersLiveDataStore.subscribe((users) => {
+			resolve(Object.values(users)); // ✅ Convert Record<string, UserData> to an array
+		})();
+	});
 }
 
 /**
@@ -372,20 +388,21 @@ export async function fetchAndCacheUsersInLiveUsersDataStore(
 		await tx.done;
 
 		usersLiveDataStore.update((users) => {
-			let hasChanges = false; // ✅ Track if we need to update the store
+			let hasChanges = false; // Track if we need to update the store
+			const updatedUsersTemp = { ...users }; // Create a shallow copy
 
 			updatedUsers.forEach((user) => {
-				const existingUser = users.get(user.id);
+				const existingUser = users[user.id];
 
 				// ✅ Check if data has actually changed
 				if (!existingUser || JSON.stringify(existingUser) !== JSON.stringify(user)) {
-					users.set(user.id, user);
+					updatedUsersTemp[user.id] = user; // ✅ Assign user to the new object
 					hasChanges = true; // ✅ Mark as modified
 				}
 			});
 
-			// ✅ Only return a new Map if changes were made
-			return hasChanges ? new Map(users) : users;
+			// ✅ Only return a new object if changes were made
+			return hasChanges ? updatedUsersTemp : users;
 		});
 	} catch (error) {
 		console.error('Error fetching and caching users:', error);

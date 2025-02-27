@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import ProfileAvatar from '../ProfileAvatar.svelte';
-	import {  addUserRequest, usersLiveDataStore } from '$lib/profilestore';
+	import { addUserRequest, usersLiveDataStore } from '$lib/profilestore';
 
 	let { currUserId, toggleEmoji, reactionUserId, reactionEmoji } = $props();
 
@@ -16,10 +16,11 @@
 	let username: string | null | undefined = $state('');
 
 	onMount(() => {
-		addUserRequest(reactionUserId)
-		
+		addUserRequest(reactionUserId);
+
 		unsubscribe = usersLiveDataStore.subscribe((users) => {
-			const user = users.get(reactionUserId);
+			const user = users[reactionUserId];
+			if (!user) return;
 
 			username = user?.username;
 		});

@@ -101,8 +101,9 @@
 			addUserRequest(userId)
 
 			unsubscribe = usersLiveDataStore.subscribe((users) => {
-				const user = users.get(userId);
-
+				const user = users[userId];
+				if (!user) return;
+				
 				// // Only update if the user object has changed
 				// if (
 				// 	!user ||
