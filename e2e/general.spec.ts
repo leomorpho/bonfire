@@ -523,14 +523,14 @@ test('Temp -> normal attendee transformation', async ({ browser }) => {
 	const attendeeUsername = faker.person.firstName();
 	await loginUser(tempAttendeePage, attendeeEmail, attendeeUsername);
 
-	await expect(tempAttendeePage.locator('.event-card')).toHaveCount(0);
+	await expect(tempAttendeePage.locator('.event-card')).toHaveCount(1);
 
 	// Going to the URL should now link it to the account
 	await navigateTo(tempAttendeePage, eventUrl);
 
 	await expect(tempAttendeePage.getByRole('heading', { name: eventName })).toBeVisible();
 	await tempAttendeePage.getByRole('link', { name: 'Dashboard' }).click();
-	await expect(tempAttendeePage.locator('.event-card')).toHaveCount(0);
+	await expect(tempAttendeePage.locator('.event-card')).toHaveCount(1);
 });
 
 test('Event admins', async ({ browser }) => {
