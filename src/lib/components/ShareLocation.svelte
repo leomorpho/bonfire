@@ -49,7 +49,9 @@
 						id="waze-icon"
 						class="flex h-full w-full items-center justify-center"
 					>
-						<div class="m-4 h-16 w-16 sm:h-20 sm:w-20"><WazeIcon /></div>
+						<div class="m-4 h-16 w-16 dark:rounded-full dark:bg-white sm:h-20 sm:w-20 p-2">
+							<WazeIcon />
+						</div>
 					</a>
 					<a
 						href={bingMapsUrl}
