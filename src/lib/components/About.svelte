@@ -8,7 +8,7 @@
 		<div class="mx-auto max-w-2xl px-6 lg:px-8">
 			<div class="my-20 flex flex-col sm:flex-row">
 				<div class="space-y-7">
-					<div class="text-xl sm:text-3xl">Create & Share Unforgettable Events</div>
+					<div class="text-xl sm:text-3xl font-bold">Create & Share Unforgettable Events</div>
 					<p>
 						Bonfire goes beyond planning—it helps you capture & share memories. Guests can upload
 						moments into a shared group gallery, so you can relive the best parts together.
@@ -33,7 +33,7 @@
 					alt="TODO"
 				/>
 				<div class="space-y-7">
-					<div class="text-xl sm:text-3xl">Focus on your friends, we'll handle the rest</div>
+					<div class="text-xl sm:text-3xl font-bold">Focus on your friends, we'll handle the rest</div>
 					<p>
 						Easily create, share, and manage events with Bonfire. Post updates, track RSVPs, and
 						stay connected—so you can focus on what truly matters: your friends.

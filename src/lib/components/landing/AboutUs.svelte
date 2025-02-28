@@ -1,4 +1,5 @@
 <script lang="ts">
+	import AuroraText from '../AuroraText.svelte';
 	import Container from '../Container.svelte';
 	import { Image } from '@unpic/svelte';
 </script>
@@ -17,7 +18,10 @@
 					alt="TODO"
 				/> -->
 				<div class="space-y-7">
-					<p>
+					We're a small, passionate team bringing the warmth of a bonfire to your events. We take
+					pride in our work and rely on user support to keep improving. If you love what we do,
+					consider donating to help us grow—every bit makes a difference!
+					<!-- <p>
 						We are a small, independent team made up of passionate developers and creators who are
 						committed to bringing the warmth and connection of a real bonfire to your private
 						events. We take pride in our work and strive to provide you with top-notch support and
@@ -28,7 +32,7 @@
 						continue improving our platform. If you love what we do and want to help us keep the
 						bonfire burning, please consider making a donation to support our team. Every little bit
 						helps and we are incredibly grateful for your support.
-					</p>
+					</p> -->
 				</div>
 			</div>
 		</div>

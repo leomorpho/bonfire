@@ -307,7 +307,7 @@ importers:
         specifier: 2.20.0
         version: 2.20.0(@sveltejs/kit@2.17.3(@sveltejs/vite-plugin-svelte@4.0.4(svelte@5.20.4)(vite@5.4.14(@types/node@22.13.5)))(svelte@5.20.4)(vite@5.4.14(@types/node@22.13.5)))(@types/json-schema@7.0.15)(svelte@5.20.4)(typescript@5.7.3)
       tailwind-merge:
-        specifier: ^2.5.4
+        specifier: ^2.6.0
         version: 2.6.0
       tailwind-variants:
         specifier: ^0.2.1
@@ -4462,7 +4462,6 @@ packages:
 
   libsql@0.4.7:
     resolution: {integrity: sha512-T9eIRCs6b0J1SHKYIvD8+KCJMcWZ900iZyxdnSCdqxN12Z1ijzT+jY5nrk72Jw4B0HGzms2NgpryArlJqvc3Lw==}
-    cpu: [x64, arm64, wasm32]
     os: [darwin, linux, win32]
 
   lie@3.3.0:
