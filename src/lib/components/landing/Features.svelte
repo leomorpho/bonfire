@@ -1,5 +1,14 @@
 <script lang="ts">
-	import { BellRing, Feather, Flame, Images, Link, Users } from 'lucide-svelte';
+	import {
+		BellRing,
+		Feather,
+		Flame,
+		Images,
+		Link,
+		MessageCircle,
+		ShoppingBasket,
+		Users
+	} from 'lucide-svelte';
 	import Container from '../Container.svelte';
 	import Title from './feature/Title.svelte';
 </script>
@@ -8,50 +17,47 @@
 	<div class="py-24 md:py-32"></div>
 	<h2 class="mb-16 text-center text-2xl font-bold md:text-4xl">App Features</h2>
 	<div class="flex w-full justify-center">
-		<div class="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3 max-w-[80vw]">
+		<div class="grid max-w-[80vw] grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-4">
 			<div>
 				<Title><Flame class="mr-3 h-6 w-6" />Create Event in Seconds</Title>
-				<p class="text-base">Creating an event is quick and simple.</p>
-				<p class="text-base">You can select from our many fun themes or upload your own image.</p>
+				<p class="text-base">
+					Set up an event instantly. Choose a fun theme and upload your own image.
+				</p>
 			</div>
 			<div>
 				<Title><Link class="mr-3 h-6 w-6" />Quick-share URLs</Title>
 				<p class="text-base">
-					Each Bonfire has a unique URL that can be shared anywhere beyond the app.
-				</p>
-				<p class="text-base">
-					Keep it private by sharing it to your close circle, or watch it grow like wildfire by
-					sharing publicly on social media.
+					Each Bonfire has a unique shareable link—keep it private or spread it far.
 				</p>
 			</div>
 			<div>
 				<Title><Users class="mr-3 h-6 w-6" /> Track & Notify Attendees</Title>
-				<p class="text-base">
-					Track who's coming and keep the hype going by posting updates and content.
-				</p>
-				<p class="text-base">
-					RSVP'd users can upload their own images of the event to the group gallery.
-				</p>
+				<p class="text-base">See who's coming, send updates, and let guests upload event photos.</p>
 			</div>
 			<div>
 				<Title><Images class="mr-3 h-6 w-6" /> Log Memories</Title>
 				<p class="text-base">
-					Store all the images from everyone at the event in one place and generate a highlight reel
-					of the best moments from the event
+					Share all event photos and videos in one place and let users can download them.
 				</p>
 			</div>
 			<div>
 				<Title><BellRing class="mr-3 h-6 w-6" /> Auto-reminders</Title>
-				<p class="text-base">
-					Set automatic reminders for attendees to ensure they don't forget about upcoming events.
-				</p>
+				<p class="text-base">Automatic reminders keep attendees in the loop.</p>
 			</div>
 			<div>
 				<Title><Feather class="mr-3 h-6 w-6" /> Ephemeral and Secret</Title>
 				<p class="text-base">
-					All bonfires are deleted 14 days after they start, but don't worry we'll warn you. You can
-					back up the uploaded media with a single click download!
+					Bonfires auto-delete in 14 days, but you'll get a heads-up. Only those with the link can
+					access.
 				</p>
+			</div>
+			<div>
+				<Title><MessageCircle class="mr-3 h-6 w-6" /> Real-time Messaging</Title>
+				<p class="text-base">Chat live to plan, update, and share moments.</p>
+			</div>
+			<div>
+				<Title><ShoppingBasket class="mr-3 h-6 w-6" /> Bring List</Title>
+				<p class="text-base">Guests can claim items to bring, ensuring nothing is forgotten.</p>
 			</div>
 		</div>
 	</div>
