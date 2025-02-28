@@ -1,7 +1,6 @@
 <script lang="ts">
 	import About from '$lib/components/About.svelte';
 	import FAQ from '$lib/components/landing/FAQ.svelte';
-	import FeatureCarousel from '$lib/components/landing/FeatureCarousel.svelte';
 	import Footer from '$lib/components/Footer.svelte';
 	import Hero from '$lib/components/landing/Hero.svelte';
 	import Pricing from '$lib/components/landing/Pricing.svelte';
