@@ -262,7 +262,7 @@
 							>{formatHumanReadableWithContext(message.created_at)}</span
 						>
 					</div>
-					<p class="py-2.5 text-sm font-normal text-gray-900 dark:text-white">
+					<p class="!text-left py-2.5 text-sm font-normal text-gray-900 dark:text-white">
 						{#if message.deleted_by_user_id}
 							<span class="italic">This message was deleted</span>
 						{:else}
