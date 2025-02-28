@@ -2,10 +2,10 @@ import { json, type RequestEvent } from '@sveltejs/kit';
 import { stripeClient } from '../stripe';
 
 export async function POST(event: RequestEvent): Promise<Response> {
-	const formData = await event.request.formData();
-	const priceId = formData.get('price_id');
+	
+	const { price_id, mode } = await event.request.json();
 
-	if (typeof priceId !== 'string') {
+	if (typeof price_id !== 'string') {
 		return json({
 			status: 400,
 			error: {
@@ -15,11 +15,11 @@ export async function POST(event: RequestEvent): Promise<Response> {
 	}
 	try {
 		const session = await stripeClient.checkout.sessions.create({
-			mode: 'subscription',
+			mode,
 			payment_method_types: ['card'],
 			line_items: [
 				{
-					price: priceId,
+					price: price_id,
 					quantity: 1
 				}
 			],
