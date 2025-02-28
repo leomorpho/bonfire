@@ -4,7 +4,7 @@
 	import emblaCarouselSvelte from 'embla-carousel-svelte';
 
 	import { BellRing, Feather, Flame, Images, Link, Music, Users } from 'lucide-svelte';
-	import Container from './Container.svelte';
+	import Container from '../Container.svelte';
 
 	let emblaApi: EmblaCarouselType;
 	let index = $state(0);

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Faq } from '$lib/types';
-	import Container from './Container.svelte';
+	import Container from '../Container.svelte';
 
 	const faqs: Array<Faq> = [
 		{
@@ -20,18 +20,18 @@
 			question: 'What are "Logs"?',
 			answer: 'A Log is equivalent to hosting one Bonfire. When you start a Bonfire, you will use one Log from your account. With every account, you start with 3 free Logs, which means you can create up to three Bonfires. If you need more Logs to create more Bonfires, you can purchase them through our By Donation Plan.'
 		},
-		{
-			question: 'How does the referral program work?',
-			answer: 'Our referral program allows you to earn free Logs by inviting your friends to join Bonfire using your referral link. For every friend that creates an account through your referral link, you will receive one free Log.'
-		},
+		// {
+		// 	question: 'How does the referral program work?',
+		// 	answer: 'Our referral program allows you to earn free Logs by inviting your friends to join Bonfire using your referral link. For every friend that creates an account through your referral link, you will receive one free Log.'
+		// },
 		{
 			question: 'Can\’t I just create more accounts for more free Bonfires?',
 			answer: 'Yes! We believe that everyone deserves to enjoy the Bonfire experience, and if that means creating multiple accounts to get more free Bonfires, then we\'re all for it. Although when you do choose to pay for additional Logs, you help us keep the app running smoothly and support the causes that matter to you.'
 		},
-		{
-			question: 'If I make a purchase, where does my money go?',
-			answer: 'If you choose to purchase additional Logs, 50% of proceeds go to a non-profit cause of your choice within the app. Remaining funds go to support the Bonfire app and helping us keep it running smoothly. As a small team, we appreciate your support and are committed to providing you with the best possible experience on our platform.'
-		},
+		// {
+		// 	question: 'If I make a purchase, where does my money go?',
+		// 	answer: 'If you choose to purchase additional Logs, 50% of proceeds go to a non-profit cause of your choice within the app. Remaining funds go to support the Bonfire app and helping us keep it running smoothly. As a small team, we appreciate your support and are committed to providing you with the best possible experience on our platform.'
+		// },
 		{
 			question: 'How can I contact Bonfire if I have a question or issue?',
 			answer: 'You can contact us through our support email at support@bonfireapp.com. We are committed to providing you with the best possible experience on our platform, and will do our best to respond to your inquiry as soon as possible.'

@@ -7,7 +7,7 @@ const config = {
 	darkMode: ['class'],
 	plugins: [
 		require('@tailwindcss/typography'),
-		require("tailwindcss-animate"),
+		require('tailwindcss-animate'),
 		require('daisyui'),
 		plugin(function ({ addUtilities }) {
 			addUtilities({
@@ -70,6 +70,15 @@ const config = {
 			},
 			fontFamily: {
 				sans: [...fontFamily.sans]
+			},
+			animation: {
+				grid: 'grid 15s linear infinite'
+			},
+			keyframes: {
+				grid: {
+					'0%': { transform: 'translateY(-50%)' },
+					'100%': { transform: 'translateY(0)' }
+				}
 			}
 		}
 	}
