@@ -168,3 +168,22 @@ export type BannerInfo = {
 	bannerLargeSizeUrl: string;
 	bannerBlurHash: string;
 };
+
+export type UserLogToken = {
+	id: string;
+	user_id: string; // User who owns the logs
+	user?: { id: string }; // Relation to user
+	num_logs: number; // Number of logs the user has
+	updated_at: string; // Last updated timestamp (ISO string)
+	stripe_customer_id?: string | null; // Stripe Customer ID (nullable)
+};
+
+export type LogTokenTransaction = {
+	id: string;
+	user_id: string; // User who made the transaction
+	user?: { id: string }; // Relation to user
+	stripe_payment_intent: string; // Stripe Payment Intent ID
+	transaction_type: 'purchase' | 'refund'; // Type of transaction
+	num_log_tokens: number; // Number of logs purchased/refunded
+	created_at: string; // Timestamp of transaction (ISO string)
+};
