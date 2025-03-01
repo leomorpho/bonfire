@@ -150,6 +150,57 @@ export const bringSchema = {
 	}
 } satisfies ClientSchema;
 
+export const userLogsTokenSchema = {
+	user_log_tokens: {
+		schema: S.Schema({
+			id: S.Id(),
+			user_id: S.String(), // User who owns the logs
+			user: S.RelationById('user', '$user_id'), // Relation to the user
+			num_logs: S.Number({ default: 0 }), // Number of logs the user has
+			updated_at: S.Date({ default: S.Default.now() }) // Last updated timestamp
+		}),
+		permissions: {
+			user: {
+				read: {
+					filter: [['user_id', '=', '$role.userId']] // Users can only read their own logs
+				},
+				update: {
+					filter: [['user_id', '=', '$role.userId']] // Users can only update their own logs
+				}
+			},
+			admin: {
+				read: { filter: [true] }, // Admins can read all user logs
+				update: { filter: [true] } // Admins can modify user logs
+			},
+			temp: {},
+			anon: {}
+		}
+	},
+	transactions: {
+		schema: S.Schema({
+			id: S.Id(),
+			user_id: S.String(), // User who made the transaction
+			user: S.RelationById('user', '$user_id'), // Relation to the user
+			stripe_payment_intent: S.String(), // Stripe Payment Intent ID
+			transaction_type: S.String({ enum: ['purchase', 'refund'] as const }), // Type of transaction
+			num_log_tokens: S.Number(), // Number of logs purchased/refunded
+			created_at: S.Date({ default: S.Default.now() }) // Timestamp of transaction
+		}),
+		permissions: {
+			user: {
+				read: {
+					filter: [['user_id', '=', '$role.userId']] // Users can only see their own transactions
+				}
+			},
+			admin: {
+				read: { filter: [true] } // Admins can see all transactions
+			},
+			temp: {},
+			anon: {}
+		}
+	}
+} satisfies ClientSchema;
+
 // Define schema with permissions
 export const schema = {
 	user: {
@@ -157,6 +208,9 @@ export const schema = {
 			id: S.String(),
 			username: S.String(),
 			profile_image: S.RelationOne('profile_images', {
+				where: [['user_id', '=', '$id']]
+			}),
+			user_log_tokens: S.RelationOne('user_log_tokens', {
 				where: [['user_id', '=', '$id']]
 			}),
 			attendances: S.RelationMany('attendees', {
@@ -1072,5 +1126,6 @@ export const schema = {
 			anon: {}
 		}
 	},
-	...bringSchema
+	...bringSchema,
+	...userLogsTokenSchema
 } satisfies ClientSchema;

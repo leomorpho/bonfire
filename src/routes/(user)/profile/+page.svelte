@@ -16,7 +16,12 @@
 		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
 		const unsubscribeFromUserQuery = client.subscribe(
-			client.query('user').include('profile_image').where(['id', '=', $page.data.user.id]).build(),
+			client
+				.query('user')
+				.include('profile_image')
+				.include('user_log_tokens')
+				.where(['id', '=', $page.data.user.id])
+				.build(),
 			(results) => {
 				user = results[0];
 
@@ -71,7 +76,7 @@
 				href="profile/bonfire-logs"
 				class="mt-5 flex flex-col justify-center rounded-xl bg-gradient-to-r from-blue-100 to-blue-300 p-5 dark:bg-gradient-to-r dark:from-blue-600 dark:to-blue-800"
 			>
-				<div class="my-2 mt-5">You have {$page.data.user.num_logs} logs remaining</div>
+				<div class="my-2 mt-5">You have {user.user_log_tokens.num_logs} logs remaining</div>
 				<Button class="my-2"><FlameKindling />Add more logs</Button>
 			</a>
 		{/if}

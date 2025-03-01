@@ -3,7 +3,34 @@
 	import BackButton from '$lib/components/BackButton.svelte';
 	import LogPackage from '$lib/components/profile/LogPackage.svelte';
 	import { env as publicEnv } from '$env/dynamic/public';
+	import { onMount } from 'svelte';
+	import { getFeWorkerTriplitClient } from '$lib/triplit';
+	import type { TriplitClient } from '@triplit/client';
 
+	let numLogs = $state();
+	let client: TriplitClient;
+
+	onMount(() => {
+		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
+
+		const unsubscribeFromUserLogsQuery = client.subscribe(
+			client.query('user_log_tokens').where(['user_id', '=', $page.data.user.id]).build(),
+			(results) => {
+				numLogs = results[0].num_logs;
+			},
+			(error) => {
+				console.error('Error fetching current temporary attendee:', error);
+			},
+			{
+				localOnly: false,
+				onRemoteFulfilled: () => {}
+			}
+		);
+
+		return () => {
+			unsubscribeFromUserLogsQuery();
+		};
+	});
 </script>
 
 <div class="flex w-full justify-center">
@@ -16,7 +43,9 @@
 			<span></span>
 		</div>
 
-		<div class="my-2 mt-5 flex justify-center">You have {$page.data.user.num_logs} logs remaining. Click below to buy more.</div>
+		<div class="my-2 mt-5 flex justify-center">
+			You have {numLogs} logs remaining. Click below to buy more.
+		</div>
 
 		<LogPackage price={'1'} price_id={publicEnv.PUBLIC_1_LOG_PRICE_ID} num_logs="1" />
 		<LogPackage price={'2'} price_id={publicEnv.PUBLIC_3_LOG_PRICE_ID} num_logs="3" />

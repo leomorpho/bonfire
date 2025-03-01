@@ -15,6 +15,7 @@ function toBuffer(ab: ArrayBuffer): Buffer {
 export async function POST(event: RequestEvent) {
 	// export async function post(req: Request<any, { data: any; type: any }>): Promise<Response> {
 	const req = event.request;
+	let stripeEvent;
 	// let data;
 	let eventType: string;
 	if (privateEnv.STRIPE_WEBHOOK_SECRET) {
@@ -28,13 +29,14 @@ export async function POST(event: RequestEvent) {
 		// const payload = Buffer.from(req.rawBody);
 		const signature = req.headers.get('stripe-signature') as string;
 		try {
-			const event = stripeClient.webhooks.constructEvent(
+			stripeEvent = stripeClient.webhooks.constructEvent(
 				payload,
 				signature,
 				privateEnv.STRIPE_WEBHOOK_SECRET
 			);
+			console.log('stripe event ========>', stripeEvent);
 			//const data = event.data;
-			eventType = event.type;
+			eventType = stripeEvent.type;
 		} catch (err) {
 			console.error(err);
 			return {
@@ -51,11 +53,35 @@ export async function POST(event: RequestEvent) {
 	}
 
 	switch (eventType) {
-		case 'checkout.session.completed':
+		case 'checkout.session.completed': {
 			// Payment is successful and the subscription is created.
 			// You should provision the subscription and save the customer ID to your database.
 			console.log('Event: checkout.session.completed');
+
+			// Fetch session details, including line items
+			const sessionId = stripeEvent?.data.object.id;
+			const session = await stripeClient.checkout.sessions.retrieve(sessionId, {
+				expand: ['line_items']
+			});
+			// Extract purchased items
+			const lineItems = session.line_items?.data || [];
+			lineItems.forEach((item) => {
+				const priceId = item.price?.id;
+				const productId = item.price?.product;
+				const quantity = item.quantity;
+
+				console.log(
+					`✅ Purchased item - Product ID: ${productId}, Price ID: ${priceId}, Quantity: ${quantity}`
+				);
+			});
+			// TODO: Update the user's log balance in your database using price ID
+			// Example:
+			// await db.user.update({
+			//   where: { id: userId },
+			//   data: { num_logs: { increment: purchasedQuantity } }
+			// });
 			break;
+		}
 		case 'invoice.paid':
 			// Continue to provision the subscription as payments continue to be made.
 			// Store the status in your database and check when a user accesses your service.

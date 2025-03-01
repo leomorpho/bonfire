@@ -52,7 +52,7 @@ export const actions = {
 				id: generateId(15),
 				email: form.data.email,
 				email_verified: false,
-				num_logs: NUM_DEFAULT_LOGS_NEW_SIGNUP,
+				num_logs: NUM_DEFAULT_LOGS_NEW_SIGNUP, 
 				is_event_styles_admin: false
 			});
 			if (!user) {
