@@ -38,13 +38,13 @@
 		<div
 			class="my-6 flex items-center justify-between rounded-lg bg-slate-200 p-2 text-2xl font-semibold dark:bg-slate-800 dark:text-white"
 		>
-			<BackButton />
+			<BackButton url="/" />
 			<h2>Buy more logs</h2>
 			<span></span>
 		</div>
 
 		<div class="my-2 mt-5 flex justify-center">
-			You have <span class="font-bold mx-1">{numLogs}</span> logs remaining. Click below to buy more.
+			You have <span class="mx-1 font-bold">{numLogs}</span> logs remaining. Click below to buy more.
 		</div>
 		<div class="flex w-full justify-center">(1 log = host 1 bonfire event)</div>
 

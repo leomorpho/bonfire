@@ -17,7 +17,12 @@
 	import TimezonePicker from '$lib/components/TimezonePicker.svelte';
 	import Datepicker from '$lib/components/Datepicker.svelte';
 	import AmPmPicker from '$lib/components/AmPmPicker.svelte';
-	import { getFeHttpTriplitClient, getFeWorkerTriplitClient, upsertUserAttendance, waitForUserId } from '$lib/triplit';
+	import {
+		getFeHttpTriplitClient,
+		getFeWorkerTriplitClient,
+		upsertUserAttendance,
+		waitForUserId
+	} from '$lib/triplit';
 	import { goto } from '$app/navigation';
 	import type { TriplitClient } from '@triplit/client';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
@@ -40,6 +45,7 @@
 	import { debounce } from 'lodash-es';
 	import MaxCapacity from './eventform/MaxCapacity.svelte';
 	import BackButton from './BackButton.svelte';
+	import OutOfLogs from './payments/OutOfLogs.svelte';
 
 	let { mode, event = null, currUserId = null } = $props();
 
@@ -87,6 +93,8 @@
 
 	let eventStartDatetime = $state(null);
 	let eventEndDatetime = $state(null);
+
+	let numLogs = $state(0);
 
 	// Build eventStartDatetime dynamically
 	$effect(() => {
@@ -370,6 +378,28 @@
 			console.log('generatePassphraseId()', await generatePassphraseId());
 		})();
 	});
+
+	onMount(() => {
+		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
+
+		const unsubscribeFromUserLogsQuery = client.subscribe(
+			client.query('user_log_tokens').where(['user_id', '=', $page.data.user.id]).build(),
+			(results) => {
+				numLogs = results[0].num_logs;
+			},
+			(error) => {
+				console.error('Error fetching current temporary attendee:', error);
+			},
+			{
+				localOnly: false,
+				onRemoteFulfilled: () => {}
+			}
+		);
+
+		return () => {
+			unsubscribeFromUserLogsQuery();
+		};
+	});
 </script>
 
 <div class="mx-4 flex flex-col items-center justify-center">
@@ -385,6 +415,9 @@
 				<div></div>
 			</h2>
 			<form class="space-y-2">
+				{#if numLogs <= 0}
+					<OutOfLogs />
+				{/if}
 				<Input
 					type="text"
 					placeholder="Event Name"

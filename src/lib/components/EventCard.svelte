@@ -17,7 +17,7 @@
 	);
 </script>
 
-<a href={`/bonfire/${event.id}`} class="event-card">
+<a href={`/bonfire/${event.id}`} class="event-card animate-fadeIn">
 	<Card.Root class="relative my-4 w-full bg-slate-100 dark:bg-slate-900" style={event.style}>
 		<!-- Overlay -->
 		<div style={overlayStyle} class="pointer-events-none absolute inset-0 rounded-xl"></div>
@@ -42,3 +42,19 @@
 		</div>
 	</Card.Root>
 </a>
+
+<style>
+	@keyframes fadeIn {
+		from {
+			opacity: 0;
+			transform: translateY(-5px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+	.animate-fadeIn {
+		animation: fadeIn 0.3s ease-out;
+	}
+</style>

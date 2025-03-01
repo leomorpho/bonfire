@@ -73,7 +73,6 @@
 			<div class="my-2">{$page.data.user.email}</div>
 
 			<div
-				href="profile/bonfire-logs"
 				class="mt-5 flex flex-col justify-center rounded-xl bg-gradient-to-r from-blue-100 to-blue-300 p-5 dark:bg-gradient-to-r dark:from-blue-600 dark:to-blue-800"
 			>
 				{#if user.user_log_tokens}
