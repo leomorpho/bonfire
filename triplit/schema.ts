@@ -157,7 +157,8 @@ export const userLogsTokenSchema = {
 			user_id: S.String(), // User who owns the logs
 			user: S.RelationById('user', '$user_id'), // Relation to the user
 			num_logs: S.Number({ default: 0 }), // Number of logs the user has
-			updated_at: S.Date({ default: S.Default.now() }) // Last updated timestamp
+			updated_at: S.Date({ default: S.Default.now() }), // Last updated timestamp
+			stripe_customer_id: S.String({ nullable: true, default: null })
 		}),
 		permissions: {
 			user: {

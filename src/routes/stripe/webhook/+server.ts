@@ -2,6 +2,8 @@ import { json, type RequestEvent } from '@sveltejs/kit';
 import { stripeClient } from '../stripe';
 
 import { env as privateEnv } from '$env/dynamic/private';
+import { handleLogPurchaseWebhook } from '$lib/payments';
+import { triplitHttpClient } from '$lib/server/triplit';
 
 function toBuffer(ab: ArrayBuffer): Buffer {
 	const buf = Buffer.alloc(ab.byteLength);
@@ -60,26 +62,42 @@ export async function POST(event: RequestEvent) {
 
 			// Fetch session details, including line items
 			const sessionId = stripeEvent?.data.object.id;
+
 			const session = await stripeClient.checkout.sessions.retrieve(sessionId, {
 				expand: ['line_items']
 			});
+			const paymentIntentId = session.payment_intent;
+			const customerId = session.customer?.toString();
+
+			if (!customerId) {
+				throw new Error(`purchase is missing customerId. Payment Intent ID: ${paymentIntentId}`);
+			}
 			// Extract purchased items
 			const lineItems = session.line_items?.data || [];
-			lineItems.forEach((item) => {
-				const priceId = item.price?.id;
-				const productId = item.price?.product;
-				const quantity = item.quantity;
+
+			if (lineItems.length > 0) {
+				const firstItem = lineItems[0]; // Since only 1 item is purchased at a time
+				const priceId = firstItem.price?.id;
+				const productId = firstItem.price?.product.toString();
+				const quantity = Number(firstItem.quantity ?? 1);
+
 
 				console.log(
-					`✅ Purchased item - Product ID: ${productId}, Price ID: ${priceId}, Quantity: ${quantity}`
+					`✅ Purchased item - Product ID: ${productId}, Price ID: ${priceId}, Quantity: ${quantity}, Payment Intent ID: ${paymentIntentId}, Customer ID: ${customerId}`
 				);
-			});
-			// TODO: Update the user's log balance in your database using price ID
-			// Example:
-			// await db.user.update({
-			//   where: { id: userId },
-			//   data: { num_logs: { increment: purchasedQuantity } }
-			// });
+
+				// Update the user's log balance using product ID
+				await handleLogPurchaseWebhook(
+					triplitHttpClient,
+					customerId,
+					paymentIntentId as string,
+					priceId as string,
+					quantity 
+				);
+			} else {
+				console.error('❌ No items found in the Stripe checkout session.');
+			}
+
 			break;
 		}
 		case 'invoice.paid':

@@ -1,40 +1,65 @@
 import type { HttpClient } from '@triplit/client';
 import type { WorkerClient } from '@triplit/client/worker-client';
+import { env as publicEnv } from '$env/dynamic/public';
 
 /**
- * Add or update log tokens for a user.
+ * Handles Stripe webhook event when a user purchases logs.
  * @param {WorkerClient} client - The Triplit client instance.
- * @param {string} userId - The user ID.
- * @param {number} numLogs - The number of logs to add or update.
- * @returns {Promise<object>} - The updated user log entry.
+ * @param {any} stripeEvent - The Stripe event object.
+ * @returns {Promise<void>}
  */
-export async function updateUserLogs(
+export async function handleLogPurchaseWebhook(
 	client: HttpClient,
-	userId: string,
-	numLogs: number
-): Promise<object> {
-	const existingLog = await client.fetchOne(
-		client
-			.query('user_log_tokens')
-			.where([['user_id', '=', userId]])
-			.build()
+	stripeCustomerId: string,
+	paymentIntentId: string,
+	priceId: string,
+	quantity: number = 1
+): Promise<void> {
+	let startingCount = 1;
+
+	switch (priceId) {
+		case publicEnv.PUBLIC_1_LOG_PRICE_ID:
+			startingCount = 1;
+			break;
+		case publicEnv.PUBLIC_3_LOG_PRICE_ID:
+			startingCount = 3;
+			break;
+		case publicEnv.PUBLIC_10_LOG_PRICE_ID:
+			startingCount = 10;
+			break;
+		default:
+			throw new Error(`non-existent price ID ${priceId} given to handleLogPurchaseWebhook`);
+	}
+	// Get log count from product ID.
+	const numLogTokensPurchased = quantity * startingCount;
+
+	const userLogObject = await client.fetchOne(
+		client.query('user_log_tokens').where(['stripe_customer_id', '=', stripeCustomerId]).build()
 	);
 
-	if (existingLog) {
-		// Update existing log entry
-		return await client.update('user_log_tokens', existingLog.id, (log) => {
-			log.num_logs += numLogs;
-			log.updated_at = new Date().toISOString();
-		});
-	} else {
-		// Create new log entry
-		const { output } = await client.insert('user_log_tokens', {
-			user_id: userId,
-			num_logs: numLogs,
-			updated_at: new Date().toISOString()
-		});
-		return output;
+	if (!userLogObject) {
+		console.error(`User not found for Stripe customer ID: ${stripeCustomerId}`);
+		return;
 	}
+
+	// Step 1: Update user's log count
+	await client.update('user_log_tokens', userLogObject.id, (log) => {
+		log.num_logs += numLogTokensPurchased;
+		log.updated_at = new Date().toISOString();
+	});
+
+	// Step 2: Create a transaction record
+	await createTransaction(
+		client,
+		userLogObject.user_id,
+		paymentIntentId,
+		'purchase',
+		numLogTokensPurchased
+	);
+
+	console.log(
+		`✅ Successfully processed log purchase for user ${userLogObject.user_id}: +${numLogTokensPurchased} logs.`
+	);
 }
 
 /**
@@ -76,7 +101,7 @@ export async function deductUserLogs(
  * @returns {Promise<object>} - The created transaction entry.
  */
 export async function createTransaction(
-	client: WorkerClient,
+	client: HttpClient,
 	userId: string,
 	stripePaymentIntent: string,
 	transactionType: 'purchase' | 'refund',
@@ -104,24 +129,6 @@ export async function getUserTransactions(client: WorkerClient, userId: string):
 		client
 			.query('transactions')
 			.where([['user_id', '=', userId]])
-			.build()
-	);
-}
-
-/**
- * Fetch a transaction by Stripe payment intent.
- * @param {WorkerClient} client - The Triplit client instance.
- * @param {string} paymentIntentId - The Stripe payment intent ID.
- * @returns {Promise<object | null>} - The transaction if found.
- */
-export async function getTransactionByPaymentIntent(
-	client: WorkerClient,
-	paymentIntentId: string
-): Promise<object | null> {
-	return await client.fetchOne(
-		client
-			.query('transactions')
-			.where([['stripe_payment_intent', '=', paymentIntentId]])
 			.build()
 	);
 }

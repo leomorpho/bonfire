@@ -2,7 +2,6 @@ import { eq } from 'drizzle-orm';
 import { db } from './db';
 import { userTable } from './schema';
 import { triplitHttpClient } from '$lib/server/triplit';
-import { updateUserLogs } from '$lib/payments';
 
 export const getUserByEmail = async (email: string) => {
 	const user = await db.select().from(userTable).where(eq(userTable.email, email));
@@ -46,7 +45,11 @@ export const createNewUser = async (user: NewUser) => {
 		return null;
 	}
 	await triplitHttpClient.insert('user', { id: result[0].id, username: '' });
-	await updateUserLogs(triplitHttpClient, result[0].id, user.num_logs);
-	
+
+	await triplitHttpClient.insert('user_log_tokens', {
+		user_id: result[0].id,
+		num_logs: user.num_logs
+	});
+
 	return result[0];
 };
