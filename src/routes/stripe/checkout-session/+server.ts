@@ -24,8 +24,8 @@ export async function POST(event: RequestEvent): Promise<Response> {
 				}
 			],
 
-			success_url: `${event.url.origin}/?sessionId={CHECKOUT_SESSION_ID}`,
-			cancel_url: `${event.url.origin}`
+			success_url: `${event.url.origin}/profile/?sessionId={CHECKOUT_SESSION_ID}`,
+			cancel_url: `${event.url.origin}/profile`
 		});
 		if (!session.url) {
 			throw new Error('No session URL');

@@ -99,3 +99,6 @@ e2e: ## Run Playwright tests
 e2eui: ## Run Playwright tests
 	@echo "Running end-to-end tests..."
 	@npx playwright test --ui
+
+stripe-webhook: ## Forward events from test mode to local webhooks endpoint 
+	stripe listen --forward-to localhost:5173/stripe/webhook --latest
