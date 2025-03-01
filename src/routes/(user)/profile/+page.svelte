@@ -76,9 +76,15 @@
 				href="profile/bonfire-logs"
 				class="mt-5 flex flex-col justify-center rounded-xl bg-gradient-to-r from-blue-100 to-blue-300 p-5 dark:bg-gradient-to-r dark:from-blue-600 dark:to-blue-800"
 			>
-				<div class="my-2 mt-5">You have {user.user_log_tokens.num_logs} logs remaining</div>
-				<div>(1 log = host 1 bonfire event)</div>
-				<Button class="mt-7 mb-3"><FlameKindling />Add more logs</Button>
+				{#if user.user_log_tokens}
+					<div class="my-2 mt-5">
+						You have <span class="font-bold">{user.user_log_tokens.num_logs}</span> logs remaining.
+					</div>
+				{:else}
+					You don't currently have any logs remaining.
+				{/if}
+				<div class="my-2 flex w-full justify-center">(1 log = host 1 bonfire event)</div>
+				<Button class="mb-3 mt-5"><FlameKindling />Add more logs</Button>
 			</a>
 		{/if}
 	</section>

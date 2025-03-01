@@ -80,10 +80,11 @@ export async function POST(event: RequestEvent) {
 				const priceId = firstItem.price?.id;
 				const productId = firstItem.price?.product.toString();
 				const quantity = Number(firstItem.quantity ?? 1);
-
+				const totalAmount = session.amount_total; // Total amount paid (in smallest currency unit, e.g., cents)
+				const currency = session.currency; // Currency (e.g., "usd")
 
 				console.log(
-					`✅ Purchased item - Product ID: ${productId}, Price ID: ${priceId}, Quantity: ${quantity}, Payment Intent ID: ${paymentIntentId}, Customer ID: ${customerId}`
+					`✅ Purchased item - Product ID: ${productId}, Price ID: ${priceId}, Quantity: ${quantity}, Payment Intent ID: ${paymentIntentId}, Customer ID: ${customerId}, TotalAmount: ${totalAmount}, Currency: ${currency}`
 				);
 
 				// Update the user's log balance using product ID
@@ -92,7 +93,9 @@ export async function POST(event: RequestEvent) {
 					customerId,
 					paymentIntentId as string,
 					priceId as string,
-					quantity 
+					quantity,
+					totalAmount,
+					currency
 				);
 			} else {
 				console.error('❌ No items found in the Stripe checkout session.');

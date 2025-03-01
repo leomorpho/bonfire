@@ -1,6 +1,7 @@
 import { BringListCountTypes } from '$lib/enums';
 import { MAIN_THREAD } from '$lib/im';
 import { Schema as S, type Roles, type ClientSchema, or, and } from '@triplit/client';
+import { nullable } from 'zod';
 
 // Define roles
 export const roles: Roles = {
@@ -185,6 +186,8 @@ export const userLogsTokenSchema = {
 			stripe_payment_intent: S.String(), // Stripe Payment Intent ID
 			transaction_type: S.String({ enum: ['purchase', 'refund'] as const }), // Type of transaction
 			num_log_tokens: S.Number(), // Number of logs purchased/refunded
+			total_money_amount: S.Number({ default: null, nullable: true }),
+			currency: S.String({ default: null, nullable: true }),
 			created_at: S.Date({ default: S.Default.now() }) // Timestamp of transaction
 		}),
 		permissions: {

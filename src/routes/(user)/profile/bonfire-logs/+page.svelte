@@ -44,7 +44,7 @@
 		</div>
 
 		<div class="my-2 mt-5 flex justify-center">
-			You have {numLogs} logs remaining. Click below to buy more.
+			You have <span class="font-bold mx-1">{numLogs}</span> logs remaining. Click below to buy more.
 		</div>
 		<div class="flex w-full justify-center">(1 log = host 1 bonfire event)</div>
 
@@ -52,7 +52,6 @@
 			<LogPackage price={'1'} price_id={publicEnv.PUBLIC_1_LOG_PRICE_ID} num_logs="1" />
 			<LogPackage price={'2'} price_id={publicEnv.PUBLIC_3_LOG_PRICE_ID} num_logs="3" />
 			<LogPackage price={'5'} price_id={publicEnv.PUBLIC_10_LOG_PRICE_ID} num_logs="10" />
-	
 		</div>
 	</div>
 </div>

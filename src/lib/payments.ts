@@ -13,7 +13,9 @@ export async function handleLogPurchaseWebhook(
 	stripeCustomerId: string,
 	paymentIntentId: string,
 	priceId: string,
-	quantity: number = 1
+	quantity: number = 1,
+	totalMoneyAmount: number | null,
+	currency: string | null
 ): Promise<void> {
 	let startingCount = 1;
 
@@ -54,7 +56,9 @@ export async function handleLogPurchaseWebhook(
 		userLogObject.user_id,
 		paymentIntentId,
 		'purchase',
-		numLogTokensPurchased
+		numLogTokensPurchased,
+		totalMoneyAmount,
+		currency
 	);
 
 	console.log(
@@ -105,13 +109,17 @@ export async function createTransaction(
 	userId: string,
 	stripePaymentIntent: string,
 	transactionType: 'purchase' | 'refund',
-	numLogTokens: number
+	numLogTokens: number,
+	totalMoneyAmount: number | null,
+	currency: string | null
 ): Promise<object> {
 	const { output } = await client.insert('transactions', {
 		user_id: userId,
 		stripe_payment_intent: stripePaymentIntent,
 		transaction_type: transactionType,
 		num_log_tokens: numLogTokens,
+		total_money_amount: totalMoneyAmount,
+		currency: currency,
 		created_at: new Date().toISOString()
 	});
 
