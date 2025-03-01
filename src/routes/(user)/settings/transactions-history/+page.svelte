@@ -50,7 +50,7 @@
 <div class="flex w-full justify-center">
 	<div class="mx-4 mt-4 flex w-full flex-col justify-center sm:w-[450px] md:w-[550px] lg:w-[650px]">
 		<div
-			class="my-6 flex items-center justify-between rounded-lg bg-slate-200 p-2 text-2xl font-semibold dark:bg-slate-800 dark:text-white"
+			class="my-6 flex items-center justify-between rounded-xl bg-slate-100 p-3 text-2xl font-semibold shadow-md dark:bg-slate-800 dark:text-white"
 		>
 			<BackButton />
 			<h2>Transactions</h2>
@@ -62,38 +62,26 @@
 		{:else}
 			{#each transactions as tx}
 				<Card.Root
-					class="border-0 bg-slate-200 bg-opacity-90 dark:bg-slate-800 dark:bg-opacity-90 dark:text-white "
+					class="rounded-xl border border-slate-300 bg-white p-4 shadow-md transition-all hover:shadow-lg dark:border-slate-700 dark:bg-slate-800 dark:text-white"
 				>
-					<Card.Header>
-						<Card.Title class="my-3 flex w-full justify-center font-normal"
-							>Bought {tx.num_log_tokens} logs
+					<Card.Header class="flex flex-col items-center">
+						<!-- Date at the top -->
+						<div class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">
+							{formatHumanReadable(tx.created_at)}
+						</div>
 
+						<Card.Title class="my-3 flex flex-col items-center text-center text-lg font-semibold">
+							Bought {tx.num_log_tokens} logs
 							{#if tx.total_money_amount && tx.currency}
-								for {formatMoneyAmount(tx.total_money_amount, tx.currency)}
+								<span class="text-sm font-normal text-gray-600 dark:text-gray-300">
+									for {formatMoneyAmount(tx.total_money_amount, tx.currency)}
+								</span>
 							{/if}
 						</Card.Title>
-						<Card.Description
-							class="mt-2 flex w-full flex-col items-center justify-between space-y-2 sm:flex-row"
-						>
-							<div>
-								{formatHumanReadable(tx.created_at)}
-							</div>
-							<div class="w-min">
-								<CopyTextField value={tx.stripe_payment_intent} />
-							</div>
-						</Card.Description>
 					</Card.Header>
-					<Card.Footer>
-						<!-- <CopyTextField value={tx.stripe_payment_intent}/> -->
-						<!-- {#if currUserId == announcement.user_id || isCurrenUserEventAdmin}
-							<a
-								href={`/bonfire/${eventId}/announcement/${announcement.id}/update`}
-								class="update-announcement"
-								><Button class="mt-2 rounded-xl" variant="outline"
-									><Pencil class="h-4 w-4" /></Button
-								></a
-							>
-						{/if} -->
+
+					<Card.Footer class="mt-3 w-full flex justify-center text-center text-xs text-gray-400 dark:text-gray-500">
+						<span class="mr-2">Transaction ID:</span> <CopyTextField value={tx.stripe_payment_intent} />
 					</Card.Footer>
 				</Card.Root>
 			{/each}

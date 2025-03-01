@@ -1,7 +1,6 @@
 import { BringListCountTypes } from '$lib/enums';
 import { MAIN_THREAD } from '$lib/im';
 import { Schema as S, type Roles, type ClientSchema, or, and } from '@triplit/client';
-import { nullable } from 'zod';
 
 // Define roles
 export const roles: Roles = {
