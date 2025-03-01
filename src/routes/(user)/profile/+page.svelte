@@ -83,7 +83,7 @@
 					You don't currently have any logs remaining.
 				{/if}
 				<div class="my-2 flex w-full justify-center">(1 log = host 1 bonfire event)</div>
-				<a href="profile/bonfire-logs" class="my-2"
+				<a href="profile/logs/buy" class="my-2"
 					><Button class="flex w-full justify-between"
 						><FlameKindling />Add more logs<span></span></Button
 					>

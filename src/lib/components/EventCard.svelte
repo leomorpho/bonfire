@@ -6,7 +6,7 @@
 	import Rsvp from './Rsvp.svelte';
 	import { parseColor } from '$lib/styles';
 
-	let { event, userId, eventCreatorName, rsvpStatus } = $props();
+	let { event, userId, eventCreatorName, rsvpStatus, isPublished = true } = $props();
 
 	let rsvpCanBeChanged = new Date(event.start_time) >= new Date();
 	let overlayColor = event.overlay_color ?? '#000000';
@@ -19,12 +19,18 @@
 
 <a href={`/bonfire/${event.id}`} class="event-card animate-fadeIn">
 	<Card.Root class="relative my-4 w-full bg-slate-100 dark:bg-slate-900" style={event.style}>
+		<!-- Not Published Marker -->
+		{#if !isPublished}
+			<div class="z-20 absolute top-2 right-2 rounded bg-red-600 px-3 py-1 text-xs font-semibold text-white shadow-md dark:bg-red-500">
+				Not Published
+			</div>
+		{/if}
 		<!-- Overlay -->
 		<div style={overlayStyle} class="pointer-events-none absolute inset-0 rounded-xl"></div>
 
 		<!-- Content -->
 		<div class="relative z-10 p-4">
-			<Card.Header class="rounded-xl bg-slate-100 dark:bg-slate-900 pb-2 sm:mb-4">
+			<Card.Header class="rounded-xl bg-slate-100 pb-2 dark:bg-slate-900 sm:mb-4">
 				<Card.Title class="text-lg">{event.title}</Card.Title>
 				<Card.Description>{formatHumanReadable(event.start_time)}</Card.Description>
 				<Card.Description>Hosted by {eventCreatorName}</Card.Description>

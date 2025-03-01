@@ -1,4 +1,4 @@
-import { BringListCountTypes } from '$lib/enums';
+import { BringListCountTypes, TransactionType } from '$lib/enums';
 import { MAIN_THREAD } from '$lib/im';
 import { Schema as S, type Roles, type ClientSchema, or, and } from '@triplit/client';
 
@@ -164,9 +164,6 @@ export const userLogsTokenSchema = {
 			user: {
 				read: {
 					filter: [['user_id', '=', '$role.userId']] // Users can only read their own logs
-				},
-				update: {
-					filter: [['user_id', '=', '$role.userId']] // Users can only update their own logs
 				}
 			},
 			admin: {
@@ -182,8 +179,16 @@ export const userLogsTokenSchema = {
 			id: S.Id(),
 			user_id: S.String(), // User who made the transaction
 			user: S.RelationById('user', '$user_id'), // Relation to the user
-			stripe_payment_intent: S.String(), // Stripe Payment Intent ID
-			transaction_type: S.String({ enum: ['purchase', 'refund'] as const }), // Type of transaction
+			event_id: S.String({ nullable: true, default: null }),
+			event: S.RelationById('events', '$event_id'),
+			stripe_payment_intent: S.String({ nullable: true, default: null }), // Stripe Payment Intent ID
+			transaction_type: S.String({
+				enum: [
+					TransactionType.PURCHASE,
+					TransactionType.REFUND,
+					TransactionType.BONFIRE_HOSTED
+				] as const
+			}), // Type of transaction
 			num_log_tokens: S.Number(), // Number of logs purchased/refunded
 			total_money_amount: S.Number({ default: null, nullable: true }),
 			currency: S.String({ default: null, nullable: true }),
@@ -329,6 +334,10 @@ export const schema = {
 			event_admins: S.RelationMany('event_admins', {
 				where: [['event_id', '=', '$id']]
 			}),
+			transaction_id: S.Optional(S.String()),
+			transaction: S.RelationOne('transactions', {
+				where: [['event_id', '=', '$id']]
+			}),
 			style: S.String({ nullable: true }),
 			overlay_color: S.String({ nullable: true, optional: true }),
 			overlay_opacity: S.Number({ nullable: true, optional: true }),
@@ -339,10 +348,21 @@ export const schema = {
 			user: {
 				read: {
 					filter: [
-						or([
-							['user_id', '=', '$role.userId'], // User can read their own events
-							['attendees.user_id', '=', '$role.userId'], // A user can see events they are attending
-							['viewers.user_id', '=', '$role.userId'] // Event viewers can see event
+						and([
+							or([
+								['user_id', '=', '$role.userId'], // User can read their own events
+								['attendees.user_id', '=', '$role.userId'], // A user can see events they are attending
+								['viewers.user_id', '=', '$role.userId'] // Event viewers can see event
+							]),
+							or([
+								['transaction_id', '!=', null],
+								// TODO: below is temporary
+								// TODO: update based on when payment system goes live
+								and([
+									['transaction_id', '=', null],
+									['start_time', '<=', '2025-03-25T00:00:00.000Z']
+								])
+							])
 						])
 					]
 				},

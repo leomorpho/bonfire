@@ -292,6 +292,7 @@
 				.where([['id', '=', $page.params.id]])
 				.include('banner_media')
 				.include('event_admins')
+				.include('transaction')
 				.subquery(
 					'organizer',
 					client.query('user').where(['id', '=', '$1.user_id']).select(['username', 'id']).build(),

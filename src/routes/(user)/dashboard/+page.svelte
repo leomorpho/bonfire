@@ -2,18 +2,16 @@
 	import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
 	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
 	import { buttonVariants } from '$lib/components/ui/button/index.js';
-	import { getFeWorkerTriplitClient, waitForUserId } from '$lib/triplit';
+	import { getFeWorkerTriplitClient } from '$lib/triplit';
 	import { onMount } from 'svelte';
 	import type { FetchOptions, TriplitClient } from '@triplit/client';
 	import Loader from '$lib/components/Loader.svelte';
 	import { DatabaseZap, Frown, Plus } from 'lucide-svelte';
-	import { useQuery } from '@triplit/svelte';
 	import EventCard from '$lib/components/EventCard.svelte';
 	import { page } from '$app/stores';
-	import { browser, dev } from '$app/environment';
+	import { dev } from '$app/environment';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import PullToRefresh from '$lib/components/PullToRefresh.svelte';
-	import { toast } from 'svelte-sonner';
 	import SvgLoader from '$lib/components/SvgLoader.svelte';
 
 	let client: TriplitClient;
@@ -42,6 +40,11 @@
 			.subquery(
 				'organizer_name',
 				client.query('user').where(['id', '=', '$1.event.user_id']).select(['username']).build(),
+				'one'
+			)
+			.subquery(
+				'transaction',
+				client.query('transactions').where(['id', '=', '$1.event.id']).select(['id']).build(),
 				'one'
 			)
 			.include('event')
@@ -164,6 +167,7 @@
 							{userId}
 							eventCreatorName={attendance.organizer_name['username']}
 							rsvpStatus={attendance.status}
+							isPublished={!!attendance.event.transaction}
 						/>
 					</div>
 				{/each}

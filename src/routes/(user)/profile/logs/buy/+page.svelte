@@ -34,11 +34,11 @@
 </script>
 
 <div class="flex w-full justify-center">
-	<div class="mx-4 mt-4 flex w-full flex-col justify-center sm:w-[450px] md:w-[550px] lg:w-[650px]">
+	<div class="mx-4 mt-4 flex w-full flex-col justify-center sm:w-[350px] md:w-[450px] lg:w-[550px]">
 		<div
 			class="my-6 flex items-center justify-between rounded-lg bg-slate-200 p-2 text-2xl font-semibold dark:bg-slate-800 dark:text-white"
 		>
-			<BackButton url="/" />
+			<BackButton url="/profile" />
 			<h2>Buy more logs</h2>
 			<span></span>
 		</div>

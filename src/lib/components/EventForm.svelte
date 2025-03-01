@@ -11,7 +11,8 @@
 		ArrowDownToLine,
 		Trash2,
 		Palette,
-		Shield
+		Shield,
+		BookCheck
 	} from 'lucide-svelte';
 	import DoubleDigitsPicker from '$lib/components/DoubleDigitsPicker.svelte';
 	import TimezonePicker from '$lib/components/TimezonePicker.svelte';
@@ -46,6 +47,7 @@
 	import MaxCapacity from './eventform/MaxCapacity.svelte';
 	import BackButton from './BackButton.svelte';
 	import OutOfLogs from './payments/OutOfLogs.svelte';
+	import { toast } from 'svelte-sonner';
 
 	let { mode, event = null, currUserId = null } = $props();
 
@@ -91,10 +93,14 @@
 	let overlayColor: string = $state(event?.overlay_color ?? '#000000');
 	let overlayOpacity: number = $state(event?.overlay_opacity ?? 0.4);
 
-	let eventStartDatetime = $state(null);
-	let eventEndDatetime = $state(null);
+	let eventStartDatetime: Date | null = $state(null);
+	let eventEndDatetime: Date | null = $state(null);
 
 	let numLogs = $state(0);
+	let numLogsLoading = $state(true);
+	let isEventPublished = $derived(event?.transaction != null);
+	let isEventCreated = $state(mode == EventFormType.UPDATE || false);
+	let userIsOutOfLogs = $derived(!numLogsLoading && numLogs == 0 && event?.transaction != null);
 
 	// Build eventStartDatetime dynamically
 	$effect(() => {
@@ -143,7 +149,7 @@
 
 	$effect(() => {
 		if (!eventCreated && eventName && eventStartDatetime) {
-			createEvent();
+			createEvent(false);
 		}
 	});
 
@@ -217,7 +223,28 @@
 		};
 	}
 
-	const createEvent = async () => {
+	export async function createBonfireTransaction(eventId: string) {
+		try {
+			const response = await fetch('/profile/logs/spend', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ event_id: eventId })
+			});
+
+			const data = await response.json();
+
+			if (!response.ok) {
+				throw new Error(data.error || 'Failed to create transaction');
+			}
+
+			return data.event; // Return the transaction if needed
+		} catch (error) {
+			console.error('Error creating transaction:', error);
+			throw error;
+		}
+	}
+
+	const createEvent = async (createTransaction = false) => {
 		const feHttpClient = getFeHttpTriplitClient($page.data.jwt);
 		try {
 			eventCreated = true;
@@ -245,9 +272,18 @@
 			});
 			event = output;
 
+			// Create a transaction if the user has enough logs remaining
+			if (numLogs > 0 && createTransaction) {
+				event = await createBonfireTransaction(eventId);
+			}
+			if (!createTransaction) {
+				toast.success('An event draft was created! 🚀 Publish it when you’re ready.', {
+					duration: 4000
+				});
+			}
 			// Add user as attendee
 			await upsertUserAttendance(eventId, Status.GOING);
-
+			isEventCreated = true;
 			console.log('✅ Event created successfully');
 		} catch (error) {
 			eventCreated = false;
@@ -256,6 +292,7 @@
 	};
 
 	const updateEvent = async () => {
+		console.log('---> updating event', event);
 		try {
 			await client.update('events', event.id, async (entity) => {
 				entity.title = eventName;
@@ -269,6 +306,11 @@
 				entity.overlay_opacity = overlayOpacity;
 				entity.max_capacity = maxCapacity;
 			});
+
+			if (!event?.transaction && numLogs > 0) {
+				// Create a transaction if the user has enough logs remaining
+				event = await createBonfireTransaction(eventId);
+			}
 			console.log('🔄 Event udpated successfully');
 		} catch (error) {
 			console.error('❌ Error updating event:', error);
@@ -315,7 +357,7 @@
 			}
 
 			if (mode == EventFormType.CREATE && !eventCreated) {
-				await createEvent().then(() => {
+				await createEvent(true).then(() => {
 					redirectToDashboard();
 				});
 			} else {
@@ -329,6 +371,11 @@
 			showError = true;
 		} finally {
 			isEventSaving = false;
+		}
+		if (mode == EventFormType.CREATE) {
+			toast.success(
+				'Your bonfire is live! 🔥 1 log has been used to host it. If you delete it, the log won’t be refunded. Instead, edit this bonfire to make changes.'
+			);
 		}
 	};
 
@@ -386,9 +433,10 @@
 			client.query('user_log_tokens').where(['user_id', '=', $page.data.user.id]).build(),
 			(results) => {
 				numLogs = results[0].num_logs;
+				numLogsLoading = false;
 			},
 			(error) => {
-				console.error('Error fetching current temporary attendee:', error);
+				console.error('Error fetching user log tokens:', error);
 			},
 			{
 				localOnly: false,
@@ -410,12 +458,14 @@
 			>
 				<BackButton url={`/bonfire/${eventId}`} />
 				<div>
-					{mode === EventFormType.CREATE ? EventFormType.CREATE : EventFormType.UPDATE} a Bonfire
+					{mode === EventFormType.CREATE
+						? capitalize(EventFormType.CREATE)
+						: capitalize(EventFormType.UPDATE)} a Bonfire
 				</div>
 				<div></div>
 			</h2>
 			<form class="space-y-2">
-				{#if numLogs <= 0}
+				{#if userIsOutOfLogs}
 					<OutOfLogs />
 				{/if}
 				<Input
@@ -562,26 +612,34 @@
 					>Cancel</Button
 				>
 			</a>
-			<Button
-				id="upsert-bonfire"
-				disabled={submitDisabled}
-				type="submit"
-				class={`sticky top-2 mt-2 w-full ${submitDisabled ? 'bg-slate-400 dark:bg-slate-600' : 'bg-green-500 hover:bg-green-400 dark:bg-green-700 dark:hover:bg-green-600'} ring-glow dark:text-white`}
-				onclick={handleSubmit}
-			>
-				{#if isEventSaving}
-					<span class="loading loading-spinner loading-xs ml-2"> </span>
-				{/if}
-				{#if mode == EventFormType.CREATE}
-					<Plus class="ml-1 mr-1 h-4 w-4" />
-				{:else}
-					<ArrowDownToLine class="ml-1 mr-1 h-4 w-4" />
-				{/if}
-
-				{mode === EventFormType.CREATE
-					? capitalize(EventFormType.CREATE)
-					: capitalize(EventFormType.UPDATE)}
-			</Button>
+			{#if isEventCreated}
+				<Button
+					disabled={submitDisabled}
+					type="submit"
+					class={`sticky top-2 mt-2 w-full ${submitDisabled ? 'bg-slate-400 dark:bg-slate-600' : 'bg-blue-500 hover:bg-blue-400 dark:bg-blue-700 dark:hover:bg-blue-600'} ring-glow dark:text-white`}
+					onclick={() => {
+						updateEvent().then(() => {
+							redirectToDashboard();
+						});
+					}}
+				>
+					<ArrowDownToLine class="ml-1 mr-1 h-4 w-4" />Save Draft
+				</Button>
+			{/if}
+			{#if !userIsOutOfLogs || isEventPublished}
+				<Button
+					id="upsert-bonfire"
+					disabled={submitDisabled}
+					type="submit"
+					class={`sticky top-2 mt-2 w-full ${submitDisabled ? 'bg-slate-400 dark:bg-slate-600' : 'bg-green-500 hover:bg-green-400 dark:bg-green-700 dark:hover:bg-green-600'} ring-glow dark:text-white`}
+					onclick={handleSubmit}
+				>
+					{#if isEventSaving}
+						<span class="loading loading-spinner loading-xs ml-2"> </span>
+					{/if}
+					<BookCheck class="ml-1 mr-1 h-4 w-4" /> Publish
+				</Button>
+			{/if}
 			{#if mode == EventFormType.UPDATE && event && currUserId == event.user_id}
 				<Dialog.Root>
 					<Dialog.Trigger class="w-full" disabled={submitDisabled || currUserId != event.user_id}
@@ -596,8 +654,12 @@
 						<Dialog.Header>
 							<Dialog.Title>Are you sure absolutely sure?</Dialog.Title>
 							<Dialog.Description>
-								This action cannot be undone. This will permanently delete this event and remove its
-								data from our servers.
+								Once deleted, this bonfire is gone forever 🔥. This action <span class="font-bold"
+									>cannot</span
+								>
+								be undone, and you <span class="font-bold">won’t get back</span> the log token used
+								to create it. If you just need changes, consider
+								<span class="font-bold">editting</span> instead.
 							</Dialog.Description>
 						</Dialog.Header>
 						<Dialog.Footer

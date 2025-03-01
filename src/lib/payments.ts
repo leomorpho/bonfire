@@ -1,6 +1,7 @@
 import type { HttpClient } from '@triplit/client';
 import type { WorkerClient } from '@triplit/client/worker-client';
 import { env as publicEnv } from '$env/dynamic/public';
+import { type TransactionType } from './enums';
 
 /**
  * Handles Stripe webhook event when a user purchases logs.
@@ -55,7 +56,7 @@ export async function handleLogPurchaseWebhook(
 		client,
 		userLogObject.user_id,
 		paymentIntentId,
-		'purchase',
+		TransactionType.PURCHASE,
 		numLogTokensPurchased,
 		totalMoneyAmount,
 		currency
@@ -108,7 +109,7 @@ export async function createTransaction(
 	client: HttpClient,
 	userId: string,
 	stripePaymentIntent: string,
-	transactionType: 'purchase' | 'refund',
+	transactionType: TransactionType,
 	numLogTokens: number,
 	totalMoneyAmount: number | null,
 	currency: string | null
