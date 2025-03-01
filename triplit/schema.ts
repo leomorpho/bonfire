@@ -204,6 +204,121 @@ export const userLogsTokenSchema = {
 	}
 } satisfies ClientSchema;
 
+export const donationsSchema = {
+	non_profits: {
+		schema: S.Schema({
+			id: S.Id(),
+			name: S.String(), // Name of the non-profit
+			description: S.String({ nullable: true }), // Short description
+			photo_url: S.String({ nullable: true }), // Public S3 path for a logo/photo
+			website_url: S.String({ nullable: true }), // External website link
+			effective_start_date: S.Date({ default: S.Default.now() }), // When the non-profit became eligible
+			effective_end_date: S.Date({ nullable: true, default: null }), // When the non-profit is no longer eligible
+			created_at: S.Date({ default: S.Default.now() }), // Timestamp when added
+			updated_at: S.Date({ default: S.Default.now() }) // Timestamp for updates
+		}),
+		permissions: {
+			admin: {
+				read: { filter: [true] },
+				insert: { filter: [true] },
+				update: { filter: [true] },
+				delete: { filter: [true] }
+			},
+			user: {
+				// NOTE: same for all non-admins
+				read: {
+					filter: [
+						and([
+							['effective_start_date', '<=', new Date().toISOString()], // Start date is today or in the past
+							or([
+								['effective_end_date', '>=', new Date().toISOString()], // End date is in the future
+								['effective_end_date', '=', null] // OR no end date (still active)
+							])
+						])
+					]
+				} // Users can read non-profits
+			},
+			temp: {
+				// NOTE: same for all non-admins
+				read: {
+					filter: [
+						and([
+							['effective_start_date', '<=', new Date().toISOString()], // Start date is today or in the past
+							or([
+								['effective_end_date', '>=', new Date().toISOString()], // End date is in the future
+								['effective_end_date', '=', null] // OR no end date (still active)
+							])
+						])
+					]
+				} // Users can read non-profits
+			},
+			anon: {
+				// NOTE: same for all non-admins
+				read: {
+					filter: [
+						and([
+							['effective_start_date', '<=', new Date().toISOString()], // Start date is today or in the past
+							or([
+								['effective_end_date', '>=', new Date().toISOString()], // End date is in the future
+								['effective_end_date', '=', null] // OR no end date (still active)
+							])
+						])
+					]
+				} // Users can read non-profits
+			}
+		}
+	},
+	user_donations: {
+		schema: S.Schema({
+			id: S.Id(),
+			user_id: S.String(), // User who made the donation
+			user: S.RelationById('user', '$user_id'), // Relation to the user
+			non_profit_id: S.String(), // Chosen non-profit
+			non_profit: S.RelationById('non_profits', '$non_profit_id'), // Relation to non-profits
+			transaction_id: S.String(), // Related payment transaction
+			transaction: S.RelationById('transactions', '$transaction_id'), // Relation to transactions
+			donation_amount: S.Number(), // Amount donated (in cents)
+			currency: S.String(), // Currency code (e.g., "USD")
+			created_at: S.Date({ default: S.Default.now() }) // Timestamp of donation
+		}),
+		permissions: {
+			user: {
+				read: { filter: [['user_id', '=', '$role.userId']] }, // Users can read their own donations
+				insert: { filter: [['user_id', '=', '$role.userId']] } // Users can donate
+			},
+			admin: {
+				read: { filter: [true] } // Admins can view all donations
+			},
+			temp: {},
+			anon: {}
+		}
+	},
+	non_profit_payouts: {
+		schema: S.Schema({
+			id: S.Id(),
+			non_profit_id: S.String(), // Non-profit receiving the payout
+			non_profit: S.RelationById('non_profits', '$non_profit_id'), // Relation to non-profits
+			payout_amount: S.Number(), // Total amount paid out (in cents)
+			currency: S.String(), // Currency of payout
+			payout_date: S.Date({ default: S.Default.now() }), // Date when the payout occurred
+			status: S.String({ enum: ['pending', 'completed', 'failed'] as const }), // Payout status
+			transaction_reference: S.String({ nullable: true }) // External payment reference
+		}),
+		permissions: {
+			admin: {
+				read: { filter: [true] }, // Admins can read all payouts
+				insert: { filter: [true] }, // Admins can log payouts
+				update: { filter: [true] } // Admins can update payout status
+			},
+			user: {
+				read: { filter: [false] } // Users cannot see payout logs
+			},
+			temp: {},
+			anon: {}
+		}
+	}
+} satisfies ClientSchema;
+
 // Define schema with permissions
 export const schema = {
 	user: {
@@ -1130,5 +1245,6 @@ export const schema = {
 		}
 	},
 	...bringSchema,
-	...userLogsTokenSchema
+	...userLogsTokenSchema,
+	...donationsSchema
 } satisfies ClientSchema;
