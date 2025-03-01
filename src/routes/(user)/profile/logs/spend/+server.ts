@@ -7,6 +7,7 @@ import {
 	TransactionType
 } from '$lib/enums';
 import { and } from '@triplit/client';
+import type { UserLogToken } from '$lib/types';
 
 export const POST: RequestHandler = async ({ request, locals }) => {
 	try {
@@ -46,7 +47,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			event_id: event_id
 		});
 
-		const userLogTokens = await triplitHttpClient.fetchOne(
+		const userLogTokens: UserLogToken | null = await triplitHttpClient.fetchOne(
 			triplitHttpClient
 				.query('user_log_tokens')
 				.where('user_id', '=', userId)
@@ -64,6 +65,16 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 				num_logs: NUM_DEFAULT_LOGS_NEW_SIGNUP - NUM_LOGS_SPENT_PER_BONFIRE_EVENT
 			});
 		} else {
+			if (userLogTokens.num_logs == 0) {
+				throw new Error(
+					`a transaction cannot be created if the user has no logs left, user ID: ${userId}`
+				);
+			}
+			if (userLogTokens.num_logs - NUM_LOGS_SPENT_PER_BONFIRE_EVENT < 0) {
+				throw new Error(
+					`a transaction cannot be created if the user has not enough logs left, user ID: ${userId}`
+				);
+			}
 			await triplitHttpClient.update('user_log_tokens', userLogTokens.id, async (entity) => {
 				entity.num_logs = entity.num_logs - NUM_LOGS_SPENT_PER_BONFIRE_EVENT;
 			});

@@ -42,12 +42,7 @@
 				client.query('user').where(['id', '=', '$1.event.user_id']).select(['username']).build(),
 				'one'
 			)
-			.subquery(
-				'transaction',
-				client.query('transactions').where(['id', '=', '$1.event.id']).select(['id']).build(),
-				'one'
-			)
-			.include('event')
+			.include('event', (rel) => rel('event').include('transaction').build())
 			.order('event.start_time', 'ASC')
 			.build();
 	}
@@ -97,6 +92,7 @@
 			(results) => {
 				futureEvents = results;
 				futureEventsLoading = false;
+				console.log('===>, futureEvents', futureEvents);
 			},
 			(error) => {
 				console.error('Error fetching current temporary attendee:', error);
@@ -197,6 +193,7 @@
 						{userId}
 						eventCreatorName={attendance.organizer_name['username']}
 						rsvpStatus={attendance.status}
+						isPublished={!!attendance.event.transaction}
 					/>
 				{/each}
 			</Collapsible.Content>

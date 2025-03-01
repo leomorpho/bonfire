@@ -20,7 +20,11 @@
 		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
 		const unsubscribeFromUserLogsQuery = client.subscribe(
-			client.query('transactions').where(['user_id', '=', $page.data.user.id]).build(),
+			client
+				.query('transactions')
+				.where(['user_id', '=', $page.data.user.id])
+				.order('created_at', 'DESC')
+				.build(),
 			(results) => {
 				transactions = results;
 
@@ -50,7 +54,9 @@
 </script>
 
 <div class="flex w-full justify-center">
-	<div class="mx-4 mt-4 flex w-full flex-col justify-center sm:w-[450px] md:w-[550px] lg:w-[650px]">
+	<div
+		class="mx-4 mt-4 flex w-full flex-col justify-center px-1 sm:w-[450px] md:w-[550px] lg:w-[650px]"
+	>
 		<div
 			class="my-6 flex items-center justify-between rounded-xl bg-slate-100 p-3 text-2xl font-semibold shadow-md dark:bg-slate-800 dark:text-white"
 		>
@@ -73,11 +79,11 @@
 				>
 					<Card.Header class="flex flex-col items-center">
 						<!-- Date at the top -->
-						<div class="mb-2 text-xs font-medium text-gray-500 dark:text-gray-400">
+						<div class="mb-1 text-xs font-medium text-gray-500 dark:text-gray-400">
 							{formatHumanReadable(tx.created_at)}
 						</div>
 
-						<Card.Title class="my-3 flex items-center text-center text-lg font-semibold">
+						<Card.Title class="my-3 flex flex-col items-center text-center text-lg font-semibold">
 							{#if tx.transaction_type == TransactionType.PURCHASE}
 								Bought {tx.num_log_tokens} logs
 								{#if tx.total_money_amount && tx.currency}
@@ -100,7 +106,7 @@
 					</Card.Header>
 
 					<Card.Footer
-						class="mt-3 flex w-full justify-center text-center text-xs text-gray-400 dark:text-gray-500"
+						class="mt-3 flex w-full flex-col justify-center space-y-1 text-center text-xs text-gray-400 dark:text-gray-500 sm:flex-row sm:space-y-0"
 					>
 						{#if tx.stripe_payment_intent}
 							<span class="mr-2">Transaction ID:</span>

@@ -85,6 +85,7 @@
 	let longitude = $state(null);
 
 	let bannerInfo: BannerInfo = $state($page.data.bannerInfo);
+	let isPublished = $derived(!!event.transaction);
 
 	$effect(() => {
 		if ($page.data.user) {
@@ -586,7 +587,14 @@
 								</div>
 							{/if}
 
-							<div class="space-y-3 rounded-xl bg-white p-5 dark:bg-slate-900">
+							<div class="relative space-y-3 rounded-xl bg-white p-5 dark:bg-slate-900">
+								{#if !isPublished}
+									<div
+										class="absolute -right-1 -top-1 z-20 rounded bg-red-600 px-3 py-1 text-xs sm:text-sm font-semibold text-white shadow-md dark:bg-red-500"
+									>
+										Not Published
+									</div>
+								{/if}
 								{#if bannerInfo && bannerInfo.bannerIsSet}
 									<div class="flex w-full justify-center">
 										<BonfireBanner

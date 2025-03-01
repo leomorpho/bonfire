@@ -100,7 +100,7 @@
 	let numLogsLoading = $state(true);
 	let isEventPublished = $derived(event?.transaction != null);
 	let isEventCreated = $state(mode == EventFormType.UPDATE || false);
-	let userIsOutOfLogs = $derived(!numLogsLoading && numLogs == 0 && event?.transaction != null);
+	let userIsOutOfLogs = $derived(!numLogsLoading && numLogs == 0 && event?.transaction == null);
 
 	// Build eventStartDatetime dynamically
 	$effect(() => {
@@ -224,6 +224,9 @@
 	}
 
 	export async function createBonfireTransaction(eventId: string) {
+		if (isEventPublished) {
+			throw new Error('event is already published, cannot publish again');
+		}
 		try {
 			const response = await fetch('/profile/logs/spend', {
 				method: 'POST',
@@ -236,7 +239,7 @@
 			if (!response.ok) {
 				throw new Error(data.error || 'Failed to create transaction');
 			}
-
+			notifyBonfirePublished();
 			return data.event; // Return the transaction if needed
 		} catch (error) {
 			console.error('Error creating transaction:', error);
@@ -273,7 +276,7 @@
 			event = output;
 
 			// Create a transaction if the user has enough logs remaining
-			if (numLogs > 0 && createTransaction) {
+			if (numLogs > 0 && createTransaction && !isEventPublished) {
 				event = await createBonfireTransaction(eventId);
 			}
 			if (!createTransaction) {
@@ -291,8 +294,7 @@
 		}
 	};
 
-	const updateEvent = async () => {
-		console.log('---> updating event', event);
+	const updateEvent = async (createTransaction = false) => {
 		try {
 			await client.update('events', event.id, async (entity) => {
 				entity.title = eventName;
@@ -307,8 +309,7 @@
 				entity.max_capacity = maxCapacity;
 			});
 
-			if (!event?.transaction && numLogs > 0) {
-				// Create a transaction if the user has enough logs remaining
+			if (numLogs > 0 && createTransaction && !isEventPublished) {
 				event = await createBonfireTransaction(eventId);
 			}
 			console.log('🔄 Event udpated successfully');
@@ -361,7 +362,7 @@
 					redirectToDashboard();
 				});
 			} else {
-				await updateEvent().then(() => {
+				await updateEvent(true).then(() => {
 					redirectToDashboard();
 				});
 			}
@@ -372,11 +373,15 @@
 		} finally {
 			isEventSaving = false;
 		}
-		if (mode == EventFormType.CREATE) {
-			toast.success(
-				'Your bonfire is live! 🔥 1 log has been used to host it. If you delete it, the log won’t be refunded. Instead, edit this bonfire to make changes.'
-			);
-		}
+	};
+
+	const notifyBonfirePublished = () => {
+		toast.success(
+			'Your bonfire is live! 🔥 1 log has been used to host it. If you delete it, the log will be lost forever. Instead, edit this bonfire to make changes.',
+			{
+				duration: 10000
+			}
+		);
 	};
 
 	const deleteEvent = async (e: Event) => {
@@ -454,7 +459,7 @@
 	{#if currentEventEditingMode == editingMainEvent}
 		<section class="mt-8 w-full sm:w-[450px]">
 			<h2
-				class="mb-5 flex w-full items-center justify-between rounded-xl bg-white p-2 text-lg font-semibold dark:bg-slate-900"
+				class="mb-2 flex w-full items-center justify-between rounded-xl bg-white p-2 text-lg font-semibold dark:bg-slate-900"
 			>
 				<BackButton url={`/bonfire/${eventId}`} />
 				<div>
@@ -467,6 +472,14 @@
 			<form class="space-y-2">
 				{#if userIsOutOfLogs}
 					<OutOfLogs />
+				{:else if !isEventPublished}
+					<div class="flex justify-center">
+						<div
+							class="rounded-lg bg-slate-300 bg-opacity-70 p-1 px-2 text-xs shadow-lg dark:bg-slate-600 dark:bg-opacity-70"
+						>
+							You have {numLogs} logs remaining (1 log = 1 bonfire event)
+						</div>
+					</div>
 				{/if}
 				<Input
 					type="text"
@@ -612,7 +625,7 @@
 					>Cancel</Button
 				>
 			</a>
-			{#if isEventCreated}
+			{#if isEventCreated && !isEventPublished}
 				<Button
 					disabled={submitDisabled}
 					type="submit"
