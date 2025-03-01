@@ -3,7 +3,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
-	import { FlameKindling, Pencil, Plus } from 'lucide-svelte';
+	import { ArrowLeftRight, FlameKindling, Pencil, Plus } from 'lucide-svelte';
 	import { getFeWorkerTriplitClient } from '$lib/triplit';
 	import ProfileAvatar from '$lib/components/ProfileAvatar.svelte';
 	import SvgLoader from '$lib/components/SvgLoader.svelte';
@@ -72,7 +72,7 @@
 			</div>
 			<div class="my-2">{$page.data.user.email}</div>
 
-			<a
+			<div
 				href="profile/bonfire-logs"
 				class="mt-5 flex flex-col justify-center rounded-xl bg-gradient-to-r from-blue-100 to-blue-300 p-5 dark:bg-gradient-to-r dark:from-blue-600 dark:to-blue-800"
 			>
@@ -84,8 +84,17 @@
 					You don't currently have any logs remaining.
 				{/if}
 				<div class="my-2 flex w-full justify-center">(1 log = host 1 bonfire event)</div>
-				<Button class="mb-3 mt-5"><FlameKindling />Add more logs</Button>
-			</a>
+				<a href="profile/bonfire-logs" class="my-2"
+					><Button class="flex w-full justify-between"
+						><FlameKindling />Add more logs<span></span></Button
+					>
+				</a>
+				<a href="settings/transactions-history" class="my-2"
+					><Button class="flex w-full justify-between"
+						><ArrowLeftRight />See past transactions<span></span></Button
+					></a
+				>
+			</div>
 		{/if}
 	</section>
 </div>

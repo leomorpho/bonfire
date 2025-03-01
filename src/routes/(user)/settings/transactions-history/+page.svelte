@@ -21,6 +21,7 @@
 			client.query('transactions').where(['user_id', '=', $page.data.user.id]).build(),
 			(results) => {
 				transactions = results;
+
 				loading = false;
 			},
 			(error) => {
@@ -36,6 +37,14 @@
 			unsubscribeFromUserLogsQuery();
 		};
 	});
+
+	export function formatMoneyAmount(cents: number, currency: string): string {
+		if (isNaN(cents)) throw new Error('Invalid amount');
+		if (typeof currency !== 'string' || currency.trim() === '') throw new Error('Invalid currency');
+
+		const amount = (cents / 100).toFixed(2); // Convert cents to dollars and ensure two decimal places
+		return `${currency.trim().toUpperCase()} ${amount}`;
+	}
 </script>
 
 <div class="flex w-full justify-center">
@@ -49,28 +58,33 @@
 		</div>
 
 		{#if loading}
-			<div class="flex w-full justify-center h-32"><SvgLoader /></div>
-			
+			<div class="flex h-32 w-full justify-center"><SvgLoader /></div>
 		{:else}
-			{#each transactions as transaction}
+			{#each transactions as tx}
 				<Card.Root
 					class="border-0 bg-slate-200 bg-opacity-90 dark:bg-slate-800 dark:bg-opacity-90 dark:text-white "
 				>
 					<Card.Header>
-						<Card.Title class="flex font-normal w-full justify-center my-3"
-							>Bought {transaction.num_log_tokens} logs</Card.Title
+						<Card.Title class="my-3 flex w-full justify-center font-normal"
+							>Bought {tx.num_log_tokens} logs
+
+							{#if tx.total_money_amount && tx.currency}
+								for {formatMoneyAmount(tx.total_money_amount, tx.currency)}
+							{/if}
+						</Card.Title>
+						<Card.Description
+							class="mt-2 flex w-full flex-col items-center justify-between space-y-2 sm:flex-row"
 						>
-						<Card.Description class="mt-2 w-full flex justify-between items-center flex-col sm:flex-row space-y-2">
 							<div>
-								{formatHumanReadable(transaction.created_at)}
+								{formatHumanReadable(tx.created_at)}
 							</div>
 							<div class="w-min">
-								<CopyTextField value={transaction.stripe_payment_intent} />
+								<CopyTextField value={tx.stripe_payment_intent} />
 							</div>
 						</Card.Description>
 					</Card.Header>
 					<Card.Footer>
-						<!-- <CopyTextField value={transaction.stripe_payment_intent}/> -->
+						<!-- <CopyTextField value={tx.stripe_payment_intent}/> -->
 						<!-- {#if currUserId == announcement.user_id || isCurrenUserEventAdmin}
 							<a
 								href={`/bonfire/${eventId}/announcement/${announcement.id}/update`}

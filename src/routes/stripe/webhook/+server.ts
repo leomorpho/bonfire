@@ -36,7 +36,7 @@ export async function POST(event: RequestEvent) {
 				signature,
 				privateEnv.STRIPE_WEBHOOK_SECRET
 			);
-			console.log('stripe event ========>', stripeEvent);
+			console.debug('stripe event ========>', stripeEvent);
 			//const data = event.data;
 			eventType = stripeEvent.type;
 		} catch (err) {
