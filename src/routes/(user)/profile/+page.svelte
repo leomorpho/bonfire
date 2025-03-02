@@ -73,18 +73,17 @@
 			<div class="my-2">{$page.data.user.email}</div>
 
 			<div
-				href="profile/bonfire-logs"
 				class="mt-5 flex flex-col justify-center rounded-xl bg-gradient-to-r from-blue-100 to-blue-300 p-5 dark:bg-gradient-to-r dark:from-blue-600 dark:to-blue-800"
 			>
 				{#if user.user_log_tokens}
-					<div class="my-2 mt-5">
-						You have <span class="font-bold">{user.user_log_tokens.num_logs}</span> logs remaining.
+					<div class="my-2 mt-5 flex w-full justify-center">
+						You have <span class="mx-1 font-bold">{user.user_log_tokens.num_logs}</span> logs remaining.
 					</div>
 				{:else}
 					You don't currently have any logs remaining.
 				{/if}
 				<div class="my-2 flex w-full justify-center">(1 log = host 1 bonfire event)</div>
-				<a href="profile/bonfire-logs" class="my-2"
+				<a href="profile/logs/buy" class="my-2"
 					><Button class="flex w-full justify-between"
 						><FlameKindling />Add more logs<span></span></Button
 					>

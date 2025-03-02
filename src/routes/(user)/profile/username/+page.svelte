@@ -71,9 +71,7 @@
 	};
 </script>
 
-<div
-	class="p-safe flex min-h-screen items-center justify-center bg-gray-100 dark:bg-slate-800 dark:text-white"
->
+<div class="p-safe flex min-h-screen items-center justify-center dark:text-white">
 	<form class="m-2 w-full max-w-md space-y-4 text-center" onsubmit={handleSubmit}>
 		<div class="text-lg font-semibold">Choose Your Username</div>
 

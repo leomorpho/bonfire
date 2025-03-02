@@ -85,6 +85,7 @@
 	let longitude = $state(null);
 
 	let bannerInfo: BannerInfo = $state($page.data.bannerInfo);
+	let isPublished = $derived(!!event.transaction);
 
 	$effect(() => {
 		if ($page.data.user) {
@@ -292,6 +293,7 @@
 				.where([['id', '=', $page.params.id]])
 				.include('banner_media')
 				.include('event_admins')
+				.include('transaction')
 				.subquery(
 					'organizer',
 					client.query('user').where(['id', '=', '$1.user_id']).select(['username', 'id']).build(),
@@ -548,166 +550,176 @@
 						</Tabs.List>
 					</div>
 					<Tabs.Content value="about" class="w-full">
-						<!-- TODO: allow temp attendees to delete themselves -->
-						{#if isUnverifiedUser}
-							<div
-								class="my-4 flex flex-col items-center justify-center space-y-2 rounded-lg bg-gradient-to-r from-violet-200 to-pink-200 p-5 text-center dark:from-violet-900 dark:to-pink-900"
-							>
-								{#if tempAttendee}
-									<p class="font-semibold">Hi {tempAttendee.name}! This is a temporary account</p>
-								{:else}
-									<p class="font-semibold">Hi! This is a temporary account</p>
-								{/if}
-								<p class="text-sm">
-									Keep this tab open for seamless access, or click the button below to copy the URL
-									and save it.
-								</p>
-								<p class="text-sm">
-									This URL grants access to the event with your temporary identity.
-								</p>
-								<p class="text-sm">Sign up anytime to link your events to your email.</p>
-								<a href="/login" class="w-full">
+						<div class="animate-fadeIn">
+							<!-- TODO: allow temp attendees to delete themselves -->
+							{#if isUnverifiedUser}
+								<div
+									class="my-4 flex flex-col items-center justify-center space-y-2 rounded-lg bg-gradient-to-r from-violet-200 to-pink-200 p-5 text-center dark:from-violet-900 dark:to-pink-900"
+								>
+									{#if tempAttendee}
+										<p class="font-semibold">Hi {tempAttendee.name}! This is a temporary account</p>
+									{:else}
+										<p class="font-semibold">Hi! This is a temporary account</p>
+									{/if}
+									<p class="text-sm">
+										Keep this tab open for seamless access, or click the button below to copy the
+										URL and save it.
+									</p>
+									<p class="text-sm">
+										This URL grants access to the event with your temporary identity.
+									</p>
+									<p class="text-sm">Sign up anytime to link your events to your email.</p>
+									<a href="/login" class="w-full">
+										<Button
+											class="mt-4 flex w-full items-center justify-center bg-blue-500 text-white hover:bg-blue-400"
+										>
+											<KeyRound class="h-5 w-5" />
+											Sign Up or Log In</Button
+										>
+									</a>
 									<Button
-										class="mt-4 flex w-full items-center justify-center bg-blue-500 text-white hover:bg-blue-400"
+										onclick={() => handleCopyingTempAccountUrl(event)}
+										class="mt-4 flex w-full items-center justify-center dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
 									>
-										<KeyRound class="h-5 w-5" />
-										Sign Up or Log In</Button
+										<Copy class="h-5 w-5" />
+										Copy Link</Button
 									>
-								</a>
-								<Button
-									onclick={() => handleCopyingTempAccountUrl(event)}
-									class="mt-4 flex w-full items-center justify-center dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
-								>
-									<Copy class="h-5 w-5" />
-									Copy Link</Button
-								>
-							</div>
-						{/if}
-
-						<div class="space-y-3 rounded-xl bg-white p-5 dark:bg-slate-900">
-							{#if bannerInfo && bannerInfo.bannerIsSet}
-								<div class="flex w-full justify-center">
-									<BonfireBanner
-										blurhash={bannerInfo.bannerBlurHash}
-										bannerSmallSizeUrl={bannerInfo.bannerSmallSizeUrl}
-										bannerLargeSizeUrl={bannerInfo.bannerLargeSizeUrl}
-										{isCurrenUserEventAdmin}
-									/>
 								</div>
-							{:else if isCurrenUserEventAdmin}
-								<a class="flex w-full" href="banner/upload">
-									<Button class="w-full dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600"
-										>Set a banner image</Button
-									>
-								</a>
 							{/if}
-							<h1 class="mb-4 flex justify-center text-xl sm:text-2xl">
-								{event.title}
-							</h1>
-							<div class="flex items-center justify-center font-medium">
-								<Calendar class="mr-2 !h-4 !w-4 shrink-0" />{formatHumanReadable(event.start_time)}
-								{#if event.end_time}to {formatHumanReadableHour(event.end_time)}{/if}
-							</div>
-							<div class="flex items-center justify-center font-light">
-								{#if event.organizer}
-									<UserRound class="mr-2 !h-4 !w-4 shrink-0" />Hosted by
-									{#if rsvpStatus}
-										<div class="ml-2">
-											<ProfileAvatar userId={event.organizer['id']} />
-										</div>
-									{:else}
-										{event.organizer['username']}
-									{/if}
-								{/if}
-							</div>
 
-							<div class="flex items-center justify-center font-light">
-								<MapPin class="mr-2 !h-4 !w-4 shrink-0" />
-								{#if rsvpStatus}
-									{#if event.location}<div class="flex items-center justify-center">
-											{#if latitude && longitude}
-												<ShareLocation lat={latitude} lon={longitude}>
-													<div
-														id="share-location"
-														class="flex items-center justify-center rounded-xl bg-slate-100 p-2 dark:bg-slate-900"
-													>
-														{@html event.location}
-														<ArrowRightFromLine class="ml-2 !h-4 !w-4 shrink-0" />
-													</div>
-												</ShareLocation>
-											{:else}
-												<div class="flex items-center justify-center p-2">{event.location}</div>
-											{/if}
-										</div>
-									{:else}
-										<div>No location set</div>
-									{/if}
-								{:else}
-									Set RSVP status to see location
-								{/if}
-							</div>
-							<div
-								class="my-5 flex flex-col justify-center rounded-xl bg-slate-100 p-2 text-center dark:bg-slate-800"
-							>
-								<div class="font-semibold">Details</div>
-								{#if event.description}
-									<div class="whitespace-pre-wrap">
-										{event.description}
-									</div>
-								{:else}
-									{'No details yet...'}
-								{/if}
-							</div>
-						</div>
-
-						<div class="mx-3 mt-5 items-center">
-							{#if attendeesLoading}
-								<div class="flex flex-wrap items-center -space-x-3">
-									{#each Array(20).fill(null) as _, index}
-										<Skeleton class="size-12 rounded-full" />
-									{/each}
-								</div>
-							{:else if rsvpStatus}
-								{#if allAttendeesGoing.length > 0}
-									<AttendeesCount
-										{allAttendeesGoing}
-										{allAttendeesMaybeGoing}
-										{allAttendeesNotGoing}
-									/>
-
+							<div class="relative space-y-3 rounded-xl bg-white p-5 dark:bg-slate-900">
+								{#if !isPublished}
 									<div
-										id="going-attendees"
-										class="flex flex-wrap items-center justify-center -space-x-4"
+										class="absolute -right-1 -top-1 z-20 rounded bg-red-600 px-3 py-1 text-xs sm:text-sm font-semibold text-white shadow-md dark:bg-red-500"
 									>
-										{#each allAttendeesGoing.slice(0, showMaxNumPeople) as attendee}
-											<ProfileAvatar
-												userId={attendee.user_id}
-												tempUserName={attendee.name}
-												viewerIsEventAdmin={isCurrenUserEventAdmin}
-												attendanceId={attendee.id}
-												baseHeightPx={allAttendeesGoing.length < 10 ? 60 : 50}
-											/>
-										{/each}
-										<AttendeesDialog
-											{allAttendeesGoing}
-											{allAttendeesMaybeGoing}
-											{allAttendeesNotGoing}
-											{showMaxNumPeople}
+										Not Published
+									</div>
+								{/if}
+								{#if bannerInfo && bannerInfo.bannerIsSet}
+									<div class="flex w-full justify-center">
+										<BonfireBanner
+											blurhash={bannerInfo.bannerBlurHash}
+											bannerSmallSizeUrl={bannerInfo.bannerSmallSizeUrl}
+											bannerLargeSizeUrl={bannerInfo.bannerLargeSizeUrl}
 											{isCurrenUserEventAdmin}
 										/>
 									</div>
-								{:else if allAttendeesGoing.length == 0}
-									<NoAttendeesYet />
+								{:else if isCurrenUserEventAdmin}
+									<a class="flex w-full" href="banner/upload">
+										<Button class="w-full dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600"
+											>Set a banner image</Button
+										>
+									</a>
 								{/if}
-							{:else}
-								<AnonAttendeesView numAttendingGoing={$page.data.numAttendingGoing} />
-							{/if}
-						</div>
-						<!-- Show RSVP if:
+								<h1 class="mb-4 flex justify-center text-xl sm:text-2xl">
+									{event.title}
+								</h1>
+								<div class="flex items-center justify-center font-medium">
+									<Calendar class="mr-2 !h-4 !w-4 shrink-0" />{formatHumanReadable(
+										event.start_time
+									)}
+									{#if event.end_time}to {formatHumanReadableHour(event.end_time)}{/if}
+								</div>
+								<div class="flex items-center justify-center font-light">
+									{#if event.organizer}
+										<UserRound class="mr-2 !h-4 !w-4 shrink-0" />Hosted by
+										{#if rsvpStatus}
+											<div class="ml-2">
+												<ProfileAvatar userId={event.organizer['id']} />
+											</div>
+										{:else}
+											{event.organizer['username']}
+										{/if}
+									{/if}
+								</div>
+
+								<div class="flex items-center justify-center font-light">
+									<MapPin class="mr-2 !h-4 !w-4 shrink-0" />
+									{#if rsvpStatus}
+										{#if event.location}<div class="flex items-center justify-center">
+												{#if latitude && longitude}
+													<ShareLocation lat={latitude} lon={longitude}>
+														<div
+															id="share-location"
+															class="flex items-center justify-center rounded-xl bg-slate-100 p-2 dark:bg-slate-900"
+														>
+															{@html event.location}
+															<ArrowRightFromLine class="ml-2 !h-4 !w-4 shrink-0" />
+														</div>
+													</ShareLocation>
+												{:else}
+													<div class="flex items-center justify-center p-2">{event.location}</div>
+												{/if}
+											</div>
+										{:else}
+											<div>No location set</div>
+										{/if}
+									{:else}
+										Set RSVP status to see location
+									{/if}
+								</div>
+								<div
+									class="my-5 flex flex-col justify-center rounded-xl bg-slate-100 p-2 text-center dark:bg-slate-800"
+								>
+									<div class="font-semibold">Details</div>
+									{#if event.description}
+										<div class="whitespace-pre-wrap">
+											{event.description}
+										</div>
+									{:else}
+										{'No details yet...'}
+									{/if}
+								</div>
+							</div>
+
+							<div class="mx-3 mt-5 items-center">
+								{#if attendeesLoading}
+									<div class="flex flex-wrap items-center -space-x-3">
+										{#each Array(20).fill(null) as _, index}
+											<Skeleton class="size-12 rounded-full" />
+										{/each}
+									</div>
+								{:else if rsvpStatus}
+									{#if allAttendeesGoing.length > 0}
+										<AttendeesCount
+											{allAttendeesGoing}
+											{allAttendeesMaybeGoing}
+											{allAttendeesNotGoing}
+										/>
+
+										<div
+											id="going-attendees"
+											class="flex flex-wrap items-center justify-center -space-x-4"
+										>
+											{#each allAttendeesGoing.slice(0, showMaxNumPeople) as attendee}
+												<ProfileAvatar
+													userId={attendee.user_id}
+													tempUserName={attendee.name}
+													viewerIsEventAdmin={isCurrenUserEventAdmin}
+													attendanceId={attendee.id}
+													baseHeightPx={allAttendeesGoing.length < 10 ? 60 : 50}
+												/>
+											{/each}
+											<AttendeesDialog
+												{allAttendeesGoing}
+												{allAttendeesMaybeGoing}
+												{allAttendeesNotGoing}
+												{showMaxNumPeople}
+												{isCurrenUserEventAdmin}
+											/>
+										</div>
+									{:else if allAttendeesGoing.length == 0}
+										<NoAttendeesYet />
+									{/if}
+								{:else}
+									<AnonAttendeesView numAttendingGoing={$page.data.numAttendingGoing} />
+								{/if}
+							</div>
+							<!-- Show RSVP if:
 				 (a) no max capacity is set
 				 (b) current user is attending
 				 (b) if max capacity is set, if it is not yet attained -->
-						<!-- {console.log(
+							<!-- {console.log(
 					'max capacity',
 					event?.max_capacity,
 					'currentUserAttendee',
@@ -719,102 +731,105 @@
 					'rsvpCanBeChanged',
 					rsvpCanBeChanged
 				)} -->
-						{#if event?.max_capacity}
-							<MaxCapacityInfo
-								maxCapacity={event?.max_capacity}
-								rsvpEnabled={rsvpEnabledForCapacity}
-							/>
-						{/if}
-						<Rsvp
-							{rsvpStatus}
-							userId={currUserId}
-							eventId={event.id}
-							{isAnonymousUser}
-							{rsvpCanBeChanged}
-						/>
-
-						<Button
-							onclick={() => handleShare(event)}
-							class="mt-4 flex w-full items-center justify-center ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
-						>
-							<Share class="h-5 w-5" />
-							Share Bonfire</Button
-						>
-
-						<HorizRule />
-						<div class="my-10">
-							<div class=" rounded-xl bg-white p-5 dark:bg-slate-900">
-								<div class="font-semibold">Announcements</div>
-							</div>
-							{#if rsvpStatus}
-								<div class="my-2">
-									<Annoucements maxCount={3} {isUnverifiedUser} {isCurrenUserEventAdmin} />
-								</div>
-								{#if isCurrenUserEventAdmin}
-									<a href="announcement/create">
-										<Button
-											class="mt-1 w-full ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
-											><Drum class="mr-1 h-4 w-4" /> Create new announcement</Button
-										>
-									</a>
-								{/if}
-							{:else}
-								<div class="my-2">
-									<BonfireNoInfoCard text={$page.data.numAnnouncements + ' announcement(s)'} />
-								</div>
-							{/if}
-						</div>
-						{#if currUserId || tempAttendeeId}
-							<HorizRule />
-							<div class="my-5 w-full">
-								<BringList
-									eventId={$page.data.event.id}
-									isAdmin={isCurrenUserEventAdmin}
-									numAttendeesGoing={allAttendeesGoing.length}
-									{currUserId}
-									{tempAttendeeId}
-									{changeToDiscussionsTab}
+							{#if event?.max_capacity}
+								<MaxCapacityInfo
+									maxCapacity={event?.max_capacity}
+									rsvpEnabled={rsvpEnabledForCapacity}
 								/>
-							</div>
-						{/if}
-						<HorizRule />
-						<div class="my-5">
-							<div class="rounded-xl bg-white p-5 dark:bg-slate-900">
-								<div class="font-semibold">Gallery</div>
-							</div>
-							{#if rsvpStatus}
-								<div class="mb-10">
-									{#if eventFiles}
-										<MiniGallery fileCount={fileCount - eventFiles.length} {eventFiles} />
-									{:else if loadEventFiles}
-										<Loader />
-									{/if}
+							{/if}
+							<Rsvp
+								{rsvpStatus}
+								userId={currUserId}
+								eventId={event.id}
+								{isAnonymousUser}
+								{rsvpCanBeChanged}
+							/>
+
+							<Button
+								onclick={() => handleShare(event)}
+								class="mt-4 flex w-full items-center justify-center ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
+							>
+								<Share class="h-5 w-5" />
+								Share Bonfire</Button
+							>
+
+							<HorizRule />
+							<div class="my-10">
+								<div class=" rounded-xl bg-white p-5 dark:bg-slate-900">
+									<div class="font-semibold">Announcements</div>
 								</div>
-							{:else}
-								<div class="my-2">
-									<BonfireNoInfoCard text={$page.data.numFiles + ' file(s)'} />
+								{#if rsvpStatus}
+									<div class="my-2">
+										<Annoucements maxCount={3} {isUnverifiedUser} {isCurrenUserEventAdmin} />
+									</div>
+									{#if isCurrenUserEventAdmin}
+										<a href="announcement/create">
+											<Button
+												class="mt-1 w-full ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
+												><Drum class="mr-1 h-4 w-4" /> Create new announcement</Button
+											>
+										</a>
+									{/if}
+								{:else}
+									<div class="my-2">
+										<BonfireNoInfoCard text={$page.data.numAnnouncements + ' announcement(s)'} />
+									</div>
+								{/if}
+							</div>
+							{#if currUserId || tempAttendeeId}
+								<HorizRule />
+								<div class="my-5 w-full">
+									<BringList
+										eventId={$page.data.event.id}
+										isAdmin={isCurrenUserEventAdmin}
+										numAttendeesGoing={allAttendeesGoing.length}
+										{currUserId}
+										{tempAttendeeId}
+										{changeToDiscussionsTab}
+									/>
 								</div>
 							{/if}
+							<HorizRule />
+							<div class="my-5">
+								<div class="rounded-xl bg-white p-5 dark:bg-slate-900">
+									<div class="font-semibold">Gallery</div>
+								</div>
+								{#if rsvpStatus}
+									<div class="mb-10">
+										{#if eventFiles}
+											<MiniGallery fileCount={fileCount - eventFiles.length} {eventFiles} />
+										{:else if loadEventFiles}
+											<Loader />
+										{/if}
+									</div>
+								{:else}
+									<div class="my-2">
+										<BonfireNoInfoCard text={$page.data.numFiles + ' file(s)'} />
+									</div>
+								{/if}
+							</div>
 						</div>
 					</Tabs.Content>
 					<Tabs.Content value="discussions" class="mb-2 h-[calc(100vh-4rem)] w-full">
-						{#if rsvpStatus}
-							<ImThreadView
-								{currUserId}
-								canSendIm={!!rsvpStatus && !!currUserId}
-								eventId={event.id}
-								datetimeUserJoinedBonfire={currentUserAttendee?.updated_at}
-								{isCurrenUserEventAdmin}
-							/>
-						{:else}
-							<div class="flex h-40 items-center justify-center">
-								<div
-									class="m-1 mt-10 flex h-24 w-3/4 items-center justify-center rounded-xl bg-slate-500 p-5 text-lg text-white opacity-80 dark:bg-slate-800 dark:text-slate-100"
-								>
-									RSVP first!
+						<div class="animate-fadeIn mb-2 h-[calc(100vh-4rem)] w-full">
+							{#if rsvpStatus}
+								<ImThreadView
+									{currUserId}
+									canSendIm={!!rsvpStatus && !!currUserId}
+									eventId={event.id}
+									datetimeUserJoinedBonfire={currentUserAttendee?.updated_at}
+									{isCurrenUserEventAdmin}
+								/>
+							{:else}
+								<div class="flex h-40 items-center justify-center">
+									<div
+										class="m-1 mt-10 flex h-24 w-3/4 items-center justify-center rounded-xl bg-slate-500 p-5 text-lg text-white opacity-80 dark:bg-slate-800 dark:text-slate-100"
+									>
+										RSVP first!
+									</div>
 								</div>
-							</div>
-						{/if}
+							{/if}
+						</div>
 					</Tabs.Content>
 				</Tabs.Root>
 			</section>
@@ -823,3 +838,19 @@
 {:else}
 	{console.log('YO this is an inconsistent state, eventLoading', eventLoading)}
 {/if}
+
+<style>
+	@keyframes fadeIn {
+		from {
+			opacity: 0;
+			transform: translateY(-5px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+	.animate-fadeIn {
+		animation: fadeIn 0.3s ease-out;
+	}
+</style>

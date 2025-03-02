@@ -67,6 +67,7 @@ export const LOGIN_TYPE_MAGIC_LINK = 'magic';
 export const LOGIN_TYPE_ACTIVATION = 'activation';
 export const NOTIFY_OF_ATTENDING_STATUS_CHANGE: Array<Status> = [Status.GOING, Status.MAYBE];
 export const NUM_DEFAULT_LOGS_NEW_SIGNUP = 3;
+export const NUM_LOGS_SPENT_PER_BONFIRE_EVENT = 1;
 
 export const getStrValueOfRSVP = (status: string) => {
 	switch (status) {
@@ -128,3 +129,10 @@ export const UploadFileTypes = {
 	BONFIRE_COVER_PHOTO: 'bonfire_cover_photo',
 	PROFILE_PHOTO: 'profile_photo'
 };
+
+export const TransactionType = {
+	PURCHASE: 'purchase',
+	REFUND: 'refund',
+	BONFIRE_HOSTED: 'bonfire_hosted'
+};
+export type TransactionType = (typeof TransactionType)[keyof typeof TransactionType];
