@@ -13,7 +13,7 @@
 
 	onMount(() => {
 		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
-		data = useQuery(client, client.query('events').where(['id', '=', $page.params.id]));
+		data = useQuery(client, client.query('events').include('transaction').where(['id', '=', $page.params.id]));
 	});
 </script>
 
@@ -28,6 +28,7 @@
 				mode={EventFormType.UPDATE}
 				event={data.results[0]}
 				currUserId={$page.data?.user.id}
+				transaction={data.results[0].transaction}
 			/>
 		</div>
 	</div>

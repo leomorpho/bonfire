@@ -780,7 +780,7 @@
 								<HorizRule />
 								<div class="my-5 w-full">
 									<BringList
-										eventId={$page.data.event.id}
+										eventId={event.id}
 										isAdmin={isCurrenUserEventAdmin}
 										numAttendeesGoing={allAttendeesGoing.length}
 										{currUserId}

@@ -193,10 +193,10 @@ export const userLogsTokenSchema = {
 			total_money_amount: S.Number({ default: null, nullable: true }),
 			currency: S.String({ default: null, nullable: true }),
 			created_at: S.Date({ default: S.Default.now() }), // Timestamp of transaction
-			user_donation: S.RelationOne('user_donations', {
-				// Link to possible donation
-				where: [['transaction_id', '=', '$id']]
-			})
+			// user_donation: S.RelationOne('user_donations', {
+			// 	// Link to possible donation
+			// 	where: [['transaction_id', '=', '$id']]
+			// })
 		}),
 		permissions: {
 			user: {

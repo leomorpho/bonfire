@@ -177,7 +177,7 @@ test('Create bonfire', async ({ page }) => {
 	await expect(page.getByText('Overlay', { exact: true })).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Clear' })).toBeVisible();
 	await page.getByRole('button', { name: 'chevron left Back' }).click();
-	await page.getByRole('button', { name: 'Update' }).click();
+	await page.getByRole('button', { name: 'Publish' }).click();
 
 	// Verify address as it used to be mangled (possible bug again) when coming back from edit page
 	await page.locator('#share-location').click();
@@ -595,9 +595,9 @@ test('Event admins', async ({ browser }) => {
 	await adminPage.getByPlaceholder('Details').click();
 	await adminPage.getByPlaceholder('Details').fill(newDetails);
 	// Hit update
-	await expect(adminPage.getByRole('button', { name: 'Update' })).toBeEnabled();
+	await expect(adminPage.getByRole('button', { name: 'Publish' })).toBeEnabled();
 	await adminPage.waitForTimeout(100);
-	await adminPage.getByRole('button', { name: 'Update' }).click();
+	await adminPage.getByRole('button', { name: 'Publish' }).click();
 	// Check data
 	await expect(adminPage.getByRole('heading', { name: eventName })).toBeVisible();
 	await expect(adminPage.getByText(newDetails)).toBeVisible();
