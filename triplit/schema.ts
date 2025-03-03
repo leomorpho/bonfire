@@ -192,7 +192,11 @@ export const userLogsTokenSchema = {
 			num_log_tokens: S.Number(), // Number of logs purchased/refunded
 			total_money_amount: S.Number({ default: null, nullable: true }),
 			currency: S.String({ default: null, nullable: true }),
-			created_at: S.Date({ default: S.Default.now() }) // Timestamp of transaction
+			created_at: S.Date({ default: S.Default.now() }), // Timestamp of transaction
+			user_donation: S.RelationOne('user_donations', {
+				// Link to possible donation
+				where: [['transaction_id', '=', '$id']]
+			})
 		}),
 		permissions: {
 			user: {
@@ -282,8 +286,6 @@ export const donationsSchema = {
 			non_profit: S.RelationById('non_profits', '$non_profit_id'), // Relation to non-profits
 			transaction_id: S.String(), // Related payment transaction
 			transaction: S.RelationById('transactions', '$transaction_id'), // Relation to transactions
-			donation_amount: S.Number(), // Amount donated (in cents)
-			currency: S.String(), // Currency code (e.g., "USD")
 			created_at: S.Date({ default: S.Default.now() }) // Timestamp of donation
 		}),
 		permissions: {
@@ -339,6 +341,9 @@ export const schema = {
 			attendances: S.RelationMany('attendees', {
 				where: [['user_id', '=', '$id']]
 			}),
+
+			favourite_non_profit_id: S.Optional(S.String()), // Non-profit the user currently contributes to by default
+			favourite_non_profit: S.RelationById('non_profits', '$favourite_non_profit_id'),
 			created_at: S.Optional(S.Date({ default: S.Default.now() })),
 			updated_at: S.Optional(S.Date({ default: null, nullable: true }))
 		}),
