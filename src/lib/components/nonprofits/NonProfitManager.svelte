@@ -12,6 +12,7 @@
 	import { getFeWorkerTriplitClient } from '$lib/triplit';
 	import { page } from '$app/stores';
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
+	import NonProfitCard from './NonProfitCard.svelte';
 
 	const emptyForm = {
 		id: '',
@@ -132,11 +133,10 @@
 		};
 	};
 
-	const deleteNonProfit = async (id: string, closeDialog: () => void) => {
+	const deleteNonProfit = async (id: string) => {
 		try {
 			await client.delete('non_profits', id);
 			toast.success('Non-profit deleted successfully!');
-			closeDialog();
 		} catch (error) {
 			console.error('Error deleting non-profit:', error);
 			toast.error('Failed to delete non-profit');
@@ -262,68 +262,22 @@
 	{:else if nonProfits.length === 0}
 		<p>No non-profits found.</p>
 	{:else}
-		<div class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+	<div class="w-full flex justify-center">
+		<div class="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3">
 			{#each nonProfits as nonProfit}
-				<Card.Root class="mx-auto max-w-sm">
-					<Card.Header>
-						{#if nonProfit.photo_url}
-							<img
-								src={nonProfit.photo_url}
-								alt={nonProfit.name}
-								class="mb-2 h-32 w-full rounded-md object-cover"
-							/>
-						{/if}
-						<Card.Title>{nonProfit.name}</Card.Title>
-						<Card.Description>{nonProfit.description}</Card.Description>
-					</Card.Header>
-					<Card.Content>
-						<a href={nonProfit.website_url} target="_blank" class="text-blue-600 hover:underline">
-							Visit Website
-						</a>
-						<p class="text-sm text-gray-600 dark:text-gray-300">
-							Effective:
-							{nonProfit.effective_start_date
-								? new Date(nonProfit.effective_start_date).toISOString().split('T')[0]
-								: 'Unknown'}
-							-
-							{nonProfit.effective_end_date
-								? new Date(nonProfit.effective_end_date).toISOString().split('T')[0]
-								: 'Ongoing'}
-						</p>
-					</Card.Content>
-					<Card.Footer class="flex justify-between">
-						<!-- Edit Button -->
-						<Button variant="outline" onclick={() => openUpdateForm(nonProfit)}>
-							<Pencil class="mr-1" /> Edit
-						</Button>
-
-						<!-- Delete Button -->
-						<AlertDialog.Root>
-							<AlertDialog.Trigger>
-								<Button variant="destructive">
-									<Trash class="mr-1" /> Delete
-								</Button>
-							</AlertDialog.Trigger>
-							<AlertDialog.Content>
-								<AlertDialog.Header>
-									<AlertDialog.Title>Are you sure?</AlertDialog.Title>
-									<AlertDialog.Description>
-										This action cannot be undone. The non-profit will be permanently deleted.
-									</AlertDialog.Description>
-								</AlertDialog.Header>
-								<AlertDialog.Footer>
-									<AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
-									<AlertDialog.Action
-										onclick={(e) => deleteNonProfit(nonProfit.id, e.detail.close)}
-									>
-										Delete
-									</AlertDialog.Action>
-								</AlertDialog.Footer>
-							</AlertDialog.Content>
-						</AlertDialog.Root>
-					</Card.Footer>
-				</Card.Root>
+				<NonProfitCard
+					cls="w-full"
+					photoURL={nonProfit.photo_url}
+					name={nonProfit.name}
+					description={nonProfit.description}
+					websiteURL={nonProfit.website_url}
+					effectiveStartDate={nonProfit.effective_start_date}
+					effectivEndDate={nonProfit.effective_end_date}
+					updateNonProfit={() => openUpdateForm(nonProfit)}
+					deleteNonProfit={() => deleteNonProfit(nonProfit.id)}
+				/>
 			{/each}
 		</div>
+	</div>
 	{/if}
 </div>

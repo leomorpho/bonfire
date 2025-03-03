@@ -6,6 +6,9 @@
 	import { getFeWorkerTriplitClient } from '$lib/triplit';
 	import { page } from '$app/stores';
 	import { Check } from 'lucide-svelte';
+	import BackButton from '$lib/components/BackButton.svelte';
+	import CenteredPage from '$lib/components/CenteredPage.svelte';
+	import NonProfitCard from '$lib/components/nonprofits/NonProfitCard.svelte';
 
 	let client: TriplitClient;
 	let nonProfits = $state([]);
@@ -62,7 +65,6 @@
 		const isCurrentlyFavorite = favouriteNonProfitId === nonProfitId;
 		if (isCurrentlyFavorite) return;
 		const newFavoriteId = isCurrentlyFavorite ? null : nonProfitId;
-		console.log('newFavoriteId--->', favouriteNonProfitId, nonProfitId);
 		try {
 			await client.update('user', $page.data.user.id, async (user) => {
 				user.favourite_non_profit_id = newFavoriteId;
@@ -77,71 +79,35 @@
 	};
 </script>
 
-<div class="flex flex-col items-center justify-center p-6">
-	<h2 class="mb-4 text-center text-2xl font-bold">Select Your Favorite Non-Profit</h2>
+<CenteredPage>
+	<div
+		class="my-6 flex w-full items-center justify-between rounded-lg bg-slate-200 p-2 text-2xl font-semibold dark:bg-slate-800 dark:text-white"
+	>
+		<BackButton />
+		<h2 class="ml-1">Support a Cause</h2>
+		<span></span>
+	</div>
 
 	{#if loading}
 		<p>Loading...</p>
 	{:else if nonProfits.length === 0}
 		<p>No non-profits available.</p>
 	{:else}
-    <div class="mt-4 flex w-full justify-center sm:w-[450px] md:w-[550px] lg:w-[650px]">
-        {#each nonProfits as nonProfit}
-				<Card.Root
-					class={`relative mx-auto max-w-sm cursor-pointer overflow-hidden rounded-lg border border-gray-200 shadow-sm transition-all duration-200 hover:shadow-lg ${
-						favouriteNonProfitId === nonProfit.id
-							? 'border-blue-500 bg-blue-100 dark:bg-blue-900'
-							: ''
-					}`}
-					onclick={() => toggleFavouriteNonProfit(nonProfit.id)}
-				>
-					<!-- Green Checkmark for Selected -->
-					{#if favouriteNonProfitId === nonProfit.id}
-						<div
-							class="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-green-500 text-white shadow-md"
-						>
-							<Check size={16} />
-						</div>
-					{/if}
-
-					<Card.Header>
-						{#if nonProfit.photo_url}
-							<img
-								src={nonProfit.photo_url}
-								alt={nonProfit.name}
-								class="mb-2 h-32 w-full object-cover"
-							/>
-						{/if}
-						<Card.Title>{nonProfit.name}</Card.Title>
-						<Card.Description class="text-sm text-gray-600 dark:text-gray-300">
-							{nonProfit.description}
-						</Card.Description>
-					</Card.Header>
-					<Card.Content>
-						<a href={nonProfit.website_url} target="_blank" class="text-blue-600 hover:underline">
-							Visit Website
-						</a>
-						<p class="mt-1 text-sm text-gray-500 dark:text-gray-300">
-							Effective:
-							{nonProfit.effective_start_date
-								? new Date(nonProfit.effective_start_date).toISOString().split('T')[0]
-								: 'Unknown'}
-							-
-							{nonProfit.effective_end_date
-								? new Date(nonProfit.effective_end_date).toISOString().split('T')[0]
-								: 'Ongoing'}
-						</p>
-					</Card.Content>
-				</Card.Root>
-			{/each}
+		<div class="mt-4 flex w-full justify-center">
+			<div class="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-4">
+				{#each nonProfits as nonProfit}
+					<NonProfitCard
+						selected={favouriteNonProfitId === nonProfit.id}
+						photoURL={nonProfit.photo_url}
+						name={nonProfit.name}
+						description={nonProfit.description}
+						websiteURL={nonProfit.website_url}
+						effectiveStartDate={nonProfit.effective_start_date}
+						effectivEndDate={nonProfit.effective_end_date}
+						toggleFavouriteNonProfit={() => toggleFavouriteNonProfit(nonProfit.id)}
+					/>
+				{/each}
+			</div>
 		</div>
 	{/if}
-</div>
-
-<style>
-	/* Selected non-profit style */
-	.selected {
-		border-color: #3b82f6; /* Tailwind blue-500 */
-		background-color: rgba(59, 130, 246, 0.1);
-	}
-</style>
+</CenteredPage>

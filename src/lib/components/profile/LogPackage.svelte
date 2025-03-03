@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Button from '../ui/button/button.svelte';
 
-	let { price, price_id, num_logs, mode = 'payment' } = $props();
+	let { price, price_id, num_logs, mode = 'payment', disabled = false } = $props();
 
 	async function handleCheckout(event: Event) {
 		event.preventDefault(); // Prevent default form submission
@@ -26,6 +26,6 @@
 </script>
 
 <!-- Replace the form with a button that triggers handleCheckout -->
-<Button onclick={handleCheckout} class="w-full my-2 flex justify-around">
+<Button onclick={handleCheckout} {disabled} class="my-2 flex w-full justify-around">
 	${price} for {num_logs} log{num_logs > 1 ? 's' : ''}
 </Button>
