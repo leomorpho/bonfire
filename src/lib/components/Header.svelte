@@ -21,7 +21,8 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import ToggleTheme from './ToggleTheme.svelte';
 	import { onDestroy, onMount } from 'svelte';
-	import { clearCache } from '$lib/triplit';
+	import { clearCache, getFeWorkerTriplitClient } from '$lib/triplit';
+	import type { TriplitClient } from '@triplit/client';
 
 	let isAdmin = false;
 
@@ -56,6 +57,12 @@
 	let navbarRef: HTMLElement | null = null;
 	let observer: IntersectionObserver;
 
+	let client: TriplitClient;
+
+	onMount(() => {
+		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
+	});
+
 	onMount(() => {
 		observer = new IntersectionObserver(
 			(entries) => {
@@ -80,7 +87,7 @@
 
 {#snippet loginButton()}
 	<Button
-		class="m-1 bg-orange-500 p-5 text-lg text-white hover:bg-orange-400 dark:bg-orange-700 dark:text-slate-100 dark:hover:bg-orange-600 font-bold"
+		class="m-1 bg-orange-500 p-5 text-lg font-bold text-white hover:bg-orange-400 dark:bg-orange-700 dark:text-slate-100 dark:hover:bg-orange-600"
 	>
 		<FlameKindling class="!h-6 !w-6" />login
 	</Button>
@@ -121,7 +128,9 @@
 					>
 						<Button
 							type="submit"
-							onclick={clearCache}
+							onclick={() => {
+								clearCache(client);
+							}}
 							class="mx-2 flex w-full items-center bg-slate-100 text-xl text-red-500 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700"
 						>
 							<LogOut class="mr-2 h-9 w-9" />

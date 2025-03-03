@@ -234,49 +234,22 @@ export const donationsSchema = {
 				delete: { filter: [true] }
 			},
 			user: {
-				// NOTE: same for all non-admins
 				read: {
-					filter: [
-						and([
-							['effective_start_date', '<=', new Date().toISOString()], // Start date is today or in the past
-							or([
-								['effective_end_date', '>=', new Date().toISOString()], // End date is in the future
-								['effective_end_date', '=', null] // OR no end date (still active)
-							])
-						])
-					]
-				} // Users can read non-profits
+					filter: [true]
+				}
 			},
 			temp: {
-				// NOTE: same for all non-admins
 				read: {
-					filter: [
-						and([
-							['effective_start_date', '<=', new Date().toISOString()], // Start date is today or in the past
-							or([
-								['effective_end_date', '>=', new Date().toISOString()], // End date is in the future
-								['effective_end_date', '=', null] // OR no end date (still active)
-							])
-						])
-					]
-				} // Users can read non-profits
+					filter: [true]
+				}
 			},
 			anon: {
-				// NOTE: same for all non-admins
 				read: {
-					filter: [
-						and([
-							['effective_start_date', '<=', new Date().toISOString()], // Start date is today or in the past
-							or([
-								['effective_end_date', '>=', new Date().toISOString()], // End date is in the future
-								['effective_end_date', '=', null] // OR no end date (still active)
-							])
-						])
-					]
-				} // Users can read non-profits
+					filter: [true]
+				}
 			}
 		}
-	},
+	}
 	// user_donations: {
 	// 	schema: S.Schema({
 	// 		id: S.Id(),

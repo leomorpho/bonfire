@@ -11,6 +11,7 @@
 	import { Plus, Pencil, Trash } from 'lucide-svelte';
 	import { getFeWorkerTriplitClient } from '$lib/triplit';
 	import { page } from '$app/stores';
+	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
 
 	const emptyForm = {
 		id: '',
@@ -148,14 +149,77 @@
 		<AlertDialog.Header>
 			<AlertDialog.Title>Edit Non-Profit</AlertDialog.Title>
 		</AlertDialog.Header>
-		<div class="space-y-3">
-			<Input type="text" placeholder="Name" bind:value={form.name} />
-			<Input type="text" placeholder="Description" bind:value={form.description} />
-			<Input type="url" placeholder="Photo URL (optional)" bind:value={form.photo_url} />
-			<Input type="url" placeholder="Website URL" bind:value={form.website_url} />
-			<Datepicker bind:value={form.effective_start_date} label="Start Date" />
-			<Datepicker bind:value={form.effective_end_date} label="End Date (optional)" />
-		</div>
+
+		<ScrollArea>
+			<div class="space-y-4">
+				<div>
+					<label for="name" class="my-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+						>Name</label
+					>
+					<Input id="name" type="text" bind:value={form.name} placeholder="Enter name" />
+				</div>
+				<div>
+					<label
+						for="description"
+						class="my-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+					>
+						Description
+					</label>
+					<Input
+						id="description"
+						type="text"
+						bind:value={form.description}
+						placeholder="Enter description"
+					/>
+				</div>
+				<div>
+					<label
+						for="photo_url"
+						class="my-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+					>
+						Photo URL
+					</label>
+					<Input
+						id="photo_url"
+						type="url"
+						bind:value={form.photo_url}
+						placeholder="Enter photo URL (optional)"
+					/>
+				</div>
+				<div>
+					<label
+						for="website_url"
+						class="my-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+					>
+						Website URL
+					</label>
+					<Input
+						id="website_url"
+						type="url"
+						bind:value={form.website_url}
+						placeholder="Enter website URL"
+					/>
+				</div>
+				<div>
+					<label
+						for="effective_start_date"
+						class="my-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+					>
+						Start Date
+					</label>
+					<Datepicker id="effective_start_date" bind:value={form.effective_start_date} />
+				</div>
+				<div>
+					<label
+						for="effective_end_date"
+						class="my-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+					>
+						End Date (optional)
+					</label>
+					<Datepicker id="effective_end_date" bind:value={form.effective_end_date} />
+				</div>
+			</div>
+		</ScrollArea>
 		<AlertDialog.Footer>
 			<AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
 			<AlertDialog.Action onclick={(e) => updateNonProfit()}>Update</AlertDialog.Action>
@@ -184,6 +248,7 @@
 		</AlertDialog.Footer>
 	</AlertDialog.Content>
 </AlertDialog.Root>
+
 <div class="flex flex-col items-center justify-center p-6">
 	<h2 class="mb-4 text-center text-2xl font-bold">Manage Non-Profits</h2>
 

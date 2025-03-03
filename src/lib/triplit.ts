@@ -6,6 +6,7 @@ import { browser, dev } from '$app/environment';
 import { LOCAL_INDEXEDDB_NAME, Status, UserTypes } from './enums';
 import { WorkerClient } from '@triplit/client/worker-client';
 import workerUrl from '@triplit/client/worker-client-operator?url';
+import { jwtDecode } from "jwt-decode";
 
 export const userIdStore = writable<string | null>(null);
 export const userTypeStore = writable<string | null>(null);
@@ -54,6 +55,7 @@ export function getFeHttpTriplitClient(jwt: string) {
 }
 
 let feWorkerTriplitClient: WorkerClient | TriplitClient | null;
+let currClientRole = '';
 
 export function getFeWorkerTriplitClient(jwt: string) {
 	if (!browser) {
@@ -61,8 +63,18 @@ export function getFeWorkerTriplitClient(jwt: string) {
 	}
 
 	try {
+		// Decode JWT to extract role
+		const decoded = jwtDecode(jwt); // Decodes without verifying (safe for role extraction)
+		const newRole = decoded?.role || ''; // Adjust based on your JWT payload structure
+
 		// Return existing client if available
-		if (feWorkerTriplitClient) return feWorkerTriplitClient;
+		// Check if role has changed
+		if (feWorkerTriplitClient && newRole === currClientRole) {
+			return feWorkerTriplitClient;
+		}
+
+		// Update stored role
+		currClientRole = newRole;
 
 		// Create a new client if no existing one is found
 		feWorkerTriplitClient = createNewWorkerTriplitClient(jwt);
