@@ -85,7 +85,10 @@
 	let longitude = $state(null);
 
 	let bannerInfo: BannerInfo = $state($page.data.bannerInfo);
-	let isPublished = $derived(!!event.transaction);
+
+	// TODO: support events created before payments system was created. There was no concept of "published"/"draft". Remove once all events have an attached transaction.
+	const paymentsReleaseDate = new Date(publicEnv.PUBLIC_PAYMENTS_RELEASE_DATE);
+	let isEventPublished = $derived(new Date() < paymentsReleaseDate || event?.transaction != null);
 
 	$effect(() => {
 		if ($page.data.user) {
@@ -588,9 +591,9 @@
 							{/if}
 
 							<div class="relative space-y-3 rounded-xl bg-white p-5 dark:bg-slate-900">
-								{#if !isPublished}
+								{#if !isEventPublished}
 									<div
-										class="absolute -right-1 -top-1 z-20 rounded bg-red-600 px-3 py-1 text-xs sm:text-sm font-semibold text-white shadow-md dark:bg-red-500"
+										class="absolute -right-1 -top-1 z-20 rounded bg-red-600 px-3 py-1 text-xs font-semibold text-white shadow-md dark:bg-red-500 sm:text-sm"
 									>
 										Not Published
 									</div>
