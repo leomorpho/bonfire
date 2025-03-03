@@ -3,7 +3,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
-	import { ArrowLeftRight, FlameKindling, Pencil, Plus } from 'lucide-svelte';
+	import { ArrowLeftRight, FlameKindling, HeartHandshake, Pencil, Plus } from 'lucide-svelte';
 	import { getFeWorkerTriplitClient } from '$lib/triplit';
 	import ProfileAvatar from '$lib/components/ProfileAvatar.svelte';
 	import SvgLoader from '$lib/components/SvgLoader.svelte';
@@ -91,6 +91,11 @@
 				<a href="settings/transactions-history" class="my-2"
 					><Button class="flex w-full justify-between"
 						><ArrowLeftRight />See past transactions<span></span></Button
+					></a
+				>
+				<a href="profile/non-profits" class="my-2"
+					><Button class="flex w-full justify-between"
+						><HeartHandshake />The non-profit you support<span></span></Button
 					></a
 				>
 			</div>
