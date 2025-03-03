@@ -277,53 +277,53 @@ export const donationsSchema = {
 			}
 		}
 	},
-	user_donations: {
-		schema: S.Schema({
-			id: S.Id(),
-			user_id: S.String(), // User who made the donation
-			user: S.RelationById('user', '$user_id'), // Relation to the user
-			non_profit_id: S.String(), // Chosen non-profit
-			non_profit: S.RelationById('non_profits', '$non_profit_id'), // Relation to non-profits
-			transaction_id: S.String(), // Related payment transaction
-			transaction: S.RelationById('transactions', '$transaction_id'), // Relation to transactions
-			created_at: S.Date({ default: S.Default.now() }) // Timestamp of donation
-		}),
-		permissions: {
-			user: {
-				read: { filter: [['user_id', '=', '$role.userId']] }, // Users can read their own donations
-				insert: { filter: [['user_id', '=', '$role.userId']] } // Users can donate
-			},
-			admin: {
-				read: { filter: [true] } // Admins can view all donations
-			},
-			temp: {},
-			anon: {}
-		}
-	},
-	non_profit_payouts: {
-		schema: S.Schema({
-			id: S.Id(),
-			non_profit_id: S.String(), // Non-profit receiving the payout
-			non_profit: S.RelationById('non_profits', '$non_profit_id'), // Relation to non-profits
-			payout_amount: S.Number(), // Total amount paid out (in cents)
-			currency: S.String(), // Currency of payout
-			payout_date: S.Date({ default: S.Default.now() }), // Date when the payout occurred
-			status: S.String({ enum: ['pending', 'completed', 'failed'] as const }), // Payout status
-			transaction_reference: S.String({ nullable: true }) // External payment reference
-		}),
-		permissions: {
-			admin: {
-				read: { filter: [true] }, // Admins can read all payouts
-				insert: { filter: [true] }, // Admins can log payouts
-				update: { filter: [true] } // Admins can update payout status
-			},
-			user: {
-				read: { filter: [false] } // Users cannot see payout logs
-			},
-			temp: {},
-			anon: {}
-		}
-	}
+	// user_donations: {
+	// 	schema: S.Schema({
+	// 		id: S.Id(),
+	// 		user_id: S.String(), // User who made the donation
+	// 		user: S.RelationById('user', '$user_id'), // Relation to the user
+	// 		non_profit_id: S.String(), // Chosen non-profit
+	// 		non_profit: S.RelationById('non_profits', '$non_profit_id'), // Relation to non-profits
+	// 		transaction_id: S.String(), // Related payment transaction
+	// 		transaction: S.RelationById('transactions', '$transaction_id'), // Relation to transactions
+	// 		created_at: S.Date({ default: S.Default.now() }) // Timestamp of donation
+	// 	}),
+	// 	permissions: {
+	// 		user: {
+	// 			read: { filter: [['user_id', '=', '$role.userId']] }, // Users can read their own donations
+	// 			insert: { filter: [['user_id', '=', '$role.userId']] } // Users can donate
+	// 		},
+	// 		admin: {
+	// 			read: { filter: [true] } // Admins can view all donations
+	// 		},
+	// 		temp: {},
+	// 		anon: {}
+	// 	}
+	// },
+	// non_profit_payouts: {
+	// 	schema: S.Schema({
+	// 		id: S.Id(),
+	// 		non_profit_id: S.String(), // Non-profit receiving the payout
+	// 		non_profit: S.RelationById('non_profits', '$non_profit_id'), // Relation to non-profits
+	// 		payout_amount: S.Number(), // Total amount paid out (in cents)
+	// 		currency: S.String(), // Currency of payout
+	// 		payout_date: S.Date({ default: S.Default.now() }), // Date when the payout occurred
+	// 		status: S.String({ enum: ['pending', 'completed', 'failed'] as const }), // Payout status
+	// 		transaction_reference: S.String({ nullable: true }) // External payment reference
+	// 	}),
+	// 	permissions: {
+	// 		admin: {
+	// 			read: { filter: [true] }, // Admins can read all payouts
+	// 			insert: { filter: [true] }, // Admins can log payouts
+	// 			update: { filter: [true] } // Admins can update payout status
+	// 		},
+	// 		user: {
+	// 			read: { filter: [false] } // Users cannot see payout logs
+	// 		},
+	// 		temp: {},
+	// 		anon: {}
+	// 	}
+	// }
 } satisfies ClientSchema;
 
 // Define schema with permissions
