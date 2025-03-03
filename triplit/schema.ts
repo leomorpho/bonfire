@@ -192,7 +192,7 @@ export const userLogsTokenSchema = {
 			num_log_tokens: S.Number(), // Number of logs purchased/refunded
 			total_money_amount: S.Number({ default: null, nullable: true }),
 			currency: S.String({ default: null, nullable: true }),
-			created_at: S.Date({ default: S.Default.now() }), // Timestamp of transaction
+			created_at: S.Date({ default: S.Default.now() }) // Timestamp of transaction
 			// user_donation: S.RelationOne('user_donations', {
 			// 	// Link to possible donation
 			// 	where: [['transaction_id', '=', '$id']]
@@ -201,7 +201,7 @@ export const userLogsTokenSchema = {
 		permissions: {
 			user: {
 				read: {
-					filter: [['user_id', '=', '$role.userId']] // Users can only see their own transactions
+					filter: [or([['user_id', '=', '$role.userId']])] // Users can only see their own transactions
 				}
 			},
 			admin: {
@@ -435,7 +435,8 @@ export const schema = {
 			overlay_color: S.String({ nullable: true, optional: true }),
 			overlay_opacity: S.Number({ nullable: true, optional: true }),
 			created_at: S.Optional(S.Date({ default: S.Default.now() })),
-			max_capacity: S.Optional(S.Number({ default: null, nullable: true }))
+			max_capacity: S.Optional(S.Number({ default: null, nullable: true })),
+			is_published: S.Optional(S.Boolean({ default: false }))
 		}),
 		permissions: {
 			user: {

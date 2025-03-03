@@ -739,5 +739,7 @@ test('Bring list items', async ({ browser }) => {
 	await expect(eventCreatorPage.getByText('.bring-list-item-btn')).toHaveCount(0);
 });
 
+// TODO: test unpublished vs published event
+//TODO: test usage of logs, and exhausting free ones, and fake buying more.
 // TODO: test max capacity of bonfire
 // TODO: only logged in "users" can message, not temp users

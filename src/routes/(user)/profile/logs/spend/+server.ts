@@ -39,7 +39,6 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		if (transactions.length > 0) {
 			throw new Error('a transaction already exists for this bonfire');
 		}
-
 		await triplitHttpClient.insert('transactions', {
 			user_id: userId,
 			transaction_type: TransactionType.BONFIRE_HOSTED,
@@ -80,8 +79,14 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			});
 		}
 
+		// TODO: set isPublished to true in event
+
+		await triplitHttpClient.update('events', event_id, async (e) => {
+			e.is_published = true;
+		});
+
 		const event = await triplitHttpClient.fetchOne(
-			triplitHttpClient.query('events').where('id', '=', event_id).include('transaction').build()
+			triplitHttpClient.query('events').where('id', '=', event_id).build()
 		);
 
 		// Return success response

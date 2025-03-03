@@ -51,7 +51,7 @@
 	import LoadingSpinner from './LoadingSpinner.svelte';
 	import { env as publicEnv } from '$env/dynamic/public';
 
-	let { mode, event = null, currUserId = null, transaction=null } = $props();
+	let { mode, event = null, currUserId = null } = $props();
 
 	const editingMainEvent = 'editing_main_event';
 	const editingStyles = 'editing_styles';
@@ -98,15 +98,15 @@
 	let eventStartDatetime: Date | null = $state(null);
 	let eventEndDatetime: Date | null = $state(null);
 
-	const paymentsReleaseDate = new Date(publicEnv.PUBLIC_PAYMENTS_RELEASE_DATE);
 	let numLogs = $state(0);
 	let numLogsLoading = $state(true);
 	let isEventCreated = $state(mode == EventFormType.UPDATE || false);
 	// TODO: support events created before payments system was created. There was no concept of "published"/"draft". Remove once all events have an attached transaction.
+	const paymentsReleaseDate = new Date(publicEnv.PUBLIC_PAYMENTS_RELEASE_DATE);
 	let isEventPublished = $derived(
-		(new Date() < paymentsReleaseDate && isEventCreated) || transaction != null
+		(event && event.created_at < paymentsReleaseDate && isEventCreated) || (event && event.is_published)
 	);
-	let userIsOutOfLogs = $derived(!numLogsLoading && numLogs == 0 && transaction == null);
+	let userIsOutOfLogs = $derived(!numLogsLoading && numLogs == 0 && !event.isPublished);
 
 	// Build eventStartDatetime dynamically
 	$effect(() => {

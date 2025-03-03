@@ -71,7 +71,6 @@ export const load = async ({ params, locals, url }) => {
 				.include('temporary_attendees')
 				.include('files')
 				.include('banner_media')
-				.include('transaction')
 				.subquery(
 					'organizer',
 					triplitHttpClient

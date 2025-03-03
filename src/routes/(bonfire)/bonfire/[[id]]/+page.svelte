@@ -88,7 +88,7 @@
 
 	// TODO: support events created before payments system was created. There was no concept of "published"/"draft". Remove once all events have an attached transaction.
 	const paymentsReleaseDate = new Date(publicEnv.PUBLIC_PAYMENTS_RELEASE_DATE);
-	let isEventPublished = $derived(new Date() < paymentsReleaseDate || event?.transaction != null);
+	let isEventPublished = $derived(event?.is_published || event?.created_at < paymentsReleaseDate);
 
 	$effect(() => {
 		if ($page.data.user) {
@@ -296,7 +296,6 @@
 				.where([['id', '=', $page.params.id]])
 				.include('banner_media')
 				.include('event_admins')
-				.include('transaction')
 				.subquery(
 					'organizer',
 					client.query('user').where(['id', '=', '$1.user_id']).select(['username', 'id']).build(),
