@@ -94,7 +94,9 @@
 		<p>No non-profits available.</p>
 	{:else}
 		<div class="mt-4 flex w-full justify-center">
-			<div class="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-4">
+			<div
+				class="grid grid-cols-1 place-items-center gap-4 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3"
+			>
 				{#each nonProfits as nonProfit}
 					<NonProfitCard
 						selected={favouriteNonProfitId === nonProfit.id}
@@ -105,6 +107,7 @@
 						effectiveStartDate={nonProfit.effective_start_date}
 						effectivEndDate={nonProfit.effective_end_date}
 						toggleFavouriteNonProfit={() => toggleFavouriteNonProfit(nonProfit.id)}
+						selectable={true}
 					/>
 				{/each}
 			</div>

@@ -9,15 +9,17 @@
 	import CenteredPage from '$lib/components/CenteredPage.svelte';
 	import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
 	import SelectNonProfitAlert from '$lib/components/payments/SelectNonProfitAlert.svelte';
+	import NonProfitCard from '$lib/components/nonprofits/NonProfitCard.svelte';
+	import SvgLoader from '$lib/components/SvgLoader.svelte';
 
 	let numLogs = $state();
 	let loadingNumLogs = $state(true);
-	let nonProfits = $state([]);
+	let nonProfit = $state();
 	let client: TriplitClient;
+	let loadingUserTriplitObject = $state(true);
 	let favouriteNonProfitId = $state<string | null>(null);
-	let loadingFavouriteNonProfit = $state(true);
 
-	let canBuyLogs = $derived(!loadingFavouriteNonProfit && favouriteNonProfitId);
+	let canBuyLogs = $derived(!!favouriteNonProfitId);
 
 	onMount(() => {
 		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
@@ -38,28 +40,17 @@
 			}
 		);
 
-		// Fetch non-profits
-		const unsubscribeNonProfits = client.subscribe(
-			client
-				.query('non_profits')
-				.where(['id', '=', favouriteNonProfitId])
-				.order('created_at', 'DESC')
-				.build(),
-			(results) => {
-				nonProfits = results;
-				loadingFavouriteNonProfit = false;
-			},
-			(error) => {
-				console.error('Error fetching non-profits:', error);
-				loadingFavouriteNonProfit = false;
-			}
-		);
-
 		// Fetch user's favorite non-profit
 		const unsubscribeUser = client.subscribe(
-			client.query('user').where(['id', '=', $page.data.user.id]).build(),
+			client
+				.query('user')
+				.include('favourite_non_profit')
+				.where(['id', '=', $page.data.user.id])
+				.build(),
 			(result) => {
+				loadingUserTriplitObject = false;
 				favouriteNonProfitId = result[0]?.favourite_non_profit_id || null;
+				nonProfit = result[0]?.favourite_non_profit || null;
 			},
 			(error) => {
 				console.error('Error fetching user data:', error);
@@ -69,7 +60,6 @@
 		return () => {
 			unsubscribeFromUserLogsQuery();
 			unsubscribeUser();
-			unsubscribeNonProfits();
 		};
 	});
 </script>
@@ -83,9 +73,9 @@
 		<span></span>
 	</div>
 
-	<div class="my-2 mt-5 flex justify-center">
+	<div class="my-2 mt-5 whitespace-normal break-words text-center">
 		You have
-		<span class="mx-1 font-bold">
+		<span class="font-bold">
 			{#if loadingNumLogs}
 				<LoadingSpinner cls="w-4 h-4 mx-1" />
 			{:else}
@@ -94,10 +84,22 @@
 		</span> logs remaining. Click below to buy more.
 	</div>
 
-	{#if !canBuyLogs}
+	{#if loadingUserTriplitObject}
+		<div class="flex w-full justify-center"><SvgLoader /></div>
+	{:else if !canBuyLogs}
 		<SelectNonProfitAlert />
 	{:else}
-		<div class="w-full justify-center">Thanks for supporting...</div>
+		<div class="flex w-full justify-center">
+			<NonProfitCard
+				photoURL={nonProfit.photo_url}
+				name={nonProfit.name}
+				description={nonProfit.description}
+				websiteURL={nonProfit.website_url}
+				effectiveStartDate={nonProfit.effective_start_date}
+				effectivEndDate={nonProfit.effective_end_date}
+				showChangeSelectedNonProfitBtn={true}
+			/>
+		</div>
 	{/if}
 
 	<div class="my-5 space-y-5">

@@ -13,6 +13,7 @@
 	import { page } from '$app/stores';
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
 	import NonProfitCard from './NonProfitCard.svelte';
+	import SvgLoader from '../SvgLoader.svelte';
 
 	const emptyForm = {
 		id: '',
@@ -258,26 +259,31 @@
 	</Button>
 
 	{#if loading}
-		<p>Loading...</p>
+		<div class="flex w-full justify-center">
+			<SvgLoader />
+			<p>Loading...</p>
+		</div>
 	{:else if nonProfits.length === 0}
 		<p>No non-profits found.</p>
 	{:else}
-	<div class="w-full flex justify-center">
-		<div class="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3">
-			{#each nonProfits as nonProfit}
-				<NonProfitCard
-					cls="w-full"
-					photoURL={nonProfit.photo_url}
-					name={nonProfit.name}
-					description={nonProfit.description}
-					websiteURL={nonProfit.website_url}
-					effectiveStartDate={nonProfit.effective_start_date}
-					effectivEndDate={nonProfit.effective_end_date}
-					updateNonProfit={() => openUpdateForm(nonProfit)}
-					deleteNonProfit={() => deleteNonProfit(nonProfit.id)}
-				/>
-			{/each}
+		<div class="flex w-full justify-center">
+			<div
+				class="grid grid-cols-1 place-items-center gap-4 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3"
+			>
+				{#each nonProfits as nonProfit}
+					<NonProfitCard
+						cls="w-full"
+						photoURL={nonProfit.photo_url}
+						name={nonProfit.name}
+						description={nonProfit.description}
+						websiteURL={nonProfit.website_url}
+						effectiveStartDate={nonProfit.effective_start_date}
+						effectivEndDate={nonProfit.effective_end_date}
+						updateNonProfit={() => openUpdateForm(nonProfit)}
+						deleteNonProfit={() => deleteNonProfit(nonProfit.id)}
+					/>
+				{/each}
+			</div>
 		</div>
-	</div>
 	{/if}
 </div>

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card/index.js';
-	import { Check, Pencil, Trash } from 'lucide-svelte';
+	import { Check, HeartHandshake, Pencil, Trash } from 'lucide-svelte';
 	import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
 	import { Button } from '../ui/button';
 
@@ -15,7 +15,9 @@
 		toggleFavouriteNonProfit = null,
 		updateNonProfit = null,
 		deleteNonProfit = null,
-		cls=null
+		showChangeSelectedNonProfitBtn = false,
+		cls = null,
+		selectable = false
 	} = $props();
 
 	let isDeleteAlertDialogOpen = $state(false);
@@ -27,9 +29,8 @@
 </script>
 
 <Card.Root
-	class={`${cls} relative m-3 max-w-sm cursor-pointer overflow-hidden rounded-lg border border-gray-200 shadow-sm transition-all duration-200 hover:shadow-lg ${
-		selected ? 'border-blue-500 bg-blue-100 dark:bg-blue-900' : ''
-	}`}
+	class={`${cls} ${selectable ? 'cursor-pointer' : ''} relative m-3 max-w-sm overflow-hidden rounded-lg border border-gray-200 bg-slate-100 shadow-sm transition-all duration-200 hover:shadow-lg dark:border-gray-700 dark:bg-slate-800 
+	${selected ? 'border-blue-500 bg-blue-100 dark:bg-blue-900' : ''}`}
 	onclick={toggleFavouriteNonProfit ? toggleFavouriteNonProfit : null}
 >
 	<!-- Green Checkmark for Selected -->
@@ -60,7 +61,7 @@
 		</p>
 	</Card.Content>
 	{#if updateNonProfit && deleteNonProfit}
-		<Card.Footer class="flex justify-center w-full">
+		<Card.Footer class="flex w-full justify-center">
 			<!-- Edit Button -->
 			<Button variant="outline" class="mx-1" onclick={updateNonProfit}>
 				<Pencil class="mr-1" /> Edit
@@ -86,6 +87,14 @@
 					</AlertDialog.Footer>
 				</AlertDialog.Content>
 			</AlertDialog.Root>
+		</Card.Footer>
+	{:else if showChangeSelectedNonProfitBtn}
+		<Card.Footer class="flex w-full justify-center">
+			<a href="/profile/non-profits">
+				<Button class="mx-1" onclick={updateNonProfit}>
+					<HeartHandshake class="mr-1" /> Change the cause you support
+				</Button></a
+			>
 		</Card.Footer>
 	{/if}
 </Card.Root>
