@@ -6,7 +6,7 @@ import { browser, dev } from '$app/environment';
 import { LOCAL_INDEXEDDB_NAME, Status, UserTypes } from './enums';
 import { WorkerClient } from '@triplit/client/worker-client';
 import workerUrl from '@triplit/client/worker-client-operator?url';
-import { jwtDecode } from "jwt-decode";
+import { jwtDecode } from 'jwt-decode';
 
 export const userIdStore = writable<string | null>(null);
 export const userTypeStore = writable<string | null>(null);
@@ -143,7 +143,7 @@ const createNewWorkerTriplitClient = (jwt: string) => {
 	}) as WorkerClient;
 };
 
-async function getFreshToken() {
+export async function getFreshToken() {
 	try {
 		const response = await fetch('/jwt');
 		if (!response.ok) {

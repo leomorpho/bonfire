@@ -21,8 +21,7 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import ToggleTheme from './ToggleTheme.svelte';
 	import { onDestroy, onMount } from 'svelte';
-	import { clearCache, getFeWorkerTriplitClient } from '$lib/triplit';
-	import type { TriplitClient } from '@triplit/client';
+	import LogoutButton from './buttons/LogoutButton.svelte';
 
 	let isAdmin = false;
 
@@ -56,12 +55,6 @@
 	let showStickyMenu = $state(false);
 	let navbarRef: HTMLElement | null = null;
 	let observer: IntersectionObserver;
-
-	let client: TriplitClient;
-
-	onMount(() => {
-		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
-	});
 
 	onMount(() => {
 		observer = new IntersectionObserver(
@@ -120,23 +113,7 @@
 				<div class="my-5 flex w-full justify-center"><ToggleTheme /></div>
 
 				{#if $page.data.user}
-					<form
-						method="post"
-						class="mb-3 flex w-full justify-center"
-						action="/login?/signout"
-						use:enhance
-					>
-						<Button
-							type="submit"
-							onclick={() => {
-								clearCache(client);
-							}}
-							class="mx-2 flex w-full items-center bg-slate-100 text-xl text-red-500 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700"
-						>
-							<LogOut class="mr-2 h-9 w-9" />
-							<span>Log out</span>
-						</Button>
-					</form>
+					<LogoutButton />
 				{:else}
 					<a href="/login" class="flex w-full justify-center">
 						{@render loginButton()}
@@ -170,20 +147,7 @@
 
 			<div class="navbar-end">
 				{#if $page.data.user}
-					<form
-						method="post"
-						class="mx-2 ml-auto hidden lg:flex"
-						action="/login?/signout"
-						use:enhance
-					>
-						<Button
-							type="submit"
-							class="mx-1 flex w-full items-center bg-slate-100 text-red-500 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700"
-						>
-							<LogOut class="mr-2 h-6 w-6" />
-							<span>Log out</span>
-						</Button>
-					</form>
+					<LogoutButton />
 				{:else}
 					<a href="/login" class="hidden sm:flex"> {@render loginButton()}</a>
 				{/if}
