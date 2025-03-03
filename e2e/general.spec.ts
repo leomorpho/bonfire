@@ -90,9 +90,9 @@ test('Create bonfire', async ({ page }) => {
 	await page.getByPlaceholder('1600 Pennsylvania Avenue,').fill('15 rue du luxembourg, mouscron');
 	await page.getByText('Rue du Luxembourg 15, 7700').click();
 
-	await expect(page.getByRole('button', { name: 'Create' })).toBeEnabled();
+	await expect(page.getByRole('button', { name: 'Publish' })).toBeEnabled();
 	await page.waitForTimeout(100);
-	await page.getByRole('button', { name: 'Create' }).click({ force: true });
+	await page.getByRole('button', { name: 'Publish' }).click({ force: true });
 
 	// ------> Event was created
 	// Check event name

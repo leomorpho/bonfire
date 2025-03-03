@@ -16,7 +16,7 @@
 	});
 </script>
 
-<form method="post" class={`${cls} mb-3 flex w-full justify-center" action="/login?/signout`} use:enhance>
+<form method="post" class={`${cls} flex w-full justify-center`} action={"/login?/signout"} use:enhance>
 	<Button
 		type="submit"
 		onclick={() => {

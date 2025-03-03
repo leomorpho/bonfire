@@ -142,9 +142,9 @@ export async function createBonfire(
 	await page.getByPlaceholder('1600 Pennsylvania Avenue,').fill('15 rue du luxembourg, mouscron');
 	await page.getByText('Rue du Luxembourg 15, 7700').click();
 
-	await expect(page.getByRole('button', { name: 'Create' })).toBeEnabled();
+	await expect(page.getByRole('button', { name: 'Publish' })).toBeEnabled();
 	await page.waitForTimeout(1000);
-	await page.getByRole('button', { name: 'Create' }).click();
+	await page.getByRole('button', { name: 'Publish' }).click();
 
 	await expect(page.getByRole('heading', { name: eventName })).toBeVisible();
 }

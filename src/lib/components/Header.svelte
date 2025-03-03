@@ -113,7 +113,7 @@
 				<div class="my-5 flex w-full justify-center"><ToggleTheme /></div>
 
 				{#if $page.data.user}
-					<LogoutButton />
+					<LogoutButton cls={"mb-3"} />
 				{:else}
 					<a href="/login" class="flex w-full justify-center">
 						{@render loginButton()}
@@ -147,7 +147,7 @@
 
 			<div class="navbar-end">
 				{#if $page.data.user}
-					<LogoutButton />
+					<LogoutButton cls={"hidden lg:block w-min mr-3"}/>
 				{:else}
 					<a href="/login" class="hidden sm:flex"> {@render loginButton()}</a>
 				{/if}
