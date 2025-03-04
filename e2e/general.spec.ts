@@ -90,9 +90,25 @@ test('Create bonfire', async ({ page }) => {
 	await page.getByPlaceholder('1600 Pennsylvania Avenue,').fill('15 rue du luxembourg, mouscron');
 	await page.getByText('Rue du Luxembourg 15, 7700').click();
 
+	await expect(page.getByRole('button', { name: 'Save Draft' })).toBeEnabled();
+	await page.waitForTimeout(500);
+	await page.getByRole('button', { name: 'Save Draft' }).click({ force: true });
+
+	// Check that event is marked as temporary on bonfire view
+	await expect(page.getByText('Not Published')).toBeVisible();
+	await page.getByRole('link', { name: 'Logo' }).click();
+
+	// Check that event is marked as temporary on dashboard view
+	await expect(page.getByText('Not Published')).toBeVisible();
+	await page.locator('.event-card').first().click();
+
+	// Return to edit page
+	await page.locator('#edit-bonfire').getByRole('button').click();
+
 	await expect(page.getByRole('button', { name: 'Publish' })).toBeEnabled();
 	await page.waitForTimeout(100);
 	await page.getByRole('button', { name: 'Publish' }).click({ force: true });
+	await expect(page.getByText('Not Published')).toBeHidden();
 
 	// ------> Event was created
 	// Check event name
@@ -738,6 +754,8 @@ test('Bring list items', async ({ browser }) => {
 	await eventCreatorPage.getByRole('button', { name: 'Continue' }).click();
 	await expect(eventCreatorPage.getByText('.bring-list-item-btn')).toHaveCount(0);
 });
+
+test('Log tokens', async ({ browser }) => {});
 
 // TODO: test unpublished vs published event
 //TODO: test usage of logs, and exhausting free ones, and fake buying more.
