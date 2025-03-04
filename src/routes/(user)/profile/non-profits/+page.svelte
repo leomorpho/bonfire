@@ -89,9 +89,9 @@
 	</div>
 
 	{#if loading}
-		<p>Loading...</p>
+		<div class="mt-4 flex w-full justify-center"><p>Loading...</p></div>
 	{:else if nonProfits.length === 0}
-		<p>No non-profits available.</p>
+		<div class="mt-4 flex w-full justify-center"><p>No non-profits available.</p></div>
 	{:else}
 		<div class="mt-4 flex w-full justify-center">
 			<div

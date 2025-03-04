@@ -270,7 +270,9 @@
 			<p>Loading...</p>
 		</div>
 	{:else if nonProfits.length === 0}
-		<p>No non-profits found.</p>
+		<div class="mt-3 flex w-full justify-center">
+			<p>No non-profits found.</p>
+		</div>
 	{:else}
 		<div class="flex w-full justify-center">
 			<div

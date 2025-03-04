@@ -84,42 +84,48 @@
 		</span> logs remaining. Click below to buy more.
 	</div>
 
-	{#if loadingUserTriplitObject}
-		<div class="flex w-full justify-center"><SvgLoader /></div>
-	{:else if !canBuyLogs}
-		<SelectNonProfitAlert />
-	{:else}
-		<div class="flex w-full justify-center">
-			<NonProfitCard
-				photoURL={nonProfit.photo_url}
-				name={nonProfit.name}
-				description={nonProfit.description}
-				websiteURL={nonProfit.website_url}
-				effectiveStartDate={nonProfit.effective_start_date}
-				effectivEndDate={nonProfit.effective_end_date}
-				showChangeSelectedNonProfitBtn={true}
-			/>
+	<div class="w-full flex flex-col md:flex-row justify-center items-center md:space-x-10">
+		<div>
+			{#if loadingUserTriplitObject}
+				<div class="flex w-full justify-center"><SvgLoader /></div>
+			{:else if !canBuyLogs}
+				<SelectNonProfitAlert />
+			{:else}
+				<div class="flex w-full justify-center">
+					<NonProfitCard
+						photoURL={nonProfit.photo_url}
+						name={nonProfit.name}
+						description={nonProfit.description}
+						websiteURL={nonProfit.website_url}
+						effectiveStartDate={nonProfit.effective_start_date}
+						effectivEndDate={nonProfit.effective_end_date}
+						showChangeSelectedNonProfitBtn={true}
+					/>
+				</div>
+			{/if}
 		</div>
-	{/if}
 
-	<div class="my-5 space-y-5">
-		<LogPackage
-			disabled={!canBuyLogs}
-			price={'1'}
-			price_id={publicEnv.PUBLIC_1_LOG_PRICE_ID}
-			num_logs="1"
-		/>
-		<LogPackage
-			disabled={!canBuyLogs}
-			price={'2'}
-			price_id={publicEnv.PUBLIC_3_LOG_PRICE_ID}
-			num_logs="3"
-		/>
-		<LogPackage
-			disabled={!canBuyLogs}
-			price={'5'}
-			price_id={publicEnv.PUBLIC_10_LOG_PRICE_ID}
-			num_logs="10"
-		/>
+		<div class="flex justify-center">
+			<div class="my-5 space-y-5 w-60">
+				<LogPackage
+					disabled={!canBuyLogs}
+					price={'1'}
+					price_id={publicEnv.PUBLIC_1_LOG_PRICE_ID}
+					num_logs="1"
+				/>
+				<LogPackage
+					disabled={!canBuyLogs}
+					price={'2'}
+					price_id={publicEnv.PUBLIC_3_LOG_PRICE_ID}
+					num_logs="3"
+				/>
+				<LogPackage
+					disabled={!canBuyLogs}
+					price={'5'}
+					price_id={publicEnv.PUBLIC_10_LOG_PRICE_ID}
+					num_logs="10"
+				/>
+			</div>
+		</div>
 	</div>
 </CenteredPage>
