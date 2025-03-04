@@ -12,6 +12,8 @@
 	import ProfileAvatar from '../ProfileAvatar.svelte';
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
 	import { fade, slide } from 'svelte/transition';
+	import { Tween } from 'svelte/motion';
+	import { cubicOut } from 'svelte/easing';
 
 	let { item, currUserId, isTempUser, isAdmin, eventId, numAttendeesGoing } = $props();
 
@@ -32,11 +34,17 @@
 	let userAssignment = $state();
 	let numBroughtByOthers = $state(0);
 	let numCommittedByuser = $state(0);
-	let tempUserCommitment = $state(0); // Temp state for the slider in the dialog
+	let progress = new Tween(0, {
+		duration: 200,
+		easing: cubicOut
+	});
+
+
+
 	let isOpen = $state(false);
 	let userIdToNumBroughtWhenDialogOpen: any = $state({});
 	let userCanSetBringAmount = $derived(
-		item.quantity_needed - numBroughtByOthers > 0 || tempUserCommitment != 0
+		item.quantity_needed - numBroughtByOthers > 0 || progress.current != 0
 	);
 
 	// Create userIdToNumBrought to support both user types
@@ -80,12 +88,12 @@
 
 			// If the user has an assignment, use that quantity, otherwise default to max needed
 			numCommittedByuser = userAssignment ? userAssignment.quantity : 0;
-			tempUserCommitment = numCommittedByuser; // Temp state for the slider in the dialog
+			progress.target = numCommittedByuser; // Temp state for the slider in the dialog
 		}
 	});
 
 	$effect(() => {
-		userIdToNumBroughtWhenDialogOpen[getUserKey(currUserId, isTempUser)] = tempUserCommitment;
+		userIdToNumBroughtWhenDialogOpen[getUserKey(currUserId, isTempUser)] = progress.current;
 	});
 
 	const upsertAssignment = async (closeAfterSave = false, showToasts = false) => {
@@ -96,6 +104,8 @@
 		// Determine correct assignment fields
 		const assignedToUserId = isTempUser ? null : extractedUserId;
 		const assignedToTempUserId = isTempUser ? extractedUserId : null;
+
+		const tempUserCommitment = Math.round(progress.current);
 
 		console.log('assignedToUserId', assignedToUserId, 'assignedToTempUserId', assignedToTempUserId);
 		if (userAssignment) {
@@ -193,16 +203,20 @@
 						type="range"
 						min="0"
 						max={item.quantity_needed - numBroughtByOthers}
-						bind:value={tempUserCommitment}
+						bind:value={progress.target}
 						class="w-full cursor-pointer"
 						disabled={item.quantity_needed - numBroughtByOthers == 0}
 					/>
 					<span class="flex items-center">
 						{#if item.unit == BringListCountTypes.PER_PERSON}
-							<UserRound class="mr-2 h-4 w-4 sm:h-5 sm:w-5" /> You're bringing enough for {tempUserCommitment}
-							{tempUserCommitment > 1 ? 'people' : 'person'}
+							<UserRound class="mr-2 h-4 w-4 sm:h-5 sm:w-5" /> You're bringing enough for {Math.round(
+								progress.current
+							)}
+							{progress.current > 1 ? 'people' : 'person'}
 						{:else if item.unit == BringListCountTypes.COUNT}
-							<Tally5 class="mr-2 h-4 w-4 sm:h-5 sm:w-5" /> You're bringing {tempUserCommitment} of this
+							<Tally5 class="mr-2 h-4 w-4 sm:h-5 sm:w-5" /> You're bringing {Math.round(
+								progress.current
+							)} of this
 						{/if}
 					</span>
 				{:else}
@@ -217,9 +231,11 @@
 							in:fade={{ duration: 300 }}
 							out:fade={{ duration: 100 }}
 						>
-							<div class="flex items-center justify-around py-1"
-							in:slide={{ duration: 300}}
-							out:slide={{ duration: 100 }}>
+							<div
+								class="flex items-center justify-around py-1"
+								in:slide={{ duration: 300 }}
+								out:slide={{ duration: 100 }}
+							>
 								<ProfileAvatar
 									userId={isTempUserKey(userKey) ? null : extractUserId(userKey)}
 									tempUserId={isTempUserKey(userKey) ? extractUserId(userKey) : null}
@@ -227,7 +243,7 @@
 								/><span
 									>bringing {#if item.unit == BringListCountTypes.PER_PERSON}for
 									{/if}
-									{quantity}</span
+									{Math.round(quantity)}</span
 								>
 							</div>
 						</div>

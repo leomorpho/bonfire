@@ -12,9 +12,14 @@
 	let totalBrought: number = $derived(
 		Object.values(userIdToNumBrought).reduce((sum, num) => sum + num, 0) as number
 	);
+	
+	// TODO: this is awkward. There are a lot of render calls triggered from BringItemProgressBar.
+	// $effect(() => {
+	// 	console.log('totalBrought', totalBrought);
+	// });
 
 	$effect(() => {
-		if (totalBrought) {
+		if (totalBrought>0.5) {
 			// Compute progress percentage (0 - 100)
 			progress = Math.min(100, Math.round((totalBrought / itemQuantityNeeded) * 100));
 
@@ -27,7 +32,7 @@
 
 			// Gradient fill for progress
 			progressGradient = `linear-gradient(to right, ${progressColor} ${progress}%, transparent ${progress}%)`;
-		} else if (totalBrought == 0) {
+		} else {
 			progressGradient = '';
 		}
 	});
@@ -52,29 +57,28 @@
 
 <style>
 	@keyframes alertGlow {
-	0% {
-		background-position: 0% 50%;
-		box-shadow: 0 0 10px rgba(199, 32, 32, 0.4);
-		transform: scale(1);
+		0% {
+			background-position: 0% 50%;
+			box-shadow: 0 0 10px rgba(199, 32, 32, 0.4);
+			transform: scale(1);
+		}
+		50% {
+			background-position: 100% 50%;
+			box-shadow: 0 0 20px rgba(199, 32, 32, 0.8);
+			transform: scale(1.03);
+		}
+		100% {
+			background-position: 0% 50%;
+			box-shadow: 0 0 10px rgba(199, 32, 32, 0.4);
+			transform: scale(1);
+		}
 	}
-	50% {
-		background-position: 100% 50%;
-		box-shadow: 0 0 20px rgba(199, 32, 32, 0.8);
-		transform: scale(1.03);
-	}
-	100% {
-		background-position: 0% 50%;
-		box-shadow: 0 0 10px rgba(199, 32, 32, 0.4);
-		transform: scale(1);
-	}
-}
 
-.animate-alert {
-	background: linear-gradient(120deg, #7a7c7f, #c72020, #7a7c7f);
-	background-size: 200% 200%;
-	animation: alertGlow 2.5s infinite ease-in-out;
-	border-radius: 12px;
-	transition: all 0.3s ease-in-out;
-}
-
+	.animate-alert {
+		background: linear-gradient(120deg, #7a7c7f, #c72020, #7a7c7f);
+		background-size: 200% 200%;
+		animation: alertGlow 2.5s infinite ease-in-out;
+		border-radius: 12px;
+		transition: all 0.3s ease-in-out;
+	}
 </style>
