@@ -11,6 +11,7 @@
 	import { toast } from 'svelte-sonner';
 	import ProfileAvatar from '../ProfileAvatar.svelte';
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
+	import { fade, slide } from 'svelte/transition';
 
 	let { item, currUserId, isTempUser, isAdmin, eventId, numAttendeesGoing } = $props();
 
@@ -170,22 +171,23 @@
 						</CrudItem>
 					</div>
 				{/if}
-				<Dialog.Description>Set the amount you're bringing.</Dialog.Description>
+				<Dialog.Description class="flex w-full justify-center"
+					>Set the amount you're bringing.</Dialog.Description
+				>
 				<div class="p-2">
-						<BringListItem
+					<BringListItem
 						itemName={item.name}
 						itemUnit={item.unit}
 						itemQuantityNeeded={item.quantity_needed}
 						userIdToNumBrought={userIdToNumBroughtWhenDialogOpen}
 					/>
-					
 				</div>
 
 				<div class="p-2">{item.details}</div>
 			</Dialog.Header>
 
 			<!-- Slider to adjust the user's contribution -->
-			<div class="my-4 flex flex-col items-center gap-2">
+			<div class="my-4 flex flex-col items-center gap-2 px-1">
 				{#if userCanSetBringAmount}
 					<input
 						type="range"
@@ -210,8 +212,14 @@
 			<div class="my-8">
 				{#each Object.entries(userIdToNumBroughtWhenDialogOpen).sort(([, aQuantity], [, bQuantity]) => bQuantity - aQuantity) as [userKey, quantity]}
 					{#if quantity > 0}
-						<div class="my-2 rounded-xl bg-slate-100 p-1 dark:bg-slate-900">
-							<div class="flex items-center justify-around py-1">
+						<div
+							class="my-2 rounded-xl bg-slate-100 p-1 dark:bg-slate-900"
+							in:fade={{ duration: 300 }}
+							out:fade={{ duration: 100 }}
+						>
+							<div class="flex items-center justify-around py-1"
+							in:slide={{ duration: 300}}
+							out:slide={{ duration: 100 }}>
 								<ProfileAvatar
 									userId={isTempUserKey(userKey) ? null : extractUserId(userKey)}
 									tempUserId={isTempUserKey(userKey) ? extractUserId(userKey) : null}
@@ -240,3 +248,87 @@
 		</ScrollArea>
 	</Dialog.Content>
 </Dialog.Root>
+
+<style>
+	/* Custom slider track */
+	input[type='range'] {
+		-webkit-appearance: none; /* Removes default styles on WebKit browsers */
+		width: 100%;
+		height: 14px; /* Increased thickness */
+		background: linear-gradient(to right, #3b82f6 0%, #1e3a8a 100%);
+		border-radius: 999px; /* Rounded track */
+		outline: none;
+		transition: all 0.3s ease-in-out;
+		position: relative;
+		border: 1px solid #1e40af; /* Subtle border for depth */
+	}
+
+	/* The slider thumb (handle) */
+	input[type='range']::-webkit-slider-thumb {
+		-webkit-appearance: none;
+		width: 26px; /* Larger size */
+		height: 26px;
+		background: #ffffff;
+		border: 4px solid #1e40af;
+		border-radius: 50%;
+		cursor: pointer;
+		transition:
+			transform 0.2s,
+			background 0.2s;
+		box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+	}
+
+	input[type='range']::-moz-range-thumb {
+		width: 26px;
+		height: 26px;
+		background: #ffffff;
+		border: 4px solid #1e40af;
+		border-radius: 50%;
+		cursor: pointer;
+		transition:
+			transform 0.2s,
+			background 0.2s;
+		box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+	}
+
+	/* Hover & active states for the thumb */
+	input[type='range']::-webkit-slider-thumb:hover {
+		transform: scale(1.15);
+		background: #f1f5f9;
+	}
+
+	input[type='range']::-webkit-slider-thumb:active {
+		transform: scale(1.2);
+		background: #e0e7ff;
+	}
+
+	/* Additional styling for Firefox */
+	input[type='range']::-moz-range-thumb:hover {
+		transform: scale(1.15);
+		background: #f1f5f9;
+	}
+
+	input[type='range']::-moz-range-thumb:active {
+		transform: scale(1.2);
+		background: #e0e7ff;
+	}
+
+	/* Tooltip to show the max value at the right end */
+	.slider-container {
+		position: relative;
+		width: 100%;
+	}
+
+	.slider-max {
+		position: absolute;
+		right: 0;
+		top: -30px;
+		background: #1e3a8a;
+		color: white;
+		font-size: 12px;
+		padding: 5px 8px;
+		border-radius: 6px;
+		box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.2);
+		font-weight: bold;
+	}
+</style>
