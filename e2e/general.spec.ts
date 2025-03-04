@@ -240,7 +240,7 @@ test('CRUD announcements', async ({ page }) => {
 	// Create
 	await expect(page.getByText('No announcements yet')).toBeVisible();
 	await page.getByRole('button', { name: 'Create new announcement' }).click();
-	await expect(page.getByRole('heading', { name: 'Create an Announcement' })).toBeVisible();
+	await expect(page.getByRole('heading', { name: 'Create Announcement' })).toBeVisible();
 	await page.getByPlaceholder('Type your announcement here').click();
 	await page.getByPlaceholder('Type your announcement here').fill('An announcement!');
 	await page.getByRole('button', { name: 'Create Announcement' }).click();

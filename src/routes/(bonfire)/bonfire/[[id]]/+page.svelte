@@ -267,6 +267,13 @@
 				},
 				(error) => {
 					console.error('Error fetching current temporary attendee:', error);
+				},
+				// Optional
+				{
+					localOnly: false,
+					onRemoteFulfilled: () => {
+						eventLoading = false;
+					}
 				}
 			);
 		}
