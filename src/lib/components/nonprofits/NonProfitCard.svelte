@@ -29,7 +29,7 @@
 </script>
 
 <Card.Root
-	class={`${cls} ${selectable ? 'cursor-pointer' : ''} relative m-3 max-w-sm overflow-hidden rounded-lg border border-gray-200 bg-slate-100 shadow-sm transition-all duration-200 hover:shadow-lg dark:border-gray-700 dark:bg-slate-800 
+	class={`non-profit-card ${cls} ${selectable ? 'cursor-pointer' : ''} relative m-3 max-w-sm overflow-hidden rounded-lg border border-gray-200 bg-slate-100 shadow-sm transition-all duration-200 hover:shadow-lg dark:border-gray-700 dark:bg-slate-800 
 	${selected ? 'border-blue-500 bg-blue-100 dark:bg-blue-900' : ''}`}
 	onclick={toggleFavouriteNonProfit ? toggleFavouriteNonProfit : null}
 >

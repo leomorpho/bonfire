@@ -9,10 +9,21 @@ import {
 } from './shared';
 import { faker } from '@faker-js/faker';
 import path from 'path';
+import { TriplitClient } from '@triplit/client';
+import { schema } from '../triplit/schema';
+import dotenv from 'dotenv';
+
+dotenv.config(); // Load env variables from .env
 
 test.beforeEach(async ({ page }) => {
 	await page.context().clearCookies();
 	await page.context().clearPermissions();
+});
+
+const serverTriplitClient = new TriplitClient({
+	schema,
+	serverUrl: process.env.PUBLIC_TRIPLIT_URL,
+	token: process.env.TRIPLIT_SERVICE_TOKEN
 });
 
 test('New login', async ({ page }) => {
@@ -755,9 +766,9 @@ test('Bring list items', async ({ browser }) => {
 	await expect(eventCreatorPage.getByText('.bring-list-item-btn')).toHaveCount(0);
 });
 
-test('Log tokens', async ({ page }) => {
+test('Consume logs', async ({ page }) => {
 	const email = faker.internet.email();
-	const username = faker.person.firstName();
+	const username = faker.person.firstName() + '123456789';
 	await loginUser(page, email, username);
 
 	await page.getByRole('link', { name: 'Profile' }).click();
@@ -772,7 +783,6 @@ test('Log tokens', async ({ page }) => {
 	await page.getByRole('link', { name: 'Dashboard' }).click();
 	await expect(page.getByText('Not Published')).toBeHidden();
 	await expect(page.locator('.event-card')).toHaveCount(1);
-
 
 	await page.getByRole('link', { name: 'Profile' }).click();
 	await expect(page.getByText('You have 2 logs remaining.')).toBeVisible();
@@ -792,11 +802,77 @@ test('Log tokens', async ({ page }) => {
 
 	await page.getByRole('link', { name: 'Profile' }).click();
 	await expect(page.getByText('You have 0 log remaining.')).toBeVisible();
-
-	await page.getByRole('link', { name: 'Dashboard' }).click();
 });
 
-// TODO: test unpublished vs published event
-//TODO: test usage of logs, and exhausting free ones, and fake buying more.
+test('Add logs', async ({ page }) => {
+	const email = faker.internet.email();
+	const username = faker.person.firstName() + '123456789';
+	await loginUser(page, email, username);
+
+	const nonProfitName = faker.company.name();
+	const oneWeekAgo = new Date();
+	oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+	// Create a non-profit for testing.
+	await serverTriplitClient.insert('non_profits', {
+		name: nonProfitName,
+		description: 'A description',
+		photo_url: '/',
+		website_url: 'http://abc.com',
+		effective_start_date: oneWeekAgo
+	});
+
+	await page.getByRole('link', { name: 'Profile' }).click();
+	await page.getByRole('button', { name: 'Buy more logs' }).click();
+	await expect(page.getByRole('heading', { name: 'Buy more logs' })).toBeVisible();
+	await expect(page.getByText('Choose a Cause & Make an')).toBeVisible();
+	await page.getByRole('button', { name: 'Select Cause' }).click();
+
+	// User now needs to select a non-profit to support
+	await page.locator('.non-profit-card').first().click();
+	await page.locator('.back-button').first().click();
+
+	// Back to "Buy more logs"
+	await expect(page.getByRole('heading', { name: 'Buy more logs' })).toBeVisible();
+
+	// Test button to update non-profit
+	await page.getByRole('button', { name: 'Change the cause you support' }).click();
+	await expect(page.getByRole('heading', { name: 'Support a Cause' })).toBeVisible();
+	await page.locator('.back-button').first().click();
+
+	// Back to "Buy more logs"
+	await expect(page.getByRole('heading', { name: 'Buy more logs' })).toBeVisible();
+	await expect(page.getByRole('button', { name: '$1 for 1 log' })).toBeVisible();
+	await expect(page.getByRole('button', { name: '$2 for 3 logs' })).toBeVisible();
+	await expect(page.getByRole('button', { name: '$5 for 10 logs' })).toBeVisible();
+
+	const userEntry = await serverTriplitClient.fetchOne(
+		serverTriplitClient.query('user').where('username', '=', username).build()
+	);
+	expect(userEntry).not.toBeNull();
+	console.log('userEntry ====>', userEntry);
+
+	const userLogTokenEntry = await serverTriplitClient.fetchOne(
+		serverTriplitClient
+			.query('user_log_tokens')
+			.where('user_id', '=', userEntry?.id as string)
+			.build()
+	);
+	expect(userLogTokenEntry).not.toBeNull();
+	console.log('userLogTokenEntry ====>', userLogTokenEntry);
+
+	// Give more logs to user (don't go through Stripe for testing)
+	await serverTriplitClient.update(
+		'user_log_tokens',
+		userLogTokenEntry?.id as string,
+		async (e) => {
+			e.num_logs = e.num_logs + 3;
+		}
+	);
+
+	await page.getByRole('link', { name: 'Profile' }).click();
+	await expect(page.getByText('You have 6 logs remaining.')).toBeVisible();
+});
+
 // TODO: test max capacity of bonfire
 // TODO: only logged in "users" can message, not temp users

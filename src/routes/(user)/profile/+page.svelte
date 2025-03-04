@@ -94,7 +94,7 @@
 				<div class="my-2 flex w-full justify-center">(1 log = host 1 bonfire event)</div>
 				<a href="profile/logs/buy" class="my-2"
 					><Button class="flex w-full justify-between"
-						><FlameKindling />Add more logs<span></span></Button
+						><FlameKindling />Buy more logs<span></span></Button
 					>
 				</a>
 				<a href="settings/transactions-history" class="my-2"
