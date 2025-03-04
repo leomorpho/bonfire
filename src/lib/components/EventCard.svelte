@@ -61,6 +61,6 @@
 		}
 	}
 	.animate-fadeIn {
-		animation: fadeIn 0.3s ease-out;
+		animation: fadeIn 0.2s ease-out;
 	}
 </style>

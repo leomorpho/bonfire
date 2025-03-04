@@ -220,7 +220,7 @@
 	<ProfileAvatar userId={message.user?.id} baseHeightPx={30} />
 {/snippet}
 
-<div class="relative py-1">
+<div class="animate-fadeIn-slideUp relative py-1">
 	<button
 		onclick={() => {
 			showContextMenu = null; // NOTE: hack to make sure it works more than once
@@ -262,7 +262,7 @@
 							>{formatHumanReadableWithContext(message.created_at)}</span
 						>
 					</div>
-					<p class="!text-left py-2.5 text-sm font-normal text-gray-900 dark:text-white">
+					<p class="py-2.5 !text-left text-sm font-normal text-gray-900 dark:text-white">
 						{#if message.deleted_by_user_id}
 							<span class="italic">This message was deleted</span>
 						{:else}
@@ -302,3 +302,20 @@
 		{/if}
 	</div>
 </div>
+
+<style>
+	@keyframes slideUp {
+		from {
+			opacity: 0;
+			transform: translateY(30px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	.animate-fadeIn-slideUp {
+		animation: slideUp 0.5s ease-out;
+	}
+</style>
