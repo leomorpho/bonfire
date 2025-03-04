@@ -7,6 +7,7 @@
 	import { getFeWorkerTriplitClient } from '$lib/triplit';
 	import Loader from '$lib/components/Loader.svelte';
 	import { EventFormType } from '$lib/enums';
+	import FadeIn from '$lib/components/containers/FadeIn.svelte';
 
 	let data: any;
 	let client: TriplitClient;
@@ -17,19 +18,21 @@
 	});
 </script>
 
-{#if !data || data.fetching}
-	<Loader />
-{:else if data.error}
-	<p>Error: {data.error.message}</p>
-{:else if data.results}
-	<div class="bg-color-selector min-h-screen w-full">
-		<div class="bg-overlay-selector min-h-screen w-full">
-			<EventForm
-				mode={EventFormType.UPDATE}
-				event={data.results[0]}
-				currUserId={$page.data?.user.id}
-				transaction={data.results[0].transaction}
-			/>
+<FadeIn>
+	{#if !data || data.fetching}
+		<Loader />
+	{:else if data.error}
+		<p>Error: {data.error.message}</p>
+	{:else if data.results}
+		<div class="bg-color-selector min-h-screen w-full">
+			<div class="bg-overlay-selector min-h-screen w-full">
+				<EventForm
+					mode={EventFormType.UPDATE}
+					event={data.results[0]}
+					currUserId={$page.data?.user.id}
+					transaction={data.results[0].transaction}
+				/>
+			</div>
 		</div>
-	</div>
-{/if}
+	{/if}
+</FadeIn>
