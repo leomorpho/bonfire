@@ -80,14 +80,16 @@
 	let cancelUrl = $state(event && event.id ? `/bonfire/${event.id}` : '/');
 	let timezone = $state({});
 	let setEndTime = $state(false);
-	// Make sure event actually exists before enabling any BE processing
-	let submitDisabled = $derived(
-		!(dateValue && eventName.length > 0 && startHour.length > 0) || !event
-	);
+
 	let isEventSaving = $state(false);
 	let errorMessage = $state('');
 	let showError = $state(false);
 	let eventCreated = $state(mode == EventFormType.CREATE ? false : true);
+
+	// Make sure event actually exists before enabling any BE processing
+	let submitDisabled = $derived(
+		!(dateValue && eventName.length > 0 && startHour.length > 0) || !event || isEventSaving
+	);
 
 	const defaultBackground = randomSort(stylesGallery)[0].cssTemplate;
 	console.log('defaultBackground', defaultBackground);
@@ -104,7 +106,8 @@
 	// TODO: support events created before payments system was created. There was no concept of "published"/"draft". Remove once all events have an attached transaction.
 	const paymentsReleaseDate = new Date(publicEnv.PUBLIC_PAYMENTS_RELEASE_DATE);
 	let isEventPublished = $derived(
-		(event && event.created_at < paymentsReleaseDate && isEventCreated) || (event && event.is_published)
+		(event && event.created_at < paymentsReleaseDate && isEventCreated) ||
+			(event && event.is_published)
 	);
 	let userIsOutOfLogs = $derived(!numLogsLoading && numLogs == 0 && !event.isPublished);
 
@@ -229,7 +232,14 @@
 		};
 	}
 
+	const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 	export async function createBonfireTransaction(eventId: string) {
+		if (isEventSaving) {
+			await sleep(1000); // Sleep for 1 second (1000 ms)
+		}
+
+		isEventSaving = true;
 		if (isEventPublished) {
 			throw new Error('event is already published, cannot publish again');
 		}
@@ -250,10 +260,16 @@
 		} catch (error) {
 			console.error('Error creating transaction:', error);
 			throw error;
+		} finally {
+			isEventSaving = false;
 		}
 	}
 
 	const createEvent = async (createTransaction = false) => {
+		if (isEventSaving) {
+			return;
+		}
+		isEventSaving = true;
 		const feHttpClient = getFeHttpTriplitClient($page.data.jwt);
 		try {
 			eventCreated = true;
@@ -282,7 +298,7 @@
 			event = output;
 
 			// Create a transaction if the user has enough logs remaining
-			if (numLogs > 0 && createTransaction && !isEventPublished) {
+			if (checkCanCreateTransaction(userIsOutOfLogs, createTransaction, isEventPublished)) {
 				event = await createBonfireTransaction(eventId);
 			}
 			if (!createTransaction) {
@@ -297,31 +313,52 @@
 		} catch (error) {
 			eventCreated = false;
 			console.error('❌ Error creating event:', error);
+		} finally {
+			isEventSaving = false;
 		}
 	};
 
 	const updateEvent = async (createTransaction = false) => {
 		try {
-			await client.update('events', event.id, async (entity) => {
+			const feHttpClient = getFeHttpTriplitClient($page.data.jwt);
+			await feHttpClient.update('events', event.id, async (entity) => {
 				entity.title = eventName;
 				entity.description = details || null;
 				entity.location = location;
-				entity.geocoded_location = JSON.stringify(geocodedLocation);
-				entity.start_time = eventStartDatetime;
-				entity.end_time = eventEndDatetime;
+				entity.geocoded_location = JSON.stringify(geocodedLocation) || null;
+				entity.start_time = eventStartDatetime?.toISOString();
+				entity.end_time = eventEndDatetime?.toISOString();
 				entity.style = finalStyleCss;
 				entity.overlay_color = overlayColor;
 				entity.overlay_opacity = overlayOpacity;
 				entity.max_capacity = maxCapacity;
 			});
 
-			if (numLogs > 0 && createTransaction && !isEventPublished) {
+			if (checkCanCreateTransaction(userIsOutOfLogs, createTransaction, isEventPublished)) {
 				event = await createBonfireTransaction(eventId);
 			}
 			console.log('🔄 Event udpated successfully');
 		} catch (error) {
 			console.error('❌ Error updating event:', error);
 		}
+	};
+
+	const checkCanCreateTransaction = (
+		userIsOutOfLogs: boolean,
+		createTransaction: boolean,
+		isEventPublished: boolean
+	) => {
+		console.log(
+			'#######***************** checkCanCreateTransaction',
+			'userIsOutOfLogs',
+			userIsOutOfLogs,
+			'createTransaction',
+			createTransaction,
+			'isEventPublished',
+			isEventPublished,
+			!userIsOutOfLogs && createTransaction && !isEventPublished
+		);
+		return !userIsOutOfLogs && createTransaction && !isEventPublished;
 	};
 
 	const debouncedUpdateEvent = debounce(async () => {

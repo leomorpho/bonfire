@@ -755,7 +755,46 @@ test('Bring list items', async ({ browser }) => {
 	await expect(eventCreatorPage.getByText('.bring-list-item-btn')).toHaveCount(0);
 });
 
-test('Log tokens', async ({ browser }) => {});
+test('Log tokens', async ({ page }) => {
+	const email = faker.internet.email();
+	const username = faker.person.firstName();
+	await loginUser(page, email, username);
+
+	await page.getByRole('link', { name: 'Profile' }).click();
+	await expect(page.getByText('You have 3 logs remaining.')).toBeVisible();
+
+	// Create 1st bonfire
+	let eventName = `${faker.animal.dog()} birthday party!`;
+	await createBonfire(page, eventName);
+	await expect(page.getByRole('heading', { name: eventName })).toBeVisible();
+	await expect(page.getByText('Not Published')).toBeHidden();
+
+	await page.getByRole('link', { name: 'Dashboard' }).click();
+	await expect(page.getByText('Not Published')).toBeHidden();
+	await expect(page.locator('.event-card')).toHaveCount(1);
+
+
+	await page.getByRole('link', { name: 'Profile' }).click();
+	await expect(page.getByText('You have 2 logs remaining.')).toBeVisible();
+
+	// Create 2nd bonfire
+	eventName = `${faker.animal.dog()} birthday party!`;
+	await createBonfire(page, eventName);
+	await expect(page.getByRole('heading', { name: eventName })).toBeVisible();
+
+	await page.getByRole('link', { name: 'Profile' }).click();
+	await expect(page.getByText('You have 1 log remaining.')).toBeVisible();
+
+	// Create 3rd bonfire
+	eventName = `${faker.animal.dog()} birthday party!`;
+	await createBonfire(page, eventName);
+	await expect(page.getByRole('heading', { name: eventName })).toBeVisible();
+
+	await page.getByRole('link', { name: 'Profile' }).click();
+	await expect(page.getByText('You have 0 log remaining.')).toBeVisible();
+
+	await page.getByRole('link', { name: 'Dashboard' }).click();
+});
 
 // TODO: test unpublished vs published event
 //TODO: test usage of logs, and exhausting free ones, and fake buying more.

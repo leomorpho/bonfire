@@ -10,6 +10,7 @@
 	import { addUserRequest } from '$lib/profilestore';
 
 	let user = $state();
+	let isUserDataLoading = $state(true);
 	let client: TriplitClient;
 
 	onMount(() => {
@@ -24,12 +25,15 @@
 				.build(),
 			(results) => {
 				user = results[0];
+				console.log('user', user);
+				isUserDataLoading = false;
 
 				// if refresh occurs, it's likely due to profile image so we want to retrigger the UI refresh
 				addUserRequest($page.data.user.id, true);
 			},
 			(error) => {
 				console.error('Error fetching current temporary attendee:', error);
+				isUserDataLoading = false;
 			},
 			{
 				localOnly: false,
@@ -75,9 +79,14 @@
 			<div
 				class="mt-5 flex flex-col justify-center rounded-xl bg-gradient-to-r from-blue-100 to-blue-300 p-5 dark:bg-gradient-to-r dark:from-blue-600 dark:to-blue-800"
 			>
-				{#if user.user_log_tokens}
+				{#if isUserDataLoading}
+					<div class="flex w-full justify-center"><SvgLoader /></div>
+				{:else if user.user_log_tokens}
 					<div class="my-2 mt-5 flex w-full justify-center">
-						You have <span class="mx-1 font-bold">{user.user_log_tokens.num_logs}</span> logs remaining.
+						You have <span class="mx-1 font-bold">{user.user_log_tokens.num_logs}</span> log{user
+							.user_log_tokens.num_logs > 1
+							? 's'
+							: ''} remaining.
 					</div>
 				{:else}
 					You don't currently have any logs remaining.
