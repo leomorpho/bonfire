@@ -230,8 +230,7 @@ export const donationsSchema = {
 			admin: {
 				read: { filter: [true] },
 				insert: { filter: [true] },
-				update: { filter: [true] },
-				delete: { filter: [true] }
+				update: { filter: [true] }
 			},
 			user: {
 				read: {
@@ -431,6 +430,9 @@ export const schema = {
 			transaction: S.RelationOne('transactions', {
 				where: [['event_id', '=', '$id']]
 			}),
+			non_profit_id: S.Optional(S.String()), // Non-profit the event contributes to
+			non_profit: S.RelationById('non_profits', '$non_profit_id'),
+
 			style: S.String({ nullable: true }),
 			overlay_color: S.String({ nullable: true, optional: true }),
 			overlay_opacity: S.Number({ nullable: true, optional: true }),

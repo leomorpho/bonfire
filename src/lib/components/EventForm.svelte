@@ -110,7 +110,11 @@
 			(event && event.is_published)
 	);
 	let userIsOutOfLogs = $derived(!numLogsLoading && numLogs == 0 && !event.isPublished);
+	let userFavoriteNonProfitId = $state(null);
 
+	$effect(() => {
+		console.log('userFavoriteNonProfitId', userFavoriteNonProfitId);
+	});
 	// Build eventStartDatetime dynamically
 	$effect(() => {
 		if (dateValue && startHour) {
@@ -293,7 +297,8 @@
 				style: finalStyleCss,
 				overlay_color: overlayColor,
 				overlay_opacity: overlayOpacity,
-				max_capacity: maxCapacity
+				max_capacity: maxCapacity,
+				non_profit_id: userFavoriteNonProfitId
 			});
 			event = output;
 
@@ -348,16 +353,6 @@
 		createTransaction: boolean,
 		isEventPublished: boolean
 	) => {
-		console.log(
-			'#######***************** checkCanCreateTransaction',
-			'userIsOutOfLogs',
-			userIsOutOfLogs,
-			'createTransaction',
-			createTransaction,
-			'isEventPublished',
-			isEventPublished,
-			!userIsOutOfLogs && createTransaction && !isEventPublished
-		);
 		return !userIsOutOfLogs && createTransaction && !isEventPublished;
 	};
 
@@ -467,7 +462,6 @@
 		overlayColorStore.set(overlayColor);
 		overlayOpacityStore.set(overlayOpacity);
 
-		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 		(async () => {
 			// NOTE: for testing
 			console.log('generatePassphraseId()', await generatePassphraseId());
@@ -478,10 +472,19 @@
 		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
 		const unsubscribeFromUserLogsQuery = client.subscribe(
-			client.query('user_log_tokens').where(['user_id', '=', $page.data.user.id]).build(),
+			client
+				.query('user')
+				.where(['id', '=', $page.data.user.id])
+				.include('user_log_tokens')
+				.build(),
 			(results) => {
-				numLogs = results[0].num_logs;
-				numLogsLoading = false;
+				console.log('results', results);
+				console.log('results[0].favourite_non_profit_id', results[0].favourite_non_profit_id);
+				if (results[0].user_log_tokens) {
+					numLogs = results[0].user_log_tokens.num_logs;
+					userFavoriteNonProfitId = results[0].favourite_non_profit_id;
+					numLogsLoading = false;
+				}
 			},
 			(error) => {
 				console.error('Error fetching user log tokens:', error);

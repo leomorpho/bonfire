@@ -9,7 +9,11 @@
 	import type { TriplitClient } from '@triplit/client';
 	import { toast } from 'svelte-sonner';
 	import { Plus, Pencil, Trash } from 'lucide-svelte';
-	import { getFeWorkerTriplitClient } from '$lib/triplit';
+	import {
+		feHttpTriplitClient,
+		getFeHttpTriplitClient,
+		getFeWorkerTriplitClient
+	} from '$lib/triplit';
 	import { page } from '$app/stores';
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
 	import NonProfitCard from './NonProfitCard.svelte';
@@ -55,7 +59,9 @@
 	});
 	const createNonProfit = async () => {
 		try {
-			await client.insert('non_profits', {
+			const feHttpClient = getFeHttpTriplitClient($page.data.jwt);
+
+			await feHttpClient.insert('non_profits', {
 				name: form.name,
 				description: form.description,
 				photo_url: form.photo_url || null,
