@@ -533,7 +533,9 @@
 					</a>
 				</div>
 			{/if}
-			<section class="mt-4 flex w-full justify-center sm:w-[450px] md:w-[550px] lg:w-[650px]">
+			<section
+				class="mt-4 flex w-full justify-center sm:w-[450px] md:w-[550px] lg:w-[750px] xl:w-[950px]"
+			>
 				<Tabs.Root value={activeTab} class="w-full">
 					<div class="flex w-full justify-center">
 						<Tabs.List class="mb-1 w-full bg-transparent animate-in fade-in zoom-in">
@@ -756,43 +758,46 @@
 							>
 
 							<HorizRule />
-							<div class="my-10">
-								<div class=" rounded-xl bg-white p-5 dark:bg-slate-900">
-									<div class="font-semibold">Announcements</div>
-								</div>
-								{#if rsvpStatus}
-									<div class="my-2">
-										<Annoucements maxCount={3} {isUnverifiedUser} {isCurrenUserEventAdmin} />
+							<div class="my-10 flex flex-col md:flex-row md:space-x-2">
+								<div class="w-full rounded-xl p-0 md:w-1/2 md:p-2">
+									<div class="rounded-xl bg-white p-5 dark:bg-slate-900">
+										<div class="font-semibold">Announcements</div>
 									</div>
-									{#if isCurrenUserEventAdmin}
-										<a href="announcement/create">
-											<Button
-												class="mt-1 w-full ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
-												><Drum class="mr-1 h-4 w-4" /> Create new announcement</Button
-											>
-										</a>
+									{#if rsvpStatus}
+										<div class="my-2">
+											<Annoucements maxCount={3} {isUnverifiedUser} {isCurrenUserEventAdmin} />
+										</div>
+										{#if isCurrenUserEventAdmin}
+											<a href="announcement/create">
+												<Button
+													class="mt-1 w-full ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
+													><Drum class="mr-1 h-4 w-4" /> Create new announcement</Button
+												>
+											</a>
+										{/if}
+									{:else}
+										<div class="my-2">
+											<BonfireNoInfoCard text={$page.data.numAnnouncements + ' announcement(s)'} />
+										</div>
 									{/if}
-								{:else}
-									<div class="my-2">
-										<BonfireNoInfoCard text={$page.data.numAnnouncements + ' announcement(s)'} />
+								</div>
+								{#if currUserId || tempAttendeeId}
+									<HorizRule />
+									<div class="w-full rounded-xl p-0 md:w-1/2 md:p-2">
+										<BringList
+											eventId={event.id}
+											isAdmin={isCurrenUserEventAdmin}
+											numAttendeesGoing={allAttendeesGoing.length}
+											{currUserId}
+											{tempAttendeeId}
+											{changeToDiscussionsTab}
+										/>
 									</div>
 								{/if}
 							</div>
-							{#if currUserId || tempAttendeeId}
-								<HorizRule />
-								<div class="my-5 w-full">
-									<BringList
-										eventId={event.id}
-										isAdmin={isCurrenUserEventAdmin}
-										numAttendeesGoing={allAttendeesGoing.length}
-										{currUserId}
-										{tempAttendeeId}
-										{changeToDiscussionsTab}
-									/>
-								</div>
-							{/if}
 							<HorizRule />
-							<div class="my-5">
+
+							<div>
 								<div class="rounded-xl bg-white p-5 dark:bg-slate-900">
 									<div class="font-semibold">Gallery</div>
 								</div>

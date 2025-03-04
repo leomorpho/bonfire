@@ -2,7 +2,7 @@
 	import { TriplitClient } from '@triplit/client';
 	import { Textarea } from '$lib/components/ui/textarea/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
-	import {  getFeWorkerTriplitClient, waitForUserId } from '$lib/triplit';
+	import { getFeWorkerTriplitClient, waitForUserId } from '$lib/triplit';
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
@@ -41,14 +41,11 @@
 				event_id: eventId,
 				user_id: userId // Use the authenticated user's ID
 			});
-			console.log("output...", output)
+			console.log('output...', output);
 
-			await createNewAnnouncementNotificationQueueObject(
-				client,
-				userId as string,
-				eventId,
-				[output?.id]
-			);
+			await createNewAnnouncementNotificationQueueObject(client, userId as string, eventId, [
+				output?.id
+			]);
 
 			if (output) {
 				goto(`/bonfire/${eventId}#announcements`);
@@ -91,9 +88,6 @@
 
 <div class="mx-4 flex flex-col items-center justify-center">
 	<section class="mt-8 w-full sm:w-[450px]">
-		<h2 class="mb-4 rounded-xl bg-white dark:bg-slate-800 dark:text-white p-2 text-lg font-semibold">
-			{mode === 'create' ? 'Create' : 'Update'} an Announcement
-		</h2>
 		<form class="space-y-4" onsubmit={handleSubmit}>
 			<Textarea
 				placeholder="Type your announcement here"
