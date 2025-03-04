@@ -7,7 +7,7 @@
 		formatHumanReadableWithContext,
 		isMobile
 	} from '$lib/utils';
-	import { onDestroy, onMount } from 'svelte';
+	import { onDestroy } from 'svelte';
 	import ProfileAvatar from '../ProfileAvatar.svelte';
 	import { and } from '@triplit/client';
 	import { EMOJI_REACTION_TYPE, NotificationType } from '$lib/enums';
