@@ -10,6 +10,7 @@
 	import { assignBringItem, deleteBringAssignment, updateBringAssignment } from '$lib/bringlist';
 	import { toast } from 'svelte-sonner';
 	import ProfileAvatar from '../ProfileAvatar.svelte';
+	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
 
 	let { item, currUserId, isTempUser, isAdmin, eventId, numAttendeesGoing } = $props();
 
@@ -155,80 +156,87 @@
 		</button>
 	</Dialog.Trigger>
 	<Dialog.Content class="rounded-xl">
-		<Dialog.Header class="mt-3">
-			{#if isAdmin}
-				<div id="edit-bring-list-item" class="flex w-full justify-center">
-					<CrudItem {eventId} {numAttendeesGoing} {item}>
-						<Button
-							variant="outline"
-							class="m-2 rounded-full focus:outline-none focus-visible:ring-0"
-						>
-							<Cog class="h-5 w-5" />
-						</Button>
-					</CrudItem>
-				</div>
-			{/if}
-			<Dialog.Description>Set the amount you're bringing.</Dialog.Description>
-			<BringListItem
-				itemName={item.name}
-				itemUnit={item.unit}
-				itemQuantityNeeded={item.quantity_needed}
-				userIdToNumBrought={userIdToNumBroughtWhenDialogOpen}
-			/>
-			<div class="p-2">{item.details}</div>
-		</Dialog.Header>
-		<div>
-			{#each Object.entries(userIdToNumBroughtWhenDialogOpen).sort(([, aQuantity], [, bQuantity]) => bQuantity - aQuantity) as [userKey, quantity]}
-				{#if quantity > 0}
-					<div class="my-2 rounded-xl bg-slate-100 p-1 dark:bg-slate-900">
-						<div class="flex items-center justify-around py-1">
-							<ProfileAvatar
-								userId={isTempUserKey(userKey) ? null : extractUserId(userKey)}
-								tempUserId={isTempUserKey(userKey) ? extractUserId(userKey) : null}
-								baseHeightPx={40}
-							/><span
-								>bringing {#if item.unit == BringListCountTypes.PER_PERSON}for
-								{/if}
-								{quantity}</span
+		<ScrollArea class="w-full">
+			<Dialog.Header class="mt-3">
+				{#if isAdmin}
+					<div id="edit-bring-list-item" class="flex w-full justify-center">
+						<CrudItem {eventId} {numAttendeesGoing} {item}>
+							<Button
+								variant="outline"
+								class="m-2 rounded-full focus:outline-none focus-visible:ring-0"
 							>
-						</div>
+								<Cog class="h-5 w-5" />
+							</Button>
+						</CrudItem>
 					</div>
 				{/if}
-			{/each}
-		</div>
-		<!-- Slider to adjust the user's contribution -->
-		<div class="mt-4 flex flex-col items-center gap-2">
-			{#if userCanSetBringAmount}
-				<input
-					type="range"
-					min="0"
-					max={item.quantity_needed - numBroughtByOthers}
-					bind:value={tempUserCommitment}
-					class="w-full cursor-pointer"
-					disabled={item.quantity_needed - numBroughtByOthers == 0}
-				/>
-				<span class="flex items-center">
-					{#if item.unit == BringListCountTypes.PER_PERSON}
-						<UserRound class="mr-2 h-4 w-4 sm:h-5 sm:w-5" /> You're bringing enough for {tempUserCommitment}
-						{tempUserCommitment > 1 ? 'people' : 'person'}
-					{:else if item.unit == BringListCountTypes.COUNT}
-						<Tally5 class="mr-2 h-4 w-4 sm:h-5 sm:w-5" /> You're bringing {tempUserCommitment} of this
+				<Dialog.Description>Set the amount you're bringing.</Dialog.Description>
+				<div class="p-2">
+						<BringListItem
+						itemName={item.name}
+						itemUnit={item.unit}
+						itemQuantityNeeded={item.quantity_needed}
+						userIdToNumBrought={userIdToNumBroughtWhenDialogOpen}
+					/>
+					
+				</div>
+
+				<div class="p-2">{item.details}</div>
+			</Dialog.Header>
+
+			<!-- Slider to adjust the user's contribution -->
+			<div class="my-4 flex flex-col items-center gap-2">
+				{#if userCanSetBringAmount}
+					<input
+						type="range"
+						min="0"
+						max={item.quantity_needed - numBroughtByOthers}
+						bind:value={tempUserCommitment}
+						class="w-full cursor-pointer"
+						disabled={item.quantity_needed - numBroughtByOthers == 0}
+					/>
+					<span class="flex items-center">
+						{#if item.unit == BringListCountTypes.PER_PERSON}
+							<UserRound class="mr-2 h-4 w-4 sm:h-5 sm:w-5" /> You're bringing enough for {tempUserCommitment}
+							{tempUserCommitment > 1 ? 'people' : 'person'}
+						{:else if item.unit == BringListCountTypes.COUNT}
+							<Tally5 class="mr-2 h-4 w-4 sm:h-5 sm:w-5" /> You're bringing {tempUserCommitment} of this
+						{/if}
+					</span>
+				{:else}
+					Goal reached for this item
+				{/if}
+			</div>
+			<div class="my-8">
+				{#each Object.entries(userIdToNumBroughtWhenDialogOpen).sort(([, aQuantity], [, bQuantity]) => bQuantity - aQuantity) as [userKey, quantity]}
+					{#if quantity > 0}
+						<div class="my-2 rounded-xl bg-slate-100 p-1 dark:bg-slate-900">
+							<div class="flex items-center justify-around py-1">
+								<ProfileAvatar
+									userId={isTempUserKey(userKey) ? null : extractUserId(userKey)}
+									tempUserId={isTempUserKey(userKey) ? extractUserId(userKey) : null}
+									baseHeightPx={40}
+								/><span
+									>bringing {#if item.unit == BringListCountTypes.PER_PERSON}for
+									{/if}
+									{quantity}</span
+								>
+							</div>
+						</div>
 					{/if}
-				</span>
-			{:else}
-				Goal reached for this item
+				{/each}
+			</div>
+			{#if userCanSetBringAmount}
+				<Dialog.Footer>
+					<Button
+						type="submit"
+						class="w-full"
+						onclick={() => {
+							upsertAssignment(true, true);
+						}}>Submit</Button
+					>
+				</Dialog.Footer>
 			{/if}
-		</div>
-		{#if userCanSetBringAmount}
-			<Dialog.Footer>
-				<Button
-					type="submit"
-					class="w-full"
-					onclick={() => {
-						upsertAssignment(true, true);
-					}}>Submit</Button
-				>
-			</Dialog.Footer>
-		{/if}
+		</ScrollArea>
 	</Dialog.Content>
 </Dialog.Root>

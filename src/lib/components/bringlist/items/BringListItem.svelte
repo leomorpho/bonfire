@@ -35,18 +35,10 @@
 
 <div
 	style="background-image: {progressGradient};"
-	class="flex h-8 w-full items-center justify-between rounded-xl bg-slate-200 p-3 text-black outline-none ring-0 focus:outline-none focus-visible:ring-0 dark:bg-slate-800 dark:text-white sm:h-10"
+	class={`${progress == 0 ? 'animate-alert' : ''} flex h-8 w-full items-center justify-between rounded-xl bg-slate-200 p-3 text-black outline-none ring-0 focus:outline-none focus-visible:ring-0 dark:bg-slate-800 dark:text-white sm:h-10`}
 >
 	<div class="flex items-center">
 		{itemName}
-		{#if progress == 0}
-			<div
-				class="ml-2 flex h-4 w-4 animate-bounce items-center justify-center rounded-full bg-red-600 text-xs font-bold text-white sm:ml-5 sm:h-5 sm:w-5 sm:text-sm md:h-6 md:w-6"
-			>
-				<span class="sr-only"></span>
-			</div>
-			<span class="ml-1 text-red-600 text-sm">Help needed</span>
-		{/if}
 	</div>
 	<div class="flex items-center">
 		{#if itemUnit == BringListCountTypes.PER_PERSON}
@@ -57,3 +49,32 @@
 		<span>{itemQuantityNeeded}</span>
 	</div>
 </div>
+
+<style>
+	@keyframes alertGlow {
+	0% {
+		background-position: 0% 50%;
+		box-shadow: 0 0 10px rgba(199, 32, 32, 0.4);
+		transform: scale(1);
+	}
+	50% {
+		background-position: 100% 50%;
+		box-shadow: 0 0 20px rgba(199, 32, 32, 0.8);
+		transform: scale(1.03);
+	}
+	100% {
+		background-position: 0% 50%;
+		box-shadow: 0 0 10px rgba(199, 32, 32, 0.4);
+		transform: scale(1);
+	}
+}
+
+.animate-alert {
+	background: linear-gradient(120deg, #7a7c7f, #c72020, #7a7c7f);
+	background-size: 200% 200%;
+	animation: alertGlow 2.5s infinite ease-in-out;
+	border-radius: 12px;
+	transition: all 0.3s ease-in-out;
+}
+
+</style>
