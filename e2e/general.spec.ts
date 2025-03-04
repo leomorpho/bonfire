@@ -734,7 +734,7 @@ test('Bring list items', async ({ browser }) => {
 
 	// Have event owner delete bring list item and check it's gone
 	await eventCreatorPage.locator('#edit-bring-list-item').click();
-	await eventCreatorPage.getByText('Delete').click();
+	await eventCreatorPage.locator('#delete-bring-item').click();
 	await eventCreatorPage.getByRole('button', { name: 'Continue' }).click();
 	await expect(eventCreatorPage.getByText('.bring-list-item-btn')).toHaveCount(0);
 });
