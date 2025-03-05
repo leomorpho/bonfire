@@ -598,7 +598,7 @@
 								</div>
 							{/if}
 
-							<div class="relative space-y-3 rounded-xl bg-white p-5 dark:bg-slate-900">
+							<div class="relative space-y-3 rounded-xl bg-white p-5 dark:bg-slate-900 bg-opacity-90 dark:bg-opacity-90">
 								{#if !isEventPublished}
 									<div
 										class="absolute -right-1 -top-1 z-20 rounded bg-red-600 px-3 py-1 text-xs font-semibold text-white shadow-md dark:bg-red-500 sm:text-sm"
@@ -670,7 +670,7 @@
 									{/if}
 								</div>
 								<div
-									class="my-5 flex flex-col justify-center rounded-xl bg-slate-100 p-2 text-center dark:bg-slate-800"
+									class="my-5 flex flex-col justify-center rounded-xl bg-slate-100 shadow-lg p-2 text-center dark:bg-slate-800"
 								>
 									<div class="font-semibold">Details</div>
 									{#if event.description}
