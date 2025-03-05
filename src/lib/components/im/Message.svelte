@@ -223,6 +223,7 @@
 <div class="animate-fadeIn-slideUp relative py-1">
 	<button
 		onclick={() => {
+			if (!isMobile()) return;
 			showContextMenu = null; // NOTE: hack to make sure it works more than once
 			showContextMenu = true;
 		}}
@@ -230,7 +231,9 @@
 		bind:this={messageRef}
 		class="message {!isOwnMessage && isUnseen
 			? 'unseen'
-			: ''} flex w-full items-end p-2 {isOwnMessage ? 'justify-end' : 'justify-start'} gap-2.5"
+			: ''} flex w-full items-end p-2 {isOwnMessage
+			? 'justify-end'
+			: 'justify-start'} gap-2.5 {isMobile() ? 'cursor-pointer' : 'cursor-default'}"
 	>
 		<div class="flex gap-2.5 ${isOwnMessage ? 'items-end' : 'items-start'}">
 			{#if !isOwnMessage}
