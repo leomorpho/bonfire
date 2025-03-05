@@ -520,6 +520,21 @@
 	};
 </script>
 
+{#snippet details(event: any)}
+	<div
+		class="my-5 flex flex-col justify-center rounded-xl bg-slate-100 p-2 text-center shadow-lg dark:bg-slate-800"
+	>
+		<div class="font-semibold">Details</div>
+		{#if event.description}
+			<div class="whitespace-pre-wrap">
+				{event.description}
+			</div>
+		{:else}
+			{'No details yet...'}
+		{/if}
+	</div>
+{/snippet}
+
 {#if !isAnonymousUser && !isUnverifiedUser && eventLoading}
 	<Loader />
 {:else if eventFailedLoading}
@@ -598,7 +613,9 @@
 								</div>
 							{/if}
 
-							<div class="relative space-y-3 rounded-xl bg-white p-5 dark:bg-slate-900 bg-opacity-90 dark:bg-opacity-90">
+							<div
+								class="relative space-y-3 rounded-xl bg-white bg-opacity-90 p-5 dark:bg-slate-900 dark:bg-opacity-90"
+							>
 								{#if !isEventPublished}
 									<div
 										class="absolute -right-1 -top-1 z-20 rounded bg-red-600 px-3 py-1 text-xs font-semibold text-white shadow-md dark:bg-red-500 sm:text-sm"
@@ -622,64 +639,65 @@
 										>
 									</a>
 								{/if}
-								<h1 class="mb-4 flex justify-center text-xl sm:text-2xl">
+								<h1 class="py-3 flex justify-center text-2xl font-bold sm:text-3xl lg:text-4xl text-center">
 									{event.title}
 								</h1>
-								<div class="flex items-center justify-center font-medium">
-									<Calendar class="mr-2 !h-4 !w-4 shrink-0" />{formatHumanReadable(
-										event.start_time
-									)}
-									{#if event.end_time}to {formatHumanReadableHour(event.end_time)}{/if}
-								</div>
-								<div class="flex items-center justify-center font-light">
-									{#if event.organizer}
-										<UserRound class="mr-2 !h-4 !w-4 shrink-0" />Hosted by
-										{#if rsvpStatus}
-											<div class="ml-2">
-												<ProfileAvatar userId={event.organizer['id']} />
-											</div>
-										{:else}
-											{event.organizer['username']}
-										{/if}
-									{/if}
+								<div class="flex w-full space-x-3">
+									<div class="hidden sm:block sm:w-1/2">
+										{@render details(event)}
+									</div>
+									<div class="w-full sm:w-1/2">
+										<div class="flex items-center justify-center font-medium">
+											<Calendar class="mr-2 !h-4 !w-4 shrink-0" />{formatHumanReadable(
+												event.start_time
+											)}
+											{#if event.end_time}to {formatHumanReadableHour(event.end_time)}{/if}
+										</div>
+										<div class="flex items-center justify-center font-light">
+											{#if event.organizer}
+												<UserRound class="mr-2 !h-4 !w-4 shrink-0" />Hosted by
+												{#if rsvpStatus}
+													<div class="ml-2">
+														<ProfileAvatar userId={event.organizer['id']} />
+													</div>
+												{:else}
+													{event.organizer['username']}
+												{/if}
+											{/if}
+										</div>
+
+										<div class="flex items-center justify-center font-light">
+											<MapPin class="mr-2 !h-4 !w-4 shrink-0" />
+											{#if rsvpStatus}
+												{#if event.location}<div class="flex items-center justify-center">
+														{#if latitude && longitude}
+															<ShareLocation lat={latitude} lon={longitude}>
+																<div
+																	id="share-location"
+																	class="flex items-center justify-center rounded-xl bg-slate-100 p-2 dark:bg-slate-900"
+																>
+																	{@html event.location}
+																	<ArrowRightFromLine class="ml-2 !h-4 !w-4 shrink-0" />
+																</div>
+															</ShareLocation>
+														{:else}
+															<div class="flex items-center justify-center p-2">
+																{event.location}
+															</div>
+														{/if}
+													</div>
+												{:else}
+													<div>No location set</div>
+												{/if}
+											{:else}
+												Set RSVP status to see location
+											{/if}
+										</div>
+									</div>
 								</div>
 
-								<div class="flex items-center justify-center font-light">
-									<MapPin class="mr-2 !h-4 !w-4 shrink-0" />
-									{#if rsvpStatus}
-										{#if event.location}<div class="flex items-center justify-center">
-												{#if latitude && longitude}
-													<ShareLocation lat={latitude} lon={longitude}>
-														<div
-															id="share-location"
-															class="flex items-center justify-center rounded-xl bg-slate-100 p-2 dark:bg-slate-900"
-														>
-															{@html event.location}
-															<ArrowRightFromLine class="ml-2 !h-4 !w-4 shrink-0" />
-														</div>
-													</ShareLocation>
-												{:else}
-													<div class="flex items-center justify-center p-2">{event.location}</div>
-												{/if}
-											</div>
-										{:else}
-											<div>No location set</div>
-										{/if}
-									{:else}
-										Set RSVP status to see location
-									{/if}
-								</div>
-								<div
-									class="my-5 flex flex-col justify-center rounded-xl bg-slate-100 shadow-lg p-2 text-center dark:bg-slate-800"
-								>
-									<div class="font-semibold">Details</div>
-									{#if event.description}
-										<div class="whitespace-pre-wrap">
-											{event.description}
-										</div>
-									{:else}
-										{'No details yet...'}
-									{/if}
+								<div class="block sm:hidden">
+									{@render details(event)}
 								</div>
 							</div>
 
