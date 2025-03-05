@@ -639,7 +639,9 @@
 										>
 									</a>
 								{/if}
-								<h1 class="py-3 flex justify-center text-2xl font-bold sm:text-3xl lg:text-4xl text-center">
+								<h1
+									class="flex justify-center py-3 text-center text-2xl font-bold sm:text-3xl lg:text-4xl"
+								>
 									{event.title}
 								</h1>
 								<div class="flex w-full space-x-3">
@@ -766,22 +768,25 @@
 									rsvpEnabled={rsvpEnabledForCapacity}
 								/>
 							{/if}
-							<Rsvp
-								{rsvpStatus}
-								userId={currUserId}
-								eventId={event.id}
-								{isAnonymousUser}
-								{rsvpCanBeChanged}
-							/>
+							<div class="flex w-full justify-center">
+								<div class="w-full md:max-w-96 flex flex-col">
+									<Rsvp
+										{rsvpStatus}
+										userId={currUserId}
+										eventId={event.id}
+										{isAnonymousUser}
+										{rsvpCanBeChanged}
+									/>
 
-							<Button
-								onclick={() => handleShare(event)}
-								class="mt-4 flex w-full items-center justify-center ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
-							>
-								<Share class="h-5 w-5" />
-								Share Bonfire</Button
-							>
-
+									<Button
+										onclick={() => handleShare(event)}
+										class="mt-4 flex w-full items-center justify-center ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
+									>
+										<Share class="h-5 w-5" />
+										Share Bonfire</Button
+									>
+								</div>
+							</div>
 							<HorizRule />
 							<div class="my-10 flex flex-col md:flex-row md:space-x-2">
 								<div class="w-full rounded-xl p-0 md:w-1/2 md:p-2">
