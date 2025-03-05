@@ -9,6 +9,7 @@
 	import BringItemProgressBar from './BringItemProgressBar.svelte';
 	import { Button } from '../ui/button';
 	import BonfireNoInfoCard from '../BonfireNoInfoCard.svelte';
+	import { Plus, ShoppingBasket } from 'lucide-svelte';
 
 	let {
 		eventId,
@@ -71,8 +72,8 @@
 	});
 </script>
 
-<div class="rounded-xl bg-white p-5 dark:bg-slate-900">
-	<div class="font-semibold">Bring List</div>
+<div class="flex justify-center rounded-xl bg-white p-5 dark:bg-slate-900">
+	<div class="flex font-semibold"><ShoppingBasket class="mr-2" /> Bring List</div>
 </div>
 
 <div class="my-2">
@@ -109,7 +110,9 @@
 		<Button
 			id="add-bring-list-item-btn"
 			class="flex w-full items-center justify-center ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
-			>Add</Button
+		>
+			<Plus class="mr-1" />
+			New item</Button
 		>
 	</CrudItem>
 {/if}

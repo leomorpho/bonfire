@@ -15,7 +15,10 @@
 		UserRound,
 		Calendar,
 		KeyRound,
-		ArrowRightFromLine
+		ArrowRightFromLine,
+		Images,
+		Megaphone,
+		Plus
 	} from 'lucide-svelte';
 	import { formatHumanReadable, formatHumanReadableHour } from '$lib/utils';
 	import Rsvp from '$lib/components/Rsvp.svelte';
@@ -790,8 +793,8 @@
 							<HorizRule />
 							<div class="my-10 flex flex-col md:flex-row md:space-x-2">
 								<div class="w-full rounded-xl p-0 md:w-1/2 md:p-2">
-									<div class="rounded-xl bg-white p-5 dark:bg-slate-900">
-										<div class="font-semibold">Announcements</div>
+									<div class="flex justify-center rounded-xl bg-white p-5 dark:bg-slate-900">
+										<div class="flex font-semibold"><Megaphone class="mr-2" /> Announcements</div>
 									</div>
 									{#if rsvpStatus}
 										<div class="my-2">
@@ -801,7 +804,7 @@
 											<a href="announcement/create">
 												<Button
 													class="mt-1 w-full ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
-													><Drum class="mr-1 h-4 w-4" /> Create new announcement</Button
+													><Plus class="mr-1" /> New announcement</Button
 												>
 											</a>
 										{/if}
@@ -828,8 +831,8 @@
 							<HorizRule />
 
 							<div>
-								<div class="rounded-xl bg-white p-5 dark:bg-slate-900">
-									<div class="font-semibold">Gallery</div>
+								<div class="flex justify-center rounded-xl bg-white p-5 dark:bg-slate-900">
+									<div class="flex font-semibold"><Images class="mr-2" /> Gallery</div>
 								</div>
 								{#if rsvpStatus}
 									<div class="mb-10">

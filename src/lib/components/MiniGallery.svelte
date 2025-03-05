@@ -2,11 +2,10 @@
 	import PhotoSwipeLightbox from 'photoswipe/lightbox';
 	import 'photoswipe/style.css';
 	import { onMount } from 'svelte';
-	import { Image } from '@unpic/svelte';
-	import { ImagePlus } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import BonfireNoInfoCard from './BonfireNoInfoCard.svelte';
 	import GalleryItem from './GalleryItem.svelte';
+	import { Plus } from 'lucide-svelte';
 
 	let { fileCount, eventFiles } = $props();
 	let lightbox: PhotoSwipeLightbox | null = $state(null);
@@ -142,7 +141,7 @@
 	<Button
 		class="flex w-full items-center justify-center ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
 	>
-		<ImagePlus />Add to gallery
+		<Plus class="mr-1" />Upload
 	</Button>
 </a>
 
