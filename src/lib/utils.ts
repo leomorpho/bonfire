@@ -4,7 +4,6 @@ import { format, isToday, isYesterday } from 'date-fns';
 import { generateId } from 'lucia';
 import { tempAttendeeSecretStore, tempAttendeeSecretParam } from './enums';
 import { get } from 'svelte/store';
-import { browser } from '$app/environment';
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
@@ -237,10 +236,13 @@ export const createAttendeeId = (eventId: string, userId: string) => {
 };
 
 export const isMobile = () => {
-	if (!browser) {
+	// Ensure we are in the browser to avoid SSR issues
+	if (typeof window === 'undefined' || typeof navigator === 'undefined') {
 		return false;
 	}
-	return navigator.maxTouchPoints > 0;
+
+	// Check for touch device
+	return window.matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 1;
 };
 
 export const setTempAttendeeInfoInLocalstorage = async (

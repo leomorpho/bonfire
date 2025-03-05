@@ -14,6 +14,8 @@
 	import MessageContextMenu from './MessageContextMenu.svelte';
 	import { toggleEmojiReaction } from '$lib/emoji';
 	import EmojiContextMenu from './EmojiContextMenu.svelte';
+	import { flip } from 'svelte/animate';
+	import { fade } from 'svelte/transition';
 
 	let {
 		currUserId,
@@ -285,21 +287,23 @@
 	<div class="z-5 absolute -bottom-3 {isOwnMessage ? 'right-8' : 'left-8'}">
 		{#if message.emoji_reactions}
 			<span class="mx-1 flex w-fit flex-wrap items-center px-1 text-xl">
-				{#each Array.from(emojiCountMap.entries()) as [emoji, count]}
-					<EmojiContextMenu
-						toggleEmoji={() => toggleEmoji(emoji)}
-						reactions={emojiReactionsMap.get(emoji)}
-						{currUserId}
-					>
-						<button
-							class="flex flex-row items-center rounded-full bg-slate-700 bg-opacity-50 p-1 hover:cursor-pointer hover:bg-slate-600 hover:bg-opacity-50"
+				{#each Array.from(emojiCountMap.entries()) as [emoji, count] (emoji)}
+					<div animate:flip out:fade={{ duration: 300 }}>
+						<EmojiContextMenu
+							toggleEmoji={() => toggleEmoji(emoji)}
+							reactions={emojiReactionsMap.get(emoji)}
+							{currUserId}
 						>
-							{emoji}
-							{#if count > 1}
-								<span class="mx-1 text-sm text-gray-300">{count}</span>
-							{/if}
-						</button>
-					</EmojiContextMenu>
+							<button
+								class="animate-fadeIn flex flex-row items-center rounded-full bg-slate-700 bg-opacity-50 p-1 hover:cursor-pointer hover:bg-slate-600 hover:bg-opacity-50"
+							>
+								{emoji}
+								{#if count > 1}
+									<span class="mx-1 text-sm text-gray-300">{count}</span>
+								{/if}
+							</button>
+						</EmojiContextMenu>
+					</div>
 				{/each}
 			</span>
 		{/if}
@@ -320,5 +324,17 @@
 
 	.animate-fadeIn-slideUp {
 		animation: slideUp 0.5s ease-out;
+	}
+
+	@keyframes fadeIn {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
+	}
+	.animate-fadeIn {
+		animation: fadeIn 0.3s ease-out;
 	}
 </style>
