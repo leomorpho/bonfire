@@ -23,11 +23,14 @@
 			// Compute progress percentage (0 - 100)
 			progress = Math.min(100, Math.round((totalBrought / itemQuantityNeeded) * 100));
 
+			// Dynamically adjust the lightness (higher progress → darker color)
+			const lightness = 55 - (progress / 100) * 30; // Maps 0% → 50%, 100% → 30%
+
 			// 🎨 Regular HSL transition (Red → Yellow → Green)
-			progressColor = `hsl(${120 * (progress / 100)}, 100%, 35%)`;
+			progressColor = `hsl(${120 * (progress / 100)}, 100%, ${lightness}%)`;
 
 			if (progress === 0) {
-				progressColor = `hsl(0, 100%, 30%)`; // Pure red
+				progressColor = `hsl(0, 100%, 50%)`; // Pure red with 50% lightness at 0%
 			}
 
 			// Gradient fill for progress
