@@ -645,10 +645,10 @@
 									{event.title}
 								</h1>
 								<div class="flex w-full space-x-3">
-									<div class="hidden sm:block sm:w-1/2">
+									<div class="hidden md:block md:w-1/2">
 										{@render details(event)}
 									</div>
-									<div class="w-full sm:w-1/2">
+									<div class="w-full md:w-1/2">
 										<div class="flex items-center justify-center font-medium">
 											<Calendar class="mr-2 !h-4 !w-4 shrink-0" />{formatHumanReadable(
 												event.start_time
@@ -698,7 +698,7 @@
 									</div>
 								</div>
 
-								<div class="block sm:hidden">
+								<div class="block md:hidden">
 									{@render details(event)}
 								</div>
 							</div>
