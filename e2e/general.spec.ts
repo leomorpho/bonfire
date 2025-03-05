@@ -137,7 +137,7 @@ test('Create bonfire', async ({ page }) => {
 	await expect(page.getByText('Hosted by')).toBeVisible();
 
 	// Check event details
-	await expect(page.getByText(details)).toBeVisible();
+	await expect(page.getByText(details).first()).toBeVisible();
 
 	await expect(page.locator('#going-attendees').locator('.profile-avatar')).toHaveCount(1);
 
@@ -174,10 +174,10 @@ test('Create bonfire', async ({ page }) => {
 	// Check general stuff
 	await expect(page.getByText('Announcements', { exact: true })).toBeVisible();
 	await expect(page.getByText('No announcements yet')).toBeVisible();
-	await expect(page.getByRole('button', { name: 'Create new announcement' })).toBeVisible();
+	await expect(page.getByRole('button', { name: 'New announcement' })).toBeVisible();
 	await expect(page.getByText('Gallery', { exact: true })).toBeVisible();
 	await expect(page.getByText('No photos/videos yet')).toBeVisible();
-	await expect(page.getByRole('button', { name: 'Add to gallery' })).toBeVisible();
+	await expect(page.getByRole('button', { name: 'Upload' })).toBeVisible();
 
 	// Upload a banner image
 	const imagePath = path.resolve(process.cwd(), 'e2e/test-images', 'banner.jpeg');
@@ -239,11 +239,11 @@ test('CRUD announcements', async ({ page }) => {
 
 	// Create
 	await expect(page.getByText('No announcements yet')).toBeVisible();
-	await page.getByRole('button', { name: 'Create new announcement' }).click();
-	await expect(page.getByRole('heading', { name: 'Create Announcement' })).toBeVisible();
+	await page.getByRole('button', { name: 'New announcement' }).click();
+	await expect(page.getByRole('heading', { name: 'Create announcement' })).toBeVisible();
 	await page.getByPlaceholder('Type your announcement here').click();
 	await page.getByPlaceholder('Type your announcement here').fill('An announcement!');
-	await page.getByRole('button', { name: 'Create Announcement' }).click();
+	await page.getByRole('button', { name: 'Create' }).click();
 	// Check we are back on bonfire view
 	await expect(page.getByRole('heading', { name: eventName })).toBeVisible();
 	await expect(page.getByRole('heading', { name: 'An announcement!' })).toBeVisible();
@@ -255,8 +255,8 @@ test('CRUD announcements', async ({ page }) => {
 	await page.getByPlaceholder('Type your announcement here').click();
 	await page.getByPlaceholder('Type your announcement here').press('ControlOrMeta+a');
 	await page.getByPlaceholder('Type your announcement here').fill('Updated announcement');
-	await expect(page.getByRole('button', { name: 'Update Announcement' })).toBeVisible();
-	await page.getByRole('button', { name: 'Update Announcement' }).click();
+	await expect(page.getByRole('button', { name: 'Update' })).toBeVisible();
+	await page.getByRole('button', { name: 'Update' }).click();
 	// Check we are back on bonfire view
 	await expect(page.getByRole('heading', { name: eventName })).toBeVisible();
 	await expect(page.getByRole('heading', { name: 'Updated announcement' })).toBeVisible();
@@ -285,7 +285,7 @@ test('CRUD gallery', async ({ page }) => {
 	await createBonfire(page, eventName);
 	await expect(page.getByRole('heading', { name: eventName })).toBeVisible();
 
-	await page.getByRole('button', { name: 'Add to gallery' }).click();
+	await page.getByRole('button', { name: 'Upload' }).click();
 
 	const fileInput = await page.locator('input[type="file"]').first();
 	const imagePath = path.resolve(process.cwd(), 'e2e/test-images', 'gallery-image.jpg');
@@ -378,10 +378,10 @@ test('User attendee view', async ({ browser }) => {
 	await expect(userAttendeePage.getByRole('heading', { name: 'Set Banner' })).toHaveCount(0);
 	await expect(userAttendeePage.getByRole('heading', { name: eventName })).toBeVisible();
 	await expect(userAttendeePage.getByText(`Hosted by ${username}`)).toBeVisible();
-	await expect(userAttendeePage.getByText(eventDetails)).toBeVisible();
+	await expect(userAttendeePage.getByText(eventDetails).first()).toBeVisible();
 	await expect(userAttendeePage.getByText('Set RSVP status to see location')).toBeVisible();
 
-	await expect(userAttendeePage.getByText(eventDetails)).toBeVisible();
+	await expect(userAttendeePage.getByText(eventDetails).first()).toBeVisible();
 	await expect(userAttendeePage.getByText('1 going')).toBeVisible();
 	await expect(userAttendeePage.getByText('1 announcement(s)')).toBeVisible();
 	await expect(userAttendeePage.getByText('1 file(s)')).toBeVisible();
@@ -432,7 +432,7 @@ test('Temp attendee view', async ({ browser }) => {
 	await expect(tempAttendeePage.getByRole('heading', { name: eventName })).toBeVisible();
 	await expect(tempAttendeePage.getByText(`Hosted by ${username}`)).toBeVisible();
 	await expect(tempAttendeePage.getByText('Set RSVP status to see location')).toBeVisible();
-	await expect(tempAttendeePage.getByText(eventDetails)).toBeVisible();
+	await expect(tempAttendeePage.getByText(eventDetails).first()).toBeVisible();
 	await expect(tempAttendeePage.getByText('1 going')).toBeVisible();
 	await expect(tempAttendeePage.getByText('1 announcement(s)')).toBeVisible();
 	await expect(tempAttendeePage.getByText('1 file(s)')).toBeVisible();
@@ -618,16 +618,18 @@ test('Event admins', async ({ browser }) => {
 	const newEventName = eventName + ' new!';
 	await adminPage.getByPlaceholder('Event Name').click();
 	await adminPage.getByPlaceholder('Event Name').fill(newEventName);
+
 	const newDetails = eventDetails + ' new!';
 	await adminPage.getByPlaceholder('Details').click();
 	await adminPage.getByPlaceholder('Details').fill(newDetails);
 	// Hit update
 	await expect(adminPage.getByRole('button', { name: 'Publish' })).toBeEnabled();
 	await adminPage.waitForTimeout(100);
-	await adminPage.getByRole('button', { name: 'Publish' }).click();
+	await adminPage.getByRole('button', { name: 'Publish' }).click({ timeout: 5000 });
+
 	// Check data
-	await expect(adminPage.getByRole('heading', { name: eventName })).toBeVisible();
-	await expect(adminPage.getByText(newDetails)).toBeVisible();
+	await expect(adminPage.getByRole('heading', { name: newEventName })).toBeVisible();
+	await expect(adminPage.getByText(newDetails).first()).toBeVisible();
 
 	// See if we can see the remove user screen
 	await adminPage.locator('#going-attendees').locator('.profile-avatar').first().click();
@@ -637,10 +639,10 @@ test('Event admins', async ({ browser }) => {
 
 	// Add an announcement
 	const announcementText = faker.lorem.paragraph();
-	await adminPage.getByRole('button', { name: 'Create new announcement' }).click();
+	await adminPage.getByRole('button', { name: 'New announcement' }).click();
 	await adminPage.getByPlaceholder('Type your announcement here').click();
 	await adminPage.getByPlaceholder('Type your announcement here').fill(announcementText);
-	await adminPage.getByRole('button', { name: 'Create Announcement' }).click();
+	await adminPage.getByRole('button', { name: 'Create' }).click();
 	await expect(adminPage.getByText(announcementText)).toBeVisible();
 
 	// Upload a new banner image

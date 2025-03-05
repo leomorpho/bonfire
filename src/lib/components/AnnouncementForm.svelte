@@ -96,7 +96,7 @@
 			/>
 
 			<Button disabled={submitDisabled} type="submit" class="w-full ring-glow">
-				{mode === 'create' ? 'Create Announcement' : 'Update Announcement'}
+				{mode === 'create' ? 'Create' : 'Update'}
 			</Button>
 		</form>
 

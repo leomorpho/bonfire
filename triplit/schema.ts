@@ -463,7 +463,14 @@ export const schema = {
 					]
 				},
 				insert: { filter: [true] }, // Anyone can create an event
-				update: { filter: [['user_id', '=', '$role.userId']] },
+				update: {
+					filter: [
+						or([
+							['user_id', '=', '$role.userId'],
+							['event_admins.user_id', '=', '$role.userId']
+						])
+					]
+				},
 				delete: { filter: [['user_id', '=', '$role.userId']] }
 			},
 			temp: {
