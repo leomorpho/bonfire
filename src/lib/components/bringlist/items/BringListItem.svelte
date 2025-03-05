@@ -12,19 +12,19 @@
 	let totalBrought: number = $derived(
 		Object.values(userIdToNumBrought).reduce((sum, num) => sum + num, 0) as number
 	);
-	
+
 	// TODO: this is awkward. There are a lot of render calls triggered from BringItemProgressBar.
 	// $effect(() => {
 	// 	console.log('totalBrought', totalBrought);
 	// });
 
 	$effect(() => {
-		if (totalBrought>0.5) {
+		if (totalBrought > 0.5) {
 			// Compute progress percentage (0 - 100)
 			progress = Math.min(100, Math.round((totalBrought / itemQuantityNeeded) * 100));
 
 			// 🎨 Regular HSL transition (Red → Yellow → Green)
-			progressColor = `hsl(${120 * (progress / 100)}, 100%, 40%)`;
+			progressColor = `hsl(${120 * (progress / 100)}, 100%, 35%)`;
 
 			if (progress === 0) {
 				progressColor = `hsl(0, 100%, 30%)`; // Pure red

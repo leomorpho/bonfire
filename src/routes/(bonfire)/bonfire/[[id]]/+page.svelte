@@ -88,7 +88,7 @@
 
 	// TODO: support events created before payments system was created. There was no concept of "published"/"draft". Remove once all events have an attached transaction.
 	const paymentsReleaseDate = new Date(publicEnv.PUBLIC_PAYMENTS_RELEASE_DATE);
-	let isEventPublished = $derived(event?.is_published || event?.created_at < paymentsReleaseDate);
+	let isEventPublished = $derived(event?.created_at < paymentsReleaseDate || event?.is_published);
 
 	$effect(() => {
 		if ($page.data.user) {
@@ -769,7 +769,7 @@
 								/>
 							{/if}
 							<div class="flex w-full justify-center">
-								<div class="w-full md:max-w-96 flex flex-col">
+								<div class="flex w-full flex-col md:max-w-96">
 									<Rsvp
 										{rsvpStatus}
 										userId={currUserId}
