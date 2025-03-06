@@ -104,11 +104,7 @@
 	let numLogsLoading = $state(true);
 	let isEventCreated = $state(mode == EventFormType.UPDATE || false);
 	// TODO: support events created before payments system was created. There was no concept of "published"/"draft". Remove once all events have an attached transaction.
-	const paymentsReleaseDate = new Date(publicEnv.PUBLIC_PAYMENTS_RELEASE_DATE);
-	let isEventPublished = $derived(
-		(event && event.created_at < paymentsReleaseDate && isEventCreated) ||
-			(event && event.is_published)
-	);
+	let isEventPublished = $derived(event && event.is_published);
 	let userIsOutOfLogs = $derived(!numLogsLoading && numLogs == 0 && !event.isPublished);
 	let userFavoriteNonProfitId = $state(null);
 

@@ -89,17 +89,8 @@
 
 	let bannerInfo: BannerInfo = $state($page.data.bannerInfo);
 
-	// TODO: support events created before payments system was created. There was no concept of "published"/"draft". Remove once all events have an attached transaction.
-	const paymentsReleaseDate = new Date(publicEnv.PUBLIC_PAYMENTS_RELEASE_DATE);
-	let isEventPublished = $state(true); // Assume it's published by default
 
-	$effect(() => {
-		if (event?.created_at < paymentsReleaseDate || event?.is_published) {
-			isEventPublished = true;
-		} else {
-			false;
-		}
-	});
+	
 
 	$effect(() => {
 		if ($page.data.user) {
@@ -627,7 +618,7 @@
 							<div
 								class="relative space-y-3 rounded-xl bg-white bg-opacity-80 p-5 dark:bg-slate-900 dark:bg-opacity-80"
 							>
-								{#if !isEventPublished}
+								{#if !event?.is_published}
 									<div
 										class="absolute -right-1 -top-1 z-20 rounded bg-red-600 px-3 py-1 text-xs font-semibold text-white shadow-md dark:bg-red-500 sm:text-sm"
 									>

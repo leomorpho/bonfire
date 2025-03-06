@@ -125,9 +125,6 @@
 			unsubscribeFromPastEvents();
 		};
 	});
-
-	// TODO: support events created before payments system was created. There was no concept of "published"/"draft". Remove once all events have an attached transaction.
-	const paymentsReleaseDate = new Date(publicEnv.PUBLIC_PAYMENTS_RELEASE_DATE);
 </script>
 
 <PullToRefresh />
@@ -167,7 +164,7 @@
 							{userId}
 							eventCreatorName={attendance.organizer_name['username']}
 							rsvpStatus={attendance.status}
-							isPublished={attendance.event.created_at < paymentsReleaseDate || attendance.event.is_published}
+							isPublished={attendance.event.is_published}
 						/>
 					</div>
 				{/each}
@@ -197,8 +194,7 @@
 						{userId}
 						eventCreatorName={attendance.organizer_name['username']}
 						rsvpStatus={attendance.status}
-						isPublished={(attendance.event && attendance.event.created_at < paymentsReleaseDate) ||
-							attendance.event.is_published}
+						isPublished={attendance.event.is_published}
 					/>
 				{/each}
 			</Collapsible.Content>
