@@ -21,7 +21,7 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import ToggleTheme from './ToggleTheme.svelte';
 	import { onDestroy, onMount } from 'svelte';
-	import { clearCache } from '$lib/triplit';
+	import LogoutButton from './buttons/LogoutButton.svelte';
 
 	let isAdmin = false;
 
@@ -80,7 +80,7 @@
 
 {#snippet loginButton()}
 	<Button
-		class="m-1 bg-orange-500 p-5 text-lg text-white hover:bg-orange-400 dark:bg-orange-700 dark:text-slate-100 dark:hover:bg-orange-600 font-bold"
+		class="m-1 bg-orange-500 p-5 text-lg font-bold text-white hover:bg-orange-400 dark:bg-orange-700 dark:text-slate-100 dark:hover:bg-orange-600"
 	>
 		<FlameKindling class="!h-6 !w-6" />login
 	</Button>
@@ -113,21 +113,7 @@
 				<div class="my-5 flex w-full justify-center"><ToggleTheme /></div>
 
 				{#if $page.data.user}
-					<form
-						method="post"
-						class="mb-3 flex w-full justify-center"
-						action="/login?/signout"
-						use:enhance
-					>
-						<Button
-							type="submit"
-							onclick={clearCache}
-							class="mx-2 flex w-full items-center bg-slate-100 text-xl text-red-500 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700"
-						>
-							<LogOut class="mr-2 h-9 w-9" />
-							<span>Log out</span>
-						</Button>
-					</form>
+					<LogoutButton cls={"mb-3"} />
 				{:else}
 					<a href="/login" class="flex w-full justify-center">
 						{@render loginButton()}
@@ -161,20 +147,7 @@
 
 			<div class="navbar-end">
 				{#if $page.data.user}
-					<form
-						method="post"
-						class="mx-2 ml-auto hidden lg:flex"
-						action="/login?/signout"
-						use:enhance
-					>
-						<Button
-							type="submit"
-							class="mx-1 flex w-full items-center bg-slate-100 text-red-500 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700"
-						>
-							<LogOut class="mr-2 h-6 w-6" />
-							<span>Log out</span>
-						</Button>
-					</form>
+					<LogoutButton cls={"hidden lg:block w-min mr-3"}/>
 				{:else}
 					<a href="/login" class="hidden sm:flex"> {@render loginButton()}</a>
 				{/if}

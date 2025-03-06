@@ -2,6 +2,7 @@ import { Status, tempAttendeeSecretParam } from '$lib/enums';
 import { generateSignedUrl } from '$lib/filestorage.js';
 import { triplitHttpClient } from '$lib/server/triplit';
 import { redirect } from '@sveltejs/kit';
+import { and } from '@triplit/client';
 
 export const trailingSlash = 'always';
 
@@ -65,13 +66,12 @@ export const load = async ({ params, locals, url }) => {
 		event = await triplitHttpClient.fetchOne(
 			triplitHttpClient
 				.query('events')
-				.where(['id', '=', eventId as string])
+				.where(and([['id', '=', eventId as string], ['is_published', '=', true]]))
 				.include('announcements')
 				.include('attendees')
 				.include('temporary_attendees')
 				.include('files')
 				.include('banner_media')
-				.include('transaction')
 				.subquery(
 					'organizer',
 					triplitHttpClient

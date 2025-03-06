@@ -67,29 +67,34 @@
 </script>
 
 <Card.Root
-	class="announcement border-0 bg-opacity-90 dark:bg-opacity-90 {announcement.seen_by.length == 0 &&
+	class="pb-2 relative announcement border-0 bg-opacity-90 dark:bg-opacity-90 {announcement.seen_by.length == 0 &&
 	!isUnverifiedUser
 		? 'bg-yellow-200 dark:bg-yellow-700'
-		: 'bg-slate-200 dark:bg-slate-800'} dark:text-white "
+		: 'bg-slate-200 dark:bg-slate-800'} dark:text-white"
 >
-	<Card.Header>
+	<!-- Edit Button Positioned Absolutely -->
+	{#if currUserId == announcement.user_id || isCurrenUserEventAdmin}
+		<a
+			href={`/bonfire/${eventId}/announcement/${announcement.id}/update`}
+			class="update-announcement absolute top-2 right-2"
+		>
+			<Button class="rounded-xl p-2" variant="outline">
+				<Pencil class="!h-4 !w-4" />
+			</Button>
+		</a>
+	{/if}
+
+	<Card.Header >
 		<Card.Title class="flex font-normal">
 			<div class="mr-2">
 				<ProfileAvatar userId={announcement.user_id} baseHeightPx={30} />
 			</div>
 			{announcement.content}
 		</Card.Title>
-		<Card.Description
-			><div bind:this={cardRef}>
+		<Card.Description >
+			<div bind:this={cardRef}>
 				{formatHumanReadable(announcement.created_at)}
-			</div></Card.Description
-		>
+			</div>
+		</Card.Description>
 	</Card.Header>
-	<Card.Footer>
-		{#if currUserId == announcement.user_id || isCurrenUserEventAdmin}
-			<a href={`/bonfire/${eventId}/announcement/${announcement.id}/update`} class="update-announcement"
-				><Button class="mt-2 rounded-xl" variant="outline"><Pencil class="h-4 w-4" /></Button></a
-			>
-		{/if}
-	</Card.Footer>
 </Card.Root>

@@ -10,6 +10,10 @@
 	import { assignBringItem, deleteBringAssignment, updateBringAssignment } from '$lib/bringlist';
 	import { toast } from 'svelte-sonner';
 	import ProfileAvatar from '../ProfileAvatar.svelte';
+	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
+	import { fade, slide } from 'svelte/transition';
+	import { Tween } from 'svelte/motion';
+	import { cubicOut } from 'svelte/easing';
 
 	let { item, currUserId, isTempUser, isAdmin, eventId, numAttendeesGoing } = $props();
 
@@ -30,11 +34,17 @@
 	let userAssignment = $state();
 	let numBroughtByOthers = $state(0);
 	let numCommittedByuser = $state(0);
-	let tempUserCommitment = $state(0); // Temp state for the slider in the dialog
+	let progress = new Tween(0, {
+		duration: 200,
+		easing: cubicOut
+	});
+
+
+
 	let isOpen = $state(false);
 	let userIdToNumBroughtWhenDialogOpen: any = $state({});
 	let userCanSetBringAmount = $derived(
-		item.quantity_needed - numBroughtByOthers > 0 || tempUserCommitment != 0
+		item.quantity_needed - numBroughtByOthers > 0 || progress.current != 0
 	);
 
 	// Create userIdToNumBrought to support both user types
@@ -78,12 +88,12 @@
 
 			// If the user has an assignment, use that quantity, otherwise default to max needed
 			numCommittedByuser = userAssignment ? userAssignment.quantity : 0;
-			tempUserCommitment = numCommittedByuser; // Temp state for the slider in the dialog
+			progress.target = numCommittedByuser; // Temp state for the slider in the dialog
 		}
 	});
 
 	$effect(() => {
-		userIdToNumBroughtWhenDialogOpen[getUserKey(currUserId, isTempUser)] = tempUserCommitment;
+		userIdToNumBroughtWhenDialogOpen[getUserKey(currUserId, isTempUser)] = progress.current;
 	});
 
 	const upsertAssignment = async (closeAfterSave = false, showToasts = false) => {
@@ -94,6 +104,8 @@
 		// Determine correct assignment fields
 		const assignedToUserId = isTempUser ? null : extractedUserId;
 		const assignedToTempUserId = isTempUser ? extractedUserId : null;
+
+		const tempUserCommitment = Math.round(progress.current);
 
 		console.log('assignedToUserId', assignedToUserId, 'assignedToTempUserId', assignedToTempUserId);
 		if (userAssignment) {
@@ -155,80 +167,184 @@
 		</button>
 	</Dialog.Trigger>
 	<Dialog.Content class="rounded-xl">
-		<Dialog.Header class="mt-3">
-			{#if isAdmin}
-				<div id="edit-bring-list-item" class="flex w-full justify-center">
-					<CrudItem {eventId} {numAttendeesGoing} {item}>
-						<Button
-							variant="outline"
-							class="m-2 rounded-full focus:outline-none focus-visible:ring-0"
-						>
-							<Cog class="h-5 w-5" />
-						</Button>
-					</CrudItem>
-				</div>
-			{/if}
-			<Dialog.Description>Set the amount you're bringing.</Dialog.Description>
-			<BringListItem
-				itemName={item.name}
-				itemUnit={item.unit}
-				itemQuantityNeeded={item.quantity_needed}
-				userIdToNumBrought={userIdToNumBroughtWhenDialogOpen}
-			/>
-			<div class="p-2">{item.details}</div>
-		</Dialog.Header>
-		<div>
-			{#each Object.entries(userIdToNumBroughtWhenDialogOpen).sort(([, aQuantity], [, bQuantity]) => bQuantity - aQuantity) as [userKey, quantity]}
-				{#if quantity > 0}
-					<div class="my-2 rounded-xl bg-slate-100 p-1 dark:bg-slate-900">
-						<div class="flex items-center justify-around py-1">
-							<ProfileAvatar
-								userId={isTempUserKey(userKey) ? null : extractUserId(userKey)}
-								tempUserId={isTempUserKey(userKey) ? extractUserId(userKey) : null}
-								baseHeightPx={40}
-							/><span
-								>bringing {#if item.unit == BringListCountTypes.PER_PERSON}for
-								{/if}
-								{quantity}</span
+		<ScrollArea class="w-full">
+			<Dialog.Header class="mt-3">
+				{#if isAdmin}
+					<div id="edit-bring-list-item" class="flex w-full justify-center">
+						<CrudItem {eventId} {numAttendeesGoing} {item}>
+							<Button
+								variant="outline"
+								class="m-2 rounded-full focus:outline-none focus-visible:ring-0"
 							>
-						</div>
+								<Cog class="h-5 w-5" />
+							</Button>
+						</CrudItem>
 					</div>
 				{/if}
-			{/each}
-		</div>
-		<!-- Slider to adjust the user's contribution -->
-		<div class="mt-4 flex flex-col items-center gap-2">
-			{#if userCanSetBringAmount}
-				<input
-					type="range"
-					min="0"
-					max={item.quantity_needed - numBroughtByOthers}
-					bind:value={tempUserCommitment}
-					class="w-full cursor-pointer"
-					disabled={item.quantity_needed - numBroughtByOthers == 0}
-				/>
-				<span class="flex items-center">
-					{#if item.unit == BringListCountTypes.PER_PERSON}
-						<UserRound class="mr-2 h-4 w-4 sm:h-5 sm:w-5" /> You're bringing enough for {tempUserCommitment}
-						{tempUserCommitment > 1 ? 'people' : 'person'}
-					{:else if item.unit == BringListCountTypes.COUNT}
-						<Tally5 class="mr-2 h-4 w-4 sm:h-5 sm:w-5" /> You're bringing {tempUserCommitment} of this
-					{/if}
-				</span>
-			{:else}
-				Goal reached for this item
-			{/if}
-		</div>
-		{#if userCanSetBringAmount}
-			<Dialog.Footer>
-				<Button
-					type="submit"
-					class="w-full"
-					onclick={() => {
-						upsertAssignment(true, true);
-					}}>Submit</Button
+				<Dialog.Description class="flex w-full justify-center"
+					>Set the amount you're bringing.</Dialog.Description
 				>
-			</Dialog.Footer>
-		{/if}
+				<div class="p-2">
+					<BringListItem
+						itemName={item.name}
+						itemUnit={item.unit}
+						itemQuantityNeeded={item.quantity_needed}
+						userIdToNumBrought={userIdToNumBroughtWhenDialogOpen}
+					/>
+				</div>
+
+				<div class="p-2">{item.details}</div>
+			</Dialog.Header>
+
+			<!-- Slider to adjust the user's contribution -->
+			<div class="my-4 flex flex-col items-center gap-2 px-1">
+				{#if userCanSetBringAmount}
+					<input
+						type="range"
+						min="0"
+						max={item.quantity_needed - numBroughtByOthers}
+						bind:value={progress.target}
+						class="w-full cursor-pointer"
+						disabled={item.quantity_needed - numBroughtByOthers == 0}
+					/>
+					<span class="flex items-center">
+						{#if item.unit == BringListCountTypes.PER_PERSON}
+							<UserRound class="mr-2 h-4 w-4 sm:h-5 sm:w-5" /> You're bringing enough for {Math.round(
+								progress.current
+							)}
+							{progress.current > 1 ? 'people' : 'person'}
+						{:else if item.unit == BringListCountTypes.COUNT}
+							<Tally5 class="mr-2 h-4 w-4 sm:h-5 sm:w-5" /> You're bringing {Math.round(
+								progress.current
+							)} of this
+						{/if}
+					</span>
+				{:else}
+					Goal reached for this item
+				{/if}
+			</div>
+			<div class="my-8">
+				{#each Object.entries(userIdToNumBroughtWhenDialogOpen).sort(([, aQuantity], [, bQuantity]) => bQuantity - aQuantity) as [userKey, quantity]}
+					{#if quantity > 0}
+						<div
+							class="my-2 rounded-xl bg-slate-100 p-1 dark:bg-slate-900"
+							in:fade={{ duration: 300 }}
+							out:fade={{ duration: 100 }}
+						>
+							<div
+								class="flex items-center justify-around py-1"
+								in:slide={{ duration: 300 }}
+								out:slide={{ duration: 100 }}
+							>
+								<ProfileAvatar
+									userId={isTempUserKey(userKey) ? null : extractUserId(userKey)}
+									tempUserId={isTempUserKey(userKey) ? extractUserId(userKey) : null}
+									baseHeightPx={40}
+								/><span
+									>bringing {#if item.unit == BringListCountTypes.PER_PERSON}for
+									{/if}
+									{Math.round(quantity)}</span
+								>
+							</div>
+						</div>
+					{/if}
+				{/each}
+			</div>
+			{#if userCanSetBringAmount}
+				<Dialog.Footer>
+					<Button
+						type="submit"
+						class="w-full"
+						onclick={() => {
+							upsertAssignment(true, true);
+						}}>Submit</Button
+					>
+				</Dialog.Footer>
+			{/if}
+		</ScrollArea>
 	</Dialog.Content>
 </Dialog.Root>
+
+<style>
+	/* Custom slider track */
+	input[type='range'] {
+		-webkit-appearance: none; /* Removes default styles on WebKit browsers */
+		width: 100%;
+		height: 14px; /* Increased thickness */
+		background: linear-gradient(to right, #3b82f6 0%, #1e3a8a 100%);
+		border-radius: 999px; /* Rounded track */
+		outline: none;
+		transition: all 0.3s ease-in-out;
+		position: relative;
+		border: 1px solid #1e40af; /* Subtle border for depth */
+	}
+
+	/* The slider thumb (handle) */
+	input[type='range']::-webkit-slider-thumb {
+		-webkit-appearance: none;
+		width: 26px; /* Larger size */
+		height: 26px;
+		background: #ffffff;
+		border: 4px solid #1e40af;
+		border-radius: 50%;
+		cursor: pointer;
+		transition:
+			transform 0.2s,
+			background 0.2s;
+		box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+	}
+
+	input[type='range']::-moz-range-thumb {
+		width: 26px;
+		height: 26px;
+		background: #ffffff;
+		border: 4px solid #1e40af;
+		border-radius: 50%;
+		cursor: pointer;
+		transition:
+			transform 0.2s,
+			background 0.2s;
+		box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+	}
+
+	/* Hover & active states for the thumb */
+	input[type='range']::-webkit-slider-thumb:hover {
+		transform: scale(1.15);
+		background: #f1f5f9;
+	}
+
+	input[type='range']::-webkit-slider-thumb:active {
+		transform: scale(1.2);
+		background: #e0e7ff;
+	}
+
+	/* Additional styling for Firefox */
+	input[type='range']::-moz-range-thumb:hover {
+		transform: scale(1.15);
+		background: #f1f5f9;
+	}
+
+	input[type='range']::-moz-range-thumb:active {
+		transform: scale(1.2);
+		background: #e0e7ff;
+	}
+
+	/* Tooltip to show the max value at the right end */
+	.slider-container {
+		position: relative;
+		width: 100%;
+	}
+
+	.slider-max {
+		position: absolute;
+		right: 0;
+		top: -30px;
+		background: #1e3a8a;
+		color: white;
+		font-size: 12px;
+		padding: 5px 8px;
+		border-radius: 6px;
+		box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.2);
+		font-weight: bold;
+	}
+</style>

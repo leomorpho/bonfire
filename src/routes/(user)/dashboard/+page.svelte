@@ -13,20 +13,21 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import PullToRefresh from '$lib/components/PullToRefresh.svelte';
 	import SvgLoader from '$lib/components/SvgLoader.svelte';
+	import { env as publicEnv } from '$env/dynamic/public';
 
 	let client: TriplitClient;
 
-	let futureEvents = $state({});
+	let futureAttendances = $state({});
 	let futureEventsLoading = $state(true);
-	let pastEvents = $state({});
+	let pastAttendances = $state({});
 	let pastEventsLoading = $state(true);
 	let userId = $state('');
 
 	$effect(() => {
-		console.log('futureEvents', futureEvents);
+		console.log('futureAttendances', futureAttendances);
 	});
 
-	function createEventsQuery(client: TriplitClient, currUserID: string, future: boolean) {
+	function createAttendanceQuery(client: TriplitClient, currUserID: string, future: boolean) {
 		// NOTE: we add 24h so that currently happening events are still shown in the main window until 24h later
 		const currentDate = new Date();
 		const futureDate = new Date(currentDate.getTime() - 24 * 60 * 60 * 1000); // Add 24 hours in milliseconds
@@ -42,14 +43,14 @@
 				client.query('user').where(['id', '=', '$1.event.user_id']).select(['username']).build(),
 				'one'
 			)
-			.include('event', (rel) => rel('event').include('transaction').build())
+			.include('event')
 			.order('event.start_time', 'ASC')
 			.build();
 	}
 
 	const initEvents = async () => {
-		// let pastEventsQuery = createEventsQuery(client, userId, true);
-		// console.log('----> ??? ', await client.fetch(pastEventsQuery.build()));
+		// let pastAttendanceQuery = createAttendanceQuery(client, userId, true);
+		// console.log('----> ??? ', await client.fetch(pastAttendanceQuery.build()));
 		if (dev) {
 			console.log(
 				'all events this user can see',
@@ -84,15 +85,15 @@
 			timeout: 2000 // Optional: Wait for up to 2s before showing local data
 		} as FetchOptions;
 
-		let futureEventsQuery = createEventsQuery(client, $page.data.user.id, true);
-		let pastEventsQuery = createEventsQuery(client, $page.data.user.id, false);
+		let futureAttendanceQuery = createAttendanceQuery(client, $page.data.user.id, true);
+		let pastAttendanceQuery = createAttendanceQuery(client, $page.data.user.id, false);
 
 		const unsubscribeFromFutureEvents = client.subscribe(
-			futureEventsQuery,
+			futureAttendanceQuery,
 			(results) => {
-				futureEvents = results;
+				futureAttendances = results;
 				futureEventsLoading = false;
-				console.log('===>, futureEvents', futureEvents);
+				console.log('===>, futureAttendances', futureAttendances);
 			},
 			(error) => {
 				console.error('Error fetching current temporary attendee:', error);
@@ -104,9 +105,9 @@
 		);
 
 		const unsubscribeFromPastEvents = client.subscribe(
-			pastEventsQuery,
+			pastAttendanceQuery,
 			(results) => {
-				pastEvents = results;
+				pastAttendances = results;
 				pastEventsLoading = false;
 			},
 			(error) => {
@@ -124,6 +125,9 @@
 			unsubscribeFromPastEvents();
 		};
 	});
+
+	// TODO: support events created before payments system was created. There was no concept of "published"/"draft". Remove once all events have an attached transaction.
+	const paymentsReleaseDate = new Date(publicEnv.PUBLIC_PAYMENTS_RELEASE_DATE);
 </script>
 
 <PullToRefresh />
@@ -134,7 +138,7 @@
 		{#if futureEventsLoading}
 			<!-- We don't want to show if the query is loading as it could be showing cached data that can just be refreshed seamlessy-->
 			<Loader />
-		{:else if futureEvents.length == 0}
+		{:else if futureAttendances.length == 0}
 			<div
 				class="mx-auto mt-10 flex w-full max-w-sm flex-col items-center justify-center gap-2 space-y-5 rounded-lg bg-slate-100 p-6 text-center dark:bg-slate-800 dark:text-white sm:mt-16 sm:w-2/3"
 			>
@@ -156,14 +160,14 @@
 			</div>
 		{:else}
 			<div>
-				{#each futureEvents as attendance}
+				{#each futureAttendances as attendance}
 					<div class="my-7 sm:my-10">
 						<EventCard
 							event={attendance.event}
 							{userId}
 							eventCreatorName={attendance.organizer_name['username']}
 							rsvpStatus={attendance.status}
-							isPublished={!!attendance.event.transaction}
+							isPublished={attendance.event.created_at < paymentsReleaseDate || attendance.event.is_published}
 						/>
 					</div>
 				{/each}
@@ -175,10 +179,10 @@
 			<div class="font-mono">Loading...</div>
 			<SvgLoader />
 		</div>
-	{:else if pastEvents.length > 0}
+	{:else if pastAttendances.length > 0}
 		<Collapsible.Root class="md:2/3 mt-8 w-full sm:w-2/3 md:w-[700px]">
 			<div class="flex items-center justify-between space-x-4 px-4">
-				<h4 class="text-sm font-semibold">{pastEvents.length} past events</h4>
+				<h4 class="text-sm font-semibold">{pastAttendances.length} past events</h4>
 				<Collapsible.Trigger
 					class={buttonVariants({ variant: 'ghost', size: 'sm', class: 'w-9 p-0' })}
 				>
@@ -187,13 +191,14 @@
 				</Collapsible.Trigger>
 			</div>
 			<Collapsible.Content class="space-y-2">
-				{#each pastEvents as attendance}
+				{#each pastAttendances as attendance}
 					<EventCard
 						event={attendance.event}
 						{userId}
 						eventCreatorName={attendance.organizer_name['username']}
 						rsvpStatus={attendance.status}
-						isPublished={!!attendance.event.transaction}
+						isPublished={(attendance.event && attendance.event.created_at < paymentsReleaseDate) ||
+							attendance.event.is_published}
 					/>
 				{/each}
 			</Collapsible.Content>

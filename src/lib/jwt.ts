@@ -6,7 +6,7 @@ export const ADMIN_ROLE = 'admin';
 export const ANON_ROLE = 'anon';
 export const TEMP_ROLE = 'temp';
 
-export function generateJWT(userId?: string, role: string = USER_ROLE) {
+export function generateJWT(userId?: string | null, role: string = USER_ROLE) {
 	const payload: Record<string, any> = {
 		type: role // e.g., 'user' or 'admin'
 	};

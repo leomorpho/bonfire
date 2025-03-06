@@ -4,6 +4,7 @@ import { stripeClient } from '../stripe';
 import { env as privateEnv } from '$env/dynamic/private';
 import { handleLogPurchaseWebhook } from '$lib/payments';
 import { triplitHttpClient } from '$lib/server/triplit';
+import { dev } from '$app/environment';
 
 function toBuffer(ab: ArrayBuffer): Buffer {
 	const buf = Buffer.alloc(ab.byteLength);
@@ -36,7 +37,9 @@ export async function POST(event: RequestEvent) {
 				signature,
 				privateEnv.STRIPE_WEBHOOK_SECRET
 			);
-			console.debug('stripe event ========>', stripeEvent);
+			if (dev) {
+				console.debug('stripe event ========>', stripeEvent);
+			}
 			//const data = event.data;
 			eventType = stripeEvent.type;
 		} catch (err) {

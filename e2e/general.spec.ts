@@ -9,10 +9,21 @@ import {
 } from './shared';
 import { faker } from '@faker-js/faker';
 import path from 'path';
+import { TriplitClient } from '@triplit/client';
+import { schema } from '../triplit/schema';
+import dotenv from 'dotenv';
+
+dotenv.config(); // Load env variables from .env
 
 test.beforeEach(async ({ page }) => {
 	await page.context().clearCookies();
 	await page.context().clearPermissions();
+});
+
+const serverTriplitClient = new TriplitClient({
+	schema,
+	serverUrl: process.env.PUBLIC_TRIPLIT_URL,
+	token: process.env.TRIPLIT_SERVICE_TOKEN
 });
 
 test('New login', async ({ page }) => {
@@ -90,9 +101,25 @@ test('Create bonfire', async ({ page }) => {
 	await page.getByPlaceholder('1600 Pennsylvania Avenue,').fill('15 rue du luxembourg, mouscron');
 	await page.getByText('Rue du Luxembourg 15, 7700').click();
 
-	await expect(page.getByRole('button', { name: 'Create' })).toBeEnabled();
+	await expect(page.getByRole('button', { name: 'Save Draft' })).toBeEnabled();
+	await page.waitForTimeout(500);
+	await page.getByRole('button', { name: 'Save Draft' }).click({ force: true });
+
+	// Check that event is marked as temporary on bonfire view
+	await expect(page.getByText('Not Published')).toBeVisible();
+	await page.getByRole('link', { name: 'Logo' }).click();
+
+	// Check that event is marked as temporary on dashboard view
+	await expect(page.getByText('Not Published')).toBeVisible();
+	await page.locator('.event-card').first().click();
+
+	// Return to edit page
+	await page.locator('#edit-bonfire').getByRole('button').click();
+
+	await expect(page.getByRole('button', { name: 'Publish' })).toBeEnabled();
 	await page.waitForTimeout(100);
-	await page.getByRole('button', { name: 'Create' }).click({ force: true });
+	await page.getByRole('button', { name: 'Publish' }).click({ force: true });
+	await expect(page.getByText('Not Published')).toBeHidden();
 
 	// ------> Event was created
 	// Check event name
@@ -110,7 +137,7 @@ test('Create bonfire', async ({ page }) => {
 	await expect(page.getByText('Hosted by')).toBeVisible();
 
 	// Check event details
-	await expect(page.getByText(details)).toBeVisible();
+	await expect(page.getByText(details).first()).toBeVisible();
 
 	await expect(page.locator('#going-attendees').locator('.profile-avatar')).toHaveCount(1);
 
@@ -147,10 +174,10 @@ test('Create bonfire', async ({ page }) => {
 	// Check general stuff
 	await expect(page.getByText('Announcements', { exact: true })).toBeVisible();
 	await expect(page.getByText('No announcements yet')).toBeVisible();
-	await expect(page.getByRole('button', { name: 'Create new announcement' })).toBeVisible();
+	await expect(page.getByRole('button', { name: 'New announcement' })).toBeVisible();
 	await expect(page.getByText('Gallery', { exact: true })).toBeVisible();
 	await expect(page.getByText('No photos/videos yet')).toBeVisible();
-	await expect(page.getByRole('button', { name: 'Add to gallery' })).toBeVisible();
+	await expect(page.getByRole('button', { name: 'Upload' })).toBeVisible();
 
 	// Upload a banner image
 	const imagePath = path.resolve(process.cwd(), 'e2e/test-images', 'banner.jpeg');
@@ -177,7 +204,7 @@ test('Create bonfire', async ({ page }) => {
 	await expect(page.getByText('Overlay', { exact: true })).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Clear' })).toBeVisible();
 	await page.getByRole('button', { name: 'chevron left Back' }).click();
-	await page.getByRole('button', { name: 'Update' }).click();
+	await page.getByRole('button', { name: 'Publish' }).click();
 
 	// Verify address as it used to be mangled (possible bug again) when coming back from edit page
 	await page.locator('#share-location').click();
@@ -212,11 +239,11 @@ test('CRUD announcements', async ({ page }) => {
 
 	// Create
 	await expect(page.getByText('No announcements yet')).toBeVisible();
-	await page.getByRole('button', { name: 'Create new announcement' }).click();
-	await expect(page.getByRole('heading', { name: 'Create an Announcement' })).toBeVisible();
+	await page.getByRole('button', { name: 'New announcement' }).click();
+	await expect(page.getByRole('heading', { name: 'Create announcement' })).toBeVisible();
 	await page.getByPlaceholder('Type your announcement here').click();
 	await page.getByPlaceholder('Type your announcement here').fill('An announcement!');
-	await page.getByRole('button', { name: 'Create Announcement' }).click();
+	await page.getByRole('button', { name: 'Create' }).click();
 	// Check we are back on bonfire view
 	await expect(page.getByRole('heading', { name: eventName })).toBeVisible();
 	await expect(page.getByRole('heading', { name: 'An announcement!' })).toBeVisible();
@@ -228,8 +255,8 @@ test('CRUD announcements', async ({ page }) => {
 	await page.getByPlaceholder('Type your announcement here').click();
 	await page.getByPlaceholder('Type your announcement here').press('ControlOrMeta+a');
 	await page.getByPlaceholder('Type your announcement here').fill('Updated announcement');
-	await expect(page.getByRole('button', { name: 'Update Announcement' })).toBeVisible();
-	await page.getByRole('button', { name: 'Update Announcement' }).click();
+	await expect(page.getByRole('button', { name: 'Update' })).toBeVisible();
+	await page.getByRole('button', { name: 'Update' }).click();
 	// Check we are back on bonfire view
 	await expect(page.getByRole('heading', { name: eventName })).toBeVisible();
 	await expect(page.getByRole('heading', { name: 'Updated announcement' })).toBeVisible();
@@ -258,7 +285,7 @@ test('CRUD gallery', async ({ page }) => {
 	await createBonfire(page, eventName);
 	await expect(page.getByRole('heading', { name: eventName })).toBeVisible();
 
-	await page.getByRole('button', { name: 'Add to gallery' }).click();
+	await page.getByRole('button', { name: 'Upload' }).click();
 
 	const fileInput = await page.locator('input[type="file"]').first();
 	const imagePath = path.resolve(process.cwd(), 'e2e/test-images', 'gallery-image.jpg');
@@ -351,10 +378,10 @@ test('User attendee view', async ({ browser }) => {
 	await expect(userAttendeePage.getByRole('heading', { name: 'Set Banner' })).toHaveCount(0);
 	await expect(userAttendeePage.getByRole('heading', { name: eventName })).toBeVisible();
 	await expect(userAttendeePage.getByText(`Hosted by ${username}`)).toBeVisible();
-	await expect(userAttendeePage.getByText(eventDetails)).toBeVisible();
+	await expect(userAttendeePage.getByText(eventDetails).first()).toBeVisible();
 	await expect(userAttendeePage.getByText('Set RSVP status to see location')).toBeVisible();
 
-	await expect(userAttendeePage.getByText(eventDetails)).toBeVisible();
+	await expect(userAttendeePage.getByText(eventDetails).first()).toBeVisible();
 	await expect(userAttendeePage.getByText('1 going')).toBeVisible();
 	await expect(userAttendeePage.getByText('1 announcement(s)')).toBeVisible();
 	await expect(userAttendeePage.getByText('1 file(s)')).toBeVisible();
@@ -405,7 +432,7 @@ test('Temp attendee view', async ({ browser }) => {
 	await expect(tempAttendeePage.getByRole('heading', { name: eventName })).toBeVisible();
 	await expect(tempAttendeePage.getByText(`Hosted by ${username}`)).toBeVisible();
 	await expect(tempAttendeePage.getByText('Set RSVP status to see location')).toBeVisible();
-	await expect(tempAttendeePage.getByText(eventDetails)).toBeVisible();
+	await expect(tempAttendeePage.getByText(eventDetails).first()).toBeVisible();
 	await expect(tempAttendeePage.getByText('1 going')).toBeVisible();
 	await expect(tempAttendeePage.getByText('1 announcement(s)')).toBeVisible();
 	await expect(tempAttendeePage.getByText('1 file(s)')).toBeVisible();
@@ -591,16 +618,18 @@ test('Event admins', async ({ browser }) => {
 	const newEventName = eventName + ' new!';
 	await adminPage.getByPlaceholder('Event Name').click();
 	await adminPage.getByPlaceholder('Event Name').fill(newEventName);
+
 	const newDetails = eventDetails + ' new!';
 	await adminPage.getByPlaceholder('Details').click();
 	await adminPage.getByPlaceholder('Details').fill(newDetails);
 	// Hit update
-	await expect(adminPage.getByRole('button', { name: 'Update' })).toBeEnabled();
+	await expect(adminPage.getByRole('button', { name: 'Publish' })).toBeEnabled();
 	await adminPage.waitForTimeout(100);
-	await adminPage.getByRole('button', { name: 'Update' }).click();
+	await adminPage.getByRole('button', { name: 'Publish' }).click({ timeout: 5000 });
+
 	// Check data
-	await expect(adminPage.getByRole('heading', { name: eventName })).toBeVisible();
-	await expect(adminPage.getByText(newDetails)).toBeVisible();
+	await expect(adminPage.getByRole('heading', { name: newEventName })).toBeVisible();
+	await expect(adminPage.getByText(newDetails).first()).toBeVisible();
 
 	// See if we can see the remove user screen
 	await adminPage.locator('#going-attendees').locator('.profile-avatar').first().click();
@@ -610,10 +639,10 @@ test('Event admins', async ({ browser }) => {
 
 	// Add an announcement
 	const announcementText = faker.lorem.paragraph();
-	await adminPage.getByRole('button', { name: 'Create new announcement' }).click();
+	await adminPage.getByRole('button', { name: 'New announcement' }).click();
 	await adminPage.getByPlaceholder('Type your announcement here').click();
 	await adminPage.getByPlaceholder('Type your announcement here').fill(announcementText);
-	await adminPage.getByRole('button', { name: 'Create Announcement' }).click();
+	await adminPage.getByRole('button', { name: 'Create' }).click();
 	await expect(adminPage.getByText(announcementText)).toBeVisible();
 
 	// Upload a new banner image
@@ -734,9 +763,117 @@ test('Bring list items', async ({ browser }) => {
 
 	// Have event owner delete bring list item and check it's gone
 	await eventCreatorPage.locator('#edit-bring-list-item').click();
-	await eventCreatorPage.getByText('Delete').click();
+	await eventCreatorPage.locator('#delete-bring-item').click();
 	await eventCreatorPage.getByRole('button', { name: 'Continue' }).click();
 	await expect(eventCreatorPage.getByText('.bring-list-item-btn')).toHaveCount(0);
+});
+
+test('Consume logs', async ({ page }) => {
+	const email = faker.internet.email();
+	const username = faker.person.firstName() + '123456789';
+	await loginUser(page, email, username);
+
+	await page.getByRole('link', { name: 'Profile' }).click();
+	await expect(page.getByText('You have 3 logs remaining.')).toBeVisible();
+
+	// Create 1st bonfire
+	let eventName = `${faker.animal.dog()} birthday party!`;
+	await createBonfire(page, eventName);
+	await expect(page.getByRole('heading', { name: eventName })).toBeVisible();
+	await expect(page.getByText('Not Published')).toBeHidden();
+
+	await page.getByRole('link', { name: 'Dashboard' }).click();
+	await expect(page.getByText('Not Published')).toBeHidden();
+	await expect(page.locator('.event-card')).toHaveCount(1);
+
+	await page.getByRole('link', { name: 'Profile' }).click();
+	await expect(page.getByText('You have 2 logs remaining.')).toBeVisible();
+
+	// Create 2nd bonfire
+	eventName = `${faker.animal.dog()} birthday party!`;
+	await createBonfire(page, eventName);
+	await expect(page.getByRole('heading', { name: eventName })).toBeVisible();
+
+	await page.getByRole('link', { name: 'Profile' }).click();
+	await expect(page.getByText('You have 1 log remaining.')).toBeVisible();
+
+	// Create 3rd bonfire
+	eventName = `${faker.animal.dog()} birthday party!`;
+	await createBonfire(page, eventName);
+	await expect(page.getByRole('heading', { name: eventName })).toBeVisible();
+
+	await page.getByRole('link', { name: 'Profile' }).click();
+	await expect(page.getByText('You have 0 log remaining.')).toBeVisible();
+});
+
+test('Add logs', async ({ page }) => {
+	const email = faker.internet.email();
+	const username = faker.person.firstName() + '123456789';
+	await loginUser(page, email, username);
+
+	const nonProfitName = faker.company.name();
+	const oneWeekAgo = new Date();
+	oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+	// Create a non-profit for testing.
+	await serverTriplitClient.insert('non_profits', {
+		name: nonProfitName,
+		description: 'A description',
+		photo_url: '/',
+		website_url: 'http://abc.com',
+		effective_start_date: oneWeekAgo
+	});
+
+	await page.getByRole('link', { name: 'Profile' }).click();
+	await page.getByRole('button', { name: 'Buy more logs' }).click();
+	await expect(page.getByRole('heading', { name: 'Buy more logs' })).toBeVisible();
+	await expect(page.getByText('Choose a Cause & Make an')).toBeVisible();
+	await page.getByRole('button', { name: 'Select Cause' }).click();
+
+	// User now needs to select a non-profit to support
+	await page.locator('.non-profit-card').first().click();
+	await page.locator('.back-button').first().click();
+
+	// Back to "Buy more logs"
+	await expect(page.getByRole('heading', { name: 'Buy more logs' })).toBeVisible();
+
+	// Test button to update non-profit
+	await page.getByRole('button', { name: 'Change the cause you support' }).click();
+	await expect(page.getByRole('heading', { name: 'Support a Cause' })).toBeVisible();
+	await page.locator('.back-button').first().click();
+
+	// Back to "Buy more logs"
+	await expect(page.getByRole('heading', { name: 'Buy more logs' })).toBeVisible();
+	await expect(page.getByRole('button', { name: '$1 for 1 log' })).toBeVisible();
+	await expect(page.getByRole('button', { name: '$2 for 3 logs' })).toBeVisible();
+	await expect(page.getByRole('button', { name: '$5 for 10 logs' })).toBeVisible();
+
+	const userEntry = await serverTriplitClient.fetchOne(
+		serverTriplitClient.query('user').where('username', '=', username).build()
+	);
+	expect(userEntry).not.toBeNull();
+	console.log('userEntry ====>', userEntry);
+
+	const userLogTokenEntry = await serverTriplitClient.fetchOne(
+		serverTriplitClient
+			.query('user_log_tokens')
+			.where('user_id', '=', userEntry?.id as string)
+			.build()
+	);
+	expect(userLogTokenEntry).not.toBeNull();
+	console.log('userLogTokenEntry ====>', userLogTokenEntry);
+
+	// Give more logs to user (don't go through Stripe for testing)
+	await serverTriplitClient.update(
+		'user_log_tokens',
+		userLogTokenEntry?.id as string,
+		async (e) => {
+			e.num_logs = e.num_logs + 3;
+		}
+	);
+
+	await page.getByRole('link', { name: 'Profile' }).click();
+	await expect(page.getByText('You have 6 logs remaining.')).toBeVisible();
 });
 
 // TODO: test max capacity of bonfire

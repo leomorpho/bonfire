@@ -23,7 +23,7 @@
 {#if isClient}
 	<Button
 		onclick={handleNavigation}
-		class="my-1 bg-slate-200 hover:bg-slate-100 shadow-lg text-black dark:bg-slate-700 dark:text-white dark:hover:bg-slate-500"
+		class="back-button my-1 bg-slate-200 hover:bg-slate-100 shadow-lg text-black dark:bg-slate-700 dark:text-white dark:hover:bg-slate-500"
 	>
 		<ChevronLeft />
 	</Button>

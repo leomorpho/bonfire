@@ -236,7 +236,13 @@ export const createAttendeeId = (eventId: string, userId: string) => {
 };
 
 export const isMobile = () => {
-	return typeof window !== 'undefined' && 'ontouchstart' in window;
+	// Ensure we are in the browser to avoid SSR issues
+	if (typeof window === 'undefined' || typeof navigator === 'undefined') {
+		return false;
+	}
+
+	// Check for touch device
+	return window.matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 1;
 };
 
 export const setTempAttendeeInfoInLocalstorage = async (

@@ -15,7 +15,10 @@
 		UserRound,
 		Calendar,
 		KeyRound,
-		ArrowRightFromLine
+		ArrowRightFromLine,
+		Images,
+		Megaphone,
+		Plus
 	} from 'lucide-svelte';
 	import { formatHumanReadable, formatHumanReadableHour } from '$lib/utils';
 	import Rsvp from '$lib/components/Rsvp.svelte';
@@ -85,7 +88,10 @@
 	let longitude = $state(null);
 
 	let bannerInfo: BannerInfo = $state($page.data.bannerInfo);
-	let isPublished = $derived(!!event.transaction);
+
+	// TODO: support events created before payments system was created. There was no concept of "published"/"draft". Remove once all events have an attached transaction.
+	const paymentsReleaseDate = new Date(publicEnv.PUBLIC_PAYMENTS_RELEASE_DATE);
+	let isEventPublished = $derived(event?.created_at < paymentsReleaseDate || event?.is_published);
 
 	$effect(() => {
 		if ($page.data.user) {
@@ -264,6 +270,13 @@
 				},
 				(error) => {
 					console.error('Error fetching current temporary attendee:', error);
+				},
+				// Optional
+				{
+					localOnly: false,
+					onRemoteFulfilled: () => {
+						eventLoading = false;
+					}
 				}
 			);
 		}
@@ -293,7 +306,6 @@
 				.where([['id', '=', $page.params.id]])
 				.include('banner_media')
 				.include('event_admins')
-				.include('transaction')
 				.subquery(
 					'organizer',
 					client.query('user').where(['id', '=', '$1.user_id']).select(['username', 'id']).build(),
@@ -511,6 +523,21 @@
 	};
 </script>
 
+{#snippet details(event: any)}
+	<div
+		class="my-5 flex flex-col justify-center rounded-xl bg-slate-100 p-2 text-center shadow-lg dark:bg-slate-800"
+	>
+		<div class="font-semibold">Details</div>
+		{#if event.description}
+			<div class="whitespace-pre-wrap">
+				{event.description}
+			</div>
+		{:else}
+			{'No details yet...'}
+		{/if}
+	</div>
+{/snippet}
+
 {#if !isAnonymousUser && !isUnverifiedUser && eventLoading}
 	<Loader />
 {:else if eventFailedLoading}
@@ -531,7 +558,9 @@
 					</a>
 				</div>
 			{/if}
-			<section class="mt-4 flex w-full justify-center sm:w-[450px] md:w-[550px] lg:w-[650px]">
+			<section
+				class="mt-4 flex w-full justify-center sm:w-[450px] md:w-[550px] lg:w-[750px] xl:w-[950px]"
+			>
 				<Tabs.Root value={activeTab} class="w-full">
 					<div class="flex w-full justify-center">
 						<Tabs.List class="mb-1 w-full bg-transparent animate-in fade-in zoom-in">
@@ -587,10 +616,12 @@
 								</div>
 							{/if}
 
-							<div class="relative space-y-3 rounded-xl bg-white p-5 dark:bg-slate-900">
-								{#if !isPublished}
+							<div
+								class="relative space-y-3 rounded-xl bg-white bg-opacity-90 p-5 dark:bg-slate-900 dark:bg-opacity-90"
+							>
+								{#if !isEventPublished}
 									<div
-										class="absolute -right-1 -top-1 z-20 rounded bg-red-600 px-3 py-1 text-xs sm:text-sm font-semibold text-white shadow-md dark:bg-red-500"
+										class="absolute -right-1 -top-1 z-20 rounded bg-red-600 px-3 py-1 text-xs font-semibold text-white shadow-md dark:bg-red-500 sm:text-sm"
 									>
 										Not Published
 									</div>
@@ -611,64 +642,67 @@
 										>
 									</a>
 								{/if}
-								<h1 class="mb-4 flex justify-center text-xl sm:text-2xl">
+								<h1
+									class="flex justify-center py-3 text-center text-2xl font-bold sm:text-3xl lg:text-4xl"
+								>
 									{event.title}
 								</h1>
-								<div class="flex items-center justify-center font-medium">
-									<Calendar class="mr-2 !h-4 !w-4 shrink-0" />{formatHumanReadable(
-										event.start_time
-									)}
-									{#if event.end_time}to {formatHumanReadableHour(event.end_time)}{/if}
-								</div>
-								<div class="flex items-center justify-center font-light">
-									{#if event.organizer}
-										<UserRound class="mr-2 !h-4 !w-4 shrink-0" />Hosted by
-										{#if rsvpStatus}
-											<div class="ml-2">
-												<ProfileAvatar userId={event.organizer['id']} />
-											</div>
-										{:else}
-											{event.organizer['username']}
-										{/if}
-									{/if}
+								<div class="flex w-full space-x-3">
+									<div class="hidden md:block md:w-1/2">
+										{@render details(event)}
+									</div>
+									<div class="w-full md:w-1/2">
+										<div class="flex items-center justify-center font-medium">
+											<Calendar class="mr-2 !h-4 !w-4 shrink-0" />{formatHumanReadable(
+												event.start_time
+											)}
+											{#if event.end_time}to {formatHumanReadableHour(event.end_time)}{/if}
+										</div>
+										<div class="flex items-center justify-center font-light">
+											{#if event.organizer}
+												<UserRound class="mr-2 !h-4 !w-4 shrink-0" />Hosted by
+												{#if rsvpStatus}
+													<div class="ml-2">
+														<ProfileAvatar userId={event.organizer['id']} />
+													</div>
+												{:else}
+													{event.organizer['username']}
+												{/if}
+											{/if}
+										</div>
+
+										<div class="flex items-center justify-center font-light">
+											<MapPin class="mr-2 !h-4 !w-4 shrink-0" />
+											{#if rsvpStatus}
+												{#if event.location}<div class="flex items-center justify-center">
+														{#if latitude && longitude}
+															<ShareLocation lat={latitude} lon={longitude}>
+																<div
+																	id="share-location"
+																	class="flex items-center justify-center rounded-xl bg-slate-100 p-2 dark:bg-slate-900"
+																>
+																	{@html event.location}
+																	<ArrowRightFromLine class="ml-2 !h-4 !w-4 shrink-0" />
+																</div>
+															</ShareLocation>
+														{:else}
+															<div class="flex items-center justify-center p-2">
+																{event.location}
+															</div>
+														{/if}
+													</div>
+												{:else}
+													<div>No location set</div>
+												{/if}
+											{:else}
+												Set RSVP status to see location
+											{/if}
+										</div>
+									</div>
 								</div>
 
-								<div class="flex items-center justify-center font-light">
-									<MapPin class="mr-2 !h-4 !w-4 shrink-0" />
-									{#if rsvpStatus}
-										{#if event.location}<div class="flex items-center justify-center">
-												{#if latitude && longitude}
-													<ShareLocation lat={latitude} lon={longitude}>
-														<div
-															id="share-location"
-															class="flex items-center justify-center rounded-xl bg-slate-100 p-2 dark:bg-slate-900"
-														>
-															{@html event.location}
-															<ArrowRightFromLine class="ml-2 !h-4 !w-4 shrink-0" />
-														</div>
-													</ShareLocation>
-												{:else}
-													<div class="flex items-center justify-center p-2">{event.location}</div>
-												{/if}
-											</div>
-										{:else}
-											<div>No location set</div>
-										{/if}
-									{:else}
-										Set RSVP status to see location
-									{/if}
-								</div>
-								<div
-									class="my-5 flex flex-col justify-center rounded-xl bg-slate-100 p-2 text-center dark:bg-slate-800"
-								>
-									<div class="font-semibold">Details</div>
-									{#if event.description}
-										<div class="whitespace-pre-wrap">
-											{event.description}
-										</div>
-									{:else}
-										{'No details yet...'}
-									{/if}
+								<div class="block md:hidden">
+									{@render details(event)}
 								</div>
 							</div>
 
@@ -737,62 +771,68 @@
 									rsvpEnabled={rsvpEnabledForCapacity}
 								/>
 							{/if}
-							<Rsvp
-								{rsvpStatus}
-								userId={currUserId}
-								eventId={event.id}
-								{isAnonymousUser}
-								{rsvpCanBeChanged}
-							/>
+							<div class="flex w-full justify-center">
+								<div class="flex w-full flex-col md:max-w-96">
+									<Rsvp
+										{rsvpStatus}
+										userId={currUserId}
+										eventId={event.id}
+										{isAnonymousUser}
+										{rsvpCanBeChanged}
+									/>
 
-							<Button
-								onclick={() => handleShare(event)}
-								class="mt-4 flex w-full items-center justify-center ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
-							>
-								<Share class="h-5 w-5" />
-								Share Bonfire</Button
-							>
-
-							<HorizRule />
-							<div class="my-10">
-								<div class=" rounded-xl bg-white p-5 dark:bg-slate-900">
-									<div class="font-semibold">Announcements</div>
+									<Button
+										onclick={() => handleShare(event)}
+										class="mt-4 flex w-full items-center justify-center ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
+									>
+										<Share class="h-5 w-5" />
+										Share Bonfire</Button
+									>
 								</div>
-								{#if rsvpStatus}
-									<div class="my-2">
-										<Annoucements maxCount={3} {isUnverifiedUser} {isCurrenUserEventAdmin} />
+							</div>
+							<HorizRule />
+							<div class="my-10 flex flex-col md:flex-row md:space-x-2">
+								<div class="w-full rounded-xl p-0 md:w-1/2 md:p-2">
+									<div class="flex justify-center rounded-xl bg-white p-5 dark:bg-slate-900">
+										<div class="flex font-semibold"><Megaphone class="mr-2" /> Announcements</div>
 									</div>
-									{#if isCurrenUserEventAdmin}
-										<a href="announcement/create">
-											<Button
-												class="mt-1 w-full ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
-												><Drum class="mr-1 h-4 w-4" /> Create new announcement</Button
-											>
-										</a>
+									{#if rsvpStatus}
+										<div class="my-2">
+											<Annoucements maxCount={3} {isUnverifiedUser} {isCurrenUserEventAdmin} />
+										</div>
+										{#if isCurrenUserEventAdmin}
+											<a href="announcement/create">
+												<Button
+													class="mt-1 w-full ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
+													><Plus class="mr-1" /> New announcement</Button
+												>
+											</a>
+										{/if}
+									{:else}
+										<div class="my-2">
+											<BonfireNoInfoCard text={$page.data.numAnnouncements + ' announcement(s)'} />
+										</div>
 									{/if}
-								{:else}
-									<div class="my-2">
-										<BonfireNoInfoCard text={$page.data.numAnnouncements + ' announcement(s)'} />
+								</div>
+								{#if currUserId || tempAttendeeId}
+									<HorizRule />
+									<div class="w-full rounded-xl p-0 md:w-1/2 md:p-2">
+										<BringList
+											eventId={event.id}
+											isAdmin={isCurrenUserEventAdmin}
+											numAttendeesGoing={allAttendeesGoing.length}
+											{currUserId}
+											{tempAttendeeId}
+											{changeToDiscussionsTab}
+										/>
 									</div>
 								{/if}
 							</div>
-							{#if currUserId || tempAttendeeId}
-								<HorizRule />
-								<div class="my-5 w-full">
-									<BringList
-										eventId={$page.data.event.id}
-										isAdmin={isCurrenUserEventAdmin}
-										numAttendeesGoing={allAttendeesGoing.length}
-										{currUserId}
-										{tempAttendeeId}
-										{changeToDiscussionsTab}
-									/>
-								</div>
-							{/if}
 							<HorizRule />
-							<div class="my-5">
-								<div class="rounded-xl bg-white p-5 dark:bg-slate-900">
-									<div class="font-semibold">Gallery</div>
+
+							<div>
+								<div class="flex justify-center rounded-xl bg-white p-5 dark:bg-slate-900">
+									<div class="flex font-semibold"><Images class="mr-2" /> Gallery</div>
 								</div>
 								{#if rsvpStatus}
 									<div class="mb-10">

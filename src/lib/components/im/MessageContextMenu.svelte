@@ -26,6 +26,7 @@
 	let showAlert = $state(false);
 	let showSmiley = $state(false);
 	let showSmileyPicker = $state(false);
+	let isMobileTouch = $state(isMobile());
 
 	const openMenu = (event?: PointerEvent) => {
 		showAlert = true;
@@ -87,41 +88,54 @@
 			console.error('Failed to copy:', err);
 		}
 	};
+
+	const onMouseEnterShowSmiley = () => {
+		if (isMobileTouch) {
+			return;
+		}
+		showSmiley = true;
+	};
+
+	const onMouseExitHideSmiley = () => {
+		showSmiley = false;
+	};
 </script>
 
 {#snippet emojiPicker()}
-	<Popover.Root>
-		<Popover.Trigger
-			onclick={() => {
-				showSmileyPicker = !showSmileyPicker;
-			}}
-			onkeydown={(event) => {
-				if (event.key === 'Enter' || event.key === ' ') showSmileyPicker = !showSmileyPicker;
-			}}
-			class="{showSmileyPicker
-				? 'opacity-100'
-				: 'opacity-70'} transform rounded-full bg-slate-500 p-2 shadow-lg hover:opacity-100 focus:outline-none focus-visible:ring-0"
-		>
-			<div>
-				<Smile class="h-5 w-5 cursor-pointer text-white" />
-			</div>
-		</Popover.Trigger>
-		<Popover.Content class="w-fit rounded-2xl bg-slate-900">
-			<EmojiPicker handleEmojiSelect={toggleEmoji} />
-		</Popover.Content>
-	</Popover.Root>
+	{#if !isMobileTouch}
+		<Popover.Root>
+			<Popover.Trigger
+				onclick={() => {
+					showSmileyPicker = !showSmileyPicker;
+				}}
+				onkeydown={(event) => {
+					if (event.key === 'Enter' || event.key === ' ') showSmileyPicker = !showSmileyPicker;
+				}}
+				class="{showSmileyPicker
+					? 'opacity-100'
+					: 'opacity-70'} transform rounded-full bg-slate-500 p-2 shadow-lg hover:opacity-100 focus:outline-none focus-visible:ring-0"
+			>
+				<div>
+					<Smile class="h-5 w-5 cursor-pointer text-white" />
+				</div>
+			</Popover.Trigger>
+			<Popover.Content class="w-fit rounded-2xl bg-slate-900">
+				<EmojiPicker handleEmojiSelect={toggleEmoji} />
+			</Popover.Content>
+		</Popover.Root>
+	{/if}
 {/snippet}
 
 <div
 	class="relative"
 	role="button"
 	tabindex="0"
-	onmouseenter={() => (showSmiley = true)}
-	onmouseleave={() => (showSmiley = false)}
+	onmouseenter={onMouseEnterShowSmiley}
+	onmouseleave={onMouseExitHideSmiley}
 >
 	{@render children()}
 
-	{#if !isMobile()}
+	{#if !isMobileTouch}
 		<div class="absolute -bottom-2 left-1/2 z-50 -translate-x-1/2">
 			<div class="flex flex-wrap items-center gap-1">
 				{#if showSmiley || showSmileyPicker}

@@ -7,13 +7,15 @@
 		formatHumanReadableWithContext,
 		isMobile
 	} from '$lib/utils';
-	import { onDestroy, onMount } from 'svelte';
+	import { onDestroy } from 'svelte';
 	import ProfileAvatar from '../ProfileAvatar.svelte';
 	import { and } from '@triplit/client';
 	import { EMOJI_REACTION_TYPE, NotificationType } from '$lib/enums';
 	import MessageContextMenu from './MessageContextMenu.svelte';
 	import { toggleEmojiReaction } from '$lib/emoji';
 	import EmojiContextMenu from './EmojiContextMenu.svelte';
+	import { flip } from 'svelte/animate';
+	import { fade } from 'svelte/transition';
 
 	let {
 		currUserId,
@@ -220,9 +222,10 @@
 	<ProfileAvatar userId={message.user?.id} baseHeightPx={30} />
 {/snippet}
 
-<div class="relative py-1">
+<div class="animate-fadeIn-slideUp relative py-1">
 	<button
 		onclick={() => {
+			if (!isMobile()) return;
 			showContextMenu = null; // NOTE: hack to make sure it works more than once
 			showContextMenu = true;
 		}}
@@ -230,7 +233,9 @@
 		bind:this={messageRef}
 		class="message {!isOwnMessage && isUnseen
 			? 'unseen'
-			: ''} flex w-full items-end p-2 {isOwnMessage ? 'justify-end' : 'justify-start'} gap-2.5"
+			: ''} flex w-full items-end p-2 {isOwnMessage
+			? 'justify-end'
+			: 'justify-start'} gap-2.5 {isMobile() ? 'cursor-pointer' : 'cursor-default'}"
 	>
 		<div class="flex gap-2.5 ${isOwnMessage ? 'items-end' : 'items-start'}">
 			{#if !isOwnMessage}
@@ -262,7 +267,7 @@
 							>{formatHumanReadableWithContext(message.created_at)}</span
 						>
 					</div>
-					<p class="!text-left py-2.5 text-sm font-normal text-gray-900 dark:text-white">
+					<p class="py-2.5 !text-left text-sm font-normal text-gray-900 dark:text-white">
 						{#if message.deleted_by_user_id}
 							<span class="italic">This message was deleted</span>
 						{:else}
@@ -282,23 +287,54 @@
 	<div class="z-5 absolute -bottom-3 {isOwnMessage ? 'right-8' : 'left-8'}">
 		{#if message.emoji_reactions}
 			<span class="mx-1 flex w-fit flex-wrap items-center px-1 text-xl">
-				{#each Array.from(emojiCountMap.entries()) as [emoji, count]}
-					<EmojiContextMenu
-						toggleEmoji={() => toggleEmoji(emoji)}
-						reactions={emojiReactionsMap.get(emoji)}
-						{currUserId}
-					>
-						<button
-							class="flex flex-row items-center rounded-full bg-slate-700 bg-opacity-50 p-1 hover:cursor-pointer hover:bg-slate-600 hover:bg-opacity-50"
+				{#each Array.from(emojiCountMap.entries()) as [emoji, count] (emoji)}
+					<div animate:flip out:fade={{ duration: 300 }}>
+						<EmojiContextMenu
+							toggleEmoji={() => toggleEmoji(emoji)}
+							reactions={emojiReactionsMap.get(emoji)}
+							{currUserId}
 						>
-							{emoji}
-							{#if count > 1}
-								<span class="mx-1 text-sm text-gray-300">{count}</span>
-							{/if}
-						</button>
-					</EmojiContextMenu>
+							<button
+								class="animate-fadeIn flex flex-row items-center rounded-full bg-slate-700 bg-opacity-50 p-1 hover:cursor-pointer hover:bg-slate-600 hover:bg-opacity-50"
+							>
+								{emoji}
+								{#if count > 1}
+									<span class="mx-1 text-sm text-gray-300">{count}</span>
+								{/if}
+							</button>
+						</EmojiContextMenu>
+					</div>
 				{/each}
 			</span>
 		{/if}
 	</div>
 </div>
+
+<style>
+	@keyframes slideUp {
+		from {
+			opacity: 0;
+			transform: translateY(30px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	.animate-fadeIn-slideUp {
+		animation: slideUp 0.5s ease-out;
+	}
+
+	@keyframes fadeIn {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
+	}
+	.animate-fadeIn {
+		animation: fadeIn 0.3s ease-out;
+	}
+</style>

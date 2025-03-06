@@ -2,10 +2,10 @@
 	import { TriplitClient } from '@triplit/client';
 	import { page } from '$app/stores';
 	import AnnouncementForm from '$lib/components/AnnouncementForm.svelte';
-	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
 	import { getFeWorkerTriplitClient } from '$lib/triplit';
 	import SvgLoader from '$lib/components/SvgLoader.svelte';
 	import { onMount } from 'svelte';
+	import BackButton from '$lib/components/BackButton.svelte';
 
 	let announcement = $state();
 
@@ -28,17 +28,13 @@
 
 <div class="mx-4 flex flex-col items-center justify-center">
 	<section class="mt-8 w-full sm:w-[450px] md:w-[550px] lg:w-[650px]">
-		<Breadcrumb.Root class="bg-white  dark:bg-slate-800 dark:text-white rounded-xl p-2 mt-2 bg-opacity-95">
-			<Breadcrumb.List class="text-xs sm:text-sm">
-				<Breadcrumb.Item>
-					<Breadcrumb.Link href={`/bonfire/${$page.params.id}`}>Event</Breadcrumb.Link>
-				</Breadcrumb.Item>
-				<Breadcrumb.Separator />
-				<Breadcrumb.Item>
-					<Breadcrumb.Page>Update announcement</Breadcrumb.Page>
-				</Breadcrumb.Item>
-			</Breadcrumb.List>
-		</Breadcrumb.Root>
+		<h2
+			class="mb-2 flex w-full items-center justify-between rounded-xl bg-white p-2 text-lg font-semibold dark:bg-slate-900"
+		>
+			<BackButton url={`/bonfire/${$page.params.id}`} />
+			<div>Update announcement</div>
+			<div></div>
+		</h2>
 		{#if announcement}
 			<AnnouncementForm
 				mode="update"

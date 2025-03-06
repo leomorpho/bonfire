@@ -21,6 +21,7 @@
 	import GalleryItem from '$lib/components/GalleryItem.svelte';
 	import LoaderPage from '$lib/components/LoaderPage.svelte';
 	import BackButton from '$lib/components/BackButton.svelte';
+	import FadeIn from '$lib/components/containers/FadeIn.svelte';
 
 	let selectedImages: any = $state([]);
 	let selection: any;
@@ -592,222 +593,224 @@
 	});
 </script>
 
-<div class="mx-4 mb-48 flex flex-col items-center justify-center">
-	<!-- Breadcrumbs and Toggle Buttons -->
-	<div
-		class="sticky top-0 z-10 mt-2 flex flex-col items-center justify-between rounded-xl bg-white bg-opacity-95 px-2 dark:bg-slate-900 min-[320px]:flex-row sm:w-[550px] md:w-[650px] lg:w-[950px]"
-	>
-		<BackButton url={`/bonfire/${$page.params.id}`} />
+<FadeIn>
+	<div class="mx-4 mb-48 flex flex-col items-center justify-center">
+		<!-- Breadcrumbs and Toggle Buttons -->
+		<div
+			class="sticky top-0 z-10 mt-2 flex flex-col items-center justify-between rounded-xl bg-white bg-opacity-95 px-2 dark:bg-slate-900 min-[320px]:flex-row sm:w-[550px] md:w-[650px] lg:w-[950px]"
+		>
+			<BackButton url={`/bonfire/${$page.params.id}`} />
 
-		<div class="ml-4 flex py-1 sm:space-x-2">
-			<a href="add">
-				<Toggle id="upload-new-images" aria-label="toggle bold">
-					<ImagePlus class="!h-5 !w-5 sm:!h-4 sm:!w-4" /><span
-						class="hidden text-xs sm:block sm:text-sm">Upload</span
+			<div class="ml-4 flex py-1 sm:space-x-2">
+				<a href="add">
+					<Toggle id="upload-new-images" aria-label="toggle bold">
+						<ImagePlus class="!h-5 !w-5 sm:!h-4 sm:!w-4" /><span
+							class="hidden text-xs sm:block sm:text-sm">Upload</span
+						>
+					</Toggle>
+				</a>
+
+				{#if $page.data.user}
+					<Toggle
+						id="delete-images"
+						aria-label="toggle bold"
+						onclick={() => {
+							downloadButtonEnabled = false;
+							toggleSelection();
+						}}
+						class="data-[state=on]:bg-slate-300"
+						disabled={!deleteButtonEnabled}
 					>
-				</Toggle>
-			</a>
-
-			{#if $page.data.user}
-				<Toggle
-					id="delete-images"
-					aria-label="toggle bold"
-					onclick={() => {
-						downloadButtonEnabled = false;
-						toggleSelection();
-					}}
-					class="data-[state=on]:bg-slate-300"
-					disabled={!deleteButtonEnabled}
-				>
-					<ImageMinus class="!h-5 !w-5 sm:!h-4 sm:!w-4" /><span
-						class="hidden text-xs sm:block sm:text-sm">Delete</span
+						<ImageMinus class="!h-5 !w-5 sm:!h-4 sm:!w-4" /><span
+							class="hidden text-xs sm:block sm:text-sm">Delete</span
+						>
+					</Toggle>
+					<Toggle
+						aria-label="toggle selection"
+						onclick={() => {
+							deleteButtonEnabled = false;
+							toggleSelection();
+						}}
+						id="toggle-select-images"
+						class="data-[state=on]:bg-slate-300"
+						disabled={!downloadButtonEnabled}
 					>
-				</Toggle>
-				<Toggle
-					aria-label="toggle selection"
-					onclick={() => {
-						deleteButtonEnabled = false;
-						toggleSelection();
-					}}
-					id="toggle-select-images"
-					class="data-[state=on]:bg-slate-300"
-					disabled={!downloadButtonEnabled}
-				>
-					<ImageDown class="!h-5 !w-5 sm:!h-4 sm:!w-4" />
-					<span class="hidden text-xs sm:block sm:text-sm">Download</span>
-				</Toggle>
-				<!-- Filter Button -->
-				<Toggle
-					aria-label="toggle selection"
-					onclick={filterByCurrentUserAsUploader}
-					id="toggle-show-user-uploaded-images"
-					class="data-[state=on]:bg-slate-300"
-				>
-					{#if showOnlyCurrentUserUploads}
-						<Users class="!h-5 !w-5 sm:!h-4 sm:!w-4" />
-					{:else}
-						<User class="!h-5 !w-5 sm:!h-4 sm:!w-4" />
-					{/if}
+						<ImageDown class="!h-5 !w-5 sm:!h-4 sm:!w-4" />
+						<span class="hidden text-xs sm:block sm:text-sm">Download</span>
+					</Toggle>
+					<!-- Filter Button -->
+					<Toggle
+						aria-label="toggle selection"
+						onclick={filterByCurrentUserAsUploader}
+						id="toggle-show-user-uploaded-images"
+						class="data-[state=on]:bg-slate-300"
+					>
+						{#if showOnlyCurrentUserUploads}
+							<Users class="!h-5 !w-5 sm:!h-4 sm:!w-4" />
+						{:else}
+							<User class="!h-5 !w-5 sm:!h-4 sm:!w-4" />
+						{/if}
 
-					<span class="hidden text-xs sm:block sm:text-sm">
-						{showOnlyCurrentUserUploads ? 'Show All' : 'Show Mine'}
-					</span>
-				</Toggle>
-			{/if}
+						<span class="hidden text-xs sm:block sm:text-sm">
+							{showOnlyCurrentUserUploads ? 'Show All' : 'Show Mine'}
+						</span>
+					</Toggle>
+				{/if}
+			</div>
+			<div></div>
 		</div>
-		<div></div>
-	</div>
-	<section class="w-full sm:w-[550px] md:w-[650px] lg:w-[950px]">
-		{#if eventFiles.length > 0}
-			<div
-				class="gallery-container selection-area my-5 grid grid-cols-3 gap-1 sm:grid-cols-4 lg:grid-cols-5"
-			>
-				{#each eventFiles as file}
-					{#if !file.is_linked_file}
-						<div
-							class="image-item rounded-xl border-4 border-transparent"
-							data-id={file.id}
-							data-uploader-id={file.uploader_id}
-							data-src={file.URL}
-							data-name={file.file_name}
-						>
-							<ContextMenu.Root>
-								<ContextMenu.Trigger>
-									<GalleryItem
-										url={file.URL}
-										urlActive={selectionActive || imageLinksNotClickable}
-										wPixel={file.w_pixel}
-										hPixel={file.h_pixel}
-										fileName={file.file_name}
-										blurhash={file.blurr_hash}
-										fileType={file.file_type}
-										preview={file.linked_file || null}
-									/>
-								</ContextMenu.Trigger>
-								<ContextMenu.Content>
-									<ContextMenu.Item>Download</ContextMenu.Item>
-									{#if $page.data.user.id == file.uploader_id || isCurrenUserEventAdmin}
-										<CustomAlertDialogue
-											continueCallback={() => handleDelete(file.id)}
-											dialogDescription={`This action cannot be undone. This will permanently delete ${selectedImages.length} this file from our servers.`}
-										>
-											<ContextMenu.Item>Delete this file</ContextMenu.Item></CustomAlertDialogue
-										>
-									{/if}
-									{#if isCurrenUserEventAdmin && selectedImages.length > 1}
-										<CustomAlertDialogue
-											continueCallback={() => handleDelete()}
-											dialogDescription={`This action cannot be undone. This will permanently delete ${selectedImages.length} this file from our servers.`}
-										>
-											<ContextMenu.Item>Delete all selected files</ContextMenu.Item
-											></CustomAlertDialogue
-										>
-									{/if}
-								</ContextMenu.Content>
-							</ContextMenu.Root>
-						</div>
-					{/if}
-				{/each}
-			</div>
-		{:else}
-			<div class="flex h-full w-full justify-center">
+		<section class="w-full sm:w-[550px] md:w-[650px] lg:w-[950px]">
+			{#if eventFiles.length > 0}
 				<div
-					class="mt-20 flex h-12 w-2/3 items-center justify-center rounded-xl bg-slate-200 text-sm dark:bg-slate-800 dark:text-white sm:text-base"
+					class="gallery-container selection-area my-5 grid grid-cols-3 gap-1 sm:grid-cols-4 lg:grid-cols-5"
 				>
-					<div>No files yet</div>
-				</div>
-			</div>
-		{/if}
-	</section>
-</div>
-
-{#if selectionActive}
-	<div
-		class="fixed bottom-0 left-1/2 flex -translate-x-1/2 transform flex-col items-center bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-slate-100 via-transparent to-transparent"
-	>
-		<div class="p-20">
-			{#if selectedImages.length > 0}
-				<div class="flex w-full justify-center py-2">{selectedImages.length} files selected</div>
-			{/if}
-			<div class="flex items-center space-x-2">
-				<div class="flex flex-col justify-center space-y-1">
-					<Button
-						disabled={eventFiles.length == selectedImages.length}
-						onclick={selectAll}
-						class="p-1 text-xs dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800 sm:p-4 sm:text-lg lg:p-6 lg:text-2xl"
-						>Select All</Button
-					>
-					<Button
-						disabled={selectedImages.length == 0}
-						onclick={selectNone}
-						class="p-1 text-xs dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800 sm:p-4 sm:text-lg lg:p-6 lg:text-2xl"
-						>Select None</Button
-					>
-				</div>
-				<Tooltip.Provider>
-					<Tooltip.Root>
-						<Tooltip.Trigger>
-							<button
-								id="download-selected-files"
-								disabled={selectedImages.length == 0}
-								onclick={handleDownload}
-								class="rounded-full p-4 text-white shadow-lg transition
-							{selectedImages.length === 0 ? 'cursor-not-allowed bg-blue-400' : 'bg-blue-500 hover:bg-blue-600'}"
+					{#each eventFiles as file}
+						{#if !file.is_linked_file}
+							<div
+								class="image-item rounded-xl border-4 border-transparent"
+								data-id={file.id}
+								data-uploader-id={file.uploader_id}
+								data-src={file.URL}
+								data-name={file.file_name}
 							>
-								<!-- Button Icon -->
-								<Download class="h-6 w-6 sm:h-8 sm:w-8 lg:h-12 lg:w-12" />
-							</button></Tooltip.Trigger
+								<ContextMenu.Root>
+									<ContextMenu.Trigger>
+										<GalleryItem
+											url={file.URL}
+											urlActive={selectionActive || imageLinksNotClickable}
+											wPixel={file.w_pixel}
+											hPixel={file.h_pixel}
+											fileName={file.file_name}
+											blurhash={file.blurr_hash}
+											fileType={file.file_type}
+											preview={file.linked_file || null}
+										/>
+									</ContextMenu.Trigger>
+									<ContextMenu.Content>
+										<ContextMenu.Item>Download</ContextMenu.Item>
+										{#if $page.data.user.id == file.uploader_id || isCurrenUserEventAdmin}
+											<CustomAlertDialogue
+												continueCallback={() => handleDelete(file.id)}
+												dialogDescription={`This action cannot be undone. This will permanently delete ${selectedImages.length} this file from our servers.`}
+											>
+												<ContextMenu.Item>Delete this file</ContextMenu.Item></CustomAlertDialogue
+											>
+										{/if}
+										{#if isCurrenUserEventAdmin && selectedImages.length > 1}
+											<CustomAlertDialogue
+												continueCallback={() => handleDelete()}
+												dialogDescription={`This action cannot be undone. This will permanently delete ${selectedImages.length} this file from our servers.`}
+											>
+												<ContextMenu.Item>Delete all selected files</ContextMenu.Item
+												></CustomAlertDialogue
+											>
+										{/if}
+									</ContextMenu.Content>
+								</ContextMenu.Root>
+							</div>
+						{/if}
+					{/each}
+				</div>
+			{:else}
+				<div class="flex h-full w-full justify-center">
+					<div
+						class="mt-20 flex h-12 w-2/3 items-center justify-center rounded-xl bg-slate-200 text-sm dark:bg-slate-800 dark:text-white sm:text-base"
+					>
+						<div>No files yet</div>
+					</div>
+				</div>
+			{/if}
+		</section>
+	</div>
+
+	{#if selectionActive}
+		<div
+			class="fixed bottom-0 left-1/2 flex -translate-x-1/2 transform flex-col items-center bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-slate-100 via-transparent to-transparent"
+		>
+			<div class="p-20">
+				{#if selectedImages.length > 0}
+					<div class="flex w-full justify-center py-2">{selectedImages.length} files selected</div>
+				{/if}
+				<div class="flex items-center space-x-2">
+					<div class="flex flex-col justify-center space-y-1">
+						<Button
+							disabled={eventFiles.length == selectedImages.length}
+							onclick={selectAll}
+							class="p-1 text-xs dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800 sm:p-4 sm:text-lg lg:p-6 lg:text-2xl"
+							>Select All</Button
 						>
-						<Tooltip.Content>
-							<p>Download</p>
-						</Tooltip.Content>
-					</Tooltip.Root>
-				</Tooltip.Provider>
-				{#if isCurrenUserEventAdmin || canBulkDelete()}
+						<Button
+							disabled={selectedImages.length == 0}
+							onclick={selectNone}
+							class="p-1 text-xs dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800 sm:p-4 sm:text-lg lg:p-6 lg:text-2xl"
+							>Select None</Button
+						>
+					</div>
 					<Tooltip.Provider>
 						<Tooltip.Root>
 							<Tooltip.Trigger>
-								<CustomAlertDialogue
-									bind:isOpen={isDeleteFileConfirmationDialogOpen}
-									continueCallback={() => handleDelete()}
+								<button
+									id="download-selected-files"
 									disabled={selectedImages.length == 0}
-									dialogDescription={`This action cannot be undone. This will permanently delete ${selectedImages.length} ${selectedImages.length > 1 ? 'files' : 'file'} from our servers.`}
+									onclick={handleDownload}
+									class="rounded-full p-4 text-white shadow-lg transition
+							{selectedImages.length === 0 ? 'cursor-not-allowed bg-blue-400' : 'bg-blue-500 hover:bg-blue-600'}"
 								>
-									<button
-										id="delete-selected-files"
-										disabled={selectedImages.length == 0}
-										class="rounded-full p-4 text-white shadow-lg transition
-							{selectedImages.length === 0 ? 'cursor-not-allowed bg-red-100' : 'bg-red-500 hover:bg-red-600'}"
-									>
-										<!-- Button Icon -->
-										<Trash2 class="h-6 w-6 sm:h-8 sm:w-8 lg:h-12 lg:w-12" />
-									</button>
-								</CustomAlertDialogue>
-							</Tooltip.Trigger>
+									<!-- Button Icon -->
+									<Download class="h-6 w-6 sm:h-8 sm:w-8 lg:h-12 lg:w-12" />
+								</button></Tooltip.Trigger
+							>
 							<Tooltip.Content>
-								<p>Delete</p>
+								<p>Download</p>
 							</Tooltip.Content>
 						</Tooltip.Root>
 					</Tooltip.Provider>
-				{/if}
+					{#if isCurrenUserEventAdmin || canBulkDelete()}
+						<Tooltip.Provider>
+							<Tooltip.Root>
+								<Tooltip.Trigger>
+									<CustomAlertDialogue
+										bind:isOpen={isDeleteFileConfirmationDialogOpen}
+										continueCallback={() => handleDelete()}
+										disabled={selectedImages.length == 0}
+										dialogDescription={`This action cannot be undone. This will permanently delete ${selectedImages.length} ${selectedImages.length > 1 ? 'files' : 'file'} from our servers.`}
+									>
+										<button
+											id="delete-selected-files"
+											disabled={selectedImages.length == 0}
+											class="rounded-full p-4 text-white shadow-lg transition
+							{selectedImages.length === 0 ? 'cursor-not-allowed bg-red-100' : 'bg-red-500 hover:bg-red-600'}"
+										>
+											<!-- Button Icon -->
+											<Trash2 class="h-6 w-6 sm:h-8 sm:w-8 lg:h-12 lg:w-12" />
+										</button>
+									</CustomAlertDialogue>
+								</Tooltip.Trigger>
+								<Tooltip.Content>
+									<p>Delete</p>
+								</Tooltip.Content>
+							</Tooltip.Root>
+						</Tooltip.Provider>
+					{/if}
 
-				<!-- <span class="mt-2">Download {selectedImages.length} files</span> -->
+					<!-- <span class="mt-2">Download {selectedImages.length} files</span> -->
+				</div>
 			</div>
 		</div>
-	</div>
-{/if}
+	{/if}
 
-<!-- This alert box is used from JS -->
-<CustomAlertDialogue
-	bind:isOpen={isDialogOpen}
-	{dialogDescription}
-	continueCallback={() => {
-		if (onConfirmCallback) onConfirmCallback();
-		isDialogOpen = false;
-	}}
-/>
+	<!-- This alert box is used from JS -->
+	<CustomAlertDialogue
+		bind:isOpen={isDialogOpen}
+		{dialogDescription}
+		continueCallback={() => {
+			if (onConfirmCallback) onConfirmCallback();
+			isDialogOpen = false;
+		}}
+	/>
 
-<LoaderPage show={showPageActionLoading} text={showPageActionLoadingText} />
+	<LoaderPage show={showPageActionLoading} text={showPageActionLoadingText} />
+</FadeIn>
 
 <style>
 	.selection-area {

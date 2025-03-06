@@ -60,7 +60,7 @@
 		<div
 			class="my-6 flex items-center justify-between rounded-xl bg-slate-100 p-3 text-2xl font-semibold shadow-md dark:bg-slate-800 dark:text-white"
 		>
-			<BackButton />
+			<BackButton url={'/profile'}/>
 			<h2>Transactions</h2>
 			<span></span>
 		</div>

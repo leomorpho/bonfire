@@ -21,6 +21,7 @@
 	import { toast } from 'svelte-sonner';
 	import { detectTailwindTheme } from '$lib/utils';
 	import BackButton from '$lib/components/BackButton.svelte';
+	import FadeIn from '$lib/components/containers/FadeIn.svelte';
 
 	let uppy: any;
 
@@ -187,15 +188,17 @@
 	});
 </script>
 
-<div class="mx-4 flex flex-col items-center justify-center">
-	<section class="mt-8 w-full sm:w-[450px]">
-		<h2
-			class="mb-5 flex w-full items-center justify-between rounded-xl bg-white p-2 text-lg font-semibold dark:bg-slate-900"
-		>
-			<BackButton url={`/bonfire/${$page.params.id}/media/gallery`} />
-			<div>Upload new media</div>
-			<div></div>
-		</h2>
-		<div id="uppy-dashboard"></div>
-	</section>
-</div>
+<FadeIn>
+	<div class="mx-4 flex flex-col items-center justify-center">
+		<section class="mt-8 w-full sm:w-[450px]">
+			<h2
+				class="mb-5 flex w-full items-center justify-between rounded-xl bg-white p-2 text-lg font-semibold dark:bg-slate-900"
+			>
+				<BackButton url={`/bonfire/${$page.params.id}/media/gallery`} />
+				<div>Upload new media</div>
+				<div></div>
+			</h2>
+			<div id="uppy-dashboard"></div>
+		</section>
+	</div>
+</FadeIn>

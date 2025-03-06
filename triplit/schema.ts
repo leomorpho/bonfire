@@ -193,11 +193,15 @@ export const userLogsTokenSchema = {
 			total_money_amount: S.Number({ default: null, nullable: true }),
 			currency: S.String({ default: null, nullable: true }),
 			created_at: S.Date({ default: S.Default.now() }) // Timestamp of transaction
+			// user_donation: S.RelationOne('user_donations', {
+			// 	// Link to possible donation
+			// 	where: [['transaction_id', '=', '$id']]
+			// })
 		}),
 		permissions: {
 			user: {
 				read: {
-					filter: [['user_id', '=', '$role.userId']] // Users can only see their own transactions
+					filter: [or([['user_id', '=', '$role.userId']])] // Users can only see their own transactions
 				}
 			},
 			admin: {
@@ -207,6 +211,91 @@ export const userLogsTokenSchema = {
 			anon: {}
 		}
 	}
+} satisfies ClientSchema;
+
+export const donationsSchema = {
+	non_profits: {
+		schema: S.Schema({
+			id: S.Id(),
+			name: S.String(), // Name of the non-profit
+			description: S.String({ nullable: true }), // Short description
+			photo_url: S.String({ nullable: true }), // Public S3 path for a logo/photo
+			website_url: S.String({ nullable: true }), // External website link
+			effective_start_date: S.Date({ default: S.Default.now() }), // When the non-profit became eligible
+			effective_end_date: S.Date({ nullable: true, default: null }), // When the non-profit is no longer eligible
+			created_at: S.Date({ default: S.Default.now() }), // Timestamp when added
+			updated_at: S.Date({ default: S.Default.now() }) // Timestamp for updates
+		}),
+		permissions: {
+			admin: {
+				read: { filter: [true] },
+				insert: { filter: [true] },
+				update: { filter: [true] }
+			},
+			user: {
+				read: {
+					filter: [true]
+				}
+			},
+			temp: {
+				read: {
+					filter: [true]
+				}
+			},
+			anon: {
+				read: {
+					filter: [true]
+				}
+			}
+		}
+	}
+	// user_donations: {
+	// 	schema: S.Schema({
+	// 		id: S.Id(),
+	// 		user_id: S.String(), // User who made the donation
+	// 		user: S.RelationById('user', '$user_id'), // Relation to the user
+	// 		non_profit_id: S.String(), // Chosen non-profit
+	// 		non_profit: S.RelationById('non_profits', '$non_profit_id'), // Relation to non-profits
+	// 		transaction_id: S.String(), // Related payment transaction
+	// 		transaction: S.RelationById('transactions', '$transaction_id'), // Relation to transactions
+	// 		created_at: S.Date({ default: S.Default.now() }) // Timestamp of donation
+	// 	}),
+	// 	permissions: {
+	// 		user: {
+	// 			read: { filter: [['user_id', '=', '$role.userId']] }, // Users can read their own donations
+	// 			insert: { filter: [['user_id', '=', '$role.userId']] } // Users can donate
+	// 		},
+	// 		admin: {
+	// 			read: { filter: [true] } // Admins can view all donations
+	// 		},
+	// 		temp: {},
+	// 		anon: {}
+	// 	}
+	// },
+	// non_profit_payouts: {
+	// 	schema: S.Schema({
+	// 		id: S.Id(),
+	// 		non_profit_id: S.String(), // Non-profit receiving the payout
+	// 		non_profit: S.RelationById('non_profits', '$non_profit_id'), // Relation to non-profits
+	// 		payout_amount: S.Number(), // Total amount paid out (in cents)
+	// 		currency: S.String(), // Currency of payout
+	// 		payout_date: S.Date({ default: S.Default.now() }), // Date when the payout occurred
+	// 		status: S.String({ enum: ['pending', 'completed', 'failed'] as const }), // Payout status
+	// 		transaction_reference: S.String({ nullable: true }) // External payment reference
+	// 	}),
+	// 	permissions: {
+	// 		admin: {
+	// 			read: { filter: [true] }, // Admins can read all payouts
+	// 			insert: { filter: [true] }, // Admins can log payouts
+	// 			update: { filter: [true] } // Admins can update payout status
+	// 		},
+	// 		user: {
+	// 			read: { filter: [false] } // Users cannot see payout logs
+	// 		},
+	// 		temp: {},
+	// 		anon: {}
+	// 	}
+	// }
 } satisfies ClientSchema;
 
 // Define schema with permissions
@@ -224,6 +313,9 @@ export const schema = {
 			attendances: S.RelationMany('attendees', {
 				where: [['user_id', '=', '$id']]
 			}),
+
+			favourite_non_profit_id: S.Optional(S.String()), // Non-profit the user currently contributes to by default
+			favourite_non_profit: S.RelationById('non_profits', '$favourite_non_profit_id'),
 			created_at: S.Optional(S.Date({ default: S.Default.now() })),
 			updated_at: S.Optional(S.Date({ default: null, nullable: true }))
 		}),
@@ -338,11 +430,15 @@ export const schema = {
 			transaction: S.RelationOne('transactions', {
 				where: [['event_id', '=', '$id']]
 			}),
+			non_profit_id: S.Optional(S.String()), // Non-profit the event contributes to
+			non_profit: S.RelationById('non_profits', '$non_profit_id'),
+
 			style: S.String({ nullable: true }),
 			overlay_color: S.String({ nullable: true, optional: true }),
 			overlay_opacity: S.Number({ nullable: true, optional: true }),
 			created_at: S.Optional(S.Date({ default: S.Default.now() })),
-			max_capacity: S.Optional(S.Number({ default: null, nullable: true }))
+			max_capacity: S.Optional(S.Number({ default: null, nullable: true })),
+			is_published: S.Optional(S.Boolean({ default: false }))
 		}),
 		permissions: {
 			user: {
@@ -367,7 +463,14 @@ export const schema = {
 					]
 				},
 				insert: { filter: [true] }, // Anyone can create an event
-				update: { filter: [['user_id', '=', '$role.userId']] },
+				update: {
+					filter: [
+						or([
+							['user_id', '=', '$role.userId'],
+							['event_admins.user_id', '=', '$role.userId']
+						])
+					]
+				},
 				delete: { filter: [['user_id', '=', '$role.userId']] }
 			},
 			temp: {
@@ -1150,5 +1253,6 @@ export const schema = {
 		}
 	},
 	...bringSchema,
-	...userLogsTokenSchema
+	...userLogsTokenSchema,
+	...donationsSchema
 } satisfies ClientSchema;

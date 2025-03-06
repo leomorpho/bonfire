@@ -14,6 +14,10 @@ builder:
   arch: amd64
 
 env:
+  clear:
+    PUBLIC_1_LOG_PRICE_ID: 'price_1Qz4mfCktR3peisA2oCHHUdA'
+    PUBLIC_3_LOG_PRICE_ID: 'price_1Qz4nDCktR3peisAlKPzaabO'
+    PUBLIC_10_LOG_PRICE_ID: 'price_1Qz4nkCktR3peisA34sZdfPy'
   secret:
     - TURSO_DB_AUTH_TOKEN
     - TURSO_DB_URL

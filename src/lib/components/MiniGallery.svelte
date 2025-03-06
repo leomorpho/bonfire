@@ -2,11 +2,10 @@
 	import PhotoSwipeLightbox from 'photoswipe/lightbox';
 	import 'photoswipe/style.css';
 	import { onMount } from 'svelte';
-	import { Image } from '@unpic/svelte';
-	import { ImagePlus } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import BonfireNoInfoCard from './BonfireNoInfoCard.svelte';
 	import GalleryItem from './GalleryItem.svelte';
+	import { Plus } from 'lucide-svelte';
 
 	let { fileCount, eventFiles } = $props();
 	let lightbox: PhotoSwipeLightbox | null = $state(null);
@@ -101,28 +100,21 @@
 	{#if eventFiles.length > 0}
 		<div class="lightbox-gallery-container my-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
 			{#each eventFiles as file}
-				<a
-					href={file.signed_url}
-					data-pswp-width={file.w_pixel}
-					data-pswp-height={file.h_pixel}
-					data-pswp-is-video={file.file_type.startsWith('video/')}
-				>
-					<GalleryItem
-						url={file.URL}
-						wPixel={file.w_pixel}
-						hPixel={file.h_pixel}
-						fileName={file.file_name}
-						blurhash={file.blurr_hash}
-						fileType={file.file_type}
-						preview={file.linked_file || null}
-					/>
-				</a>
+				<GalleryItem
+					url={file.URL}
+					wPixel={file.w_pixel}
+					hPixel={file.h_pixel}
+					fileName={file.file_name}
+					blurhash={file.blurr_hash}
+					fileType={file.file_type}
+					preview={file.linked_file || null}
+				/>
 			{/each}
 			{#if eventFiles.length > 2 && fileCount}
 				<!-- "See All" Image -->
 				<a href="media/gallery" class="see-all-link block">
 					<div
-						class="flex items-center justify-center rounded-lg bg-gray-200 dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-white text-center font-semibold sm:text-lg"
+						class="flex items-center justify-center rounded-lg bg-gray-200 text-center font-semibold dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800 sm:text-lg"
 						style="aspect-ratio: 5 / 3; width: 100%;"
 					>
 						See {fileCount} more
@@ -131,7 +123,7 @@
 			{:else}
 				<a href="media/gallery" class="see-all-link block">
 					<div
-						class="flex items-center justify-center rounded-lg bg-gray-200 dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-white text-center font-semibold sm:text-lg"
+						class="flex items-center justify-center rounded-lg bg-gray-200 text-center font-semibold dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800 sm:text-lg"
 						style="aspect-ratio: 5 / 3; width: 100%;"
 					>
 						See Gallery
@@ -146,8 +138,10 @@
 	{/if}
 {/if}
 <a href="media/add">
-	<Button class="flex w-full items-center justify-center ring-glow dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-white">
-		<ImagePlus />Add to gallery
+	<Button
+		class="flex w-full items-center justify-center ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
+	>
+		<Plus class="mr-1" />Upload
 	</Button>
 </a>
 
