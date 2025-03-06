@@ -286,6 +286,7 @@
 						effectivEndDate={nonProfit.effective_end_date}
 						updateNonProfit={() => openUpdateForm(nonProfit)}
 						deleteNonProfit={() => deleteNonProfit(nonProfit.id)}
+						isAdmin={true}
 					/>
 				{/each}
 			</div>

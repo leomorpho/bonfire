@@ -3,6 +3,7 @@
 	import { Check, HeartHandshake, Pencil, Trash } from 'lucide-svelte';
 	import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
 	import { Button } from '../ui/button';
+	import { page } from '$app/stores';
 
 	let {
 		photoURL,
@@ -17,7 +18,8 @@
 		deleteNonProfit = null,
 		showChangeSelectedNonProfitBtn = false,
 		cls = null,
-		selectable = false
+		selectable = false,
+		isAdmin = false
 	} = $props();
 
 	let isDeleteAlertDialogOpen = $state(false);
@@ -44,7 +46,7 @@
 
 	<Card.Header>
 		{#if photoURL}
-			<img src={photoURL} alt={name} class="mb-2 h-32 w-full object-cover" />
+			<img src={photoURL} alt={name} class="mb-2 h-32 w-full rounded-xl object-cover" />
 		{/if}
 		<Card.Title>{name}</Card.Title>
 		<Card.Description class="text-sm text-gray-600 dark:text-gray-300">
@@ -53,12 +55,14 @@
 	</Card.Header>
 	<Card.Content>
 		<a href={websiteURL} target="_blank" class="text-blue-600 hover:underline"> Visit Website </a>
-		<p class="mt-1 text-sm text-gray-500 dark:text-gray-300">
-			Effective:
-			{effectiveStartDate ? new Date(effectiveStartDate).toISOString().split('T')[0] : 'Unknown'}
-			-
-			{effectivEndDate ? new Date(effectivEndDate).toISOString().split('T')[0] : 'Ongoing'}
-		</p>
+		{#if isAdmin}
+			<p class="mt-1 text-sm text-gray-500 dark:text-gray-300">
+				Effective:
+				{effectiveStartDate ? new Date(effectiveStartDate).toISOString().split('T')[0] : 'Unknown'}
+				-
+				{effectivEndDate ? new Date(effectivEndDate).toISOString().split('T')[0] : 'Ongoing'}
+			</p>
+		{/if}
 	</Card.Content>
 	{#if updateNonProfit && deleteNonProfit}
 		<Card.Footer class="flex w-full justify-center">
