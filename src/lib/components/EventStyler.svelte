@@ -5,6 +5,7 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Slider } from '$lib/components/ui/slider/index.js';
 	import { PaintRoller } from 'lucide-svelte';
+	import { dev } from '$app/environment';
 
 	let {
 		finalStyleCss = $bindable<string>(),
@@ -14,7 +15,6 @@
 
 	// Currently selected style
 	let selectedStyle: { id: number; name: string; cssTemplate: string } | null = $state(null);
-
 
 	const randomStylesGallery = randomSort(stylesGallery);
 	// DOM reference to the injected style
@@ -56,7 +56,9 @@
 			}
 		`;
 
-		// console.log('applying css', completeCss);
+		if (dev) {
+			console.log('applying css', completeCss);
+		}
 
 		// Create a new <style> tag for the selected preview style
 		styleElement = document.createElement('style');
@@ -125,7 +127,7 @@
 <div class="sticky top-10 flex justify-center">
 	<Popover.Root>
 		<Popover.Trigger class="mt-3 flex w-full justify-center sm:w-[450px] ">
-			<Button class="w-full ring-glow dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-white">
+			<Button class="w-full ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800">
 				<PaintRoller class="mr-1" />
 				Edit overlay
 			</Button>
@@ -143,7 +145,9 @@
 				</div>
 
 				<div class="mb-4 flex w-full flex-col items-center">
-					<label for="overlay-opacity" class="my-4 block text-sm font-medium text-gray-700 dark:text-slate-100"
+					<label
+						for="overlay-opacity"
+						class="my-4 block text-sm font-medium text-gray-700 dark:text-slate-100"
 						>Opacity: {Math.round(overlayOpacity * 100)}%</label
 					>
 
@@ -171,7 +175,11 @@
 					style={style.cssTemplate}
 					onclick={() => applyStyle(style)}
 				>
-					<div class="rounded-lg bg-white dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-white p-1 text-xs sm:text-sm">{style.name}</div>
+					<div
+						class="rounded-lg bg-white p-1 text-xs dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800 sm:text-sm"
+					>
+						{style.name}
+					</div>
 				</button>
 			</div>
 		{/each}

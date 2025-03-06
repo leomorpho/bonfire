@@ -304,6 +304,7 @@ export const schema = {
 		schema: S.Schema({
 			id: S.String(),
 			username: S.String(),
+			is_fully_onboarded: S.Optional(S.Boolean({ default: false })),
 			profile_image: S.RelationOne('profile_images', {
 				where: [['user_id', '=', '$id']]
 			}),

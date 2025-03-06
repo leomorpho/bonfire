@@ -11,6 +11,7 @@
 	let username = $state('');
 	let submitEnabled = $state(false);
 	let userExists = $state(false);
+	let userIsFullyOnboarded = $state(false);
 
 	$effect(() => {
 		if (username.length > 0 && userExists) {
@@ -34,15 +35,19 @@
 			client
 				.query('user')
 				.where(['id', '=', $page.data.user.id])
-				.select(['id', 'username'])
+				.select(['id', 'username', 'is_fully_onboarded'])
 				.build(),
 			(results) => {
 				// If there are less than 3 files in the events eventFiles, fetch the latest 3
 				if (results.length == 1) {
+					userExists = true;
 					if (results[0].username.length > 0) {
 						username = results[0].username;
 					}
-					userExists = true;
+					if (results[0].is_fully_onboarded) {
+						userIsFullyOnboarded = true;
+					}
+					console.log('userIsFullyOnboarded', userIsFullyOnboarded, results[0]);
 				}
 			},
 			(error) => {
@@ -63,11 +68,19 @@
 			entity.username = username;
 			entity.updated_at = new Date();
 		});
+
+		// If user is not onboarded, redirect to onboarding flow
+		if (!userIsFullyOnboarded) {
+
+			goto('/onboarding');
+			return;
+		}
+		goto('/dashboard');
+
 		const tempAttendanceUrl = await redirectToTempAttendanceInBonfireIfAvailable();
 		if (tempAttendanceUrl) {
 			goto(tempAttendanceUrl);
 		}
-		goto('/dashboard');
 	};
 </script>
 
