@@ -26,6 +26,15 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
 	console.log('[SW] Activating new service worker, version:', version);
 
+	event.waitUntil(
+		(async () => {
+			const clientsList = await self.clients.matchAll({ type: 'window' });
+			for (const client of clientsList) {
+				client.postMessage({ action: 'reload' }); // Tell all open tabs to reload
+			}
+		})()
+	);
+
 	async function deleteOldCaches() {
 		for (const key of await caches.keys()) {
 			if (key !== CACHE) {
@@ -35,7 +44,7 @@ self.addEventListener('activate', (event) => {
 		}
 	}
 
-	event.waitUntil(deleteOldCaches().then(() => self.clients.claim())); // Immediately take control
+	event.waitUntil(deleteOldCaches().then(() => self.clients.claim()));
 });
 
 self.addEventListener('fetch', (event) => {

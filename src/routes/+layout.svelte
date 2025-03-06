@@ -68,6 +68,15 @@
 			if (status === 'CLOSED') console.log('😵 Disconnected from server');
 		}, true);
 	});
+
+	if (navigator.serviceWorker) {
+		navigator.serviceWorker.addEventListener('message', (event) => {
+			if (event.data.action === 'reload') {
+				console.log('[App] Reloading due to service worker update.');
+				window.location.reload();
+			}
+		});
+	}
 </script>
 
 <svelte:head>
