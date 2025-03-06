@@ -62,16 +62,18 @@ export const load = async ({ params, locals, url }) => {
 	}
 
 	let isUserAnAttendee = false;
+
 	try {
 		event = await triplitHttpClient.fetchOne(
 			triplitHttpClient
 				.query('events')
-				.where(and([['id', '=', eventId as string], ['is_published', '=', true]]))
+				.where(and([['id', '=', eventId as string]]))
 				.include('announcements')
 				.include('attendees')
 				.include('temporary_attendees')
 				.include('files')
 				.include('banner_media')
+				.include('event_admins')
 				.subquery(
 					'organizer',
 					triplitHttpClient
@@ -83,48 +85,60 @@ export const load = async ({ params, locals, url }) => {
 				)
 				.build()
 		);
-		if (event != null) {
-			// console.log('---> event', event);
-			if (event.attendees != null) {
-				// Count only attendees with status "GOING"
-				numAttendingGoing += event.attendees.filter(
-					(attendee) => attendee.status === Status.GOING
-				).length;
-
-				// Check if the current user is among the attendees
-				isUserAnAttendee = event.attendees.some((attendee) => attendee.user_id === user?.id);
-			}
-			if (event.temporary_attendees != null) {
-				// Count only temporary attendees with status "GOING"
-				numAttendingGoing += event.temporary_attendees.filter(
-					(attendee) => attendee.status === Status.GOING
-				).length;
-
-				if (!isUserAnAttendee) {
-					isUserAnAttendee = event.temporary_attendees.some(
-						(attendee) => attendee.user_id === user?.id
-					);
-				}
-			}
-			if (event.announcements != null) {
-				numAnnouncements = event.announcements.length;
-			}
-			if (event.files != null) {
-				numFiles = event.files.length;
-			}
-			if (event.banner_media) {
-				bannerIsSet = true;
-				const image = event.banner_media;
-				bannerLargeSizeUrl = await generateSignedUrl(image.full_image_key);
-				bannerSmallSizeUrl = await generateSignedUrl(image.small_image_key);
-				bannerBlurHash = image.blurr_hash;
-			}
-
-			// console.log("numAnnouncements", numAnnouncements)
-			// console.log("numFiles", numFiles)
-		}
 	} catch (e) {
 		console.debug(`failed to fetch event with id ${eventId}`, e);
+	}
+	if (event != null) {
+		if (!event.is_published) {
+			// Only admins or event owner can see unpublished event
+			if (!user) {
+				redirect(303, '/bonfire/not-yet-published');
+			}
+			const adminUserIds = event.event_admins.map((admin: { user_id: string }) => admin.user_id);
+			const currUserIsAdmin = user.id == event.user_id || adminUserIds.has(user.id);
+			if (!currUserIsAdmin) {
+				redirect(303, '/bonfire/not-yet-published');
+			}
+		}
+
+		// console.log('---> event', event);
+		if (event.attendees != null) {
+			// Count only attendees with status "GOING"
+			numAttendingGoing += event.attendees.filter(
+				(attendee) => attendee.status === Status.GOING
+			).length;
+
+			// Check if the current user is among the attendees
+			isUserAnAttendee = event.attendees.some((attendee) => attendee.user_id === user?.id);
+		}
+		if (event.temporary_attendees != null) {
+			// Count only temporary attendees with status "GOING"
+			numAttendingGoing += event.temporary_attendees.filter(
+				(attendee) => attendee.status === Status.GOING
+			).length;
+
+			if (!isUserAnAttendee) {
+				isUserAnAttendee = event.temporary_attendees.some(
+					(attendee) => attendee.user_id === user?.id
+				);
+			}
+		}
+		if (event.announcements != null) {
+			numAnnouncements = event.announcements.length;
+		}
+		if (event.files != null) {
+			numFiles = event.files.length;
+		}
+		if (event.banner_media) {
+			bannerIsSet = true;
+			const image = event.banner_media;
+			bannerLargeSizeUrl = await generateSignedUrl(image.full_image_key);
+			bannerSmallSizeUrl = await generateSignedUrl(image.small_image_key);
+			bannerBlurHash = image.blurr_hash;
+		}
+
+		// console.log("numAnnouncements", numAnnouncements)
+		// console.log("numFiles", numFiles)
 	}
 
 	const bannerInfo = {

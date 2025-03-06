@@ -9,7 +9,6 @@
 	import {
 		Cog,
 		Share,
-		Drum,
 		Copy,
 		MapPin,
 		UserRound,
