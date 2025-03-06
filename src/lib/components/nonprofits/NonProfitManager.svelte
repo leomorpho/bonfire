@@ -6,14 +6,10 @@
 	import Datepicker from '$lib/components/Datepicker.svelte';
 	import { fromDate, type DateValue, getLocalTimeZone } from '@internationalized/date';
 	import { onMount } from 'svelte';
-	import type { TriplitClient } from '@triplit/client';
+	import type { HttpClient, TriplitClient } from '@triplit/client';
 	import { toast } from 'svelte-sonner';
-	import { Plus, Pencil, Trash } from 'lucide-svelte';
-	import {
-		feHttpTriplitClient,
-		getFeHttpTriplitClient,
-		getFeWorkerTriplitClient
-	} from '$lib/triplit';
+	import { Plus } from 'lucide-svelte';
+	import { getFeHttpTriplitClient, getFeWorkerTriplitClient } from '$lib/triplit';
 	import { page } from '$app/stores';
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
 	import NonProfitCard from './NonProfitCard.svelte';
@@ -30,6 +26,7 @@
 	};
 
 	let client: TriplitClient;
+	let feHttpClient: HttpClient;
 	let nonProfits = $state([]);
 	let loading = $state(true);
 	let form = $state(emptyForm);
@@ -41,6 +38,8 @@
 	let isUpdateAlertDialogOpen = $state(false);
 
 	onMount(() => {
+		feHttpClient = getFeHttpTriplitClient($page.data.jwt);
+
 		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
 		const unsubscribe = client.subscribe(
@@ -59,8 +58,6 @@
 	});
 	const createNonProfit = async () => {
 		try {
-			const feHttpClient = getFeHttpTriplitClient($page.data.jwt);
-
 			await feHttpClient.insert('non_profits', {
 				name: form.name,
 				description: form.description,
@@ -91,7 +88,7 @@
 				: null;
 
 			if (form.id) {
-				await client.update('non_profits', form.id, async (entity) => {
+				await feHttpClient.update('non_profits', form.id, async (entity) => {
 					entity.name = form.name;
 					entity.description = form.description;
 					entity.photo_url = form.photo_url || null;
@@ -101,7 +98,7 @@
 				});
 				toast.success('Non-profit updated successfully!');
 			} else {
-				await client.insert('non_profits', {
+				await feHttpClient.insert('non_profits', {
 					...form,
 					effective_start_date: effectiveStartDate,
 					effective_end_date: effectiveEndDate
@@ -142,7 +139,7 @@
 
 	const deleteNonProfit = async (id: string) => {
 		try {
-			await client.delete('non_profits', id);
+			await feHttpClient.delete('non_profits', id);
 			toast.success('Non-profit deleted successfully!');
 		} catch (error) {
 			console.error('Error deleting non-profit:', error);
