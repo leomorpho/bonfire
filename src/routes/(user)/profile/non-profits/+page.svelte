@@ -83,7 +83,7 @@
 	<div
 		class="my-6 flex w-full items-center justify-between rounded-lg bg-slate-200 p-2 text-2xl font-semibold dark:bg-slate-800 dark:text-white"
 	>
-		<BackButton />
+		<BackButton url='/profile'/>
 		<h2 class="ml-1">Support a Cause</h2>
 		<span></span>
 	</div>

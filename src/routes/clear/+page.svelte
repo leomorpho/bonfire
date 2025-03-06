@@ -11,7 +11,7 @@
 		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
 		clearCache(client, true).catch((error) => {
-			console.error('Failed to reset Triplit local DB on logout:', error);
+			console.error('Failed to reset Triplit local DB:', error);
 		});
 	});
 </script>

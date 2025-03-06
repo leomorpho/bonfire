@@ -127,6 +127,14 @@ const createNewWorkerTriplitClient = (jwt: string) => {
 					feWorkerTriplitClient?.clear();
 				}
 			}
+			if (type === 'SCHEMA_MISMATCH') {
+				// await feWorkerTriplitClient?.endSession();
+				await feWorkerTriplitClient?.clear({ full: true });
+				const newJwt = await getFreshToken();
+				await feWorkerTriplitClient?.startSession(newJwt, true, {
+					refreshHandler: async () => await getFreshToken()
+				});
+			}
 		},
 		refreshOptions: {
 			refreshHandler: async () => {
