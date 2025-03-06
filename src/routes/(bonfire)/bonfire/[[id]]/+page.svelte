@@ -524,7 +524,7 @@
 
 {#snippet details(event: any)}
 	<div
-		class="flex h-fit flex-col justify-center rounded-xl bg-slate-100 p-2 text-center shadow-lg dark:bg-slate-800"
+		class="flex h-fit flex-col justify-center rounded-xl bg-slate-100 p-2 text-center shadow-lg dark:bg-slate-900"
 	>
 		<div class="font-semibold">Details</div>
 		{#if event.description}
@@ -616,11 +616,11 @@
 							{/if}
 
 							<div
-								class="relative space-y-3 rounded-xl bg-white bg-opacity-80 p-5 dark:bg-slate-900 dark:bg-opacity-80"
+								class="mt-5 sm:mt-0 relative space-y-3 rounded-xl bg-white bg-opacity-20 p-4 dark:bg-slate-900 dark:bg-opacity-20"
 							>
 								{#if !event?.is_published}
 									<div
-										class="absolute -right-1 -top-1 z-20 rounded bg-red-600 px-3 py-1 text-xs font-semibold text-white shadow-md dark:bg-red-500 sm:text-sm"
+										class="absolute -right-2 -top-2 z-20 rounded bg-red-600 px-3 py-1 text-xs font-semibold text-white shadow-md dark:bg-red-500 sm:text-sm"
 									>
 										Not Published
 									</div>
@@ -642,7 +642,7 @@
 									</a>
 								{/if}
 								<h1
-									class="flex justify-center rounded-xl bg-slate-100 p-3 text-center text-xl font-bold dark:bg-slate-800 sm:text-2xl lg:text-3xl"
+									class="flex justify-center rounded-xl bg-slate-100 p-3 text-center text-xl font-bold dark:bg-slate-900 sm:text-2xl lg:text-3xl"
 								>
 									{event.title}
 								</h1>
@@ -651,7 +651,7 @@
 										{@render details(event)}
 									</div>
 									<div
-										class="h-fit w-full rounded-xl bg-slate-100 p-2 text-center shadow-lg dark:bg-slate-800 md:w-1/2"
+										class="h-fit w-full rounded-xl bg-slate-100 p-2 text-center shadow-lg dark:bg-slate-900 md:w-1/2"
 									>
 										<div class="flex items-center justify-center font-medium">
 											<Calendar class="mr-2 !h-4 !w-4 shrink-0" />{formatHumanReadable(
@@ -872,7 +872,7 @@
 							{:else}
 								<div class="flex h-40 items-center justify-center">
 									<div
-										class="m-1 mt-10 flex h-24 w-3/4 items-center justify-center rounded-xl bg-slate-500 p-5 text-lg text-white opacity-80 dark:bg-slate-800 dark:text-slate-100"
+										class="m-1 mt-10 flex h-24 w-3/4 items-center justify-center rounded-xl bg-slate-500 p-5 text-lg text-white opacity-80 dark:bg-slate-900 dark:text-slate-100"
 									>
 										RSVP first!
 									</div>
