@@ -10,7 +10,7 @@
 	import { getFeWorkerTriplitClient } from '$lib/triplit';
 	import { toast } from 'svelte-sonner';
 	import {
-	addUserRequest,
+		addUserRequest,
 		deleteUserLiveDataStoreEntry,
 		tempUsersLiveDataStore,
 		usersLiveDataStore
@@ -33,10 +33,19 @@
 	let isTempUser: boolean = $state(true);
 	let lastUpdatedAt: Date | null = $state(null);
 	let fallbackNameShort: string | null = $state(null);
+	let previousImageHash: string | null = $state(null); // Store the last known image hash
 
 	let attendanceIsAboutToBeDeleted = $state(false);
 	const eventId = $page.params.id;
 	let dialogIsOpen = $state(false);
+
+	async function hashImage(imageBlob: Blob): Promise<string> {
+		const buffer = await imageBlob.arrayBuffer();
+		const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
+		return Array.from(new Uint8Array(hashBuffer))
+			.map((byte) => byte.toString(16).padStart(2, '0'))
+			.join('');
+	}
 
 	const deleteRealAttendee = async () => {
 		const client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
@@ -98,12 +107,12 @@
 		}
 
 		if (userId) {
-			addUserRequest(userId)
+			addUserRequest(userId);
 
 			unsubscribe = usersLiveDataStore.subscribe((users) => {
 				const user = users[userId];
 				if (!user) return;
-				
+
 				// // Only update if the user object has changed
 				// if (
 				// 	!user ||
@@ -124,10 +133,7 @@
 				lastUpdatedAt = lastUpdatedAtDate; // TODO: get latest of that or image updated at
 
 				if (user?.smallProfilePic) {
-					if (url) {
-						URL.revokeObjectURL(url); // Revoke the old object URL to free memory
-					}
-					url = URL.createObjectURL(user.smallProfilePic);
+					updateProfileImage(user.smallProfilePic);
 				}
 			});
 		} else {
@@ -140,6 +146,19 @@
 			});
 		}
 	});
+
+	const updateProfileImage = async (smallProfilePic: any) => {
+		const newHash = await hashImage(smallProfilePic);
+
+		// Only update if the hash is different
+		if (newHash !== previousImageHash) {
+			if (url) {
+				URL.revokeObjectURL(url); // Free old memory
+			}
+			url = URL.createObjectURL(smallProfilePic);
+			previousImageHash = newHash; // Store the new hash
+		}
+	};
 
 	onDestroy(() => {
 		if (unsubscribe) {

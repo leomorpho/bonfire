@@ -137,13 +137,28 @@
 		};
 	};
 
+	// const deleteNonProfit = async (id: string) => {
+	// 	try {
+	// 		await feHttpClient.delete('non_profits', id);
+	// 		toast.success('Non-profit deleted successfully!');
+	// 	} catch (error) {
+	// 		console.error('Error deleting non-profit:', error);
+	// 		toast.error('Failed to delete non-profit');
+	// 	}
+	// };
+
 	const deleteNonProfit = async (id: string) => {
 		try {
-			await feHttpClient.delete('non_profits', id);
-			toast.success('Non-profit deleted successfully!');
+			const effectiveEndDate = new Date().toISOString(); // Get the current timestamp
+
+			await feHttpClient.update('non_profits', id, async (entity) => {
+				entity.effective_end_date = effectiveEndDate;
+			});
+
+			toast.success('Non-profit deactivated successfully!');
 		} catch (error) {
-			console.error('Error deleting non-profit:', error);
-			toast.error('Failed to delete non-profit');
+			console.error('Error deactivating non-profit:', error);
+			toast.error('Failed to deactivate non-profit');
 		}
 	};
 </script>
