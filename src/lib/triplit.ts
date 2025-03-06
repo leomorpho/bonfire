@@ -157,15 +157,16 @@ export async function getFreshToken() {
 	}
 }
 
-export async function clearCache(client: TriplitClient | null) {
-	if (!client) {
-		await feWorkerTriplitClient?.endSession();
-		await feWorkerTriplitClient?.clear();
-	} else {
-		await client.endSession();
-		await client.clear();
-	}
+export async function clearCache(client: TriplitClient | null, fullClear: boolean = false) {
+    if (!client) {
+        await feWorkerTriplitClient?.endSession();
+        await feWorkerTriplitClient?.clear({ full: fullClear });
+    } else {
+        await client.endSession();
+        await client.clear({ full: fullClear });
+    }
 }
+
 
 export async function upsertUserAttendance(eventId: string, status: Status) {
 	try {
