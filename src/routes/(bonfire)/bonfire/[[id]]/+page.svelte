@@ -92,7 +92,15 @@
 
 	// TODO: support events created before payments system was created. There was no concept of "published"/"draft". Remove once all events have an attached transaction.
 	const paymentsReleaseDate = new Date(publicEnv.PUBLIC_PAYMENTS_RELEASE_DATE);
-	let isEventPublished = $derived(event?.created_at < paymentsReleaseDate || event?.is_published);
+	let isEventPublished = $state(true); // Assume it's published by default
+
+	$effect(() => {
+		if (event?.created_at < paymentsReleaseDate || event?.is_published) {
+			isEventPublished = true;
+		} else {
+			false;
+		}
+	});
 
 	$effect(() => {
 		if ($page.data.user) {
