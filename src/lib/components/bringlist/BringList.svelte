@@ -72,10 +72,6 @@
 	});
 </script>
 
-<div class="flex justify-center rounded-xl bg-white p-5 dark:bg-slate-900">
-	<div class="flex font-semibold"><ShoppingBasket class="mr-2" /> Bring List</div>
-</div>
-
 <div class="my-2">
 	{#if initialLoad}
 		<div class="flex w-full items-center justify-center"><SvgLoader /></div>

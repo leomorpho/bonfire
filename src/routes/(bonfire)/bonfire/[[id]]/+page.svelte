@@ -18,7 +18,8 @@
 		ArrowRightFromLine,
 		Images,
 		Megaphone,
-		Plus
+		Plus,
+		ShoppingBasket
 	} from 'lucide-svelte';
 	import { formatHumanReadable, formatHumanReadableHour } from '$lib/utils';
 	import Rsvp from '$lib/components/Rsvp.svelte';
@@ -525,7 +526,7 @@
 
 {#snippet details(event: any)}
 	<div
-		class="my-5 flex flex-col justify-center rounded-xl bg-slate-100 p-2 text-center shadow-lg dark:bg-slate-800"
+		class="flex h-fit flex-col justify-center rounded-xl bg-slate-100 p-2 text-center shadow-lg dark:bg-slate-800"
 	>
 		<div class="font-semibold">Details</div>
 		{#if event.description}
@@ -617,7 +618,7 @@
 							{/if}
 
 							<div
-								class="relative space-y-3 rounded-xl bg-white bg-opacity-90 p-5 dark:bg-slate-900 dark:bg-opacity-90"
+								class="relative space-y-3 rounded-xl bg-white bg-opacity-80 p-5 dark:bg-slate-900 dark:bg-opacity-80"
 							>
 								{#if !isEventPublished}
 									<div
@@ -643,22 +644,24 @@
 									</a>
 								{/if}
 								<h1
-									class="flex justify-center py-3 text-center text-2xl font-bold sm:text-3xl lg:text-4xl"
+									class="flex justify-center rounded-xl bg-slate-100 p-3 text-center text-xl font-bold dark:bg-slate-800 sm:text-2xl lg:text-3xl"
 								>
 									{event.title}
 								</h1>
-								<div class="flex w-full space-x-3">
+								<div class="flex w-full md:space-x-3">
 									<div class="hidden md:block md:w-1/2">
 										{@render details(event)}
 									</div>
-									<div class="w-full md:w-1/2">
+									<div
+										class="h-fit w-full rounded-xl bg-slate-100 p-2 text-center shadow-lg dark:bg-slate-800 md:w-1/2"
+									>
 										<div class="flex items-center justify-center font-medium">
 											<Calendar class="mr-2 !h-4 !w-4 shrink-0" />{formatHumanReadable(
 												event.start_time
 											)}
 											{#if event.end_time}to {formatHumanReadableHour(event.end_time)}{/if}
 										</div>
-										<div class="flex items-center justify-center font-light">
+										<div class="my-2 flex items-center justify-center font-light">
 											{#if event.organizer}
 												<UserRound class="mr-2 !h-4 !w-4 shrink-0" />Hosted by
 												{#if rsvpStatus}
@@ -679,7 +682,7 @@
 															<ShareLocation lat={latitude} lon={longitude}>
 																<div
 																	id="share-location"
-																	class="flex items-center justify-center rounded-xl bg-slate-100 p-2 dark:bg-slate-900"
+																	class="mt-2 flex items-center justify-center rounded-xl bg-slate-200 p-2 dark:bg-slate-900"
 																>
 																	{@html event.location}
 																	<ArrowRightFromLine class="ml-2 !h-4 !w-4 shrink-0" />
@@ -701,7 +704,7 @@
 									</div>
 								</div>
 
-								<div class="block md:hidden">
+								<div class="block pt-2 md:hidden">
 									{@render details(event)}
 								</div>
 							</div>
@@ -814,9 +817,13 @@
 										</div>
 									{/if}
 								</div>
-								{#if currUserId || tempAttendeeId}
-									<HorizRule />
-									<div class="w-full rounded-xl p-0 md:w-1/2 md:p-2">
+								<HorizRule />
+								<div class="w-full rounded-xl p-0 md:w-1/2 md:p-2">
+									<div class="flex justify-center rounded-xl bg-white p-5 dark:bg-slate-900">
+										<div class="flex font-semibold"><ShoppingBasket class="mr-2" /> Bring List</div>
+									</div>
+
+									{#if currUserId || tempAttendeeId}
 										<BringList
 											eventId={event.id}
 											isAdmin={isCurrenUserEventAdmin}
@@ -825,8 +832,12 @@
 											{tempAttendeeId}
 											{changeToDiscussionsTab}
 										/>
-									</div>
-								{/if}
+									{:else}
+										<div class="my-2">
+											<BonfireNoInfoCard text={'No items to bring yet'} />
+										</div>
+									{/if}
+								</div>
 							</div>
 							<HorizRule />
 
