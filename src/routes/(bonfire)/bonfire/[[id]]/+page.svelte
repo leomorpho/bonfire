@@ -89,9 +89,6 @@
 
 	let bannerInfo: BannerInfo = $state($page.data.bannerInfo);
 
-
-	
-
 	$effect(() => {
 		if ($page.data.user) {
 			currUserId = $page.data.user.id;
@@ -550,10 +547,18 @@
 		<div class="mx-4 flex flex-col items-center justify-center">
 			{#if isCurrenUserEventAdmin}
 				<div class="flex w-full justify-center">
-					<a href="update" id="edit-bonfire">
+					<a href="update" id="edit-bonfire" class="relative">
 						<Button variant="outline" class="m-2 rounded-full">
 							<Cog class="h-5 w-5" />
 						</Button>
+						{#if !event?.is_published}
+							<div
+								class="absolute -top-1 -right-20 sm:-top-2 sm:-right-[100px] z-20 rounded bg-red-600 hover:bg-red-500 px-3 py-1 text-xs font-semibold text-white shadow-md dark:bg-red-500 dark:hover:bg-red-400 sm:text-sm"
+							>
+							<div class="w-max">Not Published</div>
+								
+							</div>
+						{/if}
 					</a>
 				</div>
 			{/if}
@@ -616,15 +621,8 @@
 							{/if}
 
 							<div
-								class="mt-5 sm:mt-0 relative space-y-3 rounded-xl bg-white bg-opacity-20 p-4 dark:bg-slate-900 dark:bg-opacity-20"
+								class="relative mt-5 space-y-3 rounded-xl bg-white bg-opacity-20 p-4 dark:bg-slate-900 dark:bg-opacity-20 sm:mt-0"
 							>
-								{#if !event?.is_published}
-									<div
-										class="absolute -right-2 -top-2 z-20 rounded bg-red-600 px-3 py-1 text-xs font-semibold text-white shadow-md dark:bg-red-500 sm:text-sm"
-									>
-										Not Published
-									</div>
-								{/if}
 								{#if bannerInfo && bannerInfo.bannerIsSet}
 									<div class="flex w-full justify-center">
 										<BonfireBanner
@@ -642,7 +640,7 @@
 									</a>
 								{/if}
 								<h1
-									class="flex justify-center rounded-xl bg-slate-100 p-3 text-center text-xl font-bold dark:bg-slate-900 sm:text-2xl lg:text-3xl"
+									class="relative flex justify-center rounded-xl bg-slate-100 p-3 text-center text-xl font-bold dark:bg-slate-900 sm:text-2xl lg:text-3xl"
 								>
 									{event.title}
 								</h1>
