@@ -66,6 +66,7 @@
 		"super-sitemap": "^0.15.1",
 		"svelte": "^5.1.1",
 		"svelte-check": "^4.0.5",
+		"svelte-maplibre": "1.0.0-next.12",
 		"svelte-radix": "^2.0.1",
 		"svelte-sonner": "^0.3.28",
 		"sveltekit-flash-message": "^2.4.4",

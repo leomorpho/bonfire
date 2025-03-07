@@ -41,7 +41,7 @@
 	import { generatePassphraseId } from '$lib/utils';
 	import TextAreaAutoGrow from './TextAreaAutoGrow.svelte';
 	import ChevronLeft from 'svelte-radix/ChevronLeft.svelte';
-	import LocationInput from './LocationInput.svelte';
+	import LocationInput from './input/location/LocationInput.svelte';
 	import EventAdminEditor from './EventAdminEditor.svelte';
 	import { debounce } from 'lodash-es';
 	import MaxCapacity from './eventform/MaxCapacity.svelte';
