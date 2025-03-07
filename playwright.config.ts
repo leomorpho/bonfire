@@ -14,7 +14,7 @@ dotenv.config({ path: path.resolve('.env') });
 export default defineConfig({
 	testDir: 'e2e',
 	testMatch: /(.+\.)?(test|spec)\.[jt]s/,
-	timeout: 60 * 1000, // 60 seconds
+	timeout: 2 * 60 * 1000, // 60 seconds TODO: put back to 60s after updating to triplit 1.0
 	/* Run tests in files in parallel */
 	fullyParallel: true, // NOTE: seems to break batch run
 	/* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -27,13 +27,22 @@ export default defineConfig({
 	/* Reporter to use. See https://playwright.dev/docs/test-reporters */
 	reporter: 'html',
 	/* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
+	expect: {
+		timeout: 20 * 1000 // Increasing temporarily because triplit has become super slow with {syncSchema: true}
+	},
 	use: {
 		/* Base URL to use in actions like `await page.goto('/')`. */
 		// baseURL: 'http://127.0.0.1:3000',
 
 		/* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
 		trace: 'on-first-retry',
-		screenshot: 'only-on-failure' // Capture screenshots on failure
+		screenshot: 'only-on-failure', // Capture screenshots on failure
+
+		/* Longer timeout for actions like click, fill, hover */
+		actionTimeout: 15000, // 15 seconds for individual actions
+
+		/* Longer timeout for page.goto and navigation */
+		navigationTimeout: 30000 // 30 seconds for navigation
 	},
 
 	/* Configure projects for major browsers */
