@@ -100,6 +100,7 @@ const createNewWorkerTriplitClient = (jwt: string) => {
 		serverUrl: publicEnv.PUBLIC_TRIPLIT_URL,
 		token: jwt ? jwt : publicEnv.PUBLIC_TRIPLIT_ANONYMOUS_TOKEN,
 		autoConnect: browser,
+		syncSchema: true,
 		onSessionError: async (type) => {
 			console.log('💀 Triplit session error occurred:', type);
 			if (type === 'ROLES_MISMATCH') {
@@ -127,7 +128,7 @@ const createNewWorkerTriplitClient = (jwt: string) => {
 					feWorkerTriplitClient?.clear();
 				}
 			}
-			// NOTE: below causes infinite loop
+			// NOTE: below causes infinite
 			// if (type === 'SCHEMA_MISMATCH') {
 			// 	// await feWorkerTriplitClient?.endSession();
 			// 	await feWorkerTriplitClient?.clear({ full: true });
