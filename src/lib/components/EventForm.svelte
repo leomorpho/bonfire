@@ -281,21 +281,25 @@
 				return;
 			}
 			eventId = await generatePassphraseId('', 48);
-			const { output } = await feHttpClient.insert('events', {
+
+			const eventData = {
 				id: eventId,
-				title: eventName,
-				description: details || null,
-				location: location || null,
+				title: eventName || '',
+				description: details || '',
+				location: location || '',
 				geocoded_location: JSON.stringify(geocodedLocation) || null,
 				start_time: eventStartDatetime,
 				end_time: eventEndDatetime,
 				user_id: userId,
-				style: finalStyleCss,
-				overlay_color: overlayColor,
-				overlay_opacity: overlayOpacity,
-				max_capacity: maxCapacity,
-				non_profit_id: userFavoriteNonProfitId
-			});
+				style: finalStyleCss || '',
+				overlay_color: overlayColor || '#000000',
+				overlay_opacity: overlayOpacity || 0.4,
+				max_capacity: maxCapacity || null,
+				non_profit_id: userFavoriteNonProfitId || null
+			};
+			console.log('🔍 Event Data being sent to insert:', JSON.stringify(eventData, null, 2));
+
+			const { output } = await feHttpClient.insert('events', eventData);
 			event = output;
 
 			// Create a transaction if the user has enough logs remaining

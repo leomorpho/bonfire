@@ -431,7 +431,7 @@ export const schema = {
 			transaction: S.RelationOne('transactions', {
 				where: [['event_id', '=', '$id']]
 			}),
-			non_profit_id: S.Optional(S.String()), // Non-profit the event contributes to
+			non_profit_id: S.Optional(S.String({ nullable: true })), // Non-profit the event contributes to
 			non_profit: S.RelationById('non_profits', '$non_profit_id'),
 
 			style: S.String({ nullable: true }),

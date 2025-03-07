@@ -168,13 +168,13 @@ export async function getFreshToken() {
 }
 
 export async function clearCache(client: TriplitClient | null, fullClear: boolean = false) {
-    if (!client) {
-        await feWorkerTriplitClient?.endSession();
-        await feWorkerTriplitClient?.clear({ full: fullClear });
-    } else {
-        await client.endSession();
-        await client.clear({ full: fullClear });
-    }
+	if (!client) {
+		await feWorkerTriplitClient?.endSession();
+		await feWorkerTriplitClient?.clear({ full: fullClear });
+	} else {
+		await client.endSession();
+		await client.clear({ full: fullClear });
+	}
 }
 
 
