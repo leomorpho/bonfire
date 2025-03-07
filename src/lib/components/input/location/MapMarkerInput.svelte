@@ -8,7 +8,7 @@
 		type LngLatLike
 	} from 'svelte-maplibre';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
-	import { Button, buttonVariants } from '$lib/components/ui/button/index.js';
+	import { Button } from '$lib/components/ui/button/index.js';
 	import { MapPin, Check, X } from 'lucide-svelte';
 	import { toast } from 'svelte-sonner';
 	import { env as publicEnv } from '$env/dynamic/public';
