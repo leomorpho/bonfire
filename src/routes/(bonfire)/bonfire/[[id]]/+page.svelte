@@ -18,7 +18,8 @@
 		Images,
 		Megaphone,
 		Plus,
-		ShoppingBasket
+		ShoppingBasket,
+		Car
 	} from 'lucide-svelte';
 	import { formatHumanReadable, formatHumanReadableHour } from '$lib/utils';
 	import Rsvp from '$lib/components/Rsvp.svelte';
@@ -51,6 +52,7 @@
 	import NoAttendeesYet from '$lib/components/attendance/NoAttendeesYet.svelte';
 	import AnonAttendeesView from '$lib/components/attendance/AnonAttendeesView.svelte';
 	import MaxCapacityInfo from '$lib/components/attendance/MaxCapacityInfo.svelte';
+	import Map from '$lib/components/map/Map.svelte';
 
 	const showMaxNumPeople = 50;
 	const tempAttendeeId = $page.data.tempAttendeeId;
@@ -313,7 +315,11 @@
 					event = results[0] as EventTypescriptType;
 					// console.log('EVENT', event);
 					if (event) {
-						if (event.geocoded_location) {
+						if (event.longitude && event.latitude) {
+							// NOTE: if user sets these (from the map) it should override the geocoding from any address
+							latitude = event.latitude;
+							longitude = event.longitude;
+						} else if (event.geocoded_location) {
 							try {
 								convertGeocodedLocationToLatLon(JSON.parse(event.geocoded_location as string));
 							} catch (e) {
@@ -521,9 +527,9 @@
 
 {#snippet details(event: any)}
 	<div
-		class="flex h-fit flex-col justify-center rounded-xl bg-slate-100 p-2 text-center shadow-lg dark:bg-slate-900"
+		class="flex h-fit flex-col justify-center rounded-xl bg-slate-100 p-2 text-center shadow-lg dark:bg-slate-900 md:py-5"
 	>
-		<div class="font-semibold">Details</div>
+		<div class="font-semibold mb-2 md:mb-3">Details</div>
 		{#if event.description}
 			<div class="whitespace-pre-wrap">
 				{event.description}
@@ -553,10 +559,9 @@
 						</Button>
 						{#if !event?.is_published}
 							<div
-								class="absolute -top-1 -right-20 sm:-top-2 sm:-right-[100px] z-20 rounded bg-red-600 hover:bg-red-500 px-3 py-1 text-xs font-semibold text-white shadow-md dark:bg-red-500 dark:hover:bg-red-400 sm:text-sm"
+								class="absolute -right-20 -top-1 z-20 rounded bg-red-600 px-3 py-1 text-xs font-semibold text-white shadow-md hover:bg-red-500 dark:bg-red-500 dark:hover:bg-red-400 sm:-right-[100px] sm:-top-2 sm:text-sm"
 							>
-							<div class="w-max">Not Published</div>
-								
+								<div class="w-max">Not Published</div>
 							</div>
 						{/if}
 					</a>
@@ -620,9 +625,7 @@
 								</div>
 							{/if}
 
-							<div
-								class="relative mt-5 space-y-3 rounded-xl bg-white bg-opacity-20 p-4 dark:bg-slate-900 dark:bg-opacity-20 sm:mt-0"
-							>
+							<div class="relative mt-5 space-y-3 rounded-xl p-4 sm:mt-0">
 								{#if bannerInfo && bannerInfo.bannerIsSet}
 									<div class="flex w-full justify-center">
 										<BonfireBanner
@@ -649,7 +652,7 @@
 										{@render details(event)}
 									</div>
 									<div
-										class="h-fit w-full rounded-xl bg-slate-100 p-2 text-center shadow-lg dark:bg-slate-900 md:w-1/2"
+										class="h-fit w-full rounded-xl bg-slate-100 p-2 text-center shadow-lg dark:bg-slate-900 md:w-1/2 pt-5"
 									>
 										<div class="flex items-center justify-center font-medium">
 											<Calendar class="mr-2 !h-4 !w-4 shrink-0" />{formatHumanReadable(
@@ -671,17 +674,22 @@
 										</div>
 
 										<div class="flex items-center justify-center font-light">
-											<MapPin class="mr-2 !h-4 !w-4 shrink-0" />
+											<!-- <MapPin class="mr-2 !h-4 !w-4 shrink-0" /> -->
 											{#if rsvpStatus}
-												{#if event.location}<div class="flex items-center justify-center">
+												{#if event.location || (latitude && longitude)}
+													<div class="flex items-center justify-center">
 														{#if latitude && longitude}
 															<ShareLocation lat={latitude} lon={longitude}>
 																<div
 																	id="share-location"
-																	class="mt-2 flex items-center justify-center rounded-xl bg-slate-200 p-2 dark:bg-slate-900"
+																	class="mt-2 flex items-center justify-center rounded-xl bg-slate-200 p-2 dark:bg-slate-800"
 																>
-																	{@html event.location}
-																	<ArrowRightFromLine class="ml-2 !h-4 !w-4 shrink-0" />
+																	{#if event.location}
+																		{@html event.location}
+																	{:else if latitude && longitude}
+																		Get Directions
+																	{/if}
+																	<Car class="ml-2 !h-4 !w-4 shrink-0" />
 																</div>
 															</ShareLocation>
 														{:else}
@@ -691,12 +699,17 @@
 														{/if}
 													</div>
 												{:else}
-													<div>No location set</div>
+													<div>No address set</div>
 												{/if}
 											{:else}
 												Set RSVP status to see location
 											{/if}
 										</div>
+										{#if latitude && longitude}
+											<div class="m-2">
+												<Map {latitude} {longitude} />
+											</div>
+										{/if}
 									</div>
 								</div>
 

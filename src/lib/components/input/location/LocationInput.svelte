@@ -3,13 +3,15 @@
 	import MapMarkerInput from './MapMarkerInput.svelte';
 
 	let {
-		onclick,
+		onSave,
 		location = $bindable<string | undefined>(),
-		geocodedLocation = $bindable<any>()
+		geocodedLocation = $bindable<any>(),
+		latitude = $bindable<number | null>(),
+		longitude = $bindable<number | null>()
 	} = $props();
 </script>
 
 <div class="flex w-full justify-between space-x-2">
-	<AddressInput bind:location bind:geocodedLocation {onclick} />
-	<MapMarkerInput bind:geocodedLocation onSave={onclick}/>
+	<AddressInput bind:location bind:geocodedLocation {onSave} />
+	<MapMarkerInput bind:geocodedLocation bind:latitude bind:longitude {onSave} />
 </div>

@@ -9,7 +9,7 @@
 	import Check from 'lucide-svelte/icons/check';
 	import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
 
-	let { onclick, location = $bindable<string | undefined>(), geocodedLocation = $bindable<any>() } =
+	let { onSave, location = $bindable<string | undefined>(), geocodedLocation = $bindable<any>() } =
 		$props();
 
 	let open = $state(false);
@@ -123,7 +123,7 @@
 </script>
 
 <Popover.Root bind:open>
-	<Popover.Trigger bind:ref={triggerRef} onclick={resizeInputBox}>
+	<Popover.Trigger bind:ref={triggerRef} onSave={resizeInputBox}>
 		{#snippet child({ props })}
 			<Button
 				variant="outline"
@@ -176,7 +176,7 @@
 									geocodedLocation = suggestion.value;
 									closeAndFocusTrigger();
 								}}
-								{onclick}
+								{onSave}
 							>
 								<Check class={cn(selectedResult !== suggestion.value && 'text-transparent')} />
 								<span
@@ -193,7 +193,7 @@
 							<Button
 								class="w-full"
 								disabled={locationQueryStr.length == 0}
-								onclick={() => fetchSuggestions(locationQueryStr)}>Search</Button
+								onSave={() => fetchSuggestions(locationQueryStr)}>Search</Button
 							>
 						</div>
 					{/if}

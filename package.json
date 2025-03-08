@@ -133,6 +133,7 @@
 		"jwt-decode": "^4.0.0",
 		"lodash-es": "^4.17.21",
 		"lucia": "^3.2.2",
+		"maplibre-gl": "^5.2.0",
 		"node-geocoder": "^4.4.1",
 		"oslo": "^1.2.1",
 		"photoswipe": "^5.4.4",

@@ -146,6 +146,9 @@ importers:
       lucia:
         specifier: ^3.2.2
         version: 3.2.2
+      maplibre-gl:
+        specifier: ^5.2.0
+        version: 5.2.0
       node-geocoder:
         specifier: ^4.4.1
         version: 4.4.1

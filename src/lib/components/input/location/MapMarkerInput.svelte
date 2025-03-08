@@ -5,25 +5,52 @@
 		NavigationControl,
 		ScaleControl,
 		FullscreenControl,
-		type LngLatLike
+		MapEvents
 	} from 'svelte-maplibre';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
-	import { Button, buttonVariants } from '$lib/components/ui/button/index.js';
-	import { MapPin, Check, X } from 'lucide-svelte';
+	import { Button } from '$lib/components/ui/button/index.js';
+	import { MapPin, Check, MapPinHouse } from 'lucide-svelte';
 	import { toast } from 'svelte-sonner';
-	import { env as publicEnv } from '$env/dynamic/public';
 
-	let { geocodedLocation = $bindable<any>(), onSave } = $props();
+	// import { env as publicEnv } from '$env/dynamic/public';
 
-	const MAP_STYLE = `https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png?api_key=${publicEnv.PUBLIC_STADIA_MAPS_TOKEN}`;
+	let {
+		geocodedLocation = $bindable<any>(),
+		latitude = $bindable<number | null>(),
+		longitude = $bindable<number | null>(),
+		onSave
+	} = $props();
+
+	// const MAP_STYLE = `https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png?api_key=${publicEnv.PUBLIC_STADIA_MAPS_TOKEN}`;
 
 	let isDialogOpen = $state(false);
 
 	// Create a reactive `LngLatLike` state
-	let geolocation: LngLatLike = $state([
-		geocodedLocation?.data?.longitude || -122.4194,
-		geocodedLocation?.data?.latitude || 37.7749
+	let geolocation: any = $state([
+		longitude ? longitude : geocodedLocation?.data?.longitude || -122.4194,
+		latitude ? latitude : geocodedLocation?.data?.latitude || 37.7749
 	]);
+
+	let showUseLocationFromAddress = $derived(
+		geocodedLocation?.data?.longitude != longitude || geocodedLocation?.data?.latitude != latitude
+	);
+
+	const useLocationFromAddress = () => {
+		geolocation = [geocodedLocation?.data?.longitude, geocodedLocation?.data?.latitude];
+		longitude = null;
+		latitude = null;
+	};
+
+	$effect(() => {
+		longitude = geolocation[0];
+		latitude = geolocation[1];
+
+		console.log('latitude', latitude, 'longitude', longitude);
+	});
+
+	function updateMarker(e: any) {
+		geolocation = [e.lngLat.lng, e.lngLat.lat];
+	}
 
 	let mapRef: any;
 
@@ -64,7 +91,7 @@
 	<!-- Trigger Button -->
 	<Dialog.Trigger>
 		<Button
-			class="focus:outline-none focus-visible:ring-0 dark:bg-slate-700 dark:text-white dark:hover:bg-slate-500"
+			class="ring-glow focus:outline-none focus-visible:ring-0 dark:bg-slate-700 dark:text-white dark:hover:bg-slate-500"
 			><MapPin class="!h-5 !w-5" /></Button
 		>
 	</Dialog.Trigger>
@@ -72,12 +99,33 @@
 	<Dialog.Content class="sm:max-w-[500px]">
 		<Dialog.Header>
 			<Dialog.Title>Set Event Location</Dialog.Title>
-			<Dialog.Description>Move the map to set the event location.</Dialog.Description>
+			<Dialog.Description>
+				Move the map to set the event location.
+				{#if showUseLocationFromAddress}
+					<div class="mt-2 flex w-full justify-center">
+						<Button onclick={useLocationFromAddress} class="mt-3 flex items-center gap-2 sm:mt-0">
+							<MapPinHouse class="h-4 w-4" />
+							Reset to location from address
+						</Button>
+					</div>
+				{/if}
+			</Dialog.Description>
 		</Dialog.Header>
 
 		<!-- Map Container -->
 		<div class="relative h-[300px] w-full overflow-hidden rounded-lg">
-			<MapLibre bind:this={mapRef} center={geolocation} zoom={14} class="map" style={MAP_STYLE}>
+			<MapLibre
+				bind:this={mapRef}
+				center={geolocation}
+				zoom={14}
+				class="map"
+				style={'https://tiles.stadiamaps.com/styles/alidade_smooth.json'}
+			>
+				<!-- MapEvents gives you access to map events even from other components inside the map,
+  where you might not have access to the top-level `MapLibre` component. In this case
+  it would also work to just use on:click on the MapLibre component itself. -->
+				<MapEvents onclick={updateMarker} />
+
 				<NavigationControl position="top-left" showCompass={false} />
 				<FullscreenControl position="top-left" />
 				<DefaultMarker bind:lngLat={geolocation} draggable></DefaultMarker>
@@ -87,20 +135,17 @@
 
 		<!-- Action Buttons -->
 		<Dialog.Footer class="mt-4 flex justify-between">
-			<Button onclick={locateUser} class="flex items-center gap-2">
+			<Button onclick={locateUser} class="mt-3 flex items-center gap-2 sm:mt-0">
 				<MapPin class="h-4 w-4" />
-				Use My Location
+				Use my location
 			</Button>
-			<Button onclick={handleSaveLocation} class="flex items-center gap-2">
+			<Button
+				onclick={handleSaveLocation}
+				class="flex items-center gap-2 bg-green-500 hover:bg-green-400"
+			>
 				<Check class="h-4 w-4" />
 				Save
 			</Button>
-			<Dialog.Close>
-				<Button variant="outline" class="flex items-center gap-2">
-					<X class="h-4 w-4" />
-					Cancel
-				</Button>
-			</Dialog.Close>
 		</Dialog.Footer>
 	</Dialog.Content>
 </Dialog.Root>

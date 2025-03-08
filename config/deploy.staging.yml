@@ -22,7 +22,6 @@ env:
     PUBLIC_1_LOG_PRICE_ID: "price_1QxadCCktR3peisA6ZujDEBj"
     PUBLIC_3_LOG_PRICE_ID: "price_1QxadnCktR3peisA1BYew1PU"
     PUBLIC_10_LOG_PRICE_ID: "price_1QxaeKCktR3peisAcjAVp5tD"
-    PUBLIC_STADIA_MAPS_TOKEN: '517b80e6-e3df-476b-adc5-0b436112532c'
   secret:
     - TURSO_DB_AUTH_TOKEN
     - TURSO_DB_URL

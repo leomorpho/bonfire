@@ -72,6 +72,8 @@
 	let endMinute = $state(''); // State for minute
 	let ampmEnd: string = $state('PM'); // State for AM/PM
 	let maxCapacity: number | null = $state(event?.max_capacity);
+	let latitude: number | null = $state(event?.latitude);
+	let longitude: number | null = $state(event?.longitude);
 
 	// ✅ State Variables
 	let client: TriplitClient;
@@ -295,7 +297,9 @@
 				overlay_color: overlayColor || '#000000',
 				overlay_opacity: overlayOpacity || 0.4,
 				max_capacity: maxCapacity || null,
-				non_profit_id: userFavoriteNonProfitId || null
+				non_profit_id: userFavoriteNonProfitId || null,
+				latitude: latitude,
+				longitude: longitude
 			};
 			console.log('🔍 Event Data being sent to insert:', JSON.stringify(eventData, null, 2));
 
@@ -337,12 +341,15 @@
 				entity.overlay_color = overlayColor;
 				entity.overlay_opacity = overlayOpacity;
 				entity.max_capacity = maxCapacity;
+				entity.latitude = latitude;
+				entity.longitude = longitude;
 			});
+			console.log('UPDATING', latitude, longitude);
 
 			if (checkCanCreateTransaction(userIsOutOfLogs, createTransaction, isEventPublished)) {
 				event = await createBonfireTransaction(eventId);
 			}
-			console.log('🔄 Event udpated successfully');
+			console.log('🔄 Event updated successfully');
 		} catch (error) {
 			console.error('❌ Error updating event:', error);
 		}
@@ -642,7 +649,13 @@
 				/>
 
 				<div class="flex flex-row items-center">
-					<LocationInput bind:location bind:geocodedLocation onclick={debouncedUpdateEvent} />
+					<LocationInput
+						bind:location
+						bind:geocodedLocation
+						bind:latitude
+						bind:longitude
+						onSave={debouncedUpdateEvent}
+					/>
 				</div>
 				<TextAreaAutoGrow
 					cls={'bg-white dark:bg-slate-900 dark:bg-slate-900'}
@@ -655,14 +668,14 @@
 
 			<div class="mt-5 grid w-full grid-cols-1 gap-2 sm:grid-cols-2">
 				<Button
-					class="justify-centerp-4 flex items-center dark:bg-slate-700 dark:text-white dark:hover:bg-slate-500"
+					class="justify-centerp-4 flex items-center ring-glow dark:bg-slate-700 dark:text-white dark:hover:bg-slate-500"
 					onclick={startEditEventStyle}
 				>
 					<Palette class="mr-1" />
 					Edit event style
 				</Button>
 				<Button
-					class="flex items-center justify-center p-4 dark:bg-slate-700 dark:text-white dark:hover:bg-slate-500"
+					class="flex items-center justify-center p-4 ring-glow dark:bg-slate-700 dark:text-white dark:hover:bg-slate-500"
 					disabled={!event || event?.user_id != currUserId}
 					onclick={startEditAdmins}
 				>
