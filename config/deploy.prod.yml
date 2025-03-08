@@ -18,7 +18,6 @@ env:
     PUBLIC_1_LOG_PRICE_ID: 'price_1Qz4mfCktR3peisA2oCHHUdA'
     PUBLIC_3_LOG_PRICE_ID: 'price_1Qz4nDCktR3peisAlKPzaabO'
     PUBLIC_10_LOG_PRICE_ID: 'price_1Qz4nkCktR3peisA34sZdfPy'
-    PUBLIC_MAP_BOX_TOKEN: "pk.eyJ1IjoibGVvbW9ycGhvIiwiYSI6ImNtN3pkcGdneDBpcnEya3E4NmNwNHNieWwifQ.FXedAXuip2ln0ImWfdDNUg"
   secret:
     - TURSO_DB_AUTH_TOKEN
     - TURSO_DB_URL
