@@ -58,7 +58,10 @@
 	};
 
 	const deleteAttendee = async () => {
-		if (!viewerIsEventAdmin && attendanceId) {
+		if (
+			(!viewerIsEventAdmin && attendanceId) ||
+			($page.data.user && userId == $page.data.user.id)
+		) {
 			return;
 		}
 		try {
@@ -69,8 +72,8 @@
 				await deleteUserLiveDataStoreEntry(userId);
 			}
 
-			toast.success(`Deleted ${username ? username : 'attendee'} from event`);
 			dialogIsOpen = false;
+			toast.success(`Deleted ${username ? username : 'attendee'} from event`);
 		} catch (e) {
 			console.error(
 				`failed to remove ${isTempUser ? 'temp' : 'full'} attendee from event with id ${eventId}`,
@@ -169,7 +172,7 @@
 
 <Dialog.Root bind:open={dialogIsOpen}>
 	<Dialog.Trigger
-		class="profile-avatar flex items-center justify-center focus:outline-none focus-visible:ring-0"
+		class="animate-fadeIn-slideUp profile-avatar flex items-center justify-center focus:outline-none focus-visible:ring-0"
 	>
 		{#if fullsizeUrl || url}
 			<Avatar.Root
@@ -267,7 +270,7 @@
 							</div>
 						{/if}
 					</div>
-					{#if viewerIsEventAdmin}
+					{#if viewerIsEventAdmin && $page.data.user && userId != $page.data.user.id}
 						<Button
 							onclick={handleRemoveUser}
 							class="mt-4 flex w-full items-center justify-center bg-red-500 hover:bg-red-400"
@@ -283,3 +286,20 @@
 		<Dialog.Footer></Dialog.Footer>
 	</Dialog.Content>
 </Dialog.Root>
+
+<style>
+	@keyframes slideUp {
+		from {
+			opacity: 0;
+			transform: translateY(30px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	.animate-fadeIn-slideUp {
+		animation: slideUp 0.5s ease-out;
+	}
+</style>

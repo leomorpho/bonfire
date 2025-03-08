@@ -237,10 +237,13 @@ export async function deleteUserLiveDataStoreEntry(userId: string): Promise<void
 	const db = await getUserDataDB();
 	await db?.delete(STORE_NAME, userId);
 	usersLiveDataStore.update((users) => {
-		const updatedUsers = new Map(users);
+		const updatedUsers = new Map(Object.entries(users) ?? []);
 		updatedUsers.delete(userId);
-		return updatedUsers;
+	
+		// Convert back to an object since usersLiveDataStore expects a Record
+		return Object.fromEntries(updatedUsers);
 	});
+	
 }
 
 export function convertUserRequestsToMap(userRequests: UserRequest[]): Map<string, boolean> {

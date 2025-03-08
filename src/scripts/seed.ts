@@ -70,11 +70,19 @@ await client.insert('events', {
 	user_id: user2?.id,
 	style: null,
 	overlay_color: null,
-	overlay_opacity: null
+	overlay_opacity: null,
+	is_published: true
 });
 
 function getRandomStatus() {
-	const statuses = [Status.GOING, Status.NOT_GOING, Status.MAYBE];
+	const statuses = [
+		Status.GOING,
+		Status.GOING,
+		Status.GOING,
+		Status.GOING, // 4 out of 5 chances for GOING
+		Status.NOT_GOING,
+		Status.MAYBE
+	];
 	return statuses[Math.floor(Math.random() * statuses.length)];
 }
 
