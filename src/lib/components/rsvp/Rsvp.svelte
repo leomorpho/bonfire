@@ -12,7 +12,7 @@
 		tempAttendeeSecretParam,
 		TempNameCheckingState
 	} from '$lib/enums';
-	import AddToCalendar from './AddToCalendar.svelte';
+	import AddToCalendar from '../AddToCalendar.svelte';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 	import { createNewAttendanceNotificationQueueObject } from '$lib/notification';
@@ -23,6 +23,7 @@
 	import { debounce, generatePassphraseId } from '$lib/utils';
 	import { toast } from 'svelte-sonner';
 	import { goto } from '$app/navigation';
+	import PlusOneSelect from './PlusOneSelect.svelte';
 
 	let {
 		rsvpStatus = Status.DEFAULT,
@@ -411,7 +412,7 @@
 		</Dialog.Header>
 		<div class="space-y-3">
 			<a href={`/login/?event_id=${eventId}`}>
-				<Button class="w-full bg-green-500 text-lg">Register/Login</Button>
+				<Button class="w-full bg-green-500 hover:bg-green-400 text-lg">Register/Login</Button>
 			</a>
 		</div>
 
@@ -450,6 +451,7 @@
 				{/if}
 			</ul>
 		</div>
+		<PlusOneSelect />
 		<Button
 			type="submit"
 			class="w-full"

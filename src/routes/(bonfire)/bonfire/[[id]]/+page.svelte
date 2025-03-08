@@ -22,7 +22,7 @@
 		Car
 	} from 'lucide-svelte';
 	import { formatHumanReadable, formatHumanReadableHour } from '$lib/utils';
-	import Rsvp from '$lib/components/Rsvp.svelte';
+	import Rsvp from '$lib/components/rsvp/Rsvp.svelte';
 	import { onMount } from 'svelte';
 	import { Status, tempAttendeeSecretStore, tempAttendeeSecretParam } from '$lib/enums';
 	import ProfileAvatar from '$lib/components/ProfileAvatar.svelte';

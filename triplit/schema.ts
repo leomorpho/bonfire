@@ -578,11 +578,10 @@ export const schema = {
 			user_id: S.String(), // ID of the attendee
 			user: S.RelationById('user', '$user_id'), // Link to the user
 			status: S.String({ default: 'undecided' }), // RSVP status: attending, not attending, undecided
-			// guest_count: S.Number({ default: 0 }), // Number of additional guests
+			guest_count: S.Optional(S.Number({ default: 0 })), // Number of additional guests
 			// special_requests: S.String({ nullable: true }), // Any special requests (e.g., dietary)
 			// NOTE: updated_at is a terrible name, it should be created_at
 			updated_at: S.Date({ default: S.Default.now() }), // Last updated timestamp
-
 			// Foreign Key Relations
 			seen_announcements: S.RelationMany('seen_announcements', {
 				where: [['attendee_id', '=', '$id']] // Link to seen_announcements
@@ -659,6 +658,7 @@ export const schema = {
 			event: S.RelationById('events', '$event_id'), // Link to the event
 			status: S.String({ default: 'undecided' }), // RSVP status: attending, not attending, undecided
 			name: S.String(),
+			guest_count: S.Optional(S.Number({ default: 0 })), // Number of additional guests
 			updated_at: S.Date({ default: S.Default.now() }), // Last updated timestamp
 			secret_mapping: S.RelationOne('temporary_attendees_secret_mapping', {
 				where: [['temporary_attendee_id', '=', '$id']]

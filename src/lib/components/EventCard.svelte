@@ -3,7 +3,7 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Cog } from 'lucide-svelte';
 	import { formatHumanReadable } from '$lib/utils';
-	import Rsvp from './Rsvp.svelte';
+	import Rsvp from './rsvp/Rsvp.svelte';
 	import { parseColor } from '$lib/styles';
 
 	let { event, userId, eventCreatorName, rsvpStatus, isPublished = true } = $props();
