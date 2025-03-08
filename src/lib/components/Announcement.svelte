@@ -76,7 +76,7 @@
 	{#if currUserId == announcement.user_id || isCurrenUserEventAdmin}
 		<a
 			href={`/bonfire/${eventId}/announcement/${announcement.id}/update`}
-			class="update-announcement absolute right-2 top-2"
+			class="update-announcement absolute -right-1 -top-1"
 		>
 			<Button class="rounded-xl p-2" variant="outline">
 				<Pencil class="!h-4 !w-4" />
