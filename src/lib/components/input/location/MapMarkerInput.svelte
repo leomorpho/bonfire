@@ -15,7 +15,7 @@
 
 	let { geocodedLocation = $bindable<any>(), onSave } = $props();
 
-	const MAPBOX_URL = `https://api.mapbox.com/styles/v1/mapbox/streets-v12?access_token=${publicEnv.PUBLIC_MAP_BOX_TOKEN}`;
+	const MAP_STYLE = `https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png?api_key=${publicEnv.PUBLIC_STADIA_MAPS_TOKEN}`;
 
 	let isDialogOpen = $state(false);
 
@@ -77,7 +77,7 @@
 
 		<!-- Map Container -->
 		<div class="relative h-[300px] w-full overflow-hidden rounded-lg">
-			<MapLibre bind:this={mapRef} center={geolocation} zoom={14} class="map" style={MAPBOX_URL}>
+			<MapLibre bind:this={mapRef} center={geolocation} zoom={14} class="map" style={MAP_STYLE}>
 				<NavigationControl position="top-left" showCompass={false} />
 				<FullscreenControl position="top-left" />
 				<DefaultMarker bind:lngLat={geolocation} draggable></DefaultMarker>
