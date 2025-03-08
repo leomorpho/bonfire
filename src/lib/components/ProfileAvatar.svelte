@@ -172,7 +172,7 @@
 
 <Dialog.Root bind:open={dialogIsOpen}>
 	<Dialog.Trigger
-		class="animate-fadeIn-slideUp profile-avatar flex items-center justify-center focus:outline-none focus-visible:ring-0"
+		class="profile-avatar flex items-center justify-center focus:outline-none focus-visible:ring-0"
 	>
 		{#if fullsizeUrl || url}
 			<Avatar.Root
@@ -286,20 +286,3 @@
 		<Dialog.Footer></Dialog.Footer>
 	</Dialog.Content>
 </Dialog.Root>
-
-<style>
-	@keyframes slideUp {
-		from {
-			opacity: 0;
-			transform: translateY(30px);
-		}
-		to {
-			opacity: 1;
-			transform: translateY(0);
-		}
-	}
-
-	.animate-fadeIn-slideUp {
-		animation: slideUp 0.5s ease-out;
-	}
-</style>

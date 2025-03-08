@@ -3,6 +3,8 @@
 	import { Plus } from 'lucide-svelte';
 	import { ScrollArea } from './ui/scroll-area';
 	import ProfileAvatar from './ProfileAvatar.svelte';
+	import { flip } from 'svelte/animate';
+	import { fade } from 'svelte/transition';
 
 	let {
 		allAttendeesGoing,
@@ -50,13 +52,15 @@
 									{allAttendeesGoing.length} going
 								</h2>
 								<div class="mx-5 flex flex-wrap -space-x-4 text-black">
-									{#each allAttendeesGoing as attendee}
-										<ProfileAvatar
-											userId={attendee.user_id}
-											tempUserName={attendee.name}
-											viewerIsEventAdmin={isCurrenUserEventAdmin}
-											attendanceId={attendee.id}
-										/>
+									{#each allAttendeesGoing as attendee (attendee.id)}
+										<div animate:flip out:fade={{ duration: 300 }}>
+											<ProfileAvatar
+												userId={attendee.user_id}
+												tempUserName={attendee.name}
+												viewerIsEventAdmin={isCurrenUserEventAdmin}
+												attendanceId={attendee.id}
+											/>
+										</div>
 									{/each}
 								</div>
 							{/if}
@@ -69,13 +73,15 @@
 										: 's'}
 								</h2>
 								<div class="mx-5 flex flex-wrap -space-x-4 text-black">
-									{#each allAttendeesMaybeGoing as attendee}
-										<ProfileAvatar
-											userId={attendee.user_id}
-											tempUserName={attendee.name}
-											viewerIsEventAdmin={isCurrenUserEventAdmin}
-											attendanceId={attendee.id}
-										/>
+									{#each allAttendeesMaybeGoing as attendee (attendee.id)}
+										<div animate:flip out:fade={{ duration: 300 }}>
+											<ProfileAvatar
+												userId={attendee.user_id}
+												tempUserName={attendee.name}
+												viewerIsEventAdmin={isCurrenUserEventAdmin}
+												attendanceId={attendee.id}
+											/>
+										</div>
 									{/each}
 								</div>
 							{/if}
@@ -86,13 +92,15 @@
 									{allAttendeesNotGoing.length} not going
 								</h2>
 								<div class="mx-5 flex flex-wrap -space-x-4 text-black">
-									{#each allAttendeesNotGoing as attendee}
-										<ProfileAvatar
-											userId={attendee.user_id}
-											tempUserName={attendee.name}
-											viewerIsEventAdmin={isCurrenUserEventAdmin}
-											attendanceId={attendee.id}
-										/>
+									{#each allAttendeesNotGoing as attendee (attendee.id)}
+										<div animate:flip out:fade={{ duration: 300 }}>
+											<ProfileAvatar
+												userId={attendee.user_id}
+												tempUserName={attendee.name}
+												viewerIsEventAdmin={isCurrenUserEventAdmin}
+												attendanceId={attendee.id}
+											/>
+										</div>
 									{/each}
 								</div>
 							{/if}

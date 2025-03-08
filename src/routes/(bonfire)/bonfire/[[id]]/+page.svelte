@@ -53,6 +53,8 @@
 	import AnonAttendeesView from '$lib/components/attendance/AnonAttendeesView.svelte';
 	import MaxCapacityInfo from '$lib/components/attendance/MaxCapacityInfo.svelte';
 	import Map from '$lib/components/map/Map.svelte';
+	import { flip } from 'svelte/animate';
+	import { fade } from 'svelte/transition';
 
 	const showMaxNumPeople = 50;
 	const tempAttendeeId = $page.data.tempAttendeeId;
@@ -529,7 +531,7 @@
 	<div
 		class="flex h-fit flex-col justify-center rounded-xl bg-slate-100 p-2 text-center shadow-lg dark:bg-slate-900 md:py-5"
 	>
-		<div class="font-semibold mb-2 md:mb-3">Details</div>
+		<div class="mb-2 font-semibold md:mb-3">Details</div>
 		{#if event.description}
 			<div class="whitespace-pre-wrap">
 				{event.description}
@@ -652,7 +654,7 @@
 										{@render details(event)}
 									</div>
 									<div
-										class="h-fit w-full rounded-xl bg-slate-100 p-2 text-center shadow-lg dark:bg-slate-900 md:w-1/2 pt-5"
+										class="h-fit w-full rounded-xl bg-slate-100 p-2 pt-5 text-center shadow-lg dark:bg-slate-900 md:w-1/2"
 									>
 										<div class="flex items-center justify-center font-medium">
 											<Calendar class="mr-2 !h-4 !w-4 shrink-0" />{formatHumanReadable(
@@ -737,14 +739,16 @@
 											id="going-attendees"
 											class="flex flex-wrap items-center justify-center -space-x-4"
 										>
-											{#each allAttendeesGoing.slice(0, showMaxNumPeople) as attendee}
-												<ProfileAvatar
-													userId={attendee.user_id}
-													tempUserName={attendee.name}
-													viewerIsEventAdmin={isCurrenUserEventAdmin}
-													attendanceId={attendee.id}
-													baseHeightPx={allAttendeesGoing.length < 10 ? 60 : 50}
-												/>
+											{#each allAttendeesGoing.slice(0, showMaxNumPeople) as attendee (attendee.id)}
+												<div animate:flip out:fade={{ duration: 300 }}>
+													<ProfileAvatar
+														userId={attendee.user_id}
+														tempUserName={attendee.name}
+														viewerIsEventAdmin={isCurrenUserEventAdmin}
+														attendanceId={attendee.id}
+														baseHeightPx={allAttendeesGoing.length < 10 ? 60 : 50}
+													/>
+												</div>
 											{/each}
 											<AttendeesDialog
 												{allAttendeesGoing}
