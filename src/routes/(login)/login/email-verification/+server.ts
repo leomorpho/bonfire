@@ -63,7 +63,8 @@ export async function GET({ url, request }): Promise<Response> {
 			triplitUser?.id,
 			existingAttendee.id,
 			existingAttendee.name,
-			existingAttendee.status
+			existingAttendee.status,
+			existingAttendee.guest_count
 		);
 	}
 

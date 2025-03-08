@@ -59,6 +59,7 @@
 												tempUserName={attendee.name}
 												viewerIsEventAdmin={isCurrenUserEventAdmin}
 												attendanceId={attendee.id}
+												numGuests={attendee.guest_count}
 											/>
 										</div>
 									{/each}
@@ -80,6 +81,7 @@
 												tempUserName={attendee.name}
 												viewerIsEventAdmin={isCurrenUserEventAdmin}
 												attendanceId={attendee.id}
+												numGuests={attendee.guest_count}
 											/>
 										</div>
 									{/each}
@@ -99,6 +101,7 @@
 												tempUserName={attendee.name}
 												viewerIsEventAdmin={isCurrenUserEventAdmin}
 												attendanceId={attendee.id}
+												numGuests={attendee.guest_count}
 											/>
 										</div>
 									{/each}

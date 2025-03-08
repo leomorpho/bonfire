@@ -34,7 +34,8 @@ export const load = async (event) => {
 				triplitUser?.id,
 				existingAttendee.id,
 				existingAttendee.name,
-				existingAttendee.status
+				existingAttendee.status,
+				existingAttendee.guest_count
 			);
 		}
 

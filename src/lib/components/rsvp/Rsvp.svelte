@@ -30,7 +30,8 @@
 		userId,
 		eventId,
 		isAnonymousUser,
-		rsvpCanBeChanged = true
+		rsvpCanBeChanged = true,
+		numGuests = 0
 	} = $props();
 
 	let isAnonRsvpDialogOpen = $state(false);
@@ -39,7 +40,8 @@
 		rsvpStatus = Status.DEFAULT;
 	}
 
-	let tempRsvpStatus: null | string = $state(null);
+	let newRsvpStatusToSave: null | string = $state(null);
+	let tempUserRsvpStatus: null | string = $state(null);
 	let tempName: null | string = $state(null);
 	let tempMinNameLenReached = $state(false);
 	let isNameAvailable = $state(false);
@@ -47,6 +49,11 @@
 	let isGeneratingTempLink: boolean = $state(false);
 	let loadingGeneratedTempLink: boolean = $state(false);
 	let tempNameCheckingState: string | null = $state(null);
+	let numExtraGuests = $state(0);
+	let isPlusOneSelectDialogOpenForFullUser = $state(false);
+
+	let isNameLongEnough = $derived(tempName && tempMinNameLenReached);
+	let isNameAlreadyTaken = $derived(tempNameCheckingState === TempNameCheckingState.NAME_TAKEN);
 
 	$effect(() => {
 		if (tempName && tempName.length >= TEMP_ATTENDEE_MIN_NAME_LEN) {
@@ -57,18 +64,13 @@
 	});
 
 	$effect(() => {
-		if (tempMinNameLenReached && tempRsvpStatus && isNameAvailable) {
+		if (tempMinNameLenReached && tempUserRsvpStatus && isNameAvailable) {
 			generateTempURLBtnEnabled = true;
 		} else {
 			generateTempURLBtnEnabled = false;
 		}
 	});
 
-	$effect(() => {
-		console.log(tempNameCheckingState);
-	});
-
-	// console.log('attendance', attendance);
 	console.log('userId', userId);
 	console.log('eventId', eventId);
 
@@ -90,17 +92,26 @@
 	let dropdownOpen = $state(false);
 
 	// Function to handle RSVP updates
-	const updateRSVP = async (event: Event, newValue: string) => {
+	const updateRSVP = async (event: Event, newValue: string | null, numGuests: number = 0) => {
 		event.preventDefault();
+		numExtraGuests = numGuests;
+
 		if (isAnonymousUser) {
 			// Brand new temporary user, still an anonymous user at this point
-			tempRsvpStatus = newValue;
+			tempUserRsvpStatus = newValue;
 
 			// Show modal to either
 			// (a) log in with magic link and have that event be linked to their account right away
 			// (b) enter a name and generate a unique link to access the event with their temporary identity
 			isAnonRsvpDialogOpen = true;
 		} else if ($page.data.user) {
+			if (rsvpStatus == Status.DEFAULT && !isPlusOneSelectDialogOpenForFullUser) {
+				// NOTE: updateRSVP will be called again from the opened dialog once the number of guests has been selected
+				dropdownOpen = false;
+				newRsvpStatusToSave = newValue;
+				isPlusOneSelectDialogOpenForFullUser = true;
+				return;
+			}
 			console.log('updating RSVP status for logged in user');
 			await updateRSVPForLoggedInUser(newValue);
 		} else {
@@ -188,7 +199,7 @@
 		isGeneratingTempLink = true;
 		const id = await generatePassphraseId('u', 36);
 		try {
-			if (!tempRsvpStatus) {
+			if (!tempUserRsvpStatus) {
 				throw new Error('rsvp status is not set');
 			}
 			// Make a POST request to the backend endpoint
@@ -197,7 +208,13 @@
 				headers: {
 					'Content-Type': 'application/json'
 				},
-				body: JSON.stringify({ id, eventId, status: tempRsvpStatus, name: tempName })
+				body: JSON.stringify({
+					id,
+					eventId,
+					status: tempUserRsvpStatus,
+					name: tempName,
+					numExtraGuests: numExtraGuests
+				})
 			});
 
 			// Parse the response JSON
@@ -273,10 +290,6 @@
 				])
 				.build();
 			let attendance = await client.fetchOne(query);
-
-			// console.log('user_id ---+', userId);
-			// console.log('event_id ---+', eventId);
-			// console.log('attendance ---+', attendance);
 
 			if (!userId || !eventId) {
 				console.error(
@@ -404,6 +417,25 @@
 	{/if}
 </div>
 
+<Dialog.Root bind:open={isPlusOneSelectDialogOpenForFullUser}>
+	<Dialog.Content class="sm:max-w-[425px]">
+		<Dialog.Header class="flex w-full flex-col justify-center">
+			<Dialog.Title>Are you bringing any guests?</Dialog.Title>
+			<Dialog.Description>Let us know if you are, don't count yourself.</Dialog.Description>
+		</Dialog.Header>
+
+		<PlusOneSelect bind:numGuests={numExtraGuests} />
+		<Button
+			class="w-full"
+			onclick={(e) => {
+				updateRSVP(e, newRsvpStatusToSave, numExtraGuests);
+			}}
+		>
+			Let's go!
+		</Button>
+	</Dialog.Content>
+</Dialog.Root>
+
 <Dialog.Root bind:open={isAnonRsvpDialogOpen}>
 	<Dialog.Content class="sm:max-w-[425px]">
 		<Dialog.Header>
@@ -412,7 +444,7 @@
 		</Dialog.Header>
 		<div class="space-y-3">
 			<a href={`/login/?event_id=${eventId}`}>
-				<Button class="w-full bg-green-500 hover:bg-green-400 text-lg">Register/Login</Button>
+				<Button class="w-full bg-green-500 text-lg hover:bg-green-400">Register/Login</Button>
 			</a>
 		</div>
 
@@ -431,7 +463,7 @@
 			</p>
 		</div>
 
-		<div class="mb-2 mt-3 grid grid-cols-4 items-center gap-4">
+		<div class="mt-3 grid grid-cols-4 items-center gap-4">
 			<Label for="username" class="text-right">Name</Label>
 			<Input
 				oninput={checkNameAvailability}
@@ -441,17 +473,19 @@
 				class="col-span-3"
 			/>
 		</div>
-		<div class="mb-4 flex w-full justify-center">
-			<ul class="list-disc space-y-2 pl-6 text-xs text-yellow-400">
-				{#if tempName && !tempMinNameLenReached}
-					<li>At least {TEMP_ATTENDEE_MIN_NAME_LEN} characters</li>
-				{/if}
-				{#if tempNameCheckingState === TempNameCheckingState.NAME_TAKEN}
-					<li>This name is already taken by someone in this event</li>
-				{/if}
-			</ul>
-		</div>
-		<PlusOneSelect />
+		{#if tempName && (!isNameLongEnough || isNameAlreadyTaken)}
+			<div class="my-4 flex w-full justify-center">
+				<ul class="list-disc space-y-2 pl-6 text-xs text-yellow-400">
+					{#if !isNameLongEnough}
+						<li>At least {TEMP_ATTENDEE_MIN_NAME_LEN} characters</li>
+					{/if}
+					{#if isNameAlreadyTaken}
+						<li>This name is already taken by someone in this event</li>
+					{/if}
+				</ul>
+			</div>
+		{/if}
+		<PlusOneSelect bind:numGuests={numExtraGuests} />
 		<Button
 			type="submit"
 			class="w-full"

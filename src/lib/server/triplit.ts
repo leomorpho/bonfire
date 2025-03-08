@@ -183,7 +183,8 @@ export const convertTempToPermanentUser = async (
 	triplitUserId: string,
 	existingTempAttendeeId: string,
 	existingTempAttendeeName: string,
-	existingTempAttendeeStatus: string
+	existingTempAttendeeStatus: string,
+	existingTempAttendeeGuesCount: string,
 ) => {
 	try {
 		console.log('---> converting temp user to permament user');
@@ -211,7 +212,8 @@ export const convertTempToPermanentUser = async (
 				id: createAttendeeId(eventId, userId),
 				user_id: userId,
 				event_id: eventId,
-				status: existingTempAttendeeStatus
+				status: existingTempAttendeeStatus,
+				guest_count: existingTempAttendeeGuesCount,
 			});
 		} else if (attendances.length > 1) {
 			console.error(

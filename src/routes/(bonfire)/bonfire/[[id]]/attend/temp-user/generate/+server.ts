@@ -25,7 +25,12 @@ export async function POST({ request, params }) {
 	}
 	try {
 		// Extract attendee data from the request body
-		const { id, status, name }: { id?: string; event_id: string; status?: string; name: string } =
+		const {
+			id,
+			status,
+			name,
+			numExtraGuests
+		}: { id?: string; event_id: string; status?: string; name: string; numExtraGuests: number } =
 			await request.json();
 
 		if (!id) {
@@ -70,7 +75,8 @@ export async function POST({ request, params }) {
 		const { output } = await triplitHttpClient.insert('temporary_attendees', {
 			event_id: eventId,
 			status: status || 'undecided', // Default status if not provided
-			name
+			name,
+			guest_count: numExtraGuests
 		});
 
 		await triplitHttpClient.insert('temporary_attendees_secret_mapping', {

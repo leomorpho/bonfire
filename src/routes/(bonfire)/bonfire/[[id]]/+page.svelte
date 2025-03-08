@@ -589,7 +589,7 @@
 							</div>
 						</Tabs.List>
 					</div>
-					<Tabs.Content value="about" class="w-full">
+					<Tabs.Content value="about" class="mb-10 w-full">
 						<div class="animate-fadeIn">
 							<!-- TODO: allow temp attendees to delete themselves -->
 							{#if isUnverifiedUser}
@@ -644,11 +644,14 @@
 										>
 									</a>
 								{/if}
-								<h1
-									class="relative flex justify-center rounded-xl bg-slate-100 p-3 text-center text-xl font-bold dark:bg-slate-900 sm:text-2xl lg:text-3xl"
-								>
-									{event.title}
-								</h1>
+								<div class="w-full flex justify-center">
+									<h1
+										class="rounded-xl bg-slate-100 p-3 text-center text-2xl font-bold dark:bg-slate-900 sm:text-3xl lg:text-4xl px-5 sm:px-10"
+									>
+										{event.title}
+									</h1>
+								</div>
+
 								<div class="flex w-full md:space-x-3">
 									<div class="hidden md:block md:w-1/2">
 										{@render details(event)}
@@ -747,6 +750,7 @@
 														viewerIsEventAdmin={isCurrenUserEventAdmin}
 														attendanceId={attendee.id}
 														baseHeightPx={allAttendeesGoing.length < 10 ? 60 : 50}
+														numGuests={attendee.guest_count}
 													/>
 												</div>
 											{/each}

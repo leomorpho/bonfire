@@ -2,7 +2,7 @@
 	import { dev } from '$app/environment';
 	import { cn } from '$lib/utils';
 
-	let { numGuests = $bindable<number>(), maxGuests = 5 } = $props();
+	let { numGuests = $bindable<number>(), maxGuests = 6 } = $props();
 
 	// Generate options dynamically based on maxGuests
 	const OPTIONS = ['Just me', ...Array.from({ length: maxGuests }, (_, i) => `+${i + 1}`)];

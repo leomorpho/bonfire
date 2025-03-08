@@ -23,7 +23,8 @@
 		viewerIsEventAdmin = false,
 		attendanceId = null, // NOTE: these can be either real or temp attendances (they are different object types)
 		baseHeightPx = 50,
-		tempUserName = null
+		tempUserName = null,
+		numGuests = 0
 	} = $props();
 
 	let url = $state();
@@ -270,6 +271,9 @@
 							</div>
 						{/if}
 					</div>
+					{#if numGuests > 0}
+						<div>Bring {numGuests} guest{numGuests > 1 ? 's' : ''}</div>
+					{/if}
 					{#if viewerIsEventAdmin && $page.data.user && userId != $page.data.user.id}
 						<Button
 							onclick={handleRemoveUser}
