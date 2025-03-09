@@ -9,7 +9,7 @@ export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
 }
 
-export function formatHumanReadable(date: Date | null): string {
+export function formatHumanReadable(date: Date | null | undefined): string {
 	if (!date) {
 		return '';
 	}

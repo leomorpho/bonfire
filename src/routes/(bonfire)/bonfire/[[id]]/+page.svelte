@@ -7,13 +7,9 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import {
-		Cog,
 		Share,
-		Copy,
-		MapPin,
 		UserRound,
 		Calendar,
-		KeyRound,
 		Images,
 		Megaphone,
 		Plus,
@@ -54,6 +50,8 @@
 	import Map from '$lib/components/map/Map.svelte';
 	import { flip } from 'svelte/animate';
 	import { fade } from 'svelte/transition';
+	import EditEventButton from '$lib/components/main-bonfire-event/EditEventButton.svelte';
+	import UnverifiedUserMsg from '$lib/components/main-bonfire-event/UnverifiedUserMsg.svelte';
 
 	const showMaxNumPeople = 50;
 	const tempAttendeeId = $page.data.tempAttendeeId;
@@ -61,7 +59,16 @@
 
 	let client: TriplitClient;
 	let currUserId = $state('');
-	let event = $state<EventTypescriptType | null>(null);
+
+	let event = $state<EventTypescriptType | null>($page.data.event);
+	let eventId = $derived(event?.id);
+	let eventCreatorUserId = $derived<string | undefined>(event?.user_id);
+	let eventStartTime = $derived(event?.start_time);
+	let eventDescription = $derived(event?.description);
+	let eventIsPublished = $derived(event?.is_published);
+	let eventLocation = $derived(event?.location);
+	let eventNumAttendeesGoing = $derived($page.data.numAttendingGoing);
+
 	let eventLoading = $state(true);
 	let eventFailedLoading = $state(false);
 	let fileCount = $state(0);
@@ -99,10 +106,6 @@
 		}
 	});
 
-	// $effect(() => {
-	// 	console.log('==== rsvpStatus', rsvpStatus);
-	// });
-
 	if (tempAttendeeId) {
 		tempAttendeeSecretStore.set(tempAttendeeId);
 	}
@@ -113,15 +116,9 @@
 		}
 	});
 
-	// $effect(() => {
-	// 	console.log(
-	// 		`isAnonymousUser: ${isAnonymousUser}, isUnverifiedUser: ${isUnverifiedUser}, $page.data.user: ${$page.data.user}`
-	// 	);
-	// });
-
 	$effect(() => {
 		if (
-			(event && currUserId && event.user_id == (currUserId as string)) ||
+			(event && currUserId && eventCreatorUserId == (currUserId as string)) ||
 			adminUserIds.has(currUserId)
 		) {
 			isCurrenUserEventAdmin = true;
@@ -129,8 +126,8 @@
 	});
 
 	$effect(() => {
-		if (event) {
-			rsvpCanBeChanged = new Date(event.start_time) >= new Date() && rsvpEnabledForCapacity;
+		if (event && eventStartTime) {
+			rsvpCanBeChanged = new Date(eventStartTime) >= new Date() && rsvpEnabledForCapacity;
 		}
 	});
 
@@ -288,18 +285,13 @@
 			);
 		}
 
-		if (
-			(isAnonymousUser || !$page.data.isUserAnAttendee) &&
-			$page.data.event &&
-			$page.data.event.user_id != currUserId
-		) {
+		if (isAnonymousUser || !$page.data.isUserAnAttendee) {
 			// If user is anonymous, load event data from page data. It will contain limited data.
 			// Also, if the user is logged in but is NOT YET attending, we don't want to pull live data
 			// since they won't have the permissions to.
 			console.log(
 				'not fetching event data because user is anonymous or not an attendee, and therefore only data returned from BE will be shown'
 			);
-			event = $page.data.event;
 			eventLoading = false;
 			attendeesLoading = false;
 			return;
@@ -504,20 +496,6 @@
 			});
 	};
 
-	const handleCopyingTempAccountUrl = async (eventData: any) => {
-		// Prepare shareable data
-		let url = `${publicEnv.PUBLIC_ORIGIN}/bonfire/${eventData.id}?${tempAttendeeSecretParam}=${tempAttendeeSecret}`;
-
-		// Add data to clipboard
-		try {
-			await navigator.clipboard.writeText(url);
-			toast.success('URL copied to clipboard');
-		} catch (error) {
-			console.error('Error copying to clipboard:', error);
-			toast.success('Sorry, an error occurred, please try again later or contact support');
-		}
-	};
-
 	function scrollToBottom() {
 		window.scrollTo({
 			top: document.body.scrollHeight,
@@ -534,14 +512,14 @@
 	};
 </script>
 
-{#snippet details(event: any)}
+{#snippet details(eventDescription: string | null | undefined)}
 	<div
-		class="flex h-fit flex-col justify-center rounded-xl bg-slate-100 p-2 text-center shadow-lg dark:bg-slate-900 py-3 md:py-5"
+		class="flex h-fit flex-col justify-center rounded-xl bg-slate-100 p-2 py-3 text-center shadow-lg dark:bg-slate-900 md:py-5"
 	>
 		<div class="mb-2 font-semibold md:mb-3">Details</div>
-		{#if event.description}
+		{#if eventDescription}
 			<div class="whitespace-pre-wrap">
-				{event.description}
+				{eventDescription}
 			</div>
 		{:else}
 			{'No details yet...'}
@@ -561,20 +539,7 @@
 	{:else}
 		<div class="mx-4 flex flex-col items-center justify-center">
 			{#if isCurrenUserEventAdmin}
-				<div class="flex w-full justify-center">
-					<a href="update" id="edit-bonfire" class="relative">
-						<Button variant="outline" class="m-2 rounded-full">
-							<Cog class="h-5 w-5" />
-						</Button>
-						{#if !event?.is_published}
-							<div
-								class="absolute -right-20 -top-1 z-20 rounded bg-red-600 px-3 py-1 text-xs font-semibold text-white shadow-md hover:bg-red-500 dark:bg-red-500 dark:hover:bg-red-400 sm:-right-[100px] sm:-top-2 sm:text-sm"
-							>
-								<div class="w-max">Not Published</div>
-							</div>
-						{/if}
-					</a>
-				</div>
+				<EditEventButton {eventIsPublished} />
 			{/if}
 			<section
 				class="mt-4 flex w-full justify-center sm:w-[450px] md:w-[550px] lg:w-[750px] xl:w-[950px]"
@@ -600,38 +565,7 @@
 						<div class="animate-fadeIn">
 							<!-- TODO: allow temp attendees to delete themselves -->
 							{#if isUnverifiedUser}
-								<div
-									class="my-4 flex flex-col items-center justify-center space-y-2 rounded-lg bg-gradient-to-r from-violet-200 to-pink-200 p-5 text-center dark:from-violet-900 dark:to-pink-900"
-								>
-									{#if tempAttendee}
-										<p class="font-semibold">Hi {tempAttendee.name}! This is a temporary account</p>
-									{:else}
-										<p class="font-semibold">Hi! This is a temporary account</p>
-									{/if}
-									<p class="text-sm">
-										Keep this tab open for seamless access, or click the button below to copy the
-										URL and save it.
-									</p>
-									<p class="text-sm">
-										This URL grants access to the event with your temporary identity.
-									</p>
-									<p class="text-sm">Sign up anytime to link your events to your email.</p>
-									<a href="/login" class="w-full">
-										<Button
-											class="mt-4 flex w-full items-center justify-center bg-blue-500 text-white hover:bg-blue-400"
-										>
-											<KeyRound class="h-5 w-5" />
-											Sign Up or Log In</Button
-										>
-									</a>
-									<Button
-										onclick={() => handleCopyingTempAccountUrl(event)}
-										class="mt-4 flex w-full items-center justify-center dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
-									>
-										<Copy class="h-5 w-5" />
-										Copy Link</Button
-									>
-								</div>
+								<UnverifiedUserMsg eventId={event.id} {tempAttendee} {tempAttendeeSecret} />
 							{/if}
 
 							<div class="relative mt-5 space-y-3 rounded-xl p-4 sm:mt-0">
@@ -661,14 +595,14 @@
 
 								<div class="flex w-full md:space-x-3">
 									<div class="hidden md:block md:w-1/2">
-										{@render details(event)}
+										{@render details(eventDescription)}
 									</div>
 									<div
 										class="h-fit w-full rounded-xl bg-slate-100 p-2 pt-5 text-center shadow-lg dark:bg-slate-900 md:w-1/2"
 									>
 										<div class="flex items-center justify-center font-medium">
 											<Calendar class="mr-2 !h-4 !w-4 shrink-0" />{formatHumanReadable(
-												event.start_time
+												eventStartTime
 											)}
 											{#if event.end_time}to {formatHumanReadableHour(event.end_time)}{/if}
 										</div>
@@ -688,7 +622,7 @@
 										<div class="flex items-center justify-center font-light">
 											<!-- <MapPin class="mr-2 !h-4 !w-4 shrink-0" /> -->
 											{#if rsvpStatus}
-												{#if event.location || (latitude && longitude)}
+												{#if eventLocation || (latitude && longitude)}
 													<div class="flex items-center justify-center">
 														{#if latitude && longitude}
 															<ShareLocation lat={latitude} lon={longitude}>
@@ -696,8 +630,8 @@
 																	id="share-location"
 																	class="mt-2 flex items-center justify-center rounded-xl bg-slate-200 p-2 dark:bg-slate-800"
 																>
-																	{#if event.location}
-																		{@html event.location}
+																	{#if eventLocation}
+																		{@html eventLocation}
 																	{:else if latitude && longitude}
 																		Get Directions
 																	{/if}
@@ -706,7 +640,7 @@
 															</ShareLocation>
 														{:else}
 															<div class="flex items-center justify-center p-2">
-																{event.location}
+																{eventLocation}
 															</div>
 														{/if}
 													</div>
@@ -726,7 +660,7 @@
 								</div>
 
 								<div class="block pt-2 md:hidden">
-									{@render details(event)}
+									{@render details(eventDescription)}
 								</div>
 							</div>
 
@@ -773,7 +707,7 @@
 										<NoAttendeesYet />
 									{/if}
 								{:else}
-									<AnonAttendeesView numAttendingGoing={$page.data.numAttendingGoing} />
+									<AnonAttendeesView numAttendingGoing={eventNumAttendeesGoing} />
 								{/if}
 							</div>
 							<!-- Show RSVP if:
@@ -803,11 +737,11 @@
 									<Rsvp
 										{rsvpStatus}
 										userId={currUserId}
-										eventId={event.id}
+										{eventId}
 										{isAnonymousUser}
 										{rsvpCanBeChanged}
 										numGuests={numGuestsBringing}
-										eventOwnerId={event.user_id}
+										eventOwnerId={eventCreatorUserId}
 									/>
 
 									<Button
@@ -851,7 +785,7 @@
 
 									{#if currUserId || tempAttendeeId}
 										<BringList
-											eventId={event.id}
+											{eventId}
 											isAdmin={isCurrenUserEventAdmin}
 											numAttendeesGoing={allAttendeesGoing.length}
 											{currUserId}
@@ -899,7 +833,7 @@
 								<ImThreadView
 									{currUserId}
 									canSendIm={!!rsvpStatus && !!currUserId}
-									eventId={event.id}
+									{eventId}
 									datetimeUserJoinedBonfire={currentUserAttendee?.updated_at}
 									{isCurrenUserEventAdmin}
 								/>
