@@ -104,7 +104,7 @@ const createNewWorkerTriplitClient = (jwt: string) => {
 		serverUrl: publicEnv.PUBLIC_TRIPLIT_URL,
 		token: jwt ? jwt : publicEnv.PUBLIC_TRIPLIT_ANONYMOUS_TOKEN,
 		autoConnect: browser,
-		syncSchema: syncSchema,
+		syncSchema: syncSchema || true,
 		onSessionError: async (type) => {
 			console.log('💀 Triplit session error occurred:', type);
 			if (type === 'ROLES_MISMATCH') {

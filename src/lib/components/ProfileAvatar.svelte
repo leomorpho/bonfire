@@ -295,6 +295,14 @@
 							</div>
 						</div>
 					{/if}
+					<!-- TODO -->
+					<!-- {#if viewerIsEventAdmin && $page.data.user == userId}
+						<div class="mt-2 flex w-full justify-center">
+							<div class="rounded-xl bg-slate-500 p-2 text-white dark:bg-slate-700">
+								This user is an admin of this event
+							</div>
+						</div>
+					{/if} -->
 					{#if viewerIsEventAdmin && $page.data.user && userId != $page.data.user.id}
 						<Button
 							onclick={handleRemoveUser}

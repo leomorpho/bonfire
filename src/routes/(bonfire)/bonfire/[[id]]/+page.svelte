@@ -536,7 +536,7 @@
 
 {#snippet details(event: any)}
 	<div
-		class="flex h-fit flex-col justify-center rounded-xl bg-slate-100 p-2 text-center shadow-lg dark:bg-slate-900 md:py-5"
+		class="flex h-fit flex-col justify-center rounded-xl bg-slate-100 p-2 text-center shadow-lg dark:bg-slate-900 py-3 md:py-5"
 	>
 		<div class="mb-2 font-semibold md:mb-3">Details</div>
 		{#if event.description}
