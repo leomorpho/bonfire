@@ -5,6 +5,7 @@
 	import { formatHumanReadable } from '$lib/utils';
 	import Rsvp from './rsvp/Rsvp.svelte';
 	import { parseColor } from '$lib/styles';
+	import { goto } from '$app/navigation';
 
 	let { event, userId, eventCreatorName, rsvpStatus, isPublished = true, numGuests = 0 } = $props();
 
@@ -17,7 +18,10 @@
 	);
 </script>
 
-<a href={`/bonfire/${event.id}`} class="event-card animate-fadeIn">
+<button
+	onclick={() => goto(`/bonfire/${event.id}`)}
+	class="event-card animate-fadeIn pointer-events-auto w-full cursor-pointer"
+>
 	<Card.Root class="relative my-4 w-full bg-slate-100 dark:bg-slate-900" style={event.style}>
 		<!-- Not Published Marker -->
 		{#if !isPublished}
@@ -32,22 +36,30 @@
 
 		<!-- Content -->
 		<div class="relative z-10 p-4">
-			<Card.Header class="rounded-xl bg-slate-100 pb-2 dark:bg-slate-900 sm:mb-4">
+			<Card.Header
+				class="rounded-xl bg-slate-100 pb-2 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 sm:mb-4"
+			>
 				<Card.Title class="text-lg">{event.title}</Card.Title>
 				<Card.Description>{formatHumanReadable(event.start_time)}</Card.Description>
 				<Card.Description>Hosted by {eventCreatorName}</Card.Description>
 			</Card.Header>
 			<Card.Content>
-				{console.log('AAA event.user_id --->', event.user_id, 'UserID', userId)}
-				<Rsvp
-					{rsvpStatus}
-					{userId}
-					eventId={event.id}
-					{rsvpCanBeChanged}
-					isAnonymousUser={false}
-					{numGuests}
-					eventOwnerId={event.user_id}
-				/>
+				<button
+					class="interactive w-full md:max-w-96"
+					onclick={(e) => {
+						e.stopPropagation();
+					}}
+				>
+					<Rsvp
+						{rsvpStatus}
+						{userId}
+						eventId={event.id}
+						{rsvpCanBeChanged}
+						isAnonymousUser={false}
+						{numGuests}
+						eventOwnerId={event.user_id}
+					/>
+				</button>
 			</Card.Content>
 			{#if event.user_id == (userId as string)}
 				<a href={`/bonfire/${event.id}/update`}>
@@ -58,7 +70,7 @@
 			{/if}
 		</div>
 	</Card.Root>
-</a>
+</button>
 
 <style>
 	@keyframes fadeIn {

@@ -39,7 +39,10 @@
 					i === OPTIONS.length - 1 && 'rounded-e-xl',
 					selected === option ? 'bg-green-400 font-semibold dark:bg-green-600' : ''
 				)}
-				onclick={() => handleSelect(option)}
+				onclick={(e: Event) => {
+					e.stopPropagation();
+					handleSelect(option);
+				}}
 			>
 				{option}
 			</button>
