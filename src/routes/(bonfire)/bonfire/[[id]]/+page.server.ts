@@ -101,21 +101,24 @@ export const load = async ({ params, locals, url }) => {
 			}
 		}
 
-		// console.log('---> event', event);
 		if (event.attendees != null) {
-			// Count only attendees with status "GOING"
-			numAttendingGoing += event.attendees.filter(
-				(attendee) => attendee.status === Status.GOING
-			).length;
+			// Count only attendees with status "GOING" and include guest count
+			numAttendingGoing += event.attendees.reduce(
+				(total, attendee) =>
+					attendee.status === Status.GOING ? total + (attendee.guest_count || 0) + 1 : total,
+				0
+			);
 
 			// Check if the current user is among the attendees
 			isUserAnAttendee = event.attendees.some((attendee) => attendee.user_id === user?.id);
 		}
 		if (event.temporary_attendees != null) {
-			// Count only temporary attendees with status "GOING"
-			numAttendingGoing += event.temporary_attendees.filter(
-				(attendee) => attendee.status === Status.GOING
-			).length;
+			// Count only temporary attendees with status "GOING" and include guest count
+			numAttendingGoing += event.temporary_attendees.reduce(
+				(total, attendee) =>
+					attendee.status === Status.GOING ? total + (attendee.guest_count || 0) + 1 : total,
+				0
+			);
 
 			if (!isUserAnAttendee) {
 				isUserAnAttendee = event.temporary_attendees.some(

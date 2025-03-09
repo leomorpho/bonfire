@@ -171,11 +171,13 @@
 		...(tempAttendeesMaybeGoing || [])
 	]);
 
+	// Count real users, temporary users and all their guests
 	let rsvpEnabledForCapacity: boolean = $derived(
 		!event?.max_capacity ||
 			currentUserAttendee ||
 			(event?.max_capacity &&
-				allAttendeesGoing.length < event?.max_capacity &&
+				allAttendeesGoing.reduce((total, attendee) => total + (attendee.guest_count || 0) + 1, 0) <
+					event?.max_capacity &&
 				$page.data.numAttendingGoing < event?.max_capacity)
 	) as boolean;
 
