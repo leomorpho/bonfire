@@ -6,21 +6,6 @@
 
 	let { oninput, value = $bindable<number | undefined | null>() } = $props();
 	let checked = $state(value !== null && value !== undefined && value !== 0);
-
-	const setState = () => {
-		if (!checked) {
-			value = null;
-		} else {
-			value = 15;
-		}
-	};
-	$effect(() => {
-		setState();
-	});
-
-	onMount(() => {
-		setState();
-	});
 </script>
 
 <div class="mt-4 rounded-lg bg-slate-100 bg-opacity-70 p-4 dark:bg-slate-800 dark:bg-opacity-70">
@@ -45,7 +30,7 @@
 			<Input
 				type="number"
 				bind:value
-				min="1"
+				min="0"
 				pattern="[0-9]*"
 				inputmode="numeric"
 				class="w-24 bg-slate-200 text-center dark:bg-slate-900 sm:w-20 md:w-24"
