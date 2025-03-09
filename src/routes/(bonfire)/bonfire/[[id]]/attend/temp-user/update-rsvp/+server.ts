@@ -12,7 +12,7 @@ export const POST: RequestHandler = async ({ url, request }): Promise<Response> 
 			throw error(400, 'No temporary attendee secret provided.');
 		}
 
-		const { rsvpStatus } = await request.json();
+		const { rsvpStatus, numGuests } = await request.json();
 		if (!rsvpStatus) {
 			throw error(400, 'RSVP status is required.');
 		}
@@ -41,9 +41,15 @@ export const POST: RequestHandler = async ({ url, request }): Promise<Response> 
 
 		await checkEventIsOpenForNewGoingAttendees(triplitHttpClient, bonfireId, rsvpStatus);
 
+		let newNumGuest = attendance.guest_count;
+		if (numGuests !== null && Number.isInteger(numGuests)) {
+			newNumGuest = numGuests;
+		}
+
 		// Update the RSVP status for the attendee
 		await triplitHttpClient.update('temporary_attendees', temporaryAttendee.id, async (entity) => {
 			entity.status = rsvpStatus;
+			entity.guest_count = newNumGuest;
 		});
 
 		// Optionally notify of status change

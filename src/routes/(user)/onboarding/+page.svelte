@@ -80,14 +80,14 @@
 					class="w-90 mx-4 flex flex-col items-center rounded-xl bg-slate-100 p-6 text-center shadow-lg dark:bg-slate-900"
 				>
 					<h1
-						class="mb-6 flex items-center gap-2 text-3xl font-semibold text-black dark:text-white"
+						class="flex items-center gap-2 text-2xl sm:text-4xl font-semibold text-black dark:text-white"
 					>
 						Welcome to Bonfire!
 					</h1>
 
-					<!-- <div class="w-full max-w-lg rounded-xl bg-slate-100 p-6 shadow-lg dark:bg-slate-900"> -->
+
 					<h2
-						class="flex items-center justify-center gap-2 text-2xl font-semibold text-green-600 dark:text-green-400"
+						class="pointer-events-none whitespace-pre-wrap bg-gradient-to-b from-[#ffd319] via-[#ff2975] to-[#8c1eff] bg-clip-text py-1 text-center text-2xl font-bold leading-none tracking-tighter text-transparent sm:text-left sm:text-4xl"
 					>
 						<Gift class="h-6 w-6" /> You get 3 free logs!
 					</h2>

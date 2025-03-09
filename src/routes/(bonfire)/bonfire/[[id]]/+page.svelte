@@ -14,7 +14,6 @@
 		UserRound,
 		Calendar,
 		KeyRound,
-		ArrowRightFromLine,
 		Images,
 		Megaphone,
 		Plus,
@@ -67,6 +66,7 @@
 	let eventFailedLoading = $state(false);
 	let fileCount = $state(0);
 	let rsvpStatus = $state('');
+	let numGuestsBringing = $state(0);
 
 	let isUnverifiedUser = $derived(!!tempAttendeeId);
 	let tempAttendee = $state(null);
@@ -143,7 +143,11 @@
 			if (attendees && attendees.length > 0) {
 				currentUserAttendee = attendees.find((attendee) => attendee.user_id == currUserId);
 				// Set RSVP status based on the attendee record, or keep it as default
-				rsvpStatus = currentUserAttendee ? currentUserAttendee.status : undefined;
+				if (currentUserAttendee) {
+					rsvpStatus = currentUserAttendee.status;
+					numGuestsBringing = currentUserAttendee.guest_count;
+				}
+
 				if (dev) {
 					$inspect('### rsvpStatus', rsvpStatus);
 				}
@@ -266,6 +270,7 @@
 					if (results.length == 1) {
 						tempAttendee = results[0];
 						rsvpStatus = tempAttendee?.status;
+						numGuestsBringing = tempAttendee?.guest_count;
 					}
 				},
 				(error) => {
@@ -644,9 +649,9 @@
 										>
 									</a>
 								{/if}
-								<div class="w-full flex justify-center">
+								<div class="flex w-full justify-center">
 									<h1
-										class="rounded-xl bg-slate-100 p-3 text-center text-2xl font-bold dark:bg-slate-900 sm:text-3xl lg:text-4xl px-5 sm:px-10"
+										class="rounded-xl bg-slate-100 p-3 px-5 text-center text-2xl font-bold dark:bg-slate-900 sm:px-10 sm:text-3xl lg:text-4xl"
 									>
 										{event.title}
 									</h1>
@@ -799,6 +804,7 @@
 										eventId={event.id}
 										{isAnonymousUser}
 										{rsvpCanBeChanged}
+										numGuests={numGuestsBringing}
 									/>
 
 									<Button

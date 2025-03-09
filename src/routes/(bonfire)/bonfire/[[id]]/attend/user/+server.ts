@@ -27,7 +27,7 @@ export const POST = async ({ request, params, locals }) => {
 		return json({ error: 'Invalid JSON body' }, { status: 400 });
 	}
 
-	const { status } = requestBody;
+	const { status, numGuests } = requestBody;
 
 	if (!status) {
 		return json({ error: 'Missing status' }, { status: 400 });
@@ -55,12 +55,18 @@ export const POST = async ({ request, params, locals }) => {
 				id: createAttendeeId(bonfireId, user.id),
 				user_id: user.id,
 				event_id: bonfireId,
-				status
+				status,
+				guest_count: numGuests
 			});
 		} else {
+			let newNumGuest = attendance.guest_count;
+			if (numGuests !== null && Number.isInteger(numGuests)) {
+				newNumGuest = numGuests;
+			}
 			// Update existing attendance record
 			attendance = await triplitHttpClient.update('attendees', attendance.id, (entity) => {
 				entity.status = status;
+				entity.guest_count = newNumGuest;
 			});
 		}
 

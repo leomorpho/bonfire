@@ -177,13 +177,16 @@ export async function clearCache(client: TriplitClient | null, fullClear: boolea
 	}
 }
 
-
-export async function upsertUserAttendance(eventId: string, status: Status) {
+export async function upsertUserAttendance(
+	eventId: string,
+	status: Status,
+	numGuests: number | null
+) {
 	try {
 		const response = await fetch(`/bonfire/${eventId}/attend/user`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ status })
+			body: JSON.stringify({ status, numGuests })
 		});
 
 		if (!response.ok) {

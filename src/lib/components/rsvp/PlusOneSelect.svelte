@@ -19,6 +19,13 @@
 			console.log('numGuests', numGuests);
 		}
 	};
+
+	// Sync selected value with numGuests
+	$effect(() => {
+		if (numGuests !== undefined && numGuests >= 0 && numGuests <= maxGuests) {
+			selected = OPTIONS[numGuests];
+		}
+	});
 </script>
 
 <div class="flex w-full justify-center">

@@ -8,9 +8,7 @@
 		getStrValueOfRSVP,
 		NOTIFY_OF_ATTENDING_STATUS_CHANGE,
 		Status,
-		TEMP_ATTENDEE_MIN_NAME_LEN,
-		tempAttendeeSecretParam,
-		TempNameCheckingState
+		tempAttendeeSecretParam
 	} from '$lib/enums';
 	import AddToCalendar from '../AddToCalendar.svelte';
 	import { page } from '$app/stores';
@@ -18,12 +16,11 @@
 	import { createNewAttendanceNotificationQueueObject } from '$lib/notification';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
-	import { Input } from '$lib/components/ui/input/index.js';
-	import { Label } from '$lib/components/ui/label/index.js';
-	import { debounce, generatePassphraseId } from '$lib/utils';
 	import { toast } from 'svelte-sonner';
 	import { goto } from '$app/navigation';
 	import PlusOneSelect from './PlusOneSelect.svelte';
+	import TempAttendeeDialog from './TempAttendeeDialog.svelte';
+	import UpdatePlusOneSelect from './UpdatePlusOneSelect.svelte';
 
 	let {
 		rsvpStatus = Status.DEFAULT,
@@ -42,34 +39,7 @@
 
 	let newRsvpStatusToSave: null | string = $state(null);
 	let tempUserRsvpStatus: null | string = $state(null);
-	let tempName: null | string = $state(null);
-	let tempMinNameLenReached = $state(false);
-	let isNameAvailable = $state(false);
-	let generateTempURLBtnEnabled: boolean = $state(false);
-	let isGeneratingTempLink: boolean = $state(false);
-	let loadingGeneratedTempLink: boolean = $state(false);
-	let tempNameCheckingState: string | null = $state(null);
-	let numExtraGuests = $state(0);
 	let isPlusOneSelectDialogOpenForFullUser = $state(false);
-
-	let isNameLongEnough = $derived(tempName && tempMinNameLenReached);
-	let isNameAlreadyTaken = $derived(tempNameCheckingState === TempNameCheckingState.NAME_TAKEN);
-
-	$effect(() => {
-		if (tempName && tempName.length >= TEMP_ATTENDEE_MIN_NAME_LEN) {
-			tempMinNameLenReached = true;
-		} else {
-			tempMinNameLenReached = false;
-		}
-	});
-
-	$effect(() => {
-		if (tempMinNameLenReached && tempUserRsvpStatus && isNameAvailable) {
-			generateTempURLBtnEnabled = true;
-		} else {
-			generateTempURLBtnEnabled = false;
-		}
-	});
 
 	console.log('userId', userId);
 	console.log('eventId', eventId);
@@ -92,9 +62,15 @@
 	let dropdownOpen = $state(false);
 
 	// Function to handle RSVP updates
-	const updateRSVP = async (event: Event, newValue: string | null, numGuests: number = 0) => {
+	const updateRSVP = async (
+		event: Event,
+		newValue: string | null,
+		numGuests: number | null = 0
+	) => {
+		if (!newValue) {
+			newValue = rsvpStatus;
+		}
 		event.preventDefault();
-		numExtraGuests = numGuests;
 
 		if (isAnonymousUser) {
 			// Brand new temporary user, still an anonymous user at this point
@@ -113,10 +89,10 @@
 				return;
 			}
 			console.log('updating RSVP status for logged in user');
-			await updateRSVPForLoggedInUser(newValue);
+			await updateRSVPForLoggedInUser(newValue as string, numGuests);
 		} else {
 			console.log('updating RSVP status for temporary user');
-			await updateRSVPForTempUser(newValue);
+			await updateRSVPForTempUser(newValue as string, numGuests);
 		}
 		dropdownOpen = false;
 	};
@@ -158,89 +134,7 @@
 		}
 	};
 
-	const checkNameAvailability = debounce(async function () {
-		try {
-			console.log('checking name availability');
-			tempNameCheckingState = TempNameCheckingState.CHECKING;
-
-			const response = await fetch(`/bonfire/${eventId}/attend/temp-user/check-name`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({ name: tempName })
-			});
-
-			const result = await response.json();
-
-			if (!response.ok) {
-				// Handle 409 Conflict (Name already taken)
-				if (response.status === 409) {
-					tempNameCheckingState = TempNameCheckingState.NAME_TAKEN;
-					isNameAvailable = false;
-					return;
-				}
-
-				// Handle other errors
-				tempNameCheckingState = TempNameCheckingState.ERROR;
-			} else {
-				// Success (Name is available)
-				isNameAvailable = true;
-				tempNameCheckingState = TempNameCheckingState.AVAILABLE;
-				return result;
-			}
-		} catch (error) {
-			console.error('Error checking name availability:', error.message || error);
-			throw error;
-		}
-	}, 250); // Debounce delay is set to 500ms
-
-	const createTemporaryAttendee = async () => {
-		isGeneratingTempLink = true;
-		const id = await generatePassphraseId('u', 36);
-		try {
-			if (!tempUserRsvpStatus) {
-				throw new Error('rsvp status is not set');
-			}
-			// Make a POST request to the backend endpoint
-			const response = await fetch(`/bonfire/${eventId}/attend/temp-user/generate`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({
-					id,
-					eventId,
-					status: tempUserRsvpStatus,
-					name: tempName,
-					numExtraGuests: numExtraGuests
-				})
-			});
-
-			// Parse the response JSON
-			const result = await response.json();
-
-			if (!response.ok) {
-				throw new Error(result.message || 'Failed to create temporary attendee');
-			}
-
-			// Redirect if the attendee was created successfully
-			if (result.success && result.redirectUrl) {
-				client.endSession();
-				window.location.href = result.redirectUrl;
-			} else {
-				throw new Error('Unexpected response from the server');
-			}
-		} catch (error) {
-			console.error('Error creating temporary attendee:', error);
-			toast.error('Sorry, an error occurred while creating your attendee, please try again later');
-		} finally {
-			isGeneratingTempLink = false;
-			loadingGeneratedTempLink = true;
-		}
-	};
-
-	const updateRSVPForTempUser = async (newValue: string) => {
+	const updateRSVPForTempUser = async (newValue: string, numGuests: number|null) => {
 		const tempAttendeeSecret = $page.url.searchParams.get(tempAttendeeSecretParam);
 
 		if (!tempAttendeeSecret) {
@@ -259,7 +153,8 @@
 					},
 					body: JSON.stringify({
 						tempAttendeeSecret,
-						rsvpStatus: newValue
+						rsvpStatus: newValue,
+						numGuests: numGuests
 					})
 				}
 			);
@@ -278,7 +173,7 @@
 		}
 	};
 
-	const updateRSVPForLoggedInUser = async (newValue: string) => {
+	const updateRSVPForLoggedInUser = async (newValue: string, numGuests: number|null) => {
 		try {
 			const query = client
 				.query('attendees')
@@ -301,7 +196,7 @@
 			let attendanceId = attendance?.id;
 			if (!attendance) {
 				try {
-					const attendance = await upsertUserAttendance(eventId, newValue as Status);
+					const attendance = await upsertUserAttendance(eventId, newValue as Status, numGuests);
 					attendanceId = attendance?.id;
 				} catch (e) {
 					console.error(
@@ -312,7 +207,7 @@
 				}
 			} else {
 				try {
-					await upsertUserAttendance(eventId, newValue as Status);
+					await upsertUserAttendance(eventId, newValue as Status, numGuests);
 				} catch (e) {
 					console.error('failed to update attendance:', newValue, e);
 				}
@@ -351,7 +246,7 @@
 		id="rsvp-btn"
 		disabled={!rsvpCanBeChanged}
 		variant="outline"
-		class="mt-4 flex w-full items-center justify-center {rsvpStatus === Status.GOING
+		class="flex w-full items-center justify-center {rsvpStatus === Status.GOING
 			? 'bg-green-400 hover:bg-green-100 dark:bg-green-600 dark:hover:bg-green-500'
 			: ''} {rsvpStatus === Status.MAYBE
 			? 'bg-yellow-400 hover:bg-yellow-100 dark:bg-yellow-600 dark:hover:bg-yellow-500'
@@ -368,8 +263,18 @@
 	</Button>
 {/snippet}
 
-<div class="flex">
+<div class="mt-2 flex items-center space-x-1">
 	{#if rsvpCanBeChanged}
+		{#if rsvpStatus != Status.DEFAULT}
+			<div>
+				<UpdatePlusOneSelect
+					bind:numGuests
+					updateCallback={(e) => {
+						updateRSVP(e, newRsvpStatusToSave, numGuests);
+					}}
+				/>
+			</div>
+		{/if}
 		<DropdownMenu.Root bind:open={dropdownOpen}>
 			<DropdownMenu.Trigger class="w-full" id="rsvp-button">
 				{@render rsvpButton()}
@@ -424,11 +329,11 @@
 			<Dialog.Description>Let us know if you are, don't count yourself.</Dialog.Description>
 		</Dialog.Header>
 
-		<PlusOneSelect bind:numGuests={numExtraGuests} />
+		<PlusOneSelect bind:numGuests />
 		<Button
 			class="w-full"
 			onclick={(e) => {
-				updateRSVP(e, newRsvpStatusToSave, numExtraGuests);
+				updateRSVP(e, newRsvpStatusToSave, numGuests);
 			}}
 		>
 			Let's go!
@@ -436,80 +341,4 @@
 	</Dialog.Content>
 </Dialog.Root>
 
-<Dialog.Root bind:open={isAnonRsvpDialogOpen}>
-	<Dialog.Content class="sm:max-w-[425px]">
-		<Dialog.Header>
-			<Dialog.Title>Hey There!</Dialog.Title>
-			<Dialog.Description>There are two ways to set your RSVP status.</Dialog.Description>
-		</Dialog.Header>
-		<div class="space-y-3">
-			<a href={`/login/?event_id=${eventId}`}>
-				<Button class="w-full bg-green-500 text-lg hover:bg-green-400">Register/Login</Button>
-			</a>
-		</div>
-
-		<div class="inline-flex w-full items-center justify-center">
-			<hr class="my-8 h-px w-64 border-0 bg-gray-200 dark:bg-gray-700" />
-			<span
-				class="absolute left-1/2 -translate-x-1/2 rounded-lg bg-white px-3 font-medium text-gray-900 dark:bg-gray-900 dark:text-white"
-				>or</span
-			>
-		</div>
-		<div class="mb-2 text-lg">Generate unique URL</div>
-		<div class="text-sm text-slate-500">
-			<p>
-				A unique URL that connects your actions to this event. Keep it open in a tab or save it for
-				future access—don’t lose it! This link serves as your identity for this event.
-			</p>
-		</div>
-
-		<div class="mt-3 grid grid-cols-4 items-center gap-4">
-			<Label for="username" class="text-right">Name</Label>
-			<Input
-				oninput={checkNameAvailability}
-				bind:value={tempName}
-				id="username"
-				placeholder="Tony Garfunkel"
-				class="col-span-3"
-			/>
-		</div>
-		{#if tempName && (!isNameLongEnough || isNameAlreadyTaken)}
-			<div class="my-4 flex w-full justify-center">
-				<ul class="list-disc space-y-2 pl-6 text-xs text-yellow-400">
-					{#if !isNameLongEnough}
-						<li>At least {TEMP_ATTENDEE_MIN_NAME_LEN} characters</li>
-					{/if}
-					{#if isNameAlreadyTaken}
-						<li>This name is already taken by someone in this event</li>
-					{/if}
-				</ul>
-			</div>
-		{/if}
-		<PlusOneSelect bind:numGuests={numExtraGuests} />
-		<Button
-			type="submit"
-			class="w-full"
-			onclick={createTemporaryAttendee}
-			disabled={!generateTempURLBtnEnabled}
-		>
-			{#if isGeneratingTempLink}
-				<div class="flex items-center justify-between">
-					<div>Generating...</div>
-					<span class="loading loading-spinner loading-xs ml-2"> </span>
-				</div>
-			{:else if tempNameCheckingState === TempNameCheckingState.CHECKING}
-				<div class="flex items-center justify-between">
-					<div>Checking name availability...</div>
-					<span class="loading loading-spinner loading-xs ml-2"> </span>
-				</div>
-			{:else if loadingGeneratedTempLink}
-				<div class="flex items-center justify-between">
-					<div>Loading...</div>
-					<span class="loading loading-spinner loading-xs ml-2"> </span>
-				</div>
-			{:else}
-				Generate URL
-			{/if}
-		</Button>
-	</Dialog.Content>
-</Dialog.Root>
+<TempAttendeeDialog bind:isAnonRsvpDialogOpen {eventId} {tempUserRsvpStatus} />

@@ -72,7 +72,7 @@ END:VCALENDAR`;
 
 <DropdownMenu.Root>
 	<DropdownMenu.Trigger>
-		<Button id="add-to-calendar" variant="outline" class="mt-4"><CalendarPlus /></Button>
+		<Button id="add-to-calendar" variant="outline"><CalendarPlus /></Button>
 	</DropdownMenu.Trigger>
 	<DropdownMenu.Content>
 		<DropdownMenu.Group>
