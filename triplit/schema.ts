@@ -429,6 +429,9 @@ export const schema = {
 			event_admins: S.RelationMany('event_admins', {
 				where: [['event_id', '=', '$id']]
 			}),
+			bring_items: S.RelationMany('bring_items', {
+				where: [['event_id', '=', '$id']]
+			}),
 			transaction_id: S.Optional(S.String()),
 			transaction: S.RelationOne('transactions', {
 				where: [['event_id', '=', '$id']]

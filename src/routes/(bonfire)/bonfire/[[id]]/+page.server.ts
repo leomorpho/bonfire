@@ -26,6 +26,7 @@ export const load = async ({ params, locals, url }) => {
 	let bannerSmallSizeUrl = null;
 	let bannerLargeSizeUrl = null;
 	let bannerBlurHash = '';
+	let numBringListItems = 0;
 
 	let tempAttendeeId;
 	const tempAttendeeSecretStr = url.searchParams.get(tempAttendeeSecretParam);
@@ -68,12 +69,13 @@ export const load = async ({ params, locals, url }) => {
 			triplitHttpClient
 				.query('events')
 				.where(and([['id', '=', eventId as string]]))
-				.include('announcements')
+				.include('announcements_list', (rel) => rel('announcements').select(['id']).build())
 				.include('attendees')
 				.include('temporary_attendees')
-				.include('files')
+				.include('files_list', (rel) => rel('files').select(['id']).build())
 				.include('banner_media')
 				.include('event_admins')
+				.include('bring_items_list', (rel) => rel('bring_items').select(['id']).build())
 				.subquery(
 					'organizer',
 					triplitHttpClient
@@ -126,11 +128,11 @@ export const load = async ({ params, locals, url }) => {
 				);
 			}
 		}
-		if (event.announcements != null) {
-			numAnnouncements = event.announcements.length;
+		if (event.announcements_list != null) {
+			numAnnouncements = event.announcements_list.length;
 		}
-		if (event.files != null) {
-			numFiles = event.files.length;
+		if (event.files_list != null) {
+			numFiles = event.files_list.length;
 		}
 		if (event.banner_media) {
 			bannerIsSet = true;
@@ -138,6 +140,10 @@ export const load = async ({ params, locals, url }) => {
 			bannerLargeSizeUrl = await generateSignedUrl(image.full_image_key);
 			bannerSmallSizeUrl = await generateSignedUrl(image.small_image_key);
 			bannerBlurHash = image.blurr_hash;
+		}
+
+		if (event.bring_items_list) {
+			numBringListItems = event.bring_items_list.length;
 		}
 
 		// console.log("numAnnouncements", numAnnouncements)
@@ -153,6 +159,7 @@ export const load = async ({ params, locals, url }) => {
 	return {
 		user,
 		event,
+		numBringListItems,
 		numAttendingGoing,
 		numAnnouncements,
 		numFiles,

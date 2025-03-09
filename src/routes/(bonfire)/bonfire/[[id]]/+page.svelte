@@ -859,7 +859,13 @@
 										/>
 									{:else}
 										<div class="my-2">
-											<BonfireNoInfoCard text={'No items to bring yet'} />
+											{#if $page.data.numBringListItems}
+												<BonfireNoInfoCard
+													text={`${$page.data.numBringListItems} items to bring`}
+												/>
+											{:else}
+												<BonfireNoInfoCard text={'No items to bring yet'} />
+											{/if}
 										</div>
 									{/if}
 								</div>
