@@ -19,6 +19,19 @@
 
 		console.log('latitude', latitude, 'longitude', longitude);
 	});
+
+	const handleMapLoad = () => {
+		// Automatically click the attribution button to collapse it
+		setTimeout(() => {
+			const summaryButton = document.querySelector(
+				'.maplibregl-ctrl-attrib-button'
+			) as HTMLSummaryElement;
+
+			if (summaryButton) {
+				summaryButton.click();
+			}
+		}, 100); // Add a small delay to ensure the element is rendered
+	};
 </script>
 
 <!-- Map Container -->
@@ -28,6 +41,7 @@
 		zoom={14}
 		class="map"
 		style={'https://tiles.stadiamaps.com/styles/alidade_smooth.json'}
+		onload={handleMapLoad}
 	>
 		<NavigationControl position="top-left" showCompass={false} />
 		<FullscreenControl position="top-left" />
