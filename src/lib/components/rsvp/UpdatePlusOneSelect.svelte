@@ -20,7 +20,7 @@
 	};
 </script>
 
-<Button class="flex items-center" onclick={openDialog}>
+<Button id="num-guest-you-are-bringing" class="flex items-center" onclick={openDialog}>
 	<UserRoundPlus class="mr-" />
 	{#if numGuests}
 		{numGuests}

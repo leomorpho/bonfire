@@ -90,6 +90,10 @@ export function getFeWorkerTriplitClient(jwt: string) {
 }
 
 const createNewWorkerTriplitClient = (jwt: string) => {
+	let syncSchema = true;
+	if (dev) {
+		syncSchema = false;
+	}
 	return new WorkerClient({
 		workerUrl: dev ? workerUrl : undefined,
 		storage: {
@@ -100,7 +104,7 @@ const createNewWorkerTriplitClient = (jwt: string) => {
 		serverUrl: publicEnv.PUBLIC_TRIPLIT_URL,
 		token: jwt ? jwt : publicEnv.PUBLIC_TRIPLIT_ANONYMOUS_TOKEN,
 		autoConnect: browser,
-		syncSchema: true,
+		syncSchema: syncSchema,
 		onSessionError: async (type) => {
 			console.log('💀 Triplit session error occurred:', type);
 			if (type === 'ROLES_MISMATCH') {

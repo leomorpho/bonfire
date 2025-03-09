@@ -214,16 +214,6 @@ test('Create bonfire', async ({ page }) => {
 	await expect(page.getByRole('link', { name: 'Waze' })).toBeVisible();
 	await expect(page.locator('#bing-icon')).toBeVisible();
 	await page.getByRole('button', { name: 'cross 2 Close' }).click();
-
-	await page.locator('#going-attendees').locator('.profile-avatar').click();
-	await expect(page.getByRole('heading', { name: username })).toBeVisible();
-	await expect(page.getByRole('button', { name: 'Remove user from event' })).toBeVisible();
-	await page.getByRole('button', { name: 'Remove user from event' }).click();
-	await expect(page.getByRole('heading', { name: 'Are you absolutely sure?' })).toBeVisible();
-	await expect(page.getByText('This action cannot be undone')).toBeVisible();
-	await expect(page.getByRole('button', { name: 'Yes, remove' })).toBeVisible();
-	await expect(page.getByRole('button', { name: 'Cancel' })).toBeVisible();
-	await page.getByRole('button', { name: 'cross 2 Close' }).click();
 });
 
 test('CRUD announcements', async ({ page }) => {
@@ -246,7 +236,7 @@ test('CRUD announcements', async ({ page }) => {
 	await page.getByRole('button', { name: 'Create' }).click();
 	// Check we are back on bonfire view
 	await expect(page.getByRole('heading', { name: eventName })).toBeVisible();
-	await expect(page.getByRole('heading', { name: 'An announcement!' })).toBeVisible();
+	await expect(page.getByText('An announcement!')).toBeVisible();
 	await expect(page.locator('.announcement')).toHaveCount(1);
 
 	// Update
@@ -259,7 +249,7 @@ test('CRUD announcements', async ({ page }) => {
 	await page.getByRole('button', { name: 'Update' }).click();
 	// Check we are back on bonfire view
 	await expect(page.getByRole('heading', { name: eventName })).toBeVisible();
-	await expect(page.getByRole('heading', { name: 'Updated announcement' })).toBeVisible();
+	await expect(page.getByText('Updated announcement')).toBeVisible();
 	await expect(page.locator('.announcement')).toHaveCount(1);
 
 	// Delete
@@ -367,14 +357,14 @@ test('User attendee view', async ({ browser }) => {
 	await uploadGalleryImage(eventCreatorPage, eventUrl);
 	await eventCreatorPage.close();
 
-	// Temp attendee
+	// Create user attendee
 	const userEmail = faker.internet.email();
 	const userUsername = faker.person.firstName();
 	await navigateTo(userAttendeePage, eventUrl);
 	await loginUser(userAttendeePage, userEmail, userUsername);
 	await navigateTo(userAttendeePage, eventUrl);
 
-	// Temp user should not be able to set a banner
+	// User should not be able to set a banner
 	await expect(userAttendeePage.getByRole('heading', { name: 'Set Banner' })).toHaveCount(0);
 	await expect(userAttendeePage.getByRole('heading', { name: eventName })).toBeVisible();
 	await expect(userAttendeePage.getByText(`Hosted by ${username}`)).toBeVisible();
@@ -388,6 +378,15 @@ test('User attendee view', async ({ browser }) => {
 
 	await userAttendeePage.getByText('RSVP', { exact: true }).click();
 	await userAttendeePage.getByRole('menuitem', { name: 'Going', exact: true }).click();
+
+	await expect(userAttendeePage.getByText('Are you bringing any guests?').first()).toBeVisible();
+	await expect(
+		userAttendeePage.getByText("Let us know if you are, don't count yourself").first()
+	).toBeVisible();
+	await userAttendeePage.getByText('+1', { exact: true }).click();
+	await userAttendeePage.getByText("Let's go!", { exact: true }).click();
+	const number = await userAttendeePage.locator('#num-guest-you-are-bringing').textContent();
+	expect(number?.match(/\d+/)?.[0]).toBe('1');
 });
 
 test('Temp attendee view', async ({ browser }) => {
@@ -421,7 +420,6 @@ test('Temp attendee view', async ({ browser }) => {
 	// Have creator add announcements and files to make sure others can only see count until RSVP is set.
 	await addAnnouncementAsEventCreator(eventCreatorPage, eventUrl);
 	await uploadGalleryImage(eventCreatorPage, eventUrl);
-	await eventCreatorPage.close();
 
 	// Temp attendee
 	const tempAttendeeUsername = faker.person.firstName();
@@ -440,6 +438,7 @@ test('Temp attendee view', async ({ browser }) => {
 	// Set RSVP status
 	await tempAttendeePage.getByText('RSVP', { exact: true }).click();
 	await tempAttendeePage.getByRole('menuitem', { name: 'Going', exact: true }).click();
+
 	await expect(tempAttendeePage.getByRole('heading', { name: 'Hey There!' })).toBeVisible();
 	await expect(tempAttendeePage.getByText('There are two ways to set')).toBeVisible();
 	await expect(tempAttendeePage.getByRole('button', { name: 'Register/Login' })).toBeVisible();
@@ -448,6 +447,12 @@ test('Temp attendee view', async ({ browser }) => {
 	await expect(tempAttendeePage.getByText('A unique URL that connects')).toBeVisible();
 	await tempAttendeePage.getByPlaceholder('Tony Garfunkel').click();
 	await tempAttendeePage.getByPlaceholder('Tony Garfunkel').fill(tempAttendeeUsername);
+	await expect(
+		tempAttendeePage
+			.getByText("Are you bringing any guests? Let us know if you are, and don't count yourself.")
+			.first()
+	).toBeVisible();
+	await tempAttendeePage.getByText('+1', { exact: true }).click();
 	await tempAttendeePage.getByRole('button', { name: 'Generate URL' }).click();
 
 	// Should be redirected to bonfire page
@@ -459,6 +464,10 @@ test('Temp attendee view', async ({ browser }) => {
 	await expect(tempAttendeePage.getByText('Sign up anytime to link your')).toBeVisible();
 	await expect(tempAttendeePage.getByRole('button', { name: 'Sign Up or Log In' })).toBeVisible();
 	await expect(tempAttendeePage.getByRole('button', { name: 'Copy Link' })).toBeVisible();
+
+	// Verify temp attendee is bringing one guest
+	const number = await tempAttendeePage.locator('#num-guest-you-are-bringing').textContent();
+	expect(number?.match(/\d+/)?.[0]).toBe('1');
 
 	// Verify address shows in mapping app dialog
 	await tempAttendeePage.locator('#share-location').click();
@@ -502,6 +511,20 @@ test('Temp attendee view', async ({ browser }) => {
 	await expect(tempAttendeePage.getByText('This action cannot be undone')).toBeVisible();
 	await tempAttendeePage.getByRole('button', { name: 'Continue' }).click();
 	await expect(tempAttendeePage.locator('.gallery-item')).toHaveCount(1);
+
+	// See if event owner can see the remove user screen
+	await eventCreatorPage.locator('#going-attendees').locator('.profile-avatar').click();
+	await expect(
+		eventCreatorPage.getByRole('button', { name: 'Remove user from event' })
+	).toBeVisible();
+	await eventCreatorPage.getByRole('button', { name: 'Remove user from event' }).click();
+	await expect(
+		eventCreatorPage.getByRole('heading', { name: 'Are you absolutely sure?' })
+	).toBeVisible();
+	await expect(eventCreatorPage.getByText('This action cannot be undone')).toBeVisible();
+	await expect(eventCreatorPage.getByRole('button', { name: 'Yes, remove' })).toBeVisible();
+	await expect(eventCreatorPage.getByRole('button', { name: 'Cancel' })).toBeVisible();
+	await eventCreatorPage.getByRole('button', { name: 'cross 2 Close' }).click();
 });
 
 test('Temp -> normal attendee transformation', async ({ browser }) => {
@@ -590,6 +613,8 @@ test('Event admins', async ({ browser }) => {
 	await expect(adminPage.getByText('1 going')).toBeVisible();
 	await adminPage.getByText('RSVP', { exact: true }).click();
 	await adminPage.locator('#rsvp-button-going').click();
+	await adminPage.getByText("Let's go!", { exact: true }).click();
+
 
 	// Now event creator will add above attendee as an admin
 	await eventCreatorPage.locator('#edit-bonfire').getByRole('button').click();
@@ -630,12 +655,6 @@ test('Event admins', async ({ browser }) => {
 	// Check data
 	await expect(adminPage.getByRole('heading', { name: newEventName })).toBeVisible();
 	await expect(adminPage.getByText(newDetails).first()).toBeVisible();
-
-	// See if we can see the remove user screen
-	await adminPage.locator('#going-attendees').locator('.profile-avatar').first().click();
-	await adminPage.getByRole('button', { name: 'Remove user from event' }).click();
-	await adminPage.getByRole('button', { name: 'Cancel' }).click();
-	await adminPage.getByRole('button', { name: 'cross 2 Close' }).click();
 
 	// Add an announcement
 	const announcementText = faker.lorem.paragraph();
