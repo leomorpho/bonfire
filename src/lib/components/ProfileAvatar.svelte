@@ -171,28 +171,41 @@
 	});
 </script>
 
+{#snippet numGuestOnAvatar(num: number)}
+	<div
+		class="absolute -bottom-1 left-4 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white shadow-md"
+	>
+		+{num}
+	</div>
+{/snippet}
+
 <Dialog.Root bind:open={dialogIsOpen}>
 	<Dialog.Trigger
 		class="profile-avatar flex items-center justify-center focus:outline-none focus-visible:ring-0"
 	>
 		{#if fullsizeUrl || url}
-			<Avatar.Root
-				class={`relative ${isTempUser ? 'border-yellow-300' : 'border-white'}`}
-				style="height: {baseHeightPx}px; width: {baseHeightPx}px;"
-			>
-				<!-- Avatar Image -->
-				<Avatar.Image src={url} alt={username} class="h-full w-full" />
+			<div class="relative">
+				<Avatar.Root
+					class={`relative ${isTempUser ? 'border-yellow-300' : 'border-white'}`}
+					style="height: {baseHeightPx}px; width: {baseHeightPx}px;"
+				>
+					<!-- Avatar Image -->
+					<Avatar.Image src={url} alt={username} class="h-full w-full" />
 
-				<!-- Fallback Text -->
-				<Avatar.Fallback class="absolute inset-0 flex items-center justify-center">
-					{fallbackNameShort}
-				</Avatar.Fallback>
+					<!-- Fallback Text -->
+					<Avatar.Fallback class="absolute inset-0 flex items-center justify-center">
+						{fallbackNameShort}
+					</Avatar.Fallback>
 
-				<!-- Overlay Layer for Temp User -->
-				{#if isTempUser}
-					<div class="pointer-events-none absolute inset-0 bg-yellow-300 opacity-40"></div>
+					<!-- Overlay Layer for Temp User -->
+					{#if isTempUser}
+						<div class="pointer-events-none absolute inset-0 bg-yellow-300 opacity-40"></div>
+					{/if}
+				</Avatar.Root>
+				{#if numGuests > 0}
+					{@render numGuestOnAvatar(numGuests)}
 				{/if}
-			</Avatar.Root>
+			</div>
 		{:else}
 			<div class="relative">
 				<GeneratedAvatar {username} size={baseHeightPx} />
@@ -204,6 +217,9 @@
 					<div class="pointer-events-none absolute inset-0 rounded-full">
 						<div class="flex h-full w-full items-center justify-center">{fallbackNameShort}</div>
 					</div>
+				{/if}
+				{#if numGuests > 0}
+					{@render numGuestOnAvatar(numGuests)}
 				{/if}
 			</div>
 		{/if}
@@ -272,7 +288,12 @@
 						{/if}
 					</div>
 					{#if numGuests > 0}
-						<div>Bring {numGuests} guest{numGuests > 1 ? 's' : ''}</div>
+						<div class="mt-2 flex w-full justify-center">
+							<div class="rounded-xl bg-red-500 p-2 text-white dark:bg-red-700">
+								Bringing {numGuests} extra guest{numGuests > 1 ? 's' : ''} ({numGuests + 1} total including
+								{username})
+							</div>
+						</div>
 					{/if}
 					{#if viewerIsEventAdmin && $page.data.user && userId != $page.data.user.id}
 						<Button
