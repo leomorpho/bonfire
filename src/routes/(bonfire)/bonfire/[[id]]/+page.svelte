@@ -807,6 +807,7 @@
 										{isAnonymousUser}
 										{rsvpCanBeChanged}
 										numGuests={numGuestsBringing}
+										eventOwnerId={event.user_id}
 									/>
 
 									<Button

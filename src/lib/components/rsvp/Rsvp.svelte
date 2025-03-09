@@ -26,6 +26,7 @@
 		rsvpStatus = Status.DEFAULT,
 		userId,
 		eventId,
+		eventOwnerId,
 		isAnonymousUser,
 		rsvpCanBeChanged = true,
 		numGuests = 0
@@ -40,9 +41,6 @@
 	let newRsvpStatusToSave: null | string = $state(null);
 	let tempUserRsvpStatus: null | string = $state(null);
 	let isPlusOneSelectDialogOpenForFullUser = $state(false);
-
-	console.log('userId', userId);
-	console.log('eventId', eventId);
 
 	let showAddToCalendar = $state(false);
 
@@ -134,7 +132,7 @@
 		}
 	};
 
-	const updateRSVPForTempUser = async (newValue: string, numGuests: number|null) => {
+	const updateRSVPForTempUser = async (newValue: string, numGuests: number | null) => {
 		const tempAttendeeSecret = $page.url.searchParams.get(tempAttendeeSecretParam);
 
 		if (!tempAttendeeSecret) {
@@ -173,7 +171,7 @@
 		}
 	};
 
-	const updateRSVPForLoggedInUser = async (newValue: string, numGuests: number|null) => {
+	const updateRSVPForLoggedInUser = async (newValue: string, numGuests: number | null) => {
 		try {
 			const query = client
 				.query('attendees')
@@ -269,7 +267,7 @@
 			<div>
 				<UpdatePlusOneSelect
 					bind:numGuests
-					updateCallback={(e) => {
+					updateCallback={(e: Event) => {
 						updateRSVP(e, newRsvpStatusToSave, numGuests);
 					}}
 				/>
@@ -302,7 +300,7 @@
 					>
 						<Frown /> Not going
 					</DropdownMenu.Item>
-					{#if rsvpStatus != Status.DEFAULT}
+					{#if rsvpStatus != Status.DEFAULT && userId != eventOwnerId}
 						<DropdownMenu.Item
 							id="rsvp-button-leave"
 							class={rsvpStatus === Status.NOT_GOING ? '' : ''}

@@ -2,7 +2,7 @@
 	import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
 	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
 	import { buttonVariants } from '$lib/components/ui/button/index.js';
-	import { getFeWorkerTriplitClient } from '$lib/triplit';
+	import { getFeWorkerTriplitClient, waitForUserId } from '$lib/triplit';
 	import { onMount } from 'svelte';
 	import type { FetchOptions, TriplitClient } from '@triplit/client';
 	import Loader from '$lib/components/Loader.svelte';
@@ -21,7 +21,7 @@
 	let futureEventsLoading = $state(true);
 	let pastAttendances = $state({});
 	let pastEventsLoading = $state(true);
-	let userId = $state('');
+	let userId = $state();
 
 	$effect(() => {
 		console.log('futureAttendances', futureAttendances);
@@ -119,6 +119,11 @@
 			}
 		);
 
+		const init = async () => {
+			userId = (await waitForUserId()) as string;
+		};
+		init();
+
 		return () => {
 			// Cleanup
 			unsubscribeFromFutureEvents();
@@ -158,6 +163,7 @@
 		{:else}
 			<div>
 				{#each futureAttendances as attendance}
+					{console.log('attendance', attendance)}
 					<div class="my-7 sm:my-10">
 						<EventCard
 							event={attendance.event}
@@ -165,6 +171,7 @@
 							eventCreatorName={attendance.organizer_name['username']}
 							rsvpStatus={attendance.status}
 							isPublished={attendance.event.is_published}
+							numGuests={attendance.guest_count}
 						/>
 					</div>
 				{/each}
@@ -195,6 +202,7 @@
 						eventCreatorName={attendance.organizer_name['username']}
 						rsvpStatus={attendance.status}
 						isPublished={attendance.event.is_published}
+						numGuests={attendance.guest_count}
 					/>
 				{/each}
 			</Collapsible.Content>
