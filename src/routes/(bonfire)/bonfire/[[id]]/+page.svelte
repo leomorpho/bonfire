@@ -6,22 +6,10 @@
 	import Loader from '$lib/components/Loader.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
-	import {
-		Share,
-		UserRound,
-		Calendar,
-		Images,
-		Megaphone,
-		Plus,
-		ShoppingBasket,
-		Car
-	} from 'lucide-svelte';
-	import { formatHumanReadable, formatHumanReadableHour } from '$lib/utils';
+	import { Share, Images, Megaphone, Plus, ShoppingBasket } from 'lucide-svelte';
 	import Rsvp from '$lib/components/rsvp/Rsvp.svelte';
 	import { onMount } from 'svelte';
 	import { Status, tempAttendeeSecretStore, tempAttendeeSecretParam } from '$lib/enums';
-	import ProfileAvatar from '$lib/components/ProfileAvatar.svelte';
-	import { Skeleton } from '$lib/components/ui/skeleton/index.js';
 	import MiniGallery from '$lib/components/MiniGallery.svelte';
 	import { toast } from 'svelte-sonner';
 	import Annoucements from '$lib/components/Annoucements.svelte';
@@ -30,9 +18,7 @@
 	import CenterScreenMessage from '$lib/components/CenterScreenMessage.svelte';
 	import BonfireNoInfoCard from '$lib/components/BonfireNoInfoCard.svelte';
 	import { overlayColorStore, overlayOpacityStore, styleStore } from '$lib/styles';
-	import ShareLocation from '$lib/components/ShareLocation.svelte';
 	import type { BannerInfo, EventTypescriptType } from '$lib/types';
-	import BonfireBanner from '$lib/components/main-bonfire-event/BonfireBanner.svelte';
 	import { env as publicEnv } from '$env/dynamic/public';
 	import ImThreadView from '$lib/components/im/ImThreadView.svelte';
 	import NumNewMessageIndicator from '$lib/components/im/NumNewMessageIndicator.svelte';
@@ -41,19 +27,13 @@
 		type TempUserData,
 		updateTempUsersLiveDataStoreEntry
 	} from '$lib/profilestore';
-	import AttendeesDialog from '$lib/components/AttendeesDialog.svelte';
 	import BringList from '$lib/components/bringlist/BringList.svelte';
-	import AttendeesCount from '$lib/components/attendance/AttendeesCount.svelte';
-	import NoAttendeesYet from '$lib/components/attendance/NoAttendeesYet.svelte';
-	import AnonAttendeesView from '$lib/components/attendance/AnonAttendeesView.svelte';
 	import MaxCapacityInfo from '$lib/components/attendance/MaxCapacityInfo.svelte';
-	import Map from '$lib/components/map/Map.svelte';
-	import { flip } from 'svelte/animate';
-	import { fade } from 'svelte/transition';
 	import EditEventButton from '$lib/components/main-bonfire-event/EditEventButton.svelte';
 	import UnverifiedUserMsg from '$lib/components/main-bonfire-event/UnverifiedUserMsg.svelte';
 	import EventInfo from '$lib/components/main-bonfire-event/EventInfo.svelte';
 	import Attendees from '$lib/components/main-bonfire-event/Attendees.svelte';
+	import Bonfire from '$lib/components/main-bonfire-event/Bonfire.svelte';
 
 	const showMaxNumPeople = 50;
 	const tempAttendeeId = $page.data.tempAttendeeId;
@@ -515,6 +495,32 @@
 		activeTab = 'discussions';
 	};
 </script>
+
+<Bonfire
+	{currUserId}
+	eventOrganizerId={event.organizer['id']}
+	eventOrganizerUsername={event.organizer['username']}
+	{eventId}
+	{eventCreatorUserId}
+	{eventStartTime}
+	{eventEndTime}
+	{eventTitle}
+	{eventDescription}
+	{eventIsPublished}
+	{eventLocation}
+	{eventNumAttendeesGoing}
+	eventMaxCapacity={event?.max_capacity}
+	eventNumAnnouncements={$page.data.numAnnouncements}
+	eventNumFiles={$page.data.numFiles}
+	eventNumBringListItems={$page.data.numBringListItems}
+	{bannerInfo}
+	isUserAnAttendee={$page.data.isUserAnAttendee}
+	jwt={$page.data.jwt}
+	{tempAttendeeId}
+	{tempAttendeeSecret}
+	{rsvpStatus}
+	{showMaxNumPeople}
+/>
 
 {#if !isAnonymousUser && !isUnverifiedUser && eventLoading}
 	<Loader />
