@@ -16,7 +16,6 @@
 		Shield
 	} from 'lucide-svelte';
 	import { page } from '$app/stores';
-	import { enhance } from '$app/forms';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import ToggleTheme from './ToggleTheme.svelte';
@@ -28,6 +27,19 @@
 	if ($page.data.user && $page.data.user.is_event_styles_admin) {
 		isAdmin = true;
 	}
+	import { tick } from 'svelte';
+
+async function handleDropdownClick(href: string) {
+	if (href.startsWith("/#")) {
+		const id = href.substring(2);
+		const element = document.getElementById(id);
+
+		if (element) {
+			await tick(); // Waits for the DOM update (dropdown closing)
+			element.scrollIntoView({ behavior: "smooth" });
+		}
+	}
+}
 
 	const authLinks: Array<Link> = [
 		{ icon: House, name: 'Dashboard', href: '/dashboard' },
@@ -37,9 +49,9 @@
 	];
 
 	const unauthLinks: Array<Link> = [
-		{ icon: BookOpen, name: 'About', href: '/#about' },
-		{ icon: DollarSign, name: 'Pricing', href: '/#pricing' },
-		{ icon: CircleHelp, name: 'FAQ', href: '/#faq' }
+		// { icon: BookOpen, name: 'About', href: '/#about' },
+		// { icon: DollarSign, name: 'Pricing', href: '/#pricing' },
+		// { icon: CircleHelp, name: 'FAQ', href: '/#faq' }
 	];
 
 	let links = $state(unauthLinks);
@@ -101,7 +113,7 @@
 				<!-- <DropdownMenu.Separator /> -->
 
 				{#each links as link}
-					<a href={link.href}>
+					<a href={link.href} >
 						<DropdownMenu.Item class="cursor-pointer p-2 px-4 text-xl sm:text-lg">
 							{#if link.icon}
 								<link.icon class="mr-1 !h-6 !w-6 sm:!h-5 sm:!w-5" />
