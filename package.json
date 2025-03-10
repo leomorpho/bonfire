@@ -93,6 +93,7 @@
 		"@ffmpeg-installer/ffmpeg": "^1.1.0",
 		"@googlemaps/google-maps-services-js": "^3.4.0",
 		"@jimmyverburgt/svelte-input-otp": "^0.0.3",
+		"@khmyznikov/pwa-install": "^0.5.3",
 		"@libsql/client": "^0.14.0",
 		"@lucia-auth/adapter-drizzle": "^1.1.0",
 		"@sentry/sveltekit": "^8",

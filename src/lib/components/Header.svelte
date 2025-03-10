@@ -13,7 +13,8 @@
 		Cog,
 		CircleUser,
 		House,
-		Shield
+		Shield,
+		KeyRound
 	} from 'lucide-svelte';
 	import { page } from '$app/stores';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
@@ -28,18 +29,19 @@
 		isAdmin = true;
 	}
 	import { tick } from 'svelte';
+	import InstallPwaBtn from './InstallPwaBtn.svelte';
 
-async function handleDropdownClick(href: string) {
-	if (href.startsWith("/#")) {
-		const id = href.substring(2);
-		const element = document.getElementById(id);
+	async function handleDropdownClick(href: string) {
+		if (href.startsWith('/#')) {
+			const id = href.substring(2);
+			const element = document.getElementById(id);
 
-		if (element) {
-			await tick(); // Waits for the DOM update (dropdown closing)
-			element.scrollIntoView({ behavior: "smooth" });
+			if (element) {
+				await tick(); // Waits for the DOM update (dropdown closing)
+				element.scrollIntoView({ behavior: 'smooth' });
+			}
 		}
 	}
-}
 
 	const authLinks: Array<Link> = [
 		{ icon: House, name: 'Dashboard', href: '/dashboard' },
@@ -92,9 +94,9 @@ async function handleDropdownClick(href: string) {
 
 {#snippet loginButton()}
 	<Button
-		class="m-1 bg-orange-500 p-5 text-lg font-bold text-white hover:bg-orange-400 dark:bg-orange-700 dark:text-slate-100 dark:hover:bg-orange-600"
+		class="m-1 bg-orange-500 p-5  text-white hover:bg-orange-400 dark:bg-orange-700 dark:text-slate-100 dark:hover:bg-orange-600"
 	>
-		<FlameKindling class="!h-6 !w-6" />login
+		<KeyRound class="" />Login
 	</Button>
 {/snippet}
 
@@ -113,7 +115,7 @@ async function handleDropdownClick(href: string) {
 				<!-- <DropdownMenu.Separator /> -->
 
 				{#each links as link}
-					<a href={link.href} >
+					<a href={link.href}>
 						<DropdownMenu.Item class="cursor-pointer p-2 px-4 text-xl sm:text-lg">
 							{#if link.icon}
 								<link.icon class="mr-1 !h-6 !w-6 sm:!h-5 sm:!w-5" />
@@ -125,7 +127,7 @@ async function handleDropdownClick(href: string) {
 				<div class="my-5 flex w-full justify-center"><ToggleTheme /></div>
 
 				{#if $page.data.user}
-					<LogoutButton cls={"mb-3"} />
+					<LogoutButton cls={'mb-3'} />
 				{:else}
 					<a href="/login" class="flex w-full justify-center">
 						{@render loginButton()}
@@ -156,10 +158,11 @@ async function handleDropdownClick(href: string) {
 					{/each}
 				</ul>
 			</div>
+			<InstallPwaBtn />
 
 			<div class="navbar-end">
 				{#if $page.data.user}
-					<LogoutButton cls={"hidden lg:block w-min mr-3"}/>
+					<LogoutButton cls={'hidden lg:block w-min mr-3'} />
 				{:else}
 					<a href="/login" class="hidden sm:flex"> {@render loginButton()}</a>
 				{/if}
