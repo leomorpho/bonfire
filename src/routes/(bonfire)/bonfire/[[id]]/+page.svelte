@@ -53,6 +53,7 @@
 	import EditEventButton from '$lib/components/main-bonfire-event/EditEventButton.svelte';
 	import UnverifiedUserMsg from '$lib/components/main-bonfire-event/UnverifiedUserMsg.svelte';
 	import EventInfo from '$lib/components/main-bonfire-event/EventInfo.svelte';
+	import Attendees from '$lib/components/main-bonfire-event/Attendees.svelte';
 
 	const showMaxNumPeople = 50;
 	const tempAttendeeId = $page.data.tempAttendeeId;
@@ -571,52 +572,16 @@
 								{longitude}
 							/>
 
-							<div class="mx-3 mt-5 items-center">
-								{#if attendeesLoading}
-									<div class="flex flex-wrap items-center -space-x-3">
-										{#each Array(20).fill(null) as _, index}
-											<Skeleton class="size-12 rounded-full" />
-										{/each}
-									</div>
-								{:else if rsvpStatus}
-									{#if allAttendeesGoing.length > 0}
-										<AttendeesCount
-											{allAttendeesGoing}
-											{allAttendeesMaybeGoing}
-											{allAttendeesNotGoing}
-										/>
-
-										<div
-											id="going-attendees"
-											class="flex flex-wrap items-center justify-center -space-x-4"
-										>
-											{#each allAttendeesGoing.slice(0, showMaxNumPeople) as attendee (attendee.id)}
-												<div animate:flip out:fade={{ duration: 300 }}>
-													<ProfileAvatar
-														userId={attendee.user_id}
-														tempUserName={attendee.name}
-														viewerIsEventAdmin={isCurrenUserEventAdmin}
-														attendanceId={attendee.id}
-														baseHeightPx={allAttendeesGoing.length < 10 ? 60 : 50}
-														numGuests={attendee.guest_count}
-													/>
-												</div>
-											{/each}
-											<AttendeesDialog
-												{allAttendeesGoing}
-												{allAttendeesMaybeGoing}
-												{allAttendeesNotGoing}
-												{showMaxNumPeople}
-												{isCurrenUserEventAdmin}
-											/>
-										</div>
-									{:else if allAttendeesGoing.length == 0}
-										<NoAttendeesYet />
-									{/if}
-								{:else}
-									<AnonAttendeesView numAttendingGoing={eventNumAttendeesGoing} />
-								{/if}
-							</div>
+							<Attendees
+								{rsvpStatus}
+								{attendeesLoading}
+								{allAttendeesGoing}
+								{allAttendeesMaybeGoing}
+								{allAttendeesNotGoing}
+								{eventNumAttendeesGoing}
+								{showMaxNumPeople}
+								{isCurrenUserEventAdmin}
+							/>
 							<!-- Show RSVP if:
 				 (a) no max capacity is set
 				 (b) current user is attending
