@@ -32,7 +32,7 @@
 	import { overlayColorStore, overlayOpacityStore, styleStore } from '$lib/styles';
 	import ShareLocation from '$lib/components/ShareLocation.svelte';
 	import type { BannerInfo, EventTypescriptType } from '$lib/types';
-	import BonfireBanner from '$lib/components/BonfireBanner.svelte';
+	import BonfireBanner from '$lib/components/main-bonfire-event/BonfireBanner.svelte';
 	import { env as publicEnv } from '$env/dynamic/public';
 	import ImThreadView from '$lib/components/im/ImThreadView.svelte';
 	import NumNewMessageIndicator from '$lib/components/im/NumNewMessageIndicator.svelte';
@@ -52,6 +52,7 @@
 	import { fade } from 'svelte/transition';
 	import EditEventButton from '$lib/components/main-bonfire-event/EditEventButton.svelte';
 	import UnverifiedUserMsg from '$lib/components/main-bonfire-event/UnverifiedUserMsg.svelte';
+	import EventInfo from '$lib/components/main-bonfire-event/EventInfo.svelte';
 
 	const showMaxNumPeople = 50;
 	const tempAttendeeId = $page.data.tempAttendeeId;
@@ -64,6 +65,8 @@
 	let eventId = $derived(event?.id);
 	let eventCreatorUserId = $derived<string | undefined>(event?.user_id);
 	let eventStartTime = $derived(event?.start_time);
+	let eventEndTime = $derived(event?.end_time);
+	let eventTitle = $derived(event?.title);
 	let eventDescription = $derived(event?.description);
 	let eventIsPublished = $derived(event?.is_published);
 	let eventLocation = $derived(event?.location);
@@ -512,21 +515,6 @@
 	};
 </script>
 
-{#snippet details(eventDescription: string | null | undefined)}
-	<div
-		class="flex h-fit flex-col justify-center rounded-xl bg-slate-100 p-2 py-3 text-center shadow-lg dark:bg-slate-900 md:py-5"
-	>
-		<div class="mb-2 font-semibold md:mb-3">Details</div>
-		{#if eventDescription}
-			<div class="whitespace-pre-wrap">
-				{eventDescription}
-			</div>
-		{:else}
-			{'No details yet...'}
-		{/if}
-	</div>
-{/snippet}
-
 {#if !isAnonymousUser && !isUnverifiedUser && eventLoading}
 	<Loader />
 {:else if eventFailedLoading}
@@ -568,101 +556,20 @@
 								<UnverifiedUserMsg eventId={event.id} {tempAttendee} {tempAttendeeSecret} />
 							{/if}
 
-							<div class="relative mt-5 space-y-3 rounded-xl p-4 sm:mt-0">
-								{#if bannerInfo && bannerInfo.bannerIsSet}
-									<div class="flex w-full justify-center">
-										<BonfireBanner
-											blurhash={bannerInfo.bannerBlurHash}
-											bannerSmallSizeUrl={bannerInfo.bannerSmallSizeUrl}
-											bannerLargeSizeUrl={bannerInfo.bannerLargeSizeUrl}
-											{isCurrenUserEventAdmin}
-										/>
-									</div>
-								{:else if isCurrenUserEventAdmin}
-									<a class="flex w-full" href="banner/upload">
-										<Button class="w-full dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600"
-											>Set a banner image</Button
-										>
-									</a>
-								{/if}
-								<div class="flex w-full justify-center">
-									<h1
-										class="rounded-xl bg-slate-100 p-3 px-5 text-center text-2xl font-bold dark:bg-slate-900 sm:px-10 sm:text-3xl lg:text-4xl"
-									>
-										{event.title}
-									</h1>
-								</div>
-
-								<div class="flex w-full md:space-x-3">
-									<div class="hidden md:block md:w-1/2">
-										{@render details(eventDescription)}
-									</div>
-									<div
-										class="h-fit w-full rounded-xl bg-slate-100 p-2 pt-5 text-center shadow-lg dark:bg-slate-900 md:w-1/2"
-									>
-										<div class="flex items-center justify-center font-medium">
-											<Calendar class="mr-2 !h-4 !w-4 shrink-0" />{formatHumanReadable(
-												eventStartTime
-											)}
-											{#if event.end_time}to {formatHumanReadableHour(event.end_time)}{/if}
-										</div>
-										<div class="my-2 flex items-center justify-center font-light">
-											{#if event.organizer}
-												<UserRound class="mr-2 !h-4 !w-4 shrink-0" />Hosted by
-												{#if rsvpStatus}
-													<div class="ml-2">
-														<ProfileAvatar userId={event.organizer['id']} />
-													</div>
-												{:else}
-													{event.organizer['username']}
-												{/if}
-											{/if}
-										</div>
-
-										<div class="flex items-center justify-center font-light">
-											<!-- <MapPin class="mr-2 !h-4 !w-4 shrink-0" /> -->
-											{#if rsvpStatus}
-												{#if eventLocation || (latitude && longitude)}
-													<div class="flex items-center justify-center">
-														{#if latitude && longitude}
-															<ShareLocation lat={latitude} lon={longitude}>
-																<div
-																	id="share-location"
-																	class="mt-2 flex items-center justify-center rounded-xl bg-slate-200 p-2 dark:bg-slate-800"
-																>
-																	{#if eventLocation}
-																		{@html eventLocation}
-																	{:else if latitude && longitude}
-																		Get Directions
-																	{/if}
-																	<Car class="ml-2 !h-4 !w-4 shrink-0" />
-																</div>
-															</ShareLocation>
-														{:else}
-															<div class="flex items-center justify-center p-2">
-																{eventLocation}
-															</div>
-														{/if}
-													</div>
-												{:else}
-													<div>No address set</div>
-												{/if}
-											{:else}
-												Set RSVP status to see location
-											{/if}
-										</div>
-										{#if latitude && longitude}
-											<div class="m-2">
-												<Map {latitude} {longitude} />
-											</div>
-										{/if}
-									</div>
-								</div>
-
-								<div class="block pt-2 md:hidden">
-									{@render details(eventDescription)}
-								</div>
-							</div>
+							<EventInfo
+								{bannerInfo}
+								{isCurrenUserEventAdmin}
+								eventOrganizerId={event.organizer['id']}
+								eventOrganizerUsername={event.organizer['username']}
+								{eventTitle}
+								{eventDescription}
+								{eventStartTime}
+								{eventEndTime}
+								{rsvpStatus}
+								{eventLocation}
+								{latitude}
+								{longitude}
+							/>
 
 							<div class="mx-3 mt-5 items-center">
 								{#if attendeesLoading}
