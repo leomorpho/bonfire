@@ -57,7 +57,7 @@ async function createNewEvent(userId: string) {
 	};
 
 	const result = await serverTriplitClient.insert('events', event);
-	return result.output;
+	return result;
 }
 
 async function createNewAnnouncement(
@@ -72,7 +72,7 @@ async function createNewAnnouncement(
 	};
 
 	const result = await serverTriplitClient.insert('announcement', announcement);
-	return result.output;
+	return result;
 }
 
 async function createNewAttendance(eventId: string, userId: string, status: Status) {
@@ -83,7 +83,7 @@ async function createNewAttendance(eventId: string, userId: string, status: Stat
 		status: status
 	};
 	const result = await serverTriplitClient.insert('attendees', attendance);
-	return result.output;
+	return result;
 }
 
 async function markAllNotificationsAsSeen() {

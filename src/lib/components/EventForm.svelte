@@ -303,8 +303,7 @@
 			};
 			console.log('🔍 Event Data being sent to insert:', JSON.stringify(eventData, null, 2));
 
-			const { output } = await feHttpClient.insert('events', eventData);
-			event = output;
+			event = await feHttpClient.insert('events', eventData);
 
 			// Create a transaction if the user has enough logs remaining
 			if (checkCanCreateTransaction(userIsOutOfLogs, createTransaction, isEventPublished)) {
@@ -316,7 +315,7 @@
 				});
 			}
 			// Add user as attendee
-			await upsertUserAttendance(eventId, Status.GOING);
+			await upsertUserAttendance(eventId, Status.GOING, 0);
 			isEventCreated = true;
 			console.log('✅ Event created successfully');
 		} catch (error) {
@@ -479,11 +478,7 @@
 		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
 		const unsubscribeFromUserLogsQuery = client.subscribe(
-			client
-				.query('user')
-				.Where(['id', '=', $page.data.user.id])
-				.Include('user_log_tokens')
-				,
+			client.query('user').Where(['id', '=', $page.data.user.id]).Include('user_log_tokens'),
 			(results) => {
 				console.log('results', results);
 				console.log('results[0].favourite_non_profit_id', results[0].favourite_non_profit_id);

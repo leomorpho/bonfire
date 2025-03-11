@@ -60,7 +60,7 @@ export async function createNewThread(
 	userId: string,
 	name: string
 ): Promise<object> {
-	const { output } = await client.insert('event_threads', {
+	const output = await client.insert('event_threads', {
 		id: `${eventId}-${name}`,
 		event_id: eventId,
 		user_id: userId,
@@ -89,7 +89,7 @@ export async function sendMessage(
 	content: string,
 	parentMessageId: string | null = null
 ) {
-	const { output } = await client.insert('event_messages', {
+	const output = await client.insert('event_messages', {
 		thread_id: threadId,
 		user_id: userId,
 		content,
@@ -139,10 +139,7 @@ export async function deleteMessage(
 	userId: string
 ): Promise<void> {
 	const message = await client.fetchOne(
-		client
-			.query('event_messages')
-			.Where([['id', '=', messageId]])
-			
+		client.query('event_messages').Where([['id', '=', messageId]])
 	);
 
 	if (!message) {
@@ -153,13 +150,10 @@ export async function deleteMessage(
 	const isAuthorized =
 		message.user_id === userId ||
 		(await client.fetchOne(
-			client
-				.query('event_admins')
-				.Where([
-					['event_id', '=', message.event_id],
-					['user_id', '=', userId]
-				])
-				
+			client.query('event_admins').Where([
+				['event_id', '=', message.event_id],
+				['user_id', '=', userId]
+			])
 		));
 
 	if (!isAuthorized) {
@@ -181,7 +175,6 @@ export async function getMessages(client: WorkerClient, threadId: string): Promi
 			.query('event_messages')
 			.Where([['thread_id', '=', threadId]])
 			.Include('event_message_seen')
-			
 	);
 
 	return messages;
@@ -201,15 +194,12 @@ export async function markMessageAsSeen(
 ): Promise<void> {
 	// Check if the user has already marked this message as seen
 	const existingSeen = await client.fetchOne(
-		client
-			.query('event_message_seen')
-			.Where([
-				and([
-					['message_id', '=', messageId],
-					['user_id', '=', userId]
-				])
+		client.query('event_message_seen').Where([
+			and([
+				['message_id', '=', messageId],
+				['user_id', '=', userId]
 			])
-			
+		])
 	);
 
 	// If not already marked as seen, insert a new seen record
@@ -235,15 +225,12 @@ export async function getMessageSeenStatus(
 	userId: string
 ): Promise<string | null> {
 	const seenRecord = await client.fetchOne(
-		client
-			.query('event_message_seen')
-			.Where([
-				and([
-					['message_id', '=', messageId],
-					['user_id', '=', userId]
-				])
+		client.query('event_message_seen').Where([
+			and([
+				['message_id', '=', messageId],
+				['user_id', '=', userId]
 			])
-			
+		])
 	);
 
 	return seenRecord ? seenRecord.seen_at : null;

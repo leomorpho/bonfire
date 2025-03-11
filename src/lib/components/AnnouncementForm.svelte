@@ -36,7 +36,7 @@
 
 		if (mode === 'create') {
 			// Create a new announcement
-			const { output } = await client.insert('announcement', {
+			const output = await client.insert('announcement', {
 				content,
 				event_id: eventId,
 				user_id: userId // Use the authenticated user's ID
@@ -69,7 +69,6 @@
 					.query('seen_announcements')
 					.Where(['announcement_id', '=', announcement.id])
 					.Select(['id'])
-					
 			);
 
 			await client.transact(async (tx) => {

@@ -54,15 +54,12 @@ export async function POST({ request, params }) {
 
 		// Check if an attendee with the same name already exists for this event
 		const existingAttendee = await triplitHttpClient.fetchOne(
-			triplitHttpClient
-				.query('temporary_attendees')
-				.Where(
-					and([
-						['event_id', '=', eventId],
-						['name', '=', name]
-					])
-				)
-				
+			triplitHttpClient.query('temporary_attendees').Where(
+				and([
+					['event_id', '=', eventId],
+					['name', '=', name]
+				])
+			)
 		);
 		if (existingAttendee) {
 			return json(
@@ -72,7 +69,7 @@ export async function POST({ request, params }) {
 		}
 
 		// Use Triplit to insert the temporary attendee record
-		const { output } = await triplitHttpClient.insert('temporary_attendees', {
+		const output = await triplitHttpClient.insert('temporary_attendees', {
 			event_id: eventId,
 			status: status || 'undecided', // Default status if not provided
 			name,

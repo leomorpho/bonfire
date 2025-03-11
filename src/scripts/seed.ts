@@ -10,7 +10,7 @@ import {
 import { env as publicEnv } from '$env/dynamic/public';
 import { env as privateEnv } from '$env/dynamic/private';
 import { createAttendeeId } from '$lib/utils';
-import { createNewThread, MAIN_THREAD, sendMessage } from '$lib/im';
+import { createNewThread, MAIN_THREAD } from '$lib/im';
 
 const client = new HttpClient({
 	serverUrl: publicEnv.PUBLIC_TRIPLIT_URL,
@@ -39,7 +39,7 @@ await client.insert('user', { id: user2?.id, username: 'Jo' });
 const now = new Date(); // Current date and time
 const fiveWeeksLater = new Date(now.getTime() + 5 * 7 * 24 * 60 * 60 * 1000); // Add 5 weeks in milliseconds
 
-const { output } = await client.insert('events', {
+const output = await client.insert('events', {
 	title: "Mike's birthay party",
 	description: 'Bring your joy and party tricks',
 	location: '345 Cordova St, Vancouver',
@@ -101,7 +101,7 @@ for (let i = 0; i < 4; i++) {
 		user_id: user?.id, // Event creator is making the announcement
 		event_id: eventCreated?.id
 	});
-	const announcementId = announcement?.output?.id;
+	const announcementId = announcement?.id;
 
 	await createNewAnnouncementNotificationQueueObject(client, user?.id as string, eventCreated?.id, [
 		announcementId
@@ -132,7 +132,7 @@ for (let i = 0; i < 10; i++) {
 		client,
 		attendeeUser?.id as string,
 		eventCreated?.id,
-		[newAttendeeResult.output?.id]
+		[newAttendeeResult?.id]
 	);
 
 	// Randomly mark some users as having seen the announcements
