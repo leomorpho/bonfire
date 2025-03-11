@@ -36,7 +36,7 @@
 					.query('announcement')
 					.Include('seen_by')
 					.Where(['id', 'in', objectIds])
-					.order('created_at', 'DESC')
+					.Order('created_at', 'DESC')
 					;
 				break;
 			case NotificationType.FILES:

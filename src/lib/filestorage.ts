@@ -683,7 +683,7 @@ export async function fetchAccessibleEventFiles(
 			])
 		)
 		.Include('linked_file')
-		.order('uploaded_at', 'DESC');
+		.Order('uploaded_at', 'DESC');
 	// .Select([
 	// 	'id',
 	// 	'file_key',

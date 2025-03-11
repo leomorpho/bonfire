@@ -17,7 +17,7 @@
 				['seen_at', '=', null]
 			])
 			.Select(['id', 'object_type', 'object_ids'])
-			.order('created_at', 'DESC');
+			.Order('created_at', 'DESC');
 	};
 
 	onMount(() => {

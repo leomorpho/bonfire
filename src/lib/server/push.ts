@@ -180,7 +180,7 @@ async function getUnreadExistingNotification(
 				['seen_at', '=', null]
 			])
 		)
-		.order('created_at', 'DESC')
+		.Order('created_at', 'DESC')
 		;
 
 	const notifs = await triplitHttpClient.fetch(query);

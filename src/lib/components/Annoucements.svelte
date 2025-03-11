@@ -26,7 +26,7 @@
 			.query('announcement')
 			.Where(['event_id', '=', eventId])
 			.Include('seen_by')
-			.order('created_at', 'DESC');
+			.Order('created_at', 'DESC');
 	};
 
 	const getAllAnnouncements = async () => {

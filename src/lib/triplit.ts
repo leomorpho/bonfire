@@ -90,10 +90,6 @@ export function getFeWorkerTriplitClient(jwt: string) {
 }
 
 const createNewWorkerTriplitClient = (jwt: string) => {
-	let syncSchema = true;
-	if (dev) {
-		syncSchema = false;
-	}
 	return new WorkerClient({
 		workerUrl: dev ? workerUrl : undefined,
 		storage: {
@@ -104,7 +100,6 @@ const createNewWorkerTriplitClient = (jwt: string) => {
 		serverUrl: publicEnv.PUBLIC_TRIPLIT_URL,
 		token: jwt ? jwt : publicEnv.PUBLIC_TRIPLIT_ANONYMOUS_TOKEN,
 		autoConnect: browser,
-		syncSchema: syncSchema,
 		onSessionError: async (type) => {
 			console.log('💀 Triplit session error occurred:', type);
 			if (type === 'ROLES_MISMATCH') {
@@ -132,15 +127,6 @@ const createNewWorkerTriplitClient = (jwt: string) => {
 					feWorkerTriplitClient?.clear();
 				}
 			}
-			// NOTE: below causes infinite
-			// if (type === 'SCHEMA_MISMATCH') {
-			// 	// await feWorkerTriplitClient?.endSession();
-			// 	await feWorkerTriplitClient?.clear({ full: true });
-			// 	const newJwt = await getFreshToken();
-			// 	await feWorkerTriplitClient?.startSession(newJwt, true, {
-			// 		refreshHandler: async () => await getFreshToken()
-			// 	});
-			// }
 		},
 		refreshOptions: {
 			refreshHandler: async () => {
@@ -239,7 +225,7 @@ export async function checkEventIsOpenForNewGoingAttendees(
 							['event_id', '=', '$1.id']
 						])
 					])
-					.Select(['id']),
+					.Select(['id'])
 			)
 	);
 	// Check that max capacity is indeed set

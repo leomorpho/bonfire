@@ -33,7 +33,7 @@
 				['user_id', '=', userId],
 				['seen_at', '=', null]
 			])
-			.order('created_at', 'DESC')
+			.Order('created_at', 'DESC')
 			;
 
 		allUnreadNotifications = await client.fetch(unseenQuery);
@@ -47,7 +47,7 @@
 					['seen_at', '<', new Date()]
 				])
 			])
-			.order('created_at', 'DESC')
+			.Order('created_at', 'DESC')
 			.limit(NUM_TO_LOAD); // Initial limit
 
 		const { unsubscribe, loadMore } = client.subscribeWithExpand(

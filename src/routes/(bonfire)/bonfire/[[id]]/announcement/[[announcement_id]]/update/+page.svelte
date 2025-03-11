@@ -16,7 +16,7 @@
 			let announcementQuery = client
 				.query('announcement')
 				.Where(['id', '=', $page.params.announcement_id])
-				.order('created_at', 'DESC')
+				.Order('created_at', 'DESC')
 				;
 
 			announcement = await client.fetchOne(announcementQuery);

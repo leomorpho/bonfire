@@ -141,7 +141,7 @@
 			.Include('emoji_reactions', (rel) =>
 				rel('emoji_reactions').Select(['id', 'emoji', 'user_id'])
 			)
-			.order('created_at', 'DESC')
+			.Order('created_at', 'DESC')
 			;
 
 		const { unsubscribe: unsubscribeFromMessages, loadMore } = client.subscribeWithExpand(

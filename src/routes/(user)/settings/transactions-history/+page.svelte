@@ -23,7 +23,7 @@
 			client
 				.query('transactions')
 				.Where(['user_id', '=', $page.data.user.id])
-				.order('created_at', 'DESC')
+				.Order('created_at', 'DESC')
 				,
 			(results) => {
 				transactions = results;

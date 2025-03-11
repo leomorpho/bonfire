@@ -31,7 +31,7 @@
 						])
 					])
 				)
-				.order('created_at', 'DESC')
+				.Order('created_at', 'DESC')
 				,
 			(results) => {
 				nonProfits = results;

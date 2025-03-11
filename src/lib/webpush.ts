@@ -71,12 +71,12 @@ export async function sendPushNotification(
 	}
 	// Check user permissions
 	const userPermissions = await db
-		.Select({
+		.select({
 			oneDayReminder: notificationPermissionTable.oneDayReminder,
 			eventActivity: notificationPermissionTable.eventActivity
 		})
 		.from(notificationPermissionTable)
-		.Where(eq(notificationPermissionTable.userId, userId));
+		.where(eq(notificationPermissionTable.userId, userId));
 
 	if (!userPermissions.length) {
 		// console.debug(`No permissions found for user ID: ${userId}`);
@@ -93,13 +93,13 @@ export async function sendPushNotification(
 
 	// Fetch subscriptions for the given userId
 	const subscriptions = await db
-		.Select({
+		.select({
 			endpoint: pushSubscriptionTable.endpoint,
 			p256dh: pushSubscriptionTable.p256dh,
 			auth: pushSubscriptionTable.auth
 		})
 		.from(pushSubscriptionTable)
-		.Where(eq(pushSubscriptionTable.userId, userId));
+		.where(eq(pushSubscriptionTable.userId, userId));
 
 	if (!subscriptions.length) {
 		// console.info(`No push subscriptions found for user ID: ${userId}`);

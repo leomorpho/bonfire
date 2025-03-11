@@ -21,7 +21,7 @@
 				])
 			)
 			.Select(['id'])
-			.order('created_at', 'DESC');
+			.Order('created_at', 'DESC');
 	};
 
 	onMount(() => {

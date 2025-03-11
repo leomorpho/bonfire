@@ -153,33 +153,33 @@ export const schema = S.Collections({
 		relationships: {
 			user: S.RelationById('user', '$user_id'),
 			attendees: S.RelationMany('attendees', {
-				where: [['event_id', '=', '$id']]
+				where: [['event_id', '=', '$1.id']]
 			}),
 			temporary_attendees: S.RelationMany('temporary_attendees', {
-				where: [['event_id', '=', '$id']]
+				where: [['event_id', '=', '$1.id']]
 			}),
 			announcements: S.RelationMany('announcement', {
-				where: [['event_id', '=', '$id']]
+				where: [['event_id', '=', '$1.id']]
 			}),
 			files: S.RelationMany('files', {
-				where: [['event_id', '=', '$id']]
+				where: [['event_id', '=', '$1.id']]
 			}),
 			banner_media: S.RelationOne('banner_media', {
-				where: [['event_id', '=', '$id']]
+				where: [['event_id', '=', '$1.id']]
 			}),
 			viewers: S.RelationMany('event_viewers', {
-				where: [['event_id', '=', '$id']]
+				where: [['event_id', '=', '$1.id']]
 			}),
 			event_admins: S.RelationMany('event_admins', {
-				where: [['event_id', '=', '$id']]
+				where: [['event_id', '=', '$1.id']]
 			}),
 			bring_items: S.RelationMany('bring_items', {
-				where: [['event_id', '=', '$id']]
+				where: [['event_id', '=', '$1.id']]
 			}),
 			transaction: S.RelationOne('transactions', {
-				where: [['event_id', '=', '$id']]
+				where: [['event_id', '=', '$1.id']]
 			}),
-			non_profit: S.RelationById('non_profits', '$non_profit_id')
+			non_profit: S.RelationById('non_profits', '$1.non_profit_id')
 		},
 		permissions: {
 			user: {

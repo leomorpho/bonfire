@@ -79,7 +79,7 @@ export const GET = async ({ locals, url, params }) => {
 	// 	const eventFilesQuery = triplitHttpClient
 	// 		.query('files')
 	// 		.Where('event_id', '=', id)
-	// 		.order('uploaded_at', 'DESC')
+	// 		.Order('uploaded_at', 'DESC')
 	// 		.limit(MAX_NUM_IMAGES_IN_MINI_GALLERY)
 	// 		;
 

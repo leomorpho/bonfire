@@ -43,7 +43,7 @@
 				client.query('user').Where(['id', '=', '$1.event.user_id']).Select(['username'])
 			)
 			.Include('event')
-			.order('event.start_time', 'ASC');
+			.Order('event.start_time', 'ASC');
 	}
 
 	const initEvents = async () => {
