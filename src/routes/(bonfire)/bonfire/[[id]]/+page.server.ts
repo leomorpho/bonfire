@@ -36,7 +36,6 @@ export const load = async ({ params, locals, url }) => {
 				triplitHttpClient
 					.query('temporary_attendees')
 					.Where(['secret_mapping.id', '=', tempAttendeeSecretStr])
-					
 			);
 			if (existingAttendee) {
 				tempAttendeeId = existingAttendee.id;
@@ -76,16 +75,13 @@ export const load = async ({ params, locals, url }) => {
 				.Include('banner_media')
 				.Include('event_admins')
 				.Include('bring_items_list', (rel) => rel('bring_items').Select(['id']))
-				.subquery(
+				.SubqueryOne(
 					'organizer',
 					triplitHttpClient
 						.query('user')
 						.Where(['id', '=', '$1.user_id'])
 						.Select(['username', 'id'])
-						,
-					'one'
 				)
-				
 		);
 	} catch (e) {
 		console.debug(`failed to fetch event with id ${eventId}`, e);

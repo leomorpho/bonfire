@@ -275,10 +275,7 @@
 		let unsubscribeTemporaryUserQuery = null;
 		if (isUnverifiedUser) {
 			unsubscribeTemporaryUserQuery = client.subscribe(
-				client
-					.query('temporary_attendees')
-					.Where([['id', '=', tempAttendeeId]])
-					,
+				client.query('temporary_attendees').Where([['id', '=', tempAttendeeId]]),
 				(results) => {
 					if (results.length == 1) {
 						tempAttendee = results[0];
@@ -319,12 +316,10 @@
 				.Where([['id', '=', eventId]])
 				.Include('banner_media')
 				.Include('event_admins')
-				.subquery(
+				.SubqueryOne(
 					'organizer',
-					client.query('user').Where(['id', '=', '$1.user_id']).Select(['username', 'id']),
-					'one'
-				)
-				,
+					client.query('user').Where(['id', '=', '$1.user_id']).Select(['username', 'id'])
+				),
 			(results) => {
 				if (results.length == 1) {
 					const event: any = results[0] as EventTypescriptType;
@@ -384,8 +379,7 @@
 			client
 				.query('attendees')
 				.Where([['event_id', '=', eventId]])
-				.Include('user')
-				,
+				.Include('user'),
 			(results) => {
 				console.log('attendees', results);
 				// Separate attendees into different variables by status
@@ -408,10 +402,7 @@
 		);
 
 		const unsubscribeTempAttendeesQuery = client.subscribe(
-			client
-				.query('temporary_attendees')
-				.Where([['event_id', '=', eventId]])
-				,
+			client.query('temporary_attendees').Where([['event_id', '=', eventId]]),
 			(results) => {
 				// // Separate attendees into different variables by status
 				tempAttendeesGoing = results.filter((attendee) => attendee.status === Status.GOING);
@@ -436,8 +427,7 @@
 			client
 				.query('files')
 				.Where([['event_id', '=', eventId]])
-				.Select(['id'])
-				,
+				.Select(['id']),
 			(results) => {
 				// If there are less than 3 files in the events eventFiles, fetch the latest 3
 				(async () => {

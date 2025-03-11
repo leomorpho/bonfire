@@ -38,33 +38,25 @@
 			.Where('event.start_time', future ? '>=' : '<', futureDate.toISOString());
 
 		return query
-			.subquery(
+			.SubqueryOne(
 				'organizer_name',
-				client.query('user').Where(['id', '=', '$1.event.user_id']).Select(['username']),
-				'one'
+				client.query('user').Where(['id', '=', '$1.event.user_id']).Select(['username'])
 			)
 			.Include('event')
-			.order('event.start_time', 'ASC')
-			;
+			.order('event.start_time', 'ASC');
 	}
 
 	const initEvents = async () => {
 		// let pastAttendanceQuery = createAttendanceQuery(client, userId, true);
 		// console.log('----> ??? ', await client.fetch(pastAttendanceQuery));
 		if (dev) {
-			console.log(
-				'all events this user can see',
-				await client.fetch(client.query('events'))
-			);
+			console.log('all events this user can see', await client.fetch(client.query('events')));
 			console.log('all users this user can see', await client.fetch(client.query('user')));
 			console.log(
 				'all profile_images this user can see',
 				await client.fetch(client.query('profile_images'))
 			);
-			console.log(
-				'all attendees this user can see',
-				await client.fetch(client.query('attendees'))
-			);
+			console.log('all attendees this user can see', await client.fetch(client.query('attendees')));
 			console.log('all files this user can see', await client.fetch(client.query('files')));
 			console.log(
 				'all announcement this user can see',

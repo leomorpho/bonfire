@@ -217,7 +217,7 @@ export async function checkEventIsOpenForNewGoingAttendees(
 			.query('events')
 			.Where([['id', '=', bonfireId]])
 			.Select(['max_capacity'])
-			.subquery(
+			.SubqueryOne(
 				'going_users',
 				client
 					.query('attendees')
@@ -228,10 +228,8 @@ export async function checkEventIsOpenForNewGoingAttendees(
 						])
 					])
 					.Select(['id'])
-					,
-				'one'
 			)
-			.subquery(
+			.SubqueryOne(
 				'going_temps',
 				client
 					.query('temporary_attendees')
@@ -241,11 +239,8 @@ export async function checkEventIsOpenForNewGoingAttendees(
 							['event_id', '=', '$1.id']
 						])
 					])
-					.Select(['id'])
-					,
-				'one'
+					.Select(['id']),
 			)
-			
 	);
 	// Check that max capacity is indeed set
 	if (!event || !event.max_capacity) {
