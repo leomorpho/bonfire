@@ -7,12 +7,12 @@ import { TimeSpan, createDate } from 'oslo';
 export const getSignins = async (signin: { email: string; ip_address: string }) => {
 	const batchResult = await db.batch([
 		// 0. delete all signins that are older than 1 hour
-		db.delete(signinTable).Where(lt(signinTable.logged_in_at, createDate(new TimeSpan(-1, 'h')))),
+		db.delete(signinTable).where(lt(signinTable.logged_in_at, createDate(new TimeSpan(-1, 'h')))),
 		// 1. return all signins from this ip_address in the past hours
 		db
-			.Select()
+			.select()
 			.from(signinTable)
-			.Where(or(eq(signinTable.email, signin.email), eq(signinTable.ip_address, signin.ip_address)))
+			.where(or(eq(signinTable.email, signin.email), eq(signinTable.ip_address, signin.ip_address)))
 	]);
 	return batchResult[1];
 };

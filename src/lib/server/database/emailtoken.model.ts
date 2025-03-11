@@ -7,7 +7,7 @@ import { TimeSpan, createDate } from 'oslo';
 export const deleteAllEmailTokensForUser = async (userId: string) => {
 	await db
 		.delete(emailVerificationTokenTable)
-		.Where(eq(emailVerificationTokenTable.user_id, userId));
+		.where(eq(emailVerificationTokenTable.user_id, userId));
 };
 
 // NOTE: deprecating
@@ -26,14 +26,14 @@ export const createEmailVerificationToken = async (
 };
 
 export const deleteEmailToken = async (tokenId: string) => {
-	await db.delete(emailVerificationTokenTable).Where(eq(emailVerificationTokenTable.id, tokenId));
+	await db.delete(emailVerificationTokenTable).where(eq(emailVerificationTokenTable.id, tokenId));
 };
 
 export const getEmailToken = async (tokenId: string) => {
 	const token = await db
-		.Select()
+		.select()
 		.from(emailVerificationTokenTable)
-		.Where(eq(emailVerificationTokenTable.id, tokenId));
+		.where(eq(emailVerificationTokenTable.id, tokenId));
 	if (token.length === 0) {
 		return null;
 	} else {
@@ -43,7 +43,7 @@ export const getEmailToken = async (tokenId: string) => {
 
 // Email One-Time Password (OTP)
 export const deleteAllEmailOTPsForUser = async (userId: string) => {
-	await db.delete(emailVerificationOtpTable).Where(eq(emailVerificationOtpTable.user_id, userId));
+	await db.delete(emailVerificationOtpTable).where(eq(emailVerificationOtpTable.user_id, userId));
 };
 
 export const createEmailVerificationOTP = async (
@@ -69,14 +69,14 @@ export const createEmailVerificationOTP = async (
 };
 
 export const deleteEmailOTP = async (otp: string) => {
-	await db.delete(emailVerificationOtpTable).Where(eq(emailVerificationOtpTable.otp, otp));
+	await db.delete(emailVerificationOtpTable).where(eq(emailVerificationOtpTable.otp, otp));
 };
 
 export const getEmailOTP = async (otpStr: string) => {
 	const otp = await db
-		.Select()
+		.select()
 		.from(emailVerificationOtpTable)
-		.Where(eq(emailVerificationOtpTable.otp, otpStr));
+		.where(eq(emailVerificationOtpTable.otp, otpStr));
 
 	if (otp.length === 0) {
 		return null;

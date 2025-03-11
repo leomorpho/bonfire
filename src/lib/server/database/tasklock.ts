@@ -9,7 +9,7 @@ import { eq, sql } from 'drizzle-orm';
  * @returns {Promise<{ locked: boolean, updated_at: string } | null>} - The lock state or null if not found.
  */
 export async function getTaskLockState(taskName: TaskName) {
-	const result = await db.Select().from(taskLockTable).Where(eq(taskLockTable.task_name, taskName));
+	const result = await db.select().from(taskLockTable).where(eq(taskLockTable.task_name, taskName));
 
 	return result.length > 0 ? result[0].locked : null;
 }
