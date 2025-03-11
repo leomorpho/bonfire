@@ -30,6 +30,7 @@
 	}
 	import { tick } from 'svelte';
 	import InstallPwaBtn from './InstallPwaBtn.svelte';
+	import { dev } from '$app/environment';
 
 	async function handleDropdownClick(href: string) {
 		if (href.startsWith('/#')) {
@@ -158,8 +159,9 @@
 					{/each}
 				</ul>
 			</div>
-			<InstallPwaBtn />
-
+			{#if !dev}
+				<InstallPwaBtn />
+			{/if}
 			<div class="navbar-end">
 				{#if $page.data.user}
 					<LogoutButton cls={'hidden lg:block w-min mr-3'} />

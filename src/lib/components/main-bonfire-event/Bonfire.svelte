@@ -56,22 +56,50 @@
 
 		tempAttendeeId,
 		tempAttendeeSecret,
-		rsvpStatus,
 		fileCount = 0,
 		numGuestsBringing = 0,
 		showMaxNumPeople = 50
 	} = $props();
 
+	console.log('Component Props:');
+	Object.entries({
+		currUserId,
+		eventOrganizerId,
+		eventOrganizerUsername,
+		eventId,
+		eventCreatorUserId,
+		eventStartTime,
+		eventEndTime,
+		eventTitle,
+		eventDescription,
+		eventIsPublished,
+		eventLocation,
+		eventNumAttendeesGoing,
+		eventMaxCapacity,
+		eventNumAnnouncements,
+		eventNumFiles,
+		eventNumBringListItems,
+		bannerInfo,
+		isUserAnAttendee,
+		jwt,
+		tempAttendeeId,
+		tempAttendeeSecret,
+		fileCount,
+		numGuestsBringing,
+		showMaxNumPeople
+	}).forEach(([key, value]) => console.log(`${key}:`, value));
+
 	let client: TriplitClient;
 
 	let eventLoading = $state(true);
 	let eventFailedLoading = $state(false);
+	let rsvpStatus: string | null = $state(null);
 
-	let isUnverifiedUser = $derived(!!tempAttendeeId);
-	let tempAttendee = $state(null);
+	let tempAttendee: any = $state(null);
 	let currentUserAttendee: any = $state();
 	let isCurrenUserEventAdmin = $state(false);
-	let isAnonymousUser = $state(!currUserId);
+	let isUnverifiedUser = $derived(!!tempAttendeeId);
+	let isAnonymousUser = $derived(!isUnverifiedUser && !currUserId);
 	let adminUserIds = $state(new Set<string>());
 
 	let rsvpCanBeChanged = $state(false);
@@ -94,11 +122,15 @@
 		tempAttendeeSecretStore.set(tempAttendeeId);
 	}
 
-	$effect(() => {
-		if (isUnverifiedUser) {
-			isAnonymousUser = false;
-		}
-	});
+	$inspect(
+		'isAnonymousUser',
+		isAnonymousUser,
+		'isUnverifiedUser',
+		isUnverifiedUser,
+		'tempAttendeeId',
+		tempAttendeeId,
+		!!tempAttendeeId
+	);
 
 	$effect(() => {
 		if (

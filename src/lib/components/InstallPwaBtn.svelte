@@ -39,8 +39,6 @@
 	};
 
 	onMount(() => {
-		var pwaInstall = document.getElementsByTagName('pwa-install')[0];
-
 		// Do not show if user dismissed recently
 		if (hasDismissedRecently()) {
 			return;
