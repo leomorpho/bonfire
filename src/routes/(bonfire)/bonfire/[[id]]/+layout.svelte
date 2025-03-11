@@ -75,9 +75,9 @@
 			unsubscribeFromUserQuery = client.subscribe(
 				client
 					.query('user')
-					.include('profile_image')
-					.where(['attendances.event.id', '=', $page.params.id])
-					.build(),
+					.Include('profile_image')
+					.Where(['attendances.event.id', '=', $page.params.id])
+					,
 				(results) => {
 					// Map new users into an object for quick lookup
 					const currentUsers: Record<string, string> = {};
@@ -157,9 +157,9 @@
 			client = getFeWorkerTriplitClient($page.data.jwt);
 			const styleDataQuery = client
 				.query('events')
-				.where(['id', '=', $page.params.id])
-				.select(['style', 'overlay_color', 'overlay_opacity'])
-				.build();
+				.Where(['id', '=', $page.params.id])
+				.Select(['style', 'overlay_color', 'overlay_opacity'])
+				;
 
 			styleData = await client.fetchOne(styleDataQuery);
 			if (styleData) {

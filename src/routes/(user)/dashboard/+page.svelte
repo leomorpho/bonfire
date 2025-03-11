@@ -34,41 +34,41 @@
 
 		let query = client
 			.query('attendees')
-			.where(['user_id', '=', currUserID])
-			.where('event.start_time', future ? '>=' : '<', futureDate.toISOString());
+			.Where(['user_id', '=', currUserID])
+			.Where('event.start_time', future ? '>=' : '<', futureDate.toISOString());
 
 		return query
 			.subquery(
 				'organizer_name',
-				client.query('user').where(['id', '=', '$1.event.user_id']).select(['username']).build(),
+				client.query('user').Where(['id', '=', '$1.event.user_id']).Select(['username']),
 				'one'
 			)
-			.include('event')
+			.Include('event')
 			.order('event.start_time', 'ASC')
-			.build();
+			;
 	}
 
 	const initEvents = async () => {
 		// let pastAttendanceQuery = createAttendanceQuery(client, userId, true);
-		// console.log('----> ??? ', await client.fetch(pastAttendanceQuery.build()));
+		// console.log('----> ??? ', await client.fetch(pastAttendanceQuery));
 		if (dev) {
 			console.log(
 				'all events this user can see',
-				await client.fetch(client.query('events').build())
+				await client.fetch(client.query('events'))
 			);
-			console.log('all users this user can see', await client.fetch(client.query('user').build()));
+			console.log('all users this user can see', await client.fetch(client.query('user')));
 			console.log(
 				'all profile_images this user can see',
-				await client.fetch(client.query('profile_images').build())
+				await client.fetch(client.query('profile_images'))
 			);
 			console.log(
 				'all attendees this user can see',
-				await client.fetch(client.query('attendees').build())
+				await client.fetch(client.query('attendees'))
 			);
-			console.log('all files this user can see', await client.fetch(client.query('files').build()));
+			console.log('all files this user can see', await client.fetch(client.query('files')));
 			console.log(
 				'all announcement this user can see',
-				await client.fetch(client.query('announcement').build())
+				await client.fetch(client.query('announcement'))
 			);
 		}
 	};

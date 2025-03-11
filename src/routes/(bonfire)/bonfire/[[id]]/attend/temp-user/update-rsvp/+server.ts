@@ -20,9 +20,9 @@ export const POST: RequestHandler = async ({ url, request }): Promise<Response> 
 		const tempAttendeeSecret = await triplitHttpClient.fetchOne(
 			triplitHttpClient
 				.query('temporary_attendees_secret_mapping')
-				.where(['id', '=', tempAttendeeSecretString])
-				.include('temporary_attendee')
-				.build()
+				.Where(['id', '=', tempAttendeeSecretString])
+				.Include('temporary_attendee')
+				
 		);
 
 		if (!tempAttendeeSecret) {

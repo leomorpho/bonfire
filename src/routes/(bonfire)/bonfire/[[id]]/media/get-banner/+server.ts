@@ -25,9 +25,9 @@ export const GET = async ({ params, locals, url }) => {
 			const existingAttendee = await triplitHttpClient.fetchOne(
 				triplitHttpClient
 					.query('temporary_attendees')
-					.where(['secret_mapping.id', '=', tempAttendeeSecretStr])
-					.select(['id'])
-					.build()
+					.Where(['secret_mapping.id', '=', tempAttendeeSecretStr])
+					.Select(['id'])
+					
 			);
 			if (existingAttendee) {
 				tempAttendeeId = existingAttendee.id;
@@ -48,9 +48,9 @@ export const GET = async ({ params, locals, url }) => {
 		const banner = await triplitHttpClient.fetchOne(
 			triplitHttpClient
 				.query('banner_media')
-				.where(['event_id', '=', eventId])
-				.select(['full_image_key', 'small_image_key', 'blurr_hash'])
-				.build()
+				.Where(['event_id', '=', eventId])
+				.Select(['full_image_key', 'small_image_key', 'blurr_hash'])
+				
 		);
 
 		if (!banner) {
@@ -86,15 +86,15 @@ async function checkUserIsAttendee(
 		const attendee = await triplitHttpClient.fetchOne(
 			triplitHttpClient
 				.query('attendees')
-				.where([
+				.Where([
 					and([
 						['event_id', '=', eventId],
 						['user_id', '=', userId]
 					])
 				])
 
-				.select(['id'])
-				.build()
+				.Select(['id'])
+				
 		);
 
 		if (attendee) {
@@ -104,15 +104,15 @@ async function checkUserIsAttendee(
 		const tempAttendee = await triplitHttpClient.fetchOne(
 			triplitHttpClient
 				.query('temporary_attendees')
-				.where([
+				.Where([
 					and([
 						['event_id', '=', eventId],
 						['id', '=', tempAttendeeId]
 					])
 				])
 
-				.select(['id'])
-				.build()
+				.Select(['id'])
+				
 		);
 
 		return tempAttendee !== null;

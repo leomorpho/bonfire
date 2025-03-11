@@ -41,13 +41,13 @@ async function hasExceededUnreadNotificationLimitInTimeframe(
 	const unreadNotifications = await triplitHttpClient.fetch(
 		triplitHttpClient
 			.query('notifications')
-			.where([
+			.Where([
 				['user_id', '=', userId],
 				['seen_at', '=', null],
 				['created_at', '>=', timeFrameAgo]
 			])
-			.select(['id'])
-			.build()
+			.Select(['id'])
+			
 	);
 
 	// Return true if the number of unread notifications exceeds the limit
@@ -71,12 +71,12 @@ export async function sendPushNotification(
 	}
 	// Check user permissions
 	const userPermissions = await db
-		.select({
+		.Select({
 			oneDayReminder: notificationPermissionTable.oneDayReminder,
 			eventActivity: notificationPermissionTable.eventActivity
 		})
 		.from(notificationPermissionTable)
-		.where(eq(notificationPermissionTable.userId, userId));
+		.Where(eq(notificationPermissionTable.userId, userId));
 
 	if (!userPermissions.length) {
 		// console.debug(`No permissions found for user ID: ${userId}`);
@@ -93,13 +93,13 @@ export async function sendPushNotification(
 
 	// Fetch subscriptions for the given userId
 	const subscriptions = await db
-		.select({
+		.Select({
 			endpoint: pushSubscriptionTable.endpoint,
 			p256dh: pushSubscriptionTable.p256dh,
 			auth: pushSubscriptionTable.auth
 		})
 		.from(pushSubscriptionTable)
-		.where(eq(pushSubscriptionTable.userId, userId));
+		.Where(eq(pushSubscriptionTable.userId, userId));
 
 	if (!subscriptions.length) {
 		// console.info(`No push subscriptions found for user ID: ${userId}`);

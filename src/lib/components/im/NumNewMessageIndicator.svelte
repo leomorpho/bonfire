@@ -13,14 +13,14 @@
 	const createNotificationsQuery = (client: TriplitClient, userId: string) => {
 		return client
 			.query('notifications')
-			.where(
+			.Where(
 				and([
 					['user_id', '=', userId],
 					['seen_at', '=', null],
 					['object_type', '=', NotificationType.NEW_MESSAGE]
 				])
 			)
-			.select(['id'])
+			.Select(['id'])
 			.order('created_at', 'DESC');
 	};
 
@@ -33,7 +33,7 @@
 			let notificationsQuery = createNotificationsQuery(client, userId);
 
 			const unsubscribe = client.subscribe(
-				notificationsQuery.build(),
+				notificationsQuery,
 				(results, info) => {
 					notificationsCount = results.length;
 				},

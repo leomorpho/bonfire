@@ -4,7 +4,7 @@ import { userTable } from './schema';
 import { triplitHttpClient } from '$lib/server/triplit';
 
 export const getUserByEmail = async (email: string) => {
-	const user = await db.select().from(userTable).where(eq(userTable.email, email));
+	const user = await db.Select().from(userTable).Where(eq(userTable.email, email));
 	if (user.length === 0) {
 		return null;
 	} else {
@@ -13,7 +13,7 @@ export const getUserByEmail = async (email: string) => {
 };
 
 export const getUserById = async (id: string) => {
-	const user = await db.select().from(userTable).where(eq(userTable.id, id));
+	const user = await db.Select().from(userTable).Where(eq(userTable.id, id));
 	if (user.length === 0) {
 		return null;
 	} else {
@@ -23,7 +23,7 @@ export const getUserById = async (id: string) => {
 
 type UpdateUser = Partial<typeof userTable.$inferInsert>;
 export const updateUser = async (id: string, user: UpdateUser) => {
-	const result = await db.update(userTable).set(user).where(eq(userTable.id, id)).returning();
+	const result = await db.update(userTable).set(user).Where(eq(userTable.id, id)).returning();
 	if (result.length === 0) {
 		return null;
 	} else {

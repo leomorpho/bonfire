@@ -215,37 +215,37 @@ export async function checkEventIsOpenForNewGoingAttendees(
 	const event = await client.fetchOne(
 		client
 			.query('events')
-			.where([['id', '=', bonfireId]])
-			.select(['max_capacity'])
+			.Where([['id', '=', bonfireId]])
+			.Select(['max_capacity'])
 			.subquery(
 				'going_users',
 				client
 					.query('attendees')
-					.where([
+					.Where([
 						and([
 							['status', '=', Status.GOING],
 							['event_id', '=', '$1.id']
 						])
 					])
-					.select(['id'])
-					.build(),
+					.Select(['id'])
+					,
 				'one'
 			)
 			.subquery(
 				'going_temps',
 				client
 					.query('temporary_attendees')
-					.where([
+					.Where([
 						and([
 							['status', '=', Status.GOING],
 							['event_id', '=', '$1.id']
 						])
 					])
-					.select(['id'])
-					.build(),
+					.Select(['id'])
+					,
 				'one'
 			)
-			.build()
+			
 	);
 	// Check that max capacity is indeed set
 	if (!event || !event.max_capacity) {

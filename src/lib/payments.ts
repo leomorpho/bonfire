@@ -37,7 +37,7 @@ export async function handleLogPurchaseWebhook(
 	const numLogTokensPurchased = quantity * startingCount;
 
 	const userLogObject = await client.fetchOne(
-		client.query('user_log_tokens').where(['stripe_customer_id', '=', stripeCustomerId]).build()
+		client.query('user_log_tokens').Where(['stripe_customer_id', '=', stripeCustomerId])
 	);
 
 	if (!userLogObject) {
@@ -82,8 +82,8 @@ export async function deductUserLogs(
 	const userLog = await client.fetchOne(
 		client
 			.query('user_log_tokens')
-			.where([['user_id', '=', userId]])
-			.build()
+			.Where([['user_id', '=', userId]])
+			
 	);
 
 	if (!userLog || userLog.num_logs < numLogs) {
@@ -137,7 +137,7 @@ export async function getUserTransactions(client: WorkerClient, userId: string):
 	return await client.fetch(
 		client
 			.query('transactions')
-			.where([['user_id', '=', userId]])
-			.build()
+			.Where([['user_id', '=', userId]])
+			
 	);
 }

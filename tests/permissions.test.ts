@@ -110,7 +110,7 @@ describe('Permissions Tests', () => {
 
 		const user1DB = db.withSessionVars(user1Token);
 
-		const query = db.query('user').build();
+		const query = db.query('user');
 
 		const users = await user1DB.fetch(query);
 		console.log('users', users);

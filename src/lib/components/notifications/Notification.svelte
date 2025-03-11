@@ -34,21 +34,21 @@
 			case NotificationType.ANNOUNCEMENT:
 				query = client
 					.query('announcement')
-					.include('seen_by')
-					.where(['id', 'in', objectIds])
+					.Include('seen_by')
+					.Where(['id', 'in', objectIds])
 					.order('created_at', 'DESC')
-					.build();
+					;
 				break;
 			case NotificationType.FILES:
 				// Don't query the files, just redirect to event
 				isLoading = false;
-				// query = client.query('files').where(['id', 'in', objectIds]).build();
+				// query = client.query('files').Where(['id', 'in', objectIds]);
 				return;
 			case NotificationType.ATTENDEES:
-				query = client.query('attendees').include('user').where(['id', 'in', objectIds]).build();
+				query = client.query('attendees').Include('user').Where(['id', 'in', objectIds]);
 				break;
 			case NotificationType.TEMP_ATTENDEES:
-				query = client.query('temporary_attendees').where(['id', 'in', objectIds]).build();
+				query = client.query('temporary_attendees').Where(['id', 'in', objectIds]);
 				break;
 			case NotificationType.ADMIN_ADDED:
 				// Nothing needed
@@ -57,12 +57,12 @@
 			case NotificationType.NEW_MESSAGE:
 				query = client
 					.query('event_messages')
-					.where(['id', 'in', objectIds])
-					.include('user')
-					.include('emoji_reactions', (rel) =>
-						rel('emoji_reactions').select(['id', 'emoji', 'user_id']).build()
+					.Where(['id', 'in', objectIds])
+					.Include('user')
+					.Include('emoji_reactions', (rel) =>
+						rel('emoji_reactions').Select(['id', 'emoji', 'user_id'])
 					)
-					.build();
+					;
 				break;
 			default:
 				console.error(`Unknown object_type: ${notification.object_type}`);
@@ -93,11 +93,11 @@
 			// Query attendees table for all relevant event_id and user_id combinations
 			const attendeeQuery = client
 				.query('attendees')
-				.where([
+				.Where([
 					['user_id', '=', userId],
 					['event_id', 'in', eventIds]
 				])
-				.build();
+				;
 
 			// Fetch all relevant attendees
 			const attendees = await client.fetch(attendeeQuery);

@@ -101,14 +101,14 @@
 		try {
 			const query = client
 				.query('attendees')
-				.where([
+				.Where([
 					and([
 						['user_id', '=', userId],
 						['event_id', '=', eventId as string]
 					])
 				])
-				.select(['id'])
-				.build();
+				.Select(['id'])
+				;
 			attendance = await client.fetchOne(query);
 		} catch (e) {
 			console.error(`failed to fetch attendance for event ${eventId} and user ${userId}:`, e);
@@ -175,13 +175,13 @@
 		try {
 			const query = client
 				.query('attendees')
-				.where([
+				.Where([
 					and([
 						['user_id', '=', userId],
 						['event_id', '=', eventId as string]
 					])
 				])
-				.build();
+				;
 			let attendance = await client.fetchOne(query);
 
 			if (!userId || !eventId) {

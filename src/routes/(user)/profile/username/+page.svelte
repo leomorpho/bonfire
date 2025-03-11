@@ -34,9 +34,9 @@
 		const unsubscribeFromUserQuery = client.subscribe(
 			client
 				.query('user')
-				.where(['id', '=', $page.data.user.id])
-				.select(['id', 'username', 'is_fully_onboarded'])
-				.build(),
+				.Where(['id', '=', $page.data.user.id])
+				.Select(['id', 'username', 'is_fully_onboarded'])
+				,
 			(results) => {
 				// If there are less than 3 files in the events eventFiles, fetch the latest 3
 				if (results.length == 1) {

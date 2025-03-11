@@ -54,8 +54,8 @@ export async function updateBringItem(
 	const item = await client.fetchOne(
 		client
 			.query('bring_items')
-			.where([['id', '=', itemId]])
-			.build()
+			.Where([['id', '=', itemId]])
+			
 	);
 	if (!item) throw new Error('Item not found');
 
@@ -78,8 +78,8 @@ export async function deleteBringItem(client: WorkerClient, itemId: string): Pro
 	const item = await client.fetchOne(
 		client
 			.query('bring_items')
-			.where([['id', '=', itemId]])
-			.build()
+			.Where([['id', '=', itemId]])
+			
 	);
 	if (!item) throw new Error('Item not found');
 
@@ -110,8 +110,8 @@ export async function assignBringItem(
 	const item = await client.fetchOne(
 		client
 			.query('bring_items')
-			.where([['id', '=', itemId]])
-			.build()
+			.Where([['id', '=', itemId]])
+			
 	);
 	if (!item) throw new Error('Item not found');
 
@@ -144,8 +144,8 @@ export async function updateBringAssignment(
 	const assignment = await client.fetchOne(
 		client
 			.query('bring_assignments')
-			.where([['id', '=', assignmentId]])
-			.build()
+			.Where([['id', '=', assignmentId]])
+			
 	);
 	if (!assignment) throw new Error('Assignment not found');
 
@@ -171,8 +171,8 @@ export async function deleteBringAssignment(
 	const assignment = await client.fetchOne(
 		client
 			.query('bring_assignments')
-			.where([['id', '=', assignmentId]])
-			.build()
+			.Where([['id', '=', assignmentId]])
+			
 	);
 	if (!assignment) throw new Error('Assignment not found');
 

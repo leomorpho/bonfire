@@ -28,13 +28,13 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		const transactions = await triplitHttpClient.fetch(
 			triplitHttpClient
 				.query('transactions')
-				.where([
+				.Where([
 					and([
 						['user_id', '=', userId],
 						['event_id', '=', event_id]
 					])
 				])
-				.build()
+				
 		);
 		if (transactions.length > 0) {
 			throw new Error('a transaction already exists for this bonfire');
@@ -49,9 +49,9 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		const userLogTokens: UserLogToken | null = await triplitHttpClient.fetchOne(
 			triplitHttpClient
 				.query('user_log_tokens')
-				.where('user_id', '=', userId)
-				.select(['id', 'num_logs'])
-				.build()
+				.Where('user_id', '=', userId)
+				.Select(['id', 'num_logs'])
+				
 		);
 
 		if (!userLogTokens) {
@@ -86,7 +86,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		});
 
 		const event = await triplitHttpClient.fetchOne(
-			triplitHttpClient.query('events').where('id', '=', event_id).build()
+			triplitHttpClient.query('events').Where('id', '=', event_id)
 		);
 
 		// Return success response

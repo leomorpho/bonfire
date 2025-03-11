@@ -13,7 +13,7 @@ export const load = async (event) => {
 
 	const client = triplitHttpClient;
 
-	const query = client.query('user').where('id', '=', user.id).build();
+	const query = client.query('user').Where('id', '=', user.id);
 	let result = await client.fetch(query);
 
 	if (result.length == 0) {

@@ -56,13 +56,13 @@ export async function POST({ request, params }) {
 		const existingAttendee = await triplitHttpClient.fetchOne(
 			triplitHttpClient
 				.query('temporary_attendees')
-				.where(
+				.Where(
 					and([
 						['event_id', '=', eventId],
 						['name', '=', name]
 					])
 				)
-				.build()
+				
 		);
 		if (existingAttendee) {
 			return json(

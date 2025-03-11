@@ -277,8 +277,8 @@
 			unsubscribeTemporaryUserQuery = client.subscribe(
 				client
 					.query('temporary_attendees')
-					.where([['id', '=', tempAttendeeId]])
-					.build(),
+					.Where([['id', '=', tempAttendeeId]])
+					,
 				(results) => {
 					if (results.length == 1) {
 						tempAttendee = results[0];
@@ -316,15 +316,15 @@
 		const unsubscribeFromEventQuery = client.subscribe(
 			client
 				.query('events')
-				.where([['id', '=', eventId]])
-				.include('banner_media')
-				.include('event_admins')
+				.Where([['id', '=', eventId]])
+				.Include('banner_media')
+				.Include('event_admins')
 				.subquery(
 					'organizer',
-					client.query('user').where(['id', '=', '$1.user_id']).select(['username', 'id']).build(),
+					client.query('user').Where(['id', '=', '$1.user_id']).Select(['username', 'id']),
 					'one'
 				)
-				.build(),
+				,
 			(results) => {
 				if (results.length == 1) {
 					const event: any = results[0] as EventTypescriptType;
@@ -383,9 +383,9 @@
 		const unsubscribeAttendeesQuery = client.subscribe(
 			client
 				.query('attendees')
-				.where([['event_id', '=', eventId]])
-				.include('user')
-				.build(),
+				.Where([['event_id', '=', eventId]])
+				.Include('user')
+				,
 			(results) => {
 				console.log('attendees', results);
 				// Separate attendees into different variables by status
@@ -410,8 +410,8 @@
 		const unsubscribeTempAttendeesQuery = client.subscribe(
 			client
 				.query('temporary_attendees')
-				.where([['event_id', '=', eventId]])
-				.build(),
+				.Where([['event_id', '=', eventId]])
+				,
 			(results) => {
 				// // Separate attendees into different variables by status
 				tempAttendeesGoing = results.filter((attendee) => attendee.status === Status.GOING);
@@ -435,9 +435,9 @@
 		const unsubscribeFromFilesQuery = client.subscribe(
 			client
 				.query('files')
-				.where([['event_id', '=', eventId]])
-				.select(['id'])
-				.build(),
+				.Where([['event_id', '=', eventId]])
+				.Select(['id'])
+				,
 			(results) => {
 				// If there are less than 3 files in the events eventFiles, fetch the latest 3
 				(async () => {

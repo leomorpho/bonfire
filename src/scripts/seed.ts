@@ -156,19 +156,19 @@ for (let i = 0; i < 10; i++) {
 // Seed messages for Mike's event
 const messageCount = 30; // Number of messages to generate
 const attendees = await client.fetch(
-	client.query('attendees').where(['event_id', '=', eventCreated?.id]).build()
+	client.query('attendees').Where(['event_id', '=', eventCreated?.id])
 );
 
 const thread = await client.fetchOne(
 	client
 		.query('event_threads')
-		.where([
+		.Where([
 			and([
 				['event_id', '=', eventCreated?.id],
 				['name', '=', MAIN_THREAD]
 			])
 		])
-		.build()
+		
 );
 if (!thread) {
 	throw new Error('thread not created');

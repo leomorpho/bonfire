@@ -29,18 +29,18 @@
 		const client = getFeWorkerTriplitClient($page.data.jwt);
 		const unseenQuery = client
 			.query('notifications')
-			.where([
+			.Where([
 				['user_id', '=', userId],
 				['seen_at', '=', null]
 			])
 			.order('created_at', 'DESC')
-			.build();
+			;
 
 		allUnreadNotifications = await client.fetch(unseenQuery);
 
 		const seenQuery = client
 			.query('notifications')
-			.where([
+			.Where([
 				['user_id', '=', userId],
 				and([
 					['seen_at', '!=', null],
@@ -51,7 +51,7 @@
 			.limit(NUM_TO_LOAD); // Initial limit
 
 		const { unsubscribe, loadMore } = client.subscribeWithExpand(
-			seenQuery.build(),
+			seenQuery,
 			(results) => {
 				console.log('Loaded more seen notifications', results);
 

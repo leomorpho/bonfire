@@ -76,8 +76,8 @@ tusServer.on(EVENTS.POST_FINISH, async (req, res, upload) => {
 					existingTempAttendee = await triplitHttpClient.fetchOne(
 						triplitHttpClient
 							.query('temporary_attendees')
-							.where(['secret_mapping.id', '=', tempAttendeeSecret])
-							.build()
+							.Where(['secret_mapping.id', '=', tempAttendeeSecret])
+							
 					);
 					if (existingTempAttendee) {
 						tempAttendeeId = existingTempAttendee.id;
@@ -217,8 +217,8 @@ export const tusHandler: Handle = async ({ event, resolve }) => {
 				const tempAttendee = await triplitHttpClient.fetchOne(
 					triplitHttpClient
 						.query('temporary_attendees')
-						.where(['secret_mapping.id', '=', tempAttendeeSecret])
-						.build()
+						.Where(['secret_mapping.id', '=', tempAttendeeSecret])
+						
 				);
 				console.log('=====> <3 tempAttendee', tempAttendee);
 				if (tempAttendee) {

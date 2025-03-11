@@ -106,7 +106,7 @@
 			const results = await client.fetch(
 				client
 					.query('notifications')
-					.where([
+					.Where([
 						and([
 							['user_id', '=', $page.data.user.id],
 							['seen_at', '=', null],
@@ -114,7 +114,7 @@
 							['object_type', '=', NotificationType.NEW_MESSAGE]
 						])
 					])
-					.build()
+					
 			);
 			if (results.length == 1) {
 				existingNotif = results[0];

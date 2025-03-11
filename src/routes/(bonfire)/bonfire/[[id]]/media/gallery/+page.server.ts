@@ -53,9 +53,9 @@ export const load = async ({ locals, params }) => {
 // 		// Fetch the event details
 // 		const eventQuery = triplitHttpClient
 // 			.query('events')
-// 			.where(['id', '=', params.id as string])
-// 			// .select(['user_id']) // TODO: select bug in http client
-// 			.build();
+// 			.Where(['id', '=', params.id as string])
+// 			// .Select(['user_id']) // TODO: select bug in http client
+// 			;
 // 		const event = await triplitHttpClient.fetch(eventQuery);
 
 // 		if (!event) {
@@ -68,9 +68,9 @@ export const load = async ({ locals, params }) => {
 // 		// Fetch the file details and filter based on permissions
 // 		const filesQuery = triplitHttpClient
 // 			.query('files')
-// 			.where(['id', 'in', fileIds as string[]])
-// 			// .select(['id', 'uploader_id']) // TODO: select bug in http client
-// 			.build();
+// 			.Where(['id', 'in', fileIds as string[]])
+// 			// .Select(['id', 'uploader_id']) // TODO: select bug in http client
+// 			;
 // 		const files = await triplitHttpClient.fetch(filesQuery);
 
 // 		const filesToDelete = files.filter((file) => isOwner || file.uploader_id === user.id);

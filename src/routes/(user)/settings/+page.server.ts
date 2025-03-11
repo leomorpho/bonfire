@@ -11,15 +11,15 @@ export async function load({ locals }) {
 
 	// Get push subscriptions for the user
 	const subscriptions = await db
-		.select()
+		.Select()
 		.from(pushSubscriptionTable)
-		.where(eq(pushSubscriptionTable.userId, userId));
+		.Where(eq(pushSubscriptionTable.userId, userId));
 
 	// Get notification permissions for the user
 	const permissions = await db
-		.select()
+		.Select()
 		.from(notificationPermissionTable)
-		.where(eq(notificationPermissionTable.userId, userId))
+		.Where(eq(notificationPermissionTable.userId, userId))
 		.limit(1);
 
 	return {

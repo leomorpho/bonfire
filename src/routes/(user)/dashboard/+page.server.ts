@@ -16,13 +16,13 @@ export const load = async (event) => {
 	// sure they show up on the dashboard since we list by attendance object.
 	const eventQuery = triplitHttpClient
 		.query('events')
-		.where('user_id', '=', user.id)
+		.Where('user_id', '=', user.id)
 		.subquery(
 			'self_attendance',
-			triplitHttpClient.query('attendees').where('user_id', '=', user.id).build()
+			triplitHttpClient.query('attendees').Where('user_id', '=', user.id)
 		)
-		.include('attendees')
-		.build();
+		.Include('attendees')
+		;
 
 	const events = await triplitHttpClient.fetch(eventQuery);
 

@@ -22,7 +22,7 @@
 		const unsubscribeNonProfits = client.subscribe(
 			client
 				.query('non_profits')
-				.where(
+				.Where(
 					and([
 						['effective_start_date', '<=', new Date().toISOString()], // Start date is in the past or today
 						or([
@@ -32,7 +32,7 @@
 					])
 				)
 				.order('created_at', 'DESC')
-				.build(),
+				,
 			(results) => {
 				nonProfits = results;
 				loading = false;
@@ -45,7 +45,7 @@
 
 		// Fetch user's favorite non-profit
 		const unsubscribeUser = client.subscribe(
-			client.query('user').where(['id', '=', $page.data.user.id]).build(),
+			client.query('user').Where(['id', '=', $page.data.user.id]),
 			(result) => {
 				favouriteNonProfitId = result[0]?.favourite_non_profit_id || null;
 			},

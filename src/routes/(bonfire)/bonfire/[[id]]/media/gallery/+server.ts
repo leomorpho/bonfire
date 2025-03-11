@@ -22,13 +22,13 @@ export const GET = async ({ url, params, locals }) => {
 			 existingAttendee = await triplitHttpClient.fetchOne(
 				triplitHttpClient
 					.query('temporary_attendees')
-					.where([
+					.Where([
 						and([
 							['secret_mapping.id', '=', tempAttendeeSecret],
 							['event_id', '=', id]
 						])
 					])
-					.build()
+					
 			);
 			if (existingAttendee) {
 				tempAttendeeExists = true;

@@ -23,11 +23,11 @@ const notificationQueueCleanupTask = new Task('Cleanup Old Notifications Queue',
 		// Query to find notifications older than 30 days
 		const oldNotificationsQuery = triplitHttpClient
 			.query('notifications_queue')
-			.where([
+			.Where([
 				['created_at', '<', thirtyDaysAgo] // Compare with the 'created_at' field
 			])
-			// .select(['id']) // Only fetch the IDs for deletion // TODO: select bug for http client
-			.build();
+			// .Select(['id']) // Only fetch the IDs for deletion // TODO: select bug for http client
+			;
 
 		const oldNotifications = await triplitHttpClient.fetch(oldNotificationsQuery);
 

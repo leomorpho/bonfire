@@ -19,7 +19,7 @@
 			const client = getFeWorkerTriplitClient($page.data.jwt);
 
 			const user = await client.fetchOne(
-				client.query('user').where(['id', '=', $page.data.user.id]).build()
+				client.query('user').Where(['id', '=', $page.data.user.id])
 			);
 			if (user && !user.username) {
 				goto('/profile/username');

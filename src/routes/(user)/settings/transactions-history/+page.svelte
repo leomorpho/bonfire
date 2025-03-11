@@ -22,9 +22,9 @@
 		const unsubscribeFromUserLogsQuery = client.subscribe(
 			client
 				.query('transactions')
-				.where(['user_id', '=', $page.data.user.id])
+				.Where(['user_id', '=', $page.data.user.id])
 				.order('created_at', 'DESC')
-				.build(),
+				,
 			(results) => {
 				transactions = results;
 

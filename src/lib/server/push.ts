@@ -41,10 +41,10 @@ export const runNotificationProcessor = async () => {
 
 		const query = triplitHttpClient
 			.query('notifications_queue')
-			.where([
+			.Where([
 				['sent', '=', false] // Only fetch unsent notifications
 			])
-			.build();
+			;
 
 		// Fetch the notifications
 		const notifications = await triplitHttpClient.fetch(query);
@@ -172,7 +172,7 @@ async function getUnreadExistingNotification(
 ) {
 	const query = triplitHttpClient
 		.query('notifications')
-		.where(
+		.Where(
 			and([
 				['user_id', '=', attendeeUserId],
 				['event_id', '=', eventId],
@@ -181,7 +181,7 @@ async function getUnreadExistingNotification(
 			])
 		)
 		.order('created_at', 'DESC')
-		.build();
+		;
 
 	const notifs = await triplitHttpClient.fetch(query);
 
@@ -243,9 +243,9 @@ async function notifyAttendeesOfFiles(eventId: string, fileIds: string[]): Promi
 
 	const fileQuery = triplitHttpClient
 		.query('files')
-		// .select(['id', 'uploader_id']) // TODO: triplit bug preventing select
-		.where([['id', 'in', fileIds]])
-		.build();
+		// .Select(['id', 'uploader_id']) // TODO: triplit bug preventing select
+		.Where([['id', 'in', fileIds]])
+		;
 
 	const files = await triplitHttpClient.fetch(fileQuery);
 	const fileUploaderMap = new Map(files.map((file) => [file.id, file.uploader_id]));
@@ -296,9 +296,9 @@ async function notifyEventCreatorOfAttendees(
 
 	const creatorQuery = triplitHttpClient
 		.query('events')
-		// .select(['user_id', 'title']) // TODO: triplit bug preventing select
-		.where([['id', '=', eventId]])
-		.build();
+		// .Select(['user_id', 'title']) // TODO: triplit bug preventing select
+		.Where([['id', '=', eventId]])
+		;
 
 	const [event] = await triplitHttpClient.fetch(creatorQuery);
 
@@ -341,9 +341,9 @@ async function notifyEventCreatorOfTemporaryAttendees(
 
 	const creatorQuery = triplitHttpClient
 		.query('events')
-		// .select(['user_id', 'title']) // TODO: triplit bug preventing select
-		.where([['id', '=', eventId]])
-		.build();
+		// .Select(['user_id', 'title']) // TODO: triplit bug preventing select
+		.Where([['id', '=', eventId]])
+		;
 
 	const [event] = await triplitHttpClient.fetch(creatorQuery);
 
@@ -381,9 +381,9 @@ async function notifyEventCreatorOfTemporaryAttendees(
 async function notifyAttendeeOfTheirNewAdminRole(eventId: string, newAdminUserIds: string[]) {
 	const creatorQuery = triplitHttpClient
 		.query('events')
-		// .select(['id', 'title']) // TODO: triplit bug preventing select
-		.where([['id', '=', eventId]])
-		.build();
+		// .Select(['id', 'title']) // TODO: triplit bug preventing select
+		.Where([['id', '=', eventId]])
+		;
 
 	const [event] = await triplitHttpClient.fetch(creatorQuery);
 
@@ -430,9 +430,9 @@ async function notifyAttendeesOfNewMessages(eventId: string, newMessageId: strin
 	const messages = await triplitHttpClient.fetch(
 		triplitHttpClient
 			.query('event_messages')
-			.where(['id', '=', newMessageId])
-			.select(['user_id'])
-			.build()
+			.Where(['id', '=', newMessageId])
+			.Select(['user_id'])
+			
 	);
 
 	if (!attendingUserIds.length) return;
@@ -457,9 +457,9 @@ async function notifyAttendeesOfNewMessages(eventId: string, newMessageId: strin
 	const seen_by = await triplitHttpClient.fetch(
 		triplitHttpClient
 			.query('event_message_seen')
-			.where(['message_id', '=', newMessageId])
-			.select(['user_id'])
-			.build()
+			.Where(['message_id', '=', newMessageId])
+			.Select(['user_id'])
+			
 	);
 
 	const seenByUserIds: Set<string> = new Set(

@@ -30,9 +30,9 @@ export async function getThread(
 	let query = client.query('event_threads');
 
 	if (threadId) {
-		query = query.where([['id', '=', threadId]]);
+		query = query.Where([['id', '=', threadId]]);
 	} else if (eventId && name) {
-		query = query.where([
+		query = query.Where([
 			and([
 				['event_id', '=', eventId],
 				['name', '=', name]
@@ -40,7 +40,7 @@ export async function getThread(
 		]);
 	}
 
-	const thread = await client.fetchOne(query.build());
+	const thread = await client.fetchOne(query);
 
 	return thread || null; // Return null if no thread is found
 }
@@ -141,8 +141,8 @@ export async function deleteMessage(
 	const message = await client.fetchOne(
 		client
 			.query('event_messages')
-			.where([['id', '=', messageId]])
-			.build()
+			.Where([['id', '=', messageId]])
+			
 	);
 
 	if (!message) {
@@ -155,11 +155,11 @@ export async function deleteMessage(
 		(await client.fetchOne(
 			client
 				.query('event_admins')
-				.where([
+				.Where([
 					['event_id', '=', message.event_id],
 					['user_id', '=', userId]
 				])
-				.build()
+				
 		));
 
 	if (!isAuthorized) {
@@ -179,9 +179,9 @@ export async function getMessages(client: WorkerClient, threadId: string): Promi
 	const messages = await client.fetch(
 		client
 			.query('event_messages')
-			.where([['thread_id', '=', threadId]])
-			.include('event_message_seen')
-			.build()
+			.Where([['thread_id', '=', threadId]])
+			.Include('event_message_seen')
+			
 	);
 
 	return messages;
@@ -203,13 +203,13 @@ export async function markMessageAsSeen(
 	const existingSeen = await client.fetchOne(
 		client
 			.query('event_message_seen')
-			.where([
+			.Where([
 				and([
 					['message_id', '=', messageId],
 					['user_id', '=', userId]
 				])
 			])
-			.build()
+			
 	);
 
 	// If not already marked as seen, insert a new seen record
@@ -237,13 +237,13 @@ export async function getMessageSeenStatus(
 	const seenRecord = await client.fetchOne(
 		client
 			.query('event_message_seen')
-			.where([
+			.Where([
 				and([
 					['message_id', '=', messageId],
 					['user_id', '=', userId]
 				])
 			])
-			.build()
+			
 	);
 
 	return seenRecord ? seenRecord.seen_at : null;

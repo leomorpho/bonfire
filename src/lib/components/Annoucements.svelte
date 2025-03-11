@@ -24,15 +24,15 @@
 	const createAnnouncementsQuery = (client: TriplitClient) => {
 		return client
 			.query('announcement')
-			.where(['event_id', '=', eventId])
-			.include('seen_by')
+			.Where(['event_id', '=', eventId])
+			.Include('seen_by')
 			.order('created_at', 'DESC');
 	};
 
 	const getAllAnnouncements = async () => {
 		let client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
-		allUnreadNotifications = await client.fetch(createAnnouncementsQuery(client).build());
+		allUnreadNotifications = await client.fetch(createAnnouncementsQuery(client));
 		isDialogOpen = true;
 		console.log('getting all announcements', allUnreadNotifications);
 	};
@@ -47,9 +47,9 @@
 				const currentUserAttendee = await client.fetchOne(
 					client
 						.query('attendees')
-						.where(['user_id', '=', userId], ['event_id', '=', eventId])
-						.select(['id'])
-						.build()
+						.Where(['user_id', '=', userId], ['event_id', '=', eventId])
+						.Select(['id'])
+						
 				);
 
 				// console.log('---- user_id', userId);
@@ -64,7 +64,7 @@
 			if (maxCount) {
 				// Only get total count when a subset is queried from bonfire main view
 				let totalCountResults = await client.fetch(
-					client.query('announcement').where(['event_id', '=', eventId]).select(['id']).build()
+					client.query('announcement').Where(['event_id', '=', eventId]).Select(['id'])
 				);
 				totalCount = totalCountResults.length;
 			}
@@ -79,7 +79,7 @@
 		}
 
 		const unsubscribe = client.subscribe(
-			announcementsQuery.build(),
+			announcementsQuery,
 			(results, info) => {
 				announcementsSubset = results;
 				// console.log('announcementsSubset ====>', announcementsSubset);

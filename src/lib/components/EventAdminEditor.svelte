@@ -35,15 +35,15 @@
 		const unsubscribeFromEventAttendeesQuery = client.subscribe(
 			client
 				.query('attendees')
-				.where([
+				.Where([
 					and([
 						['event_id', '=', eventId],
 						['user_id', '!=', eventCreatorId] // Exclude the event creator
 					])
 				])
-				.include('admin_role', (rel) => rel('admin_role').include('added_by_user').build())
-				.include('user')
-				.build(),
+				.Include('admin_role', (rel) => rel('admin_role').Include('added_by_user'))
+				.Include('user')
+				,
 			(results) => {
 				// Separate attendees into admins and non-admins
 				currentAdminAttendees = results.filter((attendee) => attendee.admin_role !== null);

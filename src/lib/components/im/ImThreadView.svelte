@@ -110,14 +110,14 @@
 		let threadMessagesQuery = client.query('event_messages');
 
 		if (threadId) {
-			threadMessagesQuery = threadMessagesQuery.where([
+			threadMessagesQuery = threadMessagesQuery.Where([
 				and([
 					['thread_id', '=', threadId],
 					['thread.event_id', '=', eventId]
 				])
 			]);
 		} else {
-			threadMessagesQuery = threadMessagesQuery.where([
+			threadMessagesQuery = threadMessagesQuery.Where([
 				and([
 					['thread.name', '=', MAIN_THREAD],
 					['thread.event_id', '=', eventId]
@@ -132,17 +132,17 @@
 		}
 
 		threadMessagesQuery = threadMessagesQuery
-			.include('user')
-			.include('seen_by', (rel) =>
+			.Include('user')
+			.Include('seen_by', (rel) =>
 				rel('seen_by')
-					.where([['user_id', '=', currUserId]])
-					.build()
+					.Where([['user_id', '=', currUserId]])
+					
 			)
-			.include('emoji_reactions', (rel) =>
-				rel('emoji_reactions').select(['id', 'emoji', 'user_id']).build()
+			.Include('emoji_reactions', (rel) =>
+				rel('emoji_reactions').Select(['id', 'emoji', 'user_id'])
 			)
 			.order('created_at', 'DESC')
-			.build();
+			;
 
 		const { unsubscribe: unsubscribeFromMessages, loadMore } = client.subscribeWithExpand(
 			threadMessagesQuery,
@@ -195,7 +195,7 @@
 		const unsubscribeFromUnreadThreadNotifs = client.subscribe(
 			client
 				.query('notifications')
-				.where([
+				.Where([
 					and([
 						['event_id', '=', eventId],
 						['extra_id', '=', threadId],
@@ -204,8 +204,8 @@
 						['object_type', '=', NotificationType.NEW_MESSAGE]
 					])
 				])
-				.select(['id', 'object_ids'])
-				.build(),
+				.Select(['id', 'object_ids'])
+				,
 			(results, info) => {
 				// Create an array to store the IDs of messages that are marked as seen
 				const seenMessageIds: Set<string> = new Set();

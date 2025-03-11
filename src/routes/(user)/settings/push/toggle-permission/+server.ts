@@ -13,9 +13,9 @@ export async function POST({ request, locals }) {
 
 		// Query the existing permission record
 		const existingPermission = await db
-			.select()
+			.Select()
 			.from(notificationPermissionTable)
-			.where(eq(notificationPermissionTable.userId, userId))
+			.Where(eq(notificationPermissionTable.userId, userId))
 			.limit(1);
 
 		if (!existingPermission.length) {
@@ -37,7 +37,7 @@ export async function POST({ request, locals }) {
 		await db
 			.update(notificationPermissionTable)
 			.set({ [type]: newValue, updated_at: sql`(current_timestamp)` })
-			.where(eq(notificationPermissionTable.userId, userId));
+			.Where(eq(notificationPermissionTable.userId, userId));
 
 		return new Response(JSON.stringify({ success: true, newValue }), { status: 200 });
 	} catch (error) {

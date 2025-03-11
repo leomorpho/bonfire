@@ -513,14 +513,14 @@
 		const unsubscribeFromFileQuery = client.subscribe(
 			client
 				.query('files')
-				.where(
+				.Where(
 					and([
 						['event_id', '=', $page.params.id],
 						['is_linked_file', '=', false]
 					])
 				)
-				.select(['id'])
-				.build(),
+				.Select(['id'])
+				,
 			(results, info) => {
 				console.log('A NEW FILE IS AVAILABLE');
 				// handle results
@@ -541,10 +541,10 @@
 		const unsubscribeFromEventQuery = client.subscribe(
 			client
 				.query('events')
-				.where([['id', '=', $page.params.id]])
-				.select(['user_id'])
+				.Where([['id', '=', $page.params.id]])
+				.Select(['user_id'])
 
-				.build(),
+				,
 			(results) => {
 				if (results.length == 1) {
 					eventOwnerUserId = results[0].user_id;
@@ -563,9 +563,9 @@
 		const unsubscribeFromEventAdminsQUery = client.subscribe(
 			client
 				.query('event_admins')
-				.where(and([['event_id', '=', $page.params.id]]))
-				.select(['user_id'])
-				.build(),
+				.Where(and([['event_id', '=', $page.params.id]]))
+				.Select(['user_id'])
+				,
 			(results, info) => {
 				adminUserIds = new Set(results.map((admin: { user_id: string }) => admin.user_id));
 				console.log('adminUserIds', adminUserIds);

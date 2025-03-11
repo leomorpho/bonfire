@@ -67,9 +67,9 @@
 			let seen_announcements = await client.fetch(
 				client
 					.query('seen_announcements')
-					.where(['announcement_id', '=', announcement.id])
-					.select(['id'])
-					.build()
+					.Where(['announcement_id', '=', announcement.id])
+					.Select(['id'])
+					
 			);
 
 			await client.transact(async (tx) => {

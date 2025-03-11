@@ -43,7 +43,7 @@
 		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
 		const unsubscribe = client.subscribe(
-			client.query('non_profits').order('created_at', 'DESC').build(),
+			client.query('non_profits').order('created_at', 'DESC'),
 			(results) => {
 				nonProfits = results;
 				loading = false;

@@ -35,8 +35,8 @@ export const load = async ({ params, locals, url }) => {
 			const existingAttendee = await triplitHttpClient.fetchOne(
 				triplitHttpClient
 					.query('temporary_attendees')
-					.where(['secret_mapping.id', '=', tempAttendeeSecretStr])
-					.build()
+					.Where(['secret_mapping.id', '=', tempAttendeeSecretStr])
+					
 			);
 			if (existingAttendee) {
 				tempAttendeeId = existingAttendee.id;
@@ -68,24 +68,24 @@ export const load = async ({ params, locals, url }) => {
 		event = await triplitHttpClient.fetchOne(
 			triplitHttpClient
 				.query('events')
-				.where(and([['id', '=', eventId as string]]))
-				.include('announcements_list', (rel) => rel('announcements').select(['id']).build())
-				.include('attendees')
-				.include('temporary_attendees')
-				.include('files_list', (rel) => rel('files').select(['id']).build())
-				.include('banner_media')
-				.include('event_admins')
-				.include('bring_items_list', (rel) => rel('bring_items').select(['id']).build())
+				.Where(and([['id', '=', eventId as string]]))
+				.Include('announcements_list', (rel) => rel('announcements').Select(['id']))
+				.Include('attendees')
+				.Include('temporary_attendees')
+				.Include('files_list', (rel) => rel('files').Select(['id']))
+				.Include('banner_media')
+				.Include('event_admins')
+				.Include('bring_items_list', (rel) => rel('bring_items').Select(['id']))
 				.subquery(
 					'organizer',
 					triplitHttpClient
 						.query('user')
-						.where(['id', '=', '$1.user_id'])
-						.select(['username', 'id'])
-						.build(),
+						.Where(['id', '=', '$1.user_id'])
+						.Select(['username', 'id'])
+						,
 					'one'
 				)
-				.build()
+				
 		);
 	} catch (e) {
 		console.debug(`failed to fetch event with id ${eventId}`, e);

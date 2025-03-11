@@ -44,9 +44,9 @@
 		const unsubscribe = client.subscribe(
 			client
 				.query('bring_items')
-				.where(['event_id', '=', eventId])
-				.include('bring_assignments')
-				.build(),
+				.Where(['event_id', '=', eventId])
+				.Include('bring_assignments')
+				,
 			(results, info) => {
 				bringItems = results
 					.map((item) => ({

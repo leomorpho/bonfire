@@ -20,7 +20,7 @@ export async function POST({ request, locals }) {
 		// Delete the subscription from the database
 		const deleteResult = await db
 			.delete(pushSubscriptionTable)
-			.where(
+			.Where(
 				and(eq(pushSubscriptionTable.endpoint, endpoint), eq(pushSubscriptionTable.userId, userId))
 			).execute();
 

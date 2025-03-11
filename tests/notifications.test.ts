@@ -88,7 +88,7 @@ async function createNewAttendance(eventId: string, userId: string, status: Stat
 
 async function markAllNotificationsAsSeen() {
 	const notifications = await serverTriplitClient.fetch(
-		serverTriplitClient.query('notifications').build()
+		serverTriplitClient.query('notifications')
 	);
 
 	for (const notification of notifications) {
@@ -104,7 +104,7 @@ async function markAllNotificationsAsSeen() {
  */
 export async function validateUniqueNotifications() {
 	const notifications = await serverTriplitClient.fetch(
-		serverTriplitClient.query('notifications').build()
+		serverTriplitClient.query('notifications')
 	);
 
 	const groupedNotifications = notifications.reduce((acc, notification) => {
@@ -168,25 +168,25 @@ describe('Announcement notifications', () => {
 		const notificationsForEventCreator = await serverTriplitClient.fetch(
 			serverTriplitClient
 				.query('notifications')
-				.where(
+				.Where(
 					and([
 						['user_id', '=', user.id],
 						['event_id', '=', event?.id as string]
 					])
 				)
-				.build()
+				
 		);
 
 		const notificationsForAttendees = await serverTriplitClient.fetch(
 			serverTriplitClient
 				.query('notifications')
-				.where(
+				.Where(
 					and([
 						['user_id', '!=', user.id],
 						['event_id', '=', event?.id as string]
 					])
 				)
-				.build()
+				
 		);
 
 		// Event creator should have no announcement notification
@@ -233,13 +233,13 @@ describe('Announcement notifications', () => {
 		const notificationsForAttendees = await serverTriplitClient.fetch(
 			serverTriplitClient
 				.query('notifications')
-				.where(
+				.Where(
 					and([
 						['user_id', '!=', user.id],
 						['event_id', '=', event?.id as string]
 					])
 				)
-				.build()
+				
 		);
 
 		// All 3 attendees should have a single notification
@@ -293,13 +293,13 @@ describe('Announcement notifications', () => {
 		const notificationsForAttendees = await serverTriplitClient.fetch(
 			serverTriplitClient
 				.query('notifications')
-				.where(
+				.Where(
 					and([
 						['user_id', '!=', user.id],
 						['event_id', '=', event?.id as string]
 					])
 				)
-				.build()
+				
 		);
 		console.log('---> notificationsForAttendees', notificationsForAttendees);
 		// All 3 attendees should have a single notification
@@ -308,13 +308,13 @@ describe('Announcement notifications', () => {
 		const notificationsForAttendingUser1 = await serverTriplitClient.fetch(
 			serverTriplitClient
 				.query('notifications')
-				.where(
+				.Where(
 					and([
 						['user_id', '=', attendingUser1.id],
 						['event_id', '=', event?.id as string]
 					])
 				)
-				.build()
+				
 		);
 		expect(notificationsForAttendingUser1).toHaveLength(2);
 

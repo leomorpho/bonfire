@@ -119,15 +119,15 @@ export async function createNewFileNotificationQueueObject(
 	const existingQueue = await client.fetch(
 		client
 			.query('notifications_queue')
-			.where(
+			.Where(
 				and([
 					['user_id', '=', userId],
 					['event_id', '=', eventId],
 					['object_type', '=', NotificationType.FILES]
 				])
 			)
-			.select(['id', 'object_ids'])
-			.build()
+			.Select(['id', 'object_ids'])
+			
 	);
 
 	if (existingQueue && existingQueue.length > 0) {
@@ -176,15 +176,15 @@ export async function createNewAdminNotificationQueueObject(
 		// const existingQueue = await client.fetch(
 		// 	client
 		// 		.query('notifications_queue')
-		// 		.where(
+		// 		.Where(
 		// 			and([
 		// 				['user_id', '=', userId],
 		// 				['event_id', '=', eventId],
 		// 				['object_type', '=', NotificationType.ADMIN_ADDED]
 		// 			])
 		// 		)
-		// 		.select(['id', 'object_ids'])
-		// 		.build()
+		// 		.Select(['id', 'object_ids'])
+		// 		
 		// );
 
 		// if (existingQueue && existingQueue.length > 0) {

@@ -40,13 +40,13 @@ export const POST = async ({ request, params, locals }) => {
 		let attendance = await triplitHttpClient.fetchOne(
 			triplitHttpClient
 				.query('attendees')
-				.where([
+				.Where([
 					and([
 						['user_id', '=', user.id],
 						['event_id', '=', bonfireId]
 					])
 				])
-				.build()
+				
 		);
 
 		// If attendance does not exist, create it

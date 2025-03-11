@@ -23,13 +23,13 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		const event = await triplitHttpClient.fetchOne(
 			triplitHttpClient
 				.query('events')
-				.where(
+				.Where(
 					and([
 						['user_id', '=', user.id],
 						['id', '=', eventId]
 					])
 				)
-				.build()
+				
 		);
 		if (!event) {
 			throw error(401, 'Unauthorized');

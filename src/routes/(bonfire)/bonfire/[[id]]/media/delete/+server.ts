@@ -21,13 +21,13 @@ export const DELETE = async ({ request, locals, params, url }) => {
 		existingTempAttendee = await triplitHttpClient.fetchOne(
 			triplitHttpClient
 				.query('temporary_attendees')
-				.where([
+				.Where([
 					and([
 						['secret_mapping.id', '=', tempAttendeeSecret],
 						['event_id', '=', eventId]
 					])
 				])
-				.build()
+				
 		);
 		if (existingTempAttendee) {
 			tempAttendeeExists = true;
@@ -61,10 +61,10 @@ export const DELETE = async ({ request, locals, params, url }) => {
 		// Fetch the event details
 		const eventQuery = triplitHttpClient
 			.query('events')
-			.where(['id', '=', eventId])
-			.include('event_admins')
-			// .select(['user_id']) // TODO: select bug in http client
-			.build();
+			.Where(['id', '=', eventId])
+			.Include('event_admins')
+			// .Select(['user_id']) // TODO: select bug in http client
+			;
 		const event = await triplitHttpClient.fetchOne(eventQuery);
 
 		if (!event) {
@@ -92,31 +92,31 @@ export const DELETE = async ({ request, locals, params, url }) => {
 			console.log('=> GOD MODE', fileIds);
 			filesQuery = triplitHttpClient
 				.query('files')
-				.where([['id', 'in', fileIds]])
-				// .select(['id', 'uploader_id', 'file_key']) // Include the S3 file key // TODO: select bug in http client
-				.build();
+				.Where([['id', 'in', fileIds]])
+				// .Select(['id', 'uploader_id', 'file_key']) // Include the S3 file key // TODO: select bug in http client
+				;
 		} else if (user && !isAdmin) {
 			filesQuery = triplitHttpClient
 				.query('files')
-				.where(
+				.Where(
 					and([
 						['id', 'in', fileIds],
 						['uploader_id', '=', user?.id]
 					])
 				)
-				// .select(['id', 'uploader_id', 'file_key']) // Include the S3 file key // TODO: select bug in http client
-				.build();
+				// .Select(['id', 'uploader_id', 'file_key']) // Include the S3 file key // TODO: select bug in http client
+				;
 		} else if (tempAttendeeExists) {
 			filesQuery = triplitHttpClient
 				.query('files')
-				.where(
+				.Where(
 					and([
 						['id', 'in', fileIds],
 						['temp_uploader_id', '=', existingTempAttendee?.id]
 					])
 				)
-				// .select(['id', 'uploader_id', 'file_key']) // Include the S3 file key // TODO: select bug in http client
-				.build();
+				// .Select(['id', 'uploader_id', 'file_key']) // Include the S3 file key // TODO: select bug in http client
+				;
 		} else {
 			return new Response(JSON.stringify({ error: 'Not authorized' }), {
 				status: 403,

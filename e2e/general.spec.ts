@@ -869,7 +869,7 @@ test('Add logs', async ({ page }) => {
 	await expect(page.getByRole('button', { name: '$5 for 10 logs' })).toBeVisible();
 
 	const userEntry = await serverTriplitClient.fetchOne(
-		serverTriplitClient.query('user').where('username', '=', username).build()
+		serverTriplitClient.query('user').Where('username', '=', username)
 	);
 	expect(userEntry).not.toBeNull();
 	console.log('userEntry ====>', userEntry);
@@ -877,8 +877,8 @@ test('Add logs', async ({ page }) => {
 	const userLogTokenEntry = await serverTriplitClient.fetchOne(
 		serverTriplitClient
 			.query('user_log_tokens')
-			.where('user_id', '=', userEntry?.id as string)
-			.build()
+			.Where('user_id', '=', userEntry?.id as string)
+			
 	);
 	expect(userLogTokenEntry).not.toBeNull();
 	console.log('userLogTokenEntry ====>', userLogTokenEntry);

@@ -14,7 +14,7 @@
 
 	onMount(() => {
 		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
-		data = useQuery(client, client.query('events').where(['id', '=', $page.params.id]));
+		data = useQuery(client, client.query('events').Where(['id', '=', $page.params.id]));
 	});
 </script>
 

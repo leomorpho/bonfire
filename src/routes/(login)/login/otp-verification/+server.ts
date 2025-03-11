@@ -73,7 +73,7 @@ export async function POST({ request }) {
 	const sessionCookie = lucia.createSessionCookie(session.id);
 
 	const triplitUser = await triplitHttpClient.fetchOne(
-		triplitHttpClient.query('user').where('id', '=', user.id).build()
+		triplitHttpClient.query('user').Where('id', '=', user.id)
 	);
 
 	// Check if the user has a username for redirection

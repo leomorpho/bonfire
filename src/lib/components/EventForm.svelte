@@ -481,9 +481,9 @@
 		const unsubscribeFromUserLogsQuery = client.subscribe(
 			client
 				.query('user')
-				.where(['id', '=', $page.data.user.id])
-				.include('user_log_tokens')
-				.build(),
+				.Where(['id', '=', $page.data.user.id])
+				.Include('user_log_tokens')
+				,
 			(results) => {
 				console.log('results', results);
 				console.log('results[0].favourite_non_profit_id', results[0].favourite_non_profit_id);
