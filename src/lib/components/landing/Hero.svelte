@@ -1,5 +1,6 @@
 <script>
 	import Container from '../Container.svelte';
+	import Bonfire from '../main-bonfire-event/Bonfire.svelte';
 	import Button from '../ui/button/button.svelte';
 </script>
 
@@ -28,5 +29,6 @@ all screen sizes (not the case here) -->
 			Put a quick demo video of the product, a carousel of images, some testimonials or relevant
 			logos.
 		</div>
+		<Bonfire />
 	</div>
 </Container>

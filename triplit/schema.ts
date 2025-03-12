@@ -45,7 +45,8 @@ export const bringSchema = {
 			created_at: S.Date({ default: S.Default.now() }),
 			bring_assignments: S.RelationMany('bring_assignments', {
 				where: [['bring_item_id', '=', '$id']]
-			})
+			}),
+			is_demo_data: S.Optional(S.Boolean({ default: false }))
 		}),
 		permissions: {
 			user: {
@@ -98,7 +99,8 @@ export const bringSchema = {
 			assigned_by_user_id: S.String({ nullable: true }), // Who assigned it (null if self-assigned)
 			assigned_by_user: S.Optional(S.RelationById('user', '$assigned_by_user_id')),
 			quantity: S.Number(), // How much they are bringing
-			created_at: S.Date({ default: S.Default.now() })
+			created_at: S.Date({ default: S.Default.now() }),
+			is_demo_data: S.Optional(S.Boolean({ default: false }))
 		}),
 		permissions: {
 			user: {
@@ -158,7 +160,8 @@ export const userLogsTokenSchema = {
 			user: S.RelationById('user', '$user_id'), // Relation to the user
 			num_logs: S.Number({ default: 0 }), // Number of logs the user has
 			updated_at: S.Date({ default: S.Default.now() }), // Last updated timestamp
-			stripe_customer_id: S.String({ nullable: true, default: null })
+			stripe_customer_id: S.String({ nullable: true, default: null }),
+			is_demo_data: S.Optional(S.Boolean({ default: false }))
 		}),
 		permissions: {
 			user: {
@@ -192,7 +195,8 @@ export const userLogsTokenSchema = {
 			num_log_tokens: S.Number(), // Number of logs purchased/refunded
 			total_money_amount: S.Number({ default: null, nullable: true }),
 			currency: S.String({ default: null, nullable: true }),
-			created_at: S.Date({ default: S.Default.now() }) // Timestamp of transaction
+			created_at: S.Date({ default: S.Default.now() }), // Timestamp of transaction
+			is_demo_data: S.Optional(S.Boolean({ default: false }))
 			// user_donation: S.RelationOne('user_donations', {
 			// 	// Link to possible donation
 			// 	where: [['transaction_id', '=', '$id']]
@@ -249,53 +253,6 @@ export const donationsSchema = {
 			}
 		}
 	}
-	// user_donations: {
-	// 	schema: S.Schema({
-	// 		id: S.Id(),
-	// 		user_id: S.String(), // User who made the donation
-	// 		user: S.RelationById('user', '$user_id'), // Relation to the user
-	// 		non_profit_id: S.String(), // Chosen non-profit
-	// 		non_profit: S.RelationById('non_profits', '$non_profit_id'), // Relation to non-profits
-	// 		transaction_id: S.String(), // Related payment transaction
-	// 		transaction: S.RelationById('transactions', '$transaction_id'), // Relation to transactions
-	// 		created_at: S.Date({ default: S.Default.now() }) // Timestamp of donation
-	// 	}),
-	// 	permissions: {
-	// 		user: {
-	// 			read: { filter: [['user_id', '=', '$role.userId']] }, // Users can read their own donations
-	// 			insert: { filter: [['user_id', '=', '$role.userId']] } // Users can donate
-	// 		},
-	// 		admin: {
-	// 			read: { filter: [true] } // Admins can view all donations
-	// 		},
-	// 		temp: {},
-	// 		anon: {}
-	// 	}
-	// },
-	// non_profit_payouts: {
-	// 	schema: S.Schema({
-	// 		id: S.Id(),
-	// 		non_profit_id: S.String(), // Non-profit receiving the payout
-	// 		non_profit: S.RelationById('non_profits', '$non_profit_id'), // Relation to non-profits
-	// 		payout_amount: S.Number(), // Total amount paid out (in cents)
-	// 		currency: S.String(), // Currency of payout
-	// 		payout_date: S.Date({ default: S.Default.now() }), // Date when the payout occurred
-	// 		status: S.String({ enum: ['pending', 'completed', 'failed'] as const }), // Payout status
-	// 		transaction_reference: S.String({ nullable: true }) // External payment reference
-	// 	}),
-	// 	permissions: {
-	// 		admin: {
-	// 			read: { filter: [true] }, // Admins can read all payouts
-	// 			insert: { filter: [true] }, // Admins can log payouts
-	// 			update: { filter: [true] } // Admins can update payout status
-	// 		},
-	// 		user: {
-	// 			read: { filter: [false] } // Users cannot see payout logs
-	// 		},
-	// 		temp: {},
-	// 		anon: {}
-	// 	}
-	// }
 } satisfies ClientSchema;
 
 // Define schema with permissions
@@ -318,7 +275,8 @@ export const schema = {
 			favourite_non_profit_id: S.Optional(S.String()), // Non-profit the user currently contributes to by default
 			favourite_non_profit: S.RelationById('non_profits', '$favourite_non_profit_id'),
 			created_at: S.Optional(S.Date({ default: S.Default.now() })),
-			updated_at: S.Optional(S.Date({ default: null, nullable: true }))
+			updated_at: S.Optional(S.Date({ default: null, nullable: true })),
+			is_demo_data: S.Optional(S.Boolean({ default: false }))
 		}),
 		permissions: {
 			user: {
@@ -359,7 +317,8 @@ export const schema = {
 			full_image_key: S.String(), // Key for the full version of the image
 			small_image_key: S.String(), // Key for the smaller version of the image
 			uploaded_at: S.Date({ default: S.Default.now() }), // Timestamp of upload
-			blurr_hash: S.Optional(S.String({ nullable: true, default: null, optional: true }))
+			blurr_hash: S.Optional(S.String({ nullable: true, default: null, optional: true })),
+			is_demo_data: S.Optional(S.Boolean({ default: false }))
 		}),
 		permissions: {
 			user: {
@@ -406,6 +365,7 @@ export const schema = {
 			geocoded_location: S.Optional(S.String({ nullable: true })),
 			latitude: S.Optional(S.Number()),
 			longitude: S.Optional(S.Number()),
+			is_demo_data: S.Optional(S.Boolean({ default: false })),
 			user_id: S.String(),
 			user: S.RelationById('user', '$user_id'),
 			attendees: S.RelationMany('attendees', {
@@ -502,6 +462,7 @@ export const schema = {
 			added_by_user_id: S.String(), // ID of the user who added this admin
 			added_by_user: S.RelationById('user', '$added_by_user_id'), // Relation to the user who added this admin
 			role: S.String({ default: 'editor' }), // Role of the admin (e.g., editor, moderator)
+			is_demo_data: S.Optional(S.Boolean({ default: false })),
 			created_at: S.Date({ default: S.Default.now() }), // Timestamp when the admin was added
 			updated_at: S.Date({ default: S.Default.now() }) // Timestamp when the entry was last updated
 		}),
@@ -559,6 +520,7 @@ export const schema = {
 			event: S.RelationById('events', '$event_id'), // Link to the event
 			user_id: S.String(),
 			user: S.RelationById('user', '$user_id'),
+			is_demo_data: S.Optional(S.Boolean({ default: false })),
 			created_at: S.Optional(S.Date({ default: S.Default.now() }))
 		}),
 		permissions: {
@@ -584,6 +546,7 @@ export const schema = {
 			guest_count: S.Optional(S.Number({ default: 0 })), // Number of additional guests
 			// special_requests: S.String({ nullable: true }), // Any special requests (e.g., dietary)
 			// NOTE: updated_at is a terrible name, it should be created_at
+			is_demo_data: S.Optional(S.Boolean({ default: false })),
 			updated_at: S.Date({ default: S.Default.now() }), // Last updated timestamp
 			// Foreign Key Relations
 			seen_announcements: S.RelationMany('seen_announcements', {
@@ -662,6 +625,7 @@ export const schema = {
 			status: S.String({ default: 'undecided' }), // RSVP status: attending, not attending, undecided
 			name: S.String(),
 			guest_count: S.Optional(S.Number({ default: 0 })), // Number of additional guests
+			is_demo_data: S.Optional(S.Boolean({ default: false })),
 			updated_at: S.Date({ default: S.Default.now() }), // Last updated timestamp
 			secret_mapping: S.RelationOne('temporary_attendees_secret_mapping', {
 				where: [['temporary_attendee_id', '=', '$id']]
@@ -729,7 +693,8 @@ export const schema = {
 			// Link to supporting files; for example, for videos, we save a frame and link it to the video.
 			linked_file_id: S.String({ nullable: true, default: null, optional: true }),
 			linked_file: S.RelationById('files', '$linked_file_id'),
-			is_linked_file: S.Boolean({ default: false })
+			is_linked_file: S.Boolean({ default: false }),
+			is_demo_data: S.Optional(S.Boolean({ default: false }))
 		}),
 		permissions: {
 			user: {
@@ -792,6 +757,7 @@ export const schema = {
 			w_pixel_sm: S.Number({ nullable: true }),
 			blurr_hash: S.String({ nullable: true, default: null, optional: true }),
 			size_in_bytes: S.Number(),
+			is_demo_data: S.Optional(S.Boolean({ default: false })),
 			uploaded_at: S.Date({ default: S.Default.now() }),
 			uploader_id: S.String({ nullable: true, default: null, optional: true }), // ID of the attendee
 			uploader: S.RelationById('user', '$user_id'), // Link to the user
@@ -832,6 +798,7 @@ export const schema = {
 			id: S.Id(),
 			content: S.String(),
 			created_at: S.Date({ default: S.Default.now() }),
+			is_demo_data: S.Optional(S.Boolean({ default: false })),
 			user_id: S.String(),
 			user: S.RelationById('user', '$user_id'),
 			event_id: S.String(),
@@ -894,6 +861,7 @@ export const schema = {
 			attendee: S.RelationById('attendees', '$attendee_id'), // Link to the attendee
 			announcement_id: S.String(), // ID of the seen announcement
 			announcement: S.RelationById('announcement', '$announcement_id'), // Link to the announcement
+			is_demo_data: S.Optional(S.Boolean({ default: false })),
 			seen_at: S.Date({ default: S.Default.now() }) // Timestamp when the announcement was seen
 		}),
 		permissions: {
@@ -1001,6 +969,7 @@ export const schema = {
 			extra_id: S.Optional(S.String()),
 			created_at: S.Date({ default: S.Default.now() }), // Timestamp of when the notification was sent
 			seen_at: S.Date({ nullable: true, default: null }),
+			is_demo_data: S.Optional(S.Boolean({ default: false })),
 			num_push_notifications_sent: S.Number({ default: 0 })
 			// last_push_notifications_sent_at: S.Date({ nullable: true, default: null, optional: true })
 		}),
@@ -1051,6 +1020,7 @@ export const schema = {
 			user_id: S.String({ nullable: true, default: null }), // ID of the user who created the thread
 			user: S.RelationById('user', '$user_id'), // Relation to the user
 			name: S.String({ default: MAIN_THREAD }), // Thread name
+			is_demo_data: S.Optional(S.Boolean({ default: false })),
 			created_at: S.Date({ default: S.Default.now() }), // Timestamp when the message was sent
 			updated_at: S.Optional(S.Date({ nullable: true, default: null })), // Timestamp when the message was edited
 			messages: S.RelationMany('event_messages', {
@@ -1106,6 +1076,7 @@ export const schema = {
 			content: S.String({ nullable: true }), // Text content of the message
 			seen_by: S.RelationMany('event_message_seen', { where: [['message_id', '=', '$id']] }), // Tracks who has seen the message
 			emoji_reactions: S.RelationMany('emoji_reactions', { where: [['entity_id', '=', '$id']] }), // Tracks who has seen the message
+			is_demo_data: S.Optional(S.Boolean({ default: false })),
 			created_at: S.Date({ default: S.Default.now() }), // Timestamp when the message was sent
 			updated_at: S.Optional(S.Date({ nullable: true, default: null })), // Timestamp when the message was edited
 			deleted_by_user_id: S.String({ nullable: true, default: null }), // ID of the user who sent the message
@@ -1224,6 +1195,7 @@ export const schema = {
 			emoji: S.String(),
 			entity_id: S.String(), // ID of the message
 			entity_type: S.String(), // Type of the entity: message, announcement etc
+			is_demo_data: S.Optional(S.Boolean({ default: false })),
 			user_id: S.String(), // User who has seen the message
 			user: S.RelationById('user', '$user_id'), // Relation to the user
 			event_id: S.String(),

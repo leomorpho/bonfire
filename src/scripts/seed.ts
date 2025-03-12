@@ -10,7 +10,7 @@ import {
 import { env as publicEnv } from '$env/dynamic/public';
 import { env as privateEnv } from '$env/dynamic/private';
 import { createAttendeeId } from '$lib/utils';
-import { createNewThread, MAIN_THREAD, sendMessage } from '$lib/im';
+import { createNewThread, MAIN_THREAD } from '$lib/im';
 
 const client = new HttpClient({
 	serverUrl: publicEnv.PUBLIC_TRIPLIT_URL,
