@@ -14,7 +14,10 @@
 		CircleUser,
 		House,
 		Shield,
-		KeyRound
+		KeyRound,
+		Info,
+		MessageCircle,
+		ArrowRight
 	} from 'lucide-svelte';
 	import { page } from '$app/stores';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
@@ -139,6 +142,22 @@
 	</DropdownMenu.Root>
 {/snippet}
 
+<a href="/feedback" class="flex w-full justify-center bg-orange-500 dark:bg-orange-700">
+	<div
+		class="flex w-full max-w-screen-md flex-row items-center justify-center rounded-xl px-4 py-2 text-xs text-white sm:text-sm"
+	>
+		<span class="overflow-hidden text-ellipsis whitespace-nowrap font-semibold">
+			🚀 Beta Launched!
+		</span>
+		<div class="flex items-center">
+			<Button variant="link" class="text-xs text-white hover:underline sm:text-sm">
+				<MessageCircle />
+				Share your feedback
+			</Button>
+		</div>
+	</div>
+</a>
+
 <div class="w-full">
 	<Container>
 		<header bind:this={navbarRef} class="navbar px-0">
@@ -162,6 +181,7 @@
 			{#if !dev}
 				<InstallPwaBtn />
 			{/if}
+
 			<div class="navbar-end">
 				{#if $page.data.user}
 					<LogoutButton cls={'hidden lg:block w-min mr-3'} />

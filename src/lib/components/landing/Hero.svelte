@@ -18,7 +18,7 @@ all screen sizes (not the case here) -->
 				Host and share memorable events with your friends.
 			</p>
 			<div class="flex items-center justify-center sm:justify-start">
-				<a href="/">
+				<a href="/login">
 					<Button class="h-14 bg-purple-500 text-lg">Start a Bonfire</Button>
 				</a>
 				<div class="mx-3 italic">it's free!</div>
