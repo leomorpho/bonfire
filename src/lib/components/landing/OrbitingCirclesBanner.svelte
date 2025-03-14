@@ -8,12 +8,9 @@
 </script>
 
 <div
-	class={cn(
-		'relative flex w-full items-center justify-center rounded-xl md:shadow-xl',
-		className
-	)}
+	class={cn('relative flex w-full items-center justify-center rounded-3xl md:shadow-xl', className)}
 >
-<BorderBeam size={150} duration={12} cls="rounded-3xl border-2"/>
+	<BorderBeam size={150} duration={12} borderWidth={2} cls="rounded-3xl" />
 
 	<img
 		class="aspect-square w-full rounded-3xl object-cover"
@@ -26,7 +23,11 @@
 	/>
 
 	<!--  Inner Circles  -->
-	<OrbitingCircles cls="h-[30px] w-[30px] sm:h-[50px] sm:w-[50px] border-none bg-transparent text-4xl" duration={20} radius={80}>
+	<OrbitingCircles
+		cls="h-[30px] w-[30px] sm:h-[50px] sm:w-[50px] border-none bg-transparent text-4xl"
+		duration={20}
+		radius={80}
+	>
 		<!-- Open AI -->
 		🎈
 	</OrbitingCircles>
@@ -36,7 +37,7 @@
 		radius={80}
 		delay={-10}
 	>
-	🥂
+		🥂
 	</OrbitingCircles>
 
 	<!-- Outer Circles (reverse)  -->
