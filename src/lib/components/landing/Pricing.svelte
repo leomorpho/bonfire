@@ -24,7 +24,7 @@
 </script>
 
 <Container>
-	<div id="pricing" class="py-24 sm:py-32">
+	<div id="pricing" class="py-10 sm:py-20">
 		<div class="mx-auto flex w-fit flex-wrap justify-center gap-10 md:gap-16">
 			<!-- Basic package -->
 			<div class="card w-80 p-8 shadow-xl bg-slate-100 dark:bg-slate-800">

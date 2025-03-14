@@ -6,27 +6,40 @@
 <!-- The exact line breaks and widths of various sections should depend on the copy. Make sure the copy looks good on
 all screen sizes (not the case here) -->
 <Container>
-	<div class="flex flex-col py-8 sm:py-20 md:flex-row">
+	<div class="flex w-full flex-col items-center justify-center py-8 sm:py-20 md:flex-row">
 		<div>
 			<div
-				class="pointer-events-none z-10 whitespace-pre-wrap bg-gradient-to-b from-[#ffd319] via-[#ff2975] to-[#8c1eff] bg-clip-text py-1 text-center text-5xl font-bold leading-none tracking-tighter text-transparent sm:mt-8 sm:text-left sm:text-7xl"
+				class="pointer-events-none z-10 whitespace-pre-wrap bg-gradient-to-b from-[#ffd319] via-[#ff2975] to-[#8c1eff] bg-clip-text p-1 text-center text-5xl font-bold leading-none tracking-tighter text-transparent sm:mt-8 sm:text-left sm:text-7xl"
 			>
-				Re-ignite <br /> your social life<br /> right
-				<span class="underline decoration-purple-500">here</span>
+				Re-ignite <br /> your social life<br />
+				<span class="underline decoration-purple-500">right here</span>
 			</div>
 			<p class="text-md mb-6 mt-2 text-center sm:mb-8 sm:mt-4 sm:text-left sm:text-lg">
 				Host and share memorable events with your friends.
 			</p>
 			<div class="flex items-center justify-center sm:justify-start">
 				<a href="/login">
-					<Button class="h-14 bg-purple-500 text-lg">Start a Bonfire</Button>
+					<Button class="h-14 rounded-full bg-purple-500 text-lg text-white hover:bg-purple-400"
+						>Start a Bonfire</Button
+					>
 				</a>
 				<div class="mx-3 italic">it's free!</div>
 			</div>
 		</div>
-		<div class=" mt-8 flex-1 rounded-xl bg-gray-100 p-10 text-center text-xl md:ml-5">
+		<!-- <div class=" mt-8 flex-1 rounded-xl bg-gray-100 p-10 text-center text-xl md:ml-5">
 			Put a quick demo video of the product, a carousel of images, some testimonials or relevant
 			logos.
+		</div> -->
+		<div class="w-full md:w-1/2 p-5 sm:p-10">
+			<img
+				class="aspect-square w-full rounded-3xl object-cover"
+				srcset="
+    https://f002.backblazeb2.com/file/bonfire-public/website-public/underwater-sm.jpg 1000w, 
+    https://f002.backblazeb2.com/file/bonfire-public/website-public/underwater-md.jpg 2000w,
+    https://f002.backblazeb2.com/file/bonfire-public/website-public/underwater-lg.jpg 3000w"
+				src="https://f002.backblazeb2.com/file/bonfire-public/website-public/underwater-lg.jpg"
+				alt="Underwater party!"
+			/>
 		</div>
 	</div>
 </Container>
