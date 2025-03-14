@@ -1,6 +1,7 @@
 <script>
 	import Container from '../Container.svelte';
 	import Button from '../ui/button/button.svelte';
+	import OrbitingCirclesBanner from './OrbitingCirclesBanner.svelte';
 </script>
 
 <!-- The exact line breaks and widths of various sections should depend on the copy. Make sure the copy looks good on
@@ -30,16 +31,8 @@ all screen sizes (not the case here) -->
 			Put a quick demo video of the product, a carousel of images, some testimonials or relevant
 			logos.
 		</div> -->
-		<div class="w-full md:w-1/2 p-5 sm:p-10">
-			<img
-				class="aspect-square w-full rounded-3xl object-cover"
-				srcset="
-    https://f002.backblazeb2.com/file/bonfire-public/website-public/underwater-sm.jpg 1000w, 
-    https://f002.backblazeb2.com/file/bonfire-public/website-public/underwater-md.jpg 2000w,
-    https://f002.backblazeb2.com/file/bonfire-public/website-public/underwater-lg.jpg 3000w"
-				src="https://f002.backblazeb2.com/file/bonfire-public/website-public/underwater-lg.jpg"
-				alt="Underwater party!"
-			/>
+		<div class="w-full p-5 sm:p-10 md:w-1/2">
+			<OrbitingCirclesBanner />
 		</div>
 	</div>
 </Container>

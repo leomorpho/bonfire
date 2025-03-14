@@ -76,6 +76,9 @@ const config = {
 			fontFamily: {
 				sans: [...fontFamily.sans]
 			},
+			animation: {
+				orbit: 'orbit calc(var(--duration)*1s) linear infinite'
+			},
 			keyframes: {
 				'aurora-border': {
 					'0%, 100%': { borderRadius: '37% 29% 27% 27% / 28% 25% 41% 37%' },
@@ -102,6 +105,14 @@ const config = {
 					'0%, 100%': { bottom: '0', right: '0' },
 					'50%': { bottom: '25%', right: '40%' },
 					'90%': { bottom: '50%', right: '25%' }
+				},
+				orbit: {
+					'0%': {
+						transform: 'rotate(0deg) translateY(calc(var(--radius) * 1px)) rotate(0deg)'
+					},
+					'100%': {
+						transform: 'rotate(360deg) translateY(calc(var(--radius) * 1px)) rotate(-360deg)'
+					}
 				}
 			}
 		}
