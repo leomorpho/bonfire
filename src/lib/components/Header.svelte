@@ -4,20 +4,14 @@
 	import type { Link } from '$lib/types';
 	import Container from './Container.svelte';
 	import {
-		LogOut,
 		Menu,
-		FlameKindling,
-		BookOpen,
-		DollarSign,
-		CircleHelp,
 		Cog,
 		CircleUser,
 		House,
 		Shield,
 		KeyRound,
-		Info,
 		MessageCircle,
-		ArrowRight
+		ArrowBigRight
 	} from 'lucide-svelte';
 	import { page } from '$app/stores';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
@@ -149,10 +143,10 @@
 		<span class="overflow-hidden text-ellipsis whitespace-nowrap font-semibold">
 			🚀 Beta Launched!
 		</span>
-		<div class="flex items-center">
+		<div class="flex sm:ml-3">
 			<Button variant="link" class="text-xs text-white hover:underline sm:text-sm">
-				<MessageCircle />
-				Share your feedback
+				<ArrowBigRight />
+				Share your feedback ❤️
 			</Button>
 		</div>
 	</div>

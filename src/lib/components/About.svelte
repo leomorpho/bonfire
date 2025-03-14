@@ -27,11 +27,19 @@
 	});
 </script>
 
+{#snippet about2()}
+	<div class="text-xl font-bold sm:text-3xl">Focus on your friends, we'll handle the rest</div>
+	<p>
+		Easily create, share, and manage events with Bonfire. Post updates, track RSVPs, and stay
+		connected—so you can focus on what truly matters: your friends.
+	</p>
+{/snippet}
+
 <Container>
 	<div id="about" class="">
 		<div class="mx-auto px-6 lg:px-8">
 			<div class="my-5 flex flex-col items-center sm:flex-row">
-				<div class="w-full space-y-7 sm:w-1/2">
+				<div class="w-full space-y-3 sm:w-1/2">
 					<div class="text-xl font-bold sm:text-3xl">Create & Share Unforgettable Events</div>
 					<p>
 						Bonfire goes beyond planning—it helps you capture & share memories. Guests can upload
@@ -40,7 +48,7 @@
 				</div>
 
 				<img
-					class="shape mx-15 my-10 aspect-square max-h-[300px] w-full rounded-full border-4 border-blue-300 object-cover dark:border-blue-200 sm:mx-10 sm:my-0 sm:w-1/2"
+					class="shape mx-15 my-4 aspect-square max-h-[300px] w-full rounded-full border-4 border-blue-300 object-cover dark:border-blue-200 sm:mx-10 sm:my-0 sm:w-1/2"
 					srcset="
     https://f002.backblazeb2.com/file/bonfire-public/website-public/paper-cups-sm.jpg 1000w, 
     https://f002.backblazeb2.com/file/bonfire-public/website-public/paper-cups-md.jpg 2000w,
@@ -49,9 +57,12 @@
 					alt="Paper cups"
 				/>
 			</div>
-			<div class="my-20 flex flex-col items-center sm:flex-row">
+			<div class="my-5 sm:my-15 flex flex-col items-center sm:flex-row">
+				<div class="block w-full space-y-3 sm:hidden">
+					{@render about2()}
+				</div>
 				<img
-					class="shape mx-15 darkborder-white my-10 aspect-square max-h-[300px] w-full rounded-full border-4 border-orange-500 object-cover dark:border-orange-200 sm:mx-10 sm:my-0 sm:w-1/2"
+					class="shape mx-15 darkborder-white my-4 aspect-square max-h-[300px] w-full rounded-full border-4 border-orange-500 object-cover dark:border-orange-200 sm:mx-10 sm:my-0 sm:w-1/2"
 					srcset="
     https://f002.backblazeb2.com/file/bonfire-public/website-public/party-unsplash-sm.jpg 1000w, 
     https://f002.backblazeb2.com/file/bonfire-public/website-public/party-unsplash-md.jpg 2000w,
@@ -59,14 +70,8 @@
 					src="https://f002.backblazeb2.com/file/bonfire-public/website-public/party-unsplash-lg.jpg"
 					alt="Marriage"
 				/>
-				<div class="w-full space-y-7 sm:w-1/2">
-					<div class="text-xl font-bold sm:text-3xl">
-						Focus on your friends, we'll handle the rest
-					</div>
-					<p>
-						Easily create, share, and manage events with Bonfire. Post updates, track RSVPs, and
-						stay connected—so you can focus on what truly matters: your friends.
-					</p>
+				<div class="hidden w-full space-y-7 sm:block sm:w-1/2">
+					{@render about2()}
 				</div>
 			</div>
 			<!-- <div class="my-20 flex flex-col sm:flex-row">
