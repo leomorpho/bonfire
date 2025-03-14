@@ -1,11 +1,36 @@
 <script>
+	import { onMount } from 'svelte';
 	import Container from './Container.svelte';
+
+	onMount(() => {
+		document.addEventListener('DOMContentLoaded', () => {
+			document.querySelectorAll('.shape').forEach((shape) => {
+				const randomDuration = (Math.random() * 8 + 12).toFixed(2); // 12s - 20s
+				const randomDelay = (Math.random() * 5).toFixed(2); // 0s - 5s
+
+				// Generate random border-radius values for each shape
+				const randomBorder = () => `${Math.floor(Math.random() * 50) + 30}%`;
+
+				// Apply random properties
+				shape.style.animationDuration = `${randomDuration}s`;
+				shape.style.animationDelay = `${randomDelay}s`;
+
+				// Random starting shape
+				shape.style.borderRadius = `${randomBorder()} ${randomBorder()} ${randomBorder()} ${randomBorder()} / ${randomBorder()} ${randomBorder()} ${randomBorder()} ${randomBorder()}`;
+
+				// Override the @keyframes to morph into another random shape
+				setTimeout(() => {
+					shape.style.borderRadius = `${randomBorder()} ${randomBorder()} ${randomBorder()} ${randomBorder()} / ${randomBorder()} ${randomBorder()} ${randomBorder()} ${randomBorder()}`;
+				}, 100); // Delay ensures the browser registers a transition
+			});
+		});
+	});
 </script>
 
 <Container>
 	<div id="about" class="">
 		<div class="mx-auto px-6 lg:px-8">
-			<div class="my-5 flex flex-col sm:flex-row items-center">
+			<div class="my-5 flex flex-col items-center sm:flex-row">
 				<div class="w-full space-y-7 sm:w-1/2">
 					<div class="text-xl font-bold sm:text-3xl">Create & Share Unforgettable Events</div>
 					<p>
@@ -15,7 +40,7 @@
 				</div>
 
 				<img
-					class="my-10 sm:my-0 mx-15 aspect-square w-full rounded-full object-cover sm:mx-10 sm:w-1/2 max-h-[300px]"
+					class="shape mx-15 my-10 aspect-square max-h-[300px] w-full rounded-full border-4 border-blue-300 object-cover dark:border-blue-200 sm:mx-10 sm:my-0 sm:w-1/2"
 					srcset="
     https://f002.backblazeb2.com/file/bonfire-public/website-public/paper-cups-sm.jpg 1000w, 
     https://f002.backblazeb2.com/file/bonfire-public/website-public/paper-cups-md.jpg 2000w,
@@ -24,9 +49,9 @@
 					alt="Paper cups"
 				/>
 			</div>
-			<div class="my-20 flex flex-col sm:flex-row items-center">
+			<div class="my-20 flex flex-col items-center sm:flex-row">
 				<img
-					class="my-10 sm:my-0 mx-15 aspect-square w-full rounded-full object-cover sm:mx-10 sm:w-1/2 max-h-[300px]"
+					class="shape mx-15 darkborder-white my-10 aspect-square max-h-[300px] w-full rounded-full border-4 border-orange-500 dark:border-orange-200 object-cover sm:mx-10 sm:my-0 sm:w-1/2"
 					srcset="
     https://f002.backblazeb2.com/file/bonfire-public/website-public/party-unsplash-sm.jpg 1000w, 
     https://f002.backblazeb2.com/file/bonfire-public/website-public/party-unsplash-md.jpg 2000w,
@@ -67,3 +92,53 @@
 		</div>
 	</div>
 </Container>
+
+<style>
+	:root {
+		--background: #005;
+		--primary: #88d5bf;
+		--secondary: #5d6bf8;
+		--third: #e27fcb;
+	}
+
+	* {
+		box-sizing: border-box;
+	}
+
+	.shape {
+		background: linear-gradient(75deg, var(--primary) 0%, var(--secondary) 100%);
+		animation: morph 14s ease-in-out infinite;
+		border-radius: 30% 50% 70% 70% / 30% 60% 90% 20%;
+		height: 400px;
+		transition: all 2s ease-in-out;
+		width: 400px;
+		z-index: 5;
+	}
+
+	/* Make nth-child elements have different durations and borders */
+	.shape:nth-child(odd) {
+		animation-duration: 16s;
+		border-radius: 50% 50% 40% 60% / 50% 60% 50% 40%;
+	}
+
+	.shape:nth-child(even) {
+		animation-duration: 18s;
+		border-radius: 40% 60% 50% 50% / 60% 40% 60% 40%;
+	}
+
+	/* Keyframes for morphing effect */
+	@keyframes morph {
+		0% {
+			border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+			background: linear-gradient(45deg, var(--primary) 0%, var(--secondary) 100%);
+		}
+		50% {
+			border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+			background: linear-gradient(45deg, var(--third) 0%, var(--secondary) 100%);
+		}
+		100% {
+			border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+			background: linear-gradient(45deg, var(--primary) 0%, var(--secondary) 100%);
+		}
+	}
+</style>

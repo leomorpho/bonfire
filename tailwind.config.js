@@ -78,7 +78,8 @@ const config = {
 			},
 			animation: {
 				orbit: 'orbit calc(var(--duration)*1s) linear infinite',
-				'border-beam': 'border-beam calc(var(--duration)*1s) infinite linear'
+				'border-beam': 'border-beam calc(var(--duration)*1s) infinite linear',
+				shimmer: 'shimmer 8s infinite'
 			},
 			keyframes: {
 				'aurora-border': {
@@ -118,6 +119,25 @@ const config = {
 				'border-beam': {
 					'100%': {
 						'offset-distance': '100%'
+					}
+				},
+				'shine-pulse': {
+					'0%': {
+						'background-position': '0% 0%'
+					},
+					'50%': {
+						'background-position': '100% 100%'
+					},
+					to: {
+						'background-position': '0% 0%'
+					}
+				},
+				shimmer: {
+					'0%, 90%, 100%': {
+						'background-position': 'calc(-100% - var(--shimmer-width)) 0'
+					},
+					'30%, 60%': {
+						'background-position': 'calc(100% + var(--shimmer-width)) 0'
 					}
 				}
 			}

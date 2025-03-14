@@ -1,8 +1,41 @@
 <script>
 	import Container from '../Container.svelte';
+	import AnimatedShinyText from '../effects/animated-shiny-text/AnimatedShinyText.svelte';
 	import Button from '../ui/button/button.svelte';
 	import OrbitingCirclesBanner from './OrbitingCirclesBanner.svelte';
 </script>
+
+{#snippet startBonfireBtn()}
+	<div class="flex items-center justify-center sm:justify-start">
+		<a href="/login">
+			<div
+				class="group relative inline-flex h-14 cursor-pointer items-center justify-center overflow-hidden rounded-full border border-black/5 bg-neutral-100 px-6 text-lg text-white transition-all ease-in hover:bg-neutral-200 dark:border-white/5 dark:bg-neutral-900 dark:hover:bg-neutral-800"
+			>✨ 
+				<AnimatedShinyText
+					cls="inline-flex items-center justify-center px-4 py-1 transition ease-out hover:text-neutral-600 hover:duration-300 hover:dark:text-neutral-400"
+				>
+					<span>Start a Bonfire</span>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						width="24"
+						height="24"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						class="ml-1 size-3 transition-transform duration-300 ease-in-out group-hover:translate-x-0.5"
+					>
+						<path d="M5 12h14" />
+						<path d="m12 5 7 7-7 7" />
+					</svg>
+				</AnimatedShinyText>
+			</div>
+		</a>
+		<div class="mx-3 italic">it's free!</div>
+	</div>
+{/snippet}
 
 <!-- The exact line breaks and widths of various sections should depend on the copy. Make sure the copy looks good on
 all screen sizes (not the case here) -->
@@ -18,14 +51,7 @@ all screen sizes (not the case here) -->
 			<p class="text-md mb-6 mt-2 text-center sm:mb-8 sm:mt-4 sm:text-left sm:text-lg">
 				Host and share memorable events with your friends.
 			</p>
-			<div class="flex items-center justify-center sm:justify-start">
-				<a href="/login">
-					<Button class="h-14 rounded-full bg-purple-500 text-lg text-white hover:bg-purple-400"
-						>Start a Bonfire</Button
-					>
-				</a>
-				<div class="mx-3 italic">it's free!</div>
-			</div>
+			{@render startBonfireBtn()}
 		</div>
 
 		<div class="w-full p-5 sm:p-10 md:w-1/2">
@@ -33,3 +59,4 @@ all screen sizes (not the case here) -->
 		</div>
 	</div>
 </Container>
+

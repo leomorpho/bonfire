@@ -2,6 +2,7 @@
 	import { Bird, Check, Flame, Ship, X } from 'lucide-svelte';
 	import Container from '../Container.svelte';
 	import Button from '../ui/button/button.svelte';
+	import BorderBeam from '../effects/border-beam/border-beam.svelte';
 
 	const featuresFree = {
 		included: [
@@ -27,8 +28,10 @@
 	<div id="pricing" class="py-10 sm:py-20">
 		<div class="mx-auto flex w-fit flex-wrap justify-center gap-10 md:gap-16">
 			<!-- Basic package -->
-			<div class="card w-80 p-8 shadow-xl bg-slate-100 dark:bg-slate-800">
-				<h3 class="mb-2 text-xl font-extrabold text-base-content">Use for Free</h3>
+			<div class="card w-80 bg-blue-100 p-8 shadow-xl dark:bg-blue-900 rounded-3xl">
+				<BorderBeam size={250} duration={7} borderWidth={2} cls="rounded-3xl" />
+
+				<h3 class="mb-2 text-xl font-extrabold text-slate-800 dark:text-slate-200">Use for Free</h3>
 				<div class="text-5xl font-extrabold leading-snug">
 					$0 <span class="text-base font-bold">usd</span>
 					<span class="text-3xl font-medium">/ Bonfire</span>
@@ -37,7 +40,7 @@
 					{#each featuresFree.included as feature}
 						<li class="flex items-center space-x-2">
 							<Check strokeWidth={2} class="h-4 w-4 flex-shrink-0 text-primary sm:h-5 sm:w-5" />
-							<div class="text-base-content">{feature}</div>
+							<div class="text-slate-900 dark:text-slate-100">{feature}</div>
 						</li>
 					{/each}
 					<!-- {#each featuresFree.excluded as feature}
@@ -47,20 +50,22 @@
 						</li>
 					{/each} -->
 				</ul>
-				<a class="mt-auto" href="/"
-					><Button variant="secondary" class="w-full bg-white dark:bg-slate-500"><Bird /> Get Started</Button></a
-				>
+				<a class="mt-auto" href="/login"
+					><Button variant="secondary" class="w-full bg-slate-500 text-white dark:bg-slate-500"
+						><Bird /> Get Started
+					</Button>
+				</a>
 			</div>
 
 			<!-- Premium package -->
-			<div class="card relative w-80 p-8 shadow-xl bg-slate-100 dark:bg-slate-800">
+			<div class="card relative w-80 bg-purple-100 p-8 shadow-xl dark:bg-purple-900 rounded-3xl">
 				<!-- <div
 					class="absolute right-5 top-5 rounded-full bg-red-500/50 px-2.5 py-1 text-xs font-semibold leading-5 text-primary"
 				>
 					Most popular
 				</div> -->
 
-				<h3 class="mb-2 text-xl font-extrabold text-base-content">By Donation</h3>
+				<h3 class="mb-2 text-xl font-extrabold text-slate-800 dark:text-slate-200">By Donation</h3>
 				<div class="text-5xl font-extrabold leading-snug">
 					$1 <span class="text-base font-bold">usd</span>
 					<span class="text-3xl font-medium">/ Bonfire</span>
@@ -69,13 +74,15 @@
 					{#each featuresPremium.included as feature}
 						<li class="flex items-center space-x-2">
 							<Check strokeWidth={2} class="h-4 w-4 flex-shrink-0 text-primary sm:h-5 sm:w-5" />
-							<div class="text-base-content">{feature}</div>
+							<div class="text-slate-900 dark:text-slate-100">{feature}</div>
 						</li>
 					{/each}
 				</ul>
-				<a class="mt-auto" href="/">
-					<Button class="w-full bg-purple-500"><Flame /> Get Started</Button></a
-				>
+				<a class="mt-auto" href="/login">
+					<Button class="w-full bg-purple-500 text-white">
+						<Flame /> Get Started
+					</Button>
+				</a>
 			</div>
 		</div>
 	</div>
