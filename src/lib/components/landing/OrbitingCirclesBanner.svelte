@@ -23,12 +23,12 @@
 	/>
 
 	<!--  Inner Circles  -->
-	<OrbitingCircles class="h-[30px] w-[30px] border-none bg-transparent text-4xl" duration={20} radius={80}>
+	<OrbitingCircles cls="h-[30px] w-[30px] sm:h-[50px] sm:w-[50px] border-none bg-transparent text-4xl" duration={20} radius={80}>
 		<!-- Open AI -->
 		🎈
 	</OrbitingCircles>
 	<OrbitingCircles
-		class="h-[30px] w-[30px] border-none bg-transparent text-5xl"
+		cls="h-[30px] w-[30px] sm:h-[50px] sm:w-[50px] border-none bg-transparent text-5xl"
 		duration={20}
 		radius={80}
 		delay={-10}
@@ -38,7 +38,7 @@
 
 	<!-- Outer Circles (reverse)  -->
 	<OrbitingCircles
-		class="h-[45px] w-[45px] border-none bg-transparent text-6xl"
+		cls="h-[45px] w-[45px] sm:h-[60px] sm:w-[60px] border-none bg-transparent text-6xl"
 		radius={160}
 		duration={20}
 		reverse
@@ -47,7 +47,7 @@
 		🎉
 	</OrbitingCircles>
 	<OrbitingCircles
-		class="h-[75px] w-[75px] border-none bg-transparent"
+		cls="h-[75px] w-[75px] sm:h-[90px] sm:w-[90px] border-none bg-transparent"
 		radius={160}
 		duration={20}
 		delay={-10}

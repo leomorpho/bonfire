@@ -1,12 +1,8 @@
 <script lang="ts">
 	import { cn } from '$lib/utils';
-	let className: any = '';
-	export { className as class };
-	export let reverse: boolean = false;
-	export let duration: number = 20;
-	export let delay: number = 0;
-	export let radius: number = 50;
-	export let path: boolean = true;
+
+	let { children, cls, reverse = false, duration = 20, delay = 0, radius = 10, path = true } = $props();
+
 </script>
 
 {#if path}
@@ -16,7 +12,7 @@
 		class="pointer-events-none absolute inset-0 h-full w-full"
 	>
 		<circle
-			class="troke-1 stroke-white/30"
+			class="stroke-1 stroke-white/30"
 			cx="50%"
 			cy="50%"
 			r={radius}
@@ -29,11 +25,11 @@
 		style:--duration={duration}
 		style:--radius={radius}
 		class={cn(
-			'animate-orbit absolute flex h-full w-full transform-gpu items-center justify-center rounded-full border bg-black/20 [animation-delay:calc(var(--delay)*1000ms)] dark:bg-white/20',
+			'absolute flex h-full w-full transform-gpu animate-orbit items-center justify-center rounded-full border bg-black [animation-delay:calc(var(--delay)*1000ms)] dark:bg-white/30',
 			{ '[animation-direction:reverse]': reverse },
-			className
+			cls
 		)}
 	>
-		<slot></slot>
+		{@render children?.()}
 	</div>
 {/if}
