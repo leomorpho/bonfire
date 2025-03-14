@@ -77,7 +77,8 @@ const config = {
 				sans: [...fontFamily.sans]
 			},
 			animation: {
-				orbit: 'orbit calc(var(--duration)*1s) linear infinite'
+				orbit: 'orbit calc(var(--duration)*1s) linear infinite',
+				'border-beam': 'border-beam calc(var(--duration)*1s) infinite linear'
 			},
 			keyframes: {
 				'aurora-border': {
@@ -112,6 +113,11 @@ const config = {
 					},
 					'100%': {
 						transform: 'rotate(360deg) translateY(calc(var(--radius) * 1px)) rotate(-360deg)'
+					}
+				},
+				'border-beam': {
+					'100%': {
+						'offset-distance': '100%'
 					}
 				}
 			}

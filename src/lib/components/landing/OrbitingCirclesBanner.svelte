@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { cn } from '$lib/utils';
+	import BorderBeam from '../effects/border-beam/border-beam.svelte';
 	import OrbitingCircles from './orbiting-circles/OrbitingCircles.svelte';
 	let className: any = '';
 	export { className as class };
@@ -12,6 +13,8 @@
 		className
 	)}
 >
+<BorderBeam size={150} duration={12} cls="rounded-3xl border-2"/>
+
 	<img
 		class="aspect-square w-full rounded-3xl object-cover"
 		srcset="

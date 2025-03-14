@@ -7,7 +7,7 @@
 <!-- The exact line breaks and widths of various sections should depend on the copy. Make sure the copy looks good on
 all screen sizes (not the case here) -->
 <Container>
-	<div class="flex w-full flex-col items-center justify-center py-8 sm:py-20 md:flex-row">
+	<div class="relative flex w-full flex-col items-center justify-center py-8 sm:py-20 md:flex-row">
 		<div>
 			<div
 				class="pointer-events-none z-10 whitespace-pre-wrap bg-gradient-to-b from-[#ffd319] via-[#ff2975] to-[#8c1eff] bg-clip-text p-1 text-center text-5xl font-bold leading-none tracking-tighter text-transparent sm:mt-8 sm:text-left sm:text-7xl"
@@ -27,10 +27,7 @@ all screen sizes (not the case here) -->
 				<div class="mx-3 italic">it's free!</div>
 			</div>
 		</div>
-		<!-- <div class=" mt-8 flex-1 rounded-xl bg-gray-100 p-10 text-center text-xl md:ml-5">
-			Put a quick demo video of the product, a carousel of images, some testimonials or relevant
-			logos.
-		</div> -->
+
 		<div class="w-full p-5 sm:p-10 md:w-1/2">
 			<OrbitingCirclesBanner />
 		</div>
