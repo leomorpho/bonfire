@@ -51,7 +51,7 @@
 			</div>
 			<div class="my-20 flex flex-col items-center sm:flex-row">
 				<img
-					class="shape mx-15 darkborder-white my-10 aspect-square max-h-[300px] w-full rounded-full border-4 border-orange-500 dark:border-orange-200 object-cover sm:mx-10 sm:my-0 sm:w-1/2"
+					class="shape mx-15 darkborder-white my-10 aspect-square max-h-[300px] w-full rounded-full border-4 border-orange-500 object-cover dark:border-orange-200 sm:mx-10 sm:my-0 sm:w-1/2"
 					srcset="
     https://f002.backblazeb2.com/file/bonfire-public/website-public/party-unsplash-sm.jpg 1000w, 
     https://f002.backblazeb2.com/file/bonfire-public/website-public/party-unsplash-md.jpg 2000w,
@@ -94,17 +94,6 @@
 </Container>
 
 <style>
-	:root {
-		--background: #005;
-		--primary: #88d5bf;
-		--secondary: #5d6bf8;
-		--third: #e27fcb;
-	}
-
-	* {
-		box-sizing: border-box;
-	}
-
 	.shape {
 		background: linear-gradient(75deg, var(--primary) 0%, var(--secondary) 100%);
 		animation: morph 14s ease-in-out infinite;
