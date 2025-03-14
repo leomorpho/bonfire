@@ -25,7 +25,7 @@
 		style:--duration={duration}
 		style:--radius={radius}
 		class={cn(
-			'absolute flex h-full w-full transform-gpu animate-orbit items-center justify-center rounded-full border bg-black [animation-delay:calc(var(--delay)*1000ms)] dark:bg-white/30',
+			'absolute flex h-full w-full transform-gpu animate-orbit items-center justify-center rounded-full border !bg-black/30 [animation-delay:calc(var(--delay)*1000ms)] dark:bg-white/30',
 			{ '[animation-direction:reverse]': reverse },
 			cls
 		)}
