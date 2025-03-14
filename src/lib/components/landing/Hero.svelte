@@ -9,8 +9,9 @@
 	<div class="flex items-center justify-center sm:justify-start">
 		<a href="/login">
 			<div
-				class="group relative inline-flex h-14 cursor-pointer items-center justify-center overflow-hidden rounded-full border border-black/5 bg-neutral-100 px-6 text-lg text-white transition-all ease-in hover:bg-neutral-200 dark:border-white/5 dark:bg-neutral-900 dark:hover:bg-neutral-800"
-			>✨ 
+				class="group relative inline-flex h-14 cursor-pointer items-center justify-center overflow-hidden rounded-full border-2 border-black/5 bg-neutral-100 px-6 text-lg text-white transition-all ease-in hover:bg-neutral-200 dark:border-white/20 dark:bg-neutral-900 dark:hover:bg-neutral-800"
+			>
+				✨
 				<AnimatedShinyText
 					cls="inline-flex items-center justify-center px-4 py-1 transition ease-out hover:text-neutral-600 hover:duration-300 hover:dark:text-neutral-400"
 				>
@@ -54,9 +55,8 @@ all screen sizes (not the case here) -->
 			{@render startBonfireBtn()}
 		</div>
 
-		<div class="w-full p-5 sm:p-10 md:w-1/2">
+		<div class="w-full min-w-[450px] p-5 sm:w-2/3 sm:p-10 md:w-1/2">
 			<OrbitingCirclesBanner />
 		</div>
 	</div>
 </Container>
-

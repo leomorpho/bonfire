@@ -10,7 +10,7 @@
 <div
 	class={cn('relative flex w-full items-center justify-center rounded-3xl md:shadow-xl', className)}
 >
-	<BorderBeam size={150} duration={12} borderWidth={2} cls="rounded-3xl" />
+	<!-- <BorderBeam size={150} duration={12} borderWidth={2} cls="rounded-3xl" /> -->
 
 	<img
 		class="aspect-square w-full rounded-3xl object-cover"
@@ -25,7 +25,7 @@
 	<!--  Inner Circles  -->
 	<OrbitingCircles
 		cls="h-[30px] w-[30px] sm:h-[50px] sm:w-[50px] border-none bg-transparent text-4xl"
-		duration={20}
+		duration={40}
 		radius={80}
 	>
 		<!-- Open AI -->
@@ -33,7 +33,7 @@
 	</OrbitingCircles>
 	<OrbitingCircles
 		cls="h-[30px] w-[30px] sm:h-[50px] sm:w-[50px] border-none bg-transparent text-5xl"
-		duration={20}
+		duration={40}
 		radius={80}
 		delay={-10}
 	>
@@ -44,16 +44,16 @@
 	<OrbitingCircles
 		cls="h-[45px] w-[45px] sm:h-[60px] sm:w-[60px] border-none bg-transparent text-6xl"
 		radius={160}
-		duration={20}
+		duration={30}
 		reverse
 	>
 		<!-- Svelte -->
 		🎉
 	</OrbitingCircles>
 	<OrbitingCircles
-		cls="h-[75px] w-[75px] sm:h-[90px] sm:w-[90px] border-none bg-transparent"
+		cls="h-[75px] w-[75px] sm:h-[80px] sm:w-[80px] border-none bg-transparent"
 		radius={160}
-		duration={20}
+		duration={30}
 		delay={-10}
 		reverse
 	>

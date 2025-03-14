@@ -29,7 +29,7 @@
 		<div class="mx-auto flex w-fit flex-wrap justify-center gap-10 md:gap-16">
 			<!-- Basic package -->
 			<div class="card w-80 bg-blue-100 p-8 shadow-xl dark:bg-blue-900 rounded-3xl">
-				<BorderBeam size={250} duration={7} borderWidth={2} cls="rounded-3xl" />
+				<BorderBeam size={250} duration={30} borderWidth={2} cls="rounded-3xl" />
 
 				<h3 class="mb-2 text-xl font-extrabold text-slate-800 dark:text-slate-200">Use for Free</h3>
 				<div class="text-5xl font-extrabold leading-snug">
