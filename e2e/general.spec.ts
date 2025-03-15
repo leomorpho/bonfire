@@ -2,7 +2,6 @@ import { test, expect } from '@playwright/test';
 import {
 	addAnnouncementAsEventCreator,
 	createBonfire,
-	hidePwaInstallDialog,
 	loginUser,
 	navigateTo,
 	uploadGalleryImage,
