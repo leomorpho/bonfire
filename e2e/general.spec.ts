@@ -649,9 +649,7 @@ test('Event admins', async ({ browser }) => {
 	await adminPage.getByPlaceholder('Details').click();
 	await adminPage.getByPlaceholder('Details').fill(newDetails);
 	// Hit update
-	await expect(adminPage.getByRole('button', { name: 'Publish' })).toBeEnabled();
-	await adminPage.waitForTimeout(100);
-	await adminPage.getByRole('button', { name: 'Publish' }).click({ timeout: 5000 });
+	await adminPage.locator('#upsert-bonfire').click();
 
 	// Check data
 	await expect(adminPage.getByRole('heading', { name: newEventName })).toBeVisible();

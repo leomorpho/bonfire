@@ -97,7 +97,7 @@ const createNewWorkerTriplitClient = (jwt: string) => {
 	return new WorkerClient({
 		workerUrl: dev ? workerUrl : undefined,
 		storage: {
-			type: dev ? 'memory' : 'indexeddb',
+			type: 'memory', //dev ? 'memory' : 'indexeddb',
 			name: LOCAL_INDEXEDDB_NAME
 		},
 		schema,
@@ -132,14 +132,9 @@ const createNewWorkerTriplitClient = (jwt: string) => {
 					feWorkerTriplitClient?.clear();
 				}
 			}
-			// NOTE: below causes infinite
+			// // NOTE: below causes infinite
 			// if (type === 'SCHEMA_MISMATCH') {
-			// 	// await feWorkerTriplitClient?.endSession();
-			// 	await feWorkerTriplitClient?.clear({ full: true });
-			// 	const newJwt = await getFreshToken();
-			// 	await feWorkerTriplitClient?.startSession(newJwt, true, {
-			// 		refreshHandler: async () => await getFreshToken()
-			// 	});
+			// 	console.error('schema mismatch error:', type);
 			// }
 		},
 		refreshOptions: {

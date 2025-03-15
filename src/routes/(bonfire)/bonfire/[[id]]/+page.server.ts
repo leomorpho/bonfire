@@ -96,8 +96,10 @@ export const load = async ({ params, locals, url }) => {
 			if (!user) {
 				redirect(303, '/bonfire/not-yet-published');
 			}
-			const adminUserIds = event.event_admins.map((admin: { user_id: string }) => admin.user_id);
-			const currUserIsAdmin = user.id == event.user_id || adminUserIds.has(user.id);
+			const adminUserIds = new Set(
+				event.event_admins.map((admin: { user_id: string }) => admin.user_id)
+			);
+			const currUserIsAdmin = user.id === event.user_id || adminUserIds.has(user.id);
 			if (!currUserIsAdmin) {
 				redirect(303, '/bonfire/not-yet-published');
 			}
