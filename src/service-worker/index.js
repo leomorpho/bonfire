@@ -11,13 +11,19 @@ const ASSETS = [
 	...files // everything in `static`
 ];
 
+const PREFETCH_IMAGES = [
+	'https://f002.backblazeb2.com/file/bonfire-public/logo/logo_Bonfire_logo_vert_color_250.png', // Logo
+	'https://f002.backblazeb2.com/file/bonfire-public/logo/logo_Bonfire_logo_vert_color_150px.png' // Logo
+];
+
 self.addEventListener('install', (event) => {
 	console.log('[SW] Installing new version:', version);
 	self.skipWaiting(); // Forces the new service worker to take control immediately
 
 	async function addFilesToCache() {
 		const cache = await caches.open(CACHE);
-		await cache.addAll(ASSETS);
+		await cache.addAll([...ASSETS, ...PREFETCH_IMAGES]); // Cache app assets + prefetch images
+		console.log('[SW] Prefetched images cached:', PREFETCH_IMAGES);
 	}
 
 	event.waitUntil(addFilesToCache());

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount, tick } from 'svelte';
+	import { tick } from 'svelte';
 	import Google from '$lib/components/icons/Google.svelte';
 	import { superForm } from 'sveltekit-superforms';
 	import { ClipboardPaste, Mail } from 'lucide-svelte';
@@ -9,8 +9,6 @@
 	import { OTPInput, OTPRoot } from '@jimmyverburgt/svelte-input-otp';
 	import Minus from 'lucide-svelte/icons/minus';
 	import LoaderPage from '$lib/components/LoaderPage.svelte';
-	import type { TriplitClient } from '@triplit/client';
-	// import { clearCache, getFeWorkerTriplitClient } from '$lib/triplit.js';
 	import Button from '$lib/components/ui/button/button.svelte';
 
 	const { data } = $props();
@@ -23,16 +21,6 @@
 
 	// Set start oneTimePasswordValue
 	let oneTimePasswordValue = $state('');
-
-	let client: TriplitClient;
-
-	// onMount(() => {
-	// 	client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
-
-	// 	clearCache(client).catch((error) => {
-	// 		console.error('Failed to reset triplit local db on logout:', error);
-	// 	});
-	// });
 
 	// Handle the paste event to capture pasted digits
 	function handlePaste(event: ClipboardEvent) {
@@ -240,7 +228,11 @@
 				{/if}
 				<!-- OTP Verification Form -->
 				<div>
-					<button class="text-md btn mt-5 w-full font-semibold sm:text-lg dark:bg-slate-800 dark:text-white"> Submit </button>
+					<button
+						class="text-md btn mt-5 w-full font-semibold dark:bg-slate-800 dark:text-white sm:text-lg"
+					>
+						Submit
+					</button>
 				</div>
 			</div>
 		{:else}
