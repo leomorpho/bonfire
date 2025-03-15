@@ -1,19 +1,17 @@
 <script lang="ts">
-	import { cn } from '$lib/utils';
-	import BorderBeam from '../effects/border-beam/border-beam.svelte';
 	import OrbitingCircles from './orbiting-circles/OrbitingCircles.svelte';
-	let className: any = '';
-	export { className as class };
 	import { Image } from '@unpic/svelte';
+
+	let { rounded = true } = $props();
 </script>
 
 <div
-	class={cn('relative flex w-full items-center justify-center rounded-3xl md:shadow-xl', className)}
+	class={`relative flex w-full items-center justify-center md:shadow-xl ${rounded ? 'rounded-3xl' : ''}`}
 >
 	<!-- <BorderBeam size={150} duration={12} borderWidth={2} cls="rounded-3xl" /> -->
 
 	<img
-		class="aspect-square w-full rounded-3xl object-cover"
+		class={`aspect-square w-full object-cover ${rounded ? 'rounded-3xl' : ''}`}
 		srcset="
     https://f002.backblazeb2.com/file/bonfire-public/website-public/underwater-sm.jpg 1000w, 
     https://f002.backblazeb2.com/file/bonfire-public/website-public/underwater-md.jpg 2000w,

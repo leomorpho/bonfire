@@ -55,8 +55,11 @@ all screen sizes (not the case here) -->
 			{@render startBonfireBtn()}
 		</div>
 
-		<div class="w-full min-w-[450px] p-5 sm:w-2/3 sm:p-10 md:w-1/2">
+		<div class="hidden w-full min-w-[450px] p-5 sm:block sm:w-2/3 sm:p-10 md:w-1/2">
 			<OrbitingCirclesBanner />
 		</div>
 	</div>
 </Container>
+<div class="block overflow-x-clip sm:hidden sm:py-10">
+	<OrbitingCirclesBanner rounded={false} />
+</div>
