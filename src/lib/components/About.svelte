@@ -96,7 +96,7 @@
 <style>
 	.shape-1 {
 		background: linear-gradient(75deg, var(--primary) 0%, var(--secondary) 100%);
-		animation: morph-1 9s ease-in-out infinite;
+		animation: morph-1 18s ease-in-out infinite;
 		border-radius: 30% 50% 70% 70% / 40% 60% 90% 40%;
 		height: 400px;
 		transition: all 2s ease-in-out;
@@ -106,7 +106,7 @@
 
 	.shape-2 {
 		background: linear-gradient(75deg, var(--primary) 0%, var(--secondary) 100%);
-		animation: morph-2 10s ease-in-out infinite;
+		animation: morph-2 18s ease-in-out infinite;
 		border-radius: 40% 60% 50% 50% / 60% 40% 60% 40%;
 		height: 400px;
 		transition: all 2s ease-in-out;
