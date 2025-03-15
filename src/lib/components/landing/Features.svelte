@@ -20,98 +20,87 @@
 	<div class="py-5 md:py-7"></div>
 	<h2 class="mb-10 text-center text-2xl font-bold md:text-4xl">App Features</h2>
 	<div class="flex w-full justify-center">
-		<div class="grid max-w-[80vw] grid-cols-1 gap-8 sm:grid-cols-2 xl:grid-cols-4">
+		<div
+			class="grid max-w-[80vw] grid-cols-1 justify-center gap-8 justify-self-center sm:grid-cols-2 xl:grid-cols-4"
+		>
 			<Feature>
 				<Title>
 					<div class="mr-3 text-2xl sm:text-3xl">🙌</div>
-					Create Event and Invite in Seconds</Title
-				>
+					Quick Event Setup & Invites
+				</Title>
 				<p class="text-center text-base">
-					Set up an event instantly. Choose a fun theme and upload your own theme image. Each
-					Bonfire has a unique shareable link. Keep it private or spread it far.
+					Create an event in seconds, pick a theme, upload an image, and share a unique link—private
+					or public.
 				</p>
 			</Feature>
 
 			<Feature>
 				<Title>
 					<div class="mr-3 text-2xl sm:text-3xl">🤸</div>
-					Track & Notify Attendees</Title
-				>
+					Track Attendees & Assign Admins
+				</Title>
 				<p class="text-center text-base">
-					See who's coming, send updates, and let guests upload event photos.
+					See RSVPs, send updates, assign admins, and manage guests easily.
 				</p>
 			</Feature>
 
 			<Feature>
 				<Title>
 					<div class="mr-3 text-2xl sm:text-3xl">🥑</div>
-					Bring List</Title
-				>
+					Collaborative Bring List
+				</Title>
 				<p class="text-center text-base">
-					Guests can claim items to bring, ensuring nothing is forgotten.
+					Guests can claim items to bring so nothing gets forgotten.
 				</p>
 			</Feature>
 
 			<Feature>
 				<Title>
 					<div class="mr-3 text-2xl sm:text-3xl">📷</div>
-					Log Memories</Title
-				>
+					Log & Share Memories
+				</Title>
 				<p class="text-center text-base">
-					Share all event photos and videos in one place where friends can download them.
+					Upload event photos/videos in one place for easy sharing and downloads.
 				</p>
 			</Feature>
 
 			<Feature>
 				<Title>
 					<div class="mr-3 text-2xl sm:text-3xl">🔔</div>
-					Auto-reminders</Title
-				>
-				<p class="text-center text-base">Automatic reminders keep attendees in the loop.</p>
-			</Feature>
-			<Feature>
-				<Title>
-					<div class="mr-3 text-2xl sm:text-3xl">🙊</div>
-					Ephemeral and Secret</Title
-				>
+					Reminders & Push Notifications
+				</Title>
 				<p class="text-center text-base">
-					Bonfires auto-delete 14 days after the event's completion, but you'll get a heads-up. Only
-					those with the link can access.
+					Stay updated with automatic reminders and personalized notifications.
 				</p>
 			</Feature>
 
 			<Feature>
 				<Title>
 					<div class="mr-3 text-2xl sm:text-3xl">💬</div>
-					Real-time Messaging</Title
-				>
-				<p class="text-center text-base">Chat live to plan, update, and share moments.</p>
+					Real-time Messaging
+				</Title>
+				<p class="text-center text-base">
+					Chat with attendees to plan, update, and share moments instantly.
+				</p>
 			</Feature>
 
 			<Feature>
 				<Title>
 					<div class="mr-3 text-2xl sm:text-3xl">🔒</div>
-					Assign Event Admins</Title
-				>
-				<p class="text-center text-base">Create an event for a friend, or have friends help manage your event.</p>
+					Ephemeral & Private Events
+				</Title>
+				<p class="text-center text-base">
+					Only invited guests can access. Events auto-delete 14 days after completion.
+				</p>
 			</Feature>
 
 			<Feature>
 				<Title>
 					<div class="mr-3 text-2xl sm:text-3xl">❤️</div>
-					Set Event Max Capcity</Title
-				>
-				<p class="text-center text-base">Make sure you don't overbook yourself while letting attendees bring guests.</p>
-			</Feature>
-
-			<Feature>
-				<Title>
-					<div class="mr-3 text-2xl sm:text-3xl">💨</div>
-					Push Notifications</Title
-				>
+					Event Capacity & Guest Limits
+				</Title>
 				<p class="text-center text-base">
-					Install our PWA app for instant and personalized notifications. Change your privacy
-					settings anytime. We'll never spam you. You control what you get.
+					Set a max attendee limit and allow guests to bring plus-ones.
 				</p>
 			</Feature>
 		</div>
