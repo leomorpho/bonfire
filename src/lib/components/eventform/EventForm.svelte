@@ -328,7 +328,7 @@
 		}
 	};
 
-	const updateEvent = async (createTransaction = false) => {
+	const updateEvent = async (createTransaction = false, isPublished = false) => {
 		try {
 			const feHttpClient = getFeHttpTriplitClient($page.data.jwt);
 			await feHttpClient.update('events', event.id, async (entity) => {
@@ -344,7 +344,7 @@
 				entity.max_capacity = maxCapacity;
 				entity.latitude = latitude;
 				entity.longitude = longitude;
-				entity.is_published = true;
+				entity.is_published = isPublished;
 			});
 			console.log('UPDATING', latitude, longitude);
 
@@ -383,7 +383,7 @@
 		goto(`/bonfire/${eventId}`);
 	};
 
-	const handleSubmit = async (e: Event) => {
+	const handleSubmit = async (e: Event, isPublished = false) => {
 		try {
 			errorMessage = '';
 			showError = false;
@@ -409,7 +409,7 @@
 					redirectToDashboard();
 				});
 			} else {
-				await updateEvent(true).then(() => {
+				await updateEvent(true, isPublished).then(() => {
 					redirectToDashboard();
 				});
 			}
@@ -696,7 +696,9 @@
 					disabled={submitDisabled}
 					type="submit"
 					class={`sticky top-2 mt-2 w-full ${submitDisabled ? 'bg-slate-400 dark:bg-slate-600' : 'bg-green-500 hover:bg-green-400 dark:bg-green-700 dark:hover:bg-green-600'} ring-glow dark:text-white`}
-					onclick={handleSubmit}
+					onclick={(e) => {
+						handleSubmit(e, true);
+					}}
 				>
 					{#if isEventSaving}
 						<span class="loading loading-spinner loading-xs ml-2"> </span>

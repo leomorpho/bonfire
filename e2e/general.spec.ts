@@ -206,7 +206,7 @@ test('Create bonfire', async ({ page }) => {
 	await expect(page.getByText('Overlay', { exact: true })).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Clear' })).toBeVisible();
 	await page.getByRole('button', { name: 'chevron left Back' }).click();
-	await page.getByRole('button', { name: 'Publish' }).click();
+	await page.locator('#upsert-bonfire').click();
 
 	// Verify address as it used to be mangled (possible bug again) when coming back from edit page
 	await page.locator('#share-location').click();
