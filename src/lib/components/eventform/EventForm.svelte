@@ -1,5 +1,5 @@
 <script lang="ts">
-	import EventStyler from './EventStyler.svelte';
+	import EventStyler from '../EventStyler.svelte';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { CalendarDate, type DateValue } from '@internationalized/date';
 	import { Button } from '$lib/components/ui/button/index.js';
@@ -39,17 +39,18 @@
 		randomSort
 	} from '$lib/styles';
 	import { generatePassphraseId } from '$lib/utils';
-	import TextAreaAutoGrow from './TextAreaAutoGrow.svelte';
+	import TextAreaAutoGrow from '../TextAreaAutoGrow.svelte';
 	import ChevronLeft from 'svelte-radix/ChevronLeft.svelte';
-	import LocationInput from './input/location/LocationInput.svelte';
-	import EventAdminEditor from './EventAdminEditor.svelte';
+	import LocationInput from '../input/location/LocationInput.svelte';
+	import EventAdminEditor from '../EventAdminEditor.svelte';
 	import { debounce } from 'lodash-es';
-	import MaxCapacity from './eventform/MaxCapacity.svelte';
-	import BackButton from './BackButton.svelte';
-	import OutOfLogs from './payments/OutOfLogs.svelte';
+	import MaxCapacity from './MaxCapacity.svelte';
+	import BackButton from '../BackButton.svelte';
+	import OutOfLogs from '../payments/OutOfLogs.svelte';
 	import { toast } from 'svelte-sonner';
-	import LoadingSpinner from './LoadingSpinner.svelte';
-	import { env as publicEnv } from '$env/dynamic/public';
+	import LoadingSpinner from '../LoadingSpinner.svelte';
+	import UnpublishEventBtn from './buttons/UnpublishEventBtn.svelte';
+	import DeleteEventBtn from './buttons/DeleteEventBtn.svelte';
 
 	let { mode, event = null, currUserId = null } = $props();
 
@@ -316,7 +317,7 @@
 				});
 			}
 			// Add user as attendee
-			await upsertUserAttendance(eventId, Status.GOING);
+			await upsertUserAttendance(eventId, Status.GOING, 0);
 			isEventCreated = true;
 			console.log('✅ Event created successfully');
 		} catch (error) {
@@ -343,6 +344,7 @@
 				entity.max_capacity = maxCapacity;
 				entity.latitude = latitude;
 				entity.longitude = longitude;
+				entity.is_published = true;
 			});
 			console.log('UPDATING', latitude, longitude);
 
@@ -427,23 +429,6 @@
 				duration: 10000
 			}
 		);
-	};
-
-	const deleteEvent = async (e: Event) => {
-		try {
-			const userId: string = (await waitForUserId()) as string;
-			client
-				.delete('events', event.id)
-				.then(() => {
-					console.log('Event deleted:', event.id);
-					goto('/dashboard');
-				})
-				.catch((error: any) => {
-					console.error('Error deleting event:', error);
-				});
-		} catch (error) {
-			console.error('Error deleting event:', error);
-		}
 	};
 
 	const startEditEventStyle = () => {
@@ -719,39 +704,16 @@
 					<BookCheck class="ml-1 mr-1 h-4 w-4" /> Publish
 				</Button>
 			{/if}
+			{#if isEventPublished}
+				<UnpublishEventBtn {submitDisabled} eventId={event.id} />
+			{/if}
 			{#if mode == EventFormType.UPDATE && event && currUserId == event.user_id}
-				<Dialog.Root>
-					<Dialog.Trigger class="w-full" disabled={submitDisabled || currUserId != event.user_id}
-						><Button
-							disabled={submitDisabled || currUserId != event.user_id}
-							class="mt-2 w-full bg-red-500 ring-glow hover:bg-red-400 dark:bg-red-700 dark:text-white dark:hover:bg-red-600"
-						>
-							<Trash2 class="ml-1 mr-1 h-4 w-4" /> Delete
-						</Button></Dialog.Trigger
-					>
-					<Dialog.Content>
-						<Dialog.Header>
-							<Dialog.Title>Are you sure absolutely sure?</Dialog.Title>
-							<Dialog.Description>
-								Once deleted, this bonfire is gone forever 🔥. This action <span class="font-bold"
-									>cannot</span
-								>
-								be undone, and you <span class="font-bold">won’t get back</span> the log token used
-								to create it. If you just need changes, consider
-								<span class="font-bold">editting</span> instead.
-							</Dialog.Description>
-						</Dialog.Header>
-						<Dialog.Footer
-							><Button
-								disabled={submitDisabled}
-								class="mt-2 w-full bg-red-500 hover:bg-red-400"
-								onclick={deleteEvent}
-							>
-								<Trash2 class="ml-1 mr-1 h-4 w-4" /> Crush it
-							</Button></Dialog.Footer
-						>
-					</Dialog.Content>
-				</Dialog.Root>
+				<DeleteEventBtn
+					{submitDisabled}
+					{currUserId}
+					eventCreatorUserId={event.user_id}
+					eventId={event.id}
+				/>
 			{/if}
 		</div>
 	{:else if currentEventEditingMode == editingStyles}
