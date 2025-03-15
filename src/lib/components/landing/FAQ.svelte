@@ -28,10 +28,10 @@
 		// 	question: 'Can\’t I just create more accounts for more free Bonfires?',
 		// 	answer: 'Yes! We believe that everyone deserves to enjoy the Bonfire experience, and if that means creating multiple accounts to get more free Bonfires, then we\'re all for it. Although when you do choose to pay for additional Logs, you help us keep the app running smoothly and support the causes that matter to you.'
 		// },
-		// {
-		// 	question: 'If I make a purchase, where does my money go?',
-		// 	answer: 'If you choose to purchase additional Logs, 50% of proceeds go to a non-profit cause of your choice within the app. Remaining funds go to support the Bonfire app and helping us keep it running smoothly. As a small team, we appreciate your support and are committed to providing you with the best possible experience on our platform.'
-		// },
+		{
+			question: 'If I make a purchase, where does my money go?',
+			answer: 'When you buy additional Logs, 25% of our profits support a nonprofit of your choice within the app. The rest helps keep Bonfire running smoothly. As a small team, we appreciate your support and are dedicated to giving you the best experience possible.'
+		},
 		{
 			question: 'How can I contact Bonfire if I have a question or issue?',
 			answer: 'Contact us at support@bonfireapp.com. We’re here to help and will respond as soon as possible.'

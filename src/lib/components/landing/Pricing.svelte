@@ -19,7 +19,8 @@
 			'All free features',
 			// '50% of payment goes to a charity ', //  TODO: add a way for user to choose
 			'Purchase logs in packs at a discounted rate. 1 log = 1 bonfire',
-			'Remaining funds go to support our small team at Bonfire to help keep the platform run smoothly'
+			'25% of our profits will go to a charity of your choice',
+			'Support our small team at Bonfire to help keep the platform run smoothly',
 		]
 	};
 </script>

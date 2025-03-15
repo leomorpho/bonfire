@@ -49,6 +49,26 @@
 					{@render about2()}
 				</div>
 			</div>
+			<div class="my-5 flex flex-col items-center sm:flex-row">
+				<div class="w-full space-y-3 sm:w-1/2">
+					<div class="text-xl font-bold sm:text-3xl">Feel good about supporting a cause</div>
+					<p>
+						At Bonfire, 25% of Log purchases support top-rated charities. Choose a cause you care
+						about—plant trees, donate, or support environmental efforts—your contribution makes an
+						impact.
+					</p>
+				</div>
+
+				<img
+					class="shape-1 mx-15 my-4 aspect-square max-h-[300px] w-full rounded-full border-4 border-purple-300 object-cover dark:border-purple-200 sm:mx-10 sm:my-0 sm:w-1/2"
+					srcset="
+    https://f002.backblazeb2.com/file/bonfire-public/website-public/non-profit-sm.jpeg 1000w, 
+    https://f002.backblazeb2.com/file/bonfire-public/website-public/non-profit-md.jpeg 2000w,
+    https://f002.backblazeb2.com/file/bonfire-public/website-public/non-profit-lg.jpeg 3000w"
+					src="https://f002.backblazeb2.com/file/bonfire-public/website-public/non-profit-lg.jpeg"
+					alt="Non-profits"
+				/>
+			</div>
 			<!-- <div class="my-20 flex flex-col sm:flex-row">
 				<div class="space-y-7">
 					<div class="text-xl sm:text-3xl">Feel good about supporting a cause</div>
@@ -76,7 +96,7 @@
 <style>
 	.shape-1 {
 		background: linear-gradient(75deg, var(--primary) 0%, var(--secondary) 100%);
-		animation: morph-1 7s ease-in-out infinite;
+		animation: morph-1 9s ease-in-out infinite;
 		border-radius: 30% 50% 70% 70% / 40% 60% 90% 40%;
 		height: 400px;
 		transition: all 2s ease-in-out;
@@ -86,7 +106,7 @@
 
 	.shape-2 {
 		background: linear-gradient(75deg, var(--primary) 0%, var(--secondary) 100%);
-		animation: morph-2 8s ease-in-out infinite;
+		animation: morph-2 10s ease-in-out infinite;
 		border-radius: 40% 60% 50% 50% / 60% 40% 60% 40%;
 		height: 400px;
 		transition: all 2s ease-in-out;
