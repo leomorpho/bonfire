@@ -508,7 +508,7 @@
 				<div></div>
 			</h2>
 			<form class="space-y-2">
-				{#if userIsOutOfLogs}
+				{#if userIsOutOfLogs && !isEventPublished}
 					<OutOfLogs />
 				{:else if !isEventPublished}
 					<div class="flex justify-center">
