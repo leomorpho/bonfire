@@ -53,7 +53,7 @@
 				<div class="w-full space-y-3 sm:w-1/2">
 					<div class="text-xl font-bold sm:text-3xl">Feel good about supporting a cause</div>
 					<p>
-						At Bonfire, 25% of Log purchases support top-rated charities. Choose a cause you care
+						At Bonfire, 25% of our profits support top-rated charities. Choose a cause you care
 						about—plant trees, donate, or support environmental efforts—your contribution makes an
 						impact.
 					</p>
