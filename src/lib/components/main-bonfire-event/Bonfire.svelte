@@ -486,7 +486,7 @@
 		// Prepare shareable data
 		const shareData = {
 			title: `Hey! You're invited to ${eventTitle}!`, // Use the event title
-			text: `...Check out this awesome event at ${eventLocation}!`, // Use the event location
+			text: `Please RSVP via the link—if we don’t hear from you, we’ll assume you can't make it.`,
 			url: `${publicEnv.PUBLIC_ORIGIN}/bonfire/${eventId}` // Use the event's unique ID in the URL
 		};
 
