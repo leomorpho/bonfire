@@ -38,6 +38,12 @@
 		}, 0);
 	}
 
+	// Function to calculate completion percentage
+	function calculateCompletionPercentage(item: BringItem): number {
+		const totalBrought = calculateTotalBrought(item);
+		return item.quantity_needed ? (totalBrought / item.quantity_needed) * 100 : 0;
+	}
+
 	onMount(() => {
 		let client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
@@ -51,9 +57,12 @@
 				bringItems = results
 					.map((item) => ({
 						...item,
-						total_brought: calculateTotalBrought(item)
+						// total_brought: calculateTotalBrought(item),
+						completion_percentage: calculateCompletionPercentage(item)
 					}))
-					.sort((a, b) => a.total_brought - b.total_brought); // 🔥 Sort ascending by total_brought;
+					// .sort((a, b) => a.total_brought - b.total_brought); // 🔥 Sort ascending by total_brought;
+					.sort((a, b) => a.completion_percentage - b.completion_percentage); // Sort ascending by completion percentage
+
 				initialLoad = false;
 			},
 			(error) => {
