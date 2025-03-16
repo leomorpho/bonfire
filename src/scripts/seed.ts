@@ -2,7 +2,7 @@ import { createNewUser } from '$lib/server/database/user.model';
 import { generateId } from 'lucia';
 import { faker } from '@faker-js/faker';
 import { and, HttpClient } from '@triplit/client';
-import { Status } from '$lib/enums';
+import { BringListCountTypes, Status } from '$lib/enums';
 import {
 	createNewAnnouncementNotificationQueueObject,
 	createNewAttendanceNotificationQueueObject
@@ -11,9 +11,11 @@ import { env as publicEnv } from '$env/dynamic/public';
 import { env as privateEnv } from '$env/dynamic/private';
 import { createAttendeeId } from '$lib/utils';
 import { createNewThread, MAIN_THREAD } from '$lib/im';
-import { uploadProfileImage } from '$lib/filestorage';
+import { uploadBannerImage, uploadProfileImage } from '$lib/filestorage';
+import { assignBringItem, createBringItem } from '$lib/bringlist';
 
 const profileImagesDir = 'src/scripts/data/profile-pics';
+const bannerImagesDir = 'src/scripts/data/banner';
 
 const client = new HttpClient({
 	serverUrl: publicEnv.PUBLIC_TRIPLIT_URL,
@@ -67,7 +69,10 @@ const { output } = await client.insert('events', {
 });
 const eventCreated = output;
 
-await createNewThread(client, output.id, user?.id, MAIN_THREAD);
+const bannerImagePath = bannerImagesDir + '/mike-bd-banner.jpg';
+await uploadBannerImage(bannerImagePath, user?.id as string, eventCreated.id);
+
+await createNewThread(client, output.id, user?.id as string, MAIN_THREAD);
 
 await client.insert('events', {
 	title: 'Hangout at Cactus',
@@ -94,17 +99,25 @@ function getRandomStatus() {
 	return statuses[Math.floor(Math.random() * statuses.length)];
 }
 
-// Create 5 announcements
+// Define plausible announcements for the birthday BBQ
+const announcementContents = [
+	"Exciting news! We've confirmed the venue. It's going to be at the beautiful Green Meadows Park. See you all there!",
+	"Just a reminder to bring your favorite BBQ sides or desserts to share. Let's make this a potluck to remember!",
+	"We've got some fun games planned for the BBQ! Feel free to bring any outdoor games you'd like to play as well.",
+	"Don't forget to RSVP if you haven't already. We need a headcount for food and drinks. Thanks!"
+];
+
+// Create announcements
 const announcements = [];
 const daysBack = 5; // Start 5 days back
 
-for (let i = 0; i < 4; i++) {
+for (let i = 0; i < announcementContents.length; i++) {
 	const createdAt = new Date();
 	createdAt.setDate(createdAt.getDate() - (daysBack - i)); // Spread dates from 5 days back to today
 
 	const announcement = await client.insert('announcement', {
 		id: generateId(15),
-		content: faker.lorem.paragraph(),
+		content: announcementContents[i],
 		created_at: createdAt,
 		user_id: user?.id, // Event creator is making the announcement
 		event_id: eventCreated?.id
@@ -120,19 +133,19 @@ for (let i = 0; i < 4; i++) {
 
 const knownData = [
 	{ email: 'alice.johnson@example.com', username: 'Alice', photo: 'alice.jpg' },
-	{ email: 'bob.smith@example.com', username: 'Bobsmith', photo: 'bob.jpg' },
-	{ email: 'charlie.brown@example.com', username: 'Charlieb', photo: 'charlie.jpg' },
-	{ email: 'diana.prince@example.com', username: 'dianap', photo: 'diana.jpg' },
-	{ email: 'edward.lee@example.com', username: 'edwardl', photo: 'edward.jpg' },
-	{ email: 'fiona.white@example.com', username: 'fionaw' },
+	{ email: 'bob.smith@example.com', username: 'Bob', photo: 'bob.jpg' },
+	{ email: 'charlie.brown@example.com', username: 'Charlie', photo: 'charlie.jpg' },
+	{ email: 'diana.prince@example.com', username: 'diana', photo: 'diana.jpg' },
+	{ email: 'edward.lee@example.com', username: 'edward', photo: 'edward.jpg' },
+	{ email: 'fiona.white@example.com', username: 'fiona', photo:'fiona.jpeg' },
 	{ email: 'george.clark@example.com', username: 'George', photo: 'george.jpg' },
 	{ email: 'hannah.nguyen@example.com', username: 'Hannah', photo: 'hannah.jpg' },
 	{ email: 'ian.martinez@example.com', username: 'Ian', photo: 'ian.jpg' },
 	{ email: 'julia.rodriguez@example.com', username: 'julia', photo: 'julia.jpg' },
 	{ email: 'kevin.lopez@example.com', username: 'kevin', photo: 'kevin.jpg' },
-	{ email: 'lucy.hernandez@example.com', username: 'lucyh', photo: 'lucy.jpg' },
-	{ email: 'michael.moore@example.com', username: 'Michaelm', photo: 'michael.jpg' },
-	{ email: 'nina.taylor@example.com', username: 'nina', photo: 'nina.jpg' },
+	{ email: 'lucy.hernandez@example.com', username: 'lucy', photo: 'lucy.jpg' },
+	{ email: 'michael.moore@example.com', username: 'Michael', photo: 'michael.jpg' },
+	{ email: 'nina.taylor@example.com', username: 'Nina', photo: 'nina.jpg' },
 	{ email: 'oliver.anderson@example.com', username: 'olivera', photo: 'oliver.jpg' }
 ];
 
@@ -266,3 +279,92 @@ if (!attendees || attendees.length === 0) {
 
 	console.log(`Seeded ${messageCount} messages for Mike's event.`);
 }
+
+// Bring list items
+
+// Define bring items for the BBQ
+const bringItems = [
+	{
+		name: 'Coca Cola',
+		unit: BringListCountTypes.COUNT,
+		quantityNeeded: 6,
+		details: '2-liter bottles'
+	},
+	{
+		name: 'Hot Dog Buns',
+		unit: BringListCountTypes.COUNT,
+		quantityNeeded: 20,
+		details: ''
+	},
+	{
+		name: 'Potato Chips',
+		unit: BringListCountTypes.COUNT,
+		quantityNeeded: 4,
+		details: 'Large bags'
+	},
+	{
+		name: 'Paper Plates',
+		unit: BringListCountTypes.COUNT,
+		quantityNeeded: 30,
+		details: 'Any plate will do'
+	},
+	{
+		name: 'Plastic Cups',
+		unit: BringListCountTypes.PER_PERSON,
+		quantityNeeded: 30,
+		details: ''
+	},
+	{ name: 'Ice', unit: BringListCountTypes.COUNT, quantityNeeded: 2, details: 'Bags of ice' }
+];
+
+async function createAndAssignBringItems(
+	client: HttpClient,
+	eventId: string,
+	adminUserId: string,
+	attendees: any
+) {
+	const createdItems = [];
+
+	// Create bring items
+	for (const item of bringItems) {
+		const createdItem = await createBringItem(
+			client,
+			eventId,
+			adminUserId,
+			item.name,
+			item.unit,
+			item.quantityNeeded,
+			item.details
+		);
+		createdItems.push(createdItem);
+	}
+
+	// Assign bring items to attendees
+	for (const item of createdItems) {
+		const totalQuantity = item.quantity_needed;
+		const percentageToAssign = Math.random(); // Random percentage between 0 and 100
+		const quantityToAssign = Math.round(totalQuantity * percentageToAssign);
+		let remainingQuantity = quantityToAssign;
+
+		while (remainingQuantity > 0) {
+			const attendee = attendees[Math.floor(Math.random() * attendees.length)];
+			const quantityForAttendee = Math.min(Math.ceil(Math.random() * 5), remainingQuantity); // Assign a random quantity up to 5 or remaining quantity
+
+			await assignBringItem(
+				client,
+				item.id,
+				attendee.user_id,
+				null,
+				adminUserId,
+				quantityForAttendee
+			);
+
+			remainingQuantity -= quantityForAttendee;
+		}
+	}
+
+	console.log('Bring items created and assigned to attendees.');
+}
+
+// Create and assign bring items for Mike's event
+await createAndAssignBringItems(client, eventCreated.id, user?.id as string, attendees);
