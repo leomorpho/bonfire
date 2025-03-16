@@ -1,5 +1,6 @@
 <script>
 	import Container from './Container.svelte';
+	import Iphone15ProMock from './Iphone15ProMock.svelte';
 	import StreamingVideoPlayer from './StreamingVideoPlayer.svelte';
 </script>
 
@@ -12,7 +13,7 @@
 {/snippet}
 
 <Container>
-	<StreamingVideoPlayer masterm3u8Url='https://f002.backblazeb2.com/file/bonfire-public/website-public/videos/attendee-view/master.m3u8'/>
+	<Iphone15ProMock videoSrc='https://f002.backblazeb2.com/file/bonfire-public/website-public/videos/attendee-view/master.m3u8'/>
 	<div id="about" class="">
 		<div class="mx-auto px-6 lg:px-8">
 			<div class="my-5 flex flex-col items-center sm:flex-row">

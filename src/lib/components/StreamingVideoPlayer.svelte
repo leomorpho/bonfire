@@ -2,7 +2,7 @@
 	import Hls from 'hls.js';
 	import { onMount } from 'svelte';
 
-	let { masterm3u8Url } = $props();
+	let { masterm3u8Url, cls = null } = $props();
 	let videoElement = $state();
 
 	onMount(() => {
@@ -22,7 +22,7 @@
 	});
 </script>
 
-<video bind:this={videoElement} controls></video>
+<video class={cls} bind:this={videoElement} autoplay loop muted playsinline></video>
 
 <style>
 	video {
