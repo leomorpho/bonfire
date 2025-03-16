@@ -10,7 +10,6 @@
 		House,
 		Shield,
 		KeyRound,
-		MessageCircle,
 		ArrowBigRight
 	} from 'lucide-svelte';
 	import { page } from '$app/stores';
@@ -136,7 +135,7 @@
 	</DropdownMenu.Root>
 {/snippet}
 
-<a href="/feedback" class="flex w-full justify-center bg-orange-500 dark:bg-orange-700">
+<!-- <a href="/feedback" class="flex w-full justify-center bg-orange-500 dark:bg-orange-700">
 	<div
 		class="flex w-full max-w-screen-md flex-row items-center justify-center rounded-xl px-4 py-2 text-xs text-white sm:text-sm"
 	>
@@ -150,7 +149,7 @@
 			</Button>
 		</div>
 	</div>
-</a>
+</a> -->
 
 <div class="w-full">
 	<Container>
