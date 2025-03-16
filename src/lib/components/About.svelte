@@ -5,27 +5,42 @@
 </script>
 
 {#snippet about2()}
-	<div class="text-xl font-bold sm:text-3xl">Focus on your friends, we'll handle the rest</div>
-	<p>
-		Easily create, share, and manage events with Bonfire. Post updates, track RSVPs, and stay
-		connected—so you can focus on what truly matters: your friends.
-	</p>
+	<div class="text-center sm:text-left">
+		<div class="text-xl font-bold sm:text-3xl">Focus on your friends, we'll handle the rest</div>
+		<p>
+			Easily create, share, and manage events with Bonfire. Post updates, track RSVPs, and stay
+			connected—so you can focus on what truly matters: your friends.
+		</p>
+	</div>
 {/snippet}
 
 <Container>
-	<Iphone15ProMock videoSrc='https://f002.backblazeb2.com/file/bonfire-public/website-public/videos/attendee-view/master.m3u8'/>
+	<!-- <div id="phone-mockup" class="m-2 my-5 mb-20">
+		<Iphone15ProMock videoSrc='https://f002.backblazeb2.com/file/bonfire-public/website-public/videos/attendee-view/master.m3u8'/>
+		<div>E</div>
+	</div> -->
+
 	<div id="about" class="">
-		<div class="mx-auto px-6 lg:px-8">
-			<div class="my-5 flex flex-col items-center sm:flex-row">
-				<div class="w-full space-y-3 sm:w-1/2">
+		<div class="mx-auto px-1 md:px-4 lg:px-8">
+			<div
+				class="my-5 flex flex-col items-center justify-center rounded-[30px] bg-blue-100/30 px-2 py-5 dark:bg-blue-900/30 sm:flex-row sm:px-4 md:justify-around md:rounded-[50px]"
+			>
+				<div
+					class="flex w-full flex-col justify-center space-y-3 text-center sm:w-1/2 sm:text-left"
+				>
 					<div class="text-xl font-bold sm:text-3xl">Create & Share Unforgettable Events</div>
 					<p>
 						Bonfire goes beyond planning—it helps you capture & share memories. Guests can upload
 						moments into a shared group gallery, so you can relive the best parts together.
 					</p>
 				</div>
+				<div class="my-5">
+					<Iphone15ProMock
+						videoSrc="https://f002.backblazeb2.com/file/bonfire-public/website-public/videos/attendee-view/master.m3u8"
+					/>
+				</div>
 
-				<img
+				<!-- <img
 					class="shape-1 mx-15 my-4 aspect-square max-h-[300px] w-full rounded-full border-4 border-blue-300 object-cover dark:border-blue-200 sm:mx-10 sm:my-0 sm:w-1/2"
 					srcset="
     https://f002.backblazeb2.com/file/bonfire-public/website-public/paper-cups-sm.jpg 1000w, 
@@ -33,9 +48,11 @@
     https://f002.backblazeb2.com/file/bonfire-public/website-public/paper-cups-lg.jpg 3000w"
 					src="https://f002.backblazeb2.com/file/bonfire-public/website-public/paper-cups-lg.jpg"
 					alt="Paper cups"
-				/>
+				/> -->
 			</div>
-			<div class="sm:my-15 my-5 flex flex-col items-center sm:flex-row">
+			<div
+				class="my-5 flex flex-col items-center justify-center rounded-[30px] bg-orange-100/30 px-2 py-5 dark:bg-orange-900/30 sm:flex-row sm:px-4 md:justify-around md:rounded-[50px]"
+			>
 				<div class="block w-full space-y-3 sm:hidden">
 					{@render about2()}
 				</div>
@@ -52,8 +69,12 @@
 					{@render about2()}
 				</div>
 			</div>
-			<div class="my-5 flex flex-col items-center sm:flex-row">
-				<div class="w-full space-y-3 sm:w-1/2">
+			<div
+				class="my-5 flex flex-col items-center justify-center rounded-[30px] bg-lime-100/30 px-2 py-5 dark:bg-lime-900/30 sm:flex-row sm:px-4 md:justify-around md:rounded-[50px]"
+			>
+				<div
+					class="flex w-full flex-col justify-center space-y-3 text-center sm:w-1/2 sm:text-left"
+				>
 					<div class="text-xl font-bold sm:text-3xl">Feel good about supporting a cause</div>
 					<p>
 						At Bonfire, 25% of our profits support top-rated charities. Choose a cause you care
@@ -63,7 +84,7 @@
 				</div>
 
 				<img
-					class="shape-1 mx-15 my-4 aspect-square max-h-[300px] w-full rounded-full border-4 border-purple-300 object-cover dark:border-purple-200 sm:mx-10 sm:my-0 sm:w-1/2"
+					class="shape-1 mx-15 my-4 aspect-square max-h-[300px] w-full rounded-full border-4 border-blue-300 object-cover dark:border-blue-200 sm:mx-10 sm:my-0 sm:w-1/2"
 					srcset="
     https://f002.backblazeb2.com/file/bonfire-public/website-public/non-profit-sm.jpeg 1000w, 
     https://f002.backblazeb2.com/file/bonfire-public/website-public/non-profit-md.jpeg 2000w,
