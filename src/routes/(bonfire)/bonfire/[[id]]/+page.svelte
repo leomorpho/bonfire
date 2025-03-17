@@ -29,8 +29,8 @@
 
 <Bonfire
 	{currUserId}
-	eventOrganizerId={event.organizer['id']}
-	eventOrganizerUsername={event.organizer['username']}
+	eventOrganizerId={event?.organizer['id']}
+	eventOrganizerUsername={event?.organizer['username']}
 	{eventId}
 	{eventCreatorUserId}
 	{eventStartTime}
