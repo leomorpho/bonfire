@@ -32,6 +32,7 @@
 	import UnverifiedUserMsg from '$lib/components/main-bonfire-event/UnverifiedUserMsg.svelte';
 	import EventInfo from '$lib/components/main-bonfire-event/EventInfo.svelte';
 	import Attendees from '$lib/components/main-bonfire-event/Attendees.svelte';
+	import SignUpMsg from './SignUpMsg.svelte';
 
 	let {
 		currUserId,
@@ -563,6 +564,9 @@
 					<Tabs.Content value="about" class="mb-10 w-full">
 						<div class="animate-fadeIn">
 							<!-- TODO: allow temp attendees to delete themselves -->
+							{#if isAnonymousUser || isUnverifiedUser}
+								<SignUpMsg />
+							{/if}
 							{#if isUnverifiedUser}
 								<UnverifiedUserMsg {eventId} {tempAttendee} {tempAttendeeSecret} />
 							{/if}

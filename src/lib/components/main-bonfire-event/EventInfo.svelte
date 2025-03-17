@@ -76,13 +76,12 @@
 			</div>
 			<div class="my-2 flex items-center justify-center font-light">
 				{#if eventOrganizerId}
-					<UserRound class="mr-2 !h-4 !w-4 shrink-0" />Hosted by <span class="ml-1 font-bold">{eventOrganizerUsername}</span>
+					<UserRound class="mr-2 !h-4 !w-4 shrink-0" />Hosted by
+					<span class="ml-1 font-bold">{eventOrganizerUsername}</span>
 					{#if rsvpStatus}
 						<div class="ml-2">
 							<ProfileAvatar userId={eventOrganizerId} />
 						</div>
-					{:else}
-						{eventOrganizerUsername}
 					{/if}
 				{/if}
 			</div>

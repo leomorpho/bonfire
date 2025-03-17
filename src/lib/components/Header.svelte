@@ -17,6 +17,7 @@
 		isAdmin = true;
 	}
 	import { tick } from 'svelte';
+	import TopBanner from './marketing/TopBanner.svelte';
 
 	async function handleDropdownClick(href: string) {
 		if (href.startsWith('/#')) {
@@ -125,21 +126,7 @@
 	</DropdownMenu.Root>
 {/snippet}
 
-<!-- <a href="/feedback" class="flex w-full justify-center bg-orange-500 dark:bg-orange-700">
-	<div
-		class="flex w-full max-w-screen-md flex-row items-center justify-center rounded-xl px-4 py-2 text-xs text-white sm:text-sm"
-	>
-		<span class="overflow-hidden text-ellipsis whitespace-nowrap font-semibold">
-			🚀 Beta Launched!
-		</span>
-		<div class="flex sm:ml-3">
-			<Button variant="link" class="text-xs text-white hover:underline sm:text-sm">
-				<ArrowBigRight />
-				Share your feedback ❤️
-			</Button>
-		</div>
-	</div>
-</a> -->
+<TopBanner />
 
 <div class="w-full">
 	<Container>
