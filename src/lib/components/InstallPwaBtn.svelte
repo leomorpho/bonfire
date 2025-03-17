@@ -10,7 +10,7 @@
 	const DISMISS_STORAGE_KEY = 'pwa-install-dismissed';
 	const DISMISS_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 day in milliseconds
 	const DELAY_TIME = 5000; // 5 seconds
-
+	
 	// Check if user previously dismissed the prompt
 	function hasDismissedRecently(): boolean {
 		const storedData = localStorage.getItem(DISMISS_STORAGE_KEY);
@@ -44,18 +44,15 @@
 		if (hasDismissedRecently()) {
 			return;
 		}
-		// Delay showing the install prompt
-		setTimeout(() => {
-			if (
-				pwaInstallComponent &&
-				!pwaInstallComponent.isUnderStandaloneMode &&
-				typeof pwaInstallComponent.showDialog === 'function' &&
-				show
-			) {
-				pwaInstallComponent.showDialog(true);
-			}
-		}, DELAY_TIME);
-
+		// Show the install prompt if conditions are met
+		if (
+			pwaInstallComponent &&
+			!pwaInstallComponent.isUnderStandaloneMode &&
+			typeof pwaInstallComponent.showDialog === 'function' &&
+			show
+		) {
+			pwaInstallComponent.showDialog(true);
+		}
 		// Listen for the dismiss event
 		pwaInstallComponent.addEventListener('pwa-install-available-event', (event) => {
 			console.log('pwa-install:' + event.detail.message);

@@ -3,15 +3,7 @@
 	import Logo from './Logo.svelte';
 	import type { Link } from '$lib/types';
 	import Container from './Container.svelte';
-	import {
-		Menu,
-		Cog,
-		CircleUser,
-		House,
-		Shield,
-		KeyRound,
-		ArrowBigRight
-	} from 'lucide-svelte';
+	import { Menu, Cog, CircleUser, House, Shield, KeyRound, ArrowBigRight } from 'lucide-svelte';
 	import { page } from '$app/stores';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
@@ -25,8 +17,6 @@
 		isAdmin = true;
 	}
 	import { tick } from 'svelte';
-	import InstallPwaBtn from './InstallPwaBtn.svelte';
-	import { dev } from '$app/environment';
 
 	async function handleDropdownClick(href: string) {
 		if (href.startsWith('/#')) {
@@ -171,9 +161,6 @@
 					{/each}
 				</ul>
 			</div>
-			{#if !dev}
-				<InstallPwaBtn />
-			{/if}
 
 			<div class="navbar-end">
 				{#if $page.data.user}

@@ -28,7 +28,7 @@
 				<div
 					class="flex w-full flex-col justify-center space-y-3 text-center sm:w-1/2 sm:text-left"
 				>
-					<div class="text-xl font-bold sm:text-3xl">Create & Share Unforgettable Events</div>
+					<div class="text-xl font-bold sm:text-3xl">Create & share unforgettable events</div>
 					<p>
 						Bonfire goes beyond planning—it helps you capture & share memories. Guests can upload
 						moments into a shared group gallery, so you can relive the best parts together.

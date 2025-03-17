@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { dev } from '$app/environment';
 	import { onMount, type Snippet } from 'svelte';
 	import type { LayoutData } from './$types';
 	import { page } from '$app/stores';
@@ -9,6 +10,7 @@
 	import { setTempAttendeeInfoInLocalstorage } from '$lib/utils';
 	import { addUserRequests } from '$lib/profilestore';
 	import type { WorkerClient } from '@triplit/client/worker-client';
+	import InstallPwaBtn from '$lib/components/InstallPwaBtn.svelte';
 
 	let { data, children }: { data: LayoutData; children: Snippet } = $props();
 
@@ -208,3 +210,7 @@
 		{@render children()}
 	</div>
 </div>
+
+{#if !dev && (tempAttendeeSecret || $page.data.user.id)}
+				<InstallPwaBtn />
+			{/if}

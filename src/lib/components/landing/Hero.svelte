@@ -38,10 +38,8 @@
 	</div>
 {/snippet}
 
-<!-- The exact line breaks and widths of various sections should depend on the copy. Make sure the copy looks good on
-all screen sizes (not the case here) -->
 <Container>
-	<div class="relative flex w-full flex-col items-center justify-center py-8 sm:py-20 md:flex-row">
+	<div class="relative flex w-full flex-col items-center justify-center md:flex-row">
 		<div>
 			<div
 				class="pointer-events-none z-10 whitespace-pre-wrap bg-gradient-to-b from-[#ffd319] via-[#ff2975] to-[#8c1eff] bg-clip-text p-1 text-center text-5xl font-bold leading-none tracking-tighter text-transparent sm:mt-8 sm:text-left sm:text-7xl"
