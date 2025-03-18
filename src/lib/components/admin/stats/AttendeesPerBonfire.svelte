@@ -4,7 +4,7 @@
 	import type { TriplitClient } from '@triplit/client';
 	import { onMount } from 'svelte';
 	import SvgLoader from '../../SvgLoader.svelte';
-	import { AreaChart, LinearGradient, Area, BarChart } from 'layerchart';
+	import { BarChart } from 'layerchart';
 
 	let { title = 'Attendees per bonfire' } = $props();
 
@@ -27,15 +27,16 @@
 			}
 		});
 
-		// Create a frequency map of attendee counts
+		// Determine the range of attendees
+		const attendeeCounts = Object.keys(eventAttendeeCount).map(Number);
+		const minAttendees = Math.min(...attendeeCounts);
+		const maxAttendees = Math.max(...attendeeCounts);
+
+		// Create a frequency map of attendee counts with zeros for missing values
 		const frequencyMap: any = {};
-		Object.values(eventAttendeeCount).forEach((count) => {
-			if (frequencyMap[count]) {
-				frequencyMap[count]++;
-			} else {
-				frequencyMap[count] = 1;
-			}
-		});
+		for (let i = minAttendees; i <= maxAttendees; i++) {
+			frequencyMap[i] = eventAttendeeCount[i] || 0;
+		}
 
 		// Convert the map to an array of objects for charting
 		const frequencyData = Object.keys(frequencyMap).map((count) => ({

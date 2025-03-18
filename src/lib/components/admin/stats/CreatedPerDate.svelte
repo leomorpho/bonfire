@@ -26,12 +26,23 @@
 			}
 		});
 
+		// Determine the date range
+		const dates: any = Object.keys(dateCountMap).map((dateStr) => new Date(dateStr));
+		const minDate = new Date(Math.min(...dates));
+		const maxDate = new Date(Math.max(...dates));
+
+		// Create an array of all dates in the range
+		const allDates = [];
+		for (let d = new Date(minDate); d <= maxDate; d.setDate(d.getDate() + 1)) {
+			allDates.push(new Date(d));
+		}
+
 		// Convert the map to an array of objects
 		const timeSeriesData = Object.keys(dateCountMap).map((date) => {
 			const dateObject = new Date(date);
 			return {
 				date: dateObject,
-				value: dateCountMap[date]
+				value: dateCountMap[date] || 0
 			};
 		});
 
