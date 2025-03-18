@@ -16,5 +16,5 @@
 
 	<CreatedPerDate title="User onboardings" modelName="user" dateFieldName="created_at" />
 	<CreatedPerDate title="Event creations" modelName="events" dateFieldName="created_at" />
-	<AttendeesPerBonfire title='Attendees per bonfire'/>
+	<!-- <AttendeesPerBonfire title='Attendees per bonfire'/> -->
 </CenteredPage>
