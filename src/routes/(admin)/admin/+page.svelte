@@ -1,6 +1,6 @@
 <script>
 	import { Button } from '$lib/components/ui/button';
-	import { HeartHandshake, Palette } from 'lucide-svelte';
+	import { ChartArea, HeartHandshake, Palette } from 'lucide-svelte';
 </script>
 
 <div class="mx-4 mb-48 flex flex-col items-center justify-center sm:mb-20">
@@ -17,6 +17,13 @@
 				<Button class="w-full dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700">
 					<HeartHandshake class="mr-1" />
 					Non-Profits
+				</Button>
+			</a>
+
+			<a href="admin/stats" class="block">
+				<Button class="w-full dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700">
+					<ChartArea class="mr-1" />
+					Stats
 				</Button>
 			</a>
 		</div>

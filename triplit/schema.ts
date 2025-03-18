@@ -321,6 +321,11 @@ export const schema = {
 			updated_at: S.Optional(S.Date({ default: null, nullable: true }))
 		}),
 		permissions: {
+			admin: {
+				read: { filter: [true] },
+				// insert: { filter: [true] },
+				// update: { filter: [true] }
+			},
 			user: {
 				read: {
 					filter: [
@@ -447,6 +452,11 @@ export const schema = {
 			is_published: S.Optional(S.Boolean({ default: false }))
 		}),
 		permissions: {
+			admin: {
+				read: { filter: [true] },
+				// insert: { filter: [true] },
+				// update: { filter: [true] }
+			},
 			user: {
 				read: {
 					filter: [
@@ -602,6 +612,11 @@ export const schema = {
 			})
 		}),
 		permissions: {
+			admin: {
+				read: { filter: [true] },
+				// insert: { filter: [true] },
+				// update: { filter: [true] }
+			},
 			user: {
 				read: {
 					filter: [
@@ -668,6 +683,11 @@ export const schema = {
 			})
 		}),
 		permissions: {
+			admin: {
+				read: { filter: [true] },
+				// insert: { filter: [true] },
+				// update: { filter: [true] }
+			},
 			user: {
 				read: {
 					filter: [
