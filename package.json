@@ -122,6 +122,8 @@
 		"@viselect/vanilla": "^3.9.0",
 		"arctic": "^2.0.1",
 		"blurhash": "^2.0.5",
+		"d3-array": "^3.2.4",
+		"d3-scale": "^4.0.2",
 		"date-fns": "^4.1.0",
 		"drizzle-orm": "^0.35.3",
 		"emailjs": "^4.0.3",

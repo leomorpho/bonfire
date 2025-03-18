@@ -4,7 +4,7 @@
 	import type { TriplitClient } from '@triplit/client';
 	import { onMount } from 'svelte';
 	import SvgLoader from '../../SvgLoader.svelte';
-	import { AreaChart, LinearGradient, Area } from 'layerchart';
+	import { AreaChart, LinearGradient, Area, BarChart } from 'layerchart';
 
 	let { title = 'Attendees per bonfire' } = $props();
 
@@ -81,13 +81,7 @@
 		</div>
 	{:else}
 		<div class="h-[300px] w-full rounded border p-4">
-			<AreaChart data={frequencyMap} x="date" y="value">
-				<svelte:fragment slot="marks">
-					<LinearGradient class="from-primary/50 to-primary/0" vertical let:gradient>
-						<Area line={{ class: 'stroke-primary' }} fill={gradient} />
-					</LinearGradient>
-				</svelte:fragment>
-			</AreaChart>
+			<BarChart data={frequencyMap} x="attendees" y="events" labels renderContext={'svg'}/>
 		</div>
 	{/if}
 </div>

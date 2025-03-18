@@ -113,6 +113,12 @@ importers:
       blurhash:
         specifier: ^2.0.5
         version: 2.0.5
+      d3-array:
+        specifier: ^3.2.4
+        version: 3.2.4
+      d3-scale:
+        specifier: ^4.0.2
+        version: 4.0.2
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
