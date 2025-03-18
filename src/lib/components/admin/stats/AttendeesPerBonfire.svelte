@@ -12,19 +12,18 @@
 	let loading = $state(true);
 	let frequencyMap: any = $state([]);
 
-	async function createFrequencyMap(attendees: any[], temporaryAttendees: any[]) {
+	function createFrequencyMap(events: any[]) {
 		const eventAttendeeCount: any = {};
 
-		// Combine attendees and temporary attendees
-		const allAttendees = [...attendees, ...temporaryAttendees];
+		events.forEach((event: any) => {
+			const attendees = event.attendees.length;
+			const tempAttendees = event.temporary_attendees.length;
+			const numTotalAttendees = attendees + tempAttendees;
 
-		// Count attendees per event
-		allAttendees.forEach((entry: any) => {
-			const eventId = entry.event_id;
-			if (eventAttendeeCount[eventId]) {
-				eventAttendeeCount[eventId]++;
+			if (eventAttendeeCount[numTotalAttendees]) {
+				eventAttendeeCount[numTotalAttendees]++;
 			} else {
-				eventAttendeeCount[eventId] = 1;
+				eventAttendeeCount[numTotalAttendees] = 1;
 			}
 		});
 
@@ -50,21 +49,24 @@
 	onMount(() => {
 		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
-		const initData = async () => {
-			const attendees = await client.fetch(
-				client.query('attendees').select(['id', 'event_id']).build()
-			);
+		const unsubscribe = client.subscribe(
+			client
+				.query('events')
+				.include('attendees', (rel) => rel('attendees').select(['id']).build())
+				.include('temporary_attendees', (rel) => rel('temporary_attendees').select(['id']).build())
+				.build(),
+			(events) => {
+				frequencyMap = createFrequencyMap(events);
+				console.log('frequencyMap', frequencyMap);
+				loading = false;
+			},
+			(error) => {
+				console.error('Error fetching data:', error, modelName);
+				loading = false;
+			}
+		);
 
-			const temporaryAttendees = await client.fetch(
-				client.query('temporary_attendees').select(['id', 'event_id']).build()
-			);
-
-			frequencyMap = await createFrequencyMap(attendees, temporaryAttendees);
-			console.log('frequencyMap', frequencyMap);
-			loading = false;
-		};
-
-		initData();
+		return () => unsubscribe();
 	});
 </script>
 
@@ -80,8 +82,8 @@
 			<p>None found.</p>
 		</div>
 	{:else}
-		<div class="h-[300px] w-full rounded border p-4">
-			<BarChart data={frequencyMap} x="attendees" y="events" labels renderContext={'svg'}/>
+		<div class="h-[300px] w-screen rounded border p-4">
+			<BarChart data={frequencyMap} x="attendees" y="events" labels renderContext={'svg'} />
 		</div>
 	{/if}
 </div>

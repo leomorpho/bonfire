@@ -45,6 +45,7 @@
 			client.query(modelName).select([dateFieldName]).order(dateFieldName, 'DESC').build(),
 			(results) => {
 				timeSeries = createTimeSeries(results);
+				console.log('timeSeries for', modelName, timeSeries);
 				loading = false;
 			},
 			(error) => {
@@ -69,7 +70,7 @@
 			<p>None found.</p>
 		</div>
 	{:else}
-		<div class="h-[300px] w-full rounded border p-4">
+		<div class="h-[300px] w-screen rounded border p-4">
 			<AreaChart data={timeSeries} x="date" y="value">
 				<svelte:fragment slot="marks">
 					<LinearGradient class="from-primary/50 to-primary/0" vertical let:gradient>
