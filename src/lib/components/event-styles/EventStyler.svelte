@@ -6,11 +6,15 @@
 	import { Slider } from '$lib/components/ui/slider/index.js';
 	import { PaintRoller } from 'lucide-svelte';
 	import { dev } from '$app/environment';
+	import ScrollArea from '../ui/scroll-area/scroll-area.svelte';
 
 	let {
 		finalStyleCss = $bindable<string>(),
 		overlayColor = $bindable<string>(),
-		overlayOpacity = $bindable<number>()
+		overlayOpacity = $bindable<number>(),
+		currentTargetSelector = 'bg-color-selector',
+		bgOverlaySelector = 'bg-overlay-selector',
+		horizontalScroll = false
 	} = $props();
 
 	// Currently selected style
@@ -20,16 +24,13 @@
 	// DOM reference to the injected style
 	let styleElement: HTMLStyleElement | null = null;
 
-	// Preview or final target
-	let currentTargetSelector = 'bg-color-selector'; // Default to preview
-	let bgOverlaySelector = 'bg-overlay-selector';
-
 	let overlayForShadnSlider = $state([overlayOpacity]);
 
 	$effect(() => {
 		overlayOpacity = overlayForShadnSlider[0];
 		applyStyle();
 	});
+
 	/**
 	 * Apply a selected style dynamically to the preview area.
 	 * @param style - The selected style object.
@@ -120,7 +121,6 @@
 		// console.log('CREATE/UPDATE mode defaults:', { finalStyleCss, overlayColor, overlayOpacity });
 		applyStyle(); // Apply styles explicitly
 		applyStylesToButtons();
-		// clearStyle();
 	});
 </script>
 
@@ -165,23 +165,45 @@
 	</Popover.Root>
 </div>
 
-<div class="gallery my-5 w-full">
-	<div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-		{#each randomStylesGallery as style}
-			<div class="h-40 rounded-lg bg-white bg-opacity-100">
-				<button
-					class="h-full w-full max-w-full rounded-lg style-button-{style.id} select-bordered flex items-center justify-center border-4"
-					class:selected={selectedStyle?.id === style.id}
-					style={style.cssTemplate}
-					onclick={() => applyStyle(style)}
-				>
-					<div
-						class="rounded-lg bg-white p-1 text-xs dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800 sm:text-sm"
-					>
-						{style.name}
-					</div>
-				</button>
-			</div>
-		{/each}
+{#snippet galleryStyle(style: any)}
+	<button
+		class="h-full w-full max-w-full rounded-lg style-button-{style.id} select-bordered flex items-center justify-center border-4"
+		class:selected={selectedStyle?.id === style.id}
+		style={style.cssTemplate}
+		onclick={() => applyStyle(style)}
+	>
+		<div
+			class="rounded-lg bg-white p-1 text-xs dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800 sm:text-sm"
+		>
+			{style.name}
+		</div>
+	</button>
+{/snippet}
+
+<div class="gallery my-5 h-full w-screen">
+	<div
+		class={`${horizontalScroll ? 'flex h-full' : 'grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'}`}
+	>
+		{#if horizontalScroll}
+			<ScrollArea
+				id="scroll-container"
+				orientation="horizontal"
+				class="h-full w-screen flex-row whitespace-nowrap"
+			>
+				<div class="flex h-full w-max space-x-4 p-4">
+					{#each randomStylesGallery as style}
+						<div class="h-full w-40 rounded-lg bg-white bg-opacity-100">
+							{@render galleryStyle(style)}
+						</div>
+					{/each}
+				</div>
+			</ScrollArea>
+		{:else}
+			{#each randomStylesGallery as style}
+				<div class="h-40 rounded-lg bg-white bg-opacity-100">
+					{@render galleryStyle(style)}
+				</div>
+			{/each}
+		{/if}
 	</div>
 </div>

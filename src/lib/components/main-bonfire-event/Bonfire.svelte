@@ -33,6 +33,7 @@
 	import EventInfo from '$lib/components/main-bonfire-event/EventInfo.svelte';
 	import Attendees from '$lib/components/main-bonfire-event/Attendees.svelte';
 	import SignUpMsg from './SignUpMsg.svelte';
+	import EventStylerBottomSheet from '../event-styles/EventStylerBottomSheet.svelte';
 
 	let {
 		currUserId,
@@ -539,7 +540,10 @@
 	{:else}
 		<div class="mx-4 flex flex-col items-center justify-center">
 			{#if isCurrenUserEventAdmin}
-				<EditEventButton {eventIsPublished} />
+				<div class="flex">
+					<EditEventButton {eventIsPublished} />
+					<!-- <EventStylerBottomSheet {eventId} /> -->
+				</div>
 			{/if}
 			<section
 				class="mt-4 flex w-full justify-center sm:w-[450px] md:w-[550px] lg:w-[750px] xl:w-[950px]"

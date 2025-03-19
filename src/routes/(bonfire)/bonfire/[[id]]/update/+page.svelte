@@ -30,7 +30,6 @@
 					mode={EventFormType.UPDATE}
 					event={data.results[0]}
 					currUserId={$page.data?.user.id}
-					transaction={data.results[0].transaction}
 				/>
 			</div>
 		</div>

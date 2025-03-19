@@ -1,5 +1,5 @@
 <script lang="ts">
-	import EventStyler from '../EventStyler.svelte';
+	import EventStyler from '../event-styles/EventStyler.svelte';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { CalendarDate, type DateValue } from '@internationalized/date';
 	import { Button } from '$lib/components/ui/button/index.js';
@@ -9,7 +9,6 @@
 		Clock,
 		Clock8,
 		ArrowDownToLine,
-		Trash2,
 		Palette,
 		Shield,
 		BookCheck
