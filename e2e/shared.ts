@@ -46,7 +46,7 @@ export async function loginUser(
 	// Finish onboarding
 	await page.getByRole('button', { name: 'Continue' }).click();
 
-	await expect(page.getByRole('heading', { name: 'Upcoming Bonfires' })).toBeVisible();
+	await page.getByRole('tab', { name: 'Upcoming' }).click();
 	await expect(page.getByRole('link', { name: 'Dashboard' })).toBeVisible();
 	await expect(page.getByRole('link', { name: 'Profile' })).toBeVisible();
 	await expect(page.getByRole('link', { name: 'Settings' })).toBeVisible();

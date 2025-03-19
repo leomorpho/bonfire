@@ -41,7 +41,7 @@ test('New login', async ({ page }) => {
 
 	await loginUser(page);
 
-	await expect(page.getByRole('heading', { name: 'Upcoming Bonfires' })).toBeVisible();
+	await page.getByRole('tab', { name: 'Upcoming' }).click();
 });
 
 test('Create bonfire', async ({ page }) => {
