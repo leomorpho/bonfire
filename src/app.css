@@ -82,3 +82,11 @@
     @apply bg-background text-foreground;
   }
 }
+
+:root {
+  /* --color-primary: 257.4075 100% 50%; */
+  --color-surface-100: 180 100% 100%;
+  --color-surface-200: 0 0% 94.902%;
+  --color-surface-300: 180 1.9608% 90%;
+  --color-surface-content: 215 27.907% 16.8627%;
+}

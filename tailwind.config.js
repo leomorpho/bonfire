@@ -66,7 +66,14 @@ const config = {
 				'color-2': 'hsl(var(--color-2))',
 				'color-3': 'hsl(var(--color-3))',
 				'color-4': 'hsl(var(--color-4))',
-				'color-5': 'hsl(var(--color-5))'
+				'color-5': 'hsl(var(--color-5))',
+				surface: {
+					content: "hsl(var(--card-foreground) / <alpha-value>)",
+					100: "hsl(var(--background) / <alpha-value>)",
+					200: "hsl(var(--muted) / <alpha-value>)",
+					// not sure what color maps here (should be darker than 200).  Could add a new color to `app.css`
+					300: "hsl(var(--background) / <alpha-value>)"
+				}
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
