@@ -1,4 +1,5 @@
 <script lang="ts">
+	import PasswordInput from './../../../lib/components/password-input/password-input.svelte';
 	import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
 	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
 	import { buttonVariants } from '$lib/components/ui/button/index.js';
@@ -13,15 +14,17 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import PullToRefresh from '$lib/components/PullToRefresh.svelte';
 	import SvgLoader from '$lib/components/SvgLoader.svelte';
-	import { env as publicEnv } from '$env/dynamic/public';
+	import * as Tabs from '$lib/components/ui/tabs/index.js';
 
 	let client: TriplitClient;
 
-	let futureAttendances = $state({});
+	let futureAttendances: any = $state({});
 	let futureEventsLoading = $state(true);
-	let pastAttendances = $state({});
+	let pastAttendances: any = $state({});
 	let pastEventsLoading = $state(true);
 	let userId = $state();
+
+	let activeTab = $state('about');
 
 	$effect(() => {
 		console.log('futureAttendances', futureAttendances);
@@ -136,78 +139,96 @@
 
 <div class="mx-4 mb-48 flex flex-col items-center justify-center sm:mb-20">
 	<section class="md:2/3 mt-8 w-full sm:w-2/3 md:w-[700px]">
-		<h2 class="mb-4 flex w-full justify-center text-lg font-semibold">Upcoming Bonfires</h2>
-		{#if futureEventsLoading}
-			<!-- We don't want to show if the query is loading as it could be showing cached data that can just be refreshed seamlessy-->
-			<Loader />
-		{:else if futureAttendances.length == 0}
-			<div
-				class="mx-auto mt-10 flex w-full max-w-sm flex-col items-center justify-center gap-2 space-y-5 rounded-lg bg-slate-100 p-6 text-center dark:bg-slate-800 dark:text-white sm:mt-16 sm:w-2/3"
-			>
-				<div class="flex items-center text-sm">
-					<Frown class="mr-2 !h-5 !w-5" />
-					<span>No events found.</span>
-				</div>
-				<!-- <p class="text-xs text-slate-600 dark:text-slate-300">
+		<Tabs.Root value={activeTab} class="w-full">
+			<div class="flex w-full justify-center">
+				<Tabs.List class="mb-1 w-full bg-transparent animate-in fade-in zoom-in">
+					<div class="rounded-lg bg-slate-700 p-2">
+						<Tabs.Trigger value="about" class="focus:outline-none focus-visible:ring-0">
+							Upcoming
+						</Tabs.Trigger>
+						<Tabs.Trigger value="discussions" class="focus:outline-none focus-visible:ring-0"
+							>Past
+						</Tabs.Trigger>
+					</div>
+				</Tabs.List>
+			</div>
+			<Tabs.Content value="about" class="mb-10 w-full">
+				{#if futureEventsLoading}
+					<!-- We don't want to show if the query is loading as it could be showing cached data that can just be refreshed seamlessy-->
+					<Loader />
+				{:else if futureAttendances.length == 0}
+					<div
+						class="mx-auto mt-10 flex w-full max-w-sm flex-col items-center justify-center gap-2 space-y-5 rounded-lg bg-slate-100 p-6 text-center dark:bg-slate-800 dark:text-white sm:mt-16 sm:w-2/3"
+					>
+						<div class="flex items-center text-sm">
+							<Frown class="mr-2 !h-5 !w-5" />
+							<span>No events found.</span>
+						</div>
+						<!-- <p class="text-xs text-slate-600 dark:text-slate-300">
 						This app uses a <strong>local-first database</strong>, meaning it works offline. If your
 						data seems out of sync, reloading should fix it.
 					</p> -->
 
-				<Button
-					class="w-full text-sm dark:bg-slate-600 dark:text-white dark:hover:bg-slate-500"
-					onclick={() => location.reload()}
-				>
-					<DatabaseZap class="mr-2 !h-5 !w-5" /> Reload database
-				</Button>
-			</div>
-		{:else}
-			<div>
-				{#each futureAttendances as attendance}
-					{console.log('attendance', attendance)}
-					<div class="my-7 sm:my-10">
-						<EventCard
-							event={attendance.event}
-							{userId}
-							eventCreatorName={attendance.organizer_name['username']}
-							rsvpStatus={attendance.status}
-							isPublished={attendance.event.is_published}
-							numGuests={attendance.guest_count}
-						/>
+						<Button
+							class="w-full text-sm dark:bg-slate-600 dark:text-white dark:hover:bg-slate-500"
+							onclick={() => location.reload()}
+						>
+							<DatabaseZap class="mr-2 !h-5 !w-5" /> Reload database
+						</Button>
 					</div>
-				{/each}
-			</div>
-		{/if}
+				{:else}
+					<div>
+						{#each futureAttendances as attendance}
+							{console.log('attendance', attendance)}
+							<div class="my-7 sm:my-10">
+								<EventCard
+									event={attendance.event}
+									{userId}
+									eventCreatorName={attendance.organizer_name['username']}
+									rsvpStatus={attendance.status}
+									isPublished={attendance.event.is_published}
+									numGuests={attendance.guest_count}
+								/>
+							</div>
+						{/each}
+					</div>
+				{/if}
+			</Tabs.Content>
+			<Tabs.Content value="discussions" class="mb-2 h-[calc(100vh-4rem)] w-full">
+				{#if pastEventsLoading}
+					<div class="h-32">
+						<div class="font-mono">Loading...</div>
+						<SvgLoader />
+					</div>
+				{:else if pastAttendances.length == 0}
+					<div
+						class="mx-auto mt-10 flex w-full max-w-sm flex-col items-center justify-center gap-2 space-y-5 rounded-lg bg-slate-100 p-6 text-center dark:bg-slate-800 dark:text-white sm:mt-16 sm:w-2/3"
+					>
+						<div class="flex items-center text-sm">
+							<Frown class="mr-2 !h-5 !w-5" />
+							<span>No past events found.</span>
+						</div>
+					</div>
+				{:else if pastAttendances.length > 0}
+					<div>
+						{#each pastAttendances as attendance}
+							{console.log('attendance', attendance)}
+							<div class="my-7 sm:my-10">
+								<EventCard
+									event={attendance.event}
+									{userId}
+									eventCreatorName={attendance.organizer_name['username']}
+									rsvpStatus={attendance.status}
+									isPublished={attendance.event.is_published}
+									numGuests={attendance.guest_count}
+								/>
+							</div>
+						{/each}
+					</div>
+				{/if}
+			</Tabs.Content>
+		</Tabs.Root>
 	</section>
-	{#if pastEventsLoading}
-		<div class="h-32">
-			<div class="font-mono">Loading...</div>
-			<SvgLoader />
-		</div>
-	{:else if pastAttendances.length > 0}
-		<Collapsible.Root class="md:2/3 mt-8 w-full sm:w-2/3 md:w-[700px]">
-			<div class="flex items-center justify-between space-x-4 px-4">
-				<h4 class="text-sm font-semibold">{pastAttendances.length} past events</h4>
-				<Collapsible.Trigger
-					class={buttonVariants({ variant: 'ghost', size: 'sm', class: 'w-9 p-0' })}
-				>
-					<ChevronsUpDown />
-					<span class="sr-only">Toggle</span>
-				</Collapsible.Trigger>
-			</div>
-			<Collapsible.Content class="space-y-2">
-				{#each pastAttendances as attendance}
-					<EventCard
-						event={attendance.event}
-						{userId}
-						eventCreatorName={attendance.organizer_name['username']}
-						rsvpStatus={attendance.status}
-						isPublished={attendance.event.is_published}
-						numGuests={attendance.guest_count}
-					/>
-				{/each}
-			</Collapsible.Content>
-		</Collapsible.Root>
-	{/if}
 </div>
 
 <div
