@@ -11,7 +11,8 @@
 		ArrowDownToLine,
 		Palette,
 		Shield,
-		BookCheck
+		BookCheck,
+		Save
 	} from 'lucide-svelte';
 	import DoubleDigitsPicker from '$lib/components/DoubleDigitsPicker.svelte';
 	import TimezonePicker from '$lib/components/TimezonePicker.svelte';
@@ -25,7 +26,6 @@
 	} from '$lib/triplit';
 	import { goto } from '$app/navigation';
 	import type { TriplitClient } from '@triplit/client';
-	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { EventFormType, Status } from '$lib/enums';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
@@ -672,8 +672,9 @@
 			<a href={cancelUrl}>
 				<Button
 					class="sticky top-2 mt-2 w-full ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-700"
-					>Cancel</Button
 				>
+					Cancel
+				</Button>
 			</a>
 			{#if isEventCreated && !isEventPublished}
 				<Button
@@ -702,20 +703,28 @@
 					{#if isEventSaving}
 						<span class="loading loading-spinner loading-xs ml-2"> </span>
 					{/if}
-					<BookCheck class="ml-1 mr-1 h-4 w-4" /> Publish
+					{#if isEventPublished}
+						<Save class="ml-1 mr-1 h-4 w-4" />
+						Save
+					{:else}
+						<BookCheck class="ml-1 mr-1 h-4 w-4" />
+						Publish
+					{/if}
 				</Button>
 			{/if}
-			{#if isEventPublished}
-				<UnpublishEventBtn {submitDisabled} eventId={event.id} />
-			{/if}
-			{#if mode == EventFormType.UPDATE && event && currUserId == event.user_id}
-				<DeleteEventBtn
-					{submitDisabled}
-					{currUserId}
-					eventCreatorUserId={event.user_id}
-					eventId={event.id}
-				/>
-			{/if}
+			<div class="flex space-x-1">
+				{#if isEventPublished}
+					<UnpublishEventBtn {submitDisabled} eventId={event.id} />
+				{/if}
+				{#if mode == EventFormType.UPDATE && event && currUserId == event.user_id}
+					<DeleteEventBtn
+						{submitDisabled}
+						{currUserId}
+						eventCreatorUserId={event.user_id}
+						eventId={event.id}
+					/>
+				{/if}
+			</div>
 		</div>
 	{:else if currentEventEditingMode == editingStyles}
 		<div class="md:7/8 w-5/6">
