@@ -6,6 +6,7 @@
 	import ProfileAvatar from '../ProfileAvatar.svelte';
 	import ShareLocation from '../ShareLocation.svelte';
 	import Map from '$lib/components/map/Map.svelte';
+	import DOMPurify from 'dompurify';
 
 	let {
 		bannerInfo,
@@ -25,12 +26,15 @@
 
 {#snippet details(eventDescription: string | null | undefined)}
 	<div
-		class="flex h-fit flex-col justify-center rounded-xl bg-slate-100 p-2 py-3 text-center shadow-lg dark:bg-slate-900 md:py-5"
+		class="flex h-fit flex-col rounded-xl bg-slate-100/90 p-2 py-3 shadow-lg dark:bg-slate-900/90 md:py-5"
 	>
-		<div class="mb-2 font-semibold md:mb-3">Details</div>
+		<div class="mb-3 flex w-full justify-center font-semibold lg:mb-5">Details</div>
 		{#if eventDescription}
-			<div class="whitespace-pre-wrap">
-				{eventDescription}
+			<div
+				class="custom-prose-line-height prose prose-sm m-1 text-black sm:prose-base
+			focus:outline-none prose-a:text-blue-600 dark:text-white !bg-white dark:!bg-slate-800 p-4 sm:p-6 md:p-10 lg:p-4 rounded-lg"
+			>
+				{@html DOMPurify.sanitize(eventDescription)}
 			</div>
 		{:else}
 			{'No details yet...'}
@@ -38,7 +42,7 @@
 	</div>
 {/snippet}
 
-<div class="relative mt-5 space-y-3 rounded-xl p-4 sm:mt-0">
+<div class="relative mt-5 space-y-3 rounded-xl py-4 sm:mt-0">
 	{#if bannerInfo && bannerInfo.bannerIsSet}
 		<div class="flex w-full justify-center">
 			<BonfireBanner
@@ -57,18 +61,18 @@
 	{/if}
 	<div class="flex w-full justify-center">
 		<h1
-			class="rounded-xl bg-slate-100 p-3 px-5 text-center text-2xl font-bold dark:bg-slate-900 sm:px-10 sm:text-3xl lg:text-4xl"
+			class="rounded-xl bg-slate-100 p-3 px-5 text-center text-3xl font-bold dark:bg-slate-900 sm:px-10 sm:text-4xl lg:text-5xl"
 		>
 			{eventTitle}
 		</h1>
 	</div>
 
 	<div class="flex w-full md:space-x-3">
-		<div class="hidden md:block md:w-1/2">
+		<div class="hidden lg:block lg:w-1/2">
 			{@render details(eventDescription)}
 		</div>
 		<div
-			class="h-fit w-full rounded-xl bg-slate-100 p-2 pt-5 text-center shadow-lg dark:bg-slate-900 md:w-1/2"
+			class="h-fit w-full rounded-xl bg-slate-100/90 p-2 pt-5 text-center shadow-lg dark:bg-slate-900/90 lg:w-1/2"
 		>
 			<div class="flex items-center justify-center font-medium">
 				<Calendar class="mr-2 !h-4 !w-4 shrink-0" />{formatHumanReadable(eventStartTime)}
@@ -98,7 +102,7 @@
 										class="mt-2 flex items-center justify-center rounded-xl bg-slate-200 p-2 dark:bg-slate-800"
 									>
 										{#if eventLocation}
-											{@html eventLocation}
+											{@html DOMPurify.sanitize(eventLocation)}
 										{:else if latitude && longitude}
 											Get Directions
 										{/if}
@@ -126,7 +130,7 @@
 		</div>
 	</div>
 
-	<div class="block pt-2 md:hidden">
+	<div class="block pt-2 lg:hidden">
 		{@render details(eventDescription)}
 	</div>
 </div>

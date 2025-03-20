@@ -642,13 +642,13 @@
 						onSave={debouncedUpdateEvent}
 					/>
 				</div>
-				<TextAreaAutoGrow
+				<!-- <TextAreaAutoGrow
 					cls={'bg-white dark:bg-slate-900'}
 					placeholder="Details"
 					bind:value={details}
 					oninput={debouncedUpdateEvent}
-				/>
-				<TipTapTextEditor bind:content={details} class="bg-white dark:bg-slate-900 " />
+				/> -->
+				<TipTapTextEditor bind:content={details} oninput={debouncedUpdateEvent} class="bg-white dark:bg-slate-900 " />
 				<MaxCapacity oninput={debouncedUpdateEvent} bind:value={maxCapacity} />
 			</form>
 

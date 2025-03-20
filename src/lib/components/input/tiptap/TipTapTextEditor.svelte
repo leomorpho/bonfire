@@ -16,8 +16,9 @@
 	} from 'lucide-svelte';
 	import * as ToggleGroup from '../../ui/toggle-group';
 	import OneTimeUseButton from './OneTimeUseButton.svelte';
+	import DOMPurify from 'dompurify';
 
-	let { class: className, content = $bindable() } = $props();
+	let { oninput, class: className, content = $bindable() } = $props();
 
 	let element = $state();
 	let editor = $state();
@@ -36,7 +37,7 @@
 			],
 			editorProps: {
 				attributes: {
-					class: 'prose prose-sm sm:prose-base m-1 focus:outline-none text-black dark:text-white'
+					class: 'prose prose-sm sm:prose-base m-1 focus:outline-none text-black dark:text-white custom-prose-line-height'
 				},
 				handleKeyDown: (view, event) => {
 					if (event.key === 'Enter') {
@@ -59,7 +60,8 @@
 			onUpdate: ({ editor }) => {
 				// Update the content prop whenever the editor content changes
 				if (editor) {
-					content = editor.getHTML();
+					content = DOMPurify.sanitize(editor.getHTML());
+					oninput();
 				}
 			},
 			onTransaction: () => {

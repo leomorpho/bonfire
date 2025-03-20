@@ -129,6 +129,7 @@
 		"d3-array": "^3.2.4",
 		"d3-scale": "^4.0.2",
 		"date-fns": "^4.1.0",
+		"dompurify": "^3.2.4",
 		"drizzle-orm": "^0.35.3",
 		"emailjs": "^4.0.3",
 		"embla-carousel": "^8.3.0",
