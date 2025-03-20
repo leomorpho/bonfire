@@ -50,6 +50,7 @@
 	import LoadingSpinner from '../LoadingSpinner.svelte';
 	import UnpublishEventBtn from './buttons/UnpublishEventBtn.svelte';
 	import DeleteEventBtn from './buttons/DeleteEventBtn.svelte';
+	import TipTapTextEditor from '../input/tiptap/TipTapTextEditor.svelte';
 
 	let { mode, event = null, currUserId = null } = $props();
 
@@ -642,11 +643,12 @@
 					/>
 				</div>
 				<TextAreaAutoGrow
-					cls={'bg-white dark:bg-slate-900 dark:bg-slate-900'}
+					cls={'bg-white dark:bg-slate-900'}
 					placeholder="Details"
 					bind:value={details}
 					oninput={debouncedUpdateEvent}
 				/>
+				<TipTapTextEditor bind:content={details} class="bg-white dark:bg-slate-900 " />
 				<MaxCapacity oninput={debouncedUpdateEvent} bind:value={maxCapacity} />
 			</form>
 

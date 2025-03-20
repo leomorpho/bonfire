@@ -115,3 +115,10 @@ Create the master playlist `master.m3u8` file:
 #EXT-X-STREAM-INF:BANDWIDTH=1000000,RESOLUTION=640x360
 360p.m3u8
 ```
+
+# Marketing
+
+## Subreddits
+- r/EventProduction: https://www.reddit.com/r/EventProduction/
+- 
+- https://www.reddit.com/r/EventProduction/comments/1c1o2hd/ticketing_platform_alternative_to_eventbrite/

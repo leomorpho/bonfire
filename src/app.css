@@ -1,7 +1,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
- 
+@plugin "@tailwindcss/typography";
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -89,4 +90,14 @@
   --color-surface-200: 0 0% 94.902%;
   --color-surface-300: 180 1.9608% 90%;
   --color-surface-content: 215 27.907% 16.8627%;
+}
+
+
+/* Custom CSS Needed for TipTap PlaceHolder */
+.ProseMirror p.is-editor-empty:first-child::before {
+  color: #adb5bd;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
 }
