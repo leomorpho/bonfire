@@ -108,7 +108,7 @@
 	let isEventCreated = $state(mode == EventFormType.UPDATE || false);
 	// TODO: support events created before payments system was created. There was no concept of "published"/"draft". Remove once all events have an attached transaction.
 	let isEventPublished = $derived(event && event.is_published);
-	let userIsOutOfLogs = $derived(!numLogsLoading && numLogs == 0 && !event.isPublished);
+	let userIsOutOfLogs = $derived(!numLogsLoading && numLogs == 0 && event && !event.isPublished);
 	let userFavoriteNonProfitId = $state(null);
 
 	$effect(() => {
@@ -648,7 +648,11 @@
 					bind:value={details}
 					oninput={debouncedUpdateEvent}
 				/> -->
-				<TipTapTextEditor bind:content={details} oninput={debouncedUpdateEvent} class="bg-white dark:bg-slate-900 " />
+				<TipTapTextEditor
+					bind:content={details}
+					oninput={debouncedUpdateEvent}
+					class="bg-white dark:bg-slate-900 "
+				/>
 				<MaxCapacity oninput={debouncedUpdateEvent} bind:value={maxCapacity} />
 			</form>
 

@@ -48,9 +48,12 @@
 				.where(['id', '=', $page.data.user.id])
 				.build(),
 			(result) => {
-				loadingUserTriplitObject = false;
+				console.log('--> result', result);
 				favouriteNonProfitId = result[0]?.favourite_non_profit_id || null;
 				nonProfit = result[0]?.favourite_non_profit || null;
+				console.log('--> result.nonProfit', nonProfit);
+
+				loadingUserTriplitObject = false;
 			},
 			(error) => {
 				console.error('Error fetching user data:', error);
@@ -84,9 +87,9 @@
 		</span> logs remaining. Click below to buy more.
 	</div>
 
-	<div class="w-full flex flex-col md:flex-row justify-center items-center md:space-x-10">
+	<div class="flex w-full flex-col items-center justify-center md:flex-row md:space-x-10">
 		<div>
-			{#if loadingUserTriplitObject}
+			{#if loadingUserTriplitObject || !nonProfit}
 				<div class="flex w-full justify-center"><SvgLoader /></div>
 			{:else if !canBuyLogs}
 				<SelectNonProfitAlert />
@@ -106,7 +109,7 @@
 		</div>
 
 		<div class="flex justify-center">
-			<div class="my-5 space-y-5 w-60">
+			<div class="my-5 w-60 space-y-5">
 				<LogPackage
 					disabled={!canBuyLogs}
 					price={'1'}

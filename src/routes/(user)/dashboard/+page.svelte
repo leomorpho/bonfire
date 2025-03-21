@@ -47,7 +47,7 @@
 				'one'
 			)
 			.include('event')
-			.order('event.start_time', 'ASC')
+			.order('event.start_time', 'DESC')
 			.build();
 	}
 
@@ -152,7 +152,7 @@
 					</div>
 				</Tabs.List>
 			</div>
-			<Tabs.Content value="about" class="mb-10 w-full">
+			<Tabs.Content value="about" class="mb-10 w-full h-fit">
 				{#if futureEventsLoading}
 					<!-- We don't want to show if the query is loading as it could be showing cached data that can just be refreshed seamlessy-->
 					<Loader />
@@ -194,7 +194,7 @@
 					</div>
 				{/if}
 			</Tabs.Content>
-			<Tabs.Content value="discussions" class="mb-2 h-[calc(100vh-4rem)] w-full">
+			<Tabs.Content value="discussions" class="mb-2 w-full h-fit">
 				{#if pastEventsLoading}
 					<div class="h-32">
 						<div class="font-mono">Loading...</div>
