@@ -43,7 +43,7 @@ await client.insert('user', { id: user2?.id, username: 'Jo' });
 
 const path = profileImagesDir + '/mike.jpg';
 // TODO: could probably check if image exists in S3 first
-await uploadProfileImage(path, user?.id as string);
+await uploadProfileImage(path, user?.id as string, false);
 
 const now = new Date(); // Current date and time
 const fiveWeeksLater = new Date(now.getTime() + 5 * 7 * 24 * 60 * 60 * 1000); // Add 5 weeks in milliseconds
@@ -70,7 +70,7 @@ const { output } = await client.insert('events', {
 const eventCreated = output;
 
 const bannerImagePath = bannerImagesDir + '/mike-bd-banner.jpg';
-await uploadBannerImage(bannerImagePath, user?.id as string, eventCreated.id);
+await uploadBannerImage(bannerImagePath, user?.id as string, eventCreated.id, false);
 
 await createNewThread(client, output.id, user?.id as string, MAIN_THREAD);
 
@@ -137,7 +137,7 @@ const knownData = [
 	{ email: 'charlie.brown@example.com', username: 'Charlie', photo: 'charlie.jpg' },
 	{ email: 'diana.prince@example.com', username: 'diana', photo: 'diana.jpg' },
 	{ email: 'edward.lee@example.com', username: 'edward', photo: 'edward.jpg' },
-	{ email: 'fiona.white@example.com', username: 'fiona', photo:'fiona.jpeg' },
+	{ email: 'fiona.white@example.com', username: 'fiona', photo: 'fiona.jpeg' },
 	{ email: 'george.clark@example.com', username: 'George', photo: 'george.jpg' },
 	{ email: 'hannah.nguyen@example.com', username: 'Hannah', photo: 'hannah.jpg' },
 	{ email: 'ian.martinez@example.com', username: 'Ian', photo: 'ian.jpg' },
@@ -165,7 +165,7 @@ for (let i = 0; i < knownData.length; i++) {
 	if (attendeeData.photo) {
 		const path = profileImagesDir + '/' + attendeeData.photo;
 		// TODO: could probably check if image exists in S3 first
-		await uploadProfileImage(path, attendeeUser?.id as string);
+		await uploadProfileImage(path, attendeeUser?.id as string, false);
 	}
 
 	const newAttendeeResult = await client.insert('attendees', {

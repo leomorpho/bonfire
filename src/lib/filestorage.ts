@@ -5,7 +5,8 @@ import {
 	UploadPartCommand,
 	CompleteMultipartUploadCommand,
 	AbortMultipartUploadCommand,
-	DeleteObjectCommand
+	DeleteObjectCommand,
+	HeadObjectCommand
 } from '@aws-sdk/client-s3';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
@@ -206,7 +207,11 @@ export async function processGalleryFile(
 	}
 }
 
-export async function uploadProfileImage(filePath: string, userId: string | null) {
+export async function uploadProfileImage(
+	filePath: string,
+	userId: string | null,
+	overwrite: boolean = true
+) {
 	if (!userId) {
 		throw new Error('missing userId in call to uploadProfileImage');
 	}
@@ -219,6 +224,14 @@ export async function uploadProfileImage(filePath: string, userId: string | null
 	const cacheBusterRandomId = generateId(5);
 	const fullImageKey = `profile-images/${userId}/full_cb${cacheBusterRandomId}.jpg`;
 	const smallImageKey = `profile-images/${userId}/small_cb${cacheBusterRandomId}.jpg`;
+
+	if (
+		!overwrite &&
+		(await fileExistsInS3(bucketName, largeImageKey)) &&
+		(await fileExistsInS3(bucketName, smallImageKey))
+	) {
+		return;
+	}
 
 	// Convert File to Buffer
 	const fileBuffer = await sharp(filePath).toFormat('png').toBuffer();
@@ -306,7 +319,8 @@ export async function uploadProfileImage(filePath: string, userId: string | null
 export async function uploadBannerImage(
 	filePath: string,
 	userId: string | null,
-	eventId: string | null
+	eventId: string | null,
+	overwrite: boolean = true
 ) {
 	if (!userId) {
 		throw new Error('userId should be set in call to uploadBannerImage');
@@ -321,6 +335,14 @@ export async function uploadBannerImage(
 	const cacheBusterRandomId = generateId(5);
 	const largeImageKey = `banner/${eventId}/lg_cb${cacheBusterRandomId}.jpg`;
 	const smallImageKey = `banner/${eventId}/sm_cb${cacheBusterRandomId}.jpg`;
+
+	if (
+		!overwrite &&
+		(await fileExistsInS3(bucketName, largeImageKey)) &&
+		(await fileExistsInS3(bucketName, smallImageKey))
+	) {
+		return;
+	}
 
 	// Convert File to Buffer
 	const fileBuffer = await sharp(filePath).toFormat('png').toBuffer();
@@ -878,5 +900,17 @@ async function cleanOldTempFiles(tempDir: string): Promise<void> {
 		);
 	} catch (err) {
 		console.warn('Failed to clean old temp files:', err);
+	}
+}
+
+async function fileExistsInS3(bucketName: string, key: string): Promise<boolean> {
+	try {
+		await s3.send(new HeadObjectCommand({ Bucket: bucketName, Key: key }));
+		return true; // File exists
+	} catch (error) {
+		if (error.name === 'NotFound') {
+			return false; // File does not exist
+		}
+		throw error; // Rethrow other errors
 	}
 }
