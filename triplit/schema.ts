@@ -322,7 +322,7 @@ export const schema = {
 		}),
 		permissions: {
 			admin: {
-				read: { filter: [true] },
+				read: { filter: [true] }
 				// insert: { filter: [true] },
 				// update: { filter: [true] }
 			},
@@ -413,6 +413,7 @@ export const schema = {
 			longitude: S.Optional(S.Number()),
 			user_id: S.String(),
 			user: S.RelationById('user', '$user_id'),
+			max_num_guests_per_attendee: S.Optional(S.Number({ default: 0 })),
 			attendees: S.RelationMany('attendees', {
 				where: [['event_id', '=', '$id']]
 			}),
@@ -453,7 +454,7 @@ export const schema = {
 		}),
 		permissions: {
 			admin: {
-				read: { filter: [true] },
+				read: { filter: [true] }
 				// insert: { filter: [true] },
 				// update: { filter: [true] }
 			},
@@ -613,7 +614,7 @@ export const schema = {
 		}),
 		permissions: {
 			admin: {
-				read: { filter: [true] },
+				read: { filter: [true] }
 				// insert: { filter: [true] },
 				// update: { filter: [true] }
 			},
@@ -684,7 +685,7 @@ export const schema = {
 		}),
 		permissions: {
 			admin: {
-				read: { filter: [true] },
+				read: { filter: [true] }
 				// insert: { filter: [true] },
 				// update: { filter: [true] }
 			},

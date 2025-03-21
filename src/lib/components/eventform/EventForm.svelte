@@ -331,7 +331,7 @@
 		}
 	};
 
-	const updateEvent = async (createTransaction = false, isPublished = false) => {
+	const updateEvent = async (createTransaction = false, publishEventNow = null) => {
 		try {
 			const feHttpClient = getFeHttpTriplitClient($page.data.jwt);
 			await feHttpClient.update('events', event.id, async (entity) => {
@@ -348,7 +348,7 @@
 				entity.max_num_guests_per_attendee = maxNumGuest || 0;
 				entity.latitude = latitude;
 				entity.longitude = longitude;
-				entity.is_published = isPublished;
+				entity.is_published = publishEventNow ?? isEventPublished;
 			});
 			console.log('UPDATING', latitude, longitude);
 

@@ -35,7 +35,7 @@
 
 <CustomAlertDialog
 	continueCallback={() => unpublishEvent()}
-	dialogDescription={'Once unpublished, the event will be hidden from all attendees and admins. You can republish it anytime.'}
+	dialogDescription={'Once unpublished, the event will be hidden from all attendees and admins. You can republish it anytime for free.'}
 	cls={'w-full'}
 >
 	<Button

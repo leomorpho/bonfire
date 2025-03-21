@@ -51,11 +51,11 @@
 	</div>
 
 	<div class="flex w-full md:space-x-3">
-		<div class="hidden lg:block lg:w-1/2">
+		<div class="hidden lg:block lg:w-1/2 xl:w-2/3">
 			<EventDetails {eventDescription} />
 		</div>
 		<div
-			class="h-fit w-full rounded-xl bg-slate-100/90 p-2 pt-5 text-center shadow-lg dark:bg-slate-900/90 lg:w-1/2"
+			class="h-fit w-full rounded-xl bg-slate-100/90 p-2 pt-5 text-center shadow-lg dark:bg-slate-900/90 lg:w-1/2 xl:w-1/3"
 		>
 			<div class="flex items-center justify-center font-medium">
 				<Calendar class="mr-2 !h-4 !w-4 shrink-0" />{formatHumanReadable(eventStartTime)}
