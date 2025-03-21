@@ -104,7 +104,7 @@
 <div class="flex w-full justify-center">
 	<button
 		onclick={changeToDiscussionsTab}
-		class="mb-2 w-fit rounded-xl bg-blue-200 bg-opacity-40 p-2 text-sm hover:bg-blue-300 hover:bg-opacity-40 dark:bg-blue-700 dark:bg-opacity-40 dark:hover:bg-blue-600 dark:hover:bg-opacity-40"
+		class="mb-2 w-fit rounded-xl bg-blue-400/80 p-2 text-sm hover:bg-blue-300/80 hover:bg-opacity-40 dark:bg-blue-700/50 dark:hover:bg-blue-600/50"
 	>
 		Have a suggestion? Click here to share it in the bonfire's discussion!
 	</button>

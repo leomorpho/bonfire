@@ -51,6 +51,7 @@
 	import UnpublishEventBtn from './buttons/UnpublishEventBtn.svelte';
 	import DeleteEventBtn from './buttons/DeleteEventBtn.svelte';
 	import TipTapTextEditor from '../input/tiptap/TipTapTextEditor.svelte';
+	import GuestCountFeature from './GuestCountFeature.svelte';
 
 	let { mode, event = null, currUserId = null } = $props();
 
@@ -73,6 +74,7 @@
 	let endMinute = $state(''); // State for minute
 	let ampmEnd: string = $state('PM'); // State for AM/PM
 	let maxCapacity: number | null = $state(event?.max_capacity);
+	let maxNumGuest: number | null = $state(event?.max_num_guests_per_attendee ?? 0);
 	let latitude: number | null = $state(event?.latitude);
 	let longitude: number | null = $state(event?.longitude);
 
@@ -298,6 +300,7 @@
 				overlay_color: overlayColor || '#000000',
 				overlay_opacity: overlayOpacity || 0.4,
 				max_capacity: maxCapacity || null,
+				max_num_guests_per_attendee: maxNumGuest || 0,
 				non_profit_id: userFavoriteNonProfitId || null,
 				latitude: latitude,
 				longitude: longitude
@@ -342,6 +345,7 @@
 				entity.overlay_color = overlayColor;
 				entity.overlay_opacity = overlayOpacity;
 				entity.max_capacity = maxCapacity;
+				entity.max_num_guests_per_attendee = maxNumGuest || 0;
 				entity.latitude = latitude;
 				entity.longitude = longitude;
 				entity.is_published = isPublished;
@@ -654,6 +658,7 @@
 					class="bg-white dark:bg-slate-900 "
 				/>
 				<MaxCapacity oninput={debouncedUpdateEvent} bind:value={maxCapacity} />
+				<GuestCountFeature oninput={debouncedUpdateEvent} bind:value={maxNumGuest} />
 			</form>
 
 			<div class="mt-5 grid w-full grid-cols-1 gap-2 sm:grid-cols-2">

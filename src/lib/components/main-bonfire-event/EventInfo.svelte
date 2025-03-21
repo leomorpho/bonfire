@@ -7,6 +7,7 @@
 	import ShareLocation from '../ShareLocation.svelte';
 	import Map from '$lib/components/map/Map.svelte';
 	import DOMPurify from 'dompurify';
+	import EventDetails from './EventDetails.svelte';
 
 	let {
 		bannerInfo,
@@ -23,29 +24,6 @@
 		longitude = null
 	} = $props();
 </script>
-
-{#snippet details(eventDescription: string | null | undefined)}
-	<div
-		class="flex h-fit flex-col rounded-xl bg-slate-100/90 p-2 py-3 shadow-lg dark:bg-slate-900/90 md:py-5"
-	>
-		<div class="mb-3 flex w-full justify-center font-semibold sm:text-xl md:text-2xl lg:mb-5">
-			Details
-		</div>
-		{#if eventDescription}
-			<div
-				class="custom-prose-line-height custom-prose-line-height prose prose-sm
-			m-1 rounded-lg !bg-white p-4 text-black sm:prose-base focus:outline-none 
-			prose-h1:text-black prose-h2:text-black prose-p:text-black prose-blockquote:text-black 
-			prose-strong:text-black dark:!bg-slate-800 dark:prose-h1:text-white dark:prose-h2:text-white 
-			dark:prose-p:text-white dark:prose-strong:text-white sm:p-6 md:p-10 lg:p-4"
-			>
-				{@html DOMPurify.sanitize(eventDescription)}
-			</div>
-		{:else}
-			{'No details yet...'}
-		{/if}
-	</div>
-{/snippet}
 
 <div class="relative mt-5 space-y-3 rounded-xl py-4 sm:mt-0">
 	{#if bannerInfo && bannerInfo.bannerIsSet}
@@ -74,7 +52,7 @@
 
 	<div class="flex w-full md:space-x-3">
 		<div class="hidden lg:block lg:w-1/2">
-			{@render details(eventDescription)}
+			<EventDetails {eventDescription} />
 		</div>
 		<div
 			class="h-fit w-full rounded-xl bg-slate-100/90 p-2 pt-5 text-center shadow-lg dark:bg-slate-900/90 lg:w-1/2"
@@ -136,6 +114,6 @@
 	</div>
 
 	<div class="block pt-2 lg:hidden">
-		{@render details(eventDescription)}
+		<EventDetails {eventDescription} />
 	</div>
 </div>
