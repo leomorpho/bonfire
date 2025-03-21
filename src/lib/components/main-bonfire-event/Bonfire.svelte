@@ -33,7 +33,7 @@
 	import EventInfo from '$lib/components/main-bonfire-event/EventInfo.svelte';
 	import Attendees from '$lib/components/main-bonfire-event/Attendees.svelte';
 	import SignUpMsg from './SignUpMsg.svelte';
-	import EventStylerBottomSheet from '../event-styles/EventStylerBottomSheet.svelte';
+	// import EventStylerBottomSheet from '../event-styles/EventStylerBottomSheet.svelte';
 
 	let {
 		currUserId,
@@ -59,37 +59,10 @@
 		tempAttendeeId,
 		tempAttendeeSecret,
 		fileCount = 0,
-		numGuestsBringing = 0,
+		maxNumGuestsAllowedPerAttendee = 0,
+		numGuestsCurrentAttendeeIsBringing = 0,
 		showMaxNumPeople = 50
 	} = $props();
-
-	console.log('Component Props:');
-	Object.entries({
-		currUserId,
-		eventOrganizerId,
-		eventOrganizerUsername,
-		eventId,
-		eventCreatorUserId,
-		eventStartTime,
-		eventEndTime,
-		eventTitle,
-		eventDescription,
-		eventIsPublished,
-		eventLocation,
-		eventNumAttendeesGoing,
-		eventMaxCapacity,
-		eventNumAnnouncements,
-		eventNumFiles,
-		eventNumBringListItems,
-		bannerInfo,
-		isUserAnAttendee,
-		jwt,
-		tempAttendeeId,
-		tempAttendeeSecret,
-		fileCount,
-		numGuestsBringing,
-		showMaxNumPeople
-	}).forEach(([key, value]) => console.log(`${key}:`, value));
 
 	let client: TriplitClient;
 
@@ -160,7 +133,7 @@
 				// Set RSVP status based on the attendee record, or keep it as default
 				if (currentUserAttendee) {
 					rsvpStatus = currentUserAttendee.status;
-					numGuestsBringing = currentUserAttendee.guest_count;
+					numGuestsCurrentAttendeeIsBringing = currentUserAttendee.guest_count;
 				}
 
 				if (dev) {
@@ -285,7 +258,7 @@
 					if (results.length == 1) {
 						tempAttendee = results[0];
 						rsvpStatus = tempAttendee?.status;
-						numGuestsBringing = tempAttendee?.guest_count;
+						numGuestsCurrentAttendeeIsBringing = tempAttendee?.guest_count;
 					}
 				},
 				(error) => {
@@ -346,7 +319,9 @@
 						styleStore.set(event.style);
 						overlayColorStore.set(event.overlay_color);
 						overlayOpacityStore.set(event.overlay_opacity);
-						eventLoading = false;
+
+						maxNumGuestsAllowedPerAttendee = event.max_num_guests_per_attendee ?? 0;
+						console.log("maxNumGuestsAllowedPerAttendee", maxNumGuestsAllowedPerAttendee)
 
 						if (event.event_admins) {
 							adminUserIds = new Set(
@@ -357,6 +332,7 @@
 						if (event.banner_media.blurr_hash != bannerInfo.bannerBlurHash) {
 							fetchBannerInfo(eventId, tempAttendeeSecret);
 						}
+						eventLoading = false;
 					}
 				}
 			},
@@ -618,7 +594,8 @@
 										{eventId}
 										{isAnonymousUser}
 										{rsvpCanBeChanged}
-										numGuests={numGuestsBringing}
+										{maxNumGuestsAllowedPerAttendee}
+										{numGuestsCurrentAttendeeIsBringing}
 										eventOwnerId={eventCreatorUserId}
 									/>
 

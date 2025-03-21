@@ -136,3 +136,5 @@ export const TransactionType = {
 	BONFIRE_HOSTED: 'bonfire_hosted'
 };
 export type TransactionType = (typeof TransactionType)[keyof typeof TransactionType];
+
+export const ABS_MAX_GUEST_NUM = 6;

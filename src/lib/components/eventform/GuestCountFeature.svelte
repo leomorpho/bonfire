@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ABS_MAX_GUEST_NUM } from './../../enums.ts';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import Checkbox from '../ui/checkbox/checkbox.svelte';
 	import Input from '../ui/input/input.svelte';
@@ -9,7 +10,7 @@
 
 	$effect(() => {
 		if (!value && checked) {
-			value = 1;
+			value = 0;
 		}
 	});
 
@@ -43,6 +44,7 @@
 				type="number"
 				bind:value
 				min="1"
+				max={ABS_MAX_GUEST_NUM}
 				pattern="[0-9]*"
 				inputmode="numeric"
 				class="w-24 bg-slate-200 text-center dark:bg-slate-900 sm:w-20 md:w-24"

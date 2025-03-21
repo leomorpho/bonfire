@@ -200,6 +200,7 @@
 									numGuests={attendance.guest_count}
 									attendeesStatuses={attendance.attendees}
 									temporaryAttendeesStatuses={attendance.temporary_attendees}
+									maxNumGuestsAllowedPerAttendee={attendance.event.max_num_guests_per_attendee}
 								/>
 							</div>
 						{/each}
@@ -234,6 +235,7 @@
 									numGuests={attendance.guest_count}
 									attendeesStatuses={attendance.attendees}
 									temporaryAttendeesStatuses={attendance.temporary_attendees}
+									maxNumGuestsAllowedPerAttendee={attendance.event.max_num_guests_per_attendee}
 								/>
 							</div>
 						{/each}

@@ -29,7 +29,8 @@
 		eventOwnerId,
 		isAnonymousUser,
 		rsvpCanBeChanged = true,
-		numGuests = 0
+		maxNumGuestsAllowedPerAttendee = 0,
+		numGuestsCurrentAttendeeIsBringing = 0
 	} = $props();
 
 	let isAnonRsvpDialogOpen = $state(false);
@@ -63,7 +64,7 @@
 	const updateRSVP = async (
 		event: Event,
 		newValue: string | null,
-		numGuests: number | null = 0
+		numGuestsCurrentAttendeeIsBringing: number | null = 0
 	) => {
 		if (!newValue) {
 			newValue = rsvpStatus;
@@ -79,7 +80,11 @@
 			// (b) enter a name and generate a unique link to access the event with their temporary identity
 			isAnonRsvpDialogOpen = true;
 		} else if ($page.data.user) {
-			if (rsvpStatus == Status.DEFAULT && !isPlusOneSelectDialogOpenForFullUser) {
+			if (
+				rsvpStatus == Status.DEFAULT &&
+				!isPlusOneSelectDialogOpenForFullUser &&
+				maxNumGuestsAllowedPerAttendee > 0
+			) {
 				// NOTE: updateRSVP will be called again from the opened dialog once the number of guests has been selected
 				dropdownOpen = false;
 				newRsvpStatusToSave = newValue;
@@ -87,10 +92,10 @@
 				return;
 			}
 			console.log('updating RSVP status for logged in user');
-			await updateRSVPForLoggedInUser(newValue as string, numGuests);
+			await updateRSVPForLoggedInUser(newValue as string, numGuestsCurrentAttendeeIsBringing);
 		} else {
 			console.log('updating RSVP status for temporary user');
-			await updateRSVPForTempUser(newValue as string, numGuests);
+			await updateRSVPForTempUser(newValue as string, numGuestsCurrentAttendeeIsBringing);
 		}
 		dropdownOpen = false;
 	};
@@ -132,7 +137,10 @@
 		}
 	};
 
-	const updateRSVPForTempUser = async (newValue: string, numGuests: number | null) => {
+	const updateRSVPForTempUser = async (
+		newValue: string,
+		numGuestsCurrentAttendeeIsBringing: number | null
+	) => {
 		const tempAttendeeSecret = $page.url.searchParams.get(tempAttendeeSecretParam);
 
 		if (!tempAttendeeSecret) {
@@ -152,7 +160,7 @@
 					body: JSON.stringify({
 						tempAttendeeSecret,
 						rsvpStatus: newValue,
-						numGuests: numGuests
+						numGuestsCurrentAttendeeIsBringing: numGuestsCurrentAttendeeIsBringing
 					})
 				}
 			);
@@ -171,7 +179,10 @@
 		}
 	};
 
-	const updateRSVPForLoggedInUser = async (newValue: string, numGuests: number | null) => {
+	const updateRSVPForLoggedInUser = async (
+		newValue: string,
+		numGuestsCurrentAttendeeIsBringing: number | null
+	) => {
 		try {
 			const query = client
 				.query('attendees')
@@ -194,7 +205,11 @@
 			let attendanceId = attendance?.id;
 			if (!attendance) {
 				try {
-					const attendance = await upsertUserAttendance(eventId, newValue as Status, numGuests);
+					const attendance = await upsertUserAttendance(
+						eventId,
+						newValue as Status,
+						numGuestsCurrentAttendeeIsBringing
+					);
 					attendanceId = attendance?.id;
 				} catch (e) {
 					console.error(
@@ -205,7 +220,11 @@
 				}
 			} else {
 				try {
-					await upsertUserAttendance(eventId, newValue as Status, numGuests);
+					await upsertUserAttendance(
+						eventId,
+						newValue as Status,
+						numGuestsCurrentAttendeeIsBringing
+					);
 				} catch (e) {
 					console.error('failed to update attendance:', newValue, e);
 				}
@@ -263,12 +282,13 @@
 
 <div class="mt-2 flex items-center space-x-1">
 	{#if rsvpCanBeChanged}
-		{#if rsvpStatus != Status.DEFAULT}
+		{#if rsvpStatus != Status.DEFAULT && maxNumGuestsAllowedPerAttendee > 0}
 			<div>
 				<UpdatePlusOneSelect
-					bind:numGuests
+					{maxNumGuestsAllowedPerAttendee}
+					bind:numGuests={numGuestsCurrentAttendeeIsBringing}
 					updateCallback={(e: Event) => {
-						updateRSVP(e, newRsvpStatusToSave, numGuests);
+						updateRSVP(e, newRsvpStatusToSave, numGuestsCurrentAttendeeIsBringing);
 					}}
 				/>
 			</div>
@@ -327,11 +347,14 @@
 			<Dialog.Description>Let us know if you are, don't count yourself.</Dialog.Description>
 		</Dialog.Header>
 
-		<PlusOneSelect bind:numGuests />
+		<PlusOneSelect
+			bind:numGuests={numGuestsCurrentAttendeeIsBringing}
+			maxGuests={maxNumGuestsAllowedPerAttendee}
+		/>
 		<Button
 			class="w-full"
 			onclick={(e) => {
-				updateRSVP(e, newRsvpStatusToSave, numGuests);
+				updateRSVP(e, newRsvpStatusToSave, numGuestsCurrentAttendeeIsBringing);
 			}}
 		>
 			Let's go!
@@ -339,4 +362,9 @@
 	</Dialog.Content>
 </Dialog.Root>
 
-<TempAttendeeDialog bind:isAnonRsvpDialogOpen {eventId} {tempUserRsvpStatus} />
+<TempAttendeeDialog
+	bind:isAnonRsvpDialogOpen
+	{eventId}
+	{tempUserRsvpStatus}
+	{maxNumGuestsAllowedPerAttendee}
+/>

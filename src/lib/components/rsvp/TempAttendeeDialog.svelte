@@ -15,7 +15,8 @@
 	let {
 		isAnonRsvpDialogOpen = $bindable<boolean>(),
 		tempUserRsvpStatus = $bindable<string>(),
-		eventId
+		eventId,
+		maxNumGuestsAllowedPerAttendee = 0
 	} = $props();
 
 	let tempName: null | string = $state(null);
@@ -184,11 +185,13 @@
 				</ul>
 			</div>
 		{/if}
-		<div class="text-sm text-slate-500 mt-2">
-			Are you bringing any guests? Let us know if you are, and don't count yourself.
-		</div>
+		{#if maxNumGuestsAllowedPerAttendee > 0}
+			<div class="mt-2 text-sm text-slate-500">
+				Are you bringing any guests? Let us know if you are, and don't count yourself.
+			</div>
 
-		<PlusOneSelect bind:numGuests={numExtraGuests} />
+			<PlusOneSelect bind:numGuests={numExtraGuests} maxGuests={maxNumGuestsAllowedPerAttendee} />
+		{/if}
 		<Button
 			type="submit"
 			class="w-full"

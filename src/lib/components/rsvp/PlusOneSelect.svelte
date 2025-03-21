@@ -1,9 +1,14 @@
 <script lang="ts">
 	import { dev } from '$app/environment';
+	import { ABS_MAX_GUEST_NUM } from '$lib/enums';
 	import { cn } from '$lib/utils';
+
 
 	let { numGuests = $bindable<number>(), maxGuests = 6 } = $props();
 
+	if (maxGuests > ABS_MAX_GUEST_NUM) {
+		maxGuests = ABS_MAX_GUEST_NUM;
+	}
 	// Generate options dynamically based on maxGuests
 	const OPTIONS = ['Just me', ...Array.from({ length: maxGuests }, (_, i) => `+${i + 1}`)];
 

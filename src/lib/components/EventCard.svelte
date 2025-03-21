@@ -16,7 +16,8 @@
 		isPublished = true,
 		numGuests = 0,
 		attendeesStatuses,
-		temporaryAttendeesStatuses
+		temporaryAttendeesStatuses,
+		maxNumGuestsAllowedPerAttendee = 0
 	} = $props();
 
 	let rsvpCanBeChanged = new Date(event.start_time) >= new Date();
@@ -94,7 +95,8 @@
 						eventId={event.id}
 						{rsvpCanBeChanged}
 						isAnonymousUser={false}
-						{numGuests}
+						numGuestsCurrentAttendeeIsBringing={numGuests}
+						{maxNumGuestsAllowedPerAttendee}
 						eventOwnerId={event.user_id}
 					/>
 				</button>
