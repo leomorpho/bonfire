@@ -18,6 +18,16 @@
 		showMaxNumPeople = 10,
 		isCurrenUserEventAdmin = false
 	} = $props();
+
+	// Sum up the total number of attendees, including guests
+	const totalGoing =
+		allAttendeesGoing.length + allAttendeesGoing.reduce((sum, a) => sum + (a.guest_count || 0), 0);
+	const totalMaybe =
+		allAttendeesMaybeGoing.length +
+		allAttendeesMaybeGoing.reduce((sum, a) => sum + (a.guest_count || 0), 0);
+	const totalNotGoing =
+		allAttendeesNotGoing.length +
+		allAttendeesNotGoing.reduce((sum, a) => sum + (a.guest_count || 0), 0);
 </script>
 
 <div class="mx-3 mt-5 items-center">
@@ -29,7 +39,11 @@
 		</div>
 	{:else if rsvpStatus}
 		{#if allAttendeesGoing.length > 0}
-			<AttendeesCount {allAttendeesGoing} {allAttendeesMaybeGoing} {allAttendeesNotGoing} />
+			<AttendeesCount
+				numAttendeesGoing={totalGoing}
+				numAttendeesMaybeGoing={totalMaybe}
+				numAttendeesNotGoing={totalNotGoing}
+			/>
 
 			<div id="going-attendees" class="flex flex-wrap items-center justify-center -space-x-4">
 				{#each allAttendeesGoing.slice(0, showMaxNumPeople) as attendee (attendee.id)}

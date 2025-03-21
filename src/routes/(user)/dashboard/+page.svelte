@@ -47,6 +47,18 @@
 				'one'
 			)
 			.include('event')
+			.subquery(
+				'attendees',
+				client.query('attendees').where(['event_id', '=', '$1.event_id']).select(['status']).build()
+			)
+			.subquery(
+				'temporary_attendees',
+				client
+					.query('temporary_attendees')
+					.where(['event_id', '=', '$1.event_id'])
+					.select(['status'])
+					.build()
+			)
 			.order('event.start_time', 'DESC')
 			.build();
 	}
@@ -152,7 +164,7 @@
 					</div>
 				</Tabs.List>
 			</div>
-			<Tabs.Content value="about" class="mb-10 w-full h-fit">
+			<Tabs.Content value="about" class="mb-10 h-fit w-full">
 				{#if futureEventsLoading}
 					<!-- We don't want to show if the query is loading as it could be showing cached data that can just be refreshed seamlessy-->
 					<Loader />
@@ -161,8 +173,7 @@
 						class="mx-auto mt-10 flex w-full max-w-sm flex-col items-center justify-center gap-2 space-y-5 rounded-lg bg-slate-100 p-6 text-center dark:bg-slate-800 dark:text-white sm:mt-16 sm:w-2/3"
 					>
 						<div class="flex items-center text-sm">
-							<Frown class="mr-2 !h-5 !w-5" />
-							<span>No events found.</span>
+							<span>You currently have no upcoming events.</span>
 						</div>
 						<!-- <p class="text-xs text-slate-600 dark:text-slate-300">
 						This app uses a <strong>local-first database</strong>, meaning it works offline. If your
@@ -179,7 +190,6 @@
 				{:else}
 					<div>
 						{#each futureAttendances as attendance}
-							{console.log('attendance', attendance)}
 							<div class="my-7 sm:my-10">
 								<EventCard
 									event={attendance.event}
@@ -188,13 +198,15 @@
 									rsvpStatus={attendance.status}
 									isPublished={attendance.event.is_published}
 									numGuests={attendance.guest_count}
+									attendeesStatuses={attendance.attendees}
+									temporaryAttendeesStatuses={attendance.temporary_attendees}
 								/>
 							</div>
 						{/each}
 					</div>
 				{/if}
 			</Tabs.Content>
-			<Tabs.Content value="discussions" class="mb-2 w-full h-fit">
+			<Tabs.Content value="discussions" class="mb-2 h-fit w-full">
 				{#if pastEventsLoading}
 					<div class="h-32">
 						<div class="font-mono">Loading...</div>
@@ -212,7 +224,6 @@
 				{:else if pastAttendances.length > 0}
 					<div>
 						{#each pastAttendances as attendance}
-							{console.log('attendance', attendance)}
 							<div class="my-7 sm:my-10">
 								<EventCard
 									event={attendance.event}
@@ -221,6 +232,8 @@
 									rsvpStatus={attendance.status}
 									isPublished={attendance.event.is_published}
 									numGuests={attendance.guest_count}
+									attendeesStatuses={attendance.attendees}
+									temporaryAttendeesStatuses={attendance.temporary_attendees}
 								/>
 							</div>
 						{/each}

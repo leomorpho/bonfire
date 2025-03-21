@@ -6,8 +6,18 @@
 	import Rsvp from './rsvp/Rsvp.svelte';
 	import { parseColor } from '$lib/styles';
 	import { goto } from '$app/navigation';
+	import AttendeesCount from './attendance/AttendeesCount.svelte';
 
-	let { event, userId, eventCreatorName, rsvpStatus, isPublished = true, numGuests = 0 } = $props();
+	let {
+		event,
+		userId,
+		eventCreatorName,
+		rsvpStatus,
+		isPublished = true,
+		numGuests = 0,
+		attendeesStatuses,
+		temporaryAttendeesStatuses
+	} = $props();
 
 	let rsvpCanBeChanged = new Date(event.start_time) >= new Date();
 	let overlayColor = event.overlay_color ?? '#000000';
@@ -16,6 +26,29 @@
 	let overlayStyle = $derived(
 		`background-color: rgba(var(--overlay-color-rgb, ${parseColor(overlayColor)}), ${overlayOpacity});`
 	);
+
+	function countStatuses(statusesArray: any) {
+		return statusesArray.reduce(
+			(acc, statusObj) => {
+				const status = statusObj.status;
+				const guestCount = statusObj.guest_count || 0;
+				if (status in acc) {
+					acc[status] += 1 + guestCount;
+				} else {
+					acc[status] = 1 + guestCount;
+				}
+				return acc;
+			},
+			{ going: 0, maybe: 0, not_going: 0 }
+		);
+	}
+
+	const attendeesCount = countStatuses(attendeesStatuses);
+	const temporaryAttendeesCount = countStatuses(temporaryAttendeesStatuses);
+
+	const totalGoing = attendeesCount.going + temporaryAttendeesCount.going;
+	const totalMaybe = attendeesCount.maybe + temporaryAttendeesCount.maybe;
+	const totalNotGoing = attendeesCount.not_going + temporaryAttendeesCount.not_going;
 </script>
 
 <button
@@ -44,6 +77,11 @@
 				<Card.Description>Hosted by {eventCreatorName}</Card.Description>
 			</Card.Header>
 			<Card.Content>
+				<AttendeesCount
+					numAttendeesGoing={totalGoing}
+					numAttendeesMaybeGoing={totalMaybe}
+					numAttendeesNotGoing={totalNotGoing}
+				/>
 				<button
 					class="interactive w-full md:max-w-96"
 					onclick={(e) => {
