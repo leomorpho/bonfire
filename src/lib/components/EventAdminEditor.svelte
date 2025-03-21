@@ -225,7 +225,7 @@
 						<Command.Empty>No attendees found.</Command.Empty>
 						<Command.Group>
 							{#if currentNonAdminAttendees.length > 10}
-								<div class="flex w-full justify-center rounded-lg bg-green-200 text-sm">
+								<div class="flex w-full justify-center rounded-lg bg-green-200 dark:bg-green-600 text-sm">
 									{currentNonAdminAttendees.length} attendees found
 								</div>
 							{/if}

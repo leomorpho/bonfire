@@ -321,7 +321,7 @@
 						overlayOpacityStore.set(event.overlay_opacity);
 
 						maxNumGuestsAllowedPerAttendee = event.max_num_guests_per_attendee ?? 0;
-						console.log("maxNumGuestsAllowedPerAttendee", maxNumGuestsAllowedPerAttendee)
+						console.log('maxNumGuestsAllowedPerAttendee', maxNumGuestsAllowedPerAttendee);
 
 						if (event.event_admins) {
 							adminUserIds = new Set(
@@ -705,6 +705,17 @@
 			</section>
 		</div>
 	{/if}
+	<div class="mx-4 flex flex-col items-center justify-center">
+		<section
+			class="mt-10 flex w-full justify-center sm:w-[450px] md:w-[550px] lg:w-[800px] xl:w-[950px]"
+		>
+			<HorizRule />
+
+			<a class="flex w-full justify-center" href="/bonfire/create">
+				<Button variant="link">Host your event with Bonfire</Button>
+			</a>
+		</section>
+	</div>
 {:else}
 	{console.log('YO this is an inconsistent state, eventLoading', eventLoading)}
 {/if}
