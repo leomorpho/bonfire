@@ -37,7 +37,7 @@
 			],
 			editorProps: {
 				attributes: {
-					class: 'prose prose-sm sm:prose-base m-1 focus:outline-none text-black dark:text-white custom-prose-line-height'
+					class: `prose prose-sm sm:prose-base m-1 focus:outline-none custom-prose-line-height prose-h1:text-black dark:prose-h1:text-white prose-h2:text-black dark:prose-h2:text-white prose-p:text-black dark:prose-p:text-white prose-strong:text-black dark:prose-strong:text-white prose-blockquote:text-black`
 				},
 				handleKeyDown: (view, event) => {
 					if (event.key === 'Enter') {
@@ -167,14 +167,8 @@
 	{/if}
 
 	<div
+		id="details-editor"
 		bind:this={element}
 		class={`mt-1 min-h-40 w-full rounded-lg border p-2 text-xs ${className}`}
 	></div>
 </div>
-
-<style>
-	.fixed-menu button.active {
-		background: black;
-		color: white;
-	}
-</style>

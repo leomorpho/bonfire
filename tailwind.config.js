@@ -28,6 +28,16 @@ const config = {
 			}
 		},
 		extend: {
+			// typography: (theme) => ({
+			// 	DEFAULT: {
+			// 		css: {
+			// 			'--tw-prose-body': theme('colors.black'),
+			// 			'--tw-prose-headings': 'var(--color-pink-900)',
+			// 			'--tw-prose-invert-body': theme('colors.white')
+
+			// 		}
+			// 	}
+			// }),
 			colors: {
 				border: 'hsl(var(--border) / <alpha-value>)',
 				input: 'hsl(var(--input) / <alpha-value>)',

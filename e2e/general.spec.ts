@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import {
 	addAnnouncementAsEventCreator,
 	createBonfire,
+	enterDetailsIntoEditor,
 	loginUser,
 	navigateTo,
 	uploadGalleryImage,
@@ -65,7 +66,6 @@ test('Create bonfire', async ({ page }) => {
 	await expect(page.getByRole('button', { name: 'PM caret sort' })).toBeVisible();
 	await expect(page.getByRole('button', { name: 'to' }).first()).toBeVisible();
 	await expect(page.getByText('Enter event address...')).toBeVisible();
-	await expect(page.getByPlaceholder('Details')).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Cancel' })).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Edit event style' })).toBeVisible();
 
@@ -94,8 +94,8 @@ test('Create bonfire', async ({ page }) => {
 	await expect(page.locator('#upsert-bonfire')).toBeEnabled();
 
 	// Enter details
-	await page.getByPlaceholder('Details').click();
-	await page.getByPlaceholder('Details').fill(details);
+
+	await enterDetailsIntoEditor(page, details);
 
 	// Enter address
 	await page.getByText('Enter event address...').click();
@@ -645,8 +645,8 @@ test('Event admins', async ({ browser }) => {
 	await adminPage.getByPlaceholder('Event Name').fill(newEventName);
 
 	const newDetails = eventDetails + ' new!';
-	await adminPage.getByPlaceholder('Details').click();
-	await adminPage.getByPlaceholder('Details').fill(newDetails);
+	await enterDetailsIntoEditor(adminPage, newDetails)
+
 	// Hit update
 	await adminPage.locator('#upsert-bonfire').click();
 

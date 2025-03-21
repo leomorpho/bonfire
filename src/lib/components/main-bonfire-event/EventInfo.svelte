@@ -28,11 +28,16 @@
 	<div
 		class="flex h-fit flex-col rounded-xl bg-slate-100/90 p-2 py-3 shadow-lg dark:bg-slate-900/90 md:py-5"
 	>
-		<div class="mb-3 flex w-full justify-center font-semibold lg:mb-5">Details</div>
+		<div class="mb-3 flex w-full justify-center font-semibold sm:text-xl md:text-2xl lg:mb-5">
+			Details
+		</div>
 		{#if eventDescription}
 			<div
-				class="custom-prose-line-height prose prose-sm m-1 text-black sm:prose-base
-			focus:outline-none prose-a:text-blue-600 dark:text-white !bg-white dark:!bg-slate-800 p-4 sm:p-6 md:p-10 lg:p-4 rounded-lg"
+				class="custom-prose-line-height custom-prose-line-height prose prose-sm
+			m-1 rounded-lg !bg-white p-4 text-black sm:prose-base focus:outline-none 
+			prose-h1:text-black prose-h2:text-black prose-p:text-black prose-blockquote:text-black 
+			prose-strong:text-black dark:!bg-slate-800 dark:prose-h1:text-white dark:prose-h2:text-white 
+			dark:prose-p:text-white dark:prose-strong:text-white sm:p-6 md:p-10 lg:p-4"
 			>
 				{@html DOMPurify.sanitize(eventDescription)}
 			</div>
