@@ -31,7 +31,7 @@
 </script>
 
 <Card.Root
-	class={`non-profit-card ${cls} ${selectable ? 'cursor-pointer' : ''} relative m-3 max-w-sm overflow-hidden rounded-lg border border-gray-200 bg-slate-100 shadow-sm transition-all duration-200 hover:shadow-lg dark:border-gray-700 dark:bg-slate-800 
+	class={`non-profit-card ${cls} ${selectable ? 'cursor-pointer' : ''} relative m-3 max-w-sm overflow-hidden rounded-xl border border-gray-200 bg-slate-100 shadow-sm transition-all duration-200 hover:shadow-lg dark:border-gray-700 dark:bg-slate-800 
 	${selected ? 'border-blue-500 bg-blue-100 dark:bg-blue-900' : ''}`}
 	onclick={toggleFavouriteNonProfit ? toggleFavouriteNonProfit : null}
 >
@@ -53,7 +53,7 @@
 			{description}
 		</Card.Description>
 	</Card.Header>
-	<Card.Content>
+	<Card.Content class="flex w-full justify-center">
 		<a href={websiteURL} target="_blank" class="text-blue-600 hover:underline"> Visit Website </a>
 		{#if isAdmin}
 			<p class="mt-1 text-sm text-gray-500 dark:text-gray-300">
