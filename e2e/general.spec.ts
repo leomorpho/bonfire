@@ -338,7 +338,7 @@ test('User attendee view', async ({ browser }) => {
 
 	const eventName = `${faker.animal.dog()} birthday party!`;
 	const eventDetails = 'It will be fun!';
-	await createBonfire(eventCreatorPage, eventName, eventDetails);
+	await createBonfire(eventCreatorPage, eventName, eventDetails, 2);
 	await expect(eventCreatorPage.getByRole('heading', { name: eventName })).toBeVisible();
 
 	const eventUrl = eventCreatorPage.url();
@@ -449,11 +449,10 @@ test('Temp attendee view', async ({ browser }) => {
 	await tempAttendeePage.getByPlaceholder('Tony Garfunkel').click();
 	await tempAttendeePage.getByPlaceholder('Tony Garfunkel').fill(tempAttendeeUsername);
 	await expect(
-		tempAttendeePage
-			.getByText("Are you bringing any guests? Let us know if you are, and don't count yourself.")
-			.first()
-	).toBeVisible();
-	await tempAttendeePage.getByText('+1', { exact: true }).click();
+		tempAttendeePage.getByText(
+			"Are you bringing any guests? Let us know if you are, and don't count yourself."
+		)
+	).toBeHidden();
 	await tempAttendeePage.getByRole('button', { name: 'Generate URL' }).click();
 
 	// Should be redirected to bonfire page
@@ -465,10 +464,6 @@ test('Temp attendee view', async ({ browser }) => {
 	await expect(tempAttendeePage.getByText('Sign up anytime to link your')).toBeVisible();
 	await expect(tempAttendeePage.getByRole('button', { name: 'Sign Up or Log In' })).toBeVisible();
 	await expect(tempAttendeePage.getByRole('button', { name: 'Copy Link' })).toBeVisible();
-
-	// Verify temp attendee is bringing one guest
-	const number = await tempAttendeePage.locator('#num-guest-you-are-bringing').textContent();
-	expect(number?.match(/\d+/)?.[0]).toBe('1');
 
 	// Verify address shows in mapping app dialog
 	await tempAttendeePage.locator('#share-location').click();
@@ -599,7 +594,7 @@ test('Event admins', async ({ browser }) => {
 
 	const eventName = `${faker.animal.dog()} birthday party!`;
 	const eventDetails = 'It will be fun!';
-	await createBonfire(eventCreatorPage, eventName, eventDetails);
+	await createBonfire(eventCreatorPage, eventName, eventDetails, 1);
 	await expect(eventCreatorPage.getByRole('heading', { name: eventName })).toBeVisible();
 
 	const eventUrl = eventCreatorPage.url();
@@ -645,7 +640,7 @@ test('Event admins', async ({ browser }) => {
 	await adminPage.getByPlaceholder('Event Name').fill(newEventName);
 
 	const newDetails = eventDetails + ' new!';
-	await enterDetailsIntoEditor(adminPage, newDetails)
+	await enterDetailsIntoEditor(adminPage, newDetails);
 
 	// Hit update
 	await adminPage.locator('#upsert-bonfire').click();

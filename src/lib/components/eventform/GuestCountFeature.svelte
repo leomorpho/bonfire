@@ -41,6 +41,7 @@
 				headcount for informal events without tickets.
 			</p>
 			<Input
+				id="maxNumberOfGuestsPerAttendeeInput"
 				type="number"
 				bind:value
 				min="1"
