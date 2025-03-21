@@ -44,7 +44,7 @@
 	// });
 </script>
 
-<div class="p- relative flex flex-col rounded-xl bg-slate-100/90 shadow-lg dark:bg-slate-900/90">
+<div class="relative flex flex-col rounded-xl bg-slate-100/90 shadow-lg dark:bg-slate-900/90">
 	<button
 		class="my-3 flex w-full items-center justify-center font-semibold sm:text-xl md:text-2xl lg:mb-5"
 		onclick={toggleExpand}
@@ -56,52 +56,54 @@
 			Details
 		</span>
 	</button>
-	{#if eventDescription}
-		{#if isExpanded}
-			<div
-				id="event-description-content"
-				class={`prose prose-sm overflow-hidden bg-white p-4 text-black ease-in-out
+	<div class="dark:bg-slate-800 dark:text-white w-full">
+		{#if eventDescription}
+			{#if isExpanded}
+				<div
+					id="event-description-content"
+					class={`prose prose-sm overflow-hidden bg-white p-4 text-black ease-in-out
              sm:prose-base focus:outline-none prose-h1:text-black prose-h2:text-black prose-p:text-black 
-            prose-blockquote:text-black prose-strong:text-black dark:bg-slate-800 dark:text-white
+            prose-blockquote:text-black prose-strong:text-black
             dark:prose-h1:text-white dark:prose-h2:text-white dark:prose-p:text-white dark:prose-strong:text-white 
             sm:p-6 md:p-10 lg:p-4`}
-				transition:slide={{ duration: 300 }}
-			>
-				{@html DOMPurify.sanitize(eventDescription)}
-			</div>
-		{:else}
-			<div
-				id="event-description-content-collapsed"
-				class={`prose prose-sm relative todo-max-h-[${maxHeight}px] overflow-hidden bg-white p-4
+					transition:slide={{ duration: 300 }}
+				>
+					{@html DOMPurify.sanitize(eventDescription)}
+				</div>
+			{:else}
+				<div
+					id="event-description-content-collapsed"
+					class={`prose prose-sm w-full todo-max-h-[${maxHeight}px] overflow-hidden p-4
              text-black ease-in-out sm:prose-base focus:outline-none prose-h1:text-black prose-h2:text-black 
-            prose-p:text-black prose-blockquote:text-black prose-strong:text-black dark:bg-slate-800
+            prose-p:text-black prose-blockquote:text-black prose-strong:text-black 
             dark:text-white dark:prose-h1:text-white dark:prose-h2:text-white dark:prose-p:text-white 
             dark:prose-strong:text-white sm:p-6 md:p-10 lg:p-4 ${showExpandButton ? '' : 'rounded-b-xl'}`}
-				transition:fade={{ duration: 100 }}
-			>
-				{#if showExpandButton}
-					<div
-						class="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-200 via-slate-100/10 to-transparent dark:from-slate-900 dark:via-slate-900/10"
-					></div>
-				{/if}
-				<div id="pot-pourri">{@html DOMPurify.sanitize(eventDescription)}</div>
-			</div>
+					transition:fade={{ duration: 100 }}
+				>
+					{#if showExpandButton}
+						<div
+							class="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-200 via-slate-100/10 to-transparent dark:from-slate-900 dark:via-slate-900/10"
+						></div>
+					{/if}
+					<div id="pot-pourri">{@html DOMPurify.sanitize(eventDescription)}</div>
+				</div>
+			{/if}
+			{#if showExpandButton}
+				<button
+					class="my-2 flex items-center justify-center text-blue-500"
+					onclick={toggleExpand}
+					aria-expanded={isExpanded}
+					aria-controls="event-description-content"
+				>
+					{#if isExpanded}
+						<ChevronUp class="h-5 w-5" />
+					{:else}
+						<ChevronDown class="h-5 w-5" />
+					{/if}
+				</button>
+			{/if}
+		{:else}
+			{'No details yet...'}
 		{/if}
-		{#if showExpandButton}
-			<button
-				class="my-2 flex items-center justify-center text-blue-500"
-				onclick={toggleExpand}
-				aria-expanded={isExpanded}
-				aria-controls="event-description-content"
-			>
-				{#if isExpanded}
-					<ChevronUp class="h-5 w-5" />
-				{:else}
-					<ChevronDown class="h-5 w-5" />
-				{/if}
-			</button>
-		{/if}
-	{:else}
-		{'No details yet...'}
-	{/if}
+	</div>
 </div>

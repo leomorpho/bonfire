@@ -522,7 +522,7 @@
 				</div>
 			{/if}
 			<section
-				class="mt-4 flex w-full justify-center sm:w-[450px] md:w-[550px] lg:w-[750px] xl:w-[950px]"
+				class="mt-4 flex w-full justify-center sm:w-[450px] md:w-[550px] lg:w-[800px] xl:w-[950px]"
 			>
 				<Tabs.Root value={activeTab} class="w-full">
 					<div class="flex w-full justify-center">
