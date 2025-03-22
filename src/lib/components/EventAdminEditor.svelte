@@ -16,6 +16,7 @@
 	import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
 	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
 	import { createNewAdminNotificationQueueObject } from '$lib/notification';
+	import ProfileAvatar from './ProfileAvatar.svelte';
 
 	let { eventId, currUserId, eventCreatorId } = $props();
 
@@ -169,7 +170,9 @@
 
 <div class="mx-4 mb-16 flex flex-col items-center justify-center">
 	<section class="mt-8 w-full sm:w-[450px]">
-		<h1 class="mb-5 flex w-full justify-center rounded-xl bg-white dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-white p-2 text-lg font-semibold">
+		<h1
+			class="mb-5 flex w-full justify-center rounded-xl bg-white p-2 text-lg font-semibold dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
+		>
 			Add an admin
 		</h1>
 		<Collapsible.Root class="mb-5 rounded-lg bg-slate-200 dark:bg-slate-800 dark:text-white">
@@ -204,7 +207,10 @@
 		</Collapsible.Root>
 
 		<Popover.Root bind:open>
-			<Popover.Trigger bind:ref={triggerRef} class="w-full dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-white">
+			<Popover.Trigger
+				bind:ref={triggerRef}
+				class="w-full dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
+			>
 				{#snippet child({ props })}
 					<Button
 						variant="outline"
@@ -225,7 +231,9 @@
 						<Command.Empty>No attendees found.</Command.Empty>
 						<Command.Group>
 							{#if currentNonAdminAttendees.length > 10}
-								<div class="flex w-full justify-center rounded-lg bg-green-200 dark:bg-green-600 text-sm">
+								<div
+									class="flex w-full justify-center rounded-lg bg-green-200 text-sm dark:bg-green-600"
+								>
 									{currentNonAdminAttendees.length} attendees found
 								</div>
 							{/if}
@@ -251,15 +259,21 @@
 
 		{#if currentAdminAttendees.length > 0}
 			<h1
-				class="mb-5 mt-7 flex w-full justify-center rounded-xl bg-white dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-white p-2 text-lg font-semibold"
+				class="mb-5 mt-7 flex w-full justify-center rounded-xl bg-white p-2 text-lg font-semibold dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
 			>
 				Current admins
 			</h1>
 			<div class="space-y-4">
-				{#each currentAdminAttendees as adminAttendee}
-					<Card.Root class="dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-white">
+				{#each currentAdminAttendees as adminAttendee (adminAttendee.user.id)}
+					<Card.Root class="dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800">
 						<Card.Header>
-							<Card.Title>{adminAttendee.user.username}</Card.Title>
+							<Card.Title class="flex items-center">
+								<ProfileAvatar userId={adminAttendee.user?.id} baseHeightPx={40} />
+								<span class="ml-2">
+								{adminAttendee.user.username}
+							</span>
+								</Card.Title
+							>
 							{#if adminAttendee.admin_role}
 								<Card.Description>
 									Added on {formatHumanReadable(adminAttendee.admin_role.created_at)} by
@@ -292,7 +306,7 @@
 			</div>
 		{:else}
 			<div class="mb-5 flex w-full justify-center">
-				<div class="rounded-xl bg-white dark:bg-slate-700 p-2 px-4 text-xs">No admins yet</div>
+				<div class="rounded-xl bg-white p-2 px-4 text-xs dark:bg-slate-700">No admins yet</div>
 			</div>
 		{/if}
 	</section>
