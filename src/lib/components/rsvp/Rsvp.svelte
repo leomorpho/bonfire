@@ -264,13 +264,13 @@
 		disabled={!rsvpCanBeChanged}
 		variant="outline"
 		class="flex w-full items-center justify-center {rsvpStatus === Status.GOING
-			? 'bg-green-500 hover:bg-green-400 dark:bg-green-600 dark:hover:bg-green-500'
+			? 'bg-green-400 hover:bg-green-100 dark:bg-green-600 dark:hover:bg-green-500'
 			: ''} {rsvpStatus === Status.MAYBE
-			? 'bg-yellow-500 hover:bg-yellow-400 dark:bg-yellow-600 dark:hover:bg-yellow-500'
+			? 'bg-yellow-400 hover:bg-yellow-100 dark:bg-yellow-600 dark:hover:bg-yellow-500'
 			: ''} {rsvpStatus === Status.NOT_GOING
-			? 'bg-red-500 hover:bg-red-400 dark:bg-red-600 dark:hover:bg-red-500'
+			? 'bg-red-400 hover:bg-red-100 dark:bg-red-600 dark:hover:bg-red-500'
 			: ''} {rsvpStatus === Status.DEFAULT
-			? 'bg-purple-300 hover:bg-purple-200 dark:bg-purple-600 dark:hover:bg-purple-500'
+			? 'bg-purple-300 hover:bg-purple-100 dark:bg-purple-600 dark:hover:bg-purple-500'
 			: ''}"
 	>
 		{#if rsvpStatus === Status.DEFAULT || rsvpStatus == null}
@@ -301,21 +301,21 @@
 				<DropdownMenu.Group>
 					<DropdownMenu.Item
 						id="rsvp-button-going"
-						class={rsvpStatus === Status.GOING ? 'bg-green-500 dark:bg-green-600' : ''}
+						class={rsvpStatus === Status.GOING ? 'bg-green-400 dark:bg-green-600' : ''}
 						onclick={(event) => updateRSVP(event, Status.GOING)}
 					>
 						<Smile /> Going
 					</DropdownMenu.Item>
 					<DropdownMenu.Item
 						id="rsvp-button-maybe"
-						class={rsvpStatus === Status.MAYBE ? 'bg-yellow-500 dark:bg-yellow-600' : ''}
+						class={rsvpStatus === Status.MAYBE ? 'bg-yellow-400 dark:bg-yellow-600' : ''}
 						onclick={(event) => updateRSVP(event, Status.MAYBE)}
 					>
 						<Meh /> Maybe
 					</DropdownMenu.Item>
 					<DropdownMenu.Item
 						id="rsvp-button-not-going"
-						class={rsvpStatus === Status.NOT_GOING ? 'bg-red-500 dark:bg-red-600' : ''}
+						class={rsvpStatus === Status.NOT_GOING ? 'bg-red-400 dark:bg-red-600' : ''}
 						onclick={(event) => updateRSVP(event, Status.NOT_GOING)}
 					>
 						<Frown /> Not going

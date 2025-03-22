@@ -2,7 +2,6 @@
 	import { fade, slide } from 'svelte/transition';
 	import DOMPurify from 'dompurify';
 	import { BookOpen, ChevronDown, ChevronUp } from 'lucide-svelte'; // Assuming you have an icon library like Lucide
-	import SanitizedHtml from '../text/SanitizedHtml.svelte';
 
 	let { eventDescription } = $props();
 
@@ -46,10 +45,18 @@
 </script>
 
 <div class="relative flex flex-col rounded-xl bg-slate-100/90 shadow-lg dark:bg-slate-900/90">
-	<div class="my-2 flex w-full items-center justify-start font-semibold md:text-xl">
-		<span class="flex w-full items-center justify-center"> About </span>
-	</div>
-	<div class="w-full rounded-b-xl dark:text-white">
+	<button
+		class="my-3 flex w-full items-center justify-center font-semibold sm:text-xl md:text-2xl lg:mb-5"
+		onclick={toggleExpand}
+		aria-expanded={isExpanded}
+		aria-controls="event-description-content"
+	>
+		<span class="flex items-center">
+			<BookOpen class="mr-2" />
+			Details
+		</span>
+	</button>
+	<div class="w-full dark:bg-slate-800 dark:text-white rounded-b-xl">
 		{#if eventDescription}
 			<!-- {#if isExpanded}
 				<div
@@ -78,9 +85,7 @@
 						class="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-200 via-slate-100/10 to-transparent dark:from-slate-900 dark:via-slate-900/10"
 					></div>
 				{/if}
-				<div id="pot-pourri">
-					<SanitizedHtml html={eventDescription} />
-				</div>
+				<div id="pot-pourri">{@html DOMPurify.sanitize(eventDescription)}</div>
 			</div>
 			<!-- {/if} -->
 			<!-- {#if showExpandButton}
