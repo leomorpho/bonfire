@@ -6,6 +6,6 @@
 	<img
 		src="https://f002.backblazeb2.com/file/bonfire-public/logo/Bonfire_logo_hor_color.png"
 		alt="Logo"
-		class="mr-3 h-7 sm:h-10 max-w-full object-contain"
+		class="mr-3 h-6 sm:h-8 max-w-full object-contain"
 	/>
 </a>

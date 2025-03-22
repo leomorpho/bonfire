@@ -92,9 +92,9 @@
 	<DropdownMenu.Root>
 		<DropdownMenu.Trigger>
 			<div
-				class="m-1 flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700"
+				class="m-1 flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700"
 			>
-				<Menu class="h-6 w-6 sm:h-5 sm:w-5" />
+				<Menu class="h-5 w-5 sm:h-5 sm:w-5" />
 			</div>
 		</DropdownMenu.Trigger>
 		<DropdownMenu.Content class="m-2 p-4 dark:bg-slate-950 ">
@@ -130,7 +130,7 @@
 
 <div class="w-full">
 	<Container>
-		<header bind:this={navbarRef} class="navbar px-0">
+		<header bind:this={navbarRef} class="navbar py-0 px-0">
 			<div class="navbar-start">
 				<Logo />
 			</div>
@@ -140,7 +140,7 @@
 						<li class="flex items-center">
 							<a href={link.href}>
 								{#if link.icon}
-									<link.icon class="h-6 w-6" />
+									<link.icon class="h-5 w-5" />
 								{/if}
 								{link.name}
 							</a>

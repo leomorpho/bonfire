@@ -38,12 +38,10 @@
 		randomSort
 	} from '$lib/styles';
 	import { generatePassphraseId } from '$lib/utils';
-	import TextAreaAutoGrow from '../TextAreaAutoGrow.svelte';
 	import ChevronLeft from 'svelte-radix/ChevronLeft.svelte';
 	import LocationInput from '../input/location/LocationInput.svelte';
 	import EventAdminEditor from '../EventAdminEditor.svelte';
 	import { debounce } from 'lodash-es';
-	import MaxCapacity from './MaxCapacity.svelte';
 	import BackButton from '../BackButton.svelte';
 	import OutOfLogs from '../payments/OutOfLogs.svelte';
 	import { toast } from 'svelte-sonner';
@@ -51,6 +49,7 @@
 	import UnpublishEventBtn from './buttons/UnpublishEventBtn.svelte';
 	import DeleteEventBtn from './buttons/DeleteEventBtn.svelte';
 	import TipTapTextEditor from '../input/tiptap/TipTapTextEditor.svelte';
+	import MaxCapacity from './MaxCapacity.svelte';
 	import GuestCountFeature from './GuestCountFeature.svelte';
 
 	let { mode, event = null, currUserId = null } = $props();
