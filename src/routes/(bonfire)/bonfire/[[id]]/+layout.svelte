@@ -211,6 +211,6 @@
 	</div>
 </div>
 
-{#if !dev && (tempAttendeeSecret || $page.data.user.id)}
-				<InstallPwaBtn />
-			{/if}
+{#if tempAttendeeSecret || ($page.data.user && $page.data.user.id)}
+	<InstallPwaBtn />
+{/if}
