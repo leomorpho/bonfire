@@ -20,14 +20,17 @@
 	} = $props();
 
 	// Sum up the total number of attendees, including guests
-	const totalGoing =
-		allAttendeesGoing.length + allAttendeesGoing.reduce((sum, a) => sum + (a.guest_count || 0), 0);
-	const totalMaybe =
+	let totalGoing = $derived(
+		allAttendeesGoing.length + allAttendeesGoing.reduce((sum, a) => sum + (a.guest_count || 0), 0)
+	);
+	let totalMaybe = $derived(
 		allAttendeesMaybeGoing.length +
-		allAttendeesMaybeGoing.reduce((sum, a) => sum + (a.guest_count || 0), 0);
-	const totalNotGoing =
+			allAttendeesMaybeGoing.reduce((sum, a) => sum + (a.guest_count || 0), 0)
+	);
+	let totalNotGoing = $derived(
 		allAttendeesNotGoing.length +
-		allAttendeesNotGoing.reduce((sum, a) => sum + (a.guest_count || 0), 0);
+			allAttendeesNotGoing.reduce((sum, a) => sum + (a.guest_count || 0), 0)
+	);
 </script>
 
 <div class="mx-3 mt-5 items-center">
