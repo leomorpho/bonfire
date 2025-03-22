@@ -8,6 +8,7 @@
 	import Map from '$lib/components/map/Map.svelte';
 	import DOMPurify from 'dompurify';
 	import EventDetails from './EventDetails.svelte';
+	import SanitizedHtml from '../text/SanitizedHtml.svelte';
 
 	let {
 		bannerInfo,
@@ -51,7 +52,7 @@
 	</div>
 
 	<div class="flex w-full md:space-x-3">
-		<div class="hidden lg:block w-full">
+		<div class="hidden w-full lg:block">
 			<EventDetails {eventDescription} />
 		</div>
 		<div
@@ -85,7 +86,7 @@
 										class="mt-2 flex items-center justify-center rounded-xl bg-slate-100 p-2 dark:bg-slate-800"
 									>
 										{#if eventLocation}
-											{@html DOMPurify.sanitize(eventLocation)}
+											<SanitizedHtml html={eventLocation} />
 										{:else if latitude && longitude}
 											Get Directions
 										{/if}

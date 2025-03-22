@@ -8,7 +8,7 @@
 	import { cn } from '$lib/utils.js';
 	import Check from 'lucide-svelte/icons/check';
 	import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
-	import DOMPurify from 'dompurify';
+	import SanitizedHtml from '$lib/components/text/SanitizedHtml.svelte';
 
 	let {
 		onSave,
@@ -136,7 +136,7 @@
 				role="combobox"
 				aria-expanded={open}
 			>
-				{@html DOMPurify.sanitize(selectedValue || enterEventLocationText)}
+				<SanitizedHtml html={selectedValue || enterEventLocationText} />
 				<ChevronsUpDown class="opacity-50" />
 			</Button>
 		{/snippet}
