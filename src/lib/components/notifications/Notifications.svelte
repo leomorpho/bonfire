@@ -119,7 +119,7 @@
 	<Dialog.Content class="flex h-full items-center justify-center sm:h-[90vh]">
 		<ScrollArea class="flex h-full items-center justify-center sm:h-[90vh]">
 			<Dialog.Header class="mx-4 my-8">
-				<Dialog.Title>Your Notifications</Dialog.Title>
+				<Dialog.Title class="w-full flex justify-center">Your Notifications</Dialog.Title>
 				<Dialog.Description>
 					{#if allUnreadNotifications.length == 0 && allSeenNotifications.length == 0}
 						<div class="my-5 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-700 dark:text-white p-3">
