@@ -785,7 +785,7 @@ test('Consume logs', async ({ page }) => {
 	const username = faker.person.firstName() + '123456789';
 	await loginUser(page, email, username);
 
-	await page.getByRole('link', { name: 'Profile' }).click();
+	await page.getByRole('link', { name: 'Profile', exact: true }).click();
 	await expect(page.getByText('You have 3 logs remaining.')).toBeVisible();
 
 	// Create 1st bonfire
@@ -798,7 +798,7 @@ test('Consume logs', async ({ page }) => {
 	await expect(page.getByText('Not Published')).toBeHidden();
 	await expect(page.locator('.event-card')).toHaveCount(1);
 
-	await page.getByRole('link', { name: 'Profile' }).click();
+	await page.getByRole('link', { name: 'Profile', exact: true }).click();
 	await expect(page.getByText('You have 2 logs remaining.')).toBeVisible();
 
 	// Create 2nd bonfire
@@ -806,7 +806,7 @@ test('Consume logs', async ({ page }) => {
 	await createBonfire(page, eventName);
 	await expect(page.getByRole('heading', { name: eventName })).toBeVisible();
 
-	await page.getByRole('link', { name: 'Profile' }).click();
+	await page.getByRole('link', { name: 'Profile', exact: true }).click();
 	await expect(page.getByText('You have 1 log remaining.')).toBeVisible();
 
 	// Create 3rd bonfire
@@ -814,7 +814,7 @@ test('Consume logs', async ({ page }) => {
 	await createBonfire(page, eventName);
 	await expect(page.getByRole('heading', { name: eventName })).toBeVisible();
 
-	await page.getByRole('link', { name: 'Profile' }).click();
+	await page.getByRole('link', { name: 'Profile', exact: true }).click();
 	await expect(page.getByText('You have 0 log remaining.')).toBeVisible();
 });
 

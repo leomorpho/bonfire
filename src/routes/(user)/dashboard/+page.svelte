@@ -1,8 +1,4 @@
 <script lang="ts">
-	import PasswordInput from './../../../lib/components/password-input/password-input.svelte';
-	import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
-	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
-	import { buttonVariants } from '$lib/components/ui/button/index.js';
 	import { getFeWorkerTriplitClient, waitForUserId } from '$lib/triplit';
 	import { onMount } from 'svelte';
 	import type { FetchOptions, TriplitClient } from '@triplit/client';
@@ -40,27 +36,29 @@
 			.where(['user_id', '=', currUserID])
 			.where('event.start_time', future ? '>=' : '<', futureDate.toISOString());
 
-		return query
-			.subquery(
-				'organizer_name',
-				client.query('user').where(['id', '=', '$1.event.user_id']).select(['username']).build(),
-				'one'
-			)
-			.include('event')
-			.subquery(
-				'attendees',
-				client.query('attendees').where(['event_id', '=', '$1.event_id']).select(['status']).build()
-			)
-			.subquery(
-				'temporary_attendees',
-				client
-					.query('temporary_attendees')
-					.where(['event_id', '=', '$1.event_id'])
-					.select(['status'])
-					.build()
-			)
-			.order('event.start_time', 'DESC')
-			.build();
+		return (
+			query
+				.subquery(
+					'organizer_name',
+					client.query('user').where(['id', '=', '$1.event.user_id']).select(['username']).build(),
+					'one'
+				)
+				.include('event')
+				// .subquery(
+				// 	'attendees',
+				// 	client.query('attendees').where(['event_id', '=', '$1.event_id']).select(['status']).build()
+				// )
+				// .subquery(
+				// 	'temporary_attendees',
+				// 	client
+				// 		.query('temporary_attendees')
+				// 		.where(['event_id', '=', '$1.event_id'])
+				// 		.select(['status'])
+				// 		.build()
+				// )
+				.order('event.start_time', 'DESC')
+				.build()
+		);
 	}
 
 	const initEvents = async () => {
@@ -198,8 +196,6 @@
 									rsvpStatus={attendance.status}
 									isPublished={attendance.event.is_published}
 									numGuests={attendance.guest_count}
-									attendeesStatuses={attendance.attendees}
-									temporaryAttendeesStatuses={attendance.temporary_attendees}
 									maxNumGuestsAllowedPerAttendee={attendance.event.max_num_guests_per_attendee}
 								/>
 							</div>

@@ -7,6 +7,10 @@
 	import { parseColor } from '$lib/styles';
 	import { goto } from '$app/navigation';
 	import AttendeesCount from './attendance/AttendeesCount.svelte';
+	import { getFeWorkerTriplitClient } from '$lib/triplit';
+	import { page } from '$app/stores';
+	import type { TriplitClient } from '@triplit/client';
+	import { onMount } from 'svelte';
 
 	let {
 		event,
@@ -15,10 +19,10 @@
 		rsvpStatus,
 		isPublished = true,
 		numGuests = 0,
-		attendeesStatuses,
-		temporaryAttendeesStatuses,
 		maxNumGuestsAllowedPerAttendee = 0
 	} = $props();
+
+	const client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
 	let rsvpCanBeChanged = new Date(event.start_time) >= new Date();
 	let overlayColor = event.overlay_color ?? '#000000';
@@ -44,12 +48,63 @@
 		);
 	}
 
-	const attendeesCount = countStatuses(attendeesStatuses);
-	const temporaryAttendeesCount = countStatuses(temporaryAttendeesStatuses);
+	let attendeesCount = $state(0);
+	let temporaryAttendeesCount = $state(0);
 
-	const totalGoing = attendeesCount.going + temporaryAttendeesCount.going;
-	const totalMaybe = attendeesCount.maybe + temporaryAttendeesCount.maybe;
-	const totalNotGoing = attendeesCount.not_going + temporaryAttendeesCount.not_going;
+	let totalGoing = $state();
+	let totalMaybe = $state();
+	let totalNotGoing = $state();
+
+	$effect(() => {
+		if (attendeesCount && temporaryAttendeesCount) {
+			totalGoing = attendeesCount.going + temporaryAttendeesCount.going;
+			totalMaybe = attendeesCount.maybe + temporaryAttendeesCount.maybe;
+			totalNotGoing = attendeesCount.not_going + temporaryAttendeesCount.not_going;
+		}
+	});
+
+	onMount(() => {
+		const unsubscribeFromEventAttendees = client.subscribe(
+			client.query('attendees').where(['event_id', '=', event.id]).select(['status']).build(),
+			(results) => {
+				const attendeesStatuses = results;
+				attendeesCount = countStatuses(attendeesStatuses);
+
+				console.log('attendeesCount', attendeesCount);
+			},
+			(error) => {
+				console.error('Error fetching current attendees:', error);
+			},
+			{
+				localOnly: false,
+				onRemoteFulfilled: () => {}
+			}
+		);
+
+		const unsubscribeFromEventTemporaryAttendees = client.subscribe(
+			client
+				.query('temporary_attendees')
+				.where(['event_id', '=', event.id])
+				.select(['status'])
+				.build(),
+			(results) => {
+				const temporaryAttendeesStatuses = results;
+				temporaryAttendeesCount = countStatuses(temporaryAttendeesStatuses);
+			},
+			(error) => {
+				console.error('Error fetching current attendees:', error);
+			},
+			{
+				localOnly: false,
+				onRemoteFulfilled: () => {}
+			}
+		);
+		return () => {
+			// Cleanup
+			unsubscribeFromEventAttendees();
+			unsubscribeFromEventTemporaryAttendees();
+		};
+	});
 </script>
 
 <button
@@ -78,11 +133,13 @@
 				<Card.Description>Hosted by {eventCreatorName}</Card.Description>
 			</Card.Header>
 			<Card.Content>
-				<AttendeesCount
-					numAttendeesGoing={totalGoing}
-					numAttendeesMaybeGoing={totalMaybe}
-					numAttendeesNotGoing={totalNotGoing}
-				/>
+				{#if totalGoing || totalMaybe || totalNotGoing}
+					<AttendeesCount
+						numAttendeesGoing={totalGoing}
+						numAttendeesMaybeGoing={totalMaybe}
+						numAttendeesNotGoing={totalNotGoing}
+					/>
+				{/if}
 				<button
 					class="interactive w-full md:max-w-96"
 					onclick={(e) => {
