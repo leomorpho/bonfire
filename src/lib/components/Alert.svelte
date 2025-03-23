@@ -9,6 +9,7 @@
 		class: classname = null,
 		dismissible = true,
 		dismissalKey = 'alert-dismissed',
+		expireAfterDays = 30, // Default expiration period
 		children = null
 	} = $props();
 
@@ -27,14 +28,19 @@
 		}
 	}
 
-	// Store dismissal state in localStorage
+	// Store dismissal state in localStorage with expiration
 	function storeDismissal() {
-		localStorage.setItem(dismissalKey, 'true');
+		const expiration = Date.now() + expireAfterDays * 24 * 60 * 60 * 1000; // Convert days to milliseconds
+		localStorage.setItem(dismissalKey, JSON.stringify({ dismissed: true, expires: expiration }));
 	}
 
-	// Check if the alert was previously dismissed
+	// Check if the alert was previously dismissed and if the dismissal has expired
 	function isDismissed(): boolean {
-		return localStorage.getItem(dismissalKey) === 'true';
+		const storedData = localStorage.getItem(dismissalKey);
+		if (!storedData) return false;
+
+		const { dismissed, expires } = JSON.parse(storedData);
+		return dismissed && Date.now() < expires;
 	}
 
 	// Initialize visibility based on localStorage if dismissible

@@ -35,6 +35,7 @@
 	import Attendees from '$lib/components/main-bonfire-event/Attendees.svelte';
 	import SignUpMsg from './SignUpMsg.svelte';
 	import Alert from '../Alert.svelte';
+	import SetProfilePicAlert from './SetProfilePicAlert.svelte';
 	// import EventStylerBottomSheet from '../event-styles/EventStylerBottomSheet.svelte';
 
 	let {
@@ -432,23 +433,6 @@
 			}
 		);
 
-		const unsubscribeFromUserQuery = client.subscribe(
-			client.query('profile_image').where(['user_id', '=', currUserId]).build(),
-			(results) => {
-				profile_image = results[0];
-
-				// if refresh occurs, it's likely due to profile image so we want to retrigger the UI refresh
-				addUserRequest(currUserId, true);
-			},
-			(error) => {
-				console.error('Error fetching current user data', error);
-			},
-			{
-				localOnly: false,
-				onRemoteFulfilled: () => {}
-			}
-		);
-
 		// Get the hash portion of the URL
 		const hash = window.location.hash.slice(1); // Remove the '#' from the hash
 		if (hash) {
@@ -473,7 +457,6 @@
 				unsubscribeTemporaryUserQuery();
 			}
 			unsubscribeFromFilesQuery();
-			unsubscribeFromUserQuery();
 		};
 	});
 
@@ -537,20 +520,8 @@
 		<EventDoesNotExist />
 	{:else}
 		<div class="mx-4 flex flex-col items-center justify-center">
-			{#if !profile_image || profile_image == undefined}
-				<Alert
-					type="info"
-					class="max-w-[500px]"
-					message="Set a profile picture so hosts can recognize you easily. Your photo stays private, visible only to fellow attendees. We value your privacy and will never sell your data."
-					dismissalKey="set-profile-image-in-bonfire"
-				>
-					<div class="mt-3 flex w-full justify-center">
-						<a href="/profile/upload-profile-image">
-							<Button>Set profile picture</Button>
-						</a>
-					</div>
-				</Alert>
-			{/if}
+			<SetProfilePicAlert {currUserId}/>
+
 			{#if isCurrenUserEventAdmin}
 				<div class="flex">
 					<EditEventButton {eventIsPublished} />
