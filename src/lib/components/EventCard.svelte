@@ -67,9 +67,8 @@
 		const unsubscribeFromEventAttendees = client.subscribe(
 			client
 				.query('attendees')
-				.where(['event_id', '=', event.id])
-				.select(['status', 'guest_count'])
-				.build(),
+				.Where(['event_id', '=', event.id])
+				.Select(['status', 'guest_count']),
 			(results) => {
 				const attendeesStatuses = results;
 				attendeesCount = countStatuses(attendeesStatuses);
@@ -88,9 +87,8 @@
 		const unsubscribeFromEventTemporaryAttendees = client.subscribe(
 			client
 				.query('temporary_attendees')
-				.where(['event_id', '=', event.id])
-				.select(['status', 'guest_count'])
-				.build(),
+				.Where(['event_id', '=', event.id])
+				.Select(['status', 'guest_count']),
 			(results) => {
 				const temporaryAttendeesStatuses = results;
 				temporaryAttendeesCount = countStatuses(temporaryAttendeesStatuses);

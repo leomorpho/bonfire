@@ -53,9 +53,8 @@
 		const unsubscribe = client.subscribe(
 			client
 				.query('events')
-				.include('attendees', (rel) => rel('attendees').select(['id']).build())
-				.include('temporary_attendees', (rel) => rel('temporary_attendees').select(['id']).build())
-				.build(),
+				.Include('attendees', (rel) => rel('attendees').Select(['id']))
+				.Include('temporary_attendees', (rel) => rel('temporary_attendees').Select(['id'])),
 			(events) => {
 				frequencyMap = createFrequencyMap(events);
 				console.log('frequencyMap', frequencyMap);

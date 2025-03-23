@@ -51,8 +51,7 @@
 			client
 				.query('bring_items')
 				.Where(['event_id', '=', eventId])
-				.Include('bring_assignments')
-				,
+				.Include('bring_assignments'),
 			(results, info) => {
 				bringItems = results
 					.map((item) => ({

@@ -37,9 +37,8 @@
 		const unsubscribe = client.subscribe(
 			client
 				.query('events')
-				.where(['id', '=', eventId])
-				.select(['style', 'overlay_color', 'overlay_opacity'])
-				.build(),
+				.Where(['id', '=', eventId])
+				.Select(['style', 'overlay_color', 'overlay_opacity']),
 			(results) => {
 				if (results.length > 0) {
 					eventData = results[0];
