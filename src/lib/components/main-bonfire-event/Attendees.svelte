@@ -67,6 +67,9 @@
 					{allAttendeesNotGoing}
 					{showMaxNumPeople}
 					{isCurrenUserEventAdmin}
+					numAttendeesGoing={totalGoing}
+					numAttendeesMaybeGoing={totalMaybe}
+					numAttendeesNotGoing={totalNotGoing}
 				/>
 			</div>
 		{:else if allAttendeesGoing.length == 0}
