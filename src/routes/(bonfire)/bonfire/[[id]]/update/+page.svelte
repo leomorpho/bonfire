@@ -1,5 +1,5 @@
 <script lang="ts">
-	import EventForm from '$lib/components/EventForm.svelte';
+	import EventForm from '$lib/components/eventform/EventForm.svelte';
 	import { page } from '$app/stores';
 	import { useQuery } from '@triplit/svelte';
 	import { TriplitClient } from '@triplit/client';
@@ -30,7 +30,6 @@
 					mode={EventFormType.UPDATE}
 					event={data.results[0]}
 					currUserId={$page.data?.user.id}
-					transaction={data.results[0].transaction}
 				/>
 			</div>
 		</div>

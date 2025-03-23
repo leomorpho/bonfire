@@ -17,7 +17,7 @@ const config = {
 			});
 		})
 	],
-	content: ['./src/**/*.{html,js,svelte,ts}'],
+	content: ['./src/**/*.{html,js,svelte,ts}', './node_modules/layerchart/**/*.{svelte,js}'],
 	safelist: ['dark'],
 	theme: {
 		container: {
@@ -28,6 +28,16 @@ const config = {
 			}
 		},
 		extend: {
+			// typography: (theme) => ({
+			// 	DEFAULT: {
+			// 		css: {
+			// 			'--tw-prose-body': theme('colors.black'),
+			// 			'--tw-prose-headings': 'var(--color-pink-900)',
+			// 			'--tw-prose-invert-body': theme('colors.white')
+
+			// 		}
+			// 	}
+			// }),
 			colors: {
 				border: 'hsl(var(--border) / <alpha-value>)',
 				input: 'hsl(var(--input) / <alpha-value>)',
@@ -66,7 +76,14 @@ const config = {
 				'color-2': 'hsl(var(--color-2))',
 				'color-3': 'hsl(var(--color-3))',
 				'color-4': 'hsl(var(--color-4))',
-				'color-5': 'hsl(var(--color-5))'
+				'color-5': 'hsl(var(--color-5))',
+				surface: {
+					content: 'hsl(var(--card-foreground) / <alpha-value>)',
+					100: 'hsl(var(--background) / <alpha-value>)',
+					200: 'hsl(var(--muted) / <alpha-value>)',
+					// not sure what color maps here (should be darker than 200).  Could add a new color to `app.css`
+					300: 'hsl(var(--background) / <alpha-value>)'
+				}
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -75,6 +92,11 @@ const config = {
 			},
 			fontFamily: {
 				sans: [...fontFamily.sans]
+			},
+			animation: {
+				orbit: 'orbit calc(var(--duration)*1s) linear infinite',
+				'border-beam': 'border-beam calc(var(--duration)*1s) infinite linear',
+				shimmer: 'shimmer 8s infinite'
 			},
 			keyframes: {
 				'aurora-border': {
@@ -102,6 +124,38 @@ const config = {
 					'0%, 100%': { bottom: '0', right: '0' },
 					'50%': { bottom: '25%', right: '40%' },
 					'90%': { bottom: '50%', right: '25%' }
+				},
+				orbit: {
+					'0%': {
+						transform: 'rotate(0deg) translateY(calc(var(--radius) * 1px)) rotate(0deg)'
+					},
+					'100%': {
+						transform: 'rotate(360deg) translateY(calc(var(--radius) * 1px)) rotate(-360deg)'
+					}
+				},
+				'border-beam': {
+					'100%': {
+						'offset-distance': '100%'
+					}
+				},
+				'shine-pulse': {
+					'0%': {
+						'background-position': '0% 0%'
+					},
+					'50%': {
+						'background-position': '100% 100%'
+					},
+					to: {
+						'background-position': '0% 0%'
+					}
+				},
+				shimmer: {
+					'0%, 90%, 100%': {
+						'background-position': 'calc(-100% - var(--shimmer-width)) 0'
+					},
+					'30%, 60%': {
+						'background-position': 'calc(100% + var(--shimmer-width)) 0'
+					}
 				}
 			}
 		}

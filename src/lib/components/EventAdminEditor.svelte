@@ -16,6 +16,9 @@
 	import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
 	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
 	import { createNewAdminNotificationQueueObject } from '$lib/notification';
+	import ProfileAvatar from './ProfileAvatar.svelte';
+	import { slide } from 'svelte/transition';
+	import CollapsibleContent from './CollapsibleContent.svelte';
 
 	let { eventId, currUserId, eventCreatorId } = $props();
 
@@ -169,10 +172,12 @@
 
 <div class="mx-4 mb-16 flex flex-col items-center justify-center">
 	<section class="mt-8 w-full sm:w-[450px]">
-		<h1 class="mb-5 flex w-full justify-center rounded-xl bg-white dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-white p-2 text-lg font-semibold">
+		<h1
+			class="mb-5 flex w-full justify-center rounded-xl bg-white p-2 text-lg font-semibold dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
+		>
 			Add an admin
 		</h1>
-		<Collapsible.Root class="mb-5 rounded-lg bg-slate-200 dark:bg-slate-800 dark:text-white">
+		<Collapsible.Root class="mb-5 rounded-lg bg-slate-200/80 dark:bg-slate-800/80 dark:text-white">
 			<Collapsible.Trigger class="flex w-full items-center justify-between space-x-4 px-4">
 				<div class="invisible"></div>
 				<h4 class="text-sm font-semibold">Admin Permissions</h4>
@@ -181,30 +186,54 @@
 					<span class="sr-only">Toggle</span>
 				</Button>
 			</Collapsible.Trigger>
-			<Collapsible.Content class="space-y-2">
-				<ul class="ml-5 list-disc pl-5">
-					<li class="rounded-md px-4 py-2 text-sm">Modify event details</li>
-					<li class="rounded-md px-4 py-2 text-sm">
-						Manage announcements (create, update, delete)
-					</li>
-					<li class="rounded-md px-4 py-2 text-sm">Remove attendees</li>
-					<li class="rounded-md px-4 py-2 text-sm">
-						Delete files that don’t belong in the bonfire
-					</li>
-				</ul>
+			<CollapsibleContent duration={300}>
+				<div transition:slide={{ duration: 300 }} class="py-3">
+					<ul class="ml-5 list-disc pl-5">
+						<li class="rounded-md px-4 py-1 text-sm">Modify event details</li>
+						<li class="rounded-md px-4 py-1 text-sm">
+							Manage announcements (create, update, delete)
+						</li>
+						<li class="rounded-md px-4 py-1 text-sm">Remove attendees</li>
+						<li class="rounded-md px-4 py-1 text-sm">
+							Delete files that don’t belong in the bonfire
+						</li>
+					</ul>
 
-				<hr class="my-8 mt-12 h-px border-0 bg-gray-200 dark:bg-gray-700" />
+					<div class="mt-5 flex justify-center px-4 text-sm font-semibold">Limitations</div>
+					<ul class="ml-5 list-disc pl-5">
+						<li class="rounded-md px-4 py-1 text-sm">Cannot assign or revoke admin roles</li>
+						<li class="rounded-md px-4 py-1 text-sm">Cannot transfer account ownership</li>
+					</ul>
+				</div>
+			</CollapsibleContent>
+			<!-- <Collapsible.Content class="space-y-2 py-2" forceMount>
+				<div transition:slide={{ duration: 300 }}>
+					<ul class="ml-5 list-disc pl-5">
+						<li class="rounded-md px-4 py-1 text-sm">Modify event details</li>
+						<li class="rounded-md px-4 py-1 text-sm">
+							Manage announcements (create, update, delete)
+						</li>
+						<li class="rounded-md px-4 py-1 text-sm">Remove attendees</li>
+						<li class="rounded-md px-4 py-1 text-sm">
+							Delete files that don’t belong in the bonfire
+						</li>
+					</ul>
 
-				<div class="flex justify-center px-4 text-sm font-semibold">Limitations</div>
-				<ul class="ml-5 list-disc pl-5">
-					<li class="rounded-md px-4 py-2 text-sm">Cannot assign or revoke admin roles</li>
-					<li class="rounded-md px-4 py-2 text-sm">Cannot transfer account ownership</li>
-				</ul>
-			</Collapsible.Content>
+
+					<div class="mt-5 flex justify-center px-4 text-sm font-semibold">Limitations</div>
+					<ul class="ml-5 list-disc pl-5">
+						<li class="rounded-md px-4 py-1 text-sm">Cannot assign or revoke admin roles</li>
+						<li class="rounded-md px-4 py-1 text-sm">Cannot transfer account ownership</li>
+					</ul>
+				</div>
+			</Collapsible.Content> -->
 		</Collapsible.Root>
 
 		<Popover.Root bind:open>
-			<Popover.Trigger bind:ref={triggerRef} class="w-full dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-white">
+			<Popover.Trigger
+				bind:ref={triggerRef}
+				class="w-full dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
+			>
 				{#snippet child({ props })}
 					<Button
 						variant="outline"
@@ -225,7 +254,9 @@
 						<Command.Empty>No attendees found.</Command.Empty>
 						<Command.Group>
 							{#if currentNonAdminAttendees.length > 10}
-								<div class="flex w-full justify-center rounded-lg bg-green-200 text-sm">
+								<div
+									class="flex w-full justify-center rounded-lg bg-green-200 text-sm dark:bg-green-600"
+								>
 									{currentNonAdminAttendees.length} attendees found
 								</div>
 							{/if}
@@ -251,15 +282,20 @@
 
 		{#if currentAdminAttendees.length > 0}
 			<h1
-				class="mb-5 mt-7 flex w-full justify-center rounded-xl bg-white dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-white p-2 text-lg font-semibold"
+				class="mb-5 mt-7 flex w-full justify-center rounded-xl bg-white p-2 text-lg font-semibold dark:bg-slate-900 dark:text-white"
 			>
 				Current admins
 			</h1>
 			<div class="space-y-4">
-				{#each currentAdminAttendees as adminAttendee}
-					<Card.Root class="dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-white">
+				{#each currentAdminAttendees as adminAttendee (adminAttendee.user.id)}
+					<Card.Root class="bg-slate-100/80 dark:bg-slate-900/80 dark:text-white dark:hover:bg-slate-800">
 						<Card.Header>
-							<Card.Title>{adminAttendee.user.username}</Card.Title>
+							<Card.Title class="flex items-center">
+								<ProfileAvatar userId={adminAttendee.user?.id} baseHeightPx={40} />
+								<span class="ml-2">
+									{adminAttendee.user.username}
+								</span>
+							</Card.Title>
 							{#if adminAttendee.admin_role}
 								<Card.Description>
 									Added on {formatHumanReadable(adminAttendee.admin_role.created_at)} by
@@ -273,26 +309,22 @@
 								</Card.Description>
 							{/if}
 						</Card.Header>
-						<Card.Content>
-							<form>
-								<div class="grid w-full items-center gap-4"></div>
-							</form>
-						</Card.Content>
-						<Card.Footer class="flex justify-between">
+						<Card.Footer class="mt-2 flex justify-between sm:mt-0">
 							<Button class="invisible" variant="outline">Cancel</Button>
 							<Button
-								class="delete-admin"
+								class="delete-admin rounded-full"
 								onclick={() => {
 									demoteToAttendee(adminAttendee.user_id);
-								}}><UserRoundMinus /></Button
-							>
+								}}
+								><UserRoundMinus />
+							</Button>
 						</Card.Footer>
 					</Card.Root>
 				{/each}
 			</div>
 		{:else}
 			<div class="mb-5 flex w-full justify-center">
-				<div class="rounded-xl bg-white dark:bg-slate-700 p-2 px-4 text-xs">No admins yet</div>
+				<div class="rounded-xl bg-white p-2 px-4 text-xs dark:bg-slate-700">No admins yet</div>
 			</div>
 		{/if}
 	</section>

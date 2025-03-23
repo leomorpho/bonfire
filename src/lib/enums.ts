@@ -51,6 +51,7 @@ export enum Status {
 	GOING = 'going',
 	NOT_GOING = 'not_going',
 	MAYBE = 'maybe',
+	WAITLIST = 'waitlist', // TODO: not yet in effect
 	DEFAULT = 'RSVP'
 }
 
@@ -136,3 +137,5 @@ export const TransactionType = {
 	BONFIRE_HOSTED: 'bonfire_hosted'
 };
 export type TransactionType = (typeof TransactionType)[keyof typeof TransactionType];
+
+export const ABS_MAX_GUEST_NUM = 6;

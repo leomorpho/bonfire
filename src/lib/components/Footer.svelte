@@ -2,7 +2,7 @@
 	import Logo from './Logo.svelte';
 </script>
 
-<footer class="footer bg-base-200 p-10 text-base-content">
+<footer class="footer bg-white dark:bg-slate-900 p-10 text-slate-400 dark:text-slate-200">
 	<aside class="w-full sm:w-64">
 		<Logo styleClasses="flex h-fit items-center space-x-2" />
 		<div class="mt-2 flex flex-wrap">Providing reliable social connections since 2025.</div>

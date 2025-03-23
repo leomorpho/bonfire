@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import {
 	addAnnouncementAsEventCreator,
 	createBonfire,
-	hidePwaInstallDialog,
+	enterDetailsIntoEditor,
 	loginUser,
 	navigateTo,
 	uploadGalleryImage,
@@ -42,7 +42,7 @@ test('New login', async ({ page }) => {
 
 	await loginUser(page);
 
-	await expect(page.getByRole('heading', { name: 'Upcoming Bonfires' })).toBeVisible();
+	await page.getByRole('tab', { name: 'Upcoming' }).click();
 });
 
 test('Create bonfire', async ({ page }) => {
@@ -66,7 +66,6 @@ test('Create bonfire', async ({ page }) => {
 	await expect(page.getByRole('button', { name: 'PM caret sort' })).toBeVisible();
 	await expect(page.getByRole('button', { name: 'to' }).first()).toBeVisible();
 	await expect(page.getByText('Enter event address...')).toBeVisible();
-	await expect(page.getByPlaceholder('Details')).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Cancel' })).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Edit event style' })).toBeVisible();
 
@@ -95,8 +94,8 @@ test('Create bonfire', async ({ page }) => {
 	await expect(page.locator('#upsert-bonfire')).toBeEnabled();
 
 	// Enter details
-	await page.getByPlaceholder('Details').click();
-	await page.getByPlaceholder('Details').fill(details);
+
+	await enterDetailsIntoEditor(page, details);
 
 	// Enter address
 	await page.getByText('Enter event address...').click();
@@ -206,7 +205,7 @@ test('Create bonfire', async ({ page }) => {
 	await expect(page.getByText('Overlay', { exact: true })).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Clear' })).toBeVisible();
 	await page.getByRole('button', { name: 'chevron left Back' }).click();
-	await page.getByRole('button', { name: 'Publish' }).click();
+	await page.locator('#upsert-bonfire').click();
 
 	// Verify address as it used to be mangled (possible bug again) when coming back from edit page
 	await page.locator('#share-location').click();
@@ -339,7 +338,7 @@ test('User attendee view', async ({ browser }) => {
 
 	const eventName = `${faker.animal.dog()} birthday party!`;
 	const eventDetails = 'It will be fun!';
-	await createBonfire(eventCreatorPage, eventName, eventDetails);
+	await createBonfire(eventCreatorPage, eventName, eventDetails, 2);
 	await expect(eventCreatorPage.getByRole('heading', { name: eventName })).toBeVisible();
 
 	const eventUrl = eventCreatorPage.url();
@@ -450,11 +449,10 @@ test('Temp attendee view', async ({ browser }) => {
 	await tempAttendeePage.getByPlaceholder('Tony Garfunkel').click();
 	await tempAttendeePage.getByPlaceholder('Tony Garfunkel').fill(tempAttendeeUsername);
 	await expect(
-		tempAttendeePage
-			.getByText("Are you bringing any guests? Let us know if you are, and don't count yourself.")
-			.first()
-	).toBeVisible();
-	await tempAttendeePage.getByText('+1', { exact: true }).click();
+		tempAttendeePage.getByText(
+			"Are you bringing any guests? Let us know if you are, and don't count yourself."
+		)
+	).toBeHidden();
 	await tempAttendeePage.getByRole('button', { name: 'Generate URL' }).click();
 
 	// Should be redirected to bonfire page
@@ -466,10 +464,6 @@ test('Temp attendee view', async ({ browser }) => {
 	await expect(tempAttendeePage.getByText('Sign up anytime to link your')).toBeVisible();
 	await expect(tempAttendeePage.getByRole('button', { name: 'Sign Up or Log In' })).toBeVisible();
 	await expect(tempAttendeePage.getByRole('button', { name: 'Copy Link' })).toBeVisible();
-
-	// Verify temp attendee is bringing one guest
-	const number = await tempAttendeePage.locator('#num-guest-you-are-bringing').textContent();
-	expect(number?.match(/\d+/)?.[0]).toBe('1');
 
 	// Verify address shows in mapping app dialog
 	await tempAttendeePage.locator('#share-location').click();
@@ -600,7 +594,7 @@ test('Event admins', async ({ browser }) => {
 
 	const eventName = `${faker.animal.dog()} birthday party!`;
 	const eventDetails = 'It will be fun!';
-	await createBonfire(eventCreatorPage, eventName, eventDetails);
+	await createBonfire(eventCreatorPage, eventName, eventDetails, 1);
 	await expect(eventCreatorPage.getByRole('heading', { name: eventName })).toBeVisible();
 
 	const eventUrl = eventCreatorPage.url();
@@ -646,12 +640,10 @@ test('Event admins', async ({ browser }) => {
 	await adminPage.getByPlaceholder('Event Name').fill(newEventName);
 
 	const newDetails = eventDetails + ' new!';
-	await adminPage.getByPlaceholder('Details').click();
-	await adminPage.getByPlaceholder('Details').fill(newDetails);
+	await enterDetailsIntoEditor(adminPage, newDetails);
+
 	// Hit update
-	await expect(adminPage.getByRole('button', { name: 'Publish' })).toBeEnabled();
-	await adminPage.waitForTimeout(100);
-	await adminPage.getByRole('button', { name: 'Publish' }).click({ timeout: 5000 });
+	await adminPage.locator('#upsert-bonfire').click();
 
 	// Check data
 	await expect(adminPage.getByRole('heading', { name: newEventName })).toBeVisible();
@@ -793,7 +785,7 @@ test('Consume logs', async ({ page }) => {
 	const username = faker.person.firstName() + '123456789';
 	await loginUser(page, email, username);
 
-	await page.getByRole('link', { name: 'Profile' }).click();
+	await page.getByRole('link', { name: 'Profile', exact: true }).click();
 	await expect(page.getByText('You have 3 logs remaining.')).toBeVisible();
 
 	// Create 1st bonfire
@@ -806,7 +798,7 @@ test('Consume logs', async ({ page }) => {
 	await expect(page.getByText('Not Published')).toBeHidden();
 	await expect(page.locator('.event-card')).toHaveCount(1);
 
-	await page.getByRole('link', { name: 'Profile' }).click();
+	await page.getByRole('link', { name: 'Profile', exact: true }).click();
 	await expect(page.getByText('You have 2 logs remaining.')).toBeVisible();
 
 	// Create 2nd bonfire
@@ -814,7 +806,7 @@ test('Consume logs', async ({ page }) => {
 	await createBonfire(page, eventName);
 	await expect(page.getByRole('heading', { name: eventName })).toBeVisible();
 
-	await page.getByRole('link', { name: 'Profile' }).click();
+	await page.getByRole('link', { name: 'Profile', exact: true }).click();
 	await expect(page.getByText('You have 1 log remaining.')).toBeVisible();
 
 	// Create 3rd bonfire
@@ -822,7 +814,7 @@ test('Consume logs', async ({ page }) => {
 	await createBonfire(page, eventName);
 	await expect(page.getByRole('heading', { name: eventName })).toBeVisible();
 
-	await page.getByRole('link', { name: 'Profile' }).click();
+	await page.getByRole('link', { name: 'Profile', exact: true }).click();
 	await expect(page.getByText('You have 0 log remaining.')).toBeVisible();
 });
 

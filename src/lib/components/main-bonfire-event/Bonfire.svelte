@@ -22,6 +22,7 @@
 	import ImThreadView from '$lib/components/im/ImThreadView.svelte';
 	import NumNewMessageIndicator from '$lib/components/im/NumNewMessageIndicator.svelte';
 	import {
+		addUserRequest,
 		addUserRequests,
 		type TempUserData,
 		updateTempUsersLiveDataStoreEntry
@@ -32,6 +33,10 @@
 	import UnverifiedUserMsg from '$lib/components/main-bonfire-event/UnverifiedUserMsg.svelte';
 	import EventInfo from '$lib/components/main-bonfire-event/EventInfo.svelte';
 	import Attendees from '$lib/components/main-bonfire-event/Attendees.svelte';
+	import SignUpMsg from './SignUpMsg.svelte';
+	import Alert from '../Alert.svelte';
+	import SetProfilePicAlert from './SetProfilePicAlert.svelte';
+	// import EventStylerBottomSheet from '../event-styles/EventStylerBottomSheet.svelte';
 
 	let {
 		currUserId,
@@ -57,37 +62,10 @@
 		tempAttendeeId,
 		tempAttendeeSecret,
 		fileCount = 0,
-		numGuestsBringing = 0,
+		maxNumGuestsAllowedPerAttendee = 0,
+		numGuestsCurrentAttendeeIsBringing = 0,
 		showMaxNumPeople = 50
 	} = $props();
-
-	console.log('Component Props:');
-	Object.entries({
-		currUserId,
-		eventOrganizerId,
-		eventOrganizerUsername,
-		eventId,
-		eventCreatorUserId,
-		eventStartTime,
-		eventEndTime,
-		eventTitle,
-		eventDescription,
-		eventIsPublished,
-		eventLocation,
-		eventNumAttendeesGoing,
-		eventMaxCapacity,
-		eventNumAnnouncements,
-		eventNumFiles,
-		eventNumBringListItems,
-		bannerInfo,
-		isUserAnAttendee,
-		jwt,
-		tempAttendeeId,
-		tempAttendeeSecret,
-		fileCount,
-		numGuestsBringing,
-		showMaxNumPeople
-	}).forEach(([key, value]) => console.log(`${key}:`, value));
 
 	let client: TriplitClient;
 
@@ -117,6 +95,8 @@
 
 	let latitude = $state(null);
 	let longitude = $state(null);
+
+	let profile_image = $state();
 
 	if (tempAttendeeId) {
 		tempAttendeeSecretStore.set(tempAttendeeId);
@@ -158,7 +138,7 @@
 				// Set RSVP status based on the attendee record, or keep it as default
 				if (currentUserAttendee) {
 					rsvpStatus = currentUserAttendee.status;
-					numGuestsBringing = currentUserAttendee.guest_count;
+					numGuestsCurrentAttendeeIsBringing = currentUserAttendee.guest_count;
 				}
 
 				if (dev) {
@@ -280,7 +260,7 @@
 					if (results.length == 1) {
 						tempAttendee = results[0];
 						rsvpStatus = tempAttendee?.status;
-						numGuestsBringing = tempAttendee?.guest_count;
+						numGuestsCurrentAttendeeIsBringing = tempAttendee?.guest_count;
 					}
 				},
 				(error) => {
@@ -339,7 +319,9 @@
 						styleStore.set(event.style);
 						overlayColorStore.set(event.overlay_color);
 						overlayOpacityStore.set(event.overlay_opacity);
-						eventLoading = false;
+
+						maxNumGuestsAllowedPerAttendee = event.max_num_guests_per_attendee ?? 0;
+						console.log('maxNumGuestsAllowedPerAttendee', maxNumGuestsAllowedPerAttendee);
 
 						if (event.event_admins) {
 							adminUserIds = new Set(
@@ -350,6 +332,7 @@
 						if (event.banner_media.blurr_hash != bannerInfo.bannerBlurHash) {
 							fetchBannerInfo(eventId, tempAttendeeSecret);
 						}
+						eventLoading = false;
 					}
 				}
 			},
@@ -476,7 +459,7 @@
 		// Prepare shareable data
 		const shareData = {
 			title: `Hey! You're invited to ${eventTitle}!`, // Use the event title
-			text: `...Check out this awesome event at ${eventLocation}!`, // Use the event location
+			text: `Please RSVP via the link—if we don’t hear from you, we’ll assume you can't make it.`,
 			url: `${publicEnv.PUBLIC_ORIGIN}/bonfire/${eventId}` // Use the event's unique ID in the URL
 		};
 
@@ -527,11 +510,16 @@
 		<EventDoesNotExist />
 	{:else}
 		<div class="mx-4 flex flex-col items-center justify-center">
+			<SetProfilePicAlert {currUserId}/>
+
 			{#if isCurrenUserEventAdmin}
-				<EditEventButton {eventIsPublished} />
+				<div class="flex">
+					<EditEventButton {eventIsPublished} />
+					<!-- <EventStylerBottomSheet {eventId} /> -->
+				</div>
 			{/if}
 			<section
-				class="mt-4 flex w-full justify-center sm:w-[450px] md:w-[550px] lg:w-[750px] xl:w-[950px]"
+				class="mt-4 flex w-full justify-center sm:w-[450px] md:w-[550px] lg:w-[800px] xl:w-[950px]"
 			>
 				<Tabs.Root value={activeTab} class="w-full">
 					<div class="flex w-full justify-center">
@@ -553,6 +541,9 @@
 					<Tabs.Content value="about" class="mb-10 w-full">
 						<div class="animate-fadeIn">
 							<!-- TODO: allow temp attendees to delete themselves -->
+							{#if isAnonymousUser || isUnverifiedUser}
+								<SignUpMsg />
+							{/if}
 							{#if isUnverifiedUser}
 								<UnverifiedUserMsg {eventId} {tempAttendee} {tempAttendeeSecret} />
 							{/if}
@@ -600,7 +591,8 @@
 										{eventId}
 										{isAnonymousUser}
 										{rsvpCanBeChanged}
-										numGuests={numGuestsBringing}
+										{maxNumGuestsAllowedPerAttendee}
+										{numGuestsCurrentAttendeeIsBringing}
 										eventOwnerId={eventCreatorUserId}
 									/>
 
@@ -710,6 +702,17 @@
 			</section>
 		</div>
 	{/if}
+	<div class="mx-4 flex flex-col items-center justify-center">
+		<section
+			class="mt-10 flex w-full justify-center sm:w-[450px] md:w-[550px] lg:w-[800px] xl:w-[950px]"
+		>
+			<HorizRule />
+
+			<a class="flex w-full justify-center" href="/bonfire/create">
+				<Button variant="link">Host your event with Bonfire</Button>
+			</a>
+		</section>
+	</div>
 {:else}
 	{console.log('YO this is an inconsistent state, eventLoading', eventLoading)}
 {/if}

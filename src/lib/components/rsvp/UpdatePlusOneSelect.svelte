@@ -5,7 +5,11 @@
 	import PlusOneSelect from './PlusOneSelect.svelte';
 	import LoadingSpinner from '../LoadingSpinner.svelte';
 
-	let { numGuests = $bindable<number>(), updateCallback } = $props();
+	let {
+		numGuests = $bindable<number>(),
+		maxNumGuestsAllowedPerAttendee = 0,
+		updateCallback
+	} = $props();
 
 	let isPlusOneSelectDialogOpen = $state(false);
 	let isSaving = $state(false);
@@ -36,7 +40,7 @@
 			<Dialog.Description>Let us know if you are, don't count yourself.</Dialog.Description>
 		</Dialog.Header>
 
-		<PlusOneSelect bind:numGuests />
+		<PlusOneSelect bind:numGuests maxGuests={maxNumGuestsAllowedPerAttendee} />
 		<Button
 			class="relative w-full"
 			onclick={(e) => {

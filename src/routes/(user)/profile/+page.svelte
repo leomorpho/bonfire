@@ -9,6 +9,7 @@
 	import SvgLoader from '$lib/components/SvgLoader.svelte';
 	import { addUserRequest } from '$lib/profilestore';
 	import FadeIn from '$lib/components/containers/FadeIn.svelte';
+	import Alert from '$lib/components/Alert.svelte';
 
 	let user = $state();
 	let isUserDataLoading = $state(true);
@@ -77,6 +78,10 @@
 					>
 				</div>
 				<div class="my-2">{$page.data.user.email}</div>
+
+				<!-- <Alert
+					message={'Your profile is private, visible only to those sharing an event with you.'}
+				/> -->
 
 				<div
 					class="mt-5 flex flex-col justify-center rounded-xl bg-gradient-to-r from-blue-100 to-blue-300 p-5 dark:bg-gradient-to-r dark:from-blue-600 dark:to-blue-800"

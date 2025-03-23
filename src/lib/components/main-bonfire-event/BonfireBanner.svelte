@@ -4,7 +4,12 @@
 	import { Image } from '@unpic/svelte';
 	import { Pen } from 'lucide-svelte';
 
-	let { bannerSmallSizeUrl, bannerLargeSizeUrl, isCurrenUserEventAdmin, blurhash } = $props();
+	let {
+		bannerSmallSizeUrl,
+		bannerLargeSizeUrl,
+		isCurrenUserEventAdmin = false,
+		blurhash
+	} = $props();
 
 	const placeholder = blurhashToCssGradientString(blurhash ?? 'LEHV6nWB2yk8pyo0adR*.7kCMdnj');
 </script>
@@ -33,7 +38,7 @@
 			class="absolute right-2 top-2 rounded-full bg-white p-2 shadow-md hover:bg-slate-100 dark:bg-slate-800 dark:text-white"
 		>
 			<a class="flex w-full" href="banner/upload" aria-label="Upload a new banner">
-				<Pen  class="w-5 h-5 no-shrink"/>
+				<Pen class="no-shrink h-5 w-5" />
 			</a>
 		</div>
 	{/if}

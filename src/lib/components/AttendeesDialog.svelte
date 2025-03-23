@@ -7,8 +7,11 @@
 	import { fade } from 'svelte/transition';
 
 	let {
+		numAttendeesGoing,
 		allAttendeesGoing,
+		numAttendeesMaybeGoing,
 		allAttendeesMaybeGoing,
+		numAttendeesNotGoing,
 		allAttendeesNotGoing,
 		showMaxNumPeople = 30,
 		isCurrenUserEventAdmin = false
@@ -49,7 +52,7 @@
 						<div class="mb-3 mt-5">
 							{#if allAttendeesGoing.length > 0}
 								<h2 class="my-3 flex w-full justify-center font-semibold">
-									{allAttendeesGoing.length} going
+									{numAttendeesGoing} going
 								</h2>
 								<div class="mx-5 flex flex-wrap -space-x-4 text-black">
 									{#each allAttendeesGoing as attendee (attendee.id)}
@@ -69,9 +72,7 @@
 						<div class="mb-3 mt-5">
 							{#if allAttendeesMaybeGoing.length > 0}
 								<h2 class="my-3 flex w-full justify-center font-semibold">
-									{allAttendeesMaybeGoing.length} maybe{allAttendeesMaybeGoing.length == 1
-										? ''
-										: 's'}
+									{numAttendeesMaybeGoing} maybe{numAttendeesMaybeGoing == 1 ? '' : 's'}
 								</h2>
 								<div class="mx-5 flex flex-wrap -space-x-4 text-black">
 									{#each allAttendeesMaybeGoing as attendee (attendee.id)}
@@ -91,7 +92,7 @@
 						<div class="mb-3 mt-5">
 							{#if allAttendeesNotGoing.length > 0}
 								<h2 class="my-3 flex w-full justify-center font-semibold">
-									{allAttendeesNotGoing.length} not going
+									{numAttendeesNotGoing} not going
 								</h2>
 								<div class="mx-5 flex flex-wrap -space-x-4 text-black">
 									{#each allAttendeesNotGoing as attendee (attendee.id)}

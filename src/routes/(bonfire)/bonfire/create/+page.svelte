@@ -1,5 +1,5 @@
 <script lang="ts">
-	import EventForm from '$lib/components/EventForm.svelte';
+	import EventForm from '$lib/components/eventform/EventForm.svelte';
 	import { EventFormType } from '$lib/enums';
 </script>
 

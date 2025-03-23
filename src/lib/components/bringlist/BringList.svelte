@@ -38,6 +38,12 @@
 		}, 0);
 	}
 
+	// Function to calculate completion percentage
+	function calculateCompletionPercentage(item: BringItem): number {
+		const totalBrought = calculateTotalBrought(item);
+		return item.quantity_needed ? (totalBrought / item.quantity_needed) * 100 : 0;
+	}
+
 	onMount(() => {
 		let client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
@@ -51,9 +57,12 @@
 				bringItems = results
 					.map((item) => ({
 						...item,
-						total_brought: calculateTotalBrought(item)
+						// total_brought: calculateTotalBrought(item),
+						completion_percentage: calculateCompletionPercentage(item)
 					}))
-					.sort((a, b) => a.total_brought - b.total_brought); // 🔥 Sort ascending by total_brought;
+					// .sort((a, b) => a.total_brought - b.total_brought); // 🔥 Sort ascending by total_brought;
+					.sort((a, b) => a.completion_percentage - b.completion_percentage); // Sort ascending by completion percentage
+
 				initialLoad = false;
 			},
 			(error) => {
@@ -95,7 +104,7 @@
 <div class="flex w-full justify-center">
 	<button
 		onclick={changeToDiscussionsTab}
-		class="mb-2 w-fit rounded-xl bg-blue-200 bg-opacity-40 p-2 text-sm hover:bg-blue-300 hover:bg-opacity-40 dark:bg-blue-700 dark:bg-opacity-40 dark:hover:bg-blue-600 dark:hover:bg-opacity-40"
+		class="mb-2 w-fit rounded-xl bg-blue-400/80 p-2 text-sm hover:bg-blue-300/80 hover:bg-opacity-40 dark:bg-blue-700/50 dark:hover:bg-blue-600/50"
 	>
 		Have a suggestion? Click here to share it in the bonfire's discussion!
 	</button>

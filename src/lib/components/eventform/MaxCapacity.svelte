@@ -1,11 +1,23 @@
 <script lang="ts">
 	import Label from '$lib/components/ui/label/label.svelte';
-	import { onMount } from 'svelte';
 	import Checkbox from '../ui/checkbox/checkbox.svelte';
 	import Input from '../ui/input/input.svelte';
+	import { slide } from 'svelte/transition';
 
 	let { oninput, value = $bindable<number | undefined | null>() } = $props();
 	let checked = $state(value !== null && value !== undefined && value !== 0);
+
+	$effect(() => {
+		if (!value && checked) {
+			value = 5;
+		}
+	});
+
+	$effect(() => {
+		if (!checked) {
+			value = null;
+		}
+	});
 </script>
 
 <div class="mt-4 rounded-lg bg-slate-100 bg-opacity-70 p-4 dark:bg-slate-800 dark:bg-opacity-70">
@@ -14,15 +26,18 @@
 		<Checkbox id="capacity-toggle" bind:checked />
 		<Label
 			for="capacity-toggle"
-			class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+			class="flex w-full justify-start text-sm font-medium  leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
 		>
 			Limit event capacity
 		</Label>
 	</div>
 
 	{#if checked}
-		<!-- Description + Input -->
-		<div class="mt-4 flex flex-col items-center space-y-3">
+		<!-- Description + Input with Svelte Slide Transition -->
+		<div
+			transition:slide={{ duration: 300 }}
+			class="mt-4 flex flex-col items-center space-y-3 overflow-hidden"
+		>
 			<p class="text-center text-sm text-gray-700 dark:text-gray-300">
 				Attendance will be limited to a set number of confirmed attendees marked as going. New RSVPs
 				for "going" will only be possible if someone changes their status to "not going".

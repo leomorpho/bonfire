@@ -5,10 +5,10 @@
 </script>
 
 <Container>
-	<div id="about-us" class="">
+	<div id="about-us" class="sm:mb-15">
 		<div class="mx-auto max-w-2xl px-6 lg:px-8">
-			<h2 class="mb-16 text-center text-2xl font-bold md:text-4xl">We are Bonfire</h2>
-			<div class="my-20 flex flex-col sm:flex-row">
+			<h2 class="mb-5 text-center text-2xl font-bold md:text-4xl">We are Bonfire</h2>
+			<div class="my-5 flex flex-col sm:flex-row">
 				<!-- <Image
 					class="rounded-lg"
 					height={200}

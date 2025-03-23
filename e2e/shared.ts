@@ -46,7 +46,7 @@ export async function loginUser(
 	// Finish onboarding
 	await page.getByRole('button', { name: 'Continue' }).click();
 
-	await expect(page.getByRole('heading', { name: 'Upcoming Bonfires' })).toBeVisible();
+	await page.getByRole('tab', { name: 'Upcoming' }).click();
 	await expect(page.getByRole('link', { name: 'Dashboard' })).toBeVisible();
 	await expect(page.getByRole('link', { name: 'Profile' })).toBeVisible();
 	await expect(page.getByRole('link', { name: 'Settings' })).toBeVisible();
@@ -107,7 +107,8 @@ export async function getEmailOTP(emailAddress: string) {
 export async function createBonfire(
 	page,
 	eventName = `${faker.animal.dog()} birthday party!`,
-	details = `Join us for ${eventName} It will be a fun evening filled with dog treats!`
+	details = `Join us for ${eventName} It will be a fun evening filled with dog treats!`,
+	maxGuestsPerAttendee = 0
 ) {
 	await navigateTo(page, WEBSITE_URL);
 
@@ -121,11 +122,10 @@ export async function createBonfire(
 	await expect(page.getByRole('button', { name: 'PM caret sort' })).toBeVisible();
 	await expect(page.getByRole('button', { name: 'to' }).first()).toBeVisible();
 	await expect(page.getByText('Enter event address...')).toBeVisible();
-	await expect(page.getByPlaceholder('Details')).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Cancel' })).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Edit event style' })).toBeVisible();
 
-	// Enter date
+	// Enter info and date
 	await page.getByPlaceholder('Event Name').click();
 	await page.getByPlaceholder('Event Name').fill(eventName);
 	await page.getByRole('button', { name: 'Pick a date' }).click();
@@ -137,13 +137,18 @@ export async function createBonfire(
 	await page.getByPlaceholder('HH').fill('6');
 
 	// Enter details
-	await page.getByPlaceholder('Details').click();
-	await page.getByPlaceholder('Details').fill(details);
+	await enterDetailsIntoEditor(page, details);
 
 	// Enter address
 	await page.getByText('Enter event address...').click();
 	await page.getByPlaceholder('1600 Pennsylvania Avenue,').fill('15 rue du luxembourg, mouscron');
 	await page.getByText('Rue du Luxembourg 15, 7700').click();
+
+	if (maxGuestsPerAttendee > 0) {
+		await page.getByRole('checkbox', { name: 'Enable attendees bringing' }).click();
+		await page.locator('#maxNumberOfGuestsPerAttendeeInput').click();
+		await page.locator('#maxNumberOfGuestsPerAttendeeInput').fill('05');
+	}
 
 	await expect(page.getByRole('button', { name: 'Publish' })).toBeEnabled();
 	await page.waitForTimeout(2000);
@@ -235,4 +240,21 @@ export async function uploadGalleryImage(page, eventUrl, expectedTotalImageCount
 
 export async function navigateTo(page, URL) {
 	await page.goto(URL, { waitUntil: 'load' });
+}
+
+export async function enterDetailsIntoEditor(page, details) {
+	try {
+		// Wait for the contenteditable div to be present in the DOM
+		await page.waitForSelector('#details-editor [contenteditable="true"]');
+
+		// Focus the contenteditable div
+		await page.focus('#details-editor [contenteditable="true"]');
+
+		// Enter details into the contenteditable div
+		await page.type('#details-editor [contenteditable="true"]', details);
+
+		console.log('Details entered successfully.');
+	} catch (error) {
+		console.error('Error entering details:', error);
+	}
 }

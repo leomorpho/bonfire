@@ -1,3 +1,4 @@
+import type { HttpClient } from '@triplit/client';
 import type { WorkerClient } from '@triplit/client/worker-client';
 
 /**
@@ -11,7 +12,7 @@ import type { WorkerClient } from '@triplit/client/worker-client';
  * @returns {Promise<object>} - The newly created bring item.
  */
 export async function createBringItem(
-	client: WorkerClient,
+	client: WorkerClient | HttpClient,
 	eventId: string,
 	userId: string,
 	name: string,

@@ -93,7 +93,7 @@ const createNewWorkerTriplitClient = (jwt: string) => {
 	return new WorkerClient({
 		workerUrl: dev ? workerUrl : undefined,
 		storage: {
-			type: 'indexeddb',
+			type: dev || !browser ? 'memory' : 'indexeddb',
 			name: LOCAL_INDEXEDDB_NAME
 		},
 		schema,

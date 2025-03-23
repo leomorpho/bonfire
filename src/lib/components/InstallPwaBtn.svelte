@@ -3,12 +3,14 @@
 	import { onMount } from 'svelte';
 	import Button from './ui/button/button.svelte';
 	import { Download } from 'lucide-svelte';
+	import { dev } from '$app/environment';
 
 	let { show = true } = $props();
 
 	let pwaInstallComponent: any = $state(null);
 	const DISMISS_STORAGE_KEY = 'pwa-install-dismissed';
 	const DISMISS_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 day in milliseconds
+	const DELAY_TIME = 5000; // 5 seconds
 
 	// Check if user previously dismissed the prompt
 	function hasDismissedRecently(): boolean {
@@ -72,13 +74,14 @@
 	});
 </script>
 
-<pwa-install
-	bind:this={pwaInstallComponent}
-	name="Bonfire App"
-	manifest-url="/manifest.webmanifest"
-	icon="/icon-192.png"
-></pwa-install>
-
+{#if !dev}
+	<pwa-install
+		bind:this={pwaInstallComponent}
+		name="Bonfire App"
+		manifest-url="/manifest.webmanifest"
+		icon="/icon-192.png"
+	></pwa-install>
+{/if}
 <!--Button to Force Show -->
 <!-- <Button
 	class="bg-green-500 text-white hover:bg-green-400 dark:bg-green-700 dark:hover:bg-green-600"

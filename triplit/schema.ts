@@ -53,6 +53,11 @@ export const schema = S.Collections({
 			favourite_non_profit: S.RelationById('non_profits', '$favourite_non_profit_id')
 		},
 		permissions: {
+			admin: {
+				read: { filter: [true] }
+				// insert: { filter: [true] },
+				// update: { filter: [true] }
+			},
 			user: {
 				read: {
 					filter: [
@@ -141,6 +146,7 @@ export const schema = S.Collections({
 			latitude: S.Optional(S.Number()),
 			longitude: S.Optional(S.Number()),
 			user_id: S.String(),
+			max_num_guests_per_attendee: S.Optional(S.Number({ default: 0 })),
 			transaction_id: S.Optional(S.String()),
 			non_profit_id: S.Optional(S.String({ nullable: true })), // Non-profit the event contributes to
 			style: S.String({ nullable: true }),
@@ -182,6 +188,11 @@ export const schema = S.Collections({
 			non_profit: S.RelationById('non_profits', '$1.non_profit_id')
 		},
 		permissions: {
+			admin: {
+				read: { filter: [true] }
+				// insert: { filter: [true] },
+				// update: { filter: [true] }
+			},
 			user: {
 				read: {
 					filter: [
@@ -343,6 +354,11 @@ export const schema = S.Collections({
 			})
 		},
 		permissions: {
+			admin: {
+				read: { filter: [true] }
+				// insert: { filter: [true] },
+				// update: { filter: [true] }
+			},
 			user: {
 				read: {
 					filter: [
@@ -413,6 +429,11 @@ export const schema = S.Collections({
 			})
 		},
 		permissions: {
+			admin: {
+				read: { filter: [true] }
+				// insert: { filter: [true] },
+				// update: { filter: [true] }
+			},
 			user: {
 				read: {
 					filter: [

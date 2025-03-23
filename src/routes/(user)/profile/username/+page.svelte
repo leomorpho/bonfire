@@ -71,7 +71,6 @@
 
 		// If user is not onboarded, redirect to onboarding flow
 		if (!userIsFullyOnboarded) {
-
 			goto('/onboarding');
 			return;
 		}
@@ -85,7 +84,7 @@
 </script>
 
 <div class="p-safe flex min-h-screen items-center justify-center dark:text-white">
-	<form class="m-2 w-full max-w-md space-y-4 text-center" onsubmit={handleSubmit}>
+	<form class="m-2 w-full max-w-96 space-y-4 text-center sm:max-w-md" onsubmit={handleSubmit}>
 		<div class="text-lg font-semibold">Choose Your Username</div>
 
 		<Input

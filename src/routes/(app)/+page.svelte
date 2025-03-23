@@ -8,10 +8,12 @@
 	import Features from '$lib/components/landing/Features.svelte';
 </script>
 
-<Hero />
-<About />
-<Features />
-<Pricing />
-<AboutUs />
-<FAQ />
-<Footer></Footer>
+<div class="w-fulloverflow-x-hidden">
+	<Hero />
+	<About />
+	<Features />
+	<Pricing />
+	<AboutUs />
+	<FAQ />
+	<Footer></Footer>
+</div>

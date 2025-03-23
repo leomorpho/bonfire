@@ -8,9 +8,13 @@
 	import { cn } from '$lib/utils.js';
 	import Check from 'lucide-svelte/icons/check';
 	import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
+	import DOMPurify from 'dompurify';
 
-	let { onSave, location = $bindable<string | undefined>(), geocodedLocation = $bindable<any>() } =
-		$props();
+	let {
+		onSave,
+		location = $bindable<string | undefined>(),
+		geocodedLocation = $bindable<any>()
+	} = $props();
 
 	let open = $state(false);
 	let triggerRef = $state<HTMLButtonElement>(null!);
@@ -132,7 +136,7 @@
 				role="combobox"
 				aria-expanded={open}
 			>
-				{@html selectedValue || enterEventLocationText}
+				{@html DOMPurify.sanitize(selectedValue || enterEventLocationText)}
 				<ChevronsUpDown class="opacity-50" />
 			</Button>
 		{/snippet}
@@ -183,7 +187,7 @@
 									class="dropdown-item-content flex text-wrap"
 									class:active={selectedResult === suggestion.value}
 								>
-									{@html suggestion.label}
+									{@html DOMPurify.sanitize(suggestion.label)}
 								</span>
 							</Command.Item>
 						{/each}

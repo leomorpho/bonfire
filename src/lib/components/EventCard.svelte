@@ -6,8 +6,23 @@
 	import Rsvp from './rsvp/Rsvp.svelte';
 	import { parseColor } from '$lib/styles';
 	import { goto } from '$app/navigation';
+	import AttendeesCount from './attendance/AttendeesCount.svelte';
+	import { getFeWorkerTriplitClient } from '$lib/triplit';
+	import { page } from '$app/stores';
+	import type { TriplitClient } from '@triplit/client';
+	import { onMount } from 'svelte';
 
-	let { event, userId, eventCreatorName, rsvpStatus, isPublished = true, numGuests = 0 } = $props();
+	let {
+		event,
+		userId,
+		eventCreatorName,
+		rsvpStatus,
+		isPublished = true,
+		numGuests = 0,
+		maxNumGuestsAllowedPerAttendee = 0
+	} = $props();
+
+	const client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
 	let rsvpCanBeChanged = new Date(event.start_time) >= new Date();
 	let overlayColor = event.overlay_color ?? '#000000';
@@ -16,6 +31,84 @@
 	let overlayStyle = $derived(
 		`background-color: rgba(var(--overlay-color-rgb, ${parseColor(overlayColor)}), ${overlayOpacity});`
 	);
+
+	function countStatuses(statusesArray: any) {
+		return statusesArray.reduce(
+			(acc, statusObj) => {
+				const status = statusObj.status;
+				const guestCount = statusObj.guest_count || 0;
+				if (status in acc) {
+					acc[status] += 1 + guestCount;
+				} else {
+					acc[status] = 1 + guestCount;
+				}
+				return acc;
+			},
+			{ going: 0, maybe: 0, not_going: 0 }
+		);
+	}
+
+	let attendeesCount = $state(0);
+	let temporaryAttendeesCount = $state(0);
+
+	let totalGoing = $state();
+	let totalMaybe = $state();
+	let totalNotGoing = $state();
+
+	$effect(() => {
+		if (attendeesCount && temporaryAttendeesCount) {
+			totalGoing = attendeesCount.going + temporaryAttendeesCount.going;
+			totalMaybe = attendeesCount.maybe + temporaryAttendeesCount.maybe;
+			totalNotGoing = attendeesCount.not_going + temporaryAttendeesCount.not_going;
+		}
+	});
+
+	onMount(() => {
+		const unsubscribeFromEventAttendees = client.subscribe(
+			client
+				.query('attendees')
+				.where(['event_id', '=', event.id])
+				.select(['status', 'guest_count'])
+				.build(),
+			(results) => {
+				const attendeesStatuses = results;
+				attendeesCount = countStatuses(attendeesStatuses);
+
+				console.log('attendeesCount', attendeesCount);
+			},
+			(error) => {
+				console.error('Error fetching current attendees:', error);
+			},
+			{
+				localOnly: false,
+				onRemoteFulfilled: () => {}
+			}
+		);
+
+		const unsubscribeFromEventTemporaryAttendees = client.subscribe(
+			client
+				.query('temporary_attendees')
+				.where(['event_id', '=', event.id])
+				.select(['status', 'guest_count'])
+				.build(),
+			(results) => {
+				const temporaryAttendeesStatuses = results;
+				temporaryAttendeesCount = countStatuses(temporaryAttendeesStatuses);
+			},
+			(error) => {
+				console.error('Error fetching current attendees:', error);
+			},
+			{
+				localOnly: false,
+				onRemoteFulfilled: () => {}
+			}
+		);
+		return () => {
+			// Cleanup
+			unsubscribeFromEventAttendees();
+			unsubscribeFromEventTemporaryAttendees();
+		};
+	});
 </script>
 
 <button
@@ -44,6 +137,13 @@
 				<Card.Description>Hosted by {eventCreatorName}</Card.Description>
 			</Card.Header>
 			<Card.Content>
+				{#if totalGoing || totalMaybe || totalNotGoing}
+					<AttendeesCount
+						numAttendeesGoing={totalGoing}
+						numAttendeesMaybeGoing={totalMaybe}
+						numAttendeesNotGoing={totalNotGoing}
+					/>
+				{/if}
 				<button
 					class="interactive w-full md:max-w-96"
 					onclick={(e) => {
@@ -56,7 +156,8 @@
 						eventId={event.id}
 						{rsvpCanBeChanged}
 						isAnonymousUser={false}
-						{numGuests}
+						numGuestsCurrentAttendeeIsBringing={numGuests}
+						{maxNumGuestsAllowedPerAttendee}
 						eventOwnerId={event.user_id}
 					/>
 				</button>

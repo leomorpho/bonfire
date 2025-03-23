@@ -1,5 +1,5 @@
 <script lang="ts">
-	import EventStyler from './EventStyler.svelte';
+	import EventStyler from '../event-styles/EventStyler.svelte';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { CalendarDate, type DateValue } from '@internationalized/date';
 	import { Button } from '$lib/components/ui/button/index.js';
@@ -9,10 +9,10 @@
 		Clock,
 		Clock8,
 		ArrowDownToLine,
-		Trash2,
 		Palette,
 		Shield,
-		BookCheck
+		BookCheck,
+		Save
 	} from 'lucide-svelte';
 	import DoubleDigitsPicker from '$lib/components/DoubleDigitsPicker.svelte';
 	import TimezonePicker from '$lib/components/TimezonePicker.svelte';
@@ -26,7 +26,6 @@
 	} from '$lib/triplit';
 	import { goto } from '$app/navigation';
 	import type { TriplitClient } from '@triplit/client';
-	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { EventFormType, Status } from '$lib/enums';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
@@ -39,17 +38,19 @@
 		randomSort
 	} from '$lib/styles';
 	import { generatePassphraseId } from '$lib/utils';
-	import TextAreaAutoGrow from './TextAreaAutoGrow.svelte';
 	import ChevronLeft from 'svelte-radix/ChevronLeft.svelte';
-	import LocationInput from './input/location/LocationInput.svelte';
-	import EventAdminEditor from './EventAdminEditor.svelte';
+	import LocationInput from '../input/location/LocationInput.svelte';
+	import EventAdminEditor from '../EventAdminEditor.svelte';
 	import { debounce } from 'lodash-es';
-	import MaxCapacity from './eventform/MaxCapacity.svelte';
-	import BackButton from './BackButton.svelte';
-	import OutOfLogs from './payments/OutOfLogs.svelte';
+	import BackButton from '../BackButton.svelte';
+	import OutOfLogs from '../payments/OutOfLogs.svelte';
 	import { toast } from 'svelte-sonner';
-	import LoadingSpinner from './LoadingSpinner.svelte';
-	import { env as publicEnv } from '$env/dynamic/public';
+	import LoadingSpinner from '../LoadingSpinner.svelte';
+	import UnpublishEventBtn from './buttons/UnpublishEventBtn.svelte';
+	import DeleteEventBtn from './buttons/DeleteEventBtn.svelte';
+	import TipTapTextEditor from '../input/tiptap/TipTapTextEditor.svelte';
+	import MaxCapacity from './MaxCapacity.svelte';
+	import GuestCountFeature from './GuestCountFeature.svelte';
 
 	let { mode, event = null, currUserId = null } = $props();
 
@@ -72,6 +73,7 @@
 	let endMinute = $state(''); // State for minute
 	let ampmEnd: string = $state('PM'); // State for AM/PM
 	let maxCapacity: number | null = $state(event?.max_capacity);
+	let maxNumGuest: number | null = $state(event?.max_num_guests_per_attendee ?? 0);
 	let latitude: number | null = $state(event?.latitude);
 	let longitude: number | null = $state(event?.longitude);
 
@@ -107,7 +109,7 @@
 	let isEventCreated = $state(mode == EventFormType.UPDATE || false);
 	// TODO: support events created before payments system was created. There was no concept of "published"/"draft". Remove once all events have an attached transaction.
 	let isEventPublished = $derived(event && event.is_published);
-	let userIsOutOfLogs = $derived(!numLogsLoading && numLogs == 0 && !event.isPublished);
+	let userIsOutOfLogs = $derived(!numLogsLoading && numLogs == 0 && event && !event.isPublished);
 	let userFavoriteNonProfitId = $state(null);
 
 	$effect(() => {
@@ -297,6 +299,7 @@
 				overlay_color: overlayColor || '#000000',
 				overlay_opacity: overlayOpacity || 0.4,
 				max_capacity: maxCapacity || null,
+				max_num_guests_per_attendee: maxNumGuest || 0,
 				non_profit_id: userFavoriteNonProfitId || null,
 				latitude: latitude,
 				longitude: longitude
@@ -326,7 +329,7 @@
 		}
 	};
 
-	const updateEvent = async (createTransaction = false) => {
+	const updateEvent = async (createTransaction = false, publishEventNow = null) => {
 		try {
 			const feHttpClient = getFeHttpTriplitClient($page.data.jwt);
 			await feHttpClient.update('events', event.id, async (entity) => {
@@ -340,8 +343,10 @@
 				entity.overlay_color = overlayColor;
 				entity.overlay_opacity = overlayOpacity;
 				entity.max_capacity = maxCapacity;
+				entity.max_num_guests_per_attendee = maxNumGuest || 0;
 				entity.latitude = latitude;
 				entity.longitude = longitude;
+				entity.is_published = publishEventNow ?? isEventPublished;
 			});
 			console.log('UPDATING', latitude, longitude);
 
@@ -380,7 +385,7 @@
 		goto(`/bonfire/${eventId}`);
 	};
 
-	const handleSubmit = async (e: Event) => {
+	const handleSubmit = async (e: Event, isPublished = false) => {
 		try {
 			errorMessage = '';
 			showError = false;
@@ -406,7 +411,7 @@
 					redirectToDashboard();
 				});
 			} else {
-				await updateEvent(true).then(() => {
+				await updateEvent(true, isPublished).then(() => {
 					redirectToDashboard();
 				});
 			}
@@ -426,23 +431,6 @@
 				duration: 10000
 			}
 		);
-	};
-
-	const deleteEvent = async (e: Event) => {
-		try {
-			const userId: string = (await waitForUserId()) as string;
-			client
-				.delete('events', event.id)
-				.then(() => {
-					console.log('Event deleted:', event.id);
-					goto('/dashboard');
-				})
-				.catch((error: any) => {
-					console.error('Error deleting event:', error);
-				});
-		} catch (error) {
-			console.error('Error deleting event:', error);
-		}
 	};
 
 	const startEditEventStyle = () => {
@@ -518,7 +506,7 @@
 				<div></div>
 			</h2>
 			<form class="space-y-2">
-				{#if userIsOutOfLogs}
+				{#if userIsOutOfLogs && !isEventPublished}
 					<OutOfLogs />
 				{:else if !isEventPublished}
 					<div class="flex justify-center">
@@ -652,13 +640,19 @@
 						onSave={debouncedUpdateEvent}
 					/>
 				</div>
-				<TextAreaAutoGrow
-					cls={'bg-white dark:bg-slate-900 dark:bg-slate-900'}
+				<!-- <TextAreaAutoGrow
+					cls={'bg-white dark:bg-slate-900'}
 					placeholder="Details"
 					bind:value={details}
 					oninput={debouncedUpdateEvent}
+				/> -->
+				<TipTapTextEditor
+					bind:content={details}
+					oninput={debouncedUpdateEvent}
+					class="bg-white dark:bg-slate-900 "
 				/>
 				<MaxCapacity oninput={debouncedUpdateEvent} bind:value={maxCapacity} />
+				<GuestCountFeature oninput={debouncedUpdateEvent} bind:value={maxNumGuest} />
 			</form>
 
 			<div class="mt-5 grid w-full grid-cols-1 gap-2 sm:grid-cols-2">
@@ -683,8 +677,9 @@
 			<a href={cancelUrl}>
 				<Button
 					class="sticky top-2 mt-2 w-full ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-700"
-					>Cancel</Button
 				>
+					Cancel
+				</Button>
 			</a>
 			{#if isEventCreated && !isEventPublished}
 				<Button
@@ -706,48 +701,35 @@
 					disabled={submitDisabled}
 					type="submit"
 					class={`sticky top-2 mt-2 w-full ${submitDisabled ? 'bg-slate-400 dark:bg-slate-600' : 'bg-green-500 hover:bg-green-400 dark:bg-green-700 dark:hover:bg-green-600'} ring-glow dark:text-white`}
-					onclick={handleSubmit}
+					onclick={(e) => {
+						handleSubmit(e, true);
+					}}
 				>
 					{#if isEventSaving}
 						<span class="loading loading-spinner loading-xs ml-2"> </span>
 					{/if}
-					<BookCheck class="ml-1 mr-1 h-4 w-4" /> Publish
+					{#if isEventPublished}
+						<Save class="ml-1 mr-1 h-4 w-4" />
+						Save
+					{:else}
+						<BookCheck class="ml-1 mr-1 h-4 w-4" />
+						Publish
+					{/if}
 				</Button>
 			{/if}
-			{#if mode == EventFormType.UPDATE && event && currUserId == event.user_id}
-				<Dialog.Root>
-					<Dialog.Trigger class="w-full" disabled={submitDisabled || currUserId != event.user_id}
-						><Button
-							disabled={submitDisabled || currUserId != event.user_id}
-							class="mt-2 w-full bg-red-500 ring-glow hover:bg-red-400 dark:bg-red-700 dark:text-white dark:hover:bg-red-600"
-						>
-							<Trash2 class="ml-1 mr-1 h-4 w-4" /> Delete
-						</Button></Dialog.Trigger
-					>
-					<Dialog.Content>
-						<Dialog.Header>
-							<Dialog.Title>Are you sure absolutely sure?</Dialog.Title>
-							<Dialog.Description>
-								Once deleted, this bonfire is gone forever 🔥. This action <span class="font-bold"
-									>cannot</span
-								>
-								be undone, and you <span class="font-bold">won’t get back</span> the log token used
-								to create it. If you just need changes, consider
-								<span class="font-bold">editting</span> instead.
-							</Dialog.Description>
-						</Dialog.Header>
-						<Dialog.Footer
-							><Button
-								disabled={submitDisabled}
-								class="mt-2 w-full bg-red-500 hover:bg-red-400"
-								onclick={deleteEvent}
-							>
-								<Trash2 class="ml-1 mr-1 h-4 w-4" /> Crush it
-							</Button></Dialog.Footer
-						>
-					</Dialog.Content>
-				</Dialog.Root>
-			{/if}
+			<div class="flex space-x-1">
+				{#if isEventPublished}
+					<UnpublishEventBtn {submitDisabled} eventId={event.id} />
+				{/if}
+				{#if mode == EventFormType.UPDATE && event && currUserId == event.user_id}
+					<DeleteEventBtn
+						{submitDisabled}
+						{currUserId}
+						eventCreatorUserId={event.user_id}
+						eventId={event.id}
+					/>
+				{/if}
+			</div>
 		</div>
 	{:else if currentEventEditingMode == editingStyles}
 		<div class="md:7/8 w-5/6">

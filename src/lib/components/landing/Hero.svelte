@@ -1,32 +1,63 @@
 <script>
 	import Container from '../Container.svelte';
+	import AnimatedShinyText from '../effects/animated-shiny-text/AnimatedShinyText.svelte';
 	import Button from '../ui/button/button.svelte';
+	import OrbitingCirclesBanner from './OrbitingCirclesBanner.svelte';
 </script>
 
-<!-- The exact line breaks and widths of various sections should depend on the copy. Make sure the copy looks good on
-all screen sizes (not the case here) -->
+{#snippet startBonfireBtn()}
+	<div class="flex items-center justify-center sm:justify-start">
+		<a href="/login">
+			<div
+				class="group relative inline-flex h-14 cursor-pointer items-center justify-center overflow-hidden rounded-full border-2 border-black/5 bg-neutral-100 px-6 text-lg text-white transition-all ease-in hover:bg-neutral-200 dark:border-white/20 dark:bg-neutral-900 dark:hover:bg-neutral-800"
+			>
+				✨
+				<AnimatedShinyText
+					cls="inline-flex items-center justify-center px-4 py-1 transition ease-out hover:text-neutral-600 hover:duration-300 hover:dark:text-neutral-400"
+				>
+					<span>Start a Bonfire</span>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						width="24"
+						height="24"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						class="ml-1 size-3 transition-transform duration-300 ease-in-out group-hover:translate-x-0.5"
+					>
+						<path d="M5 12h14" />
+						<path d="m12 5 7 7-7 7" />
+					</svg>
+				</AnimatedShinyText>
+			</div>
+		</a>
+		<div class="mx-3 italic">it's free!</div>
+	</div>
+{/snippet}
+
 <Container>
-	<div class="flex flex-col py-8 sm:py-20 md:flex-row">
+	<div class="relative flex w-full flex-col items-center justify-center md:flex-row">
 		<div>
 			<div
-				class="pointer-events-none z-10 whitespace-pre-wrap bg-gradient-to-b from-[#ffd319] via-[#ff2975] to-[#8c1eff] bg-clip-text py-1 text-center text-5xl font-bold leading-none tracking-tighter text-transparent sm:mt-8 sm:text-left sm:text-7xl"
+				class="pointer-events-none z-10 whitespace-pre-wrap bg-gradient-to-b from-[#ffd319] via-[#ff2975] to-[#8c1eff] bg-clip-text p-1 text-center text-5xl font-bold leading-none tracking-tighter text-transparent sm:mt-8 sm:text-left sm:text-7xl"
 			>
-				Re-ignite <br /> your social life<br /> right
-				<span class="underline decoration-purple-500">here</span>
+				Re-ignite <br /> your social life<br />
+				<span class="underline decoration-purple-500">right here</span>
 			</div>
 			<p class="text-md mb-6 mt-2 text-center sm:mb-8 sm:mt-4 sm:text-left sm:text-lg">
 				Host and share memorable events with your friends.
 			</p>
-			<div class="flex items-center justify-center sm:justify-start">
-				<a href="/">
-					<Button class="h-14 bg-purple-500 text-lg">Start a Bonfire</Button>
-				</a>
-				<div class="mx-3 italic">it's free!</div>
-			</div>
+			{@render startBonfireBtn()}
 		</div>
-		<div class=" mt-8 flex-1 rounded-xl bg-gray-100 p-10 text-center text-xl md:ml-5">
-			Put a quick demo video of the product, a carousel of images, some testimonials or relevant
-			logos.
+
+		<div class="hidden w-full min-w-[450px] p-5 sm:block sm:w-2/3 sm:p-10 md:w-1/2">
+			<OrbitingCirclesBanner />
 		</div>
 	</div>
 </Container>
+<div class="block overflow-x-clip sm:hidden sm:py-10">
+	<OrbitingCirclesBanner rounded={false} />
+</div>

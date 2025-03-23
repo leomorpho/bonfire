@@ -162,7 +162,7 @@
 	});
 </script>
 
-<div class="notification-item rounded-lg border p-4" bind:this={cardRef}>
+<div class="notification-item rounded-lg  bg-slate-100 dark:bg-slate-900 p-4" bind:this={cardRef}>
 	<!-- Display message -->
 	<p class="font-medium">{notification.message}</p>
 

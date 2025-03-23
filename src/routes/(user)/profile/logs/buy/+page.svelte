@@ -19,7 +19,6 @@
 	let loadingUserTriplitObject = $state(true);
 	let favouriteNonProfitId = $state<string | null>(null);
 
-	let canBuyLogs = $derived(!!favouriteNonProfitId);
 
 	onMount(() => {
 		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
@@ -48,9 +47,10 @@
 				.Where(['id', '=', $page.data.user.id])
 				,
 			(result) => {
-				loadingUserTriplitObject = false;
-				favouriteNonProfitId = result[0]?.favourite_non_profit_id || null;
 				nonProfit = result[0]?.favourite_non_profit || null;
+				console.log('--> result.nonProfit', nonProfit);
+
+				loadingUserTriplitObject = false;
 			},
 			(error) => {
 				console.error('Error fetching user data:', error);
@@ -84,11 +84,11 @@
 		</span> logs remaining. Click below to buy more.
 	</div>
 
-	<div class="w-full flex flex-col md:flex-row justify-center items-center md:space-x-10">
+	<div class="flex w-full flex-col items-center justify-center md:flex-row md:space-x-10">
 		<div>
 			{#if loadingUserTriplitObject}
 				<div class="flex w-full justify-center"><SvgLoader /></div>
-			{:else if !canBuyLogs}
+			{:else if !nonProfit}
 				<SelectNonProfitAlert />
 			{:else}
 				<div class="flex w-full justify-center">
@@ -106,21 +106,21 @@
 		</div>
 
 		<div class="flex justify-center">
-			<div class="my-5 space-y-5 w-60">
+			<div class="my-5 w-60 space-y-5">
 				<LogPackage
-					disabled={!canBuyLogs}
+					disabled={!nonProfit}
 					price={'1'}
 					price_id={publicEnv.PUBLIC_1_LOG_PRICE_ID}
 					num_logs="1"
 				/>
 				<LogPackage
-					disabled={!canBuyLogs}
+					disabled={!nonProfit}
 					price={'2'}
 					price_id={publicEnv.PUBLIC_3_LOG_PRICE_ID}
 					num_logs="3"
 				/>
 				<LogPackage
-					disabled={!canBuyLogs}
+					disabled={!nonProfit}
 					price={'5'}
 					price_id={publicEnv.PUBLIC_10_LOG_PRICE_ID}
 					num_logs="10"
