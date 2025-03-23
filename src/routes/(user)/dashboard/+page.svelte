@@ -183,10 +183,7 @@
 			</Tabs.Content>
 			<Tabs.Content value="discussions" class="mb-2 h-fit w-full">
 				{#if pastEventsLoading}
-					<div class="h-32">
-						<div class="font-mono">Loading...</div>
-						<SvgLoader />
-					</div>
+					<Loader />
 				{:else if pastAttendances.length == 0}
 					<div
 						class="mx-auto mt-10 flex w-full max-w-sm flex-col items-center justify-center gap-2 space-y-5 rounded-lg bg-slate-100 p-6 text-center dark:bg-slate-800 dark:text-white sm:mt-16 sm:w-2/3"
@@ -207,8 +204,6 @@
 									rsvpStatus={attendance.status}
 									isPublished={attendance.event.is_published}
 									numGuests={attendance.guest_count}
-									attendeesStatuses={attendance.attendees}
-									temporaryAttendeesStatuses={attendance.temporary_attendees}
 									maxNumGuestsAllowedPerAttendee={attendance.event.max_num_guests_per_attendee}
 								/>
 							</div>

@@ -227,7 +227,7 @@ export async function uploadProfileImage(
 
 	if (
 		!overwrite &&
-		(await fileExistsInS3(bucketName, largeImageKey)) &&
+		(await fileExistsInS3(bucketName, fullImageKey)) &&
 		(await fileExistsInS3(bucketName, smallImageKey))
 	) {
 		return;

@@ -21,16 +21,16 @@
 	};
 
 	onMount(() => {
-		let client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
+		const client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 		console.log('loading notifications in NotificationsLoader');
 		const init = async () => {
 			userId = (await waitForUserId()) as string;
 
-			let notificationsQuery = createNotificationsQuery(client, userId);
+			const notificationsQuery = createNotificationsQuery(client, userId);
 
 			const unsubscribeFromNotificationsQuery = client.subscribe(
 				notificationsQuery,
-				(results, info) => {
+				(results) => {
 					notificationsCount = results.length;
 					console.log('NotificationsIndication new count:', notificationsCount);
 				},

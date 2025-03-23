@@ -33,8 +33,7 @@
 				['user_id', '=', userId],
 				['seen_at', '=', null]
 			])
-			.Order('created_at', 'DESC')
-			;
+			.Order('created_at', 'DESC');
 
 		allUnreadNotifications = await client.fetch(unseenQuery);
 
@@ -48,7 +47,7 @@
 				])
 			])
 			.Order('created_at', 'DESC')
-			.limit(NUM_TO_LOAD); // Initial limit
+			.Limit(NUM_TO_LOAD); // Initial limit
 
 		const { unsubscribe, loadMore } = client.subscribeWithExpand(
 			seenQuery,
@@ -123,7 +122,7 @@
 				<Dialog.Description>
 					{#if allUnreadNotifications.length == 0 && allSeenNotifications.length == 0}
 						<div class="my-5 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-700 dark:text-white p-3">
-							No notifications
+							No notifications... it's quiet here. 😶
 						</div>
 					{/if}
 					{#if allUnreadNotifications.length > 0}
