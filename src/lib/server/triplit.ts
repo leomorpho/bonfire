@@ -6,8 +6,10 @@ import { and, HttpClient } from '@triplit/client';
 import { createAttendeeId } from '$lib/utils';
 import { spawn } from 'child_process';
 import { dev } from '$app/environment';
+import { schema } from '../../../triplit/schema';
 
 export const triplitHttpClient = new HttpClient({
+	schema,
 	serverUrl: publicEnv.PUBLIC_TRIPLIT_URL,
 	token: privateEnv.TRIPLIT_SERVICE_TOKEN
 });

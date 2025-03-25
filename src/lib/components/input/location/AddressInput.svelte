@@ -136,7 +136,8 @@
 				role="combobox"
 				aria-expanded={open}
 			>
-				{@html DOMPurify.sanitize(selectedValue || enterEventLocationText)}
+				<!-- {@html DOMPurify.sanitize(selectedValue || enterEventLocationText)} -->
+				{@html selectedValue || enterEventLocationText}
 				<ChevronsUpDown class="opacity-50" />
 			</Button>
 		{/snippet}
@@ -187,7 +188,8 @@
 									class="dropdown-item-content flex text-wrap"
 									class:active={selectedResult === suggestion.value}
 								>
-									{@html DOMPurify.sanitize(suggestion.label)}
+									<!-- {@html DOMPurify.sanitize(suggestion.label)} -->
+									{@html suggestion.label}
 								</span>
 							</Command.Item>
 						{/each}

@@ -75,12 +75,12 @@
 		let announcementsQuery = createAnnouncementsQuery(client);
 
 		if (maxCount) {
-			announcementsQuery = announcementsQuery.limit(maxCount);
+			announcementsQuery = announcementsQuery.Limit(maxCount);
 		}
 
 		const unsubscribe = client.subscribe(
 			announcementsQuery,
-			(results, info) => {
+			(results) => {
 				announcementsSubset = results;
 				// console.log('announcementsSubset ====>', announcementsSubset);
 				notificationsLoading = false;

@@ -51,7 +51,7 @@
 	</div>
 
 	<div class="flex w-full md:space-x-3">
-		<div class="hidden lg:block w-full">
+		<div class="hidden w-full lg:block">
 			<EventDetails {eventDescription} />
 		</div>
 		<div
@@ -85,7 +85,8 @@
 										class="mt-2 flex items-center justify-center rounded-xl bg-slate-100 p-2 dark:bg-slate-800"
 									>
 										{#if eventLocation}
-											{@html DOMPurify.sanitize(eventLocation)}
+											<!-- {@html DOMPurify.sanitize(eventLocation)} -->
+											{@html eventLocation}
 										{:else if latitude && longitude}
 											Get Directions
 										{/if}

@@ -196,21 +196,10 @@ export const schema = S.Collections({
 			user: {
 				read: {
 					filter: [
-						and([
-							or([
-								['user_id', '=', '$role.userId'], // User can read their own events
-								['attendees.user_id', '=', '$role.userId'], // A user can see events they are attending
-								['viewers.user_id', '=', '$role.userId'] // Event viewers can see event
-							]),
-							or([
-								['transaction_id', '!=', null],
-								// TODO: below is temporary
-								// TODO: update based on when payment system goes live
-								and([
-									['transaction_id', '=', null],
-									['start_time', '<=', '2025-03-25T00:00:00.000Z']
-								])
-							])
+						or([
+							['user_id', '=', '$role.userId'], // User can read their own events
+							['attendees.user_id', '=', '$role.userId'], // A user can see events they are attending
+							['viewers.user_id', '=', '$role.userId'] // Event viewers can see event
 						])
 					]
 				},

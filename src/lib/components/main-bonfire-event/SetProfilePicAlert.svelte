@@ -10,7 +10,7 @@
 
 	const client = getFeWorkerTriplitClient($page.data.jwt);
 
-	let data = useQuery(client, client.query('profile_images').where(['user_id', '=', currUserId]));
+	let data = useQuery(client, client.query('profile_images').Where(['user_id', '=', currUserId]));
 </script>
 
 {#if data.results?.length == 0}

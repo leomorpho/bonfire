@@ -12,7 +12,11 @@ export default defineConfig({
 		}),
 		sveltekit()
 	],
-	server: { fs: { allow: ['./triplit'] } },
+	server: {
+		fs: {
+			allow: ['./triplit']
+		}
+	},
 	test: {
 		include: ['src/**/*.{test,spec}.{js,ts}', 'tests/**/*.test.ts']
 	}

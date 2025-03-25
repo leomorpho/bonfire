@@ -126,9 +126,9 @@
 		}
 
 		if (maxNumMessages) {
-			threadMessagesQuery = threadMessagesQuery.limit(maxNumMessages);
+			threadMessagesQuery = threadMessagesQuery.Limit(maxNumMessages);
 		} else {
-			threadMessagesQuery = threadMessagesQuery.limit(maxNumMessagesLoadedPerRequest);
+			threadMessagesQuery = threadMessagesQuery.Limit(maxNumMessagesLoadedPerRequest);
 		}
 
 		threadMessagesQuery = threadMessagesQuery
@@ -204,8 +204,7 @@
 						['object_type', '=', NotificationType.NEW_MESSAGE]
 					])
 				])
-				.Select(['id', 'object_ids'])
-				,
+				.Select(['id', 'object_ids']),
 			(results, info) => {
 				// Create an array to store the IDs of messages that are marked as seen
 				const seenMessageIds: Set<string> = new Set();

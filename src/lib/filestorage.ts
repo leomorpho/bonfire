@@ -719,7 +719,7 @@ export async function fetchAccessibleEventFiles(
 	// ;
 
 	if (numFiles) {
-		filesQuery = filesQuery.limit(numFiles);
+		filesQuery = filesQuery.Limit(numFiles);
 	}
 	const files = await triplitHttpClient.fetch(filesQuery);
 

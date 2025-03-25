@@ -34,7 +34,7 @@
 
 			const unsubscribe = client.subscribe(
 				notificationsQuery,
-				(results, info) => {
+				(results) => {
 					notificationsCount = results.length;
 				},
 				(error) => {

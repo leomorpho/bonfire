@@ -86,7 +86,10 @@
 						class="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-200 via-slate-100/10 to-transparent dark:from-slate-900 dark:via-slate-900/10"
 					></div>
 				{/if}
-				<div id="pot-pourri">{@html DOMPurify.sanitize(eventDescription)}</div>
+				<div id="pot-pourri">
+					<!-- {@html DOMPurify.sanitize(eventDescription)} -->
+					{@html eventDescription}
+				</div>
 				<!-- {/if} -->
 				<!-- {#if showExpandButton}
 				<button
@@ -103,7 +106,7 @@
 				</button>
 			{/if} -->
 			{:else}
-				<div class="py-3 flex w-full justify-center">
+				<div class="flex w-full justify-center py-3">
 					{'No details yet...'}
 				</div>
 			{/if}

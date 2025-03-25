@@ -61,7 +61,22 @@ export function getFeWorkerTriplitClient(jwt: string) {
 	if (!browser) {
 		throw new Error('TriplitClient can only be created in the browser.');
 	}
-
+	return new TriplitClient({
+		schema,
+		serverUrl: publicEnv.PUBLIC_TRIPLIT_URL,
+		token: jwt ? jwt : publicEnv.PUBLIC_TRIPLIT_ANONYMOUS_TOKEN,
+		storage: {
+			type: dev || !browser ? 'memory' : 'indexeddb',
+			name: LOCAL_INDEXEDDB_NAME
+		},
+	});
+	return new WorkerClient({
+		workerUrl: dev ? workerUrl : undefined,
+	
+		schema,
+		serverUrl: publicEnv.PUBLIC_TRIPLIT_URL,
+		token: jwt ? jwt : publicEnv.PUBLIC_TRIPLIT_ANONYMOUS_TOKEN,
+	});
 	try {
 		// Decode JWT to extract role
 		const decoded = jwtDecode(jwt); // Decodes without verifying (safe for role extraction)

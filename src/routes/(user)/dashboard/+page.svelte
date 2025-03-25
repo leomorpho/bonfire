@@ -36,13 +36,17 @@
 			.Where(['user_id', '=', currUserID])
 			.Where('event.start_time', future ? '>=' : '<', futureDate.toISOString());
 
-		return query
-			.SubqueryOne(
-				'organizer_name',
-				client.query('user').Where(['id', '=', '$1.event.user_id']).Select(['username'])
-			)
-			.Include('event')
-			.Order('event.start_time', 'ASC');
+		return (
+			query
+				// .SubqueryOne(
+				// 	'organizer_name',
+				// 	client.query('user').Where(['id', '=', '$1.event.user_id']).Select(['username'])
+				// )
+				.Include('event', (rel) =>
+					rel('event').Include('user', (rel) => rel('user').Select(['username']))
+				)
+				.Order('event.start_time', 'ASC')
+		);
 	}
 
 	const initEvents = async () => {
@@ -71,11 +75,6 @@
 			console.error('Failed to get events:', error);
 		});
 
-		const queryOptions = {
-			policy: 'local-and-remote',
-			timeout: 2000 // Optional: Wait for up to 2s before showing local data
-		} as FetchOptions;
-
 		let futureAttendanceQuery = createAttendanceQuery(client, $page.data.user.id, true);
 		let pastAttendanceQuery = createAttendanceQuery(client, $page.data.user.id, false);
 
@@ -87,7 +86,7 @@
 				console.log('===>, futureAttendances', futureAttendances);
 			},
 			(error) => {
-				console.error('Error fetching current temporary attendee:', error);
+				console.error('Error fetching future attendances:', error);
 			},
 			{
 				localOnly: false,
@@ -170,7 +169,7 @@
 								<EventCard
 									event={attendance.event}
 									{userId}
-									eventCreatorName={attendance.organizer_name['username']}
+									eventCreatorName={attendance.event.user.username}
 									rsvpStatus={attendance.status}
 									isPublished={attendance.event.is_published}
 									numGuests={attendance.guest_count}
@@ -200,7 +199,7 @@
 								<EventCard
 									event={attendance.event}
 									{userId}
-									eventCreatorName={attendance.organizer_name['username']}
+									eventCreatorName={attendance.event.user.username}
 									rsvpStatus={attendance.status}
 									isPublished={attendance.event.is_published}
 									numGuests={attendance.guest_count}
