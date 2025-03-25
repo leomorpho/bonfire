@@ -16,7 +16,7 @@
 				['user_id', '=', userId],
 				['seen_at', '=', null]
 			])
-			.Select(['id', 'object_type', 'object_ids'])
+			.Select(['id', 'object_type', 'object_ids']) // TODO: pretty sure we only need
 			.Order('created_at', 'DESC');
 	};
 
@@ -32,10 +32,9 @@
 				notificationsQuery,
 				(results) => {
 					notificationsCount = results.length;
-					console.log('NotificationsIndication new count:', notificationsCount);
 				},
 				(error) => {
-					console.error('Error fetching announcements:', error);
+					console.error('Error fetching notifications:', error);
 				},
 				// Optional
 				{

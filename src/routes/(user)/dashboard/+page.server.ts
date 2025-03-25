@@ -21,7 +21,7 @@ export const load = async (event) => {
 			'self_attendance',
 			triplitHttpClient.query('attendees').Where('user_id', '=', user.id)
 		)
-		.Include('attendees');
+		.Include('attendees'); // TODO: this is repetitive (from the subquery)
 	const events = await triplitHttpClient.fetch(eventQuery);
 
 	// Process each event and conditionally insert attendance
