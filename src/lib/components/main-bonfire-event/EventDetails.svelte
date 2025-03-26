@@ -45,7 +45,7 @@
 </script>
 
 <div class="relative flex flex-col rounded-xl bg-slate-100/90 shadow-lg dark:bg-slate-900/90">
-	<button
+	<!-- <button
 		class="my-3 flex w-full items-center justify-center font-semibold sm:text-xl md:text-2xl lg:mb-5"
 		onclick={toggleExpand}
 		aria-expanded={isExpanded}
@@ -53,10 +53,10 @@
 	>
 		<span class="flex items-center">
 			<BookOpen class="mr-2" />
-			Details
+			About
 		</span>
-	</button>
-	<div class="w-full rounded-b-xl dark:bg-slate-800 dark:text-white">
+	</button> -->
+	<div class="w-full rounded-b-xl dark:text-white">
 		<div
 			id="event-description-content-collapsed"
 			class={`prose prose-sm w-full todo-max-h-[${maxHeight}px] overflow-hidden px-4
