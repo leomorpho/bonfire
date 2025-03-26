@@ -468,9 +468,9 @@
 		const unsubscribeFromUserLogsQuery = client.subscribe(
 			client.query('user').Where(['id', '=', $page.data.user.id]).Include('user_log_tokens'),
 			(results) => {
-				console.log('results', results[0]);
-				if (results && results.length > 0 && results[0].user_log_tokens) {
-					numLogs = results[0].user_log_tokens.num_logs;
+				console.log('logs query', results);
+				if (results && results.length > 0) {
+					numLogs = results[0].user_log_tokens?.num_logs ?? 0;
 					userFavoriteNonProfitId = results[0].favourite_non_profit_id;
 					numLogsLoading = false;
 				}

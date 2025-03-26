@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { TriplitClient } from '@triplit/client';
+	import { HttpClient, TriplitClient } from '@triplit/client';
 	import { Textarea } from '$lib/components/ui/textarea/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
-	import { getFeWorkerTriplitClient, waitForUserId } from '$lib/triplit';
+	import { getFeHttpTriplitClient, waitForUserId } from '$lib/triplit';
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
@@ -12,7 +12,7 @@
 	// Props for the page
 	let { mode = 'update', announcement = null, eventId } = $props();
 
-	let client: TriplitClient = $state();
+	let client: TriplitClient | HttpClient | undefined = $state();
 	let userId = $state();
 
 	// States for form fields
@@ -20,7 +20,7 @@
 	let submitDisabled = $state(true);
 
 	onMount(async () => {
-		client = getFeWorkerTriplitClient($page.data.jwt);
+		client = getFeHttpTriplitClient($page.data.jwt);
 		userId = await waitForUserId();
 	});
 
@@ -29,59 +29,82 @@
 		submitDisabled = !content || !eventId;
 	});
 
-	const handleSubmit = async (e: Event) => {
+	const handleSubmit = (e: Event) => {
+		if (!client) {
+			throw new Error('client is not instantiated');
+		}
+
 		e.preventDefault();
 
 		if (!content || !eventId) return;
 
 		if (mode === 'create') {
 			// Create a new announcement
-			const output = await client.insert('announcement', {
-				content,
-				event_id: eventId,
-				user_id: userId // Use the authenticated user's ID
-			});
-			console.log('output...', output);
+			client
+				.insert('announcement', {
+					content,
+					event_id: eventId,
+					user_id: userId // Use the authenticated user's ID
+				})
+				.then(async (output) => {
+					console.log('output...', output);
 
-			await createNewAnnouncementNotificationQueueObject(client, userId as string, eventId, [
-				output?.id
-			]);
+					await createNewAnnouncementNotificationQueueObject(client, userId as string, eventId, [
+						output?.id
+					]);
 
-			if (output) {
-				goto(`/bonfire/${eventId}#announcements`);
-			} else {
-				console.error('Failed to create announcement');
-			}
+					if (output) {
+						goto(`/bonfire/${eventId}#announcements`);
+					} else {
+						console.error('Failed to create announcement');
+					}
+				})
+				.catch((error) => {
+					console.error('Error creating announcement:', error);
+				});
 		} else if (mode === 'update' && announcement?.id) {
 			// Update the existing announcement
-			await client.update('announcement', announcement.id, async (entity) => {
-				entity.content = content;
-				entity.event_id = eventId;
-			});
-			goto(`/bonfire/${eventId}#announcements`);
+			client
+				.update('announcement', announcement.id, async (entity) => {
+					entity.content = content;
+					entity.event_id = eventId;
+				})
+				.then(() => {
+					goto(`/bonfire/${eventId}#announcements`);
+				})
+				.catch((error) => {
+					console.error('Error updating announcement:', error);
+				});
 		}
 	};
 
-	const deleteAnnouncement = async (e: Event) => {
-		try {
-			let seen_announcements = await client.fetch(
+	const deleteAnnouncement = (e: Event) => {
+		if (!client) {
+			throw new Error('client is not instantiated');
+		}
+
+		client
+			.fetch(
 				client
 					.query('seen_announcements')
 					.Where(['announcement_id', '=', announcement.id])
 					.Select(['id'])
-			);
-
-			await client.transact(async (tx) => {
-				await tx.delete('announcement', announcement.id);
-				// Delete all related seen_announcements
-				for (const seen of seen_announcements) {
-					await tx.delete('seen_announcements', seen.id);
-				}
+			)
+			.then((seen_announcements) => {
+				return client.transact(async (tx) => {
+					await tx.delete('announcement', announcement.id);
+					// Delete all related seen_announcements
+					for (const seen of seen_announcements) {
+						await tx.delete('seen_announcements', seen.id);
+					}
+				});
+			})
+			.then(() => {
+				goto(`/bonfire/${eventId}#announcements`);
+			})
+			.catch((error) => {
+				console.error('Error deleting announcement:', error);
 			});
-			goto(`/bonfire/${eventId}#announcements`);
-		} catch (error) {
-			console.error('Error deleting announcement:', error);
-		}
 	};
 </script>
 
