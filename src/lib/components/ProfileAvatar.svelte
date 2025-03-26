@@ -181,7 +181,7 @@
 
 <Dialog.Root bind:open={dialogIsOpen}>
 	<Dialog.Trigger
-		class="profile-avatar flex items-center justify-center focus:outline-none focus-visible:ring-0"
+		class={`profile-avatar ${isTempUser ? 'temp-user' : ''} flex items-center justify-center focus:outline-none focus-visible:ring-0`}
 	>
 		{#if fullsizeUrl || url}
 			<div class="relative">

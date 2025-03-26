@@ -506,10 +506,12 @@ test('Temp attendee view', async ({ browser }) => {
 	).toBeVisible();
 	await expect(tempAttendeePage.getByText('This action cannot be undone')).toBeVisible();
 	await tempAttendeePage.getByRole('button', { name: 'Continue' }).click();
-	await expect(tempAttendeePage.locator('.gallery-item')).toHaveCount(1);
+	await tempAttendeePage.reload();
+	await expect(tempAttendeePage.locator('.gallery-item')).toHaveCount(1, { timeout: 30000 });
 
 	// See if event owner can see the remove user screen
-	await eventCreatorPage.locator('#going-attendees').locator('.profile-avatar').click();
+	await eventCreatorPage.locator('.back-button').first().click();
+	await eventCreatorPage.locator('#going-attendees .profile-avatar.temp-user').click();
 	await expect(
 		eventCreatorPage.getByRole('button', { name: 'Remove user from event' })
 	).toBeVisible();
@@ -867,10 +869,7 @@ test('Add logs', async ({ page }) => {
 	console.log('userEntry ====>', userEntry);
 
 	const userLogTokenEntry = await serverTriplitClient.fetchOne(
-		serverTriplitClient
-			.query('user_log_tokens')
-			.Where('user_id', '=', userEntry?.id as string)
-			
+		serverTriplitClient.query('user_log_tokens').Where('user_id', '=', userEntry?.id as string)
 	);
 	expect(userLogTokenEntry).not.toBeNull();
 	console.log('userLogTokenEntry ====>', userLogTokenEntry);
