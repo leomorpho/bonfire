@@ -896,5 +896,65 @@ test('Add logs', async ({ page }) => {
 	await expect(page.getByText('You have 6 logs remaining.')).toBeVisible();
 });
 
+test('Messaging', async ({ browser }) => {
+	const context1 = await browser.newContext();
+	const context2 = await browser.newContext();
+	const eventCreatorPage = await context1.newPage();
+	const attendeePage = await context2.newPage();
+
+	await eventCreatorPage.goto(WEBSITE_URL);
+
+	// Create event from creator POV
+	const eventOwnerEmail = faker.internet.email();
+	const eventOwnerUsername = faker.person.firstName();
+	await loginUser(eventCreatorPage, eventOwnerEmail, eventOwnerUsername);
+
+	const eventName = `${faker.animal.dog()} birthday party!`;
+	const eventDetails = 'It will be fun!';
+	await createBonfire(eventCreatorPage, eventName, eventDetails, 1);
+	await expect(eventCreatorPage.getByRole('heading', { name: eventName })).toBeVisible();
+
+	const eventUrl = eventCreatorPage.url();
+	await eventCreatorPage.getByRole('tab', { name: 'Discussions' }).click();
+
+	// Sign up user
+	const adminEmail = faker.internet.email();
+	const adminUsername = faker.person.firstName();
+	await loginUser(attendeePage, adminEmail, adminUsername);
+
+	await attendeePage.goto(eventUrl);
+	await expect(attendeePage.getByText('1 going')).toBeVisible();
+	await attendeePage.getByText('RSVP', { exact: true }).click();
+	await attendeePage.locator('#rsvp-button-going').click();
+	await attendeePage.getByText("Let's go!", { exact: true }).click();
+
+	// Create message interaction
+	await attendeePage.getByRole('tab', { name: 'Discussions' }).click();
+	await attendeePage.getByRole('textbox', { name: 'Write a message...' }).click();
+	await attendeePage.getByRole('textbox', { name: 'Write a message...' }).fill('Hey there baby!');
+	await attendeePage.getByRole('button', { name: 'Send Message' }).click();
+
+	// Ensure the button is visible from both people
+	await expect(
+		attendeePage.locator('.message-data').filter({ hasText: 'Hey there baby!' })
+	).toBeVisible();
+	await expect(attendeePage.getByText('No more messages.')).toBeVisible();
+
+	await expect(
+		eventCreatorPage.locator('.message-data').filter({ hasText: 'Hey there baby!' })
+	).toBeVisible();
+	await expect(eventCreatorPage.getByText('No more messages.')).toBeVisible();
+
+	// // Click the emoji-picker within the message container
+	// const messageContainer = attendeePage
+	// 	.locator('.message-data')
+	// 	.filter({ hasText: 'Hey there baby!' });
+	// await messageContainer.locator('~ .emoji-picker').click();
+
+	// // Click on a specific emoji
+	// await attendeePage.getByRole('menuitem', { name: '😀, grinning face, grinning,' }).click();
+	// await expect(attendeePage.getByText('😀')).toBeVisible();
+});
+
 // TODO: test max capacity of bonfire
 // TODO: only logged in "users" can message, not temp users

@@ -250,7 +250,7 @@
 				{canInteract}
 			>
 				<div
-					class="leading-1.5 flex w-full max-w-[320px] flex-col p-4
+					class="message-data leading-1.5 flex w-full max-w-[320px] flex-col p-4
 			{isOwnMessage ? 'from-me rounded-s-xl rounded-se-xl bg-blue-100 p-4 dark:bg-blue-600' : ''}
 	{!isOwnMessage && !isUnseen
 						? 'from-them rounded-e-xl rounded-ss-xl bg-gray-100 p-4 dark:bg-gray-800'

@@ -91,6 +91,7 @@
 	</Popover.Root>
 	<!-- Send Message Button -->
 	<Button
+		id="send-message-btn"
 		variant="default"
 		size="icon"
 		title="Send Message"

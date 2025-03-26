@@ -111,7 +111,7 @@
 				onkeydown={(event) => {
 					if (event.key === 'Enter' || event.key === ' ') showSmileyPicker = !showSmileyPicker;
 				}}
-				class="{showSmileyPicker
+				class="emoji-picker {showSmileyPicker
 					? 'opacity-100'
 					: 'opacity-70'} transform rounded-full bg-slate-500 p-2 shadow-lg hover:opacity-100 focus:outline-none focus-visible:ring-0"
 			>

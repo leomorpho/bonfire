@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { createNewThread, getThread, MAIN_THREAD, sendMessage } from '$lib/im';
-	import { getFeWorkerTriplitClient } from '$lib/triplit';
+	import { getFeHttpTriplitClient, getFeWorkerTriplitClient } from '$lib/triplit';
 	import { onDestroy, onMount } from 'svelte';
 	import ImInput from './ImInput.svelte';
 	import type { WorkerClient } from '@triplit/client/worker-client';
@@ -312,7 +312,7 @@
 	};
 
 	const handleSendMessage = async (message: string) => {
-		const client = getFeWorkerTriplitClient($page.data.jwt);
+		const client = getFeHttpTriplitClient($page.data.jwt);
 
 		try {
 			if (!threadId) {
