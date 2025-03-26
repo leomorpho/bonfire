@@ -30,19 +30,19 @@ export const DELETE = async (event: RequestEvent) => {
 			// Delete related rows in dependent tables
 			await tx
 				.delete(emailVerificationTokenTable)
-				.Where(eq(emailVerificationTokenTable.user_id, userId));
-			await tx.delete(sessionTable).Where(eq(sessionTable.userId, userId));
-			await tx.delete(signinTable).Where(eq(signinTable.email, userId)); // Assuming email is used for signin tracking
-			await tx.delete(pushSubscriptionTable).Where(eq(pushSubscriptionTable.userId, userId));
+				.where(eq(emailVerificationTokenTable.user_id, userId));
+			await tx.delete(sessionTable).where(eq(sessionTable.userId, userId));
+			await tx.delete(signinTable).where(eq(signinTable.email, userId)); // Assuming email is used for signin tracking
+			await tx.delete(pushSubscriptionTable).where(eq(pushSubscriptionTable.userId, userId));
 			await tx
 				.delete(notificationPermissionTable)
-				.Where(eq(notificationPermissionTable.userId, userId));
+				.where(eq(notificationPermissionTable.userId, userId));
 
 			// Insert into deleted_user table
 			await tx.insert(deletedUserTable).values({ userId });
 
 			// Finally, delete the user
-			await tx.delete(userTable).Where(eq(userTable.id, userId));
+			await tx.delete(userTable).where(eq(userTable.id, userId));
 		});
 
 		// Delete events user created
