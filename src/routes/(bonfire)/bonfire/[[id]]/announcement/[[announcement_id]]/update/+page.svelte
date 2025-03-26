@@ -16,9 +16,7 @@
 			let announcementQuery = client
 				.query('announcement')
 				.Where(['id', '=', $page.params.announcement_id])
-				.Order('created_at', 'DESC')
-				;
-
+				.Order('created_at', 'DESC');
 			announcement = await client.fetchOne(announcementQuery);
 		};
 
@@ -42,7 +40,9 @@
 				announcement={announcement ? announcement : null}
 			/>
 		{:else}
-			<SvgLoader />
+			<div class="flex w-full justify-center">
+				<SvgLoader />
+			</div>
 		{/if}
 	</section>
 </div>
