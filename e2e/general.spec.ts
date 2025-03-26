@@ -945,15 +945,33 @@ test('Messaging', async ({ browser }) => {
 	).toBeVisible();
 	await expect(eventCreatorPage.getByText('No more messages.')).toBeVisible();
 
-	// // Click the emoji-picker within the message container
-	// const messageContainer = attendeePage
-	// 	.locator('.message-data')
-	// 	.filter({ hasText: 'Hey there baby!' });
-	// await messageContainer.locator('~ .emoji-picker').click();
+	// Hover over the message container to trigger the emoji picker rendering
+	const messageContainer = attendeePage
+		.locator('div[role="button"]')
+		.filter({ has: attendeePage.locator('.message-data').filter({ hasText: 'Hey there baby!' }) });
+	await messageContainer.hover();
 
-	// // Click on a specific emoji
-	// await attendeePage.getByRole('menuitem', { name: '😀, grinning face, grinning,' }).click();
-	// await expect(attendeePage.getByText('😀')).toBeVisible();
+	// Wait for the emoji picker to be visible
+	await expect(messageContainer.locator('.emoji-picker')).toBeVisible();
+
+	// Click the emoji-picker within the message container
+	await messageContainer.locator('.emoji-picker').click();
+	await attendeePage.getByRole('menuitem', { name: '😀, grinning face, grinning,' }).click();
+	await expect(attendeePage.getByText('😀').first()).toBeVisible();
+	await expect(eventCreatorPage.getByText('😀').first()).toBeVisible();
+
+	// Send another message from the event creator's POV
+    await eventCreatorPage.getByRole('textbox', { name: 'Write a message...' }).click();
+    await eventCreatorPage.getByRole('textbox', { name: 'Write a message...' }).fill('Looking forward to it!');
+    await eventCreatorPage.getByRole('button', { name: 'Send Message' }).click();
+
+    // Ensure the new message is visible from both users
+    await expect(
+        eventCreatorPage.locator('.message-data').filter({ hasText: 'Looking forward to it!' })
+    ).toBeVisible();
+    await expect(
+        attendeePage.locator('.message-data').filter({ hasText: 'Looking forward to it!' })
+    ).toBeVisible();
 });
 
 // TODO: test max capacity of bonfire
