@@ -329,7 +329,7 @@
 							);
 						}
 
-						if (event.banner_media.blurr_hash != bannerInfo.bannerBlurHash) {
+						if (event.banner_media?.blurr_hash && event.banner_media.blurr_hash != bannerInfo.bannerBlurHash) {
 							fetchBannerInfo(eventId, tempAttendeeSecret);
 						}
 						eventLoading = false;
