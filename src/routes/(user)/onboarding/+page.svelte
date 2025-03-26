@@ -6,14 +6,15 @@
 	import { onMount } from 'svelte';
 	import { loadScript, redirectToTempAttendanceInBonfireIfAvailable } from '$lib/utils';
 	import { page } from '$app/stores';
-	import { getFeWorkerTriplitClient } from '$lib/triplit';
-	import type { TriplitClient } from '@triplit/client';
+	import { getFeHttpTriplitClient, getFeWorkerTriplitClient } from '$lib/triplit';
+	import type { HttpClient, TriplitClient } from '@triplit/client';
+	import type { WorkerClient } from '@triplit/client/worker-client';
 
 	let jsConfetti: any;
-	let client: TriplitClient;
+	let client: TriplitClient | HttpClient | WorkerClient;
 
 	onMount(() => {
-		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
+		client = getFeHttpTriplitClient($page.data.jwt);
 
 		const initConfetti = async () => {
 			await loadScript(
@@ -50,6 +51,7 @@
 	});
 
 	const claimLogs = async () => {
+		console.log('$page.data.user.id', $page.data.user.id);
 		await client.update('user', $page.data.user.id, async (entity: any) => {
 			entity.is_fully_onboarded = true;
 		});
@@ -80,11 +82,10 @@
 					class="w-90 mx-4 flex flex-col items-center rounded-xl bg-slate-100 p-6 text-center shadow-lg dark:bg-slate-900"
 				>
 					<h1
-						class="flex items-center gap-2 text-2xl sm:text-4xl font-semibold text-black dark:text-white"
+						class="flex items-center gap-2 text-2xl font-semibold text-black dark:text-white sm:text-4xl"
 					>
 						Welcome to Bonfire!
 					</h1>
-
 
 					<h2
 						class="pointer-events-none whitespace-pre-wrap bg-gradient-to-b from-[#ffd319] via-[#ff2975] to-[#8c1eff] bg-clip-text py-1 text-center text-2xl font-bold leading-none tracking-tighter text-transparent sm:text-left sm:text-4xl"
