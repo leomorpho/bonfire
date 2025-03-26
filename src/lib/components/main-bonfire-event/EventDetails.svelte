@@ -44,7 +44,7 @@
 	// });
 </script>
 
-<div class="relative flex flex-col rounded-xl bg-slate-100/90 shadow-lg dark:bg-slate-900/90">
+<div class="relative flex flex-col rounded-xl bg-slate-100/70 shadow-lg dark:bg-slate-900/70">
 	<!-- <button
 		class="my-3 flex w-full items-center justify-center font-semibold sm:text-xl md:text-2xl lg:mb-5"
 		onclick={toggleExpand}
