@@ -368,7 +368,7 @@
 	};
 </script>
 
-<div class="relative flex h-full w-full flex-col">
+<div id="messenger" class="relative flex h-full w-full flex-col">
 	<div
 		id="scroller"
 		bind:this={chatContainerRef}

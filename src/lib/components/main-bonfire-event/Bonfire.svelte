@@ -486,11 +486,16 @@
 			});
 	};
 
-	function scrollToBottom() {
-		window.scrollTo({
-			top: document.body.scrollHeight,
-			behavior: 'smooth'
-		});
+	function scrollElementIntoView(elementId: string) {
+		const element = document.getElementById(elementId);
+		if (element) {
+			element.scrollIntoView({
+				behavior: 'smooth',
+				block: 'nearest' // Use 'start' to align top, 'end' to align bottom, or 'nearest' for the closest edge
+			});
+		} else {
+			console.error('Element not found:', elementId);
+		}
 	}
 
 	let activeTab = $state('about');
@@ -538,7 +543,9 @@
 								<Tabs.Trigger
 									value="discussions"
 									class="focus:outline-none focus-visible:ring-0"
-									onclick={scrollToBottom}
+									onclick={() => {
+										scrollElementIntoView('messenger');
+									}}
 								>
 									<NumNewMessageIndicator>Discussions</NumNewMessageIndicator>
 								</Tabs.Trigger>
