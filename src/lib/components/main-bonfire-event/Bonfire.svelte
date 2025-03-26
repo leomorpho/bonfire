@@ -329,7 +329,10 @@
 							);
 						}
 
-						if (event.banner_media?.blurr_hash && event.banner_media.blurr_hash != bannerInfo.bannerBlurHash) {
+						if (
+							event.banner_media?.blurr_hash &&
+							event.banner_media.blurr_hash != bannerInfo.bannerBlurHash
+						) {
 							fetchBannerInfo(eventId, tempAttendeeSecret);
 						}
 						eventLoading = false;
@@ -510,8 +513,12 @@
 		<EventDoesNotExist />
 	{:else}
 		<div class="mx-4 flex flex-col items-center justify-center">
-			<SetProfilePicAlert {currUserId}/>
-
+			{#if !isUnverifiedUser && !isAnonymousUser}
+				<SetProfilePicAlert {currUserId} />
+			{/if}
+			{#if isAnonymousUser || isUnverifiedUser}
+				<SignUpMsg />
+			{/if}
 			{#if isCurrenUserEventAdmin}
 				<div class="flex">
 					<EditEventButton {eventIsPublished} />
@@ -541,9 +548,7 @@
 					<Tabs.Content value="about" class="mb-10 w-full">
 						<div class="animate-fadeIn">
 							<!-- TODO: allow temp attendees to delete themselves -->
-							{#if isAnonymousUser || isUnverifiedUser}
-								<SignUpMsg />
-							{/if}
+
 							{#if isUnverifiedUser}
 								<UnverifiedUserMsg {eventId} {tempAttendee} {tempAttendeeSecret} />
 							{/if}
