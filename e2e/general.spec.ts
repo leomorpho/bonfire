@@ -747,6 +747,13 @@ test('Bring list items', async ({ browser }) => {
 		el.value = 1;
 		el.dispatchEvent(new Event('input', { bubbles: true })); // Ensure event triggers
 	});
+	await slider.evaluate((el) => {
+		el.value = 1;
+		el.dispatchEvent(new Event('input', { bubbles: true })); // Ensure event triggers
+	});
+	await expect(eventCreatorPage.getByText('bringing for')).toHaveCount(1, { timeout: 2000 });
+	await expect(eventCreatorPage.getByText("You're bringing enough for 1 person")).toBeVisible();
+
 	await eventCreatorPage.getByRole('button', { name: 'Submit' }).click();
 
 	// Let temp attendee bring one dog, and verify the details is updated
@@ -765,6 +772,8 @@ test('Bring list items', async ({ browser }) => {
 		el.value = 1;
 		el.dispatchEvent(new Event('input', { bubbles: true })); // Ensure event triggers
 	});
+	// await expect(eventCreatorPage.getByText('bringing for')).toHaveCount(2, { timeout: 2000 });
+
 	await tempAttendeePage.getByRole('button', { name: 'Submit' }).click();
 
 	// Check event owner can see who's bringing what
