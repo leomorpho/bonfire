@@ -24,3 +24,5 @@ uploads
 
 .kamal/secrets*
 .env*
+
+snapshot*
