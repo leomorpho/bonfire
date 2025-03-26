@@ -70,13 +70,16 @@ export function getFeWorkerTriplitClient(jwt: string) {
 			name: LOCAL_INDEXEDDB_NAME
 		},
 	});
-	return new WorkerClient({
-		workerUrl: dev ? workerUrl : undefined,
-	
-		schema,
-		serverUrl: publicEnv.PUBLIC_TRIPLIT_URL,
-		token: jwt ? jwt : publicEnv.PUBLIC_TRIPLIT_ANONYMOUS_TOKEN,
-	});
+	// return new WorkerClient({
+	// 	workerUrl: dev ? workerUrl : undefined,
+	// 	storage: {
+	// 		type: dev || !browser ? 'memory' : 'indexeddb',
+	// 		name: LOCAL_INDEXEDDB_NAME
+	// 	},
+	// 	schema,
+	// 	serverUrl: publicEnv.PUBLIC_TRIPLIT_URL,
+	// 	token: jwt ? jwt : publicEnv.PUBLIC_TRIPLIT_ANONYMOUS_TOKEN,
+	// });
 	try {
 		// Decode JWT to extract role
 		const decoded = jwtDecode(jwt); // Decodes without verifying (safe for role extraction)
