@@ -96,8 +96,6 @@
 	let latitude = $state(null);
 	let longitude = $state(null);
 
-	let profile_image = $state();
-
 	if (tempAttendeeId) {
 		tempAttendeeSecretStore.set(tempAttendeeId);
 	}
