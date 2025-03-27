@@ -47,11 +47,11 @@ export const runNotificationProcessor = async () => {
 			;
 
 		// Fetch the notifications
-		const notifications = await triplitHttpClient.fetch(query);
+		const notifications_queue_items = await triplitHttpClient.fetch(query);
 
 		// Process each notifications
-		for (const notification of notifications) {
-			await processNotificationQueue(notification as NotificationQueueEntry);
+		for (const notification_queue_item of notifications_queue_items) {
+			await processNotificationQueue(notification_queue_item as NotificationQueueEntry);
 		}
 	} catch (error) {
 		console.error('Error running notification processor:', error);

@@ -5,7 +5,7 @@
 	import { getFeWorkerTriplitClient, waitForUserId } from '$lib/triplit';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
-	import { and } from '@triplit/client';
+	import { and, TriplitClient } from '@triplit/client';
 
 	let { children } = $props(); // Allow custom button text or children
 	let isDialogOpen = $state(false); // Dialog open state
@@ -20,7 +20,7 @@
 	let loadMoreSeen: ((pageSize?: number) => void) | undefined = $state();
 	let lastNumSeenLoaded = $state(0);
 
-	// TODO: properly do paged loading, right now it is not 
+	// TODO: properly do paged loading, right now it is not
 	// working because i just set a crazy high number to prevent it from working.
 	const NUM_TO_LOAD = 2000;
 
@@ -106,6 +106,27 @@
 			loadMoreSeen(10); // Load the next 10 notifications
 		}
 	}
+
+	const deleteNotification = async (notificationId: string, unread = true) => {
+		const client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
+		try {
+			await client.http.delete('notifications', notificationId);
+
+			if (unread) {
+				// Remove notification from allUnreadNotifications
+				allUnreadNotifications = allUnreadNotifications.filter(
+					(notification) => notification.id !== notificationId
+				);
+			} else {
+				// Remove notification from allSeenNotifications
+				allSeenNotifications = allSeenNotifications.filter(
+					(notification) => notification.id !== notificationId
+				);
+			}
+		} catch (error) {
+			console.error('Error deleting notification:', error);
+		}
+	};
 </script>
 
 <!-- Notifications Icon/Button -->
@@ -118,19 +139,27 @@
 	<Dialog.Content class="flex h-full items-center justify-center sm:h-[90vh]">
 		<ScrollArea class="flex h-full items-center justify-center sm:h-[90vh]">
 			<Dialog.Header class="mx-4 my-8">
-				<Dialog.Title class="w-full flex justify-center">Your Notifications</Dialog.Title>
+				<Dialog.Title class="flex w-full justify-center">Your Notifications</Dialog.Title>
 				<Dialog.Description>
 					{#if allUnreadNotifications.length == 0 && allSeenNotifications.length == 0}
-						<div class="my-5 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-700 dark:text-white p-3">
+						<div
+							class="my-5 flex items-center justify-center rounded-lg bg-slate-100 p-3 dark:bg-slate-700 dark:text-white"
+						>
 							No notifications... it's quiet here. 😶
 						</div>
 					{/if}
 					{#if allUnreadNotifications.length > 0}
 						<!-- Show unread notifications -->
 						<h3 class="text font-bold">Unread</h3>
-						{#each allUnreadNotifications as notification}
+						{#each allUnreadNotifications as notification (notification.id)}
 							<div class="my-3">
-								<Notification {notification} {toggleDialog} />
+								<Notification
+									{notification}
+									{toggleDialog}
+									deleteNotification={() => {
+										deleteNotification(notification.id, true);
+									}}
+								/>
 							</div>
 						{/each}
 					{/if}
@@ -138,9 +167,15 @@
 					{#if allSeenNotifications.length > 0}
 						<!-- Show seen notifications -->
 						<h3 class="text mt-6 font-bold">Seen</h3>
-						{#each allSeenNotifications as notification}
+						{#each allSeenNotifications as notification (notification.id)}
 							<div class="my-3">
-								<Notification {notification} {toggleDialog} />
+								<Notification
+									{notification}
+									{toggleDialog}
+									deleteNotification={() => {
+										deleteNotification(notification.id, false);
+									}}
+								/>
 							</div>
 						{/each}
 

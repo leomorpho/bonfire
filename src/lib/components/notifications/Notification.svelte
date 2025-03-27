@@ -10,10 +10,12 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import Announcement from '../Announcement.svelte';
 	import { NotificationType } from '$lib/enums';
-	import Message from '../im/Message.svelte';
+	// import Message from '../im/Message.svelte';
 	import MessageContent from '../im/MessageContent.svelte';
+	import { MoreHorizontal, MoreVertical } from 'lucide-svelte';
+	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 
-	let { notification, toggleDialog, isCurrenUserEventAdmin = false } = $props();
+	let { notification, toggleDialog, deleteNotification, isCurrenUserEventAdmin = false } = $props();
 
 	let userId = $state('');
 	let linkedObjects = $state([]);
@@ -36,8 +38,7 @@
 					.query('announcement')
 					.Include('seen_by')
 					.Where(['id', 'in', objectIds])
-					.Order('created_at', 'DESC')
-					;
+					.Order('created_at', 'DESC');
 				break;
 			case NotificationType.FILES:
 				// Don't query the files, just redirect to event
@@ -61,8 +62,7 @@
 					.Include('user')
 					.Include('emoji_reactions', (rel) =>
 						rel('emoji_reactions').Select(['id', 'emoji', 'user_id'])
-					)
-					;
+					);
 				break;
 			default:
 				console.error(`Unknown object_type: ${notification.object_type}`);
@@ -70,6 +70,12 @@
 		}
 
 		const results = await client.fetch(query);
+
+		if (objectIds.length > 0 && results.length == 0) {
+			// The associated objects were deleted, delete this notification
+			await deleteNotification(notification.id);
+			return;
+		}
 
 		// Fetch profile images for attendees
 		if (notification.object_type === NotificationType.ATTENDEES) {
@@ -91,14 +97,10 @@
 			const eventIds = [...new Set(results.map((announcement) => announcement.event_id))];
 
 			// Query attendees table for all relevant event_id and user_id combinations
-			const attendeeQuery = client
-				.query('attendees')
-				.Where([
-					['user_id', '=', userId],
-					['event_id', 'in', eventIds]
-				])
-				;
-
+			const attendeeQuery = client.query('attendees').Where([
+				['user_id', '=', userId],
+				['event_id', 'in', eventIds]
+			]);
 			// Fetch all relevant attendees
 			const attendees = await client.fetch(attendeeQuery);
 
@@ -124,7 +126,7 @@
 
 		try {
 			// Update the notification as read
-			await client.update('notifications', notification.id, async (entity) => {
+			await client.http.update('notifications', notification.id, async (entity) => {
 				entity.seen_at = new Date();
 			});
 			console.log(`Notification ${notification.id} marked as read.`);
@@ -162,7 +164,25 @@
 	});
 </script>
 
-<div class="notification-item rounded-lg  bg-slate-100 dark:bg-slate-900 p-4" bind:this={cardRef}>
+<div
+	class="notification-item reltive relative rounded-lg bg-slate-100 p-4 dark:bg-slate-900 mt-3"
+	bind:this={cardRef}
+>
+	<DropdownMenu.Root>
+		<DropdownMenu.Trigger class="absolute right-2 top-1"
+			><MoreHorizontal class="h-4 w-4" /></DropdownMenu.Trigger
+		>
+		<DropdownMenu.Content>
+			<DropdownMenu.Group>
+				<DropdownMenu.Item
+					onclick={() => {
+						deleteNotification(notification.id);
+					}}>Delete</DropdownMenu.Item
+				>
+			</DropdownMenu.Group>
+		</DropdownMenu.Content>
+	</DropdownMenu.Root>
+
 	<!-- Display message -->
 	<p class="font-medium">{notification.message}</p>
 
@@ -217,7 +237,7 @@
 					{#each linkedObjects as message}
 						<a href={`/bonfire/${notification.event_id}`} onclick={toggleDialog}>
 							<div class="flex w-full items-center justify-center space-x-3">
-								<ProfileAvatar userId={message.user.id} baseHeightPx={30}/>
+								<ProfileAvatar userId={message.user.id} baseHeightPx={30} />
 								<MessageContent
 									username={message.user?.username}
 									content={message.content}
