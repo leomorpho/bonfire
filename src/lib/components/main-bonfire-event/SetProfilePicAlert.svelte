@@ -10,7 +10,7 @@
 	const client = getFeWorkerTriplitClient($page.data.jwt);
 
 	let show = $state(false);
-	let data = useQuery(client, client.query('profile_images').Where(['user_id', '=', currUserId]));
+	let data = useQuery(client, client.http.query('profile_images').Where(['user_id', '=', currUserId]));
 
 	$effect(() => {
 		console.log('data.results?.length', data.results, data.results?.length);

@@ -51,7 +51,7 @@
 					observer.disconnect(); // Disconnect observer after marking
 				}
 			},
-			{ threshold: 0.5 } // Trigger when at least 50% of the card is visible
+			{ threshold: 1.0 } // Trigger when the entire card is visible
 		);
 
 		// Ensure cardRef is a valid HTMLElement
