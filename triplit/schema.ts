@@ -1126,7 +1126,10 @@ export const schema = S.Collections({
 		},
 		permissions: {
 			user: {
-				read: { filter: [['bring_item.event.attendees.user_id', '=', '$role.userId']] },
+				read: {
+					filter: [true]
+					// filter: [['bring_item.event.attendees.user_id', '=', '$role.userId']]
+				},
 				insert: {
 					filter: [
 						or([

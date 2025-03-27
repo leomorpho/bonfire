@@ -39,8 +39,6 @@
 		easing: cubicOut
 	});
 
-
-
 	let isOpen = $state(false);
 	let userIdToNumBroughtWhenDialogOpen: any = $state({});
 	let userCanSetBringAmount = $derived(
@@ -169,7 +167,7 @@
 	<Dialog.Content class="rounded-xl">
 		<ScrollArea class="w-full">
 			<Dialog.Header class="mt-3">
-				{#if isAdmin}
+				{#if isAdmin || (item.created_by_user_id == currUserId && !isTempUser)}
 					<div id="edit-bring-list-item" class="flex w-full justify-center">
 						<CrudItem {eventId} {numAttendeesGoing} {item}>
 							<Button

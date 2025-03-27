@@ -69,12 +69,28 @@ export async function updateBringItem(
  * @param {string} userId - The admin deleting the item.
  * @returns {Promise<void>}
  */
-export async function deleteBringItem(client: WorkerClient, itemId: string): Promise<void> {
-	// Ensure the user is an admin
-	const item = await client.fetchOne(client.query('bring_items').Where([['id', '=', itemId]]));
-	if (!item) throw new Error('Item not found');
+export async function deleteBringItemAndAssignments(
+	client: WorkerClient,
+	itemId: string
+): Promise<void> {
+	try {
+		// Fetch all related bring_assignments
+		const assignments = await client.fetch(
+			client.query('bring_assignments').Where([['bring_item_id', '=', itemId]])
+		);
 
-	await client.delete('bring_items', itemId);
+		// Delete each assignment
+		for (const assignment of assignments) {
+			await client.delete('bring_assignments', assignment.id);
+		}
+
+		// Delete the bring_item
+		await client.delete('bring_items', itemId);
+
+		console.log('Bring item and related assignments deleted successfully.');
+	} catch (error) {
+		console.error('Error deleting bring item and assignments:', error);
+	}
 }
 
 /**

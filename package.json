@@ -22,7 +22,7 @@
 		"migrate:staging": "tsx ./migrate.ts --staging",
 		"migrate:prod": "tsx ./migrate.ts --prod",
 		"seed": "vite-node --options.transformMode.ssr='/.*/' src/scripts/seed.ts",
-		"triplit": "npx @triplit/cli@1.0.18 dev",
+		"triplit": "npx @triplit/cli@1.0.18 dev --storage sqlite",
 		"schema": "npx @triplit/cli@1.0.18 schema push"
 	},
 	"devDependencies": {
@@ -46,6 +46,7 @@
 		"@types/web-push": "^3.6.4",
 		"@vitest/ui": "^2.1.8",
 		"autoprefixer": "^10.4.20",
+		"better-sqlite3": "^11.9.1",
 		"bits-ui": "1.0.0-next.98",
 		"clsx": "^2.1.1",
 		"cmdk-sv": "^0.0.18",

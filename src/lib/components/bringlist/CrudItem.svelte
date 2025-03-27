@@ -9,7 +9,7 @@
 	import {
 		assignBringItem,
 		createBringItem,
-		deleteBringItem,
+		deleteBringItemAndAssignments,
 		updateBringItem
 	} from '$lib/bringlist';
 	import { getFeHttpTriplitClient, getFeWorkerTriplitClient } from '$lib/triplit';
@@ -17,6 +17,7 @@
 	import { toast } from 'svelte-sonner';
 	import CustomAlertDialog from '../CustomAlertDialog.svelte';
 	import { Trash2 } from 'lucide-svelte';
+	import type { TriplitClient } from '@triplit/client';
 
 	let {
 		children,
@@ -36,14 +37,34 @@
 	let submitEnabled = $derived(itemName && count != 0);
 
 	const deleteItem = async () => {
-		const client = await getFeHttpTriplitClient($page.data.jwt);
+		const client: TriplitClient = (await getFeWorkerTriplitClient($page.data.jwt)) as TriplitClient;
 		if (!item) {
 			return;
 		}
+		if (!client) {
+			throw new Error('client not available');
+		}
 
 		try {
-			await deleteBringItem(client, item.id);
+			console.log('about to delete item.id', item.id);
+			// Fetch all related bring_assignments
+			const assignments = await client.fetch(
+				client.http.query('bring_assignments').Where([['bring_item_id', '=', item.id]])
+			);
+			console.log('Fetched assignments:', assignments);
+
+			// Delete each assignment
+			for (const assignment of assignments) {
+				await client.http.delete('bring_assignments', assignment.id);
+			}
+			console.log('about to delete bring item with id', item.id);
+			// Delete the bring_item
+			await client.http.delete('bring_items', item.id);
+
+			console.log('Bring item and related assignments deleted successfully.');
+
 			toast.success(`Successfully deleted bring item "${itemName}"`);
+			isOpen = false;
 		} catch (e) {
 			console.error(`failed to delete bring item with id ${item.id}`, e);
 		}
