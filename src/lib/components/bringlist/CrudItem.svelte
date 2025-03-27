@@ -30,7 +30,7 @@
 	} = $props();
 
 	let itemName = $state(item ? item.name : '');
-	let unitType = $state(item ? item.unit : BringListCountTypes.PER_PERSON);
+	let unitType = $state(item ? item.unit : BringListCountTypes.COUNT);
 	let count = $state(item ? item.quantity_needed : numAttendeesGoing);
 	let details = $state('');
 
@@ -86,7 +86,6 @@
 					count,
 					details
 				);
-				toast.success(`Successfully added ${itemName} to the bring list`);
 				if (!isAdmin) {
 					console.log('ASSIGNING TO CURRENT USER');
 					// Default to the user bringing all of this type
@@ -98,7 +97,17 @@
 						$page.data.user.id,
 						count
 					);
-					toast.success(`You're now bringing ${count} "${itemName}"`);
+					switch (unitType) {
+						case BringListCountTypes.PER_PERSON:
+							toast.success(
+								`You're now bringing "${itemName}" for ${count} ${count == 1 ? 'person' : 'people'}`
+							);
+							break;
+						case BringListCountTypes.PER_PERSON:
+							toast.success(`You're now bringing ${count} "${itemName}"`);
+					}
+				} else {
+					toast.success(`Successfully added ${itemName} to the bring list`);
 				}
 			} catch (e) {
 				console.log('failed to create bring item', e);
@@ -161,7 +170,7 @@
 			</div>
 			<TextAreaAutoGrow
 				cls={''}
-				placeholder={`We need enough to feed ${count} people!`}
+				placeholder={`Any details you'd like to add about that item you're bringing?`}
 				bind:value={details}
 				oninput={() => {}}
 			/>
