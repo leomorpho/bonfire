@@ -9,7 +9,6 @@
 	import { dev } from '$app/environment';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import PullToRefresh from '$lib/components/PullToRefresh.svelte';
-	import SvgLoader from '$lib/components/SvgLoader.svelte';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 
 	let client: TriplitClient;

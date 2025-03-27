@@ -113,14 +113,14 @@
 				if (tempUserCommitment == 0) {
 					await deleteBringAssignment(client, userAssignment.id);
 					if (showToasts) {
-						toast.success(`You're now bringing no "${item.name}""`);
+						toast.success(`You're now bringing no "${item.name}"`);
 					}
 				} else {
 					const preSaveTempUserCommitment = tempUserCommitment;
 
 					await updateBringAssignment(client, userAssignment.id, { quantity: tempUserCommitment });
 					if (showToasts) {
-						toast.success(`You're now bringing ${preSaveTempUserCommitment} "${item.name}""`);
+						toast.success(`You're now bringing ${preSaveTempUserCommitment} "${item.name}"`);
 					}
 				}
 			} catch (e) {
@@ -142,7 +142,7 @@
 					tempUserCommitment
 				);
 				if (showToasts) {
-					toast.success(`You're now bringing ${preSaveTempUserCommitment} "${item.name}""`);
+					toast.success(`You're now bringing ${preSaveTempUserCommitment} "${item.name}"`);
 				}
 			} catch (e) {
 				console.error('failed to assign bring assignment', e);

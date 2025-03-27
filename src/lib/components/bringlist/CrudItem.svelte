@@ -6,14 +6,27 @@
 	import ItemCategory from './items/ItemCategory.svelte';
 	import { BringListCountTypes } from '$lib/enums';
 	import TextAreaAutoGrow from '../TextAreaAutoGrow.svelte';
-	import { createBringItem, deleteBringItem, updateBringItem } from '$lib/bringlist';
-	import { getFeWorkerTriplitClient } from '$lib/triplit';
+	import {
+		assignBringItem,
+		createBringItem,
+		deleteBringItem,
+		updateBringItem
+	} from '$lib/bringlist';
+	import { getFeHttpTriplitClient, getFeWorkerTriplitClient } from '$lib/triplit';
 	import { page } from '$app/stores';
 	import { toast } from 'svelte-sonner';
 	import CustomAlertDialog from '../CustomAlertDialog.svelte';
 	import { Trash2 } from 'lucide-svelte';
 
-	let { children, eventId, numAttendeesGoing, isOpen = false, item = null, cls = null } = $props();
+	let {
+		children,
+		eventId,
+		numAttendeesGoing,
+		isOpen = false,
+		item = null,
+		class: cls = null,
+		isAdmin = false
+	} = $props();
 
 	let itemName = $state(item ? item.name : '');
 	let unitType = $state(item ? item.unit : BringListCountTypes.PER_PERSON);
@@ -23,7 +36,7 @@
 	let submitEnabled = $derived(itemName && count != 0);
 
 	const deleteItem = async () => {
-		const client = await getFeWorkerTriplitClient($page.data.jwt);
+		const client = await getFeHttpTriplitClient($page.data.jwt);
 		if (!item) {
 			return;
 		}
@@ -37,14 +50,13 @@
 	};
 
 	const upsertItem = async () => {
-		const client = await getFeWorkerTriplitClient($page.data.jwt);
+		const client = await getFeHttpTriplitClient($page.data.jwt);
 		if (!itemName || count == 0) {
 			return;
 		}
-
 		if (!item) {
 			try {
-				await createBringItem(
+				const item = await createBringItem(
 					client,
 					eventId,
 					$page.data.user.id,
@@ -53,11 +65,23 @@
 					count,
 					details
 				);
+				toast.success(`Successfully added ${itemName} to the bring list`);
+				if (!isAdmin) {
+					console.log('ASSIGNING TO CURRENT USER');
+					// Default to the user bringing all of this type
+					await assignBringItem(
+						client,
+						item.id,
+						$page.data.user.id,
+						null,
+						$page.data.user.id,
+						count
+					);
+					toast.success(`You're now bringing ${count} "${itemName}"`);
+				}
 			} catch (e) {
 				console.log('failed to create bring item', e);
 				toast.error('Sorry, we failed to create this bring item, please try again later');
-			} finally {
-				toast.success(`Successfully added ${itemName} to the bring list`);
 			}
 		} else {
 			try {
@@ -79,14 +103,14 @@
 </script>
 
 <Dialog.Root bind:open={isOpen}>
-	<Dialog.Trigger class={cls}>
+	<Dialog.Trigger class={`${cls} flex w-full justify-center`}>
 		{@render children()}
 	</Dialog.Trigger>
 	<Dialog.Content class="rounded-xl">
 		<Dialog.Header>
-			<Dialog.Title class="flex w-full justify-center"
-				>{item ? 'Edit' : 'Add'} list item</Dialog.Title
-			>
+			<Dialog.Title class="flex w-full justify-center">
+				{item ? 'Edit' : 'Add'}
+			</Dialog.Title>
 			<!-- <Dialog.Description>
 				This action cannot be undone. This will permanently delete your account and remove your data
 				from our servers.

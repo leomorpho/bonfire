@@ -48,10 +48,7 @@
 		let client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
 		const unsubscribe = client.subscribe(
-			client
-				.query('bring_items')
-				.Where(['event_id', '=', eventId])
-				.Include('bring_assignments'),
+			client.query('bring_items').Where(['event_id', '=', eventId]).Include('bring_assignments'),
 			(results, info) => {
 				bringItems = results
 					.map((item) => ({
@@ -109,14 +106,18 @@
 	</button>
 </div>
 
-{#if isAdmin}
-	<CrudItem {eventId} {numAttendeesGoing} cls={'w-full'}>
+{#if currUserId}
+	<CrudItem {eventId} {numAttendeesGoing} class={'w-full'} {isAdmin}>
 		<Button
 			id="add-bring-list-item-btn"
-			class="flex w-full items-center justify-center ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
+			class=" flex w-full items-center justify-center ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
 		>
 			<Plus class="mr-1" />
-			New item</Button
-		>
+			{#if isAdmin}
+				New item
+			{:else if currUserId || tempAttendeeId}
+				Bring something
+			{/if}
+		</Button>
 	</CrudItem>
 {/if}

@@ -87,7 +87,7 @@ export async function deleteBringItem(client: WorkerClient, itemId: string): Pro
  * @returns {Promise<object>} - The newly created assignment.
  */
 export async function assignBringItem(
-	client: WorkerClient,
+	client: WorkerClient | HttpClient,
 	itemId: string,
 	assignedToUserId: string | null,
 	assignedToTempUserId: string | null,

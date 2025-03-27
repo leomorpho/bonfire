@@ -1064,7 +1064,8 @@ export const schema = S.Collections({
 					filter: [
 						or([
 							['event.event_admins.user_id', '=', '$role.userId'],
-							['event.user_id', '=', '$role.userId']
+							['event.user_id', '=', '$role.userId'],
+							['event.attendees.user_id', '=', '$role.userId']
 						])
 					]
 				},
@@ -1072,7 +1073,8 @@ export const schema = S.Collections({
 					filter: [
 						or([
 							['event.event_admins.user_id', '=', '$role.userId'],
-							['event.user_id', '=', '$role.userId']
+							['event.user_id', '=', '$role.userId'],
+							['created_by_user_id', '=', '$role.userId'] // Allow users to update their own items
 						])
 					]
 				},
@@ -1080,7 +1082,8 @@ export const schema = S.Collections({
 					filter: [
 						or([
 							['event.event_admins.user_id', '=', '$role.userId'],
-							['event.user_id', '=', '$role.userId']
+							['event.user_id', '=', '$role.userId'],
+							['created_by_user_id', '=', '$role.userId'] // Allow users to update their own items
 						])
 					]
 				}
@@ -1088,6 +1091,15 @@ export const schema = S.Collections({
 			temp: {
 				read: {
 					filter: [['event.temporary_attendees.id', '=', '$role.temporaryAttendeeId']]
+				},
+				insert: {
+					filter: [['event.temporary_attendees.id', '=', '$role.temporaryAttendeeId']]
+				},
+				update: {
+					filter: [['created_by_user_id', '=', '$role.temporaryAttendeeId']]
+				},
+				delete: {
+					filter: [['created_by_user_id', '=', '$role.temporaryAttendeeId']]
 				}
 			},
 			anon: {}
