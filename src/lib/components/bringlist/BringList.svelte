@@ -49,7 +49,7 @@
 
 		const unsubscribe = client.subscribe(
 			client.query('bring_items').Where(['event_id', '=', eventId]).Include('bring_assignments'),
-			(results, info) => {
+			(results) => {
 				bringItems = results
 					.map((item) => ({
 						...item,

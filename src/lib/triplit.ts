@@ -68,7 +68,7 @@ export function getFeWorkerTriplitClient(jwt: string) {
 		storage: {
 			type: dev || !browser ? 'memory' : 'indexeddb',
 			name: LOCAL_INDEXEDDB_NAME
-		},
+		}
 	});
 	// return new WorkerClient({
 	// 	workerUrl: dev ? workerUrl : undefined,
@@ -182,32 +182,6 @@ export async function clearCache(client: TriplitClient | null, fullClear: boolea
 	} else {
 		await client.endSession();
 		await client.clear({ full: fullClear });
-	}
-}
-
-export async function upsertUserAttendance(
-	eventId: string,
-	status: Status,
-	numGuests: number | null
-) {
-	try {
-		const response = await fetch(`/bonfire/${eventId}/attend/user`, {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ status, numGuests })
-		});
-
-		if (!response.ok) {
-			const errorData = await response.json();
-			throw new Error(errorData.error || 'Failed to update attendance');
-		}
-
-		const data = await response.json();
-		console.log('✅ Attendance updated:', data);
-		return data.attendance; // Return updated attendance object
-	} catch (err) {
-		console.error('❌ Error updating attendance:', err);
-		throw err;
 	}
 }
 

@@ -21,7 +21,6 @@
 	import {
 		getFeHttpTriplitClient,
 		getFeWorkerTriplitClient,
-		upsertUserAttendance,
 		waitForUserId
 	} from '$lib/triplit';
 	import { goto } from '$app/navigation';
@@ -51,6 +50,7 @@
 	import TipTapTextEditor from '../input/tiptap/TipTapTextEditor.svelte';
 	import MaxCapacity from './MaxCapacity.svelte';
 	import GuestCountFeature from './GuestCountFeature.svelte';
+	import { upsertUserAttendance } from '$lib/rsvp';
 
 	let { mode, event = null, currUserId = null } = $props();
 

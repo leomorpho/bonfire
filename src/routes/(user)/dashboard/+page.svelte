@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { getFeWorkerTriplitClient, waitForUserId } from '$lib/triplit';
 	import { onMount } from 'svelte';
-	import type { FetchOptions, TriplitClient } from '@triplit/client';
+	import { and, type TriplitClient } from '@triplit/client';
 	import Loader from '$lib/components/Loader.svelte';
 	import { DatabaseZap, Frown, Plus } from 'lucide-svelte';
 	import EventCard from '$lib/components/EventCard.svelte';
@@ -10,6 +10,7 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import PullToRefresh from '$lib/components/PullToRefresh.svelte';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
+	import { Status } from '$lib/enums';
 
 	let client: TriplitClient;
 
@@ -32,7 +33,12 @@
 
 		let query = client
 			.query('attendees')
-			.Where(['user_id', '=', currUserID])
+			.Where(
+				and([
+					['user_id', '=', currUserID],
+					['status', 'nin', [Status.LEFT, Status.REMOVED]]
+				])
+			)
 			.Where('event.start_time', future ? '>=' : '<', futureDate.toISOString());
 
 		return (

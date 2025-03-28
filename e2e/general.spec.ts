@@ -961,17 +961,74 @@ test('Messaging', async ({ browser }) => {
 	await expect(eventCreatorPage.getByText('😀').first()).toBeVisible();
 
 	// Send another message from the event creator's POV
-    await eventCreatorPage.getByRole('textbox', { name: 'Write a message...' }).click();
-    await eventCreatorPage.getByRole('textbox', { name: 'Write a message...' }).fill('Looking forward to it!');
-    await eventCreatorPage.getByRole('button', { name: 'Send Message' }).click();
+	await eventCreatorPage.getByRole('textbox', { name: 'Write a message...' }).click();
+	await eventCreatorPage
+		.getByRole('textbox', { name: 'Write a message...' })
+		.fill('Looking forward to it!');
+	await eventCreatorPage.getByRole('button', { name: 'Send Message' }).click();
 
-    // Ensure the new message is visible from both users
-    await expect(
-        eventCreatorPage.locator('.message-data').filter({ hasText: 'Looking forward to it!' })
-    ).toBeVisible();
-    await expect(
-        attendeePage.locator('.message-data').filter({ hasText: 'Looking forward to it!' })
-    ).toBeVisible();
+	// Ensure the new message is visible from both users
+	await expect(
+		eventCreatorPage.locator('.message-data').filter({ hasText: 'Looking forward to it!' })
+	).toBeVisible();
+	await expect(
+		attendeePage.locator('.message-data').filter({ hasText: 'Looking forward to it!' })
+	).toBeVisible();
+});
+
+test('Delete/Leaving attendees', async ({ browser }) => {
+	const context1 = await browser.newContext();
+	const context2 = await browser.newContext();
+	const context3 = await browser.newContext();
+	const eventCreatorPage = await context1.newPage();
+	const attendeePage = await context2.newPage();
+	const tempAttendeePage = await context3.newPage();
+
+	await eventCreatorPage.goto(WEBSITE_URL);
+
+	// Create event from creator POV
+	const eventOwnerEmail = faker.internet.email();
+	const eventOwnerUsername = faker.person.firstName();
+	await loginUser(eventCreatorPage, eventOwnerEmail, eventOwnerUsername);
+
+	const eventName = `${faker.animal.dog()} birthday party!`;
+	const eventDetails = 'It will be fun!';
+	await createBonfire(eventCreatorPage, eventName, eventDetails, 1);
+	await expect(eventCreatorPage.getByRole('heading', { name: eventName })).toBeVisible();
+
+	const eventUrl = eventCreatorPage.url();
+
+	// Sign up user
+	const adminEmail = faker.internet.email();
+	const adminUsername = faker.person.firstName();
+	await loginUser(attendeePage, adminEmail, adminUsername);
+
+	// Set user as going
+	await attendeePage.goto(eventUrl);
+	await attendeePage.getByText('RSVP', { exact: true }).click();
+	await attendeePage.locator('#rsvp-button-going').click();
+	await attendeePage.getByText("Let's go!", { exact: true }).click();
+
+	// Set temp user as going
+	await navigateTo(tempAttendeePage, eventUrl);
+	await tempAttendeePage.getByText('RSVP', { exact: true }).click();
+	await tempAttendeePage.getByRole('menuitem', { name: 'Going', exact: true }).click();
+
+	// -----------------------------------
+	// PART 1: make user leave event
+	await attendeePage.getByText('Going', { exact: true }).click();
+	await attendeePage.locator('#rsvp-button-leave').click();
+
+	// User should not see event in dashboard anymore
+	await expect(attendeePage.locator('.event-card')).toHaveCount(0, { timeout: 1000 });
+
+	// Verify admin
+	await eventCreatorPage.locator('#see-attendees-dialog').click();
+	await expect(eventCreatorPage.getByText('Only visible to admins')).toBeVisible();
+
+	await expect(eventCreatorPage.getByRole('heading', { name: '1 left' })).toBeVisible();
+
+	// TODO
 });
 
 // TODO: test max capacity of bonfire

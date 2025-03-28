@@ -16,6 +16,7 @@
 		usersLiveDataStore
 	} from '$lib/profilestore';
 	import { onDestroy, onMount } from 'svelte';
+	import { removeRealAttendee, removeTempAttendee } from '$lib/rsvp';
 
 	let {
 		userId = null,
@@ -36,7 +37,7 @@
 	let fallbackNameShort: string | null = $state(null);
 	let previousImageHash: string | null = $state(null); // Store the last known image hash
 
-	let attendanceIsAboutToBeDeleted = $state(false);
+	let showRemoveAttendeeModal = $state(false);
 	const eventId = $page.params.id;
 	let dialogIsOpen = $state(false);
 
@@ -48,17 +49,7 @@
 			.join('');
 	}
 
-	const deleteRealAttendee = async () => {
-		const client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
-		await client.delete('attendees', attendanceId);
-	};
-
-	const deleteTempAttendee = async () => {
-		const client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
-		await client.delete('temporary_attendees', attendanceId);
-	};
-
-	const deleteAttendee = async () => {
+	const removeAttendee = async () => {
 		if (
 			(!viewerIsEventAdmin && attendanceId) ||
 			($page.data.user && userId == $page.data.user.id)
@@ -66,10 +57,12 @@
 			return;
 		}
 		try {
+			const client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
+
 			if (isTempUser) {
-				deleteTempAttendee();
+				await removeTempAttendee(client, attendanceId);
 			} else {
-				deleteRealAttendee();
+				await removeRealAttendee(client, attendanceId);
 				await deleteUserLiveDataStoreEntry(userId);
 			}
 
@@ -82,16 +75,16 @@
 			);
 		} finally {
 			// NOTE: if we don't set it back to true, I have observed that a new ProfileAvatar may open in delete mode. Not great UX experience.
-			attendanceIsAboutToBeDeleted = false;
+			showRemoveAttendeeModal = false;
 		}
 	};
 
-	const handleRemoveUser = () => {
-		attendanceIsAboutToBeDeleted = true;
+	const showRemoveUserModal = () => {
+		showRemoveAttendeeModal = true;
 	};
 
-	const handleCancelRemoveUser = () => {
-		attendanceIsAboutToBeDeleted = false;
+	const hideRemoveUserModal = () => {
+		showRemoveAttendeeModal = false;
 	};
 
 	let previousUser: any = null; // Store the last known user state
@@ -190,7 +183,7 @@
 					style="height: {baseHeightPx}px; width: {baseHeightPx}px;"
 				>
 					<!-- Avatar Image -->
-					<Avatar.Image src={url} alt={username} class="h-full w-full" />
+					<Avatar.Image src={url as string} alt={username as string} class="h-full w-full" />
 
 					<!-- Fallback Text -->
 					<Avatar.Fallback class="absolute inset-0 flex items-center justify-center">
@@ -226,7 +219,7 @@
 	</Dialog.Trigger>
 	<Dialog.Content class="sm:max-w-[425px]">
 		<Dialog.Header>
-			{#if attendanceIsAboutToBeDeleted}
+			{#if showRemoveAttendeeModal}
 				<div class="space-y-8">
 					<h1 class="text-xl font-bold">Are you absolutely sure?</h1>
 					<p>
@@ -235,15 +228,12 @@
 					</p>
 					<div class="space-y-2">
 						<Button
-							onclick={deleteAttendee}
+							onclick={removeAttendee}
 							class="flex w-full items-center justify-center bg-red-500 hover:bg-red-400"
 						>
 							Yes, remove</Button
 						>
-						<Button
-							onclick={handleCancelRemoveUser}
-							class="flex w-full items-center justify-center "
-						>
+						<Button onclick={hideRemoveUserModal} class="flex w-full items-center justify-center ">
 							Cancel</Button
 						>
 					</div>
@@ -262,7 +252,10 @@
 					<div class="mt-3 flex w-full items-center justify-center text-3xl text-black md:text-4xl">
 						{#if fullsizeUrl || url}
 							<Avatar.Root class="mt-3 aspect-square h-fit w-fit">
-								<Avatar.Image src={fullsizeUrl ? fullsizeUrl : url} alt={username} />
+								<Avatar.Image
+									src={fullsizeUrl ? (fullsizeUrl as string) : (url as string)}
+									alt={username as string}
+								/>
 								<Avatar.Fallback>{fallbackNameShort}</Avatar.Fallback>
 								<!-- Overlay Layer for Temp User -->
 							</Avatar.Root>
@@ -305,7 +298,7 @@
 					{/if} -->
 					{#if viewerIsEventAdmin && $page.data.user && userId != $page.data.user.id}
 						<Button
-							onclick={handleRemoveUser}
+							onclick={showRemoveUserModal}
 							class="mt-4 flex w-full items-center justify-center bg-red-500 hover:bg-red-400"
 						>
 							<UserRoundMinus class="h-5 w-5" />

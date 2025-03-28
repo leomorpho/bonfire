@@ -361,18 +361,26 @@ export const schema = S.Collections({
 						])
 					]
 				},
-				// Update/insert is managed by BE
-				delete: {
+				update: {
 					filter: [
 						or([
-							// Event creator can delete anyone attending
 							['event.user_id', '=', '$role.userId'],
-							// Users can remove themselves from the event
-							['user_id', '=', '$role.userId'],
-							['event.event_admins.user_id', '=', '$role.userId'] // Event admins can update files
+							['event.event_admins.user_id', '=', '$role.userId']
 						])
 					]
 				}
+				// Update/insert is managed by BE
+				// delete: {
+				// 	filter: [
+				// 		or([
+				// 			// Event creator can delete anyone attending
+				// 			['event.user_id', '=', '$role.userId'],
+				// 			// Users can remove themselves from the event
+				// 			['user_id', '=', '$role.userId'],
+				// 			['event.event_admins.user_id', '=', '$role.userId'] // Event admins can update files
+				// 		])
+				// 	]
+				// }
 			},
 			temp: {
 				read: {
@@ -434,14 +442,22 @@ export const schema = S.Collections({
 						])
 					]
 				},
-				delete: {
+				update: {
 					filter: [
 						or([
-							['event.user_id', '=', '$role.userId'], // Event creator can delete anyone attending
-							['event.event_admins.user_id', '=', '$role.userId'] // Event admins can update files
+							['event.user_id', '=', '$role.userId'],
+							['event.event_admins.user_id', '=', '$role.userId']
 						])
 					]
 				}
+				// delete: {
+				// 	filter: [
+				// 		or([
+				// 			['event.user_id', '=', '$role.userId'], // Event creator can delete anyone attending
+				// 			['event.event_admins.user_id', '=', '$role.userId'] // Event admins can update files
+				// 		])
+				// 	]
+				// }
 			},
 			temp: {
 				read: {
@@ -452,11 +468,11 @@ export const schema = S.Collections({
 							['event.temporary_attendees.id', '=', '$role.temporaryAttendeeId']
 						])
 					]
-				},
-				// Update/insert is managed by BE
-				delete: {
-					filter: [['id', '=', '$role.temporaryAttendeeId']]
 				}
+				// Update/insert is managed by BE
+				// delete: {
+				// 	filter: [['id', '=', '$role.temporaryAttendeeId']]
+				// }
 			},
 			anon: {}
 		}

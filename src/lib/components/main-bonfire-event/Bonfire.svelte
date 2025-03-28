@@ -85,13 +85,20 @@
 	let loadEventFiles = $state(true);
 
 	let attendeesGoing: any = $state([]);
+	let tempAttendeesGoing: any = $state([]);
+
 	let attendeesMaybeGoing: any = $state([]);
+	let tempAttendeesMaybeGoing: any = $state([]);
+
 	let attendeesNotGoing: any = $state([]);
+	let tempAttendeesNotGoing: any = $state([]);
+
+	let attendeesLeft: any = $state([]);
+	let attendeesRemoved: any = $state([]);
+	let tempAttendeesRemoved: any = $state([]);
+
 	let attendeesLoading = $state(true);
 	let tempAttendeesLoading = $state(true);
-	let tempAttendeesGoing: any = $state([]);
-	let tempAttendeesMaybeGoing: any = $state([]);
-	let tempAttendeesNotGoing: any = $state([]);
 
 	let latitude = $state(null);
 	let longitude = $state(null);
@@ -160,6 +167,11 @@
 	let allAttendeesMaybeGoing = $derived([
 		...(attendeesMaybeGoing || []),
 		...(tempAttendeesMaybeGoing || [])
+	]);
+	let allAttendeesLeft = $derived([...(attendeesLeft || [])]);
+	let allAttendeesRemoved = $derived([
+		...(attendeesRemoved || []),
+		...(tempAttendeesRemoved || [])
 	]);
 
 	// Count real users, temporary users and all their guests
@@ -370,6 +382,8 @@
 				attendeesGoing = results.filter((attendee) => attendee.status === Status.GOING);
 				attendeesNotGoing = results.filter((attendee) => attendee.status === Status.NOT_GOING);
 				attendeesMaybeGoing = results.filter((attendee) => attendee.status === Status.MAYBE);
+				attendeesLeft = results.filter((attendee) => attendee.status === Status.LEFT);
+				attendeesRemoved = results.filter((attendee) => attendee.status === Status.REMOVED);
 
 				const userIds = [...new Set(results.map((attendee) => attendee.user_id))];
 				if (dev) {
@@ -392,6 +406,7 @@
 				tempAttendeesGoing = results.filter((attendee) => attendee.status === Status.GOING);
 				tempAttendeesNotGoing = results.filter((attendee) => attendee.status === Status.NOT_GOING);
 				tempAttendeesMaybeGoing = results.filter((attendee) => attendee.status === Status.MAYBE);
+				tempAttendeesRemoved = results.filter((attendee) => attendee.status === Status.REMOVED);
 
 				for (let attendee of results) {
 					const tempUser: TempUserData = {
@@ -579,6 +594,8 @@
 								{allAttendeesGoing}
 								{allAttendeesMaybeGoing}
 								{allAttendeesNotGoing}
+								{allAttendeesLeft}
+								{allAttendeesRemoved}
 								{eventNumAttendeesGoing}
 								{showMaxNumPeople}
 								{isCurrenUserEventAdmin}

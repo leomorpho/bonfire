@@ -51,7 +51,9 @@ export enum Status {
 	GOING = 'going',
 	NOT_GOING = 'not_going',
 	MAYBE = 'maybe',
-	WAITLIST = 'waitlist', // TODO: not yet in effect
+	LEFT = 'left',
+	REMOVED = 'removed',
+	WAITLIST = 'waitlisted', // TODO: not yet in effect
 	DEFAULT = 'RSVP'
 }
 
