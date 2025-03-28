@@ -25,7 +25,8 @@
 		attendanceId = null, // NOTE: these can be either real or temp attendances (they are different object types)
 		baseHeightPx = 50,
 		tempUserName = null,
-		numGuests = 0
+		numGuests = 0,
+		showRemoveUser = true
 	} = $props();
 
 	let url = $state();
@@ -296,7 +297,7 @@
 							</div>
 						</div>
 					{/if} -->
-					{#if viewerIsEventAdmin && $page.data.user && userId != $page.data.user.id}
+					{#if viewerIsEventAdmin && $page.data.user && userId != $page.data.user.id && showRemoveUser}
 						<Button
 							onclick={showRemoveUserModal}
 							class="mt-4 flex w-full items-center justify-center bg-red-500 hover:bg-red-400"

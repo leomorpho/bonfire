@@ -999,9 +999,9 @@ test('Delete/Leaving attendees', async ({ browser }) => {
 	const eventUrl = eventCreatorPage.url();
 
 	// Sign up user
-	const adminEmail = faker.internet.email();
-	const adminUsername = faker.person.firstName();
-	await loginUser(attendeePage, adminEmail, adminUsername);
+	const attendeeEmail = faker.internet.email();
+	const attendeeUsername = faker.person.firstName();
+	await loginUser(attendeePage, attendeeEmail, attendeeUsername);
 
 	// Set user as going
 	await attendeePage.goto(eventUrl);
@@ -1010,9 +1010,14 @@ test('Delete/Leaving attendees', async ({ browser }) => {
 	await attendeePage.getByText("Let's go!", { exact: true }).click();
 
 	// Set temp user as going
+	const tempAttendeeName = 'Matthieu';
 	await navigateTo(tempAttendeePage, eventUrl);
 	await tempAttendeePage.getByText('RSVP', { exact: true }).click();
 	await tempAttendeePage.getByRole('menuitem', { name: 'Going', exact: true }).click();
+	await tempAttendeePage.getByPlaceholder('Tony Garfunkel').click();
+	await tempAttendeePage.getByPlaceholder('Tony Garfunkel').fill(tempAttendeeName);
+	await tempAttendeePage.getByRole('button', { name: 'Generate URL' }).click();
+	await expect(tempAttendeePage.getByRole('heading', { name: 'Hey There!' })).toBeVisible();
 
 	// -----------------------------------
 	// PART 1: make user leave event
@@ -1028,7 +1033,69 @@ test('Delete/Leaving attendees', async ({ browser }) => {
 
 	await expect(eventCreatorPage.getByRole('heading', { name: '1 left' })).toBeVisible();
 
-	// TODO
+	// Reset user as going
+	await attendeePage.goto(eventUrl);
+	await attendeePage.getByText('RSVP', { exact: true }).click();
+	await attendeePage.locator('#rsvp-button-going').click();
+	await attendeePage.getByText("Let's go!", { exact: true }).click();
+
+	// -----------------------------------
+	// PART 2: remove temp and full user from event
+	// FInd all with class profile-avatar and then find the one that contains the name tempAttendeeName and
+
+	// const profileAvatars = eventCreatorPage.locator('.profile-avatar');
+
+	// // Log the count of profile avatars found
+	// const avatarCount = await profileAvatars.count();
+	// console.log('###--- Number of profile avatars found:', avatarCount);
+
+	// // Log the text content of each profile avatar
+	// await profileAvatars
+	// 	.evaluateAll((elements) => {
+	// 		return elements.map((element) => element.textContent);
+	// 	})
+	// 	.then((texts) => {
+	// 		console.log('###--- Profile avatar texts:', texts);
+	// 	});
+	// // Remove the temporary attendee
+	// await profileAvatars.filter({ hasText: tempAttendeeName }).click();
+	// await eventCreatorPage.getByRole('button', { name: 'Remove user from event' }).click();
+	// await eventCreatorPage.getByRole('button', { name: 'Yes, remove' }).click();
+
+	// // Remove the full attendee
+	// await profileAvatars.filter({ hasText: attendeeUsername }).click();
+	// await eventCreatorPage.getByRole('button', { name: 'Remove user from event' }).click();
+	// await eventCreatorPage.getByRole('button', { name: 'Yes, remove' }).click();
+
+	// Locate the dialog and scope the locator to it
+	const attendeesDialog = eventCreatorPage.getByRole('dialog', { name: 'Attendees' });
+
+	// Locate and click the profile avatar for the temporary attendee within the dialog
+	await attendeesDialog
+		.locator('.profile-avatar')
+		.filter({ hasText: tempAttendeeName.substring(0, 2) })
+		.first()
+		.click();
+
+	// Proceed with the removal steps for the temporary attendee
+	await eventCreatorPage.getByRole('button', { name: 'Remove user from event' }).click();
+	await eventCreatorPage.getByRole('button', { name: 'Yes, remove' }).click();
+
+	// Ensure the dialog is still visible (if necessary)
+	await expect(attendeesDialog).toBeVisible();
+
+	// Locate and click the profile avatar for the full attendee within the dialog
+	await attendeesDialog
+		.locator('.profile-avatar')
+		.filter({ hasText: attendeeUsername.substring(0, 2) })
+		.first()
+		.click();
+
+	// Proceed with the removal steps for the full attendee
+	await eventCreatorPage.getByRole('button', { name: 'Remove user from event' }).click();
+	await eventCreatorPage.getByRole('button', { name: 'Yes, remove' }).click();
+
+	await expect(eventCreatorPage.getByRole('heading', { name: '2 removed' })).toBeVisible();
 });
 
 // TODO: test max capacity of bonfire

@@ -35,7 +35,7 @@
 	});
 </script>
 
-{#snippet attendees(attendees: any, numAttendees: number, statusName: string, attendeeType: string)}
+{#snippet attendees(attendees: any, numAttendees: number, statusName: string, attendeeType: string, showRemoveUser=true)}
 	{#if attendees.length > 0}
 		<div class="mb-3 mt-5">
 			<h2 class="my-3 flex w-full justify-center font-semibold">
@@ -51,6 +51,7 @@
 							viewerIsEventAdmin={isCurrenUserEventAdmin}
 							attendanceId={attendee.id}
 							numGuests={attendee.guest_count}
+							{showRemoveUser}
 						/>
 					</div>
 				{/each}
@@ -99,8 +100,8 @@
 										Only visible to admins
 									</div>
 								</div>
-								{@render attendees(allAttendeesLeft, numAttendeesLeft, 'left', 'left')}
-								{@render attendees(allAttendeesRemoved, numAttendeesRemoved, 'removed', 'removed')}
+								{@render attendees(allAttendeesLeft, numAttendeesLeft, 'left', 'left', false)}
+								{@render attendees(allAttendeesRemoved, numAttendeesRemoved, 'removed', 'removed', false)}
 							</div>
 						{/if}
 					</Dialog.Description>
