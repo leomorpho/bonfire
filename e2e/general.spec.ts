@@ -523,6 +523,8 @@ test('Temp attendee view', async ({ browser }) => {
 	await expect(eventCreatorPage.getByRole('button', { name: 'Yes, remove' })).toBeVisible();
 	await expect(eventCreatorPage.getByRole('button', { name: 'Cancel' })).toBeVisible();
 	await eventCreatorPage.getByRole('button', { name: 'cross 2 Close' }).click();
+
+	// TODO: update the num of guests a temp is bringing
 });
 
 test('Temp -> normal attendee transformation', async ({ browser }) => {

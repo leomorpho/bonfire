@@ -1,5 +1,10 @@
 import { and, type TriplitClient } from '@triplit/client';
-import { NOTIFY_OF_ATTENDING_STATUS_CHANGE, Status, tempAttendeeSecretParam } from './enums';
+import {
+	HistoryChangesConstants,
+	NOTIFY_OF_ATTENDING_STATUS_CHANGE,
+	Status,
+	tempAttendeeSecretParam
+} from './enums';
 import { createNewAttendanceNotificationQueueObject } from './notification';
 
 export async function upsertUserAttendance(
@@ -53,29 +58,20 @@ export const updateRSVPForLoggedInUser = async (
 		}
 
 		let attendanceId = attendance?.id;
-		if (!attendance) {
-			try {
-				const attendance = await upsertUserAttendance(
-					eventId,
-					newStatus as Status,
-					numGuestsCurrentAttendeeIsBringing
-				);
+
+		try {
+			await upsertUserAttendance(eventId, newStatus as Status, numGuestsCurrentAttendeeIsBringing);
+			if (!attendanceId) {
 				attendanceId = attendance?.id;
-			} catch (e) {
+			}
+		} catch (e) {
+			if (!attendanceId) {
 				console.error(
 					`failed to create attendance for event ${eventId} and user ${userId}:`,
 					newStatus,
 					e
 				);
-			}
-		} else {
-			try {
-				await upsertUserAttendance(
-					eventId,
-					newStatus as Status,
-					numGuestsCurrentAttendeeIsBringing
-				);
-			} catch (e) {
+			} else {
 				console.error('failed to update attendance:', newStatus, e);
 			}
 		}
@@ -123,18 +119,37 @@ export const updateRSVPForTempUser = async (
 	}
 };
 
-export const removeRealAttendee = async (client: TriplitClient, attendanceId: string) => {
+export const removeRealAttendee = async (
+	client: TriplitClient,
+	attendanceId: string,
+	userIdDeletingAttendee: string
+) => {
 	await client.http.update('attendees', attendanceId, (e) => {
 		e.status = Status.REMOVED;
 		e.guest_count = 0;
 		e.updated_at = new Date();
 	});
+	await client.http.insert('attendees_changes', {
+		attendee_id: attendanceId,
+		changed_by: userIdDeletingAttendee,
+		change_type: HistoryChangesConstants.change_delete
+	});
 };
 
-export const removeTempAttendee = async (client: TriplitClient, attendanceId: string) => {
+export const removeTempAttendee = async (
+	client: TriplitClient,
+	attendanceId: string,
+	userIdDeletingTempAttendee: string
+) => {
 	await client.http.update('temporary_attendees', attendanceId, (e) => {
 		e.status = Status.REMOVED;
 		e.guest_count = 0;
 		e.updated_at = new Date();
+	});
+	await client.http.insert('temporary_attendees_changes', {
+		temporary_attendee_id: attendanceId,
+		changed_by: userIdDeletingTempAttendee,
+		changed_by_id_type: HistoryChangesConstants.user_id,
+		change_type: HistoryChangesConstants.change_delete
 	});
 };

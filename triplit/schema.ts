@@ -1,4 +1,4 @@
-import { BringListCountTypes, TransactionType } from '$lib/enums';
+import { BringListCountTypes, HistoryChangesConstants, TransactionType } from '$lib/enums';
 import { MAIN_THREAD } from '$lib/im';
 import { Schema as S, type Roles, or, and } from '@triplit/client';
 
@@ -369,18 +369,6 @@ export const schema = S.Collections({
 						])
 					]
 				}
-				// Update/insert is managed by BE
-				// delete: {
-				// 	filter: [
-				// 		or([
-				// 			// Event creator can delete anyone attending
-				// 			['event.user_id', '=', '$role.userId'],
-				// 			// Users can remove themselves from the event
-				// 			['user_id', '=', '$role.userId'],
-				// 			['event.event_admins.user_id', '=', '$role.userId'] // Event admins can update files
-				// 		])
-				// 	]
-				// }
 			},
 			temp: {
 				read: {
@@ -441,23 +429,7 @@ export const schema = S.Collections({
 							['event.attendees.user_id', '=', '$role.userId']
 						])
 					]
-				},
-				update: {
-					filter: [
-						or([
-							['event.user_id', '=', '$role.userId'],
-							['event.event_admins.user_id', '=', '$role.userId']
-						])
-					]
 				}
-				// delete: {
-				// 	filter: [
-				// 		or([
-				// 			['event.user_id', '=', '$role.userId'], // Event creator can delete anyone attending
-				// 			['event.event_admins.user_id', '=', '$role.userId'] // Event admins can update files
-				// 		])
-				// 	]
-				// }
 			},
 			temp: {
 				read: {
@@ -469,11 +441,88 @@ export const schema = S.Collections({
 						])
 					]
 				}
-				// Update/insert is managed by BE
-				// delete: {
-				// 	filter: [['id', '=', '$role.temporaryAttendeeId']]
-				// }
 			},
+			anon: {}
+		}
+	},
+	attendees_changes: {
+		schema: S.Schema({
+			id: S.Id(),
+			attendee_id: S.String(), // ID of the attendee
+			field_name: S.Optional(S.String()), // Name of the field that changed (e.g., 'status', 'guest_count')
+			old_value: S.Optional(S.String()), // Previous value of the field
+			new_value: S.Optional(S.String()), // New value of the field
+			change_timestamp: S.Date({ default: S.Default.now() }), // Timestamp of the change
+			changed_by: S.String(), // ID of the user who made the change
+			change_type: S.String({
+				enum: [HistoryChangesConstants.change_delete, HistoryChangesConstants.change_update]
+			}) // Type of change (e.g., 'update')
+		}),
+		relationships: {
+			attendee: S.RelationById('attendees', '$attendee_id'), // Link to the attendee
+			changed_user: S.RelationById('user', '$changed_by') // Link to the user who made the change
+		},
+		permissions: {
+			admin: {
+				read: { filter: [true] }
+			},
+			user: {
+				read: {
+					filter: [
+						or([
+							// User can read changes related to their own attendees
+							['attendee.user_id', '=', '$role.userId'],
+							// Event creator can see changes for their event's attendees
+							['attendee.event.user_id', '=', '$role.userId'],
+							// Admins can see attendees' changes
+							['attendee.event.event_admins.user_id', '=', '$role.userId']
+						])
+					]
+				}
+			},
+			temp: {},
+			anon: {}
+		}
+	},
+	temporary_attendees_changes: {
+		schema: S.Schema({
+			id: S.Id(),
+			temporary_attendee_id: S.String(), // ID of the attendee
+			field_name: S.Optional(S.String()), // Name of the field that changed (e.g., 'status', 'guest_count')
+			old_value: S.Optional(S.String()), // Previous value of the field
+			new_value: S.Optional(S.String()), // New value of the field
+			change_timestamp: S.Date({ default: S.Default.now() }), // Timestamp of the change
+			changed_by: S.String(), // ID of the user who made the change
+			changed_by_id_type: S.String({
+				enum: [HistoryChangesConstants.user_id, HistoryChangesConstants.temporary_attendee_id]
+			}),
+			change_type: S.String({
+				enum: [HistoryChangesConstants.change_delete, HistoryChangesConstants.change_update]
+			}) // Type of change (e.g., 'update')
+		}),
+		relationships: {
+			attendee: S.RelationById('temporary_attendees', '$temporary_attendee_id'), // Link to the attendee
+			temporary_attendee: S.RelationById('temporary_attendees', '$temporary_attendee_id') // Link to the temporary attendee
+		},
+		permissions: {
+			admin: {
+				read: { filter: [true] }
+			},
+			user: {
+				read: {
+					filter: [
+						or([
+							// User can read changes related to their own attendees
+							['temporary_attendee.id', '=', '$role.temporaryAttendeeId'],
+							// Event creator can see changes for their event's attendees
+							['temporary_attendee.event.user_id', '=', '$role.userId'],
+							// Admins can see attendees' changes
+							['temporary_attendee.event.event_admins.user_id', '=', '$role.userId']
+						])
+					]
+				}
+			},
+			temp: {},
 			anon: {}
 		}
 	},

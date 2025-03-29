@@ -141,3 +141,12 @@ export const TransactionType = {
 export type TransactionType = (typeof TransactionType)[keyof typeof TransactionType];
 
 export const ABS_MAX_GUEST_NUM = 6;
+
+export const HistoryChangesConstants = {
+	user_id: 'user_id',
+	temporary_attendee_id: 'temporary_attendee_id',
+	field_name_status: 'status',
+	field_name_num_guests: 'num_guests',
+	change_delete: 'delete',
+	change_update: 'update'
+};

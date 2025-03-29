@@ -52,7 +52,7 @@
 					<LoadingSpinner cls={'!h-4 !w-4'} />
 				</div>
 			{/if}
-			Let's go!
+			Save
 		</Button>
 	</Dialog.Content>
 </Dialog.Root>

@@ -61,9 +61,9 @@
 			const client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
 			if (isTempUser) {
-				await removeTempAttendee(client, attendanceId);
+				await removeTempAttendee(client, attendanceId, $page.data.user.id);
 			} else {
-				await removeRealAttendee(client, attendanceId);
+				await removeRealAttendee(client, attendanceId, $page.data.user.id);
 				await deleteUserLiveDataStoreEntry(userId);
 			}
 

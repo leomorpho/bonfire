@@ -57,9 +57,13 @@
 	// Function to handle RSVP updates
 	const updateRSVP = async (
 		event: Event,
+		oldValue: string | null,
 		newValue: string | null,
 		numGuestsCurrentAttendeeIsBringing: number | null = 0
 	) => {
+		if (oldValue == newValue) {
+			return;
+		}
 		if (!newValue) {
 			newValue = rsvpStatus;
 		}
@@ -127,7 +131,7 @@
 
 	const leaveEvent = async (event: Event) => {
 		try {
-			await updateRSVP(event, Status.LEFT);
+			await updateRSVP(event, rsvpStatus, Status.LEFT);
 		} catch (e) {
 			console.error(`failed to update RSVP to leaving for event ${eventId} and user ${userId}:`, e);
 			toast.success(
@@ -169,7 +173,7 @@
 					{maxNumGuestsAllowedPerAttendee}
 					bind:numGuests={numGuestsCurrentAttendeeIsBringing}
 					updateCallback={(e: Event) => {
-						updateRSVP(e, newRsvpStatusToSave, numGuestsCurrentAttendeeIsBringing);
+						updateRSVP(e, rsvpStatus, newRsvpStatusToSave, numGuestsCurrentAttendeeIsBringing);
 					}}
 				/>
 			</div>
@@ -183,21 +187,24 @@
 					<DropdownMenu.Item
 						id="rsvp-button-going"
 						class={rsvpStatus === Status.GOING ? 'bg-green-400 dark:bg-green-600' : ''}
-						onclick={(event) => updateRSVP(event, Status.GOING)}
+						onclick={(event) =>
+							updateRSVP(event, rsvpStatus, Status.GOING, numGuestsCurrentAttendeeIsBringing)}
 					>
 						<Smile /> Going
 					</DropdownMenu.Item>
 					<DropdownMenu.Item
 						id="rsvp-button-maybe"
 						class={rsvpStatus === Status.MAYBE ? 'bg-yellow-400 dark:bg-yellow-600' : ''}
-						onclick={(event) => updateRSVP(event, Status.MAYBE)}
+						onclick={(event) =>
+							updateRSVP(event, rsvpStatus, Status.MAYBE, numGuestsCurrentAttendeeIsBringing)}
 					>
 						<Meh /> Maybe
 					</DropdownMenu.Item>
 					<DropdownMenu.Item
 						id="rsvp-button-not-going"
 						class={rsvpStatus === Status.NOT_GOING ? 'bg-red-400 dark:bg-red-600' : ''}
-						onclick={(event) => updateRSVP(event, Status.NOT_GOING)}
+						onclick={(event) =>
+							updateRSVP(event, rsvpStatus, Status.NOT_GOING, numGuestsCurrentAttendeeIsBringing)}
 					>
 						<Frown /> Not going
 					</DropdownMenu.Item>
@@ -235,7 +242,7 @@
 		<Button
 			class="w-full"
 			onclick={(e) => {
-				updateRSVP(e, newRsvpStatusToSave, numGuestsCurrentAttendeeIsBringing);
+				updateRSVP(e, rsvpStatus, newRsvpStatusToSave, numGuestsCurrentAttendeeIsBringing);
 			}}
 		>
 			Let's go!

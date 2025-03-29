@@ -187,3 +187,13 @@ export type LogTokenTransaction = {
 	num_log_tokens: number; // Number of logs purchased/refunded
 	created_at: string; // Timestamp of transaction (ISO string)
 };
+
+export interface TemporaryAttendeeChange {
+	temporary_attendee_id: string;
+	changed_by: string;
+	changed_by_id_type: string;
+	change_type: string;
+	field_name?: string | null;
+	old_value?: string | null;
+	new_value?: string | null;
+}
