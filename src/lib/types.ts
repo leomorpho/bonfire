@@ -197,3 +197,12 @@ export interface TemporaryAttendeeChange {
 	old_value?: string | null;
 	new_value?: string | null;
 }
+
+export interface AttendeeChange {
+	attendee_id: string | null;
+	changed_by: string;
+	change_type: string;
+	field_name?: string | null;
+	old_value?: string | null;
+	new_value?: string | null;
+}

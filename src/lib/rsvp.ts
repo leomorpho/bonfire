@@ -112,6 +112,7 @@ export const updateRSVPForTempUser = async (
 			})
 		}
 	);
+	// NOTE: historical changes managed by endpoint above
 
 	if (!response.ok) {
 		const errorMessage = await response.text();
