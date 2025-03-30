@@ -51,26 +51,27 @@
 				class="my-3 bg-slate-100/80 py-1 dark:bg-slate-900/80 dark:text-white dark:hover:bg-slate-800"
 			>
 				<Card.Header>
-					<Card.Title class="flex items-center">
-						<span class="mr-2"><DateCard date={change.change_timestamp} /></span>
-						
-						{#if change.changed_by_id_type && change.changed_by_id_type == HistoryChangesConstants.temporary_attendee_id}
-							<ChangedByTempUser tempAttendeeId={change.changed_by} />
-						{:else}
-							<ChangedByUser userId={change.changed_by} />
-						{/if}
-						at {formatHumanReadableHour(change.change_timestamp)}
-						<!-- <ProfileAvatar userId={change.changed_by} baseHeightPx={40} />
-						<span class="ml-2">
-							{change.changed_by}
-						</span> -->
+					<Card.Title class="flex items-center justify-between">
+						<!-- Date Section on the Left -->
+						<div class="mr-2">
+							<DateCard date={change.change_timestamp} />
+						</div>
+
+						<!-- Text Section on the Right -->
+						<div class="flex flex-col items-start font-normal">
+							<span>
+								{#if change.changed_by_id_type && change.changed_by_id_type == HistoryChangesConstants.temporary_attendee_id}
+									<ChangedByTempUser tempAttendeeId={change.changed_by} />
+								{:else}
+									<ChangedByUser userId={change.changed_by} />
+								{/if}
+								changed {snakeCaseToNormal(change.field_name)} from
+								<span class="font-bold">{snakeCaseToNormal(change.old_value)}</span>
+								to
+								<span class="font-bold">{snakeCaseToNormal(change.new_value)}</span>.
+							</span>
+						</div>
 					</Card.Title>
-					<Card.Description>
-						Changed {snakeCaseToNormal(change.field_name)} from
-						<span class="font-bold">{snakeCaseToNormal(change.old_value)}</span>
-						to
-						<span class="font-bold">{snakeCaseToNormal(change.new_value)}</span>
-					</Card.Description>
 				</Card.Header>
 				<Card.Footer></Card.Footer>
 			</Card.Root>
