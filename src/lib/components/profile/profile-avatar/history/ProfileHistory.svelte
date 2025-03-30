@@ -16,11 +16,9 @@
 	console.log('attendeeId', attendeeId, 'isTempUser', isTempUser);
 	const client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
-	let attendee = $state();
 	let attendeeChanges: any = $state();
 
 	if (isTempUser) {
-		attendee = useQuery(client, client.query('temporary_attendees').Where(['id', '=', attendeeId]));
 		attendeeChanges = useQuery(
 			client,
 			client
@@ -29,7 +27,6 @@
 				.Order('change_timestamp', 'DESC')
 		);
 	} else {
-		attendee = useQuery(client, client.query('attendees').Where(['id', '=', attendeeId]));
 		attendeeChanges = useQuery(
 			client,
 			client
@@ -45,6 +42,7 @@
 {:else if attendeeChanges.error}
 	<p>Error: {attendeeChanges.error.message}</p>
 {:else if attendeeChanges.results}
+	{console.log('attendeeChanges.results', attendeeChanges.results)}
 	<ScrollArea class="h-[80vh]">
 		{#each attendeeChanges.results as change}
 			<Card.Root
@@ -58,17 +56,24 @@
 						</div>
 
 						<!-- Text Section on the Right -->
-						<div class="flex flex-col items-start font-normal">
+						<div class="flex flex-col items-start font-normal w-full">
 							<span>
 								{#if change.changed_by_id_type && change.changed_by_id_type == HistoryChangesConstants.temporary_attendee_id}
 									<ChangedByTempUser tempAttendeeId={change.changed_by} />
 								{:else}
 									<ChangedByUser userId={change.changed_by} />
 								{/if}
-								changed {snakeCaseToNormal(change.field_name)} from
-								<span class="font-bold">{snakeCaseToNormal(change.old_value)}</span>
-								to
-								<span class="font-bold">{snakeCaseToNormal(change.new_value)}</span>.
+								{#if change.change_type == HistoryChangesConstants.change_update}
+									changed {snakeCaseToNormal(change.field_name)} from
+									<span class="font-bold">{snakeCaseToNormal(change.old_value)}</span>
+									to
+									<span class="font-bold">{snakeCaseToNormal(change.new_value)}</span>.
+								{:else if change.change_type == HistoryChangesConstants.change_create}
+									joined the event with status
+									<span class="font-bold">{snakeCaseToNormal(change.new_value)}</span>.
+								{:else if change.change_type == HistoryChangesConstants.change_delete}
+									deleted this user from the event.
+								{/if}
 							</span>
 						</div>
 					</Card.Title>

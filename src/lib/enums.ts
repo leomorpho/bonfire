@@ -147,6 +147,7 @@ export const HistoryChangesConstants = {
 	temporary_attendee_id: 'temporary_attendee_id',
 	field_name_status: 'status',
 	field_name_num_guests: 'num_guests',
+	change_create: 'create',
 	change_delete: 'delete',
 	change_update: 'update'
 };
