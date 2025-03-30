@@ -8,7 +8,7 @@
 		isMobile
 	} from '$lib/utils';
 	import { onDestroy } from 'svelte';
-	import ProfileAvatar from '../ProfileAvatar.svelte';
+	import ProfileAvatar from '../profile/profile-avatar/ProfileAvatar.svelte';
 	import { and } from '@triplit/client';
 	import { EMOJI_REACTION_TYPE, NotificationType } from '$lib/enums';
 	import MessageContextMenu from './MessageContextMenu.svelte';

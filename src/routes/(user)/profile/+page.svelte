@@ -5,7 +5,7 @@
 	import { page } from '$app/stores';
 	import { ArrowLeftRight, FlameKindling, HeartHandshake, Pencil, Plus } from 'lucide-svelte';
 	import { getFeWorkerTriplitClient } from '$lib/triplit';
-	import ProfileAvatar from '$lib/components/ProfileAvatar.svelte';
+	import ProfileAvatar from '$lib/components/profile/profile-avatar/ProfileAvatar.svelte';
 	import SvgLoader from '$lib/components/SvgLoader.svelte';
 	import { addUserRequest } from '$lib/profilestore';
 	import FadeIn from '$lib/components/containers/FadeIn.svelte';

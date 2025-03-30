@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import ProfileAvatar from '../ProfileAvatar.svelte';
+	import ProfileAvatar from '../profile/profile-avatar/ProfileAvatar.svelte';
 	import { addUserRequest, usersLiveDataStore } from '$lib/profilestore';
 
 	let { currUserId, toggleEmoji, reactionUserId, reactionEmoji } = $props();

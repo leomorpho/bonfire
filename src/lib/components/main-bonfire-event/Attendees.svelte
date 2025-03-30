@@ -5,7 +5,7 @@
 	import NoAttendeesYet from '../attendance/NoAttendeesYet.svelte';
 	import { Skeleton } from '../ui/skeleton';
 	import { fade } from 'svelte/transition';
-	import ProfileAvatar from '../ProfileAvatar.svelte';
+	import ProfileAvatar from '../profile/profile-avatar/ProfileAvatar.svelte';
 	import AttendeesDialog from '../AttendeesDialog.svelte';
 
 	let {

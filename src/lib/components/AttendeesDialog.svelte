@@ -2,7 +2,7 @@
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { Plus } from 'lucide-svelte';
 	import { ScrollArea } from './ui/scroll-area';
-	import ProfileAvatar from './ProfileAvatar.svelte';
+	import ProfileAvatar from './profile/profile-avatar/ProfileAvatar.svelte';
 	import { flip } from 'svelte/animate';
 	import { fade } from 'svelte/transition';
 

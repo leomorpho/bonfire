@@ -3,7 +3,7 @@
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { formatHumanReadable } from '$lib/utils';
 	import { UserRoundMinus } from 'lucide-svelte';
-	import GeneratedAvatar from './GeneratedAvatar.svelte';
+	import GeneratedAvatar from '../../GeneratedAvatar.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { page } from '$app/stores';
 	import type { TriplitClient } from '@triplit/client';
@@ -17,11 +17,16 @@
 	} from '$lib/profilestore';
 	import { onDestroy, onMount } from 'svelte';
 	import { removeRealAttendee, removeTempAttendee } from '$lib/rsvp';
+	import TriggerButton from './TriggerButton.svelte';
+	import * as Tabs from '$lib/components/ui/tabs/index.js';
+	import ProfileHistory from './ProfileHistory.svelte';
+	import { ScrollArea } from '$lib/components/ui/scroll-area';
 
 	let {
 		userId = null,
 		tempUserId = null,
 		viewerIsEventAdmin = false,
+		userIsEventAdmin = false,
 		attendanceId = null, // NOTE: these can be either real or temp attendances (they are different object types)
 		baseHeightPx = 50,
 		tempUserName = null,
@@ -165,60 +170,31 @@
 	});
 </script>
 
-{#snippet numGuestOnAvatar(num: number)}
-	<div
-		class="absolute -bottom-1 left-4 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white shadow-md"
-	>
-		+{num}
-	</div>
-{/snippet}
-
 <Dialog.Root bind:open={dialogIsOpen}>
 	<Dialog.Trigger
 		class={`profile-avatar ${isTempUser ? 'temp-user' : ''} flex items-center justify-center focus:outline-none focus-visible:ring-0`}
 	>
-		{#if fullsizeUrl || url}
-			<div class="relative">
-				<Avatar.Root
-					class={`relative ${isTempUser ? 'border-yellow-300' : 'border-white'}`}
-					style="height: {baseHeightPx}px; width: {baseHeightPx}px;"
-				>
-					<!-- Avatar Image -->
-					<Avatar.Image src={url as string} alt={username as string} class="h-full w-full" />
-
-					<!-- Fallback Text -->
-					<Avatar.Fallback class="absolute inset-0 flex items-center justify-center">
-						{fallbackNameShort}
-					</Avatar.Fallback>
-
-					<!-- Overlay Layer for Temp User -->
-					{#if isTempUser}
-						<div class="pointer-events-none absolute inset-0 bg-yellow-300 opacity-40"></div>
-					{/if}
-				</Avatar.Root>
-				{#if numGuests > 0}
-					{@render numGuestOnAvatar(numGuests)}
-				{/if}
-			</div>
-		{:else}
-			<div class="relative">
-				<GeneratedAvatar {username} size={baseHeightPx} />
-				{#if isTempUser}
-					<div class="pointer-events-none absolute inset-0 rounded-full border-4 border-yellow-400">
-						<div class="flex h-full w-full items-center justify-center">{fallbackNameShort}</div>
-					</div>
-				{:else}
-					<div class="pointer-events-none absolute inset-0 rounded-full">
-						<div class="flex h-full w-full items-center justify-center">{fallbackNameShort}</div>
-					</div>
-				{/if}
-				{#if numGuests > 0}
-					{@render numGuestOnAvatar(numGuests)}
-				{/if}
-			</div>
-		{/if}
+		<TriggerButton
+			{username}
+			{fallbackNameShort}
+			{isTempUser}
+			{fullsizeUrl}
+			{url}
+			{baseHeightPx}
+			{numGuests}
+		/>
 	</Dialog.Trigger>
 	<Dialog.Content class="sm:max-w-[425px]">
+		<!-- {#each Array.from({ length: 30 }, (_, i) => ({
+				id: i + 1,
+				name: `Item ${i + 1}`,
+				description: `This is item number ${i + 1}.`
+			  })) as item}
+				<div class="item">
+				  <h3>{item.name}</h3>
+				  <p>{item.description}</p>
+				</div>
+			  {/each} -->
 		<Dialog.Header>
 			{#if showRemoveAttendeeModal}
 				<div class="space-y-8">
@@ -240,71 +216,33 @@
 					</div>
 				</div>
 			{:else}
-				<Dialog.Title class="flex justify-center">{username}</Dialog.Title>
-				<Dialog.Description>
+				<Dialog.Title class="flex items-center justify-center"
+					>{username}
 					{#if isTempUser}
-						<div class="m-3 flex justify-center rounded-lg bg-yellow-400 p-2 text-black">
-							Temporary account
-						</div>
-					{/if}
-					{#if lastUpdatedAt}
-						<div class="flex justify-center">Last updated {formatHumanReadable(lastUpdatedAt)}</div>
-					{/if}
-					<div class="mt-3 flex w-full items-center justify-center text-3xl text-black md:text-4xl">
-						{#if fullsizeUrl || url}
-							<Avatar.Root class="mt-3 aspect-square h-fit w-fit">
-								<Avatar.Image
-									src={fullsizeUrl ? (fullsizeUrl as string) : (url as string)}
-									alt={username as string}
-								/>
-								<Avatar.Fallback>{fallbackNameShort}</Avatar.Fallback>
-								<!-- Overlay Layer for Temp User -->
-							</Avatar.Root>
-						{:else}
-							<div class="relative">
-								<GeneratedAvatar {username} size={200} />
-								{#if isTempUser}
-									<div
-										class="pointer-events-none absolute inset-0 rounded-full border-8 border-yellow-400"
-									>
-										<div class="flex h-full w-full items-center justify-center">
-											{fallbackNameShort}
-										</div>
-									</div>
-								{:else}
-									<div class="pointer-events-none absolute inset-0 rounded-full">
-										<div class="flex h-full w-full items-center justify-center">
-											{fallbackNameShort}
-										</div>
-									</div>
-								{/if}
-							</div>
-						{/if}
-					</div>
-					{#if numGuests > 0}
-						<div class="mt-2 flex w-full justify-center">
-							<div class="rounded-xl bg-red-500 p-2 text-white dark:bg-red-700">
-								Bringing {numGuests} extra guest{numGuests > 1 ? 's' : ''} ({numGuests + 1} total including
-								{username})
+						<div class="ml-2">
+							<div class="rounded-lg bg-yellow-400 p-1 px-2 text-xs font-light text-black">
+								temporary account
 							</div>
 						</div>
 					{/if}
-					<!-- TODO -->
-					<!-- {#if viewerIsEventAdmin && $page.data.user == userId}
-						<div class="mt-2 flex w-full justify-center">
-							<div class="rounded-xl bg-slate-500 p-2 text-white dark:bg-slate-700">
-								This user is an admin of this event
+				</Dialog.Title>
+				<Dialog.Description>
+					{#if viewerIsEventAdmin}
+						<Tabs.Root value="about" class="mt-1 w-full">
+							<div class="flex w-full justify-center">
+								<Tabs.List>
+									<Tabs.Trigger value="about">About</Tabs.Trigger>
+									<Tabs.Trigger value="history">History</Tabs.Trigger>
+								</Tabs.List>
 							</div>
-						</div>
-					{/if} -->
-					{#if viewerIsEventAdmin && $page.data.user && userId != $page.data.user.id && showRemoveUser}
-						<Button
-							onclick={showRemoveUserModal}
-							class="mt-4 flex w-full items-center justify-center bg-red-500 hover:bg-red-400"
-						>
-							<UserRoundMinus class="h-5 w-5" />
-							Remove user from event</Button
-						>
+
+							<Tabs.Content value="about">{@render content()}</Tabs.Content>
+							<Tabs.Content value="history">
+								<ProfileHistory attendeeId={attendanceId} {isTempUser} />
+							</Tabs.Content>
+						</Tabs.Root>
+					{:else}
+						{@render content()}
 					{/if}
 				</Dialog.Description>
 			{/if}
@@ -313,3 +251,61 @@
 		<Dialog.Footer></Dialog.Footer>
 	</Dialog.Content>
 </Dialog.Root>
+
+{#snippet content()}
+	{#if lastUpdatedAt}
+		<div class="flex justify-center">Last updated {formatHumanReadable(lastUpdatedAt)}</div>
+	{/if}
+	<div class="mt-3 flex w-full items-center justify-center text-3xl text-black md:text-4xl">
+		{#if fullsizeUrl || url}
+			<Avatar.Root class="mt-3 aspect-square h-fit w-fit">
+				<Avatar.Image
+					src={fullsizeUrl ? (fullsizeUrl as string) : (url as string)}
+					alt={username as string}
+				/>
+				<Avatar.Fallback>{fallbackNameShort}</Avatar.Fallback>
+				<!-- Overlay Layer for Temp User -->
+			</Avatar.Root>
+		{:else}
+			<div class="relative">
+				<GeneratedAvatar {username} size={200} />
+				{#if isTempUser}
+					<div class="pointer-events-none absolute inset-0 rounded-full border-8 border-yellow-400">
+						<div class="flex h-full w-full items-center justify-center">
+							{fallbackNameShort}
+						</div>
+					</div>
+				{:else}
+					<div class="pointer-events-none absolute inset-0 rounded-full">
+						<div class="flex h-full w-full items-center justify-center">
+							{fallbackNameShort}
+						</div>
+					</div>
+				{/if}
+			</div>
+		{/if}
+	</div>
+	{#if numGuests > 0}
+		<div class="mt-2 flex w-full justify-center">
+			<div class="rounded-xl bg-red-500/70 p-2 text-white dark:bg-red-700/70 text-sm">
+				Bringing {numGuests} extra guest{numGuests > 1 ? 's' : ''} ({numGuests + 1} total including
+				{username})
+			</div>
+		</div>
+	{/if}
+	<!-- TODO -->
+	<!-- {#if userIsEventAdmin}
+						<div class="mt-2 flex w-full justify-center">
+							<div class="rounded-xl bg-slate-500 p-2 text-white dark:bg-slate-700">Admin</div>
+						</div>
+					{/if} -->
+	{#if viewerIsEventAdmin && $page.data.user && userId != $page.data.user.id && showRemoveUser}
+		<Button
+			onclick={showRemoveUserModal}
+			class="mt-4 flex w-full items-center justify-center bg-red-500 hover:bg-red-400"
+		>
+			<UserRoundMinus class="h-5 w-5" />
+			Remove user from event</Button
+		>
+	{/if}
+{/snippet}

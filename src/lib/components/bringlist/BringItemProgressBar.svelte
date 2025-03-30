@@ -9,7 +9,7 @@
 	import { page } from '$app/stores';
 	import { assignBringItem, deleteBringAssignment, updateBringAssignment } from '$lib/bringlist';
 	import { toast } from 'svelte-sonner';
-	import ProfileAvatar from '../ProfileAvatar.svelte';
+	import ProfileAvatar from '../profile/profile-avatar/ProfileAvatar.svelte';
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
 	import { fade, slide } from 'svelte/transition';
 	import { Tween } from 'svelte/motion';

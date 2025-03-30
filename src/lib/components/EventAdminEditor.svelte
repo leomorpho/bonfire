@@ -16,7 +16,7 @@
 	import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
 	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
 	import { createNewAdminNotificationQueueObject } from '$lib/notification';
-	import ProfileAvatar from './ProfileAvatar.svelte';
+	import ProfileAvatar from './profile/profile-avatar/ProfileAvatar.svelte';
 	import { slide } from 'svelte/transition';
 	import CollapsibleContent from './CollapsibleContent.svelte';
 

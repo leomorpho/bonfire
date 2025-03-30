@@ -512,8 +512,6 @@ export const schema = S.Collections({
 				read: {
 					filter: [
 						or([
-							// User can read changes related to their own attendees
-							['temporary_attendee.id', '=', '$role.temporaryAttendeeId'],
 							// Event creator can see changes for their event's attendees
 							['temporary_attendee.event.user_id', '=', '$role.userId'],
 							// Admins can see attendees' changes
@@ -522,7 +520,16 @@ export const schema = S.Collections({
 					]
 				}
 			},
-			temp: {},
+			temp: {
+				read: {
+					filter: [
+						or([
+							// User can read changes related to their own attendees
+							['temporary_attendee.id', '=', '$role.temporaryAttendeeId']
+						])
+					]
+				}
+			},
 			anon: {}
 		}
 	},

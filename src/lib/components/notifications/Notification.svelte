@@ -4,7 +4,7 @@
 	import { onMount } from 'svelte';
 	import { TriplitClient } from '@triplit/client';
 	import { formatHumanReadable, stringRepresentationToArray } from '$lib/utils';
-	import ProfileAvatar from '../ProfileAvatar.svelte';
+	import ProfileAvatar from '../profile/profile-avatar/ProfileAvatar.svelte';
 	import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
 	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';

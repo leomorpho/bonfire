@@ -3,7 +3,7 @@
 	import { Button } from '../ui/button';
 	import BonfireBanner from './BonfireBanner.svelte';
 	import { formatHumanReadable, formatHumanReadableHour } from '$lib/utils';
-	import ProfileAvatar from '../ProfileAvatar.svelte';
+	import ProfileAvatar from '../profile/profile-avatar/ProfileAvatar.svelte';
 	import ShareLocation from '../ShareLocation.svelte';
 	import Map from '$lib/components/map/Map.svelte';
 	import DOMPurify from 'dompurify';

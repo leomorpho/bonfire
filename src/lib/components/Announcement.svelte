@@ -6,7 +6,7 @@
 	import { Pencil } from 'lucide-svelte';
 	import { getFeWorkerTriplitClient } from '$lib/triplit';
 	import { page } from '$app/stores';
-	import ProfileAvatar from './ProfileAvatar.svelte';
+	import ProfileAvatar from './profile/profile-avatar/ProfileAvatar.svelte';
 
 	let {
 		eventId,
