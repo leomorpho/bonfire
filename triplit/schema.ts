@@ -429,6 +429,16 @@ export const schema = S.Collections({
 							['event.attendees.user_id', '=', '$role.userId']
 						])
 					]
+				},
+				update: {
+					filter: [
+						or([
+							// Event creator can edit
+							['event.user_id', '=', '$role.userId'],
+							// A user should be able to only query for users and attendees who are attending a same event:
+							['event.event_admins.user_id', '=', '$role.userId']
+						])
+					]
 				}
 			},
 			temp: {
@@ -478,6 +488,14 @@ export const schema = S.Collections({
 							['attendee.event.event_admins.user_id', '=', '$role.userId']
 						])
 					]
+				},
+				insert: {
+					filter: [
+						or([
+							['attendee.event.user_id', '=', '$role.userId'],
+							['attendee.event.event_admins.user_id', '=', '$role.userId']
+						])
+					]
 				}
 			},
 			temp: {},
@@ -515,6 +533,15 @@ export const schema = S.Collections({
 							// Event creator can see changes for their event's attendees
 							['temporary_attendee.event.user_id', '=', '$role.userId'],
 							// Admins can see attendees' changes
+							['temporary_attendee.event.event_admins.user_id', '=', '$role.userId']
+						])
+					]
+				},
+				insert: {
+					filter: [
+						or([
+							['attendee.event.user_id', '=', '$role.userId'],
+							['attendee.event.event_admins.user_id', '=', '$role.userId'],
 							['temporary_attendee.event.event_admins.user_id', '=', '$role.userId']
 						])
 					]

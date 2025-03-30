@@ -19,7 +19,7 @@
 	import { removeRealAttendee, removeTempAttendee } from '$lib/rsvp';
 	import TriggerButton from './TriggerButton.svelte';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
-	import ProfileHistory from './ProfileHistory.svelte';
+	import ProfileHistory from './history/ProfileHistory.svelte';
 	import { ScrollArea } from '$lib/components/ui/scroll-area';
 
 	let {
@@ -31,7 +31,8 @@
 		baseHeightPx = 50,
 		tempUserName = null,
 		numGuests = 0,
-		showRemoveUser = true
+		showRemoveUser = true,
+		showHistory = true
 	} = $props();
 
 	let url = $state();
@@ -227,7 +228,7 @@
 					{/if}
 				</Dialog.Title>
 				<Dialog.Description>
-					{#if viewerIsEventAdmin}
+					{#if viewerIsEventAdmin && showHistory}
 						<Tabs.Root value="about" class="mt-1 w-full">
 							<div class="flex w-full justify-center">
 								<Tabs.List>
@@ -287,7 +288,7 @@
 	</div>
 	{#if numGuests > 0}
 		<div class="mt-2 flex w-full justify-center">
-			<div class="rounded-xl bg-red-500/70 p-2 text-white dark:bg-red-700/70 text-sm">
+			<div class="rounded-xl bg-red-500/70 p-2 text-sm text-white dark:bg-red-700/70">
 				Bringing {numGuests} extra guest{numGuests > 1 ? 's' : ''} ({numGuests + 1} total including
 				{username})
 			</div>

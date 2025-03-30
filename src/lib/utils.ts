@@ -268,3 +268,19 @@ export const redirectToTempAttendanceInBonfireIfAvailable = async () => {
 		return `/bonfire/${bonfireId}?${tempAttendeeSecretParam}=${tempAttendeeSecret}`;
 	}
 };
+
+/**
+ * Converts a snake_case string to a normal sentence-like string.
+ *
+ * @param {string} snakeCaseString - The string in snake_case format.
+ * @returns {string} - The transformed string in normal sentence format.
+ */
+export function snakeCaseToNormal(snakeCaseString: string) {
+	if (!snakeCaseString) {
+		return ''; // Return an empty string if input is undefined or empty
+	}
+
+	return snakeCaseString
+		.split('_') // Split the string by underscores
+		.join(' '); // Join the words with spaces
+}
