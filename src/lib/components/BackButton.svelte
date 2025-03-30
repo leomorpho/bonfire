@@ -19,11 +19,12 @@
 	// Handle navigation
 	function handleNavigation() {
 		isLoading = true;
-		if (url) {
-			goto(url); // Redirect to provided URL
-		} else {
+		// NOTE: Marh 29, 2025, force use history api, might have issues? (it used to)
+		// if (url) {
+		// 	goto(url); // Redirect to provided URL
+		// } else {
 			navBack(); // Fallback to history
-		}
+		// }
 	}
 </script>
 
