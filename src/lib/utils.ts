@@ -119,8 +119,8 @@ export const loadPassphraseScript = () => {
 	});
 };
 
-export const generatePassphraseId = async (prefix: string | null = null, wordsLen: number = 24) => {
-	return generateId(8);
+export const generatePassphraseId = async (prefix: string | null = null, wordsLen: number = 8) => {
+	return prefix + '_' + generateId(wordsLen);
 	try {
 		// Ensure the Passphrase script is loaded
 		await loadPassphraseScript();

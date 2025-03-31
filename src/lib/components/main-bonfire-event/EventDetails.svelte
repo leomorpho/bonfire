@@ -59,7 +59,7 @@
 	<div class="w-full rounded-b-xl dark:text-white">
 		<div
 			id="event-description-content-collapsed"
-			class={`prose prose-sm w-full todo-max-h-[${maxHeight}px] overflow-hidden px-4
+			class={`p-2 prose prose-sm w-full todo-max-h-[${maxHeight}px] overflow-hidden px-4
              text-black ease-in-out sm:prose-base focus:outline-none prose-h1:text-black prose-h2:text-black 
             prose-p:text-black prose-blockquote:text-black prose-strong:text-black 
             dark:text-white dark:prose-h1:text-white dark:prose-h2:text-white dark:prose-p:text-white 

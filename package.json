@@ -22,7 +22,7 @@
 		"migrate:staging": "tsx ./migrate.ts --staging",
 		"migrate:prod": "tsx ./migrate.ts --prod",
 		"seed": "vite-node --options.transformMode.ssr='/.*/' src/scripts/seed.ts",
-		"triplit": "npx @triplit/cli@1.0.18 dev --storage sqlite",
+		"triplit": "npx @triplit/cli@latest dev",
 		"schema": "npx @triplit/cli@1.0.18 schema push"
 	},
 	"devDependencies": {

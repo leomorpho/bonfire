@@ -1,4 +1,4 @@
-import { and, type TriplitClient } from '@triplit/client';
+import { and, HttpClient, type TriplitClient } from '@triplit/client';
 import {
 	HistoryChangesConstants,
 	NOTIFY_OF_ATTENDING_STATUS_CHANGE,
@@ -6,6 +6,68 @@ import {
 	tempAttendeeSecretParam
 } from './enums';
 import { createNewAttendanceNotificationQueueObject } from './notification';
+import { createAttendeeId, generatePassphraseId } from './utils';
+
+export const createTempAttendance = async (
+	client: HttpClient,
+	secretId: string,
+	eventId: string,
+	newStatus: string,
+	username: string,
+	numExtraGuests: number
+) => {
+	const tempAttendance = await client.insert('temporary_attendees', {
+		id: await generatePassphraseId('ta_'),
+		event_id: eventId,
+		status: newStatus, // Default status if not provided
+		name: username,
+		guest_count: numExtraGuests
+	});
+	console.log('Created temp attendee');
+
+	await client.insert('temporary_attendees_secret_mapping', {
+		id: secretId,
+		temporary_attendee_id: tempAttendance.id
+	});
+	console.log('Created temporary_attendees_secret_mapping');
+
+	await client.insert('temporary_attendees_changes', {
+		temporary_attendee_id: tempAttendance.id,
+		changed_by: tempAttendance.id,
+		changed_by_id_type: HistoryChangesConstants.temporary_attendee_id,
+		change_type: HistoryChangesConstants.change_create,
+		field_name: HistoryChangesConstants.field_name_status,
+		new_value: newStatus
+	});
+	console.log('Created temporary_attendees_changes');
+};
+
+export const createUserAttendance = async (
+	client: HttpClient,
+	userId: string,
+	eventId: string,
+	newStatus: string,
+	numExtraGuests: number
+) => {
+	const attendance = await client.insert('attendees', {
+		id: 'at_' + createAttendeeId(eventId, userId),
+		user_id: userId,
+		event_id: eventId,
+		status: newStatus,
+		guest_count: numExtraGuests
+	});
+	console.log('attendance creatored');
+
+	await client.insert('attendees_changes', {
+		attendee_id: attendance.id,
+		changed_by: attendance.id,
+		change_type: HistoryChangesConstants.change_create,
+		field_name: HistoryChangesConstants.field_name_status,
+		new_value: newStatus
+	});
+
+	return attendance;
+};
 
 export async function upsertUserAttendance(
 	eventId: string,

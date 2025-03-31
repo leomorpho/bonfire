@@ -465,7 +465,11 @@ export const schema = S.Collections({
 			change_timestamp: S.Date({ default: S.Default.now() }), // Timestamp of the change
 			changed_by: S.String(), // ID of the user who made the change
 			change_type: S.String({
-				enum: [HistoryChangesConstants.change_delete, HistoryChangesConstants.change_update]
+				enum: [
+					HistoryChangesConstants.change_delete,
+					HistoryChangesConstants.change_update,
+					HistoryChangesConstants.change_create
+				]
 			}) // Type of change (e.g., 'update')
 		}),
 		relationships: {
@@ -515,7 +519,11 @@ export const schema = S.Collections({
 				enum: [HistoryChangesConstants.user_id, HistoryChangesConstants.temporary_attendee_id]
 			}),
 			change_type: S.String({
-				enum: [HistoryChangesConstants.change_delete, HistoryChangesConstants.change_update]
+				enum: [
+					HistoryChangesConstants.change_delete,
+					HistoryChangesConstants.change_update,
+					HistoryChangesConstants.change_create
+				]
 			}) // Type of change (e.g., 'update')
 		}),
 		relationships: {

@@ -13,6 +13,7 @@ import { createAttendeeId } from '$lib/utils';
 import { createNewThread, MAIN_THREAD } from '$lib/im';
 import { uploadBannerImage, uploadProfileImage } from '$lib/filestorage';
 import { assignBringItem, createBringItem } from '$lib/bringlist';
+import { createTempAttendance, createUserAttendance } from '$lib/rsvp';
 
 const profileImagesDir = 'src/scripts/data/profile-pics';
 const bannerImagesDir = 'src/scripts/data/banner';
@@ -168,12 +169,24 @@ for (let i = 0; i < knownData.length; i++) {
 		await uploadProfileImage(path, attendeeUser?.id as string, false);
 	}
 
-	const newAttendeeResult = await client.insert('attendees', {
-		id: createAttendeeId(eventCreated.id, attendeeUser?.id as string),
-		event_id: eventCreated?.id, // TODO: rename to something sane, that's a shit name
-		user_id: attendeeUser?.id,
-		status: getRandomStatus()
-	});
+	/**
+	 * Generates a random integer between 0 and n (inclusive).
+	 *
+	 * @param {number} n - The upper bound of the random integer.
+	 * @returns {number} - A random integer between 0 and n.
+	 */
+	function getRandomInt(n: number) {
+		return Math.floor(Math.random() * (n + 1));
+	}
+
+	console.log('attendeeUser.id', attendeeUser?.id, 'eventCreated.id', eventCreated.id);
+	const newAttendeeResult = await createUserAttendance(
+		client,
+		attendeeUser?.id as string,
+		eventCreated.id,
+		getRandomStatus(),
+		getRandomInt(4)
+	);
 
 	await createNewAttendanceNotificationQueueObject(
 		client,
@@ -199,6 +212,11 @@ for (let i = 0; i < knownData.length; i++) {
 		user: attendeeUser?.email
 	});
 }
+
+await createTempAttendance(client, eventCreated?.id as string, getRandomStatus(), 0)
+await createTempAttendance(client, eventCreated?.id as string, getRandomStatus(), 2)
+await createTempAttendance(client, eventCreated?.id as string, getRandomStatus(), 5)
+await createTempAttendance(client, eventCreated?.id as string, getRandomStatus(), 3)
 
 const messages = [
 	"Hey everyone! Let's start planning Mike's birthday party. Any ideas for the venue?",
@@ -241,15 +259,12 @@ const attendees = await client.fetch(
 );
 
 const thread = await client.fetchOne(
-	client
-		.query('event_threads')
-		.Where([
-			and([
-				['event_id', '=', eventCreated?.id],
-				['name', '=', MAIN_THREAD]
-			])
+	client.query('event_threads').Where([
+		and([
+			['event_id', '=', eventCreated?.id],
+			['name', '=', MAIN_THREAD]
 		])
-		
+	])
 );
 if (!thread) {
 	throw new Error('thread not created');

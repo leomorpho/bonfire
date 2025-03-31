@@ -19,17 +19,18 @@
 	// Handle navigation
 	function handleNavigation() {
 		isLoading = true;
-		// NOTE: Marh 29, 2025, force use history api, might have issues? (it used to)
-		// if (url) {
-		// 	goto(url); // Redirect to provided URL
-		// } else {
+		if (url) {
+			goto(url); // Redirect to provided URL
+		} else {
 			navBack(); // Fallback to history
-		// }
+			return false;
+		}
 	}
 </script>
 
 {#if isClient}
 	<Button
+		type="button"
 		onclick={handleNavigation}
 		class="back-button my-1 bg-slate-200 text-black shadow-lg hover:bg-slate-100 dark:bg-slate-700 dark:text-white dark:hover:bg-slate-500"
 	>

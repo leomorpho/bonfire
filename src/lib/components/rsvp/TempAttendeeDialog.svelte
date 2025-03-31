@@ -92,7 +92,6 @@
 
 	const createTemporaryAttendee = async () => {
 		isGeneratingTempLink = true;
-		const id = await generatePassphraseId('u', 36);
 		try {
 			if (!tempUserRsvpStatus) {
 				throw new Error('rsvp status is not set');
@@ -104,7 +103,6 @@
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({
-					id,
 					eventId,
 					status: tempUserRsvpStatus,
 					name: tempName,

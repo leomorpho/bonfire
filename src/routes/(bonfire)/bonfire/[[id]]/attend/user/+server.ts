@@ -6,6 +6,7 @@ import { and } from '@triplit/client';
 import { checkEventIsOpenForNewGoingAttendees } from '$lib/triplit';
 import type { AttendeeChange } from '$lib/types';
 import Attendees from '$lib/components/main-bonfire-event/Attendees.svelte';
+import { createUserAttendance } from '$lib/rsvp.js';
 
 export const POST = async ({ request, params, locals }) => {
 	// Extract event ID from the URL params
@@ -50,13 +51,7 @@ export const POST = async ({ request, params, locals }) => {
 
 		// If attendance does not exist, create it
 		if (!attendance) {
-			attendance = await triplitHttpClient.insert('attendees', {
-				id: createAttendeeId(bonfireId, user.id),
-				user_id: user.id,
-				event_id: bonfireId,
-				status,
-				guest_count: numGuests
-			});
+			await createUserAttendance(triplitHttpClient, user.id, bonfireId, status, numGuests);
 		} else {
 			let newNumGuest = attendance.guest_count;
 			if (numGuests !== null && Number.isInteger(numGuests)) {

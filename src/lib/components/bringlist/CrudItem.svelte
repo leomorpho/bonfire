@@ -189,8 +189,12 @@
 					</Button>
 				</CustomAlertDialog>
 			{/if}
-			<Button disabled={!submitEnabled} onclick={upsertItem} type="submit" class="m-1 w-full"
-				>{item ? 'Save Changes' : 'Add'}</Button
+			<Button
+				id="upsert-bring-list-item"
+				disabled={!submitEnabled}
+				onclick={upsertItem}
+				type="submit"
+				class="m-1 w-full">{item ? 'Save Changes' : 'Add'}</Button
 			>
 		</Dialog.Footer>
 	</Dialog.Content>

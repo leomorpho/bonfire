@@ -717,9 +717,11 @@ test('Bring list items', async ({ browser }) => {
 	await eventCreatorPage.getByPlaceholder('5').fill('5');
 	const bringItemDetails = 'Because dogs are fantastic';
 	await eventCreatorPage
-		.getByRole('textbox', { name: 'We need enough to feed 5' })
+		.getByRole('textbox', {
+			name: "Any details you'd like to add"
+		})
 		.fill(bringItemDetails);
-	await eventCreatorPage.getByLabel('Add list item').getByRole('button', { name: 'Add' }).click();
+	await eventCreatorPage.getByRole('button', { name: 'Add' }).click();
 	await expect(
 		eventCreatorPage.locator('.bring-list-item-btn').getByRole('button', { name: 'Dogs' })
 	).toBeVisible();
@@ -737,7 +739,9 @@ test('Bring list items', async ({ browser }) => {
 	await eventCreatorPage.locator('#edit-bring-list-item').click();
 	const bringItemDetailsImproved = bringItemDetails + ', but cats are ok';
 	await eventCreatorPage
-		.getByRole('textbox', { name: 'We need enough to feed 5' })
+		.getByRole('textbox', {
+			name: "Any details you'd like to add"
+		})
 		.fill(bringItemDetailsImproved);
 	await eventCreatorPage.getByRole('button', { name: 'Save Changes' }).click();
 	// Let event creator bring 1 dog
@@ -753,8 +757,10 @@ test('Bring list items', async ({ browser }) => {
 		el.value = 1;
 		el.dispatchEvent(new Event('input', { bubbles: true })); // Ensure event triggers
 	});
-	await expect(eventCreatorPage.getByText('bringing for')).toHaveCount(1, { timeout: 2000 });
-	await expect(eventCreatorPage.getByText("You're bringing enough for 1 person")).toBeVisible();
+	await expect(eventCreatorPage.getByText('bringing 1', { exact: true })).toHaveCount(1, {
+		timeout: 2000
+	});
+	await expect(eventCreatorPage.getByText("You're bringing 1 of this")).toBeVisible();
 
 	await eventCreatorPage.getByRole('button', { name: 'Submit' }).click();
 
@@ -783,8 +789,10 @@ test('Bring list items', async ({ browser }) => {
 		.locator('.bring-list-item-btn')
 		.getByRole('button', { name: 'Dogs' })
 		.click();
-	await expect(eventCreatorPage.getByText('bringing for')).toHaveCount(2, { timeout: 2000 });
-	await expect(eventCreatorPage.getByText("You're bringing enough for 1 person")).toBeVisible();
+	await expect(eventCreatorPage.getByText('bringing 1', { exact: true })).toHaveCount(2, {
+		timeout: 2000
+	});
+	await expect(eventCreatorPage.getByText("You're bringing 1 of this")).toBeVisible();
 
 	// Have event owner delete bring list item and check it's gone
 	await eventCreatorPage.locator('#edit-bring-list-item').click();
