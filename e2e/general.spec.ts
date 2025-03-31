@@ -925,7 +925,7 @@ test('Messaging', async ({ browser }) => {
 	await expect(eventCreatorPage.getByRole('heading', { name: eventName })).toBeVisible();
 
 	const eventUrl = eventCreatorPage.url();
-	await eventCreatorPage.getByRole('tab', { name: 'Discussions' }).click();
+	await eventCreatorPage.locator('#discussions-tab').click();
 
 	// Sign up user
 	const adminEmail = faker.internet.email();
@@ -939,7 +939,8 @@ test('Messaging', async ({ browser }) => {
 	await attendeePage.getByText("Let's go!", { exact: true }).click();
 
 	// Create message interaction
-	await attendeePage.getByRole('tab', { name: 'Discussions' }).click();
+	await attendeePage.locator('#discussions-tab').click();
+
 	await attendeePage.getByRole('textbox', { name: 'Write a message...' }).click();
 	await attendeePage.getByRole('textbox', { name: 'Write a message...' }).fill('Hey there baby!');
 	await attendeePage.getByRole('button', { name: 'Send Message' }).click();

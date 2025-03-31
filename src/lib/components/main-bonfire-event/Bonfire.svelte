@@ -5,7 +5,16 @@
 	import Loader from '$lib/components/Loader.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
-	import { Share, Images, Megaphone, Plus, ShoppingBasket } from 'lucide-svelte';
+	import {
+		Share,
+		Images,
+		Megaphone,
+		Plus,
+		ShoppingBasket,
+		History,
+		MessageCircle,
+		Info
+	} from 'lucide-svelte';
 	import Rsvp from '$lib/components/rsvp/Rsvp.svelte';
 	import { onMount } from 'svelte';
 	import { Status, tempAttendeeSecretStore, tempAttendeeSecretParam } from '$lib/enums';
@@ -22,7 +31,6 @@
 	import ImThreadView from '$lib/components/im/ImThreadView.svelte';
 	import NumNewMessageIndicator from '$lib/components/im/NumNewMessageIndicator.svelte';
 	import {
-		addUserRequest,
 		addUserRequests,
 		type TempUserData,
 		updateTempUsersLiveDataStoreEntry
@@ -36,6 +44,8 @@
 	import SignUpMsg from './SignUpMsg.svelte';
 	import Alert from '../Alert.svelte';
 	import SetProfilePicAlert from './SetProfilePicAlert.svelte';
+	import EventHistory from './EventHistory.svelte';
+	import TextPopover from '../TextPopover.svelte';
 	// import EventStylerBottomSheet from '../event-styles/EventStylerBottomSheet.svelte';
 
 	let {
@@ -549,19 +559,37 @@
 				<Tabs.Root value={activeTab} class="w-full">
 					<div class="flex w-full justify-center">
 						<Tabs.List class="mb-1 w-full bg-transparent animate-in fade-in zoom-in">
-							<div class="rounded-lg bg-slate-700 p-2">
-								<Tabs.Trigger value="about" class="focus:outline-none focus-visible:ring-0">
-									About
+							<div class="rounded-lg bg-slate-200 dark:bg-slate-700 p-2">
+								<Tabs.Trigger
+									id="about-tab"
+									value="about"
+									class="focus:outline-none focus-visible:ring-0 data-[state=active]:bg-emerald-500 data-[state=active]:text-white"
+								>
+									<Info class="h-5 w-5" />
 								</Tabs.Trigger>
 								<Tabs.Trigger
+									id="discussions-tab"
 									value="discussions"
-									class="focus:outline-none focus-visible:ring-0"
+									class="focus:outline-none focus-visible:ring-0 data-[state=active]:bg-orange-500 data-[state=active]:text-white"
 									onclick={() => {
 										scrollElementIntoView('messenger');
 									}}
 								>
-									<NumNewMessageIndicator>Discussions</NumNewMessageIndicator>
+									<NumNewMessageIndicator>
+										<MessageCircle class="h-5 w-5" />
+									</NumNewMessageIndicator>
 								</Tabs.Trigger>
+								{#if isCurrenUserEventAdmin}
+									<Tabs.Trigger
+										id="history-tab"
+										value="history"
+										class="focus:outline-none focus-visible:ring-0 data-[state=active]:bg-purple-500 data-[state=active]:text-white"
+									>
+										<div class="flex items-center justify-center">
+											<History class="h-5 w-5" />
+										</div>
+									</Tabs.Trigger>
+								{/if}
 							</div>
 						</Tabs.List>
 					</div>
@@ -725,6 +753,11 @@
 							{/if}
 						</div>
 					</Tabs.Content>
+					<Tabs.Content value="history" class="mb-10 w-full">
+						<div class="animate-fadeIn mb-2 w-full">
+							<EventHistory {eventId} />
+						</div>
+					</Tabs.Content>
 				</Tabs.Root>
 			</section>
 		</div>
@@ -736,7 +769,7 @@
 			<HorizRule />
 
 			<a class="flex w-full justify-center" href="/bonfire/create">
-				<Button variant="link">Host your event with Bonfire</Button>
+				<Button variant="link" class="bg-orange-300/60 dark:bg-orange-800/60 rounded-xl">Host your event with Bonfire</Button>
 			</a>
 		</section>
 	</div>

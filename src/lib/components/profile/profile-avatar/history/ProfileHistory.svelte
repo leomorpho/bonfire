@@ -56,13 +56,15 @@
 						</div>
 
 						<!-- Text Section on the Right -->
-						<div class="flex flex-col items-start font-normal w-full">
+						<div class="flex w-full flex-col items-start font-normal">
 							<span>
-								{#if change.changed_by_id_type && change.changed_by_id_type == HistoryChangesConstants.temporary_attendee_id}
-									<ChangedByTempUser tempAttendeeId={change.changed_by} />
-								{:else}
-									<ChangedByUser userId={change.changed_by} />
-								{/if}
+								<span class="font-bold">
+									{#if change.changed_by_id_type && change.changed_by_id_type == HistoryChangesConstants.temporary_attendee_id}
+										<ChangedByTempUser tempAttendeeId={change.changed_by} />
+									{:else}
+										<ChangedByUser userId={change.changed_by} />
+									{/if}
+								</span>
 								{#if change.change_type == HistoryChangesConstants.change_update}
 									changed {snakeCaseToNormal(change.field_name)} from
 									<span class="font-bold">{snakeCaseToNormal(change.old_value)}</span>

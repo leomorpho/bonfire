@@ -10,12 +10,15 @@ import { createAttendeeId, generatePassphraseId } from './utils';
 
 export const createTempAttendance = async (
 	client: HttpClient,
-	secretId: string,
+	secretId: string | null,
 	eventId: string,
 	newStatus: string,
 	username: string,
 	numExtraGuests: number
 ) => {
+	if (!secretId) {
+		secretId = await generatePassphraseId('', 25);
+	}
 	const tempAttendance = await client.insert('temporary_attendees', {
 		id: await generatePassphraseId('ta_'),
 		event_id: eventId,
@@ -60,7 +63,7 @@ export const createUserAttendance = async (
 
 	await client.insert('attendees_changes', {
 		attendee_id: attendance.id,
-		changed_by: attendance.id,
+		changed_by: userId,
 		change_type: HistoryChangesConstants.change_create,
 		field_name: HistoryChangesConstants.field_name_status,
 		new_value: newStatus

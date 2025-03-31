@@ -213,10 +213,31 @@ for (let i = 0; i < knownData.length; i++) {
 	});
 }
 
-await createTempAttendance(client, eventCreated?.id as string, getRandomStatus(), 0)
-await createTempAttendance(client, eventCreated?.id as string, getRandomStatus(), 2)
-await createTempAttendance(client, eventCreated?.id as string, getRandomStatus(), 5)
-await createTempAttendance(client, eventCreated?.id as string, getRandomStatus(), 3)
+await createTempAttendance(
+	client,
+	null,
+	eventCreated?.id as string,
+	getRandomStatus(),
+	'Maxime',
+	0
+);
+await createTempAttendance(
+	client,
+	null,
+	eventCreated?.id as string,
+	getRandomStatus(),
+	'Roxanne',
+	2
+);
+await createTempAttendance(
+	client,
+	null,
+	eventCreated?.id as string,
+	getRandomStatus(),
+	'Christa',
+	5
+);
+await createTempAttendance(client, null, eventCreated?.id as string, getRandomStatus(), 'Abodo', 3);
 
 const messages = [
 	"Hey everyone! Let's start planning Mike's birthday party. Any ideas for the venue?",
