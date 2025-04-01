@@ -521,8 +521,8 @@
 				)
 				.Select(['id'])
 				,
-			(results, info) => {
-				console.log('A NEW FILE IS AVAILABLE');
+			(results) => {
+				// console.log('A NEW FILE IS AVAILABLE');
 				// handle results
 				updateFilesWithLatest();
 			},

@@ -760,7 +760,7 @@
 			</section>
 		</div>
 	{/if}
-	<div class="mx-4 mb-5 flex flex-col items-center justify-center">
+	<div class="mx-4 pb-5 flex flex-col items-center justify-center">
 		<section
 			class="mt-10 flex w-full justify-center sm:w-[450px] md:w-[550px] lg:w-[800px] xl:w-[950px]"
 		>
