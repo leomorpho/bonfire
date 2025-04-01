@@ -22,6 +22,9 @@ export const createTempAttendance = async (
 	if (!secretId) {
 		secretId = await generatePassphraseId('', 25);
 	}
+
+	// TODO: Check if IP was previously deleted from event
+
 	const tempAttendance = await client.insert('temporary_attendees', {
 		id: await generatePassphraseId('ta_'),
 		event_id: eventId,
@@ -55,7 +58,7 @@ export const createUserAttendance = async (
 	newStatus: string,
 	numExtraGuests: number
 ) => {
-	// TODO: Check if user was previously deleted from event
+	// Check if user was previously deleted from event
 	if (await wasUserPreviouslyDeleted(client, userId, eventId)) {
 		throw new Error('user was previously deleted from event and cannot rsvp anymore');
 	}
@@ -245,12 +248,12 @@ export const wasUserPreviouslyDeleted = async (
 			and([
 				['attendee.event_id', '=', eventId],
 				['attendee.user.id', '=', userId],
-				['change_type', '=', HistoryChangesConstants.change_delete],
-				['new_value', '=', Status.REMOVED]
+				['change_type', '=', HistoryChangesConstants.change_delete]
 			])
 		]);
 
 		const changes = await client.fetch(query);
+		console.log('changes --->', changes);
 		return changes.length > 0;
 	} catch (error) {
 		console.error('Error checking if user was previously deleted:', error);

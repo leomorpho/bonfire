@@ -1050,9 +1050,9 @@ test('Delete/Leaving attendees', async ({ browser }) => {
 	await attendeePage.locator('#rsvp-button-going').click();
 	await attendeePage.getByText("Let's go!", { exact: true }).click();
 
-	await attendeePage.close();
+	// No need for temp attendee page anymore, close it
 	await tempAttendeePage.close();
-	
+
 	// -----------------------------------
 	// PART 2: remove temp and full user from event
 
@@ -1168,7 +1168,10 @@ test('Delete/Leaving attendees', async ({ browser }) => {
 
 	// -----------------------------------
 	// PART 4: Have removed user try to access the event page again
-	// TODO
+	await attendeePage.goto(eventUrl);
+	await expect(
+		attendeePage.getByRole('heading', { name: 'This Event is Unpublished' })
+	).toBeVisible();
 });
 
 // TODO: test max capacity of bonfire
