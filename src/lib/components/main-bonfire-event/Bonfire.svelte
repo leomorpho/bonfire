@@ -477,11 +477,6 @@
 	});
 
 	const handleShare = async (eventTitle: string, eventLocation: string, eventId: string) => {
-		if (!navigator.share) {
-			alert('Sharing is not supported on this browser.');
-			return;
-		}
-
 		// Prepare shareable data
 		const shareData = {
 			title: `Hey! You're invited to ${eventTitle}!`, // Use the event title
@@ -499,6 +494,9 @@
 			console.error('Error copying to clipboard:', error);
 		}
 
+		if (!navigator.share) {
+			return;
+		}
 		navigator
 			.share(shareData)
 			.then(() => {
@@ -762,7 +760,7 @@
 			</section>
 		</div>
 	{/if}
-	<div class="mx-4 flex flex-col items-center justify-center mb-5">
+	<div class="mx-4 mb-5 flex flex-col items-center justify-center">
 		<section
 			class="mt-10 flex w-full justify-center sm:w-[450px] md:w-[550px] lg:w-[800px] xl:w-[950px]"
 		>
