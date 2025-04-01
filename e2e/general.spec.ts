@@ -1052,31 +1052,6 @@ test('Delete/Leaving attendees', async ({ browser }) => {
 
 	// -----------------------------------
 	// PART 2: remove temp and full user from event
-	// FInd all with class profile-avatar and then find the one that contains the name tempAttendeeName and
-
-	// const profileAvatars = eventCreatorPage.locator('.profile-avatar');
-
-	// // Log the count of profile avatars found
-	// const avatarCount = await profileAvatars.count();
-	// console.log('###--- Number of profile avatars found:', avatarCount);
-
-	// // Log the text content of each profile avatar
-	// await profileAvatars
-	// 	.evaluateAll((elements) => {
-	// 		return elements.map((element) => element.textContent);
-	// 	})
-	// 	.then((texts) => {
-	// 		console.log('###--- Profile avatar texts:', texts);
-	// 	});
-	// // Remove the temporary attendee
-	// await profileAvatars.filter({ hasText: tempAttendeeName }).click();
-	// await eventCreatorPage.getByRole('button', { name: 'Remove user from event' }).click();
-	// await eventCreatorPage.getByRole('button', { name: 'Yes, remove' }).click();
-
-	// // Remove the full attendee
-	// await profileAvatars.filter({ hasText: attendeeUsername }).click();
-	// await eventCreatorPage.getByRole('button', { name: 'Remove user from event' }).click();
-	// await eventCreatorPage.getByRole('button', { name: 'Yes, remove' }).click();
 
 	// Locate the dialog and scope the locator to it
 	const attendeesDialog = eventCreatorPage.getByRole('dialog', { name: 'Attendees' });
@@ -1107,6 +1082,56 @@ test('Delete/Leaving attendees', async ({ browser }) => {
 	await eventCreatorPage.getByRole('button', { name: 'Yes, remove' }).click();
 
 	await expect(eventCreatorPage.getByRole('heading', { name: '2 removed' })).toBeVisible();
+
+	// -----------------------------------
+	// PART 3: Have admin look at history
+
+	// Locate and click the profile avatar for the full attendee within the dialog
+	await eventCreatorPage
+		.locator('.profile-avatar')
+		.filter({ hasText: attendeeUsername.substring(0, 2) })
+		.first()
+		.click();
+
+	await eventCreatorPage.locator('.profile-history-tab').click();
+	await expect(
+		eventCreatorPage
+			.getByLabel('History')
+			.getByText(attendeeUsername + ' joined the event with')
+			.first()
+	).toBeVisible();
+
+	await expect(
+		eventCreatorPage
+			.getByLabel('History')
+			.getByText(eventOwnerUsername + ' deleted this user from the event')
+			.first()
+	).toBeVisible();
+
+	// Simulate pressing the Escape key to close the profile popup
+	await eventCreatorPage.keyboard.press('Escape');
+
+	// Locate and click the profile avatar for the temporary attendee within the dialog
+	await eventCreatorPage
+		.locator('.profile-avatar')
+		.filter({ hasText: tempAttendeeName.substring(0, 2) })
+		.first()
+		.click();
+
+	await eventCreatorPage.locator('.profile-history-tab').click();
+	await expect(
+		eventCreatorPage
+			.getByLabel('History')
+			.getByText(tempAttendeeName + ' joined the event with')
+			.first()
+	).toBeVisible();
+
+	await expect(
+		eventCreatorPage
+			.getByLabel('History')
+			.getByText(eventOwnerUsername + ' deleted this user from the event')
+			.first()
+	).toBeVisible();
 });
 
 // TODO: test max capacity of bonfire

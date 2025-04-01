@@ -186,16 +186,6 @@
 		/>
 	</Dialog.Trigger>
 	<Dialog.Content class="sm:max-w-[425px]">
-		<!-- {#each Array.from({ length: 30 }, (_, i) => ({
-				id: i + 1,
-				name: `Item ${i + 1}`,
-				description: `This is item number ${i + 1}.`
-			  })) as item}
-				<div class="item">
-				  <h3>{item.name}</h3>
-				  <p>{item.description}</p>
-				</div>
-			  {/each} -->
 		<Dialog.Header>
 			{#if showRemoveAttendeeModal}
 				<div class="space-y-8">
@@ -232,8 +222,8 @@
 						<Tabs.Root value="about" class="mt-1 w-full">
 							<div class="flex w-full justify-center">
 								<Tabs.List>
-									<Tabs.Trigger value="about">About</Tabs.Trigger>
-									<Tabs.Trigger value="history">History</Tabs.Trigger>
+									<Tabs.Trigger class="profile-about-tab" value="about">About</Tabs.Trigger>
+									<Tabs.Trigger class="profile-history-tab" value="history">History</Tabs.Trigger>
 								</Tabs.List>
 							</div>
 

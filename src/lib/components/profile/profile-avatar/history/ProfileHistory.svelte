@@ -4,7 +4,7 @@
 	import type { TriplitClient } from '@triplit/client';
 	import { useQuery } from '@triplit/svelte';
 	import * as Card from '$lib/components/ui/card';
-	import { formatHumanReadableHour, snakeCaseToNormal } from '$lib/utils';
+	import { snakeCaseToNormal } from '$lib/utils';
 	import ScrollArea from '$lib/components/ui/scroll-area/scroll-area.svelte';
 	import { HistoryChangesConstants } from '$lib/enums';
 	import ChangedByTempUser from './ChangedByTempUser.svelte';
