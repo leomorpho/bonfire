@@ -31,7 +31,7 @@
 		const currentDate = new Date();
 		const futureDate = new Date(currentDate.getTime() - 24 * 60 * 60 * 1000); // Add 24 hours in milliseconds
 
-		let query = client
+		return client
 			.query('attendees')
 			.Where(
 				and([
@@ -39,19 +39,11 @@
 					['status', 'nin', [Status.LEFT, Status.REMOVED]]
 				])
 			)
-			.Where('event.start_time', future ? '>=' : '<', futureDate.toISOString());
-
-		return (
-			query
-				// .SubqueryOne(
-				// 	'organizer_name',
-				// 	client.query('user').Where(['id', '=', '$1.event.user_id']).Select(['username'])
-				// )
-				.Include('event', (rel) =>
-					rel('event').Include('user', (rel) => rel('user').Select(['username']))
-				)
-				.Order('event.start_time', 'ASC')
-		);
+			.Where('event.start_time', future ? '>=' : '<', futureDate.toISOString())
+			.Include('event', (rel) =>
+				rel('event').Include('user', (rel) => rel('user').Select(['username']))
+			)
+			.Order('event.start_time', 'ASC');
 	}
 
 	const initEvents = async () => {
@@ -170,13 +162,14 @@
 				{:else}
 					<div>
 						{#each futureAttendances as attendance}
+							{console.log('attendance.event.is_published', attendance.event.is_published)}
 							<div class="my-7 sm:my-10">
 								<EventCard
 									event={attendance.event}
 									{userId}
 									eventCreatorName={attendance.event.user.username}
 									rsvpStatus={attendance.status}
-									isPublished={attendance.event.is_published}
+									isPublished={attendance.event.is_published ?? false}
 									numGuests={attendance.guest_count}
 									maxNumGuestsAllowedPerAttendee={attendance.event.max_num_guests_per_attendee}
 								/>
@@ -206,7 +199,7 @@
 									{userId}
 									eventCreatorName={attendance.event.user.username}
 									rsvpStatus={attendance.status}
-									isPublished={attendance.event.is_published}
+									isPublished={attendance.event.is_published ?? false}
 									numGuests={attendance.guest_count}
 									maxNumGuestsAllowedPerAttendee={attendance.event.max_num_guests_per_attendee}
 								/>
