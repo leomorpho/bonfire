@@ -527,7 +527,6 @@ export const schema = S.Collections({
 			}) // Type of change (e.g., 'update')
 		}),
 		relationships: {
-			attendee: S.RelationById('temporary_attendees', '$temporary_attendee_id'), // Link to the attendee
 			temporary_attendee: S.RelationById('temporary_attendees', '$temporary_attendee_id') // Link to the temporary attendee
 		},
 		permissions: {
@@ -548,8 +547,7 @@ export const schema = S.Collections({
 				insert: {
 					filter: [
 						or([
-							['attendee.event.user_id', '=', '$role.userId'],
-							['attendee.event.event_admins.user_id', '=', '$role.userId'],
+							['temporary_attendee.event.user_id', '=', '$role.userId'],
 							['temporary_attendee.event.event_admins.user_id', '=', '$role.userId']
 						])
 					]

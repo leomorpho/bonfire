@@ -6,8 +6,11 @@ import {
 	tempAttendeeSecretParam
 } from './enums';
 import { createNewAttendanceNotificationQueueObject } from './notification';
-import { createAttendeeId, generatePassphraseId } from './utils';
+import { generatePassphraseId } from './utils';
 
+export const createAttendeeId = (eventId: string, userId: string) => {
+	return 'at_' + eventId + '-' + userId;
+};
 export const createTempAttendance = async (
 	client: HttpClient,
 	secretId: string | null,
@@ -52,6 +55,11 @@ export const createUserAttendance = async (
 	newStatus: string,
 	numExtraGuests: number
 ) => {
+	// TODO: Check if user was previously deleted from event
+	if (await wasUserPreviouslyDeleted(client, userId, eventId)) {
+		throw new Error('user was previously deleted from event and cannot rsvp anymore');
+	}
+
 	const attendance = await client.insert('attendees', {
 		id: 'at_' + createAttendeeId(eventId, userId),
 		user_id: userId,
@@ -218,4 +226,34 @@ export const removeTempAttendee = async (
 		changed_by_id_type: HistoryChangesConstants.user_id,
 		change_type: HistoryChangesConstants.change_delete
 	});
+};
+
+/**
+ * Check if a user was previously deleted from an event.
+ * @param client - The HTTP client to interact with the database.
+ * @param userId - The ID of the user to check.
+ * @param eventId - The ID of the event to check.
+ * @returns {Promise<boolean>} - True if the user was previously deleted, false otherwise.
+ */
+export const wasUserPreviouslyDeleted = async (
+	client: TriplitClient | HttpClient,
+	userId: string,
+	eventId: string
+): Promise<boolean> => {
+	try {
+		const query = client.query('attendees_changes').Where([
+			and([
+				['attendee.event_id', '=', eventId],
+				['attendee.user.id', '=', userId],
+				['change_type', '=', HistoryChangesConstants.change_delete],
+				['new_value', '=', Status.REMOVED]
+			])
+		]);
+
+		const changes = await client.fetch(query);
+		return changes.length > 0;
+	} catch (error) {
+		console.error('Error checking if user was previously deleted:', error);
+		return false;
+	}
 };

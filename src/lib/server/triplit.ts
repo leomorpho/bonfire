@@ -3,10 +3,10 @@ import type { AttendeeTypescriptType, FileTypescriptType } from '$lib/types';
 import { env as publicEnv } from '$env/dynamic/public';
 import { env as privateEnv } from '$env/dynamic/private';
 import { and, HttpClient } from '@triplit/client';
-import { createAttendeeId } from '$lib/utils';
 import { spawn } from 'child_process';
 import { dev } from '$app/environment';
 import { schema } from '../../../triplit/schema';
+import { createAttendeeId } from '$lib/rsvp';
 
 export const triplitHttpClient = new HttpClient({
 	schema,
@@ -215,7 +215,7 @@ export const convertTempToPermanentUser = async (
 				user_id: userId,
 				event_id: eventId,
 				status: existingTempAttendeeStatus,
-				guest_count: existingTempAttendeeGuesCount,
+				guest_count: Number(existingTempAttendeeGuesCount),
 			});
 		} else if (attendances.length > 1) {
 			console.error(

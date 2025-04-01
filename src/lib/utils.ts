@@ -232,10 +232,6 @@ export function detectTailwindTheme(): 'light' | 'dark' {
 	return 'light';
 }
 
-export const createAttendeeId = (eventId: string, userId: string) => {
-	return eventId + '-' + userId;
-};
-
 export const isMobile = () => {
 	// Ensure we are in the browser to avoid SSR issues
 	if (typeof window === 'undefined' || typeof navigator === 'undefined') {

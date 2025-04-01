@@ -1,6 +1,6 @@
 import { Status } from '$lib/enums.js';
+import { createAttendeeId } from '$lib/rsvp';
 import { triplitHttpClient } from '$lib/server/triplit.js';
-import { createAttendeeId } from '$lib/utils';
 import { redirect } from '@sveltejs/kit';
 
 // Step 2: Implement the form load function

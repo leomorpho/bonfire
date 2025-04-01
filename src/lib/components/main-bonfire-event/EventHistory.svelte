@@ -26,6 +26,7 @@
 		client
 			.query('attendees_changes')
 			.Where(['attendee.event_id', '=', eventId])
+			.Include('attendee')
 			.Order('change_timestamp', 'DESC')
 	);
 
@@ -79,7 +80,7 @@
 					<div class="mr-2">
 						<DateCard date={change.change_timestamp} />
 					</div>
-					{#if change.changed_by_id_type && change.changed_by_id_type == HistoryChangesConstants.temporary_attendee_id}
+					{#if change.changed_by_id_type}
 						<Popover.Root>
 							<Popover.Trigger
 								><div
@@ -110,7 +111,15 @@
 								joined the event with status
 								<span class="font-bold">{snakeCaseToNormal(change.new_value)}</span>.
 							{:else if change.change_type == HistoryChangesConstants.change_delete}
-								deleted this user from the event.
+								deleted
+								<span class="font-bold">
+									{#if change.changed_by_id_type}
+										<ChangedByTempUser tempAttendeeId={change.temporary_attendee_id} />
+									{:else}
+										<ChangedByUser userId={change.attendee?.user_id} />
+									{/if}
+								</span>
+								from the event.
 							{/if}
 						</span>
 					</div>

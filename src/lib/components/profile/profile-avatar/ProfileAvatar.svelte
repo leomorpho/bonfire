@@ -20,7 +20,7 @@
 	import TriggerButton from './TriggerButton.svelte';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import ProfileHistory from './history/ProfileHistory.svelte';
-	import { ScrollArea } from '$lib/components/ui/scroll-area';
+	import { env as publicEnv } from '$env/dynamic/public';
 
 	let {
 		userId = null,
@@ -76,6 +76,9 @@
 			dialogIsOpen = false;
 			toast.success(`Deleted ${username ? username : 'attendee'} from event`);
 		} catch (e) {
+			toast.error(
+				`Failed to remove attendee. Please contact support at ${publicEnv.PUBLIC_FROM_EMAIL} if it persists`
+			);
 			console.error(
 				`failed to remove ${isTempUser ? 'temp' : 'full'} attendee from event with id ${eventId}`,
 				e

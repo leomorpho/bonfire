@@ -1,5 +1,6 @@
 import { Status, tempAttendeeSecretParam } from '$lib/enums';
 import { generateSignedUrl } from '$lib/filestorage.js';
+import { wasUserPreviouslyDeleted } from '$lib/rsvp.js';
 import { triplitHttpClient } from '$lib/server/triplit';
 import { redirect } from '@sveltejs/kit';
 import { and } from '@triplit/client';
@@ -16,6 +17,13 @@ export const load = async ({ params, locals, url }) => {
 
 	// Get the user from locals
 	const user = locals.user;
+
+	// If this user was previously deleted from this event, block them from
+	// accessing again by pretending it is not published.
+	if (await wasUserPreviouslyDeleted(triplitHttpClient, user?.id, eventId)) {
+		redirect(303, '/bonfire/not-yet-published');
+	}
+
 	// console.log('logged in user', user);
 	let event = null;
 	let numAttendingGoing = 0;

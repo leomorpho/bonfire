@@ -9,7 +9,6 @@ import {
 } from '$lib/notification';
 import { env as publicEnv } from '$env/dynamic/public';
 import { env as privateEnv } from '$env/dynamic/private';
-import { createAttendeeId } from '$lib/utils';
 import { createNewThread, MAIN_THREAD } from '$lib/im';
 import { uploadBannerImage, uploadProfileImage } from '$lib/filestorage';
 import { assignBringItem, createBringItem } from '$lib/bringlist';

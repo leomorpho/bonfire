@@ -1021,7 +1021,7 @@ test('Delete/Leaving attendees', async ({ browser }) => {
 	await attendeePage.getByText("Let's go!", { exact: true }).click();
 
 	// Set temp user as going
-	const tempAttendeeName = 'Matthieu';
+	const tempAttendeeName = faker.person.firstName();
 	await navigateTo(tempAttendeePage, eventUrl);
 	await tempAttendeePage.getByText('RSVP', { exact: true }).click();
 	await tempAttendeePage.getByRole('menuitem', { name: 'Going', exact: true }).click();
@@ -1050,6 +1050,9 @@ test('Delete/Leaving attendees', async ({ browser }) => {
 	await attendeePage.locator('#rsvp-button-going').click();
 	await attendeePage.getByText("Let's go!", { exact: true }).click();
 
+	await attendeePage.close();
+	await tempAttendeePage.close();
+	
 	// -----------------------------------
 	// PART 2: remove temp and full user from event
 
@@ -1132,6 +1135,40 @@ test('Delete/Leaving attendees', async ({ browser }) => {
 			.getByText(eventOwnerUsername + ' deleted this user from the event')
 			.first()
 	).toBeVisible();
+
+	// Simulate pressing the Escape key to close the profile popup
+	await eventCreatorPage.keyboard.press('Escape');
+	// Simulate pressing the Escape key to close attendees popup
+	await eventCreatorPage.keyboard.press('Escape');
+
+	// Go to events history tab
+	await eventCreatorPage.locator('#history-tab').click();
+	await expect(eventCreatorPage.getByRole('heading', { name: 'History' })).toBeVisible();
+
+	// Check the history there
+	await expect(
+		eventCreatorPage.getByText(tempAttendeeName + ' joined the event with').first()
+	).toBeVisible();
+
+	await expect(
+		eventCreatorPage
+			.getByText(`${eventOwnerUsername} deleted ${tempAttendeeName} from the event`)
+			.first()
+	).toBeVisible();
+
+	await expect(
+		eventCreatorPage.getByText(attendeeUsername + ' joined the event with').first()
+	).toBeVisible();
+
+	await expect(
+		eventCreatorPage
+			.getByText(`${eventOwnerUsername} deleted ${attendeeUsername} from the event`)
+			.first()
+	).toBeVisible();
+
+	// -----------------------------------
+	// PART 4: Have removed user try to access the event page again
+	// TODO
 });
 
 // TODO: test max capacity of bonfire

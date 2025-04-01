@@ -1,11 +1,9 @@
-import { HistoryChangesConstants, Status } from '$lib/enums.js';
+import { HistoryChangesConstants } from '$lib/enums.js';
 import { triplitHttpClient } from '$lib/server/triplit';
-import { createAttendeeId } from '$lib/utils';
 import { error, json } from '@sveltejs/kit';
 import { and } from '@triplit/client';
 import { checkEventIsOpenForNewGoingAttendees } from '$lib/triplit';
 import type { AttendeeChange } from '$lib/types';
-import Attendees from '$lib/components/main-bonfire-event/Attendees.svelte';
 import { createUserAttendance } from '$lib/rsvp.js';
 
 export const POST = async ({ request, params, locals }) => {
