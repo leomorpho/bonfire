@@ -10,6 +10,7 @@
 	import ChangedByTempUser from './ChangedByTempUser.svelte';
 	import ChangedByUser from './ChangedByUser.svelte';
 	import DateCard from '$lib/components/time/DateCard.svelte';
+	import AdminOnlySign from '$lib/components/AdminOnlySign.svelte';
 
 	let { attendeeId, isTempUser = false } = $props();
 
@@ -42,8 +43,10 @@
 {:else if attendeeChanges.error}
 	<p>Error: {attendeeChanges.error.message}</p>
 {:else if attendeeChanges.results}
-	{console.log('attendeeChanges.results', attendeeChanges.results)}
 	<ScrollArea class="h-[80vh]">
+		<h1 class="flex w-full justify-center text-2xl font-semibold">
+			<AdminOnlySign text={'Only admins can see attendee history'} class={'mx-2'} />
+		</h1>
 		{#each attendeeChanges.results as change}
 			<Card.Root
 				class="my-3 bg-slate-100/80 py-1 dark:bg-slate-900/80 dark:text-white dark:hover:bg-slate-800"

@@ -11,6 +11,7 @@
 	import ChangedByUser from '../profile/profile-avatar/history/ChangedByUser.svelte';
 	import * as Popover from '$lib/components/ui/popover/index.js';
 	import { Ghost } from 'lucide-svelte';
+	import AdminOnlySign from '../AdminOnlySign.svelte';
 
 	let { eventId } = $props();
 
@@ -56,7 +57,12 @@
 	<p>Error: {eventChanges.error?.message ?? tempEventChanges.error?.message}</p>
 {:else if allChanges.length > 0}
 	<div class="my-5 rounded-xl bg-slate-100/80 p-3 dark:bg-slate-800/80 sm:p-8">
-		<h1 class="flex w-full justify-center text-2xl font-semibold">History</h1>
+		<h1 class="flex w-full justify-center text-2xl font-semibold">
+			History <AdminOnlySign
+				text={'Only admins can access the event history page'}
+				class={'mx-2'}
+			/>
+		</h1>
 		<p>
 			Note that you can also access each attendee's history by clicking on their profile picture in
 			the main event view.

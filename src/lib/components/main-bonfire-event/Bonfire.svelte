@@ -559,18 +559,18 @@
 				<Tabs.Root value={activeTab} class="w-full">
 					<div class="flex w-full justify-center">
 						<Tabs.List class="mb-1 w-full bg-transparent animate-in fade-in zoom-in">
-							<div class="rounded-lg bg-slate-200 dark:bg-slate-700 p-2">
+							<div class="rounded-lg bg-slate-200 p-2 dark:bg-slate-700">
 								<Tabs.Trigger
 									id="about-tab"
 									value="about"
-									class="focus:outline-none focus-visible:ring-0 data-[state=active]:bg-emerald-500 data-[state=active]:text-white"
+									class="focus:outline-none focus-visible:ring-0 data-[state=active]:bg-emerald-500 data-[state=active]:text-white dark:data-[state=active]:bg-emerald-600"
 								>
 									<Info class="h-5 w-5" />
 								</Tabs.Trigger>
 								<Tabs.Trigger
 									id="discussions-tab"
 									value="discussions"
-									class="focus:outline-none focus-visible:ring-0 data-[state=active]:bg-orange-500 data-[state=active]:text-white"
+									class="focus:outline-none focus-visible:ring-0 data-[state=active]:bg-orange-500 data-[state=active]:text-white dark:data-[state=active]:bg-orange-600"
 									onclick={() => {
 										scrollElementIntoView('messenger');
 									}}
@@ -583,7 +583,7 @@
 									<Tabs.Trigger
 										id="history-tab"
 										value="history"
-										class="focus:outline-none focus-visible:ring-0 data-[state=active]:bg-purple-500 data-[state=active]:text-white"
+										class="focus:outline-none focus-visible:ring-0 data-[state=active]:bg-purple-500 data-[state=active]:text-white dark:data-[state=active]:bg-purple-600"
 									>
 										<div class="flex items-center justify-center">
 											<History class="h-5 w-5" />
@@ -769,7 +769,9 @@
 			<HorizRule />
 
 			<a class="flex w-full justify-center" href="/bonfire/create">
-				<Button variant="link" class="bg-orange-300/60 dark:bg-orange-800/60 rounded-xl">Host your event with Bonfire</Button>
+				<Button variant="link" class="rounded-xl bg-orange-300/60 dark:bg-orange-800/60"
+					>Host your event with Bonfire</Button
+				>
 			</a>
 		</section>
 	</div>
