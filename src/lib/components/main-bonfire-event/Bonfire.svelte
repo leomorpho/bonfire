@@ -402,7 +402,7 @@
 
 				addUserRequests(userIds);
 				attendeesLoading = false;
-				console.log('results', results);
+				// console.log('results', results);
 			},
 			(error) => {
 				console.error('Error fetching attendees:', error);
@@ -420,7 +420,7 @@
 
 				for (let attendee of results) {
 					const tempUser: TempUserData = {
-						id: attendee.id,
+						id: attendee?.id,
 						username: attendee.name
 					};
 					updateTempUsersLiveDataStoreEntry(tempUser);
@@ -762,7 +762,7 @@
 			</section>
 		</div>
 	{/if}
-	<div class="mx-4 flex flex-col items-center justify-center">
+	<div class="mx-4 flex flex-col items-center justify-center mb-5">
 		<section
 			class="mt-10 flex w-full justify-center sm:w-[450px] md:w-[550px] lg:w-[800px] xl:w-[950px]"
 		>
