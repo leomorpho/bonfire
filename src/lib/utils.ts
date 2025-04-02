@@ -120,7 +120,10 @@ export const loadPassphraseScript = () => {
 };
 
 export const generatePassphraseId = async (prefix: string | null = null, wordsLen: number = 8) => {
-	return prefix + '_' + generateId(wordsLen);
+	if (prefix) {
+		return prefix + '_' + generateId(wordsLen);
+	}
+	return generateId(wordsLen);
 	try {
 		// Ensure the Passphrase script is loaded
 		await loadPassphraseScript();
@@ -280,3 +283,39 @@ export function snakeCaseToNormal(snakeCaseString: string) {
 		.split('_') // Split the string by underscores
 		.join(' '); // Join the words with spaces
 }
+
+export const checkDeviceSupportsPushNotifications = () => {
+	if (typeof window === 'undefined') {
+		return false;
+	}
+	function isBrowserOnIOS() {
+		const ua = window.navigator.userAgent;
+		const webkit = !!ua.match(/WebKit/i);
+		const iOS = !!ua.match(/iPad/i) || !!ua.match(/iPhone/i);
+
+		if (webkit && iOS) {
+			return true;
+		}
+		return false;
+	}
+
+	let isAppInstallable = false;
+
+	// Check for standalone mode in Safari on iOS
+	// @ts-expect-error fuck that
+	const isStandalone = window.navigator.standalone;
+
+	const isAppInstalled = isStandalone || window.matchMedia('(display-mode: standalone)').matches;
+
+	const privateBrowsing = !('serviceWorker' in navigator);
+
+	console.log('privateBrowsing', privateBrowsing);
+	console.log('isAppInstalled', isAppInstalled);
+
+	if (!isAppInstalled) {
+		isAppInstallable = !isBrowserOnIOS() && !isStandalone && !privateBrowsing;
+	}
+
+	console.log('isAppInstallable', isAppInstallable);
+	return isAppInstallable;
+};

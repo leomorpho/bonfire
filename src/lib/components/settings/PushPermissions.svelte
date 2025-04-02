@@ -6,7 +6,7 @@
 
 	import { dev } from '$app/environment';
 	import { toast } from 'svelte-sonner';
-	import PushSubscriptionPermission from './PushSubscriptionPermission.svelte';
+	import PushSubscriptionPermission from '../PushSubscriptionPermission.svelte';
 
 	let { subscriptions, permissions } = $props();
 	console.log('permissions', permissions);

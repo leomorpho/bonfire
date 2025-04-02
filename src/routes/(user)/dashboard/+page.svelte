@@ -8,7 +8,7 @@
 	import { page } from '$app/stores';
 	import { dev } from '$app/environment';
 	import Button from '$lib/components/ui/button/button.svelte';
-	import PullToRefresh from '$lib/components/PullToRefresh.svelte';
+	import PullToRefresh from '$lib/components/settings/PullToRefresh.svelte';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import { Status } from '$lib/enums';
 

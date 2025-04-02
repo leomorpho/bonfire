@@ -2,7 +2,7 @@
 	import { spring } from 'svelte/motion';
 
 	import { onMount } from 'svelte';
-	import SvgLoader from './SvgLoader.svelte';
+	import SvgLoader from '../SvgLoader.svelte';
 
 	let threshold = 80; // Pull threshold
 	let isRefreshing = $state(false);

@@ -284,7 +284,7 @@
 				showError = true;
 				return;
 			}
-			eventId = await generatePassphraseId('', 48);
+			eventId = await generatePassphraseId('', 20);
 
 			const eventData = {
 				id: eventId,

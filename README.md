@@ -122,3 +122,9 @@ Create the master playlist `master.m3u8` file:
 - r/EventProduction: https://www.reddit.com/r/EventProduction/
 - 
 - https://www.reddit.com/r/EventProduction/comments/1c1o2hd/ticketing_platform_alternative_to_eventbrite/
+
+# Domain Names
+
+- bonfire.rsvp
+- bonfireevents.io
+- 

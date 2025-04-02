@@ -1378,5 +1378,96 @@ export const schema = S.Collections({
 				}
 			}
 		}
+	},
+	notification_permissions: {
+		schema: S.Schema({
+			id: S.Id(),
+			user_id: S.String(),
+			permission: S.String(),
+			granted: S.Boolean({ default: false }),
+			created_at: S.Date({ default: S.Default.now() }) // Timestamp when added
+		}),
+		relationships: {
+			user: S.RelationById('user', '$user_id') // Relation to the user
+		},
+		permissions: {
+			user: {
+				read: {
+					filter: [['user_id', '=', '$role.userId']] // Users can only read their own logs
+				},
+				insert: { filter: [true] },
+				update: {
+					filter: [['user_id', '=', '$role.userId']] // Users can only read their own logs
+				}
+			},
+			admin: {
+				read: { filter: [true] },
+				update: { filter: [true] }
+			},
+			temp: {},
+			anon: {}
+		}
+	},
+	delivery_permissions: {
+		schema: S.Schema({
+			id: S.Id(),
+			user_id: S.String(),
+			permission: S.String(),
+			granted: S.Boolean({ default: false }),
+			created_at: S.Date({ default: S.Default.now() }) // Timestamp when added
+		}),
+		relationships: {
+			user: S.RelationById('user', '$user_id') // Relation to the user
+		},
+		permissions: {
+			user: {
+				read: {
+					filter: [['user_id', '=', '$role.userId']] // Users can only read their own logs
+				},
+				insert: { filter: [true] },
+				update: {
+					filter: [['user_id', '=', '$role.userId']] // Users can only read their own logs
+				}
+			},
+			admin: {
+				read: { filter: [true] },
+				update: { filter: [true] }
+			},
+			temp: {},
+			anon: {}
+		}
+	},
+	push_subscription_registrations: {
+		schema: S.Schema({
+			id: S.Id(),
+			user_id: S.String(),
+			endpoint: S.String(),
+			p256dh: S.Optional(S.String()),
+			auth: S.Optional(S.String()),
+			created_at: S.Date({ default: S.Default.now() }) // Timestamp when added
+		}),
+		relationships: {
+			user: S.RelationById('user', '$user_id') // Relation to the user
+		},
+		permissions: {
+			user: {
+				read: {
+					filter: [['user_id', '=', '$role.userId']] // Users can only read their own
+				},
+				insert: { filter: [true] },
+				update: {
+					filter: [['user_id', '=', '$role.userId']] // Users can only read their own
+				},
+				delete: {
+					filter: [['user_id', '=', '$role.userId']] // Users can only delete their own
+				}
+			},
+			admin: {
+				read: { filter: [true] },
+				update: { filter: [true] }
+			},
+			temp: {},
+			anon: {}
+		}
 	}
 });

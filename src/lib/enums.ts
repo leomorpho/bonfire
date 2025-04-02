@@ -96,6 +96,7 @@ export enum NotificationType {
 
 export const MAX_NUM_PUSH_NOTIF_PER_NOTIFICATION = 3;
 
+// TODO: deprecate in favor of NotificationPermissions
 // Define an enum for permission types
 export const PermissionType = {
 	ONE_DAY_REMINDER: 'oneDayReminder',
@@ -150,4 +151,16 @@ export const HistoryChangesConstants = {
 	change_create: 'create',
 	change_delete: 'delete',
 	change_update: 'update'
+};
+
+export const NotificationPermissions = {
+	primary_reminder: 'primary_reminder',
+	secondary_reminder: 'secondary_reminder',
+	event_activity: 'event_activity'
+};
+
+export const DeliveryPermissions = {
+	push_notifications: 'push_notifications',
+	sms_notifications: 'sms_notifications',
+	email_notifications: 'email_notifications'
 };

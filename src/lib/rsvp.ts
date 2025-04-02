@@ -253,7 +253,6 @@ export const wasUserPreviouslyDeleted = async (
 		]);
 
 		const changes = await client.fetch(query);
-		console.log('changes --->', changes);
 		return changes.length > 0;
 	} catch (error) {
 		console.error('Error checking if user was previously deleted:', error);

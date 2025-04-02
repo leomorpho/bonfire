@@ -68,19 +68,6 @@ export const eventTransactionLogsTable = sqliteTable('eventTransactionLogs', {
 	num_logs_change: integer('num_logs_change').notNull()
 });
 
-export const pushSubscriptionTable = sqliteTable('push_subscription', {
-	id: integer('id').primaryKey({ autoIncrement: true }),
-	userId: text('user_id')
-		.notNull()
-		.references(() => userTable.id),
-	endpoint: text('endpoint').notNull(),
-	p256dh: text('p256dh').notNull(),
-	auth: text('auth').notNull(),
-	created_at: text('timestamp')
-		.notNull()
-		.default(sql`(current_timestamp)`)
-});
-
 export const notificationPermissionTable = sqliteTable('notification_permission', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
 	userId: text('user_id')
