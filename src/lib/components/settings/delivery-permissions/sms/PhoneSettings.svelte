@@ -8,6 +8,10 @@
 	import { getFeWorkerTriplitClient } from '$lib/triplit';
 	import { page } from '$app/stores';
 	import type { TriplitClient } from '@triplit/client';
+	import { goto } from '$app/navigation';
+	import { dev } from '$app/environment';
+
+	let { userId } = $props();
 
 	let phoneNumber: string | null = $state(null);
 	let country: CountryCode | null = $state('CA');
@@ -18,11 +22,8 @@
 	let isSendingVerificationCode: boolean = $state(false);
 	let isVerifying = $state(false);
 	let otpInvalid = $state(false);
-	let verificationSent = $state(true);
+	let verificationSent = $state(false);
 
-	$effect(() => {
-		console.log(country);
-	});
 	async function sendVerificationCode() {
 		if (!phoneNumber) {
 			return;
@@ -30,20 +31,32 @@
 		isSendingVerificationCode;
 		verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
 
+		if (dev) {
+			console.log('verificationCode', verificationCode);
+		}
 		try {
-			// await fetch('/send-verification-code', {
-			// 	method: 'POST',
-			// 	headers: {
-			// 		'Content-Type': 'application/json'
-			// 	},
-			// 	body: JSON.stringify({ phoneNumber, verificationCode })
-			// });
+			const response = await fetch('/settings/phone/send-verification-code', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ verificationCode, userPhoneNumber: phoneNumber })
+			});
+
+			const result = await response.json();
+
+			if (response.ok) {
+				console.log(result.message); // Handle success
+			} else {
+				console.error(result.message); // Handle error
+				throw new Error('failed to send verification code');
+			}
 			verificationSent = true;
+			toast.info('Verification code sent!');
 		} catch (error) {
 			console.error('Failed to send verification code', error);
 			toast.error('Failed to send verification code. Please try again.');
 		} finally {
-			toast.info('Verification code sent!');
 			isSendingVerificationCode = false;
 		}
 	}
@@ -63,22 +76,13 @@
 		try {
 			const client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
-			const response = await fetch('/verify-code', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({ phoneNumber, verificationCode })
+			await client.http.insert('user_personal_data', {
+				id: 'upd_' + userId,
+				user_id: userId,
+				phone_country_code: country,
+				phone_number: phoneNumber
 			});
-
-			const data = await response.json();
-			if (data.success) {
-				// Redirect to the settings page or perform any other action
-				window.location.href = '/settings';
-			} else {
-				otpInvalid = true;
-				alert('Verification code is incorrect');
-			}
+			goto('/settings');
 		} catch (error) {
 			console.error('Failed to verify code', error);
 			toast.error('Failed to verify code. Please try again.');

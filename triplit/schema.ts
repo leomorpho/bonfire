@@ -88,6 +88,31 @@ export const schema = S.Collections({
 			anon: {}
 		}
 	},
+	user_personal_data: {
+		schema: S.Schema({
+			id: S.Id(), //
+			user_id: S.String(),
+			email: S.Optional(S.String()),
+			phone_country_code: S.Optional(S.String()),
+			phone_number: S.String()
+		}),
+		relationships: {
+			user: S.RelationById('user', '$user_id') // Relation to the user table
+		},
+		permissions: {
+			user: {
+				read: {
+					filter: [['user_id', '=', '$role.userId']]
+				},
+				insert: { filter: [true] },
+				update: {
+					filter: [['user_id', '=', '$role.userId']]
+				}
+			},
+			temp: {},
+			anon: {}
+		}
+	},
 	profile_images: {
 		schema: S.Schema({
 			id: S.Id(), // Unique ID for the image
@@ -131,6 +156,22 @@ export const schema = S.Collections({
 					]
 				}
 			},
+			anon: {}
+		}
+	},
+	sent_sms: {
+		schema: S.Schema({
+			id: S.Id(), //
+			user_id: S.String(),
+			content: S.String(),
+			created_at: S.Optional(S.Date({ default: S.Default.now() }))
+		}),
+		relationships: {
+			user: S.RelationById('user', '$user_id') // Relation to the user table
+		},
+		permissions: {
+			user: {},
+			temp: {},
 			anon: {}
 		}
 	},
