@@ -7,6 +7,7 @@
 	import { and, type TriplitClient } from '@triplit/client';
 	import { togglePermission } from '$lib/permissions';
 	import { DeliveryPermissions } from '$lib/enums';
+	import { goto } from '$app/navigation';
 
 	let { userId } = $props();
 
@@ -14,8 +15,7 @@
 	let loadingPermisison = $state(true);
 	let client: TriplitClient | undefined = $state();
 	let permissionId: string | null = $state(null);
-
-	// $inspect('pushSubscriptions', pushSubscriptions);
+	let phoneNumber: string | null = $state(null);
 
 	onMount(() => {
 		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
@@ -30,16 +30,15 @@
 			(results) => {
 				if (results.length == 1) {
 					isGranted = results[0].granted;
+					console.log('isGranted -->', isGranted);
 					permissionId = results[0].id;
 				}
 				loadingPermisison = false;
 			},
 			(error) => {
-				// handle error
 				console.log('failed to get delivery_permissions', error);
 				loadingPermisison = false;
 			},
-			// Optional
 			{
 				localOnly: false,
 				onRemoteFulfilled: () => {}
@@ -52,7 +51,12 @@
 	});
 
 	async function subscribeToSms() {
-		const permission = await togglePermission(
+		if (!phoneNumber) {
+			goto('/settings/phone');
+			return;
+		}
+
+		await togglePermission(
 			client,
 			userId,
 			permissionId,

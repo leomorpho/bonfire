@@ -49,15 +49,7 @@
 	{#if checkDeviceSupportsPushNotifications()}
 		<PushDeliveryPermission {userId} />
 	{/if}
-	<!-- <PermissionToggle
-		permissionName={DeliveryPermissions.sms_notifications}
-		isGranted={smsNotifications ? smsNotifications.granted : false}
-		togglePermissionFunc={() =>
-			togglePermission(
-				smsNotifications || { permission: DeliveryPermissions.sms_notifications },
-				!smsNotifications?.granted
-			)}
-	/> -->
+
 	<EmailDeliveryPermission {userId} />
 	<SmsDeliveryPermission {userId} />
 </div>

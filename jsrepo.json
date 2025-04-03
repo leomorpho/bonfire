@@ -1,0 +1,16 @@
+{
+	"$schema": "https://unpkg.com/jsrepo@1.45.3/schemas/project-config.json",
+	"repos": ["github/ieedan/shadcn-svelte-extras", "github/ieedan/std"],
+	"includeTests": false,
+	"watermark": true,
+	"formatter": "prettier",
+	"configFiles": {},
+	"paths": {
+		"*": "./src/lib/jsrepo/blocks",
+		"ui": "./src/lib/jsrepo/ui",
+		"actions": "./src/lib/jsrepo/actions",
+		"hooks": "./src/lib/jsrepo/hooks",
+		"utils": "./src/lib/jsrepo/utils",
+		"ts": "./src/lib/jsrepo/ts"
+	}
+}
