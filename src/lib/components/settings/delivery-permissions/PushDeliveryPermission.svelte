@@ -13,6 +13,7 @@
 	import PushSubscriptionPermission from '../../PushSubscriptionPermission.svelte';
 	import { togglePermission } from '$lib/permissions';
 	import { DeliveryPermissions } from '$lib/enums';
+	import { Bell } from 'lucide-svelte';
 
 	let { userId } = $props();
 
@@ -202,7 +203,10 @@
 </script>
 
 <div class="flex w-full items-center justify-between space-x-2">
-	<Label.Root class="sm:text-base" for="push-delivery-permission">Push notifications</Label.Root>
+	<Label.Root class="sm:text-base flex" for="push-delivery-permission">
+		<Bell class="h-4 w-4 mr-2" />
+		Push notifications</Label.Root
+	>
 	<Switch.Root
 		id="push-delivery-permission"
 		bind:checked={isDeviceSubscribed}

@@ -8,6 +8,7 @@
 	import { togglePermission } from '$lib/permissions';
 	import { DeliveryPermissions } from '$lib/enums';
 	import { goto } from '$app/navigation';
+	import { MessageCircle } from 'lucide-svelte';
 
 	let { userId } = $props();
 
@@ -85,6 +86,9 @@
 </script>
 
 <div class="flex w-full items-center justify-between space-x-2">
-	<Label.Root class="sm:text-base" for="sms-delivery-permission">SMS</Label.Root>
+	<Label.Root class="sm:text-base flex" for="sms-delivery-permission">
+		<MessageCircle class="h-4 w-4 mr-2" />
+		SMS
+	</Label.Root>
 	<Switch.Root id="sms-delivery-permission" bind:checked={isGranted} onclick={toggleSubscription} />
 </div>

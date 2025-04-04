@@ -7,6 +7,7 @@
 	import { and, type TriplitClient } from '@triplit/client';
 	import { togglePermission } from '$lib/permissions';
 	import { DeliveryPermissions } from '$lib/enums';
+	import { Mail } from 'lucide-svelte';
 
 	let { userId } = $props();
 
@@ -81,6 +82,13 @@
 </script>
 
 <div class="flex w-full items-center justify-between space-x-2">
-	<Label.Root class="sm:text-base" for="email-delivery-permission">Email</Label.Root>
-	<Switch.Root id="email-delivery-permission" bind:checked={isGranted} onclick={toggleSubscription} />
+	<Label.Root class="flex sm:text-base" for="email-delivery-permission">
+		<Mail class="mr-2 h-4 w-4" />
+		Email
+	</Label.Root>
+	<Switch.Root
+		id="email-delivery-permission"
+		bind:checked={isGranted}
+		onclick={toggleSubscription}
+	/>
 </div>
