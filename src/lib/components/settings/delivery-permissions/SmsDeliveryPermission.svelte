@@ -31,7 +31,6 @@
 			(results) => {
 				if (results.length == 1) {
 					isGranted = results[0].granted;
-					console.log('isGranted -->', isGranted);
 					permissionId = results[0].id;
 				}
 				loadingPermisison = false;

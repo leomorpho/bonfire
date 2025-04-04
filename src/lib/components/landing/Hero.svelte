@@ -13,7 +13,7 @@
 			>
 				✨
 				<AnimatedShinyText
-					cls="inline-flex items-center justify-center px-4 py-1 transition ease-out hover:text-neutral-600 hover:duration-300 hover:dark:text-neutral-400"
+					cls="inline-flex items-center justify-center px-2 sm:px-4 sm:py-1 transition text-sm  sm:text-base ease-out hover:text-neutral-600 hover:duration-300 hover:dark:text-neutral-400"
 				>
 					<span>Start a Bonfire</span>
 					<svg
@@ -58,6 +58,6 @@
 		</div>
 	</div>
 </Container>
-<div class="block overflow-x-clip sm:hidden sm:py-10">
+<div class="block overflow-x-clip mt-2 sm:hidden sm:py-10">
 	<OrbitingCirclesBanner rounded={false} />
 </div>

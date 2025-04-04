@@ -1,5 +1,7 @@
 <script>
 	import Logo from './Logo.svelte';
+	import { env as publicEnv } from '$env/dynamic/public';
+
 </script>
 
 <footer class="footer bg-white dark:bg-slate-900 p-10 text-slate-400 dark:text-slate-200">
@@ -17,7 +19,7 @@
 		<h6 class="footer-title">Legal</h6>
 		<a class="link-hover link" href="/terms-of-use">Terms of use</a>
 		<a class="link-hover link" href="/privacy-policy">Privacy policy</a>
-		<a class="link-hover link" href="mailto:someone@example.com">Contact</a>
+		<a class="link-hover link" href={`mailto:${publicEnv.PUBLIC_FROM_EMAIL}`}>Contact</a>
 	</nav>
 	<!-- <div>
 		<h2 class="mb-4 font-bold text-base-content text-opacity-60">SOCIALS</h2>

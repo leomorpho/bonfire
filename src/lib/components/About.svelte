@@ -26,13 +26,26 @@
 				class="my-5 flex flex-col items-center justify-center rounded-[30px] bg-blue-100/30 px-2 py-5 dark:bg-blue-900/30 sm:flex-row sm:px-4 md:justify-around md:rounded-[50px]"
 			>
 				<div
-					class="flex w-full flex-col justify-center space-y-3 text-center sm:w-1/2 sm:text-left"
+					class="flex w-full flex-col justify-center space-y-3 text-center sm:mr-2 sm:w-1/2 sm:text-left"
 				>
 					<div class="text-xl font-bold sm:text-3xl">Create & share unforgettable events</div>
-					<p>
-						Bonfire goes beyond planning—it helps you capture & share memories. Guests can upload
-						moments into a shared group gallery, so you can relive the best parts together.
-					</p>
+					<div class="mx-auto max-w-md text-center">
+						<p class="mb-4">
+							Bonfire helps you capture and share memories effortlessly. Use it for:
+						</p>
+						<div class="flex w-full justify-center">
+							<ul class="list-inside list-disc text-left">
+								<li>Birthday celebrations 🎉</li>
+								<li>Wedding albums 💒</li>
+								<li>Family reunions 👨‍👩‍👧‍👦</li>
+								<li>Vacation adventures 🌴</li>
+								<li>Corporate events 🏢</li>
+								<li>Graduation memories 🎓</li>
+								<li>Sports events ⚽</li>
+								<li>Holiday gatherings 🎅</li>
+							</ul>
+						</div>
+					</div>
 				</div>
 				<div class="my-5">
 					<Iphone15ProMock
@@ -78,8 +91,8 @@
 					<div class="text-xl font-bold sm:text-3xl">Feel good about supporting a cause</div>
 					<p>
 						At Bonfire, 25% of our profits support top-rated charities. Choose a cause you care
-						about—plant trees, donate, or support environmental efforts—your contribution makes an
-						impact.
+						about—plant trees, cure diseases, or support environmental efforts. Your contribution
+						makes a real impact.
 					</p>
 				</div>
 
