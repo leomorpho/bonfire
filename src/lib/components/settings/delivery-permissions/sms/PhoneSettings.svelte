@@ -10,6 +10,8 @@
 	import type { TriplitClient } from '@triplit/client';
 	import { goto } from '$app/navigation';
 	import { dev } from '$app/environment';
+	import { togglePermission } from '$lib/permissions';
+	import { DeliveryPermissions } from '$lib/enums';
 
 	let { userId } = $props();
 
@@ -82,6 +84,7 @@
 				phone_country_code: country,
 				phone_number: phoneNumber
 			});
+			await togglePermission(client, userId, null, DeliveryPermissions.sms_notifications, true);
 			goto('/settings');
 		} catch (error) {
 			console.error('Failed to verify code', error);
@@ -95,7 +98,7 @@
 <div class="flex h-screen items-center justify-center p-5">
 	<div class="card flex w-full max-w-[470px] flex-col items-center space-y-5 p-5">
 		{#if !verificationSent}
-			<div class="text-3xl font-bold leading-none tracking-tight">Add phone number</div>
+			<div class="text-3xl font-bold leading-none tracking-tight">Update phone number</div>
 			<div class="text-muted-primary mx-auto mt-4 max-w-[32ch] text-center opacity-80">
 				We'll never send you spam. Receive only essential event notifications via SMS. Manage your
 				preferences in general settings or individually for each bonfire.

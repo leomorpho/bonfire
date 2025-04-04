@@ -12,10 +12,9 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
 	const msgBody = `${verificationCode} is your Bonfire verification code`;
 
-	// // Verify the code (implement your verification logic here)
-	// const success = await sendSmsMessage(user.id, userPhoneNumber, msgBody);
+	// Verify the code (implement your verification logic here)
+	const success = await sendSmsMessage(user.id, userPhoneNumber, msgBody);
 
-    const success = true;
 	if (success) {
 		return json({ success: true, message: 'Verification code sent' });
 	} else {

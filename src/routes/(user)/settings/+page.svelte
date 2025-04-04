@@ -5,6 +5,7 @@
 	import FadeIn from '$lib/components/containers/FadeIn.svelte';
 	import NotificationTypes from '$lib/components/settings/NotificationTypes.svelte';
 	import DeliveryPermissions from '$lib/components/settings/DeliveryPermissions.svelte';
+	import PhoneNumber from '$lib/components/settings/PhoneNumber.svelte';
 </script>
 
 <FadeIn>
@@ -18,6 +19,10 @@
 			</div>
 			<div class="mt-10 space-y-5">
 				<DeliveryPermissions userId={$page.data.user.id} />
+			</div>
+
+			<div class="mt-10 space-y-5">
+				<PhoneNumber phoneNumber="+16043392552" />
 			</div>
 
 			<div class="mt-10 space-y-5">

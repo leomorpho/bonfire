@@ -38,7 +38,7 @@
 </script>
 
 <div class="flex place-items-center">
-	<CountrySelector {order} {countries} bind:selected={country} onselect={focus} />
+	<CountrySelector {order} {countries} bind:selected={country} {disabled} onselect={focus} />
 	<TelInput
 		{name}
 		bind:country

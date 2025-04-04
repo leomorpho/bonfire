@@ -21,7 +21,7 @@
 	onMount(() => {
 		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
-		const unsubscribe = client.subscribe(
+		const unsubscribeFromDeliveryPerms = client.subscribe(
 			client.query('delivery_permissions').Where(
 				and([
 					['user_id', '=', userId],
@@ -46,8 +46,26 @@
 			}
 		);
 
+		const unsubscribeFromUserPersonalData = client.subscribe(
+			client.query('user_personal_data').Where(['user_id', '=', userId]).Select(['phone_number']),
+			(results) => {
+				if (results.length == 1) {
+					const pi = results[0];
+					phoneNumber = pi.phone_number;
+				}
+			},
+			(error) => {
+				console.log('failed to get user_personal_data', error);
+			},
+			{
+				localOnly: false,
+				onRemoteFulfilled: () => {}
+			}
+		);
+
 		return () => {
-			unsubscribe;
+			unsubscribeFromDeliveryPerms();
+			unsubscribeFromUserPersonalData();
 		};
 	});
 
@@ -86,8 +104,8 @@
 </script>
 
 <div class="flex w-full items-center justify-between space-x-2">
-	<Label.Root class="sm:text-base flex" for="sms-delivery-permission">
-		<MessageCircle class="h-4 w-4 mr-2" />
+	<Label.Root class="flex sm:text-base" for="sms-delivery-permission">
+		<MessageCircle class="mr-2 h-4 w-4" />
 		SMS
 	</Label.Root>
 	<Switch.Root id="sms-delivery-permission" bind:checked={isGranted} onclick={toggleSubscription} />

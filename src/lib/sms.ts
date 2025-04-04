@@ -12,8 +12,7 @@ const client = twilio(privateEnv.TWILIO_ACCOUNT_SID, privateEnv.TWILIO_AUTH_TOKE
  * @returns {Promise<string>} The SID of the sent message.
  */
 export async function sendSmsMessage(toUserId: string, to: string, body: string) {
-	console.log('============================>', privateEnv.TWILIO_PHONE_NUMBER, toUserId, to, body);
-	try {
+    try {
 		const message = await client.messages.create({
 			from: privateEnv.TWILIO_PHONE_NUMBER,
 			to,
