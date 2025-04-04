@@ -32,7 +32,7 @@
 					<p>
 						My goal with this project is not only to create something special but also to support my
 						family. Your contributions make a real difference, helping me sustain this mission and
-						continue to grow. If you believe in what we're doing, please consider donating. Every
+						continue to grow. If you believe in what I'm doing, please consider donating. Every
 						bit truly helps and is deeply appreciated.
 					</p>
 				</div>
