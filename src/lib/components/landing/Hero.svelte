@@ -42,13 +42,12 @@
 	<div class="relative flex w-full flex-col items-center justify-center md:flex-row">
 		<div>
 			<div
-				class="pointer-events-none z-10 whitespace-pre-wrap bg-gradient-to-b from-[#ffd319] via-[#ff2975] to-[#8c1eff] bg-clip-text p-1 text-center text-5xl font-bold leading-none tracking-tighter text-transparent sm:mt-8 sm:text-left sm:text-7xl"
+				class="pointer-events-none z-10 whitespace-pre-wrap bg-gradient-to-b from-[#ffd319] via-[#ff2975] to-[#8c1eff] bg-clip-text p-1 text-center text-6xl font-bold leading-none tracking-tighter text-transparent sm:mt-8 sm:text-left sm:text-7xl"
 			>
-				Re-ignite <br /> your social life<br />
-				<span class="underline decoration-purple-500">right here</span>
+				Plan, Share, <br /><span class="underline decoration-purple-500">Enjoy</span>
 			</div>
-			<p class="text-md mb-6 mt-2 text-center sm:mb-8 sm:mt-4 sm:text-left sm:text-lg">
-				Host and share memorable events with your friends.
+			<p class="text-md mb-6 mt-5 text-center sm:mb-8 sm:mt-7 sm:text-left sm:text-lg">
+				Organize and share gatherings effortlessly.
 			</p>
 			{@render startBonfireBtn()}
 		</div>
@@ -58,6 +57,6 @@
 		</div>
 	</div>
 </Container>
-<div class="block overflow-x-clip mt-2 sm:hidden sm:py-10">
+<div class="mt-2 block overflow-x-clip sm:hidden sm:py-10">
 	<OrbitingCirclesBanner rounded={false} />
 </div>

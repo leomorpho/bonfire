@@ -6,10 +6,10 @@
 
 {#snippet about2()}
 	<div class="text-center sm:text-left">
-		<div class="text-xl font-bold sm:text-3xl">Focus on your friends, we'll handle the rest</div>
+		<div class="text-xl font-bold sm:text-3xl">Focus on your guests, we'll handle the rest</div>
 		<p>
 			Easily create, share, and manage events with Bonfire. Post updates, track RSVPs, and stay
-			connected—so you can focus on what truly matters: your friends.
+			connected—so you can focus on what truly matters: your guests.
 		</p>
 	</div>
 {/snippet}

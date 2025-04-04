@@ -18,7 +18,7 @@
 		},
 		{
 			question: 'What are Logs?',
-			answer: 'A Log lets you host one Bonfire. Each account starts with 3 free Logs, allowing you to create up to 3 Bonfires. Need more? Get additional Logs through our By Donation Plan.'
+			answer: 'A Log lets you host one Bonfire. Each account starts with 3 free Logs, allowing you to create up to 3 Bonfires to try our platform out.'
 		},
 		// {
 		// 	question: 'How does the referral program work?',
@@ -30,11 +30,11 @@
 		// },
 		{
 			question: 'If I make a purchase, where does my money go?',
-			answer: 'When you buy additional Logs, 25% of our profits support a nonprofit of your choice within the app. The rest helps keep Bonfire running smoothly. As a small team, we appreciate your support and are dedicated to giving you the best experience possible.'
+			answer: 'When you buy additional Logs, 25% of our profits support a nonprofit of your choice within the app. The rest helps keep Bonfire running smoothly. I (Toby) appreciate your support and am dedicated to giving you the best experience possible.'
 		},
 		{
 			question: 'How can I contact Bonfire if I have a question or issue?',
-			answer: 'Contact us at support@bonfireapp.com. We’re here to help and will respond as soon as possible.'
+			answer: 'Contact me at info@bnfr-events.app - I\'m here to help and will respond as soon as possible.'
 		},
 	];
 </script>
