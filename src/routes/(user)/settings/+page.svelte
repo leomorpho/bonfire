@@ -21,9 +21,7 @@
 				<DeliveryPermissions userId={$page.data.user.id} />
 			</div>
 
-			<div class="mt-10 space-y-5">
-				<PhoneNumber phoneNumber="+16043392552" />
-			</div>
+			<PhoneNumber userId={$page.data.user.id} class="mt-10 space-y-5" />
 
 			<div class="mt-10 space-y-5">
 				<h3 class="flex justify-between text-xl font-semibold">App</h3>
