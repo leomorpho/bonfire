@@ -11,7 +11,7 @@
 	import EmailDeliveryPermission from './delivery-permissions/EmailDeliveryPermission.svelte';
 	import SmsDeliveryPermission from './delivery-permissions/SmsDeliveryPermission.svelte';
 
-	let { userId } = $props();
+	let { userId, class: cls = null } = $props();
 
 	let permissionsLoading = $state(true);
 
@@ -44,7 +44,7 @@
 	});
 </script>
 
-<div class="w-full space-y-5">
+<div class={`w-full space-y-5 ${cls}`}>
 	<h3 class="flex justify-between text-xl font-semibold">Delivery Permissions</h3>
 	{#if checkDeviceSupportsPushNotifications()}
 		<PushDeliveryPermission {userId} />

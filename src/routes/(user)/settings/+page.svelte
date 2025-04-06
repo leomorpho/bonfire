@@ -14,13 +14,8 @@
 		<section class="mt-2 w-full px-5 sm:w-[450px]">
 			<h2 class="my-6 text-2xl font-semibold">Settings</h2>
 
-			<div class="mt-10 space-y-5">
-				<NotificationTypes userId={$page.data.user.id} />
-			</div>
-			<div class="mt-10 space-y-5">
-				<DeliveryPermissions userId={$page.data.user.id} />
-			</div>
-
+			<NotificationTypes userId={$page.data.user.id} class="mt-10 space-y-5" />
+			<DeliveryPermissions userId={$page.data.user.id} class="mt-10 space-y-5" />
 			<PhoneNumber userId={$page.data.user.id} class="mt-10 space-y-5" />
 
 			<div class="mt-10 space-y-5">
