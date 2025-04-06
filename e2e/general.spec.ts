@@ -156,7 +156,7 @@ test('Create bonfire', async ({ page }) => {
 
 	await expect(page.locator('#going-attendees').locator('.profile-avatar')).toHaveCount(0);
 	// And set back to "going"
-	await page.getByText('Not going').last().click();
+	await page.locator('#rsvp-button').getByText('Not going').click();
 	await page.getByRole('menuitem', { name: 'Going', exact: true }).click();
 	await expect(page.locator('#rsvp-button').first()).toHaveText('Going');
 	await expect(page.locator('#going-attendees').locator('.profile-avatar')).toHaveCount(1);
