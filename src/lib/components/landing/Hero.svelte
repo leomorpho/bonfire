@@ -44,7 +44,7 @@
 			<div
 				class="pointer-events-none z-10 whitespace-pre-wrap bg-gradient-to-b from-[#ffd319] via-[#ff2975] to-[#8c1eff] bg-clip-text p-1 text-center text-6xl font-bold leading-none tracking-tighter text-transparent sm:mt-8 sm:text-left sm:text-7xl"
 			>
-				Plan, Share, <br /><span class="underline decoration-purple-500">Enjoy</span>
+				Plan, Share, <br />Host, <span class="underline decoration-purple-500 ml-1">Enjoy</span>
 			</div>
 			<p class="text-md mb-6 mt-5 text-center sm:mb-8 sm:mt-7 sm:text-left sm:text-lg">
 				Organize and share gatherings effortlessly.
