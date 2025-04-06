@@ -7,7 +7,7 @@ import { dev } from '$app/environment';
 import { notificationPermissionTable, pushSubscriptionTable } from './server/database/schema';
 import { eq } from 'drizzle-orm';
 import { db } from './server/database/db';
-import type { PermissionValue } from './server/push';
+import type { PermissionValue } from './server/notifications';
 import { triplitHttpClient } from './server/triplit';
 
 if (
@@ -117,7 +117,7 @@ export async function sendPushNotification(
 	// Define VAPID options
 	const options = {
 		vapidDetails: {
-			subject: `mailto:${env.env.PUBLIC_FROM_EMAIL}`,
+			subject: `mailto:${publicEnv.PUBLIC_FROM_EMAIL}`,
 			publicKey,
 			privateKey
 		},

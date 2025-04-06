@@ -155,7 +155,7 @@ export async function processNotificationQueue(notificationQueueEntry: Notificat
 		'notifications_queue',
 		notificationQueueEntry.id,
 		async (entity) => {
-			entity.sent_at = new Date().toISOString();
+			entity.sent_at = new Date();
 			entity.sent = true;
 		}
 	);

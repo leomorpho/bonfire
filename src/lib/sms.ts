@@ -20,7 +20,7 @@ export async function sendSmsMessage(toUserId: string, to: string, body: string)
 		});
 
 		// Add audit log
-		await triplitHttpClient.insert('sent_sms', {
+		await triplitHttpClient.insert('sent_notification_sms', {
 			user_id: toUserId,
 			content: body
 		});

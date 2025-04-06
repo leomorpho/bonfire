@@ -203,7 +203,7 @@
 </script>
 
 <div class="flex w-full items-center justify-between space-x-2">
-	<Label.Root class="sm:text-base flex" for="push-delivery-permission">
+	<Label.Root class="sm:text-base flex items-center" for="push-delivery-permission">
 		<Bell class="h-4 w-4 mr-2" />
 		Push notifications</Label.Root
 	>

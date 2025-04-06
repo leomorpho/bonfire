@@ -159,7 +159,23 @@ export const schema = S.Collections({
 			anon: {}
 		}
 	},
-	sent_sms: {
+	sent_notification_sms: {
+		schema: S.Schema({
+			id: S.Id(), //
+			user_id: S.String(),
+			content: S.String(),
+			created_at: S.Optional(S.Date({ default: S.Default.now() }))
+		}),
+		relationships: {
+			user: S.RelationById('user', '$user_id') // Relation to the user table
+		},
+		permissions: {
+			user: {},
+			temp: {},
+			anon: {}
+		}
+	},
+	sent_notification_emails: {
 		schema: S.Schema({
 			id: S.Id(), //
 			user_id: S.String(),
