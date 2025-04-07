@@ -43,7 +43,7 @@
 		cleanup = true
 	) {
 		const fontStyle = font ? font.style : '';
-		finalStyleCss = `${fontStyle} ${style?.cssTemplate ?? ''}`.trim();
+		finalStyleCss = style?.cssTemplate ?? finalStyleCss;
 
 		if (styleElement && cleanup) {
 			// Remove the previously applied preview style
@@ -60,13 +60,14 @@
 
 		// Replace the placeholder selector with the actual target
 		const completeCss = `
-		.${currentTargetSelector} {
-			${finalStyleCss}
-		}
-
-		.${bgOverlaySelector} {
-				background-color: rgba(var(--overlay-color-rgb, ${parseColor(overlayColor)}), ${overlayOpacity});
+			.${currentTargetSelector} {
+				${fontStyle}
+				${finalStyleCss}
 			}
+
+			.${bgOverlaySelector} {
+					background-color: rgba(var(--overlay-color-rgb, ${parseColor(overlayColor)}), ${overlayOpacity});
+				}
 		`;
 
 		if (dev) {

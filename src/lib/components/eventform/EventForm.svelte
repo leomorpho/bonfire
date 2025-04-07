@@ -47,6 +47,7 @@
 	import MaxCapacity from './MaxCapacity.svelte';
 	import GuestCountFeature from './GuestCountFeature.svelte';
 	import { upsertUserAttendance } from '$lib/rsvp';
+	import type { FontSelection } from '$lib/types';
 
 	let { mode, event = null, currUserId = null } = $props();
 
@@ -96,6 +97,7 @@
 	let finalStyleCss: string = $state(event?.style ?? defaultBackground);
 	let overlayColor: string = $state(event?.overlay_color ?? '#000000');
 	let overlayOpacity: number = $state(event?.overlay_opacity ?? 0.4);
+	let font: FontSelection | null = $state(event?.font ? JSON.parse(event?.font) : null);
 
 	let eventStartDatetime: Date | null = $state(null);
 	let eventEndDatetime: Date | null = $state(null);
@@ -111,6 +113,7 @@
 	$effect(() => {
 		console.log('userFavoriteNonProfitId', userFavoriteNonProfitId);
 	});
+
 	// Build eventStartDatetime dynamically
 	$effect(() => {
 		if (dateValue && startHour) {
@@ -164,17 +167,28 @@
 
 	// NOTE: this is a hack and I dont like it. The way to go is refactor the code in EventStyler so it's reusable.
 	$effect(() => {
+		const fontStyle = font ? font.style : '';
+
+		// Add the font CDN link to the document head if a font is selected
+		if (font && font.cdn) {
+			const fontLink = document.createElement('link');
+			fontLink.href = font.cdn;
+			fontLink.rel = 'stylesheet';
+			document.head.appendChild(fontLink);
+		}
+
 		if (finalStyleCss) {
 			// Replace the placeholder selector with the actual target
 			const completeCss = `
-		.bg-color-selector {
-			${finalStyleCss}
-		}
+				.bg-color-selector {
+					${finalStyleCss}
+					${fontStyle}
+				}
 
-		.bg-overlay-selector {
-				background-color: rgba(var(--overlay-color-rgb, ${parseColor(overlayColor)}), ${overlayOpacity});
-			}
-		`;
+				.bg-overlay-selector {
+						background-color: rgba(var(--overlay-color-rgb, ${parseColor(overlayColor)}), ${overlayOpacity});
+					}
+				`;
 
 			// console.log('applying css', completeCss);
 
@@ -266,8 +280,7 @@
 	}
 
 	function generateSecureId(length = 12) {
-		const characters =
-			'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+		const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 		let result = '';
 		const charactersLength = characters.length;
 		for (let i = 0; i < length; i++) {
@@ -305,6 +318,7 @@
 				style: finalStyleCss || '',
 				overlay_color: overlayColor || '#000000',
 				overlay_opacity: overlayOpacity || 0.4,
+				font: JSON.stringify(font) || null,
 				max_capacity: maxCapacity || null,
 				max_num_guests_per_attendee: maxNumGuest || 0,
 				non_profit_id: userFavoriteNonProfitId || null,
@@ -349,6 +363,7 @@
 				entity.style = finalStyleCss;
 				entity.overlay_color = overlayColor;
 				entity.overlay_opacity = overlayOpacity;
+				entity.font = JSON.stringify(font) || null;
 				entity.max_capacity = maxCapacity;
 				entity.max_num_guests_per_attendee = maxNumGuest || 0;
 				entity.latitude = latitude;
@@ -750,7 +765,7 @@
 				</Button>
 			</div>
 
-			<EventStyler bind:finalStyleCss bind:overlayColor bind:overlayOpacity />
+			<EventStyler bind:finalStyleCss bind:overlayColor bind:overlayOpacity bind:font />
 		</div>
 	{:else if currentEventEditingMode == editingAdmins}
 		<div class="md:7/8 w-5/6">
