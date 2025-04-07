@@ -18,11 +18,7 @@
 	import TimezonePicker from '$lib/components/TimezonePicker.svelte';
 	import Datepicker from '$lib/components/Datepicker.svelte';
 	import AmPmPicker from '$lib/components/AmPmPicker.svelte';
-	import {
-		getFeHttpTriplitClient,
-		getFeWorkerTriplitClient,
-		waitForUserId
-	} from '$lib/triplit';
+	import { getFeHttpTriplitClient, getFeWorkerTriplitClient, waitForUserId } from '$lib/triplit';
 	import { goto } from '$app/navigation';
 	import type { TriplitClient } from '@triplit/client';
 	import { EventFormType, Status } from '$lib/enums';
@@ -269,6 +265,17 @@
 		}
 	}
 
+	function generateSecureId(length = 12) {
+		const characters =
+			'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+		let result = '';
+		const charactersLength = characters.length;
+		for (let i = 0; i < length; i++) {
+			result += characters.charAt(crypto.getRandomValues(new Uint32Array(1))[0] % charactersLength);
+		}
+		return result;
+	}
+
 	const createEvent = async (createTransaction = false) => {
 		if (isEventSaving) {
 			return;
@@ -284,7 +291,7 @@
 				showError = true;
 				return;
 			}
-			eventId = await generatePassphraseId('', 20);
+			eventId = await generateSecureId(20);
 
 			const eventData = {
 				id: eventId,
