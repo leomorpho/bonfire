@@ -8,7 +8,7 @@
 	import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
 	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
-	import Announcement from '../Announcement.svelte';
+	import Announcement from '../announcements/Announcement.svelte';
 	import { NotificationType } from '$lib/enums';
 	// import Message from '../im/Message.svelte';
 	import MessageContent from '../im/MessageContent.svelte';

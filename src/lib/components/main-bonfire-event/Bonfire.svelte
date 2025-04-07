@@ -20,7 +20,7 @@
 	import { Status, tempAttendeeSecretStore, tempAttendeeSecretParam } from '$lib/enums';
 	import MiniGallery from '$lib/components/MiniGallery.svelte';
 	import { toast } from 'svelte-sonner';
-	import Annoucements from '$lib/components/Annoucements.svelte';
+	import Annoucements from '$lib/components/announcements/Annoucements.svelte';
 	import HorizRule from '$lib/components/HorizRule.svelte';
 	import EventDoesNotExist from '$lib/components/EventDoesNotExist.svelte';
 	import CenterScreenMessage from '$lib/components/CenterScreenMessage.svelte';

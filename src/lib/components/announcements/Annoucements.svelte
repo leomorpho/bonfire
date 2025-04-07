@@ -2,13 +2,13 @@
 	import { page } from '$app/stores';
 	import { getFeWorkerTriplitClient, waitForUserId } from '$lib/triplit';
 	import { TriplitClient } from '@triplit/client';
-	import SvgLoader from './SvgLoader.svelte';
-	import Button from './ui/button/button.svelte';
+	import SvgLoader from '../SvgLoader.svelte';
+	import Button from '../ui/button/button.svelte';
 	import { onMount } from 'svelte';
 	import Announcement from './Announcement.svelte';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
-	import BonfireNoInfoCard from './BonfireNoInfoCard.svelte';
+	import BonfireNoInfoCard from '../BonfireNoInfoCard.svelte';
 
 	let { maxCount = null, isUnverifiedUser = false, isCurrenUserEventAdmin = false } = $props();
 

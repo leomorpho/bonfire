@@ -26,7 +26,7 @@
 
 	// Initialize the seen notifications subscription
 	async function initLoadNotifications() {
-		const client = getFeWorkerTriplitClient($page.data.jwt);
+		const client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 		const unseenQuery = client
 			.query('notifications')
 			.Where([

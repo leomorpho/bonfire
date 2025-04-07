@@ -937,7 +937,15 @@ export const schema = S.Collections({
 		},
 		permissions: {
 			user: {
-				read: { filter: [['user_id', '=', '$role.userId']] }, // Users can read their own notifications
+				read: {
+					filter: [
+						or([
+							['user_id', '=', '$role.userId'], // Users can read their own notifications
+							['event.event_admins.user_id', '=', '$role.userId'], // Event admins can see event notifications
+							['event.user_id', '=', '$role.userId'] // Event owner can see event notifications
+						])
+					]
+				},
 				update: { filter: [['user_id', '=', '$role.userId']] }, // Users can update their own notifications to mark them as read
 				delete: { filter: [['user_id', '=', '$role.userId']] } // Users can update their own notifications to mark them as read
 			},

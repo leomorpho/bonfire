@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { TriplitClient } from '@triplit/client';
 	import { page } from '$app/stores';
-	import AnnouncementForm from '$lib/components/AnnouncementForm.svelte';
+	import AnnouncementForm from '$lib/components/announcements/AnnouncementForm.svelte';
 	import { getFeWorkerTriplitClient } from '$lib/triplit';
 	import SvgLoader from '$lib/components/SvgLoader.svelte';
 	import { onMount } from 'svelte';

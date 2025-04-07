@@ -1,12 +1,14 @@
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card/index.js';
 	import { formatHumanReadable } from '$lib/utils';
-	import Button from './ui/button/button.svelte';
+	import Button from '../ui/button/button.svelte';
 	import { onMount } from 'svelte';
 	import { Pencil } from 'lucide-svelte';
 	import { getFeWorkerTriplitClient } from '$lib/triplit';
 	import { page } from '$app/stores';
-	import ProfileAvatar from './profile/profile-avatar/ProfileAvatar.svelte';
+	import ProfileAvatar from '../profile/profile-avatar/ProfileAvatar.svelte';
+	import { Eye, UsersRound } from '@lucide/svelte';
+	import AnnouncementHistory from './AnnouncementHistory.svelte';
 
 	let {
 		eventId,
@@ -74,19 +76,26 @@
 >
 	<!-- Edit Button Positioned Absolutely -->
 	{#if currUserId == announcement.user_id || isCurrenUserEventAdmin}
-		<a
-			href={`/bonfire/${eventId}/announcement/${announcement.id}/update`}
-			class="update-announcement absolute -right-1 -top-1"
-		>
+		<div class="absolute -right-1 -top-1">
 			<Button class="rounded-xl p-2" variant="outline">
-				<Pencil class="!h-4 !w-4" />
+				<AnnouncementHistory announcementId={announcement.id} event_id={announcement.event_id}>
+					<Eye class="!h-4 !w-4" />
+				</AnnouncementHistory>
 			</Button>
-		</a>
+			<a
+				href={`/bonfire/${eventId}/announcement/${announcement.id}/update`}
+				class="update-announcement"
+			>
+				<Button class="rounded-xl p-2" variant="outline">
+					<Pencil class="!h-4 !w-4" />
+				</Button>
+			</a>
+		</div>
 	{/if}
 
 	<Card.Header>
 		<Card.Title class="flex font-normal">
-			<div bind:this={cardRef} class="flex items-center justify-center w-full text-sm">
+			<div bind:this={cardRef} class="flex w-full items-center justify-center text-sm">
 				<div class="mr-2">
 					<ProfileAvatar userId={announcement.user_id} baseHeightPx={30} />
 				</div>
