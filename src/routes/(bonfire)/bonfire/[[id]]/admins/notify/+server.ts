@@ -1,6 +1,6 @@
 import { error, json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { createNewAdminNotificationQueueObject } from '$lib/notification';
+import { createNewAdminNotificationQueueObject } from '$lib/notification_queue';
 import { triplitHttpClient } from '$lib/server/triplit';
 import { and } from '@triplit/client';
 

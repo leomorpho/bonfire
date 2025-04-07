@@ -1,6 +1,6 @@
 import { and, HttpClient, TriplitClient } from '@triplit/client';
 import type { WorkerClient } from '@triplit/client/worker-client';
-import { createNewMessageNotificationQueueObject } from './notification';
+import { createNewMessageNotificationQueueObject } from './notification_queue';
 
 export const MAIN_THREAD = 'main';
 

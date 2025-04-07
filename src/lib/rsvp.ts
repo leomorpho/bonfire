@@ -5,7 +5,7 @@ import {
 	Status,
 	tempAttendeeSecretParam
 } from './enums';
-import { createNewAttendanceNotificationQueueObject } from './notification';
+import { createNewAttendanceNotificationQueueObject } from './notification_queue';
 import { generatePassphraseId } from './utils';
 
 export const createAttendeeId = (eventId: string, userId: string) => {

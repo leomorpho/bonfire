@@ -7,7 +7,7 @@
 	import { onMount } from 'svelte';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { page } from '$app/stores';
-	import { createNewAnnouncementNotificationQueueObject } from '$lib/notification';
+	import { createNewAnnouncementNotificationQueueObject } from '$lib/notification_queue';
 
 	// Props for the page
 	let { mode = 'update', announcement = null, eventId } = $props();
@@ -135,6 +135,10 @@
 
 <div class="mx-4 flex flex-col items-center justify-center">
 	<section class="mt-8 w-full sm:w-[450px]">
+		<div class="mb-5 rounded-lg bg-slate-200/70 p-2 text-sm dark:bg-slate-800/70">
+			Announcements are sent via SMS, email, and in-app to attendees marked as "Going" or "Maybe."
+			Use them for important updates only.
+		</div>
 		<form class="space-y-4" onsubmit={handleSubmit}>
 			<Textarea
 				placeholder="Type your announcement here"

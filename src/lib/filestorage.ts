@@ -24,7 +24,7 @@ import path from 'path';
 import { getPixels } from '@unpic/pixels';
 import { BannerMediaSize } from './enums';
 import { createReadStream } from 'fs';
-import { createNewFileNotificationQueueObject } from './notification';
+import { createNewFileNotificationQueueObject } from './notification_queue';
 import { generateId } from 'lucia';
 
 ffmpeg.setFfmpegPath(ffmpegInstaller.path);

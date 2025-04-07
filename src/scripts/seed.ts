@@ -6,7 +6,7 @@ import { BringListCountTypes, Status } from '$lib/enums';
 import {
 	createNewAnnouncementNotificationQueueObject,
 	createNewAttendanceNotificationQueueObject
-} from '$lib/notification';
+} from '$lib/notification_queue';
 import { env as publicEnv } from '$env/dynamic/public';
 import { env as privateEnv } from '$env/dynamic/private';
 import { createNewThread, MAIN_THREAD } from '$lib/im';

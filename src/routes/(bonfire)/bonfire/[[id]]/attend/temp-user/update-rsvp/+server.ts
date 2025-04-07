@@ -5,7 +5,7 @@ import {
 	NOTIFY_OF_ATTENDING_STATUS_CHANGE,
 	tempAttendeeSecretParam
 } from '$lib/enums';
-import { createNewTemporaryAttendanceNotificationQueueObject } from '$lib/notification';
+import { createNewTemporaryAttendanceNotificationQueueObject } from '$lib/notification_queue';
 import { checkEventIsOpenForNewGoingAttendees } from '$lib/triplit';
 import type { TemporaryAttendeeChange } from '$lib/types';
 
