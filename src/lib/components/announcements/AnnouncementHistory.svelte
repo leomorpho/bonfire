@@ -32,7 +32,6 @@
 				])
 			),
 			(results) => {
-				console.log('====> ', results);
 				notifications = results;
 
 				// Sort users based on seen status

@@ -42,7 +42,6 @@ export const load = async (event) => {
 				])
 				
 		);
-		console.log('----====> admin', admin);
 		if (!admin) {
 			throw redirect(302, `/bonfire/${eventId}`);
 		}
