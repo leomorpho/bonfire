@@ -206,3 +206,9 @@ export interface AttendeeChange {
 	old_value?: string | null;
 	new_value?: string | null;
 }
+
+export interface FontSelection {
+	name: string;
+	style: string;
+	cdn: string;
+}

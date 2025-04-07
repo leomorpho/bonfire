@@ -2,11 +2,13 @@
 	import { Font } from '$lib/enums';
 	import ScrollArea from '$lib/jsrepo/ui/scroll-area/scroll-area.svelte';
 	import { onMount } from 'svelte';
+	import type { FontSelection } from '$lib/types';
 
-	let { selectedFont = '' } = $props();
+	// Initialize selectedFont as an object with name, style, and cdn properties
+	let { selectedFont = $bindable<FontSelection | null>(null), onSelect } = $props();
 
 	// Define the text to be displayed
-	const sampleText = 'The quick brown fox jumps over the lazy dog.';
+	const sampleText = 'This bonfire event was the best ever.';
 
 	// Load all fonts when the component is mounted
 	onMount(() => {
@@ -17,15 +19,23 @@
 			document.head.appendChild(link);
 		}
 	});
+
+	// Function to handle font selection
+	const selectFont = (fontName: string, fontStyle: string, fontCdn: string) => {
+		selectedFont = { name: fontName, style: fontStyle, cdn: fontCdn };
+		onSelect();
+	};
+
+	$inspect(selectedFont);
 </script>
 
 <div class="h-[90vh] sm:h-[80vh]">
 	<ScrollArea class="h-full">
-		{#each Object.entries(Font) as [fontName, { style: fontStyle }]}
+		{#each Object.entries(Font) as [fontName, { style: fontStyle, cdn: fontCdn }]}
 			<button
-				class="font-sample w-full rounded-lg bg-slate-200 p-4 text-black hover:bg-slate-100 dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
+				class="font-sample w-full rounded-lg bg-slate-200 p-4 text-black transition-all duration-200 hover:bg-green-100 dark:bg-slate-800 dark:text-white dark:hover:bg-green-800"
 				style={fontStyle}
-				onclick={() => (selectedFont = fontName)}
+				onclick={() => selectFont(fontName, fontStyle, fontCdn)}
 			>
 				<div class="mb-2"><strong>{fontName}</strong></div>
 				{sampleText}

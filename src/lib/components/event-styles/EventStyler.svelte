@@ -7,15 +7,14 @@
 	import { PaintRoller } from 'lucide-svelte';
 	import { dev } from '$app/environment';
 	import ScrollArea from '../ui/scroll-area/scroll-area.svelte';
-	import { Type } from '@lucide/svelte';
-	import Fonts from './Fonts.svelte';
-	import * as Dialog from '$lib/components/ui/dialog/index.js';
+	import FontsDialog from './FontsDialog.svelte';
+	import type { FontSelection } from '$lib/types';
 
 	let {
 		finalStyleCss = $bindable<string>(),
 		overlayColor = $bindable<string>(),
 		overlayOpacity = $bindable<number>(),
-		font = $bindable<string>(),
+		font = $bindable<FontSelection | null>(null),
 		currentTargetSelector = 'bg-color-selector',
 		bgOverlaySelector = 'bg-overlay-selector',
 		horizontalScroll = false
@@ -132,7 +131,9 @@
 	<div class="flex max-w-96 space-x-2">
 		<Popover.Root>
 			<Popover.Trigger class="mt-3 flex w-1/2 justify-center sm:w-[450px]">
-				<Button class="w-full ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800">
+				<Button
+					class="h-10 w-full ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
+				>
 					<PaintRoller class="mr-1" />
 					Overlay
 				</Button>
@@ -169,22 +170,7 @@
 			</Popover.Content>
 		</Popover.Root>
 
-		<Dialog.Root>
-			<Dialog.Trigger class="mt-3 flex w-1/2 justify-center sm:w-[450px]">
-				<Button class="w-full ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800">
-					<Type class="mr-1" />
-					Font
-				</Button>
-			</Dialog.Trigger>
-			<Dialog.Content>
-				<Dialog.Header>
-					<Dialog.Title>Font</Dialog.Title>
-					<Dialog.Description>
-						<Fonts />
-					</Dialog.Description>
-				</Dialog.Header>
-			</Dialog.Content>
-		</Dialog.Root>
+		<FontsDialog bind:font />
 	</div>
 </div>
 
