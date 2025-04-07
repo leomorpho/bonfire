@@ -11,6 +11,7 @@
 	import { page } from '$app/stores';
 	import type { TriplitClient } from '@triplit/client';
 	import { onMount } from 'svelte';
+	import type { FontSelection } from '$lib/types';
 
 	let {
 		event,
@@ -27,10 +28,20 @@
 	let rsvpCanBeChanged = new Date(event.start_time) >= new Date();
 	let overlayColor = event.overlay_color ?? '#000000';
 	let overlayOpacity = event.overlay_opacity ?? 0.5;
+	let font: FontSelection | null = event.font ? JSON.parse(event.font) : null;
+
+	if (font && font.cdn) {
+		const fontLink = document.createElement('link');
+		fontLink.href = font.cdn;
+		fontLink.rel = 'stylesheet';
+		document.head.appendChild(fontLink);
+	}
 
 	let overlayStyle = $derived(
 		`background-color: rgba(var(--overlay-color-rgb, ${parseColor(overlayColor)}), ${overlayOpacity});`
 	);
+
+	$inspect('font', font);
 
 	function countStatuses(statusesArray: any) {
 		return statusesArray.reduce(
@@ -130,7 +141,7 @@
 			<Card.Header
 				class="rounded-xl bg-slate-100 pb-2 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 sm:mb-4"
 			>
-				<Card.Title class="text-lg">{event.title}</Card.Title>
+				<Card.Title style={font?.style} class="text-lg">{event.title}</Card.Title>
 				<Card.Description>{formatHumanReadable(event.start_time)}</Card.Description>
 				<Card.Description>Hosted by {eventCreatorName}</Card.Description>
 			</Card.Header>
