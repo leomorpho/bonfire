@@ -378,10 +378,10 @@ export const Font = {
 		style: "font-family: 'Advent Pro', sans-serif; font-size: 1.4em;",
 		cdn: 'https://fonts.googleapis.com/css2?family=Advent+Pro&display=swap'
 	},
-	Monoton: {
-		style: "font-family: 'Monoton', cursive; font-size: 1.6em;", // Adjusted size
-		cdn: 'https://fonts.googleapis.com/css2?family=Monoton&display=swap'
-	},
+	// Monoton: {
+	// 	style: "font-family: 'Monoton', cursive; font-size: 1.6em;", // Adjusted size
+	// 	cdn: 'https://fonts.googleapis.com/css2?family=Monoton&display=swap'
+	// },
 	Creepster: {
 		style: "font-family: 'Creepster', cursive; font-size: 1.2em;",
 		cdn: 'https://fonts.googleapis.com/css2?family=Creepster&display=swap'

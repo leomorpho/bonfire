@@ -31,9 +31,7 @@
 		stylesGallery,
 		styleStore,
 		randomSort,
-
 		fontStore
-
 	} from '$lib/styles';
 	import { generatePassphraseId } from '$lib/utils';
 	import ChevronLeft from 'svelte-radix/ChevronLeft.svelte';
@@ -681,14 +679,14 @@
 
 			<div class="mt-5 grid w-full grid-cols-1 gap-2 sm:grid-cols-2">
 				<Button
-					class="justify-centerp-4 flex items-center ring-glow dark:bg-slate-700 dark:text-white dark:hover:bg-slate-500"
+					class="justify-centerp-4 flex items-center bg-teal-600 ring-glow hover:bg-teal-500 dark:bg-teal-700 dark:text-white dark:hover:bg-teal-500"
 					onclick={startEditEventStyle}
 				>
 					<Palette class="mr-1" />
-					Edit event style
+					Styles
 				</Button>
 				<Button
-					class="flex items-center justify-center p-4 ring-glow dark:bg-slate-700 dark:text-white dark:hover:bg-slate-500"
+					class="flex items-center justify-center bg-indigo-600 p-4 ring-glow hover:bg-indigo-500 dark:bg-indigo-700 dark:text-white dark:hover:bg-indigo-500"
 					disabled={!event || event?.user_id != currUserId}
 					onclick={startEditAdmins}
 				>
@@ -709,7 +707,7 @@
 				<Button
 					disabled={submitDisabled}
 					type="submit"
-					class={`sticky top-2 mt-2 w-full ${submitDisabled ? 'bg-slate-400 dark:bg-slate-600' : 'bg-blue-500 hover:bg-blue-400 dark:bg-blue-700 dark:hover:bg-blue-600'} ring-glow dark:text-white`}
+					class={`sticky top-2 mt-2 w-full ${submitDisabled ? 'bg-slate-400 dark:bg-slate-600' : 'bg-blue-600 hover:bg-blue-500 dark:bg-blue-700 dark:hover:bg-blue-600'} ring-glow dark:text-white`}
 					onclick={() => {
 						updateEvent().then(() => {
 							redirectToDashboard();
@@ -724,7 +722,7 @@
 					id="upsert-bonfire"
 					disabled={submitDisabled}
 					type="submit"
-					class={`sticky top-2 mt-2 w-full ${submitDisabled ? 'bg-slate-400 dark:bg-slate-600' : 'bg-green-500 hover:bg-green-400 dark:bg-green-700 dark:hover:bg-green-600'} ring-glow dark:text-white`}
+					class={`sticky top-2 mt-2 w-full ${submitDisabled ? 'bg-slate-400 dark:bg-slate-600' : 'bg-green-600 hover:bg-green-500 dark:bg-green-700 dark:hover:bg-green-600'} ring-glow dark:text-white`}
 					onclick={(e) => {
 						handleSubmit(e, true);
 					}}
@@ -759,7 +757,7 @@
 		<div class="md:7/8 w-5/6">
 			<div class="sticky top-2 mt-2 flex justify-center">
 				<Button
-					class="w-full bg-violet-500 ring-glow hover:bg-violet-400 dark:bg-violet-700 dark:text-white dark:hover:bg-violet-600 sm:w-[450px]"
+					class="w-full bg-violet-600 ring-glow hover:bg-violet-500 dark:bg-violet-700 dark:text-white dark:hover:bg-violet-600 sm:w-[450px]"
 					onclick={stopEditEventStyle}
 				>
 					<ChevronLeft class="mr-1" />
@@ -774,7 +772,7 @@
 		<div class="md:7/8 w-5/6">
 			<div class="sticky top-2 mt-2 flex justify-center">
 				<Button
-					class="w-full bg-violet-500 ring-glow hover:bg-violet-400 dark:bg-violet-700 dark:text-white dark:hover:bg-violet-600 sm:w-[450px]"
+					class="w-full bg-violet-600 ring-glow hover:bg-violet-500 dark:bg-violet-700 dark:text-white dark:hover:bg-violet-600 sm:w-[450px]"
 					onclick={stopEditAdmins}
 				>
 					<ChevronLeft class="mr-1" />

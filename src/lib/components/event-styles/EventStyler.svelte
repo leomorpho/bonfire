@@ -142,7 +142,7 @@
 		<Popover.Root>
 			<Popover.Trigger class="mt-3 flex w-1/2 justify-center sm:w-[450px]">
 				<Button
-					class="h-10 w-full ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
+					class="h-10 w-full bg-rose-600 ring-glow hover:bg-rose-500 dark:bg-rose-900 dark:text-white dark:hover:bg-rose-800"
 				>
 					<PaintRoller class="mr-1" />
 					Overlay

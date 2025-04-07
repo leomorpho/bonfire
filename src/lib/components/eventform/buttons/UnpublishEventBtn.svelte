@@ -41,7 +41,7 @@
 	<Button
 		id="unpublish-bonfire"
 		disabled={submitDisabled}
-		class={`sticky top-2 mt-2 w-full ${submitDisabled ? 'bg-slate-400 dark:bg-slate-600' : 'bg-orange-500 hover:bg-orange-400 dark:bg-orange-700 dark:hover:bg-orange-600'} ring-glow dark:text-white`}
+		class={`sticky top-2 mt-2 w-full ${submitDisabled ? 'bg-slate-400 dark:bg-slate-600' : 'bg-orange-600 hover:bg-orange-500 dark:bg-orange-700 dark:hover:bg-orange-600'} ring-glow dark:text-white`}
 	>
 		{#if isEventSaving}
 			<span class="loading loading-spinner loading-xs ml-2"> </span>
