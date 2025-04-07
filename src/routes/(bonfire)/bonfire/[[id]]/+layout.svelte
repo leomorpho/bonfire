@@ -4,20 +4,29 @@
 	import type { LayoutData } from './$types';
 	import { page } from '$app/stores';
 	import { getFeWorkerTriplitClient } from '$lib/triplit';
-	import { overlayColorStore, overlayOpacityStore, parseColor, styleStore } from '$lib/styles';
+	import {
+		fontStore,
+		overlayColorStore,
+		overlayOpacityStore,
+		parseColor,
+		styleStore
+	} from '$lib/styles';
 	import { tempAttendeeSecretStore, tempAttendeeSecretParam } from '$lib/enums';
 	import { get } from 'svelte/store';
 	import { setTempAttendeeInfoInLocalstorage } from '$lib/utils';
 	import { addUserRequests } from '$lib/profilestore';
-	import type { WorkerClient } from '@triplit/client/worker-client';
 	import InstallPwaBtn from '$lib/components/InstallPwaBtn.svelte';
+	import type { TriplitClient } from '@triplit/client';
+	import type { FontSelection } from '$lib/types';
 
 	let { data, children }: { data: LayoutData; children: Snippet } = $props();
+
+	let client: TriplitClient | undefined = $state();
 
 	let styles: string = $state('');
 	let overlayColor: string = $state('#000000');
 	let overlayOpacity: number = $state(0.5);
-	let client: WorkerClient | undefined = $state();
+	let font: FontSelection | null = $state(null);
 	let styleData = $state();
 
 	// Subscribe to the stores for reactive updates, this allows updating the styles
@@ -30,6 +39,20 @@
 	});
 	overlayOpacityStore.subscribe((value) => {
 		overlayOpacity = value;
+	});
+
+	fontStore.subscribe((value) => {
+		font = value;
+	});
+
+	$effect(() => {
+		// Add the font CDN link to the document head if a font is selected
+		if (font && font.cdn) {
+			const fontLink = document.createElement('link');
+			fontLink.href = font.cdn;
+			fontLink.rel = 'stylesheet';
+			document.head.appendChild(fontLink);
+		}
 	});
 
 	// Access the `temp` parameter from the query string
@@ -78,8 +101,7 @@
 				client
 					.query('user')
 					.Include('profile_image')
-					.Where(['attendances.event.id', '=', $page.params.id])
-					,
+					.Where(['attendances.event.id', '=', $page.params.id]),
 				(results) => {
 					// Map new users into an object for quick lookup
 					const currentUsers: Record<string, string> = {};
@@ -156,18 +178,17 @@
 
 		if ($page.data.user || tempAttendeeSecret) {
 			// User is logged in
-			client = getFeWorkerTriplitClient($page.data.jwt);
+			client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 			const styleDataQuery = client
 				.query('events')
 				.Where(['id', '=', $page.params.id])
-				.Select(['style', 'overlay_color', 'overlay_opacity'])
-				;
-
+				.Select(['style', 'overlay_color', 'overlay_opacity', 'font']);
 			styleData = await client.fetchOne(styleDataQuery);
 			if (styleData) {
 				styles = styleData.style ?? '';
 				overlayColor = styleData.overlay_color ?? '#000000';
 				overlayOpacity = styleData.overlay_opacity ?? 0.5;
+				font = styleData.font ? JSON.parse(styleData.font) : null;
 				styleStore.set(styleData.style || '');
 				overlayColorStore.set(overlayColor);
 				overlayOpacityStore.set(overlayOpacity);
@@ -176,11 +197,16 @@
 		console.log('styles', styles);
 		console.log('overlayColor', overlayColor);
 		console.log('overlayOpacity', overlayOpacity);
+		console.log('font', font);
 	});
 
 	let overlayStyle = $derived(
-		`background-color: rgba(var(--overlay-color-rgb, ${parseColor(overlayColor)}), ${overlayOpacity});`
+		`background-color: rgba(var(--overlay-color-rgb, ${parseColor(overlayColor)}), ${overlayOpacity}); ${font?.style};`
 	);
+
+	$effect(() => {
+		console.log('overlayStyle', overlayStyle);
+	});
 
 	function updateURLWithSecret(secret: string) {
 		if (!secret) return;
@@ -205,7 +231,7 @@
 	}
 </script>
 
-<div class="bg-color min-h-screen w-full bonfire-layout" style={styles}>
+<div class="bg-color min-h-screen w-full" style={styles}>
 	<div class="bg-overlay min-h-screen" style={overlayStyle}>
 		{@render children()}
 	</div>

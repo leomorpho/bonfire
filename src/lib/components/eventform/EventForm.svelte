@@ -30,7 +30,10 @@
 		parseColor,
 		stylesGallery,
 		styleStore,
-		randomSort
+		randomSort,
+
+		fontStore
+
 	} from '$lib/styles';
 	import { generatePassphraseId } from '$lib/utils';
 	import ChevronLeft from 'svelte-radix/ChevronLeft.svelte';
@@ -370,7 +373,6 @@
 				entity.longitude = longitude;
 				entity.is_published = publishEventNow ?? isEventPublished;
 			});
-			console.log('UPDATING', latitude, longitude);
 
 			if (checkCanCreateTransaction(userIsOutOfLogs, createTransaction, isEventPublished)) {
 				event = await createBonfireTransaction(eventId);
@@ -399,6 +401,7 @@
 		styleStore.set(finalStyleCss);
 		overlayColorStore.set(overlayColor);
 		overlayOpacityStore.set(overlayOpacity);
+		fontStore.set(font);
 
 		if (!event || eventId) {
 			goto(`/dashboard`);

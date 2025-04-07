@@ -1,9 +1,11 @@
 import { writable } from 'svelte/store';
+import type { FontSelection } from '$lib/types';
 
 // Create a writable store for the style
 export const styleStore = writable<string>('');
 export const overlayColorStore = writable<string>('');
 export const overlayOpacityStore = writable<number>(0);
+export const fontStore = writable<FontSelection | null>(null);
 
 /**
  * Parse a hex color to RGB format.
