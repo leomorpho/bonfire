@@ -209,6 +209,7 @@ export const schema = S.Collections({
 			style: S.String({ nullable: true }),
 			overlay_color: S.String({ nullable: true, optional: true }),
 			overlay_opacity: S.Number({ nullable: true, optional: true }),
+			font: S.Optional(S.String({ nullable: true })),
 			created_at: S.Optional(S.Date({ default: S.Default.now() })),
 			max_capacity: S.Optional(S.Number({ default: null, nullable: true })),
 			is_published: S.Optional(S.Boolean({ default: false }))

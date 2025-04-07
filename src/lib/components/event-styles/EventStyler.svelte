@@ -7,11 +7,15 @@
 	import { PaintRoller } from 'lucide-svelte';
 	import { dev } from '$app/environment';
 	import ScrollArea from '../ui/scroll-area/scroll-area.svelte';
+	import { Type } from '@lucide/svelte';
+	import Fonts from './Fonts.svelte';
+	import * as Dialog from '$lib/components/ui/dialog/index.js';
 
 	let {
 		finalStyleCss = $bindable<string>(),
 		overlayColor = $bindable<string>(),
 		overlayOpacity = $bindable<number>(),
+		font = $bindable<string>(),
 		currentTargetSelector = 'bg-color-selector',
 		bgOverlaySelector = 'bg-overlay-selector',
 		horizontalScroll = false
@@ -124,45 +128,64 @@
 	});
 </script>
 
-<div class="sticky top-10 flex justify-center">
-	<Popover.Root>
-		<Popover.Trigger class="mt-3 flex w-full justify-center sm:w-[450px] ">
-			<Button class="w-full ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800">
-				<PaintRoller class="mr-1" />
-				Edit overlay
-			</Button>
-		</Popover.Trigger>
-		<Popover.Content class="bg-slate-200 dark:bg-slate-800 dark:text-white">
-			<div class="flex w-full justify-center">Overlay</div>
-			<div class="mt-7 flex w-full items-center justify-center space-x-5">
-				<div class="mb-4 flex items-center justify-center">
-					<input
-						type="color"
-						bind:value={overlayColor}
-						class="mt-1 block h-10 w-10 rounded-md border border-gray-300"
-						oninput={() => applyStyle()}
-					/>
-				</div>
+<div class="sticky top-10 mx-2 flex justify-center">
+	<div class="flex max-w-96 space-x-2">
+		<Popover.Root>
+			<Popover.Trigger class="mt-3 flex w-1/2 justify-center sm:w-[450px]">
+				<Button class="w-full ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800">
+					<PaintRoller class="mr-1" />
+					Overlay
+				</Button>
+			</Popover.Trigger>
+			<Popover.Content class="bg-slate-200 dark:bg-slate-800 dark:text-white">
+				<div class="flex w-full justify-center">Overlay</div>
+				<div class="mt-7 flex w-full items-center justify-center space-x-5">
+					<div class="mb-4 flex items-center justify-center">
+						<input
+							type="color"
+							bind:value={overlayColor}
+							class="mt-1 block h-10 w-10 rounded-md border border-gray-300"
+							oninput={() => applyStyle()}
+						/>
+					</div>
 
-				<div class="mb-4 flex w-full flex-col items-center">
-					<label
-						for="overlay-opacity"
-						class="my-4 block text-sm font-medium text-gray-700 dark:text-slate-100"
-						>Opacity: {Math.round(overlayOpacity * 100)}%</label
-					>
+					<div class="mb-4 flex w-full flex-col items-center">
+						<label
+							for="overlay-opacity"
+							class="my-4 block text-sm font-medium text-gray-700 dark:text-slate-100"
+							>Opacity: {Math.round(overlayOpacity * 100)}%</label
+						>
 
-					<Slider
-						bind:value={overlayForShadnSlider}
-						min={0}
-						max={1}
-						step={0.001}
-						oninput={() => applyStyle()}
-					/>
+						<Slider
+							bind:value={overlayForShadnSlider}
+							min={0}
+							max={1}
+							step={0.001}
+							oninput={() => applyStyle()}
+						/>
+					</div>
 				</div>
-			</div>
-			<Button class="mt-3 w-full" onclick={clearOverlay}>Clear</Button>
-		</Popover.Content>
-	</Popover.Root>
+				<Button class="mt-3 w-full" onclick={clearOverlay}>Clear</Button>
+			</Popover.Content>
+		</Popover.Root>
+
+		<Dialog.Root>
+			<Dialog.Trigger class="mt-3 flex w-1/2 justify-center sm:w-[450px]">
+				<Button class="w-full ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800">
+					<Type class="mr-1" />
+					Font
+				</Button>
+			</Dialog.Trigger>
+			<Dialog.Content>
+				<Dialog.Header>
+					<Dialog.Title>Font</Dialog.Title>
+					<Dialog.Description>
+						<Fonts />
+					</Dialog.Description>
+				</Dialog.Header>
+			</Dialog.Content>
+		</Dialog.Root>
+	</div>
 </div>
 
 {#snippet galleryStyle(style: any)}
@@ -180,7 +203,7 @@
 	</button>
 {/snippet}
 
-<div class="gallery my-5 h-full w-screen">
+<div class="gallery my-5 h-full">
 	<div
 		class={`${horizontalScroll ? 'flex h-full' : 'grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'}`}
 	>

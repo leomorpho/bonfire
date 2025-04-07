@@ -205,7 +205,7 @@
 	}
 </script>
 
-<div class="bg-color min-h-screen w-full" style={styles}>
+<div class="bg-color min-h-screen w-full bonfire-layout" style={styles}>
 	<div class="bg-overlay min-h-screen" style={overlayStyle}>
 		{@render children()}
 	</div>

@@ -109,28 +109,6 @@
 				console.error('Error deleting announcement:', error);
 			});
 	};
-
-	const deleteAennouncement = async (e: Event) => {
-		try {
-			let seen_announcements = await client.fetch(
-				client
-					.query('seen_announcements')
-					.Where(['announcement_id', '=', announcement.id])
-					.Select(['id'])
-			);
-
-			await client.transact(async (tx) => {
-				await tx.delete('announcement', announcement.id);
-				// Delete all related seen_announcements
-				for (const seen of seen_announcements) {
-					await tx.delete('seen_announcements', seen.id);
-				}
-			});
-			goto(`/bonfire/${eventId}#announcements`);
-		} catch (error) {
-			console.error('Error deleting announcement:', error);
-		}
-	};
 </script>
 
 <div class="mx-4 flex flex-col items-center justify-center">

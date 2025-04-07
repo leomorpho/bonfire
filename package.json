@@ -95,6 +95,7 @@
 		"@aws-sdk/s3-request-presigner": "3.726.1",
 		"@css-inline/css-inline": "^0.14.1",
 		"@ffmpeg-installer/ffmpeg": "^1.1.0",
+		"@fontsource-variable/montserrat": "^5.2.5",
 		"@googlemaps/google-maps-services-js": "^3.4.0",
 		"@jimmyverburgt/svelte-input-otp": "^0.0.3",
 		"@khmyznikov/pwa-install": "^0.5.3",
