@@ -91,7 +91,7 @@
 	<!-- Trigger Button -->
 	<Dialog.Trigger>
 		<Button
-			class="ring-glow focus:outline-none focus-visible:ring-0 dark:bg-slate-700 dark:text-white dark:hover:bg-slate-500"
+			class="ring-glow focus:outline-none focus-visible:ring-0 dark:bg-slate-700 dark:text-white dark:hover:bg-slate-500 flex items-center"
 			><MapPin class="!h-5 !w-5" /></Button
 		>
 	</Dialog.Trigger>

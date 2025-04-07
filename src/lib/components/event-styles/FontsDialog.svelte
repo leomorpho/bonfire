@@ -17,7 +17,9 @@
 
 <Dialog.Root bind:open={isOpen}>
 	<Dialog.Trigger class="mt-3 flex w-1/2 justify-center sm:w-[450px]">
-		<Button class="h-10 w-full ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800">
+		<Button
+			class="flex h-10 w-full items-center ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
+		>
 			<Type class="mr-1" />
 			Font
 		</Button>

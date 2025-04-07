@@ -259,7 +259,7 @@ export const Font = {
 		cdn: 'https://fonts.googleapis.com/css2?family=VT323&display=swap'
 	},
 	IndieFlower: {
-		style: "font-family: 'Indie Flower', cursive;",
+		style: "font-family: 'Indie Flower', cursive; font-size: 1.8em;",
 		cdn: 'https://fonts.googleapis.com/css2?family=Indie+Flower&display=swap'
 	},
 	ChakraPetch: {
@@ -271,7 +271,7 @@ export const Font = {
 		cdn: 'https://fonts.googleapis.com/css2?family=Cedarville+Cursive&display=swap'
 	},
 	TwinkleStar: {
-		style: "font-family: 'Twinkle Star', cursive;",
+		style: "font-family: 'Twinkle Star', cursive; font-size: 1.8em;",
 		cdn: 'https://fonts.googleapis.com/css2?family=Twinkle+Star&display=swap'
 	},
 	SpecialElite: {
@@ -303,7 +303,7 @@ export const Font = {
 		cdn: 'https://fonts.googleapis.com/css2?family=Tourney&display=swap'
 	},
 	LobsterTwo: {
-		style: "font-family: 'Lobster Two', cursive;",
+		style: "font-family: 'Lobster Two', cursive; font-size: 1.7em;",
 		cdn: 'https://fonts.googleapis.com/css2?family=Lobster+Two&display=swap'
 	},
 	FrederickatheGreat: {
@@ -343,7 +343,7 @@ export const Font = {
 		cdn: 'https://fonts.googleapis.com/css2?family=Abril+Fatface&display=swap'
 	},
 	BigShouldersStencil: {
-		style: "font-family: 'Big Shoulders Stencil', cursive; font-size: 1.2em;",
+		style: "font-family: 'Big Shoulders Stencil', cursive; font-size: 1.5em;",
 		cdn: 'https://fonts.googleapis.com/css2?family=Big+Shoulders+Stencil&display=swap'
 	},
 	Orbitron: {
@@ -354,16 +354,16 @@ export const Font = {
 		style: "font-family: 'Righteous', cursive; font-size: 1.2em;",
 		cdn: 'https://fonts.googleapis.com/css2?family=Righteous&display=swap'
 	},
-	AmaticSC: {
-		style: "font-family: 'Amatic SC', cursive; font-size: 1.4em;", // Adjusted size
-		cdn: 'https://fonts.googleapis.com/css2?family=Amatic+SC&display=swap'
-	},
+	// AmaticSC: {
+	// 	style: "font-family: 'Amatic SC', cursive; font-size: 1.8em;", // Adjusted size
+	// 	cdn: 'https://fonts.googleapis.com/css2?family=Amatic+SC&display=swap'
+	// },
 	RubikMonoOne: {
 		style: "font-family: 'Rubik Mono One', monospace; font-size: 1.2em;",
 		cdn: 'https://fonts.googleapis.com/css2?family=Rubik+Mono+One&display=swap'
 	},
 	YanoneKaffeesatz: {
-		style: "font-family: 'Yanone Kaffeesatz', sans-serif; font-size: 1.2em;",
+		style: "font-family: 'Yanone Kaffeesatz', sans-serif; font-size: 1.7em;",
 		cdn: 'https://fonts.googleapis.com/css2?family=Yanone+Kaffeesatz&display=swap'
 	},
 	Prata: {
@@ -375,7 +375,7 @@ export const Font = {
 		cdn: 'https://fonts.googleapis.com/css2?family=Cantarell&display=swap'
 	},
 	AdventPro: {
-		style: "font-family: 'Advent Pro', sans-serif; font-size: 1.2em;",
+		style: "font-family: 'Advent Pro', sans-serif; font-size: 1.4em;",
 		cdn: 'https://fonts.googleapis.com/css2?family=Advent+Pro&display=swap'
 	},
 	Monoton: {

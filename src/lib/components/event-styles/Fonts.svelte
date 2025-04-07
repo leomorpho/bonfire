@@ -3,6 +3,7 @@
 	import ScrollArea from '$lib/jsrepo/ui/scroll-area/scroll-area.svelte';
 	import { onMount } from 'svelte';
 	import type { FontSelection } from '$lib/types';
+	import { Check } from 'lucide-svelte';
 
 	// Initialize selectedFont as an object with name, style, and cdn properties
 	let { selectedFont = $bindable<FontSelection | null>(null), onSelect } = $props();
@@ -26,12 +27,30 @@
 		onSelect();
 	};
 
-	$inspect(selectedFont);
+	// Create a sorted list of fonts, excluding the selected font
+	let sortedFonts: Array<FontSelection> | null = $state(null);
+	$effect(() => {
+		sortedFonts = Object.entries(Font)
+			.filter(([fontName]) => fontName !== selectedFont?.name)
+			.sort(([nameA], [nameB]) => nameA.localeCompare(nameB));
+	});
 </script>
 
 <div class="h-[90vh] sm:h-[80vh]">
 	<ScrollArea class="h-full">
-		{#each Object.entries(Font) as [fontName, { style: fontStyle, cdn: fontCdn }]}
+		{#if selectedFont}
+			<div
+				style={selectedFont.style}
+				class="font-sample w-full rounded-lg bg-blue-200 p-4 text-black dark:bg-blue-800 dark:text-white"
+			>
+				<div class="flex justify-center">
+					<span class="text-green-600 dark:text-green-400"><Check /> </span>
+					<strong>{selectedFont.name}</strong>
+				</div>
+				<div class="flex w-full justify-center">{sampleText}</div>
+			</div>
+		{/if}
+		{#each sortedFonts as [fontName, { style: fontStyle, cdn: fontCdn }]}
 			<button
 				class="font-sample w-full rounded-lg bg-slate-200 p-4 text-black transition-all duration-200 hover:bg-green-100 dark:bg-slate-800 dark:text-white dark:hover:bg-green-800"
 				style={fontStyle}
