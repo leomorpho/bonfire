@@ -42,11 +42,20 @@
 		style: { id: number; name: string; cssTemplate: string } | null = null,
 		cleanup = true
 	) {
-		finalStyleCss = style?.cssTemplate ?? finalStyleCss;
+		const fontStyle = font ? font.style : '';
+		finalStyleCss = `${fontStyle} ${style?.cssTemplate ?? ''}`.trim();
 
 		if (styleElement && cleanup) {
 			// Remove the previously applied preview style
 			document.head.removeChild(styleElement);
+		}
+
+		// Add the font CDN link to the document head if a font is selected
+		if (font && font.cdn) {
+			const fontLink = document.createElement('link');
+			fontLink.href = font.cdn;
+			fontLink.rel = 'stylesheet';
+			document.head.appendChild(fontLink);
 		}
 
 		// Replace the placeholder selector with the actual target
@@ -170,7 +179,7 @@
 			</Popover.Content>
 		</Popover.Root>
 
-		<FontsDialog bind:font />
+		<FontsDialog bind:font onSelect={() => applyStyle()} />
 	</div>
 </div>
 

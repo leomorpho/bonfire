@@ -5,11 +5,12 @@
 	import Fonts from './Fonts.svelte';
 	import type { FontSelection } from '$lib/types';
 
-	let { font = $bindable<FontSelection | null>(null) } = $props();
+	let { font = $bindable<FontSelection | null>(null), onSelect } = $props();
 
 	let isOpen = $state(false);
 
 	const closeDialog = () => {
+		onSelect();
 		isOpen = false;
 	};
 </script>
