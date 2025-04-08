@@ -97,15 +97,10 @@
 	const defaultBackground = randomSort(stylesGallery)[0].cssTemplate;
 	const defaultFont: FontSelection = getRandomFontSelection();
 
-	console.log('defaultBackground', defaultBackground);
 	let finalStyleCss: string = $state(event?.style ?? defaultBackground);
 	let overlayColor: string = $state(event?.overlay_color ?? '#000000');
 	let overlayOpacity: number = $state(event?.overlay_opacity ?? 0.4);
 	let font: FontSelection | null = $state(event?.font ? JSON.parse(event?.font) : defaultFont);
-
-	$effect(() => {
-		console.log('randomly selected font', font);
-	});
 
 	let eventStartDatetime: Date | null = $state(null);
 	let eventEndDatetime: Date | null = $state(null);
