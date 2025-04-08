@@ -51,7 +51,7 @@
 </script>
 
 <FadeIn>
-	<div class="mx-2 flex flex-col items-center justify-center">
+	<div class="mx-2 flex flex-col items-center justify-center mb-10">
 		<!-- History of thoughts and moods -->
 		<section class="mt-8 flex w-full flex-col items-center justify-center sm:w-[450px]">
 			<h2 class="my-6 text-2xl font-semibold">My Profile</h2>

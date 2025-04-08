@@ -10,7 +10,7 @@
 	import type { TriplitClient } from '@triplit/client';
 	import { goto } from '$app/navigation';
 	import { dev } from '$app/environment';
-	import { togglePermission } from '$lib/permissions';
+	import { toggleSettingsPermission } from '$lib/permissions';
 	import { DeliveryPermissions } from '$lib/enums';
 
 	let { userId } = $props();
@@ -84,7 +84,13 @@
 				phone_country_code: country,
 				phone_number: phoneNumber
 			});
-			await togglePermission(client, userId, null, DeliveryPermissions.sms_notifications, true);
+			await toggleSettingsPermission(
+				client,
+				userId,
+				DeliveryPermissions.sms_notifications,
+				true,
+				'delivery_permissions'
+			);
 			goto('/settings');
 		} catch (error) {
 			console.error('Failed to verify code', error);

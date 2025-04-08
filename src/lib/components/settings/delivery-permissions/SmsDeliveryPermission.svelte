@@ -8,7 +8,7 @@
 	import {
 		getEffectivePermissionSettingForEvent,
 		getPermissionFiltersForEventAndPermissionType,
-		togglePermission
+		toggleSettingsPermission
 	} from '$lib/permissions';
 	import { DeliveryPermissions } from '$lib/enums';
 	import { goto } from '$app/navigation';
@@ -79,11 +79,25 @@
 			return;
 		}
 
-		await togglePermission(client, userId, DeliveryPermissions.sms_notifications, true, eventId);
+		await toggleSettingsPermission(
+			client,
+			userId,
+			DeliveryPermissions.sms_notifications,
+			true,
+			'delivery_permissions',
+			eventId
+		);
 	}
 
 	async function unsubscribeFromSms() {
-		await togglePermission(client, userId, DeliveryPermissions.sms_notifications, false, eventId);
+		await toggleSettingsPermission(
+			client,
+			userId,
+			DeliveryPermissions.sms_notifications,
+			false,
+			'delivery_permissions',
+			eventId
+		);
 	}
 
 	async function toggleSubscription() {

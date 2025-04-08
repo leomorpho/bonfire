@@ -14,7 +14,7 @@
 	import {
 		getEffectivePermissionSettingForEvent,
 		getPermissionFiltersForEventAndPermissionType,
-		togglePermission
+		toggleSettingsPermission
 	} from '$lib/permissions';
 	import { DeliveryPermissions } from '$lib/enums';
 	import { Bell } from 'lucide-svelte';
@@ -125,11 +125,25 @@
 	}
 
 	async function subscribeToPushDeliveryPerm() {
-		await togglePermission(client, userId, DeliveryPermissions.push_notifications, true, eventId);
+		await toggleSettingsPermission(
+			client,
+			userId,
+			DeliveryPermissions.push_notifications,
+			true,
+			'delivery_permissions',
+			eventId
+		);
 	}
 
 	async function unsubscribeFromPushDeliveryPerm() {
-		await togglePermission(client, userId, DeliveryPermissions.push_notifications, false, eventId);
+		await toggleSettingsPermission(
+			client,
+			userId,
+			DeliveryPermissions.push_notifications,
+			false,
+			'delivery_permissions',
+			eventId
+		);
 	}
 
 	async function subscribeToPush() {

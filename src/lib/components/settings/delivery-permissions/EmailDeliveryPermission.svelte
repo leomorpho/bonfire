@@ -8,7 +8,7 @@
 	import {
 		getEffectivePermissionSettingForEvent,
 		getPermissionFiltersForEventAndPermissionType,
-		togglePermission
+		toggleSettingsPermission
 	} from '$lib/permissions';
 	import { DeliveryPermissions } from '$lib/enums';
 	import { CircleAlert, Mail } from 'lucide-svelte';
@@ -56,21 +56,23 @@
 	});
 
 	async function subscribeToEmail() {
-		await togglePermission(
+		await toggleSettingsPermission(
 			client,
 			userId,
 			DeliveryPermissions.email_notifications,
 			true,
+			'delivery_permissions',
 			eventId
 		);
 	}
 
 	async function unsubscribeFromEmail() {
-		await togglePermission(
+		await toggleSettingsPermission(
 			client,
 			userId,
 			DeliveryPermissions.email_notifications,
 			false,
+			'delivery_permissions',
 			eventId
 		);
 	}

@@ -2,42 +2,64 @@
 	import { onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
 	import PermissionToggle from './PermissionToggle.svelte';
-	import { getFeHttpTriplitClient, getFeWorkerTriplitClient } from '$lib/triplit';
+	import { getFeWorkerTriplitClient } from '$lib/triplit';
 	import { page } from '$app/stores';
 	import { and, type TriplitClient } from '@triplit/client';
 	import { NotificationPermissions } from '$lib/enums';
+	import {
+		getEffectivePermissionSettingForEvent,
+		getPermissionFiltersForEventAndPermissionType,
+		toggleSettingsPermission
+	} from '$lib/permissions';
+	import type { PermissionsArray } from '$lib/types';
 
 	let { userId, eventId = null, class: cls = null } = $props();
 
 	let permissionsLoading = $state(true);
 
-	let primaryReminder: any = $state(null);
-	let secondaryReminder: any = $state(null);
-	let eventActivity: any = $state(null);
+	let isPrimaryReminderGranted: any = $state(null);
+	let isSecondaryReminderGranted: any = $state(null);
+	let isEventActivityGranted: any = $state(null);
 
 	onMount(() => {
 		const client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
-		let eventIdFilter: any = ['event_id', 'isDefined', false];
-
-		if (eventId) {
-			eventIdFilter = ['event_id', '=', eventId];
-		}
 		const unsubscribe = client.subscribe(
 			client
 				.query('notification_permissions')
-				.Where(and([['user_id', '=', userId], eventIdFilter])),
+				.Where(
+					and([['user_id', '=', userId], getPermissionFiltersForEventAndPermissionType(eventId)])
+				),
 			(results) => {
-				// Initialize permission states based on fetched results
+				// Separate results into respective categories
+				const primaryReminders: PermissionsArray = [];
+				const secondaryReminders: PermissionsArray = [];
+				const eventActivities: PermissionsArray = [];
+
 				results.forEach((result: any) => {
-					if (result.permission === NotificationPermissions.primary_reminder) {
-						primaryReminder = result;
-					} else if (result.permission === NotificationPermissions.secondary_reminder) {
-						secondaryReminder = result;
-					} else if (result.permission === NotificationPermissions.event_activity) {
-						eventActivity = result;
+					switch (result.permission) {
+						case NotificationPermissions.primary_reminder:
+							primaryReminders.push(result);
+							break;
+						case NotificationPermissions.secondary_reminder:
+							secondaryReminders.push(result);
+							break;
+						case NotificationPermissions.event_activity:
+							eventActivities.push(result);
+							break;
+						default:
+							console.warn(`Unknown permission type: ${result.permission}`);
 					}
 				});
+				console.log('secondaryReminders', secondaryReminders);
+				console.log('secondaryReminders', secondaryReminders);
+				console.log('eventActivities', eventActivities);
+
+				// Set the effective permission settings for each category
+				isPrimaryReminderGranted = getEffectivePermissionSettingForEvent(primaryReminders);
+				isSecondaryReminderGranted = getEffectivePermissionSettingForEvent(secondaryReminders);
+				isEventActivityGranted = getEffectivePermissionSettingForEvent(eventActivities);
+
 				permissionsLoading = false;
 			},
 			(error) => {
@@ -49,24 +71,17 @@
 		return () => unsubscribe();
 	});
 
-	async function togglePermission(permission: any, granted: boolean) {
+	async function togglePermission(permissionType: string, granted: boolean) {
 		try {
-			const client = getFeHttpTriplitClient($page.data.jwt);
-
-			if (permission.id) {
-				// Update existing permission
-				await client.update('notification_permissions', permission.id, (o) => {
-					o.granted = granted;
-				});
-				permission.granted = granted;
-				// toast.success('Permission updated successfully.');
-			} else {
-				await client.insert('notification_permissions', {
-					user_id: userId,
-					permission: permission.permission,
-					granted: granted
-				});
-			}
+			const client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
+			await toggleSettingsPermission(
+				client,
+				userId,
+				permissionType,
+				granted,
+				'notification_permissions',
+				eventId
+			);
 		} catch (error) {
 			console.log('failed to update permissions', error);
 			toast.error('An error occurred while updating the permission.');
@@ -80,30 +95,21 @@
 	<div class="w-full space-y-5">
 		<PermissionToggle
 			permissionName={NotificationPermissions.primary_reminder}
-			isGranted={primaryReminder ? primaryReminder.granted : false}
+			isGranted={isPrimaryReminderGranted}
 			togglePermissionFunc={() =>
-				togglePermission(
-					primaryReminder || { permission: NotificationPermissions.primary_reminder },
-					!primaryReminder?.granted
-				)}
+				togglePermission(NotificationPermissions.primary_reminder, !isPrimaryReminderGranted)}
 		/>
 		<PermissionToggle
 			permissionName={NotificationPermissions.secondary_reminder}
-			isGranted={secondaryReminder ? secondaryReminder.granted : false}
+			isGranted={isSecondaryReminderGranted}
 			togglePermissionFunc={() =>
-				togglePermission(
-					secondaryReminder || { permission: NotificationPermissions.secondary_reminder },
-					!secondaryReminder?.granted
-				)}
+				togglePermission(NotificationPermissions.secondary_reminder, !isSecondaryReminderGranted)}
 		/>
 		<PermissionToggle
 			permissionName={NotificationPermissions.event_activity}
-			isGranted={eventActivity ? eventActivity.granted : false}
+			isGranted={isEventActivityGranted}
 			togglePermissionFunc={() =>
-				togglePermission(
-					eventActivity || { permission: NotificationPermissions.event_activity },
-					!eventActivity?.granted
-				)}
+				togglePermission(NotificationPermissions.event_activity, !isEventActivityGranted)}
 		/>
 	</div>
 </div>

@@ -1,12 +1,13 @@
 import { or, type Models, type TriplitClient, type WhereFilter } from '@triplit/client';
 import type { PermissionsArray } from './types';
 
-export async function togglePermission(
+export async function toggleSettingsPermission(
 	client: TriplitClient | null | undefined,
 	userId: string,
 	permissionType: string,
 	granted: boolean,
-	eventId: string | null = null
+	modelName:string,
+	eventId: string | null = null,
 ) {
 	try {
 		if (!client) {
@@ -17,16 +18,16 @@ export async function togglePermission(
 			id = id + `_${eventId}`;
 		}
 
-		const perm = await client.fetchById('delivery_permissions', id);
+		const perm = await client.fetchById(modelName, id);
 
 		if (perm) {
 			// Update existing permission
-			await client.http.update('delivery_permissions', perm.id, (o) => {
+			await client.http.update(modelName, perm.id, (o) => {
 				o.granted = granted;
 			});
 		} else {
 			// Create new permission if it doesn't exist
-			return await client.http.insert('delivery_permissions', {
+			return await client.http.insert(modelName, {
 				id: id,
 				user_id: userId,
 				permission: permissionType,
