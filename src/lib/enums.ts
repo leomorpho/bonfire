@@ -255,7 +255,7 @@ export const Font = {
 		cdn: 'https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap'
 	},
 	VT323: {
-		style: "font-family: 'VT323', monospace; font-size: 1.8em;",
+		style: "font-family: 'VT323', monospace;",
 		cdn: 'https://fonts.googleapis.com/css2?family=VT323&display=swap'
 	},
 	IndieFlower: {
@@ -286,10 +286,10 @@ export const Font = {
 		style: "font-family: 'Audiowide', cursive;",
 		cdn: 'https://fonts.googleapis.com/css2?family=Audiowide&display=swap'
 	},
-	Handjet: {
-		style: "font-family: 'Handjet', cursive; font-size: 1.8em;",
-		cdn: 'https://fonts.googleapis.com/css2?family=Handjet&display=swap'
-	},
+	// Handjet: {
+	// 	style: "font-family: 'Handjet', cursive; font-size: 1.8em;",
+	// 	cdn: 'https://fonts.googleapis.com/css2?family=Handjet&display=swap'
+	// },
 	FingerPaint: {
 		style: "font-family: 'Finger Paint', cursive;",
 		cdn: 'https://fonts.googleapis.com/css2?family=Finger+Paint&display=swap'
@@ -322,10 +322,6 @@ export const Font = {
 		style: "font-family: 'Underdog', cursive; font-size: 1.2em;",
 		cdn: 'https://fonts.googleapis.com/css2?family=Underdog&display=swap'
 	},
-	BungeeTint: {
-		style: "font-family: 'Bungee Tint', cursive; font-size: 1.4em;", // Adjusted size
-		cdn: 'https://fonts.googleapis.com/css2?family=Bungee+Tint&display=swap'
-	},
 	Codystar: {
 		style: "font-family: 'Codystar', cursive; font-size: 1.2em;",
 		cdn: 'https://fonts.googleapis.com/css2?family=Codystar&display=swap'
@@ -338,14 +334,14 @@ export const Font = {
 		style: "font-family: 'Josefin Sans', sans-serif; font-size: 1.2em;",
 		cdn: 'https://fonts.googleapis.com/css2?family=Josefin+Sans&display=swap'
 	},
-	AbrilFatface: {
-		style: "font-family: 'Abril Fatface', cursive; font-size: 1.6em;", // Adjusted size
-		cdn: 'https://fonts.googleapis.com/css2?family=Abril+Fatface&display=swap'
-	},
-	BigShouldersStencil: {
-		style: "font-family: 'Big Shoulders Stencil', cursive; font-size: 1.5em;",
-		cdn: 'https://fonts.googleapis.com/css2?family=Big+Shoulders+Stencil&display=swap'
-	},
+	// AbrilFatface: {
+	// 	style: "font-family: 'Abril Fatface', cursive; font-size: 1.6em;", // Adjusted size
+	// 	cdn: 'https://fonts.googleapis.com/css2?family=Abril+Fatface&display=swap'
+	// },
+	// BigShouldersStencil: {
+	// 	style: "font-family: 'Big Shoulders Stencil', cursive; font-size: 1.5em;",
+	// 	cdn: 'https://fonts.googleapis.com/css2?family=Big+Shoulders+Stencil&display=swap'
+	// },
 	Orbitron: {
 		style: "font-family: 'Orbitron', sans-serif; font-size: 1.2em;",
 		cdn: 'https://fonts.googleapis.com/css2?family=Orbitron&display=swap'
@@ -358,10 +354,10 @@ export const Font = {
 	// 	style: "font-family: 'Amatic SC', cursive; font-size: 1.8em;", // Adjusted size
 	// 	cdn: 'https://fonts.googleapis.com/css2?family=Amatic+SC&display=swap'
 	// },
-	RubikMonoOne: {
-		style: "font-family: 'Rubik Mono One', monospace; font-size: 1.2em;",
-		cdn: 'https://fonts.googleapis.com/css2?family=Rubik+Mono+One&display=swap'
-	},
+	// RubikMonoOne: {
+	// 	style: "font-family: 'Rubik Mono One', monospace; font-size: 1.2em;",
+	// 	cdn: 'https://fonts.googleapis.com/css2?family=Rubik+Mono+One&display=swap'
+	// },
 	YanoneKaffeesatz: {
 		style: "font-family: 'Yanone Kaffeesatz', sans-serif; font-size: 1.7em;",
 		cdn: 'https://fonts.googleapis.com/css2?family=Yanone+Kaffeesatz&display=swap'
@@ -386,14 +382,14 @@ export const Font = {
 		style: "font-family: 'Creepster', cursive; font-size: 1.2em;",
 		cdn: 'https://fonts.googleapis.com/css2?family=Creepster&display=swap'
 	},
-	RubikBubbles: {
-		style: "font-family: 'Rubik Bubbles', cursive; font-size: 1.2em;",
-		cdn: 'https://fonts.googleapis.com/css2?family=Rubik+Bubbles&display=swap'
-	},
-	Ultra: {
-		style: "font-family: 'Ultra', serif; font-size: 1.2em;",
-		cdn: 'https://fonts.googleapis.com/css2?family=Ultra&display=swap'
-	},
+	// RubikBubbles: {
+	// 	style: "font-family: 'Rubik Bubbles', cursive; font-size: 1.2em;",
+	// 	cdn: 'https://fonts.googleapis.com/css2?family=Rubik+Bubbles&display=swap'
+	// },
+	// Ultra: {
+	// 	style: "font-family: 'Ultra', serif; font-size: 1.2em;",
+	// 	cdn: 'https://fonts.googleapis.com/css2?family=Ultra&display=swap'
+	// },
 	Fascinate: {
 		style: "font-family: 'Fascinate', cursive; font-size: 1.2em;",
 		cdn: 'https://fonts.googleapis.com/css2?family=Fascinate&display=swap'

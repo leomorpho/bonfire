@@ -42,10 +42,9 @@
 	import EventInfo from '$lib/components/main-bonfire-event/EventInfo.svelte';
 	import Attendees from '$lib/components/main-bonfire-event/Attendees.svelte';
 	import SignUpMsg from './SignUpMsg.svelte';
-	import Alert from '../Alert.svelte';
 	import SetProfilePicAlert from './SetProfilePicAlert.svelte';
 	import EventHistory from './EventHistory.svelte';
-	import TextPopover from '../TextPopover.svelte';
+	import { SlidersHorizontal } from '@lucide/svelte';
 	// import EventStylerBottomSheet from '../event-styles/EventStylerBottomSheet.svelte';
 
 	let {
@@ -577,6 +576,15 @@
 										<MessageCircle class="h-5 w-5" />
 									</NumNewMessageIndicator>
 								</Tabs.Trigger>
+								<Tabs.Trigger
+									id="settings-tab"
+									value="user-settings"
+									class="focus:outline-none focus-visible:ring-0 data-[state=active]:bg-blue-500 data-[state=active]:text-white dark:data-[state=active]:bg-blue-600"
+								>
+									<div class="flex items-center justify-center">
+										<SlidersHorizontal class="h-5 w-5" />
+									</div>
+								</Tabs.Trigger>
 								{#if isCurrenUserEventAdmin}
 									<Tabs.Trigger
 										id="history-tab"
@@ -754,6 +762,9 @@
 								</div>
 							{/if}
 						</div>
+					</Tabs.Content>
+					<Tabs.Content value="user-settings" class="mb-10 w-full">
+						<div class="animate-fadeIn mb-2 w-full">User Settings</div>
 					</Tabs.Content>
 					<Tabs.Content value="history" class="mb-10 w-full">
 						<div class="animate-fadeIn mb-2 w-full">

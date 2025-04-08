@@ -38,7 +38,7 @@
 	let totalRemoved = $derived(allAttendeesRemoved.length);
 </script>
 
-<div class="mx-3 mt-5 items-center">
+<div class="mx-3 mt-5 items-center text-base">
 	{#if attendeesLoading}
 		<div class="flex flex-wrap items-center -space-x-3">
 			{#each Array(20).fill(null) as _, index}

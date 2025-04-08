@@ -393,7 +393,7 @@
 				{/snippet}
 
 				{#snippet noData()}
-					<p>No more messages.</p>
+					<p class="text-base">No more messages.</p>
 				{/snippet}
 				{#each messages as message (message.id)}
 					<Message

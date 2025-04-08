@@ -54,7 +54,7 @@
 </script>
 
 <div
-	class="flex w-full items-center gap-3 rounded-b-xl bg-white bg-opacity-90 p-3 dark:bg-gray-900 dark:bg-opacity-90"
+	class="flex w-full items-center gap-3 rounded-b-xl bg-white bg-opacity-90 p-3 dark:bg-gray-900 dark:bg-opacity-90 text-base"
 >
 	<!-- Attachments Button -->
 	<!-- <Button

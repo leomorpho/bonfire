@@ -64,7 +64,7 @@
 				class={'mx-2'}
 			/>
 		</h1>
-		<p>
+		<p class="text-base">
 			Note that you can also access each attendee's history by clicking on their profile picture in
 			the main event view.
 		</p>

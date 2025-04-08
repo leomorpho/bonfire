@@ -104,7 +104,7 @@
 				</div>
 			</div>
 		</Card.Title>
-		<Card.Description class="pb-2">
+		<Card.Description class="pb-2 text-base">
 			{announcement.content}
 		</Card.Description>
 	</Card.Header>
