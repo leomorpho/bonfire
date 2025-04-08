@@ -15,7 +15,7 @@
 	import { DeliveryPermissions } from '$lib/enums';
 	import { Bell } from 'lucide-svelte';
 
-	let { userId } = $props();
+	let { userId,class: cls = null } = $props();
 
 	let pushSubscriptions = $state();
 	let loadingSubscriptions = $state(true);
@@ -202,7 +202,7 @@
 	};
 </script>
 
-<div class="flex w-full items-center justify-between space-x-2">
+<div class={`flex w-full items-center justify-between space-x-2 ${cls}`}>
 	<Label.Root class="sm:text-base flex items-center" for="push-delivery-permission">
 		<Bell class="h-4 w-4 mr-2" />
 		Push notifications</Label.Root

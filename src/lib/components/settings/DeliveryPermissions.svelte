@@ -1,8 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { toast } from 'svelte-sonner';
-	import PermissionToggle from './PermissionToggle.svelte';
-	import { getFeHttpTriplitClient, getFeWorkerTriplitClient } from '$lib/triplit';
+	import { getFeWorkerTriplitClient } from '$lib/triplit';
 	import { page } from '$app/stores';
 	import type { TriplitClient } from '@triplit/client';
 	import { DeliveryPermissions } from '$lib/enums';

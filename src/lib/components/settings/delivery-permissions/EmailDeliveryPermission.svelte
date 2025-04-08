@@ -10,7 +10,7 @@
 	import { CircleAlert, Mail } from 'lucide-svelte';
 	import * as HoverCard from '$lib/components/ui/hover-card/index.js';
 
-	let { userId } = $props();
+	let { userId, class: cls = null } = $props();
 
 	let isGranted = $state(false);
 	let loadingPermisison = $state(true);
@@ -96,7 +96,7 @@
 					<CircleAlert class="h-4 w-4" />
 				</div>
 			</HoverCard.Trigger>
-			<HoverCard.Content class="text-center">
+			<HoverCard.Content class="text-center text-sm">
 				We hate spam too. Like for SMS, only important notifications, like event reminders and admin
 				announcements, are sent via email when enabled. We recommend keeping it on for the best
 				experience. You can disable it for specific events if needed.
@@ -105,7 +105,7 @@
 	</div>
 {/snippet}
 
-<div class="flex w-full items-center justify-between space-x-2">
+<div class={`flex w-full items-center justify-between space-x-2 ${cls}`}>
 	<Label.Root class="flex items-center sm:text-base" for="email-delivery-permission">
 		<Mail class="mr-2 h-4 w-4" />
 		Email

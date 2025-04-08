@@ -45,6 +45,7 @@
 	import SetProfilePicAlert from './SetProfilePicAlert.svelte';
 	import EventHistory from './EventHistory.svelte';
 	import { SlidersHorizontal } from '@lucide/svelte';
+	import EventSettings from '../settings/event-settings/EventSettings.svelte';
 	// import EventStylerBottomSheet from '../event-styles/EventStylerBottomSheet.svelte';
 
 	let {
@@ -764,8 +765,9 @@
 						</div>
 					</Tabs.Content>
 					<Tabs.Content value="user-settings" class="mb-10 w-full">
-						<div class="animate-fadeIn mb-2 w-full">User Settings</div>
-					</Tabs.Content>
+						<div class="animate-fadeIn mb-2 w-full">
+							<EventSettings {eventId}/>
+						</div>					</Tabs.Content>
 					<Tabs.Content value="history" class="mb-10 w-full">
 						<div class="animate-fadeIn mb-2 w-full">
 							<EventHistory {eventId} />
