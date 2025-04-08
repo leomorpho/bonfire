@@ -49,7 +49,8 @@
 	import GuestCountFeature from './GuestCountFeature.svelte';
 	import { upsertUserAttendance } from '$lib/rsvp';
 	import type { FontSelection } from '$lib/types';
-	import { PaintBucket, TypeOutline } from '@lucide/svelte';
+	import { PaintBucket, RefreshCcw, RefreshCw, TypeOutline } from '@lucide/svelte';
+	import HorizRule from '../HorizRule.svelte';
 
 	let { mode, event = null, currUserId = null } = $props();
 
@@ -562,14 +563,14 @@
 						onclick={getRandomTheme}
 					>
 						<PaintBucket class="mr-1" />
-						Random background
+						<RefreshCw class="mr-1" />
 					</Button>
 					<Button
 						class="flex items-center justify-center bg-violet-600 p-4 ring-glow hover:bg-violet-500 dark:bg-violet-700 dark:text-white dark:hover:bg-violet-500"
 						onclick={getRandomFont}
 					>
 						<TypeOutline class="mr-1" />
-						Random Font
+						<RefreshCw class="mr-1" />
 					</Button>
 				</div>
 				<Input
@@ -703,9 +704,9 @@
 				<GuestCountFeature oninput={debouncedUpdateEvent} bind:value={maxNumGuest} />
 			</form>
 
-			<div class="mt-5 grid w-full grid-cols-1 gap-2 sm:grid-cols-2">
+			<div class="mt-5 flex w-full justify-center space-x-2">
 				<Button
-					class="justify-centerp-4 flex items-center bg-teal-600 ring-glow hover:bg-teal-500 dark:bg-teal-700 dark:text-white dark:hover:bg-teal-500"
+					class="flex items-center justify-center bg-teal-600 p-4 ring-glow hover:bg-teal-500 dark:bg-teal-700 dark:text-white dark:hover:bg-teal-500"
 					onclick={startEditEventStyle}
 				>
 					<Palette class="mr-1" />
@@ -721,62 +722,66 @@
 				</Button>
 			</div>
 		</section>
-		<div class="my-10 w-full sm:w-[450px]">
-			<a href={cancelUrl}>
-				<Button
-					class="sticky top-2 mt-2 w-full ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-700"
-				>
-					Cancel
-				</Button>
-			</a>
-			{#if isEventCreated && !isEventPublished}
-				<Button
-					disabled={submitDisabled}
-					type="submit"
-					class={`sticky top-2 mt-2 w-full ${submitDisabled ? 'bg-slate-400 dark:bg-slate-600' : 'bg-blue-600 hover:bg-blue-500 dark:bg-blue-700 dark:hover:bg-blue-600'} ring-glow dark:text-white`}
-					onclick={() => {
-						updateEvent().then(() => {
-							redirectToDashboard();
-						});
-					}}
-				>
-					<ArrowDownToLine class="ml-1 mr-1 h-4 w-4" />Save Draft
-				</Button>
-			{/if}
-			{#if !userIsOutOfLogs || isEventPublished}
-				<Button
-					id="upsert-bonfire"
-					disabled={submitDisabled}
-					type="submit"
-					class={`sticky top-2 mt-2 w-full ${submitDisabled ? 'bg-slate-400 dark:bg-slate-600' : 'bg-green-600 hover:bg-green-500 dark:bg-green-700 dark:hover:bg-green-600'} ring-glow dark:text-white`}
-					onclick={(e) => {
-						handleSubmit(e, true);
-					}}
-				>
-					{#if isEventSaving}
-						<span class="loading loading-spinner loading-xs ml-2"> </span>
-					{/if}
+		<!-- <hr class="mt-3 border-1 rounded-full border-t-4 border-gray-200 w-full" /> -->
+
+		<div class="my-10 sm:w-[450px]">
+			<div class="flex w-full flex-col justify-center space-y-2">
+				<a href={cancelUrl}>
+					<Button
+						class="w-full ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-700"
+					>
+						Cancel
+					</Button>
+				</a>
+				{#if isEventCreated && !isEventPublished}
+					<Button
+						disabled={submitDisabled}
+						type="submit"
+						class={`w-full ${submitDisabled ? 'bg-slate-400 dark:bg-slate-600' : 'bg-blue-600 hover:bg-blue-500 dark:bg-blue-700 dark:hover:bg-blue-600'} ring-glow dark:text-white`}
+						onclick={() => {
+							updateEvent().then(() => {
+								redirectToDashboard();
+							});
+						}}
+					>
+						<ArrowDownToLine class="ml-1 mr-1 h-4 w-4" />Save Draft
+					</Button>
+				{/if}
+				{#if !userIsOutOfLogs || isEventPublished}
+					<Button
+						id="upsert-bonfire"
+						disabled={submitDisabled}
+						type="submit"
+						class={`w-full ${submitDisabled ? 'bg-slate-400 dark:bg-slate-600' : 'bg-green-600 hover:bg-green-500 dark:bg-green-700 dark:hover:bg-green-600'} ring-glow dark:text-white`}
+						onclick={(e) => {
+							handleSubmit(e, true);
+						}}
+					>
+						{#if isEventSaving}
+							<span class="loading loading-spinner loading-xs ml-2"> </span>
+						{/if}
+						{#if isEventPublished}
+							<Save class="ml-1 mr-1 h-4 w-4" />
+							Save
+						{:else}
+							<BookCheck class="ml-1 mr-1 h-4 w-4" />
+							Publish
+						{/if}
+					</Button>
+				{/if}
+				<div class="space-y-2 sm:flex sm:space-x-2 sm:space-y-0">
 					{#if isEventPublished}
-						<Save class="ml-1 mr-1 h-4 w-4" />
-						Save
-					{:else}
-						<BookCheck class="ml-1 mr-1 h-4 w-4" />
-						Publish
+						<UnpublishEventBtn {submitDisabled} eventId={event.id} />
 					{/if}
-				</Button>
-			{/if}
-			<div class="flex space-x-1">
-				{#if isEventPublished}
-					<UnpublishEventBtn {submitDisabled} eventId={event.id} />
-				{/if}
-				{#if mode == EventFormType.UPDATE && event && currUserId == event.user_id}
-					<DeleteEventBtn
-						{submitDisabled}
-						{currUserId}
-						eventCreatorUserId={event.user_id}
-						eventId={event.id}
-					/>
-				{/if}
+					{#if mode == EventFormType.UPDATE && event && currUserId == event.user_id}
+						<DeleteEventBtn
+							{submitDisabled}
+							{currUserId}
+							eventCreatorUserId={event.user_id}
+							eventId={event.id}
+						/>
+					{/if}
+				</div>
 			</div>
 		</div>
 	{:else if currentEventEditingMode == editingStyles}

@@ -30,7 +30,7 @@
 	<Dialog.Trigger class="w-full" disabled={submitDisabled || currUserId != eventCreatorUserId}
 		><Button
 			disabled={submitDisabled || currUserId != eventCreatorUserId}
-			class="mt-2 w-full bg-red-600 ring-glow hover:bg-red-500 dark:bg-red-700 dark:text-white dark:hover:bg-red-600"
+			class="w-full bg-red-600 ring-glow hover:bg-red-500 dark:bg-red-700 dark:text-white dark:hover:bg-red-600"
 		>
 			<Trash2 class="ml-1 mr-1 h-4 w-4" /> Delete
 		</Button></Dialog.Trigger
