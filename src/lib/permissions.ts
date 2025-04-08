@@ -5,7 +5,8 @@ export async function togglePermission(
 	userId: string,
 	permissionId: string | null,
 	permissionType: string,
-	granted: boolean
+	granted: boolean,
+	eventId: string | null = null
 ) {
 	try {
 		if (!client) {
@@ -13,16 +14,21 @@ export async function togglePermission(
 		}
 		if (permissionId) {
 			// Update existing permission
-			await client.update('delivery_permissions', permissionId, (o) => {
+			await client.http.update('delivery_permissions', permissionId, (o) => {
 				o.granted = granted;
 			});
 		} else {
+			let id = permissionType + '_' + userId;
+			if (eventId) {
+				id = id + `_${eventId}`;
+			}
 			// Create new permission if it doesn't exist
-			return await client.insert('delivery_permissions', {
-				id: permissionType + '_' + userId,
+			return await client.http.insert('delivery_permissions', {
+				id: id,
 				user_id: userId,
 				permission: permissionType,
-				granted: granted
+				granted: granted,
+				event_id: eventId
 			});
 		}
 	} catch (error) {

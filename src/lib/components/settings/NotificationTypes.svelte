@@ -4,10 +4,10 @@
 	import PermissionToggle from './PermissionToggle.svelte';
 	import { getFeHttpTriplitClient, getFeWorkerTriplitClient } from '$lib/triplit';
 	import { page } from '$app/stores';
-	import type { TriplitClient } from '@triplit/client';
+	import { and, type TriplitClient } from '@triplit/client';
 	import { NotificationPermissions } from '$lib/enums';
 
-	let { userId, class: cls = null } = $props();
+	let { userId, eventId = null, class: cls = null } = $props();
 
 	let permissionsLoading = $state(true);
 
@@ -18,8 +18,15 @@
 	onMount(() => {
 		const client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
+		let eventIdFilter: any = ['event_id', 'isDefined', false];
+
+		if (eventId) {
+			eventIdFilter = ['event_id', '=', eventId];
+		}
 		const unsubscribe = client.subscribe(
-			client.query('notification_permissions').Where(['user_id', '=', userId]),
+			client
+				.query('notification_permissions')
+				.Where(and([['user_id', '=', userId], eventIdFilter])),
 			(results) => {
 				// Initialize permission states based on fetched results
 				results.forEach((result: any) => {

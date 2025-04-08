@@ -15,19 +15,28 @@
 	import { DeliveryPermissions } from '$lib/enums';
 	import { Bell } from 'lucide-svelte';
 
-	let { userId,class: cls = null } = $props();
+	let { userId, eventId = null, class: cls = null } = $props();
 
+	let isGranted = $state(false);
 	let pushSubscriptions = $state();
+	let loadingPermisison = $state(true);
 	let loadingSubscriptions = $state(true);
 	let client: TriplitClient | undefined = $state();
-	let permissionId: string | null | undefined = $state();
+	let permissionId: string | null = $state(null);
+
+	let isPushSubscriptionModalOpen = $state(false);
+
+	// Check if the current device is already subscribed
+	let isDeviceSubscribed = $state(false);
+
+	let isSwitchEnabled = $derived(isDeviceSubscribed && isGranted);
 
 	// $inspect('pushSubscriptions', pushSubscriptions);
 
 	onMount(() => {
 		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
-		const unsubscribe = client.subscribe(
+		const unsubscribeFromPushSubscription = client.subscribe(
 			client.query('push_subscription_registrations').Where(['user_id', '=', userId]),
 			(results) => {
 				pushSubscriptions = results;
@@ -46,15 +55,44 @@
 			}
 		);
 
+		let eventIdFilter: any = ['event_id', 'isDefined', false];
+
+		if (eventId) {
+			eventIdFilter = ['event_id', '=', eventId];
+		}
+
+		const unsubscribeFromDeliveryPerms = client.subscribe(
+			client
+				.query('delivery_permissions')
+				.Where(
+					and([
+						['user_id', '=', userId],
+						['permission', '=', DeliveryPermissions.push_notifications],
+						eventIdFilter
+					])
+				),
+			(results) => {
+				if (results.length == 1) {
+					isGranted = results[0].granted;
+					permissionId = results[0].id;
+				}
+				loadingPermisison = false;
+			},
+			(error) => {
+				console.log('failed to get delivery_permissions', error);
+				loadingPermisison = false;
+			},
+			{
+				localOnly: false,
+				onRemoteFulfilled: () => {}
+			}
+		);
+
 		return () => {
-			unsubscribe;
+			unsubscribeFromPushSubscription();
+			unsubscribeFromDeliveryPerms();
 		};
 	});
-
-	let isPushSubscriptionModalOpen = $state(false);
-
-	// Check if the current device is already subscribed
-	let isDeviceSubscribed = $state(false);
 
 	async function handleModalConfirm() {
 		isPushSubscriptionModalOpen = false;
@@ -92,6 +130,28 @@
 		return false;
 	}
 
+	async function subscribeToPushDeliveryPerm() {
+		await togglePermission(
+			client,
+			userId,
+			permissionId,
+			DeliveryPermissions.push_notifications,
+			true,
+			eventId
+		);
+	}
+
+	async function unsubscribeFromPushDeliveryPerm() {
+		await togglePermission(
+			client,
+			userId,
+			permissionId,
+			DeliveryPermissions.push_notifications,
+			false,
+			eventId
+		);
+	}
+
 	async function subscribeToPush() {
 		if ('serviceWorker' in navigator) {
 			const registration = await navigator.serviceWorker.getRegistration();
@@ -117,18 +177,10 @@
 							auth: auth
 						});
 
-						const permission = await togglePermission(
-							client,
-							userId,
-							permissionId,
-							DeliveryPermissions.push_notifications,
-							true
-						);
-						permissionId = permission?.id;
+						await subscribeToPushDeliveryPerm();
 					} catch (e) {
 						console.log('failed to subscribe to push notifications in BE', e);
 						toast.error('Sorry, we failed to save your change');
-						await subscription.unsubscribe();
 					}
 
 					console.log('subscribing to push with:', subscription);
@@ -137,6 +189,7 @@
 					console.log('Device is already subscribed to push notifications.');
 					isDeviceSubscribed = true;
 				}
+				await subscribeToPushDeliveryPerm();
 			} else {
 				console.error('No existing Service Worker registration found.');
 			}
@@ -167,13 +220,7 @@
 							await client?.delete('push_subscription_registrations', currSubscription?.id);
 						}
 
-						await togglePermission(
-							client,
-							userId,
-							permissionId,
-							DeliveryPermissions.push_notifications,
-							false
-						);
+						await unsubscribeFromPushDeliveryPerm();
 
 						console.log('unsubscribing to push with:', subscription);
 
@@ -188,7 +235,7 @@
 	}
 
 	async function toggleSubscription() {
-		if (isDeviceSubscribed) {
+		if (isSwitchEnabled) {
 			unsubscribeFromPush();
 		} else {
 			isPushSubscriptionModalOpen = true;
@@ -203,13 +250,13 @@
 </script>
 
 <div class={`flex w-full items-center justify-between space-x-2 ${cls}`}>
-	<Label.Root class="sm:text-base flex items-center" for="push-delivery-permission">
-		<Bell class="h-4 w-4 mr-2" />
+	<Label.Root class="flex items-center sm:text-base" for="push-delivery-permission">
+		<Bell class="mr-2 h-4 w-4" />
 		Push notifications</Label.Root
 	>
 	<Switch.Root
 		id="push-delivery-permission"
-		bind:checked={isDeviceSubscribed}
+		bind:checked={isSwitchEnabled}
 		onclick={toggleSubscription}
 		disabled={!checkDeviceSupportsPushNotifications()}
 	/>

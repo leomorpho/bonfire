@@ -21,27 +21,20 @@
 </script>
 
 {#if showBanner}
-	<div class="relative flex w-full justify-between bg-orange-500 text-white dark:bg-orange-700">
+	<div
+		class="relative flex w-full justify-between bg-orange-200 dark:bg-orange-900 dark:text-white"
+	>
 		<span></span>
 		<div
-			class="flex w-full max-w-screen-md items-center justify-center rounded-xl px-4 text-xs sm:text-sm"
+			class="flex w-full max-w-screen-md items-center justify-center rounded-xl px-4 py-1 text-xs"
 		>
-			<span class="overflow-hidden text-ellipsis whitespace-nowrap font-semibold">
-				🚀 Beta is Live!
+			<span class="overflow-hidden text-ellipsis whitespace-nowrap">
+				📣 Beta is Live! Click <a href="/feedback" class="underline">here</a> to give me feedback ❤️
 			</span>
-			<div class="flex sm:ml-3">
-				<Button
-					variant="link"
-					class="overflow-hidden text-ellipsis whitespace-nowrap text-xs  text-white hover:underline sm:text-sm"
-				>
-					<ArrowBigRight />
-					give feedback ❤️
-				</Button>
-			</div>
 		</div>
 
 		<!-- Dismiss Button -->
-		<button class=" mx-2 text-white opacity-70 hover:opacity-100" on:click={dismissBanner}>
+		<button class=" mx-2 opacity-70 hover:opacity-100" on:click={dismissBanner}>
 			<X class="h-4 w-4 md:h-5 md:w-5" />
 		</button>
 	</div>

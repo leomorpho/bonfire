@@ -93,7 +93,7 @@
 						</Popover.Root>
 					{/if}
 					<!-- Text Section on the Right -->
-					<div class="flex w-full flex-col items-start font-normal">
+					<div class="flex w-full flex-col items-start font-normal text-base">
 						<span>
 							<span class="font-bold">
 								{#if change.changed_by_id_type && change.changed_by_id_type == HistoryChangesConstants.temporary_attendee_id}

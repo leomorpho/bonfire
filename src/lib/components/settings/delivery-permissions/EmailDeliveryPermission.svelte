@@ -10,25 +10,32 @@
 	import { CircleAlert, Mail } from 'lucide-svelte';
 	import * as HoverCard from '$lib/components/ui/hover-card/index.js';
 
-	let { userId, class: cls = null } = $props();
+	let { userId, eventId = null, class: cls = null } = $props();
 
 	let isGranted = $state(false);
 	let loadingPermisison = $state(true);
 	let client: TriplitClient | undefined = $state();
 	let permissionId: string | null = $state(null);
 
-	// $inspect('pushSubscriptions', pushSubscriptions);
-
 	onMount(() => {
 		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
+		let eventIdFilter: any = [['event_id', 'isDefined', false]];
+
+		if (eventId) {
+			eventIdFilter = [...eventIdFilter, ['event_id', '=', eventId]];
+		}
+
 		const unsubscribe = client.subscribe(
-			client.query('delivery_permissions').Where(
-				and([
-					['user_id', '=', userId],
-					['permission', '=', DeliveryPermissions.email_notifications]
-				])
-			),
+			client
+				.query('delivery_permissions')
+				.Where(
+					and([
+						['user_id', '=', userId],
+						['permission', '=', DeliveryPermissions.email_notifications],
+						...eventIdFilter
+					])
+				),
 			(results) => {
 				if (results.length == 1) {
 					isGranted = results[0].granted;
@@ -54,12 +61,13 @@
 	});
 
 	async function subscribeToEmail() {
-		const permission = await togglePermission(
+		await togglePermission(
 			client,
 			userId,
 			permissionId,
 			DeliveryPermissions.email_notifications,
-			true
+			true,
+			eventId
 		);
 	}
 
@@ -69,7 +77,8 @@
 			userId,
 			permissionId,
 			DeliveryPermissions.email_notifications,
-			false
+			false,
+			eventId
 		);
 	}
 

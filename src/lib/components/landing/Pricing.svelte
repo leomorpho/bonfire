@@ -11,7 +11,7 @@
 </script>
 
 {#snippet warning()}
-	<div class="absolute -right-1 top-2">
+	<div class="absolute -right-2 top-2">
 		<HoverCard.Root>
 			<HoverCard.Trigger>
 				<div

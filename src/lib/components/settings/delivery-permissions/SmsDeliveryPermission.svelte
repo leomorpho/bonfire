@@ -12,7 +12,7 @@
 	import * as HoverCard from '$lib/components/ui/hover-card/index.js';
 	import { CircleAlert } from '@lucide/svelte';
 
-	let { userId, class: cls = null } = $props();
+	let { userId, eventId = null, class: cls = null } = $props();
 
 	let isGranted = $state(false);
 	let loadingPermisison = $state(true);
@@ -23,13 +23,22 @@
 	onMount(() => {
 		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
+		let eventIdFilter: any = ['event_id', 'isDefined', false];
+
+		if (eventId) {
+			eventIdFilter = ['event_id', '=', eventId];
+		}
+
 		const unsubscribeFromDeliveryPerms = client.subscribe(
-			client.query('delivery_permissions').Where(
-				and([
-					['user_id', '=', userId],
-					['permission', '=', DeliveryPermissions.sms_notifications]
-				])
-			),
+			client
+				.query('delivery_permissions')
+				.Where(
+					and([
+						['user_id', '=', userId],
+						['permission', '=', DeliveryPermissions.sms_notifications],
+						eventIdFilter
+					])
+				),
 			(results) => {
 				if (results.length == 1) {
 					isGranted = results[0].granted;
@@ -81,7 +90,8 @@
 			userId,
 			permissionId,
 			DeliveryPermissions.sms_notifications,
-			true
+			true,
+			eventId
 		);
 	}
 
@@ -91,7 +101,8 @@
 			userId,
 			permissionId,
 			DeliveryPermissions.sms_notifications,
-			false
+			false,
+			eventId
 		);
 	}
 

@@ -1449,12 +1449,14 @@ export const schema = S.Collections({
 		schema: S.Schema({
 			id: S.Id(),
 			user_id: S.String(),
+			event_id: S.Optional(S.String()), // If set, it applies only to this event
 			permission: S.String(),
 			granted: S.Boolean({ default: false }),
 			created_at: S.Date({ default: S.Default.now() }) // Timestamp when added
 		}),
 		relationships: {
-			user: S.RelationById('user', '$user_id') // Relation to the user
+			user: S.RelationById('user', '$user_id'), // Relation to the user
+			event: S.RelationById('events', '$event_id')
 		},
 		permissions: {
 			user: {
@@ -1478,12 +1480,14 @@ export const schema = S.Collections({
 		schema: S.Schema({
 			id: S.Id(),
 			user_id: S.String(),
+			event_id: S.Optional(S.String()), // If set, it applies only to this event
 			permission: S.String(),
 			granted: S.Boolean({ default: false }),
 			created_at: S.Date({ default: S.Default.now() }) // Timestamp when added
 		}),
 		relationships: {
-			user: S.RelationById('user', '$user_id') // Relation to the user
+			user: S.RelationById('user', '$user_id'), // Relation to the user
+			event: S.RelationById('events', '$event_id')
 		},
 		permissions: {
 			user: {

@@ -25,8 +25,8 @@
 </script>
 
 <CenterScreenMessage>
-	<h1>Oops! We couldn’t find your event.</h1>
-	<ul class="m-2 mt-3 list-disc space-y-2">
+	<h1 class="text-lg">Oops! We couldn’t find your event.</h1>
+	<ul class="m-2 mt-3 list-disc space-y-2 text-base">
 		<li>It was auto-deleted after 2 weeks 🎆</li>
 		<li>It never existed 🪐</li>
 		<li>We're having technical issues 🥵</li>
