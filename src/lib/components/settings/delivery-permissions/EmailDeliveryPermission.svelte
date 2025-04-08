@@ -5,7 +5,11 @@
 	import { getFeWorkerTriplitClient } from '$lib/triplit';
 	import { page } from '$app/stores';
 	import { and, type TriplitClient } from '@triplit/client';
-	import { togglePermission } from '$lib/permissions';
+	import {
+		getEffectivePermissionSettingForEvent,
+		getPermissionFiltersForEventAndPermissionType,
+		togglePermission
+	} from '$lib/permissions';
 	import { DeliveryPermissions } from '$lib/enums';
 	import { CircleAlert, Mail } from 'lucide-svelte';
 	import * as HoverCard from '$lib/components/ui/hover-card/index.js';
@@ -15,16 +19,9 @@
 	let isGranted = $state(false);
 	let loadingPermisison = $state(true);
 	let client: TriplitClient | undefined = $state();
-	let permissionId: string | null = $state(null);
 
 	onMount(() => {
 		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
-
-		let eventIdFilter: any = [['event_id', 'isDefined', false]];
-
-		if (eventId) {
-			eventIdFilter = [...eventIdFilter, ['event_id', '=', eventId]];
-		}
 
 		const unsubscribe = client.subscribe(
 			client
@@ -33,14 +30,12 @@
 					and([
 						['user_id', '=', userId],
 						['permission', '=', DeliveryPermissions.email_notifications],
-						...eventIdFilter
+						getPermissionFiltersForEventAndPermissionType(eventId)
 					])
 				),
 			(results) => {
-				if (results.length == 1) {
-					isGranted = results[0].granted;
-					permissionId = results[0].id;
-				}
+				console.log('results email', results);
+				isGranted = getEffectivePermissionSettingForEvent(results);
 				loadingPermisison = false;
 			},
 			(error) => {
@@ -64,7 +59,6 @@
 		await togglePermission(
 			client,
 			userId,
-			permissionId,
 			DeliveryPermissions.email_notifications,
 			true,
 			eventId
@@ -75,7 +69,6 @@
 		await togglePermission(
 			client,
 			userId,
-			permissionId,
 			DeliveryPermissions.email_notifications,
 			false,
 			eventId

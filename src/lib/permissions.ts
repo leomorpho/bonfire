@@ -1,9 +1,9 @@
-import type { TriplitClient } from '@triplit/client';
+import { or, type Models, type TriplitClient, type WhereFilter } from '@triplit/client';
+import type { PermissionsArray } from './types';
 
 export async function togglePermission(
 	client: TriplitClient | null | undefined,
 	userId: string,
-	permissionId: string | null,
 	permissionType: string,
 	granted: boolean,
 	eventId: string | null = null
@@ -12,16 +12,19 @@ export async function togglePermission(
 		if (!client) {
 			return;
 		}
-		if (permissionId) {
+		let id = permissionType + '_' + userId;
+		if (eventId) {
+			id = id + `_${eventId}`;
+		}
+
+		const perm = await client.fetchById('delivery_permissions', id);
+
+		if (perm) {
 			// Update existing permission
-			await client.http.update('delivery_permissions', permissionId, (o) => {
+			await client.http.update('delivery_permissions', perm.id, (o) => {
 				o.granted = granted;
 			});
 		} else {
-			let id = permissionType + '_' + userId;
-			if (eventId) {
-				id = id + `_${eventId}`;
-			}
 			// Create new permission if it doesn't exist
 			return await client.http.insert('delivery_permissions', {
 				id: id,
@@ -35,3 +38,28 @@ export async function togglePermission(
 		console.error('An error occurred while updating the permission.', error);
 	}
 }
+
+export const getPermissionFiltersForEventAndPermissionType = (eventId: string | null = null) => {
+	let eventIdFilter: Array<WhereFilter<Models, string>> = [['event_id', 'isDefined', false]];
+
+	if (eventId) {
+		eventIdFilter = [...eventIdFilter, ['event_id', '=', eventId]];
+	}
+	return or(eventIdFilter);
+};
+
+export const getEffectivePermissionSettingForEvent = (permissions: PermissionsArray): boolean => {
+	// Find the permission with an event_id set
+	const eventSpecificPermission = permissions.find((perm) => perm.event_id !== undefined);
+
+	// If an event-specific permission is found, return its granted status and id
+	if (eventSpecificPermission) {
+		return eventSpecificPermission.granted;
+	}
+
+	// If no event-specific permission is found, return the granted status and id of the general permission
+	const generalPermission = permissions.find((perm) => perm.event_id === undefined);
+
+	// Return the granted status and id of the general permission, or default values if none is found
+	return generalPermission ? generalPermission.granted : false;
+};

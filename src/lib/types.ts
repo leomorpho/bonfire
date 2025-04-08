@@ -212,3 +212,14 @@ export interface FontSelection {
 	style: string;
 	cdn: string;
 }
+
+export type NotifierPermission = {
+	id: string;
+	user_id: string;
+	event_id?: string; // Optional event_id
+	permission: string;
+	granted: boolean;
+	created_at: Date;
+};
+
+export type PermissionsArray = NotifierPermission[];

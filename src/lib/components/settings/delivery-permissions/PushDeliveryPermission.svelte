@@ -11,7 +11,11 @@
 	import { page } from '$app/stores';
 	import { and, type TriplitClient } from '@triplit/client';
 	import PushSubscriptionPermission from '../../PushSubscriptionPermission.svelte';
-	import { togglePermission } from '$lib/permissions';
+	import {
+		getEffectivePermissionSettingForEvent,
+		getPermissionFiltersForEventAndPermissionType,
+		togglePermission
+	} from '$lib/permissions';
 	import { DeliveryPermissions } from '$lib/enums';
 	import { Bell } from 'lucide-svelte';
 
@@ -22,7 +26,6 @@
 	let loadingPermisison = $state(true);
 	let loadingSubscriptions = $state(true);
 	let client: TriplitClient | undefined = $state();
-	let permissionId: string | null = $state(null);
 
 	let isPushSubscriptionModalOpen = $state(false);
 
@@ -55,12 +58,6 @@
 			}
 		);
 
-		let eventIdFilter: any = ['event_id', 'isDefined', false];
-
-		if (eventId) {
-			eventIdFilter = ['event_id', '=', eventId];
-		}
-
 		const unsubscribeFromDeliveryPerms = client.subscribe(
 			client
 				.query('delivery_permissions')
@@ -68,14 +65,11 @@
 					and([
 						['user_id', '=', userId],
 						['permission', '=', DeliveryPermissions.push_notifications],
-						eventIdFilter
+						getPermissionFiltersForEventAndPermissionType(eventId)
 					])
 				),
 			(results) => {
-				if (results.length == 1) {
-					isGranted = results[0].granted;
-					permissionId = results[0].id;
-				}
+				isGranted = getEffectivePermissionSettingForEvent(results);
 				loadingPermisison = false;
 			},
 			(error) => {
@@ -131,25 +125,11 @@
 	}
 
 	async function subscribeToPushDeliveryPerm() {
-		await togglePermission(
-			client,
-			userId,
-			permissionId,
-			DeliveryPermissions.push_notifications,
-			true,
-			eventId
-		);
+		await togglePermission(client, userId, DeliveryPermissions.push_notifications, true, eventId);
 	}
 
 	async function unsubscribeFromPushDeliveryPerm() {
-		await togglePermission(
-			client,
-			userId,
-			permissionId,
-			DeliveryPermissions.push_notifications,
-			false,
-			eventId
-		);
+		await togglePermission(client, userId, DeliveryPermissions.push_notifications, false, eventId);
 	}
 
 	async function subscribeToPush() {
@@ -161,6 +141,8 @@
 
 				// Check if the device is already subscribed
 				if (!existingSubscription) {
+					isPushSubscriptionModalOpen = true;
+
 					console.log('Subscribing to push notifications...');
 					const subscription = await registration.pushManager.subscribe({
 						userVisibleOnly: true,
@@ -203,7 +185,10 @@
 			const registration = await navigator.serviceWorker.getRegistration();
 			if (registration) {
 				const subscription = await registration.pushManager.getSubscription();
-				if (subscription) {
+
+				// We only want to unsubscribe officially from all push notifications if it's turned off at
+				// the general app level.
+				if (subscription && !eventId) {
 					const currSubscription = await client?.fetchOne(
 						client.query('push_subscription_registrations').Where(
 							and([
@@ -220,8 +205,6 @@
 							await client?.delete('push_subscription_registrations', currSubscription?.id);
 						}
 
-						await unsubscribeFromPushDeliveryPerm();
-
 						console.log('unsubscribing to push with:', subscription);
 
 						isDeviceSubscribed = false;
@@ -230,6 +213,7 @@
 						toast.error('Failed to unsubscribe. Please try again later.');
 					}
 				}
+				await unsubscribeFromPushDeliveryPerm();
 			}
 		}
 	}
@@ -238,7 +222,6 @@
 		if (isSwitchEnabled) {
 			unsubscribeFromPush();
 		} else {
-			isPushSubscriptionModalOpen = true;
 			subscribeToPush();
 		}
 	}

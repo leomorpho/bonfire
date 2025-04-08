@@ -5,7 +5,11 @@
 	import { getFeWorkerTriplitClient } from '$lib/triplit';
 	import { page } from '$app/stores';
 	import { and, type TriplitClient } from '@triplit/client';
-	import { togglePermission } from '$lib/permissions';
+	import {
+		getEffectivePermissionSettingForEvent,
+		getPermissionFiltersForEventAndPermissionType,
+		togglePermission
+	} from '$lib/permissions';
 	import { DeliveryPermissions } from '$lib/enums';
 	import { goto } from '$app/navigation';
 	import { MessageCircle } from 'lucide-svelte';
@@ -17,17 +21,10 @@
 	let isGranted = $state(false);
 	let loadingPermisison = $state(true);
 	let client: TriplitClient | undefined = $state();
-	let permissionId: string | null = $state(null);
 	let phoneNumber: string | null = $state(null);
 
 	onMount(() => {
 		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
-
-		let eventIdFilter: any = ['event_id', 'isDefined', false];
-
-		if (eventId) {
-			eventIdFilter = ['event_id', '=', eventId];
-		}
 
 		const unsubscribeFromDeliveryPerms = client.subscribe(
 			client
@@ -36,14 +33,11 @@
 					and([
 						['user_id', '=', userId],
 						['permission', '=', DeliveryPermissions.sms_notifications],
-						eventIdFilter
+						getPermissionFiltersForEventAndPermissionType(eventId)
 					])
 				),
 			(results) => {
-				if (results.length == 1) {
-					isGranted = results[0].granted;
-					permissionId = results[0].id;
-				}
+				isGranted = getEffectivePermissionSettingForEvent(results);
 				loadingPermisison = false;
 			},
 			(error) => {
@@ -85,25 +79,11 @@
 			return;
 		}
 
-		await togglePermission(
-			client,
-			userId,
-			permissionId,
-			DeliveryPermissions.sms_notifications,
-			true,
-			eventId
-		);
+		await togglePermission(client, userId, DeliveryPermissions.sms_notifications, true, eventId);
 	}
 
 	async function unsubscribeFromSms() {
-		await togglePermission(
-			client,
-			userId,
-			permissionId,
-			DeliveryPermissions.sms_notifications,
-			false,
-			eventId
-		);
+		await togglePermission(client, userId, DeliveryPermissions.sms_notifications, false, eventId);
 	}
 
 	async function toggleSubscription() {
