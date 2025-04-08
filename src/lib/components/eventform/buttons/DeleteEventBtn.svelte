@@ -27,7 +27,7 @@
 </script>
 
 <Dialog.Root>
-	<Dialog.Trigger class="w-full" disabled={submitDisabled || currUserId != eventCreatorUserId}
+	<Dialog.Trigger class="w-full flex" disabled={submitDisabled || currUserId != eventCreatorUserId}
 		><Button
 			disabled={submitDisabled || currUserId != eventCreatorUserId}
 			class="w-full bg-red-600 ring-glow hover:bg-red-500 dark:bg-red-700 dark:text-white dark:hover:bg-red-600"

@@ -726,13 +726,14 @@
 
 		<div class="my-10 sm:w-[450px]">
 			<div class="flex w-full flex-col justify-center space-y-2">
-				<a href={cancelUrl}>
+				<a class="flex w-full" href={cancelUrl}>
 					<Button
 						class="w-full ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-700"
 					>
 						Cancel
 					</Button>
 				</a>
+
 				{#if isEventCreated && !isEventPublished}
 					<Button
 						disabled={submitDisabled}
