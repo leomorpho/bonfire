@@ -12,7 +12,8 @@
 		Palette,
 		Shield,
 		BookCheck,
-		Save
+		Save,
+		Undo2
 	} from 'lucide-svelte';
 	import DoubleDigitsPicker from '$lib/components/DoubleDigitsPicker.svelte';
 	import TimezonePicker from '$lib/components/TimezonePicker.svelte';
@@ -706,14 +707,14 @@
 
 			<div class="mt-5 flex w-full justify-center space-x-2">
 				<Button
-					class="flex items-center justify-center bg-teal-600 p-4 ring-glow hover:bg-teal-500 dark:bg-teal-700 dark:text-white dark:hover:bg-teal-500"
+					class="flex w-1/2 items-center justify-center bg-teal-600 p-4 ring-glow hover:bg-teal-500 dark:bg-teal-700 dark:text-white dark:hover:bg-teal-500"
 					onclick={startEditEventStyle}
 				>
 					<Palette class="mr-1" />
 					Styles
 				</Button>
 				<Button
-					class="flex items-center justify-center bg-indigo-600 p-4 ring-glow hover:bg-indigo-500 dark:bg-indigo-700 dark:text-white dark:hover:bg-indigo-500"
+					class="flex w-1/2 items-center justify-center bg-indigo-600 p-4 ring-glow hover:bg-indigo-500 dark:bg-indigo-700 dark:text-white dark:hover:bg-indigo-500"
 					disabled={!event || event?.user_id != currUserId}
 					onclick={startEditAdmins}
 				>
@@ -725,12 +726,12 @@
 		<!-- <hr class="mt-3 border-1 rounded-full border-t-4 border-gray-200 w-full" /> -->
 
 		<div class="my-10 sm:w-[450px]">
-			<div class="flex w-full flex-col justify-center space-y-2">
+			<div class="grid w-full grid-cols-2 gap-2">
 				<a class="flex w-full" href={cancelUrl}>
 					<Button
 						class="w-full ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-700"
 					>
-						Cancel
+						<Undo2 class="ml-1 mr-1 h-4 w-4" /> Cancel
 					</Button>
 				</a>
 
@@ -770,19 +771,17 @@
 						{/if}
 					</Button>
 				{/if}
-				<div class="space-y-2 sm:flex sm:space-x-2 sm:space-y-0">
-					{#if isEventPublished}
-						<UnpublishEventBtn {submitDisabled} eventId={event.id} />
-					{/if}
-					{#if mode == EventFormType.UPDATE && event && currUserId == event.user_id}
-						<DeleteEventBtn
-							{submitDisabled}
-							{currUserId}
-							eventCreatorUserId={event.user_id}
-							eventId={event.id}
-						/>
-					{/if}
-				</div>
+				{#if isEventPublished}
+					<UnpublishEventBtn {submitDisabled} eventId={event.id} />
+				{/if}
+				{#if mode == EventFormType.UPDATE && event && currUserId == event.user_id}
+					<DeleteEventBtn
+						{submitDisabled}
+						{currUserId}
+						eventCreatorUserId={event.user_id}
+						eventId={event.id}
+					/>
+				{/if}
 			</div>
 		</div>
 	{:else if currentEventEditingMode == editingStyles}
