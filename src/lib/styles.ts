@@ -1,5 +1,6 @@
 import { writable } from 'svelte/store';
 import type { FontSelection } from '$lib/types';
+import { Font } from './enums';
 
 // Create a writable store for the style
 export const styleStore = writable<string>('');
@@ -32,6 +33,23 @@ export function parseColor(hex: string): string {
 }
 
 export const randomSort = (array) => array.sort(() => Math.random() - 0.5);
+
+
+// Function to get a random FontSelection
+export function getRandomFontSelection(): FontSelection {
+	// Convert the Font object to an array of entries
+	const fontEntries = Object.entries(Font);
+
+	// Select a random entry from the array
+	const [randomFontName, randomFontDetails] = fontEntries[Math.floor(Math.random() * fontEntries.length)];
+
+	// Return the FontSelection object
+	return {
+		name: randomFontName,
+		style: randomFontDetails.style,
+		cdn: randomFontDetails.cdn
+	};
+}
 
 export const stylesGallery = [
 	{

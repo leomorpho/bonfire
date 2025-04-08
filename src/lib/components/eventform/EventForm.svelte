@@ -21,7 +21,7 @@
 	import { getFeHttpTriplitClient, getFeWorkerTriplitClient, waitForUserId } from '$lib/triplit';
 	import { goto } from '$app/navigation';
 	import type { TriplitClient } from '@triplit/client';
-	import { EventFormType, Status } from '$lib/enums';
+	import { EventFormType, Font, Status } from '$lib/enums';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 	import {
@@ -31,7 +31,8 @@
 		stylesGallery,
 		styleStore,
 		randomSort,
-		fontStore
+		fontStore,
+		getRandomFontSelection
 	} from '$lib/styles';
 	import { generatePassphraseId } from '$lib/utils';
 	import ChevronLeft from 'svelte-radix/ChevronLeft.svelte';
@@ -94,11 +95,17 @@
 	);
 
 	const defaultBackground = randomSort(stylesGallery)[0].cssTemplate;
+	const defaultFont: FontSelection = getRandomFontSelection();
+
 	console.log('defaultBackground', defaultBackground);
 	let finalStyleCss: string = $state(event?.style ?? defaultBackground);
 	let overlayColor: string = $state(event?.overlay_color ?? '#000000');
 	let overlayOpacity: number = $state(event?.overlay_opacity ?? 0.4);
-	let font: FontSelection | null = $state(event?.font ? JSON.parse(event?.font) : null);
+	let font: FontSelection | null = $state(event?.font ? JSON.parse(event?.font) : defaultFont);
+
+	$effect(() => {
+		console.log('randomly selected font', font);
+	});
 
 	let eventStartDatetime: Date | null = $state(null);
 	let eventEndDatetime: Date | null = $state(null);

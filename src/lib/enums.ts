@@ -182,10 +182,10 @@ export const Font = {
 		style: "font-family: 'Open Sans', sans-serif;",
 		cdn: 'https://fonts.googleapis.com/css2?family=Open+Sans&display=swap'
 	},
-	PlayfairDisplay: {
-		style: "font-family: 'Playfair Display', serif;",
-		cdn: 'https://fonts.googleapis.com/css2?family=Playfair+Display&display=swap'
-	},
+	// PlayfairDisplay: {
+	// 	style: "font-family: 'Playfair Display', serif;",
+	// 	cdn: 'https://fonts.googleapis.com/css2?family=Playfair+Display&display=swap'
+	// },
 	Merriweather: {
 		style: "font-family: 'Merriweather', serif;",
 		cdn: 'https://fonts.googleapis.com/css2?family=Merriweather&display=swap'
@@ -194,10 +194,10 @@ export const Font = {
 		style: "font-family: 'Raleway', sans-serif;",
 		cdn: 'https://fonts.googleapis.com/css2?family=Raleway&display=swap'
 	},
-	PTSerif: {
-		style: "font-family: 'PT Serif', serif;",
-		cdn: 'https://fonts.googleapis.com/css2?family=PT+Serif&display=swap'
-	},
+	// PTSerif: {
+	// 	style: "font-family: 'PT Serif', serif;",
+	// 	cdn: 'https://fonts.googleapis.com/css2?family=PT+Serif&display=swap'
+	// },
 	FiraSans: {
 		style: "font-family: 'Fira Sans', sans-serif;",
 		cdn: 'https://fonts.googleapis.com/css2?family=Fira+Sans&display=swap'
@@ -282,10 +282,10 @@ export const Font = {
 		style: "font-family: 'Mansalva', cursive; font-size: 1.8em;",
 		cdn: 'https://fonts.googleapis.com/css2?family=Mansalva&display=swap'
 	},
-	Audiowide: {
-		style: "font-family: 'Audiowide', cursive;",
-		cdn: 'https://fonts.googleapis.com/css2?family=Audiowide&display=swap'
-	},
+	// Audiowide: {
+	// 	style: "font-family: 'Audiowide', cursive;",
+	// 	cdn: 'https://fonts.googleapis.com/css2?family=Audiowide&display=swap'
+	// },
 	// Handjet: {
 	// 	style: "font-family: 'Handjet', cursive; font-size: 1.8em;",
 	// 	cdn: 'https://fonts.googleapis.com/css2?family=Handjet&display=swap'
@@ -298,10 +298,10 @@ export const Font = {
 		style: "font-family: 'Berkshire Swash', cursive;",
 		cdn: 'https://fonts.googleapis.com/css2?family=Berkshire+Swash&display=swap'
 	},
-	Tourney: {
-		style: "font-family: 'Tourney', cursive;",
-		cdn: 'https://fonts.googleapis.com/css2?family=Tourney&display=swap'
-	},
+	// Tourney: {
+	// 	style: "font-family: 'Tourney', cursive;",
+	// 	cdn: 'https://fonts.googleapis.com/css2?family=Tourney&display=swap'
+	// },
 	LobsterTwo: {
 		style: "font-family: 'Lobster Two', cursive; font-size: 1.7em;",
 		cdn: 'https://fonts.googleapis.com/css2?family=Lobster+Two&display=swap'
@@ -358,10 +358,10 @@ export const Font = {
 	// 	style: "font-family: 'Rubik Mono One', monospace; font-size: 1.2em;",
 	// 	cdn: 'https://fonts.googleapis.com/css2?family=Rubik+Mono+One&display=swap'
 	// },
-	YanoneKaffeesatz: {
-		style: "font-family: 'Yanone Kaffeesatz', sans-serif; font-size: 1.7em;",
-		cdn: 'https://fonts.googleapis.com/css2?family=Yanone+Kaffeesatz&display=swap'
-	},
+	// YanoneKaffeesatz: {
+	// 	style: "font-family: 'Yanone Kaffeesatz', sans-serif; font-size: 1.7em;",
+	// 	cdn: 'https://fonts.googleapis.com/css2?family=Yanone+Kaffeesatz&display=swap'
+	// },
 	Prata: {
 		style: "font-family: 'Prata', serif; font-size: 1.2em;",
 		cdn: 'https://fonts.googleapis.com/css2?family=Prata&display=swap'
