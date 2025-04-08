@@ -1,9 +1,10 @@
 <script lang="ts">
-	import { Font } from '$lib/enums';
 	import ScrollArea from '$lib/jsrepo/ui/scroll-area/scroll-area.svelte';
 	import { onMount } from 'svelte';
 	import type { FontSelection } from '$lib/types';
 	import { Check } from 'lucide-svelte';
+	import { Font } from '$lib/styles';
+	import * as Command from '$lib/components/ui/command/index.js';
 
 	// Initialize selectedFont as an object with name, style, and cdn properties
 	let { selectedFont = $bindable<FontSelection | null>(null), onSelect } = $props();
@@ -36,31 +37,38 @@
 	});
 </script>
 
-<div class="h-[90vh] sm:h-[80vh]">
-	<ScrollArea class="h-full">
-		{#if selectedFont}
-			<div
-				style={selectedFont.style}
-				class="font-sample w-full rounded-lg bg-blue-200 p-4 text-black dark:bg-blue-800 dark:text-white"
-			>
-				<div class="flex justify-center">
-					<span class="text-green-600 dark:text-green-400"><Check /> </span>
-					<strong>{selectedFont.name}</strong>
-				</div>
-				<div class="flex w-full justify-center">{sampleText}</div>
+<div>
+	{#if selectedFont}
+		<div
+			style={selectedFont.style}
+			class="font-sample w-full rounded-lg bg-blue-200 p-4 text-black dark:bg-blue-800 dark:text-white"
+		>
+			<div class="flex justify-center">
+				<span class="text-green-600 dark:text-green-400"><Check /> </span>
+				<strong>{selectedFont.name}</strong>
 			</div>
-		{/if}
-		{#each sortedFonts as [fontName, { style: fontStyle, cdn: fontCdn }]}
-			<button
-				class="font-sample w-full rounded-lg bg-slate-200 p-4 text-black transition-all duration-200 hover:bg-green-100 dark:bg-slate-800 dark:text-white dark:hover:bg-green-800"
-				style={fontStyle}
-				onclick={() => selectFont(fontName, fontStyle, fontCdn)}
-			>
-				<div class="mb-2"><strong>{fontName}</strong></div>
-				{sampleText}
-			</button>
-		{/each}
-	</ScrollArea>
+			<div class="flex w-full justify-center">{sampleText}</div>
+		</div>
+	{/if}
+	<Command.Root>
+		<Command.Input placeholder="Search font..." class="mt-3 h-9" />
+		<Command.List>
+			<Command.Empty>No fonts found.</Command.Empty>
+			<Command.Group>
+				{#each sortedFonts as [fontName, { style: fontStyle, cdn: fontCdn }]}
+					<Command.Item
+						class="font-sample my-2 flex w-full flex-col rounded-lg bg-slate-200 p-2 text-black transition-all duration-200 hover:bg-green-100 dark:bg-slate-800 dark:text-white dark:hover:bg-green-800"
+						value={fontName}
+						style={fontStyle}
+						onSelect={() => selectFont(fontName, fontStyle, fontCdn)}
+					>
+						<div class="mb-1"><strong>{fontName}</strong></div>
+						{sampleText}
+					</Command.Item>
+				{/each}
+			</Command.Group>
+		</Command.List>
+	</Command.Root>
 </div>
 
 <style>

@@ -21,18 +21,17 @@
 	import { getFeHttpTriplitClient, getFeWorkerTriplitClient, waitForUserId } from '$lib/triplit';
 	import { goto } from '$app/navigation';
 	import type { TriplitClient } from '@triplit/client';
-	import { EventFormType, Font, Status } from '$lib/enums';
+	import { EventFormType, Status } from '$lib/enums';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 	import {
 		overlayColorStore,
 		overlayOpacityStore,
 		parseColor,
-		stylesGallery,
 		styleStore,
-		randomSort,
 		fontStore,
-		getRandomFontSelection
+		getNextTheme,
+		getNextFont
 	} from '$lib/styles';
 	import { generatePassphraseId } from '$lib/utils';
 	import ChevronLeft from 'svelte-radix/ChevronLeft.svelte';
@@ -50,6 +49,7 @@
 	import GuestCountFeature from './GuestCountFeature.svelte';
 	import { upsertUserAttendance } from '$lib/rsvp';
 	import type { FontSelection } from '$lib/types';
+	import { PaintBucket, TypeOutline } from '@lucide/svelte';
 
 	let { mode, event = null, currUserId = null } = $props();
 
@@ -94,8 +94,8 @@
 		!(dateValue && eventName.length > 0 && startHour.length > 0) || !event || isEventSaving
 	);
 
-	const defaultBackground = randomSort(stylesGallery)[0].cssTemplate;
-	const defaultFont: FontSelection = getRandomFontSelection();
+	let defaultBackground = getNextTheme();
+	let defaultFont: FontSelection = getNextFont();
 
 	let finalStyleCss: string = $state(event?.style ?? defaultBackground);
 	let overlayColor: string = $state(event?.overlay_color ?? '#000000');
@@ -112,6 +112,14 @@
 	let isEventPublished = $derived(event && event.is_published);
 	let userIsOutOfLogs = $derived(!numLogsLoading && numLogs == 0 && event && !event.isPublished);
 	let userFavoriteNonProfitId = $state(null);
+
+	const getRandomTheme = () => {
+		finalStyleCss = getNextTheme();
+	};
+
+	const getRandomFont = () => {
+		font = getNextFont();
+	};
 
 	$effect(() => {
 		console.log('userFavoriteNonProfitId', userFavoriteNonProfitId);
@@ -521,7 +529,7 @@
 			<h2
 				class="mb-2 flex w-full items-center justify-between rounded-xl bg-white p-2 text-lg font-semibold dark:bg-slate-900"
 			>
-				<BackButton url={`/bonfire/${eventId}`} />
+				<BackButton url={eventId ? `/bonfire/${eventId}` : '/dashboard'} />
 				<div>
 					{mode === EventFormType.CREATE
 						? capitalize(EventFormType.CREATE)
@@ -548,6 +556,22 @@
 						</div>
 					</div>
 				{/if}
+				<div class="mt-5 flex w-full justify-center space-x-2 text-xs">
+					<Button
+						class="justify-centerp-4 flex items-center bg-violet-600 ring-glow hover:bg-violet-500 dark:bg-violet-700 dark:text-white dark:hover:bg-violet-500"
+						onclick={getRandomTheme}
+					>
+						<PaintBucket class="mr-1" />
+						Random background
+					</Button>
+					<Button
+						class="flex items-center justify-center bg-violet-600 p-4 ring-glow hover:bg-violet-500 dark:bg-violet-700 dark:text-white dark:hover:bg-violet-500"
+						onclick={getRandomFont}
+					>
+						<TypeOutline class="mr-1" />
+						Random Font
+					</Button>
+				</div>
 				<Input
 					type="text"
 					placeholder="Event Name"

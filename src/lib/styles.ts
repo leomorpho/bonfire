@@ -1,6 +1,5 @@
 import { writable } from 'svelte/store';
 import type { FontSelection } from '$lib/types';
-import { Font } from './enums';
 
 // Create a writable store for the style
 export const styleStore = writable<string>('');
@@ -34,14 +33,14 @@ export function parseColor(hex: string): string {
 
 export const randomSort = (array) => array.sort(() => Math.random() - 0.5);
 
-
 // Function to get a random FontSelection
 export function getRandomFontSelection(): FontSelection {
 	// Convert the Font object to an array of entries
 	const fontEntries = Object.entries(Font);
 
 	// Select a random entry from the array
-	const [randomFontName, randomFontDetails] = fontEntries[Math.floor(Math.random() * fontEntries.length)];
+	const [randomFontName, randomFontDetails] =
+		fontEntries[Math.floor(Math.random() * fontEntries.length)];
 
 	// Return the FontSelection object
 	return {
@@ -50,6 +49,57 @@ export function getRandomFontSelection(): FontSelection {
 		cdn: randomFontDetails.cdn
 	};
 }
+
+// Track the used themes and fonts
+const usedThemes: Set<string> = new Set();
+const usedFonts: Set<string> = new Set();
+
+// Function to get the next available theme
+export const getNextTheme = () => {
+	// Filter out used themes
+	const availableThemes = stylesGallery.filter((style) => !usedThemes.has(style.cssTemplate));
+
+	if (availableThemes.length === 0) {
+		// Reset if all themes have been used
+		usedThemes.clear();
+		return stylesGallery[0].cssTemplate;
+	}
+
+	// Select a random available theme
+	const nextTheme = availableThemes[Math.floor(Math.random() * availableThemes.length)];
+	usedThemes.add(nextTheme.cssTemplate);
+	return nextTheme.cssTemplate;
+};
+
+// Function to get the next available font
+export const getNextFont = (): FontSelection => {
+	// Convert the Font object to an array of entries
+	const fontEntries = Object.entries(Font);
+
+	// Filter out used fonts
+	const availableFonts = fontEntries.filter(([fontName]) => !usedFonts.has(fontName));
+
+	if (availableFonts.length === 0) {
+		// Reset if all fonts have been used
+		usedFonts.clear();
+		const [firstFontName, firstFontDetails] = fontEntries[0];
+		return {
+			name: firstFontName,
+			style: firstFontDetails.style,
+			cdn: firstFontDetails.cdn
+		};
+	}
+
+	// Select a random available font
+	const [nextFontName, nextFontDetails] =
+		availableFonts[Math.floor(Math.random() * availableFonts.length)];
+	usedFonts.add(nextFontName);
+	return {
+		name: nextFontName,
+		style: nextFontDetails.style,
+		cdn: nextFontDetails.cdn
+	};
+};
 
 export const stylesGallery = [
 	{
@@ -2542,3 +2592,238 @@ background-size: 100px 50px;
     `
 	}
 ];
+
+export const Font = {
+	Roboto: {
+		style: "font-family: 'Roboto', sans-serif;",
+		cdn: 'https://fonts.googleapis.com/css2?family=Roboto&display=swap'
+	},
+	Montserrat: {
+		style: "font-family: 'Montserrat', sans-serif;",
+		cdn: 'https://fonts.googleapis.com/css2?family=Montserrat&display=swap'
+	},
+	Lato: {
+		style: "font-family: 'Lato', sans-serif;",
+		cdn: 'https://fonts.googleapis.com/css2?family=Lato&display=swap'
+	},
+	OpenSans: {
+		style: "font-family: 'Open Sans', sans-serif;",
+		cdn: 'https://fonts.googleapis.com/css2?family=Open+Sans&display=swap'
+	},
+	// PlayfairDisplay: {
+	// 	style: "font-family: 'Playfair Display', serif;",
+	// 	cdn: 'https://fonts.googleapis.com/css2?family=Playfair+Display&display=swap'
+	// },
+	Merriweather: {
+		style: "font-family: 'Merriweather', serif;",
+		cdn: 'https://fonts.googleapis.com/css2?family=Merriweather&display=swap'
+	},
+	Raleway: {
+		style: "font-family: 'Raleway', sans-serif;",
+		cdn: 'https://fonts.googleapis.com/css2?family=Raleway&display=swap'
+	},
+	// PTSerif: {
+	// 	style: "font-family: 'PT Serif', serif;",
+	// 	cdn: 'https://fonts.googleapis.com/css2?family=PT+Serif&display=swap'
+	// },
+	FiraSans: {
+		style: "font-family: 'Fira Sans', sans-serif;",
+		cdn: 'https://fonts.googleapis.com/css2?family=Fira+Sans&display=swap'
+	},
+	Barlow: {
+		style: "font-family: 'Barlow', sans-serif;",
+		cdn: 'https://fonts.googleapis.com/css2?family=Barlow&display=swap'
+	},
+	JetBrainsMonoVariable: {
+		style: "font-family: 'JetBrains Mono', monospace;",
+		cdn: 'https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap'
+	},
+	Caveat: {
+		style: "font-family: 'Caveat', cursive; font-size: 2.0em;",
+		cdn: 'https://fonts.googleapis.com/css2?family=Caveat&display=swap'
+	},
+	DancingScript: {
+		style: "font-family: 'Dancing Script', cursive; font-size: 2.0em;",
+		cdn: 'https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap'
+	},
+	GrenzeGotischVariable: {
+		style: "font-family: 'Grenze Gotisch', system-ui; font-size: 1.5em;",
+		cdn: 'https://fonts.googleapis.com/css2?family=Grenze+Gotisch&display=swap'
+	},
+	RockSalt: {
+		style: "font-family: 'Rock Salt', cursive;",
+		cdn: 'https://fonts.googleapis.com/css2?family=Rock+Salt&display=swap'
+	},
+	DotGothic16: {
+		style: "font-family: 'DotGothic16', sans-serif;",
+		cdn: 'https://fonts.googleapis.com/css2?family=DotGothic16&display=swap'
+	},
+	Exo2: {
+		style: "font-family: 'Exo 2', sans-serif;",
+		cdn: 'https://fonts.googleapis.com/css2?family=Exo+2&display=swap'
+	},
+	Lexend: {
+		style: "font-family: 'Lexend', sans-serif;",
+		cdn: 'https://fonts.googleapis.com/css2?family=Lexend&display=swap'
+	},
+	// KronaOne: {
+	// 	style: "font-family: 'Krona One', sans-serif;",
+	// 	cdn: 'https://fonts.googleapis.com/css2?family=Krona+One&display=swap'
+	// },
+	Alice: {
+		style: "font-family: 'Alice', serif;",
+		cdn: 'https://fonts.googleapis.com/css2?family=Alice&display=swap'
+	},
+	InknutAntiqua: {
+		style: "font-family: 'Inknut Antiqua', serif;",
+		cdn: 'https://fonts.googleapis.com/css2?family=Inknut+Antiqua&display=swap'
+	},
+	PermanentMarker: {
+		style: "font-family: 'Permanent Marker', cursive;",
+		cdn: 'https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap'
+	},
+	VT323: {
+		style: "font-family: 'VT323', monospace;",
+		cdn: 'https://fonts.googleapis.com/css2?family=VT323&display=swap'
+	},
+	IndieFlower: {
+		style: "font-family: 'Indie Flower', cursive; font-size: 1.8em;",
+		cdn: 'https://fonts.googleapis.com/css2?family=Indie+Flower&display=swap'
+	},
+	ChakraPetch: {
+		style: "font-family: 'Chakra Petch', sans-serif;",
+		cdn: 'https://fonts.googleapis.com/css2?family=Chakra+Petch&display=swap'
+	},
+	CedarvilleCursive: {
+		style: "font-family: 'Cedarville Cursive', cursive; font-size: 1.8em;",
+		cdn: 'https://fonts.googleapis.com/css2?family=Cedarville+Cursive&display=swap'
+	},
+	TwinkleStar: {
+		style: "font-family: 'Twinkle Star', cursive; font-size: 1.8em;",
+		cdn: 'https://fonts.googleapis.com/css2?family=Twinkle+Star&display=swap'
+	},
+	SpecialElite: {
+		style: "font-family: 'Special Elite', cursive;",
+		cdn: 'https://fonts.googleapis.com/css2?family=Special+Elite&display=swap'
+	},
+	Mansalva: {
+		style: "font-family: 'Mansalva', cursive; font-size: 1.8em;",
+		cdn: 'https://fonts.googleapis.com/css2?family=Mansalva&display=swap'
+	},
+	// Audiowide: {
+	// 	style: "font-family: 'Audiowide', cursive;",
+	// 	cdn: 'https://fonts.googleapis.com/css2?family=Audiowide&display=swap'
+	// },
+	// Handjet: {
+	// 	style: "font-family: 'Handjet', cursive; font-size: 1.8em;",
+	// 	cdn: 'https://fonts.googleapis.com/css2?family=Handjet&display=swap'
+	// },
+	FingerPaint: {
+		style: "font-family: 'Finger Paint', cursive;",
+		cdn: 'https://fonts.googleapis.com/css2?family=Finger+Paint&display=swap'
+	},
+	BerkshireSwash: {
+		style: "font-family: 'Berkshire Swash', cursive;",
+		cdn: 'https://fonts.googleapis.com/css2?family=Berkshire+Swash&display=swap'
+	},
+	// Tourney: {
+	// 	style: "font-family: 'Tourney', cursive;",
+	// 	cdn: 'https://fonts.googleapis.com/css2?family=Tourney&display=swap'
+	// },
+	LobsterTwo: {
+		style: "font-family: 'Lobster Two', cursive; font-size: 1.7em;",
+		cdn: 'https://fonts.googleapis.com/css2?family=Lobster+Two&display=swap'
+	},
+	FrederickatheGreat: {
+		style: "font-family: 'Fredericka the Great', cursive; font-size: 1.4em;", // Adjusted size
+		cdn: 'https://fonts.googleapis.com/css2?family=Fredericka+the+Great&display=swap'
+	},
+	// Sacramento: {
+	// 	style: "font-family: 'Sacramento', cursive; font-size: 2.5em;",
+	// 	cdn: 'https://fonts.googleapis.com/css2?family=Sacramento&display=swap'
+	// },
+	ShadowsIntoLightTwo: {
+		style: "font-family: 'Shadows Into Light Two', cursive;",
+		cdn: 'https://fonts.googleapis.com/css2?family=Shadows+Into+Light+Two&display=swap'
+	},
+	Underdog: {
+		style: "font-family: 'Underdog', cursive; font-size: 1.2em;",
+		cdn: 'https://fonts.googleapis.com/css2?family=Underdog&display=swap'
+	},
+	Codystar: {
+		style: "font-family: 'Codystar', cursive; font-size: 1.2em;",
+		cdn: 'https://fonts.googleapis.com/css2?family=Codystar&display=swap'
+	},
+	LibreBaskerville: {
+		style: "font-family: 'Libre Baskerville', serif; font-size: 1.2em;",
+		cdn: 'https://fonts.googleapis.com/css2?family=Libre+Baskerville&display=swap'
+	},
+	JosefinSans: {
+		style: "font-family: 'Josefin Sans', sans-serif; font-size: 1.2em;",
+		cdn: 'https://fonts.googleapis.com/css2?family=Josefin+Sans&display=swap'
+	},
+	// AbrilFatface: {
+	// 	style: "font-family: 'Abril Fatface', cursive; font-size: 1.6em;", // Adjusted size
+	// 	cdn: 'https://fonts.googleapis.com/css2?family=Abril+Fatface&display=swap'
+	// },
+	// BigShouldersStencil: {
+	// 	style: "font-family: 'Big Shoulders Stencil', cursive; font-size: 1.5em;",
+	// 	cdn: 'https://fonts.googleapis.com/css2?family=Big+Shoulders+Stencil&display=swap'
+	// },
+	Orbitron: {
+		style: "font-family: 'Orbitron', sans-serif; font-size: 1.2em;",
+		cdn: 'https://fonts.googleapis.com/css2?family=Orbitron&display=swap'
+	},
+	Righteous: {
+		style: "font-family: 'Righteous', cursive; font-size: 1.2em;",
+		cdn: 'https://fonts.googleapis.com/css2?family=Righteous&display=swap'
+	},
+	// AmaticSC: {
+	// 	style: "font-family: 'Amatic SC', cursive; font-size: 1.8em;", // Adjusted size
+	// 	cdn: 'https://fonts.googleapis.com/css2?family=Amatic+SC&display=swap'
+	// },
+	// RubikMonoOne: {
+	// 	style: "font-family: 'Rubik Mono One', monospace; font-size: 1.2em;",
+	// 	cdn: 'https://fonts.googleapis.com/css2?family=Rubik+Mono+One&display=swap'
+	// },
+	// YanoneKaffeesatz: {
+	// 	style: "font-family: 'Yanone Kaffeesatz', sans-serif; font-size: 1.7em;",
+	// 	cdn: 'https://fonts.googleapis.com/css2?family=Yanone+Kaffeesatz&display=swap'
+	// },
+	Prata: {
+		style: "font-family: 'Prata', serif; font-size: 1.2em;",
+		cdn: 'https://fonts.googleapis.com/css2?family=Prata&display=swap'
+	},
+	Cantarell: {
+		style: "font-family: 'Cantarell', sans-serif; font-size: 1.2em;",
+		cdn: 'https://fonts.googleapis.com/css2?family=Cantarell&display=swap'
+	},
+	AdventPro: {
+		style: "font-family: 'Advent Pro', sans-serif; font-size: 1.4em;",
+		cdn: 'https://fonts.googleapis.com/css2?family=Advent+Pro&display=swap'
+	},
+	// Monoton: {
+	// 	style: "font-family: 'Monoton', cursive; font-size: 1.6em;", // Adjusted size
+	// 	cdn: 'https://fonts.googleapis.com/css2?family=Monoton&display=swap'
+	// },
+	Creepster: {
+		style: "font-family: 'Creepster', cursive; font-size: 1.2em;",
+		cdn: 'https://fonts.googleapis.com/css2?family=Creepster&display=swap'
+	},
+	// RubikBubbles: {
+	// 	style: "font-family: 'Rubik Bubbles', cursive; font-size: 1.2em;",
+	// 	cdn: 'https://fonts.googleapis.com/css2?family=Rubik+Bubbles&display=swap'
+	// },
+	// Ultra: {
+	// 	style: "font-family: 'Ultra', serif; font-size: 1.2em;",
+	// 	cdn: 'https://fonts.googleapis.com/css2?family=Ultra&display=swap'
+	// },
+	// Fascinate: {
+	// 	style: "font-family: 'Fascinate', cursive; font-size: 1.2em;",
+	// 	cdn: 'https://fonts.googleapis.com/css2?family=Fascinate&display=swap'
+	// },
+	Metamorphous: {
+		style: "font-family: 'Metamorphous', cursive; font-size: 1.2em;",
+		cdn: 'https://fonts.googleapis.com/css2?family=Metamorphous&display=swap'
+	}
+};
