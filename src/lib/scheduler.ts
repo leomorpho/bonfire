@@ -1,6 +1,6 @@
 import { ToadScheduler, SimpleIntervalJob, Task } from 'toad-scheduler';
 import { triplitHttpClient } from './server/triplit';
-import { runNotificationProcessor } from './server/notifications';
+import { runNotificationProcessor, runReminderNotificationTask } from './server/notifications';
 import { unlockAllTasks } from './server/database/tasklock';
 
 const scheduler = new ToadScheduler();
@@ -45,14 +45,29 @@ const notificationQueueCleanupTask = new Task('Cleanup Old Notifications Queue',
 	}
 });
 
+const reminderNotificationsTask = new Task(
+	'Notify attendees of event happening in x time',
+	async () => {
+		try {
+			runReminderNotificationTask();
+
+			// console.log('Notification processing complete.');
+		} catch (error) {
+			console.error('Error while processing notifications:', error);
+		}
+	}
+);
+
 export const taskRunner = async () => {
 	try {
 		// Schedule the task
 		const notificationJob = new SimpleIntervalJob({ seconds: 3 }, notificationTask);
 		const cleanupJob = new SimpleIntervalJob({ hours: 6 }, notificationQueueCleanupTask);
+		const reminderNotificationsJob = new SimpleIntervalJob({ hours: 1 }, reminderNotificationsTask);
 
 		scheduler.addSimpleIntervalJob(notificationJob);
 		scheduler.addSimpleIntervalJob(cleanupJob);
+		scheduler.addSimpleIntervalJob(reminderNotificationsJob);
 
 		// Graceful shutdown handler
 		const handleShutdown = async () => {

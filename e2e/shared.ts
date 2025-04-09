@@ -123,7 +123,7 @@ export async function createBonfire(
 	await expect(page.getByRole('button', { name: 'to' }).first()).toBeVisible();
 	await expect(page.getByText('Enter event address...')).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Cancel' })).toBeVisible();
-	await expect(page.getByRole('button', { name: 'Edit event style' })).toBeVisible();
+	await expect(page.getByRole('button', { name: 'Styles' })).toBeVisible();
 
 	// Enter info and date
 	await page.getByPlaceholder('Event Name').click();

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { defaultMaxNumGuestsPerAttendee } from './../../enums.ts';
 	import EventStyler from '../event-styles/EventStyler.svelte';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { CalendarDate, type DateValue } from '@internationalized/date';
@@ -22,7 +23,7 @@
 	import { getFeHttpTriplitClient, getFeWorkerTriplitClient, waitForUserId } from '$lib/triplit';
 	import { goto } from '$app/navigation';
 	import type { TriplitClient } from '@triplit/client';
-	import { EventFormType, Status } from '$lib/enums';
+	import { defaultMaxEventCapacity, EventFormType, Status } from '$lib/enums';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 	import {
@@ -51,7 +52,7 @@
 	import { upsertUserAttendance } from '$lib/rsvp';
 	import type { FontSelection } from '$lib/types';
 	import { PaintBucket, RefreshCcw, RefreshCw, TypeOutline } from '@lucide/svelte';
-	import HorizRule from '../HorizRule.svelte';
+	import * as Tabs from '$lib/components/ui/tabs/index.js';
 
 	let { mode, event = null, currUserId = null } = $props();
 
@@ -73,8 +74,10 @@
 	let endHour = $state(''); // State for hour
 	let endMinute = $state(''); // State for minute
 	let ampmEnd: string = $state('PM'); // State for AM/PM
-	let maxCapacity: number | null = $state(event?.max_capacity);
-	let maxNumGuest: number | null = $state(event?.max_num_guests_per_attendee ?? 0);
+	let maxCapacity: number | null = $state(event?.max_capacity ?? defaultMaxEventCapacity);
+	let maxNumGuest: number | null = $state(
+		event?.max_num_guests_per_attendee ?? defaultMaxNumGuestsPerAttendee
+	);
 	let latitude: number | null = $state(event?.latitude);
 	let longitude: number | null = $state(event?.longitude);
 
@@ -539,6 +542,14 @@
 				</div>
 				<div></div>
 			</h2>
+			<!-- <Tabs.Root value="account" class="w-[400px]">
+				<Tabs.List>
+					<Tabs.Trigger value="account">Account</Tabs.Trigger>
+					<Tabs.Trigger value="password">Password</Tabs.Trigger>
+				</Tabs.List>
+				<Tabs.Content value="account">Make changes to your account here.</Tabs.Content>
+				<Tabs.Content value="password">Change your password here.</Tabs.Content>
+			</Tabs.Root> -->
 			<form class="space-y-2">
 				{#if userIsOutOfLogs && !isEventPublished}
 					<OutOfLogs />
@@ -719,7 +730,7 @@
 					onclick={startEditAdmins}
 				>
 					<Shield class="mr-1" />
-					Edit admins
+					Admins
 				</Button>
 			</div>
 		</section>

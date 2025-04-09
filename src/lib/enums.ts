@@ -58,7 +58,8 @@ export enum Status {
 }
 
 export enum TaskName {
-	PROCESS_NOTIFICATION_QUEUE = 'process_notification_queue'
+	PROCESS_NOTIFICATION_QUEUE = 'process_notification_queue',
+	SEND_REMINDER_NOTIFICATIONS = 'send_reminder_notifications'
 }
 
 export enum EventFormType {
@@ -165,3 +166,5 @@ export const DeliveryPermissions = {
 	email_notifications: 'email_notifications'
 };
 
+export const defaultMaxEventCapacity = 15;
+export const defaultMaxNumGuestsPerAttendee = 5;

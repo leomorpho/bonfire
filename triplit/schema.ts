@@ -216,6 +216,9 @@ export const schema = S.Collections({
 		}),
 		relationships: {
 			user: S.RelationById('user', '$user_id'),
+			event_reminders: S.RelationMany('event_reminders', {
+				where: [['event_id', '=', '$1.id']]
+			}),
 			attendees: S.RelationMany('attendees', {
 				where: [['event_id', '=', '$1.id']]
 			}),
@@ -248,8 +251,6 @@ export const schema = S.Collections({
 		permissions: {
 			admin: {
 				read: { filter: [true] }
-				// insert: { filter: [true] },
-				// update: { filter: [true] }
 			},
 			user: {
 				read: {
@@ -279,6 +280,68 @@ export const schema = S.Collections({
 							// A user should be able to only query for users and attendees who are attending a same event:
 							['temporary_attendees.id', '=', '$role.temporaryAttendeeId']
 						])
+					]
+				}
+			},
+			anon: {}
+		}
+	},
+	event_reminders: {
+		schema: S.Schema({
+			id: S.Id(), // Unique ID for each entry
+			event_id: S.String(), // ID of the event this admin is associated with
+			text: S.String(),
+			lead_time_in_hours_before_event_starts: S.Number(),
+			target_attendee_statuses: S.Set(S.String()),
+			send_at: S.Date(), // Timestamp when the reminder should be sent (ideally)
+			sent_at: S.Date({ optional: true, default: null }), // Timestamp when the reminder was sent, null if not sent
+			created_at: S.Date({ default: S.Default.now() }), // Timestamp when the admin was added
+			updated_at: S.Date({ default: S.Default.now() }), // Timestamp when the entry was last updated
+			dropped: S.Boolean({ default: false })
+		}),
+		relationships: {
+			event: S.RelationById('events', '$event_id') // Relation to the events table
+		},
+		permissions: {
+			user: {
+				read: {
+					filter: [
+						or([
+							['event.attendees.user_id', '=', '$role.userId'],
+							['event.user_id', '=', '$role.userId'],
+							['event.event_admins.user_id', '=', '$role.userId']
+						])
+					]
+				},
+				insert: {
+					filter: [
+						or([
+							['event.user_id', '=', '$role.userId'],
+							['event.event_admins.user_id', '=', '$role.userId']
+						])
+					]
+				},
+				update: {
+					filter: [
+						or([
+							['event.user_id', '=', '$role.userId'],
+							['event.event_admins.user_id', '=', '$role.userId']
+						])
+					]
+				},
+				delete: {
+					filter: [
+						or([
+							['event.user_id', '=', '$role.userId'],
+							['event.event_admins.user_id', '=', '$role.userId']
+						])
+					]
+				}
+			},
+			temp: {
+				read: {
+					filter: [
+						['event.temporary_attendees.id', '=', '$role.temporaryAttendeeId'] // Temp users can view event admins if they're part of the event
 					]
 				}
 			},

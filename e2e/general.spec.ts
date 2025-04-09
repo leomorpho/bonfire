@@ -67,7 +67,7 @@ test('Create bonfire', async ({ page }) => {
 	await expect(page.getByRole('button', { name: 'to' }).first()).toBeVisible();
 	await expect(page.getByText('Enter event address...')).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Cancel' })).toBeVisible();
-	await expect(page.getByRole('button', { name: 'Edit event style' })).toBeVisible();
+	await expect(page.getByRole('button', { name: 'Styles' })).toBeVisible();
 
 	// Check that create button is disabled
 	await expect(page.locator('#upsert-bonfire')).toBeDisabled();
@@ -199,10 +199,10 @@ test('Create bonfire', async ({ page }) => {
 
 	// Go to edit page and set background
 	await page.locator('#edit-bonfire').getByRole('button').click();
-	await page.getByRole('button', { name: 'Edit event style' }).click();
+	await page.getByRole('button', { name: 'Styles' }).click();
 	await page.getByRole('button', { name: 'Optical Illusion Pattern', exact: true }).click();
-	await page.getByText('Edit overlay').click();
-	await expect(page.getByText('Overlay', { exact: true })).toBeVisible();
+
+	await page.locator('#edit-overlay').getByRole('button').click();
 	await expect(page.getByRole('button', { name: 'Clear' })).toBeVisible();
 	await page.getByRole('button', { name: 'chevron left Back' }).click();
 	await page.locator('#upsert-bonfire').click();
@@ -617,7 +617,7 @@ test('Event admins', async ({ browser }) => {
 
 	// Now event creator will add above attendee as an admin
 	await eventCreatorPage.locator('#edit-bonfire').getByRole('button').click();
-	await eventCreatorPage.getByRole('button', { name: 'Edit admins' }).click();
+	await eventCreatorPage.getByRole('button', { name: 'Admins' }).click();
 	await expect(eventCreatorPage.getByRole('heading', { name: 'Add an admin' })).toBeVisible();
 	await expect(
 		eventCreatorPage.getByRole('button', { name: 'Admin Permissions Toggle' })

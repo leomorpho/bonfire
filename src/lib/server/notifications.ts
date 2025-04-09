@@ -39,13 +39,9 @@ export const runNotificationProcessor = async () => {
 		}
 		await updateTaskLockState(taskName, true);
 
-		const query = triplitHttpClient
-			.query('notifications_queue')
-			.Where([
-				['sent', '=', false] // Only fetch unsent notifications
-			])
-			;
-
+		const query = triplitHttpClient.query('notifications_queue').Where([
+			['sent', '=', false] // Only fetch unsent notifications
+		]);
 		// Fetch the notifications
 		const notifications_queue_items = await triplitHttpClient.fetch(query);
 
@@ -180,9 +176,7 @@ async function getUnreadExistingNotification(
 				['seen_at', '=', null]
 			])
 		)
-		.Order('created_at', 'DESC')
-		;
-
+		.Order('created_at', 'DESC');
 	const notifs = await triplitHttpClient.fetch(query);
 
 	if (notifs.length > 0) {
@@ -244,9 +238,7 @@ async function notifyAttendeesOfFiles(eventId: string, fileIds: string[]): Promi
 	const fileQuery = triplitHttpClient
 		.query('files')
 		// .Select(['id', 'uploader_id']) // TODO: triplit bug preventing select
-		.Where([['id', 'in', fileIds]])
-		;
-
+		.Where([['id', 'in', fileIds]]);
 	const files = await triplitHttpClient.fetch(fileQuery);
 	const fileUploaderMap = new Map(files.map((file) => [file.id, file.uploader_id]));
 
@@ -297,9 +289,7 @@ async function notifyEventCreatorOfAttendees(
 	const creatorQuery = triplitHttpClient
 		.query('events')
 		// .Select(['user_id', 'title']) // TODO: triplit bug preventing select
-		.Where([['id', '=', eventId]])
-		;
-
+		.Where([['id', '=', eventId]]);
 	const [event] = await triplitHttpClient.fetch(creatorQuery);
 
 	if (!event) return;
@@ -342,9 +332,7 @@ async function notifyEventCreatorOfTemporaryAttendees(
 	const creatorQuery = triplitHttpClient
 		.query('events')
 		// .Select(['user_id', 'title']) // TODO: triplit bug preventing select
-		.Where([['id', '=', eventId]])
-		;
-
+		.Where([['id', '=', eventId]]);
 	const [event] = await triplitHttpClient.fetch(creatorQuery);
 
 	if (!event) return;
@@ -382,9 +370,7 @@ async function notifyAttendeeOfTheirNewAdminRole(eventId: string, newAdminUserId
 	const creatorQuery = triplitHttpClient
 		.query('events')
 		// .Select(['id', 'title']) // TODO: triplit bug preventing select
-		.Where([['id', '=', eventId]])
-		;
-
+		.Where([['id', '=', eventId]]);
 	const [event] = await triplitHttpClient.fetch(creatorQuery);
 
 	if (!event) return;
@@ -428,11 +414,7 @@ async function notifyAttendeesOfNewMessages(eventId: string, newMessageId: strin
 
 	// Remove sender ID from list of attendees
 	const messages = await triplitHttpClient.fetch(
-		triplitHttpClient
-			.query('event_messages')
-			.Where(['id', '=', newMessageId])
-			.Select(['user_id'])
-			
+		triplitHttpClient.query('event_messages').Where(['id', '=', newMessageId]).Select(['user_id'])
 	);
 
 	if (!attendingUserIds.length) return;
@@ -459,7 +441,6 @@ async function notifyAttendeesOfNewMessages(eventId: string, newMessageId: strin
 			.query('event_message_seen')
 			.Where(['message_id', '=', newMessageId])
 			.Select(['user_id'])
-			
 	);
 
 	const seenByUserIds: Set<string> = new Set(
@@ -538,4 +519,112 @@ async function handleNotification(
 		await sendPushNotification(recipientUserId, pushNotificationPayload, requiredPermissions);
 		console.debug(`Created a new notification for user ${recipientUserId}.`);
 	}
+}
+
+export const runReminderNotificationTask = async () => {
+	const taskName = TaskName.SEND_REMINDER_NOTIFICATIONS;
+
+	try {
+		const locked = await getTaskLockState(taskName);
+		if (locked) {
+			console.debug('Task is already running. Skipping execution.');
+			return;
+		} else {
+			console.debug('Start reminder notification task.');
+		}
+		await updateTaskLockState(taskName, true);
+
+		// NOTE: choosing to NOT set a start time for the filtering in order
+		// to make sure notifications eventually get sent if issues occurred in infra.
+		// Filtering can then be done later to decide or not to drop reminders.
+		const now = new Date();
+		const inOneHour = new Date(now.getTime() + 60 * 60 * 1000);
+
+		const query = triplitHttpClient.query('event_reminders').Where(
+			and([
+				['send_at', '<=', inOneHour],
+				['sent_at', 'isDefined', false]
+			])
+		);
+
+		// Fetch the events
+		const reminders = await triplitHttpClient.fetch(query);
+
+		// Process each reminder
+		for (const reminder of reminders) {
+			const sendAtWithLeadTime = new Date(
+				reminder.send_at.getTime() +
+					reminder.lead_time_in_hours_before_event_starts * 60 * 60 * 1000
+			);
+
+			if (sendAtWithLeadTime < now) {
+				// Drop the reminder if the condition is met
+				console.error(`Dropping reminder ${reminder.id} as it is past the lead time.`);
+				await markReminderAsDropped(reminder.id);
+				continue;
+			}
+
+			await sendReminderNotifications(
+				reminder.id,
+				reminder.event_id,
+				reminder.text,
+				reminder.target_attendee_statuses
+			);
+		}
+	} catch (error) {
+		console.error('Error running reminder notification task:', error);
+	} finally {
+		try {
+			await updateTaskLockState(taskName, false);
+		} catch (e) {
+			console.log('Failed to release task lock', e);
+		}
+	}
+};
+
+async function markReminderAsDropped(reminderId: string): Promise<void> {
+	await triplitHttpClient.update('event_reminders', reminderId, (entity) => {
+		entity.sent_at = new Date(); // Mark as sent to avoid reprocessing
+		entity.dropped = true; // Optionally, add a field to mark as dropped
+	});
+	console.debug(`Marked reminder ${reminderId} as dropped.`);
+}
+
+async function sendReminderNotifications(
+	reminderId: string,
+	eventId: string,
+	reminderText: string,
+	reminderTargetAttendeeStatuses: Set<string>
+): Promise<void> {
+	// Convert Set<string> to Status[]
+	const targetStatuses: Status[] = Array.from(reminderTargetAttendeeStatuses).map((status) => {
+		// Ensure the status is a valid enum value
+		if (Object.values(Status).includes(status as Status)) {
+			return status as Status;
+		} else {
+			throw new Error(`Invalid status: ${status}`);
+		}
+	});
+
+	const attendingUserIds = await getAttendeeUserIdsOfEvent(eventId, targetStatuses);
+
+	if (!attendingUserIds.length) return;
+
+	const pushNotificationPayload: PushNotificationPayload = {
+		title: 'Event Reminder',
+		body: reminderText
+	};
+
+	for (const attendeeUserId of attendingUserIds) {
+		await sendPushNotification(attendeeUserId, pushNotificationPayload, [
+			PermissionType.EVENT_ACTIVITY
+		]);
+	}
+
+	// TODO: only get users who have the permission enabled, and send on all granted delivery channels.
+
+	await triplitHttpClient.update('event_reminders', reminderId, async (entity) => {
+		entity.sent_at = new Date();
+	});
+	console.debug(`Sent reminder notifications for event ${eventId}.`);
 }
