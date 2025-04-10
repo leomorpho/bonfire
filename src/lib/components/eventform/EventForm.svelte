@@ -51,14 +51,10 @@
 	import GuestCountFeature from './GuestCountFeature.svelte';
 	import { upsertUserAttendance } from '$lib/rsvp';
 	import type { FontSelection } from '$lib/types';
-	import { PaintBucket, RefreshCcw, RefreshCw, TypeOutline } from '@lucide/svelte';
+	import { BellRing, Info, PaintBucket, RefreshCw, TypeOutline } from '@lucide/svelte';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 
 	let { mode, event = null, currUserId = null } = $props();
-
-	const editingMainEvent = 'editing_main_event';
-	const editingStyles = 'editing_styles';
-	const editingAdmins = 'editing_admins';
 
 	// ✅ Form Fields
 	let eventName: string = $state(event?.title ?? ''); // State for event name
@@ -84,7 +80,6 @@
 	// ✅ State Variables
 	let client: TriplitClient;
 	let eventId = $state(event?.id);
-	let currentEventEditingMode = $state(editingMainEvent);
 	let cancelUrl = $state(event && event.id ? `/bonfire/${event.id}` : '/');
 	let timezone = $state({});
 	let setEndTime = $state(false);
@@ -471,20 +466,6 @@
 		);
 	};
 
-	const startEditEventStyle = () => {
-		currentEventEditingMode = editingStyles;
-	};
-	const stopEditEventStyle = () => {
-		currentEventEditingMode = editingMainEvent;
-	};
-
-	const startEditAdmins = () => {
-		currentEventEditingMode = editingAdmins;
-	};
-	const stopEditAdmins = () => {
-		currentEventEditingMode = editingMainEvent;
-	};
-
 	function capitalize(str: string) {
 		return str.charAt(0).toUpperCase() + str.slice(1);
 	}
@@ -529,302 +510,286 @@
 </script>
 
 <div class="mx-4 flex flex-col items-center justify-center">
-	{#if currentEventEditingMode == editingMainEvent}
-		<section class="mt-8 w-full sm:w-[450px]">
-			<h2
-				class="mb-2 flex w-full items-center justify-between rounded-xl bg-white p-2 text-lg font-semibold dark:bg-slate-900"
-			>
-				<BackButton url={eventId ? `/bonfire/${eventId}` : '/dashboard'} />
+	<section class="mt-8 w-full sm:w-[450px]">
+		<h2
+			class="mb-2 flex w-full items-center justify-between rounded-xl bg-white p-2 text-lg font-semibold dark:bg-slate-900"
+		>
+			<BackButton url={eventId ? `/bonfire/${eventId}` : '/dashboard'} />
+			<div>
+				{mode === EventFormType.CREATE
+					? capitalize(EventFormType.CREATE)
+					: capitalize(EventFormType.UPDATE)} a Bonfire
+			</div>
+			<div></div>
+		</h2>
+		<Tabs.Root value="info" class="w-full">
+			<div class="sticky top-2 z-50 mt-2 flex w-full justify-center">
 				<div>
-					{mode === EventFormType.CREATE
-						? capitalize(EventFormType.CREATE)
-						: capitalize(EventFormType.UPDATE)} a Bonfire
+					<Tabs.List class="mb-1 w-full animate-in fade-in zoom-in">
+						<Tabs.Trigger
+							id="event-info-tab"
+							value="info"
+							class="focus:outline-none focus-visible:ring-0 data-[state=active]:bg-cyan-500 data-[state=active]:text-white dark:data-[state=active]:bg-cyan-600"
+							><Info class="h-5 w-5" /></Tabs.Trigger
+						>
+						<Tabs.Trigger
+							id="event-styles-tab"
+							value="styles"
+							class="focus:outline-none focus-visible:ring-0 data-[state=active]:bg-cyan-500 data-[state=active]:text-white dark:data-[state=active]:bg-cyan-600"
+							><Palette class="h-5 w-5" /></Tabs.Trigger
+						>
+						<Tabs.Trigger
+							id="event-admins-tab"
+							value="admins"
+							class="focus:outline-none focus-visible:ring-0 data-[state=active]:bg-cyan-500 data-[state=active]:text-white dark:data-[state=active]:bg-cyan-600"
+							><Shield class="h-5 w-5" /></Tabs.Trigger
+						>
+						<Tabs.Trigger
+							id="event-reminders-tab"
+							value="reminders"
+							class="focus:outline-none focus-visible:ring-0 data-[state=active]:bg-cyan-500 data-[state=active]:text-white dark:data-[state=active]:bg-cyan-600"
+							><BellRing class="h-5 w-5" /></Tabs.Trigger
+						>
+					</Tabs.List>
 				</div>
-				<div></div>
-			</h2>
-			<!-- <Tabs.Root value="account" class="w-[400px]">
-				<Tabs.List>
-					<Tabs.Trigger value="account">Account</Tabs.Trigger>
-					<Tabs.Trigger value="password">Password</Tabs.Trigger>
-				</Tabs.List>
-				<Tabs.Content value="account">Make changes to your account here.</Tabs.Content>
-				<Tabs.Content value="password">Change your password here.</Tabs.Content>
-			</Tabs.Root> -->
-			<form class="space-y-2">
-				{#if userIsOutOfLogs && !isEventPublished}
-					<OutOfLogs />
-				{:else if !isEventPublished}
-					<div class="flex justify-center">
-						<div
-							class="rounded-lg bg-slate-300 bg-opacity-70 p-1 px-2 text-xs shadow-lg dark:bg-slate-600 dark:bg-opacity-70"
-						>
-							You have
+			</div>
 
-							{#if numLogsLoading}
-								<LoadingSpinner cls="w-3 h-3 mx-1" />
-							{:else}
-								{numLogs}
-							{/if}
-							logs remaining (1 log = 1 bonfire event)
-						</div>
-					</div>
-				{/if}
-				<div class="mt-5 flex w-full justify-center space-x-2 text-xs">
-					<Button
-						class="justify-centerp-4 flex items-center bg-violet-600 ring-glow hover:bg-violet-500 dark:bg-violet-700 dark:text-white dark:hover:bg-violet-500"
-						onclick={getRandomTheme}
-					>
-						<PaintBucket class="mr-1" />
-						<RefreshCw class="mr-1" />
-					</Button>
-					<Button
-						class="flex items-center justify-center bg-violet-600 p-4 ring-glow hover:bg-violet-500 dark:bg-violet-700 dark:text-white dark:hover:bg-violet-500"
-						onclick={getRandomFont}
-					>
-						<TypeOutline class="mr-1" />
-						<RefreshCw class="mr-1" />
-					</Button>
-				</div>
-				<Input
-					type="text"
-					placeholder="Event Name"
-					bind:value={eventName}
-					class="w-full bg-white dark:bg-slate-900"
-					oninput={debouncedUpdateEvent}
-				/>
-				<Datepicker bind:value={dateValue} oninput={debouncedUpdateEvent} />
+			<Tabs.Content value="info">
+				<form class="space-y-2">
+					{#if userIsOutOfLogs && !isEventPublished}
+						<OutOfLogs />
+					{:else if !isEventPublished}
+						<div class="flex justify-center">
+							<div
+								class="rounded-lg bg-slate-300 bg-opacity-70 p-1 px-2 text-xs shadow-lg dark:bg-slate-600 dark:bg-opacity-70"
+							>
+								You have
 
-				<div class="flex flex-row items-center justify-between space-x-4">
-					<!-- Start Time Inputs -->
-					<div class="grid grid-cols-4 items-center gap-2">
-						<Clock
-							class="ml-4 mr-1 h-4 w-4 rounded-xl bg-white text-slate-500 ring-glow dark:bg-slate-900"
-						/>
-						<div class="font-mono">
-							<DoubleDigitsPicker
-								maxValue={12}
-								bind:value={startHour}
-								placeholder="HH"
-								oninput={debouncedUpdateEvent}
-							/>
+								{#if numLogsLoading}
+									<LoadingSpinner cls="w-3 h-3 mx-1" />
+								{:else}
+									{numLogs}
+								{/if}
+								logs remaining (1 log = 1 bonfire event)
+							</div>
 						</div>
-						<div class="font-mono">
-							<DoubleDigitsPicker
-								bind:value={startMinute}
-								placeholder="mm"
-								oninput={debouncedUpdateEvent}
-							/>
-						</div>
-						<div class="w-18">
-							<AmPmPicker
-								onValueChange={(newValue: any) => (ampmStart = newValue)}
-								oninput={debouncedUpdateEvent}
-							/>
-						</div>
-					</div>
-
-					<!-- Toggle Button -->
-					{#if !setEndTime}
-						<Button
-							onclick={() => {
-								setEndTime = true;
-							}}
-							class="text-xs ring-glow dark:bg-slate-900 dark:text-white"
-						>
-							<Plus class="ml-1 mr-1 h-2 w-2" />
-							to
-						</Button>
-					{:else}
-						<Button
-							onclick={() => {
-								setEndTime = false;
-								endHour = '';
-								endMinute = '';
-								ampmEnd = '';
-							}}
-							class="text-xs ring-glow dark:bg-slate-900 dark:text-white"
-						>
-							<Minus class="h-2 w-2" />
-							to
-						</Button>
 					{/if}
-				</div>
+					<div class="mt-5 flex w-full justify-center space-x-2 text-xs">
+						<Button
+							class="justify-centerp-4 flex items-center bg-violet-600 ring-glow hover:bg-violet-500 dark:bg-violet-700 dark:text-white dark:hover:bg-violet-500"
+							onclick={getRandomTheme}
+						>
+							<PaintBucket class="mr-1" />
+							<RefreshCw class="mr-1" />
+						</Button>
+						<Button
+							class="flex items-center justify-center bg-violet-600 p-4 ring-glow hover:bg-violet-500 dark:bg-violet-700 dark:text-white dark:hover:bg-violet-500"
+							onclick={getRandomFont}
+						>
+							<TypeOutline class="mr-1" />
+							<RefreshCw class="mr-1" />
+						</Button>
+					</div>
+					<Input
+						type="text"
+						placeholder="Event Name"
+						bind:value={eventName}
+						class="w-full bg-white dark:bg-slate-900"
+						oninput={debouncedUpdateEvent}
+					/>
+					<Datepicker bind:value={dateValue} oninput={debouncedUpdateEvent} />
 
-				{#if setEndTime}
 					<div class="flex flex-row items-center justify-between space-x-4">
-						<!-- End Time Inputs -->
+						<!-- Start Time Inputs -->
 						<div class="grid grid-cols-4 items-center gap-2">
-							<Clock8
+							<Clock
 								class="ml-4 mr-1 h-4 w-4 rounded-xl bg-white text-slate-500 ring-glow dark:bg-slate-900"
 							/>
-
 							<div class="font-mono">
 								<DoubleDigitsPicker
 									maxValue={12}
-									bind:value={endHour}
+									bind:value={startHour}
 									placeholder="HH"
 									oninput={debouncedUpdateEvent}
 								/>
 							</div>
 							<div class="font-mono">
 								<DoubleDigitsPicker
-									bind:value={endMinute}
+									bind:value={startMinute}
 									placeholder="mm"
 									oninput={debouncedUpdateEvent}
 								/>
 							</div>
 							<div class="w-18">
 								<AmPmPicker
-									onValueChange={(newValue: any) => (ampmEnd = newValue)}
+									onValueChange={(newValue: any) => (ampmStart = newValue)}
 									oninput={debouncedUpdateEvent}
 								/>
 							</div>
 						</div>
 
 						<!-- Toggle Button -->
-
-						<Button class="hidden text-xs ring-glow"></Button>
+						{#if !setEndTime}
+							<Button
+								onclick={() => {
+									setEndTime = true;
+								}}
+								class="text-xs ring-glow dark:bg-slate-900 dark:text-white"
+							>
+								<Plus class="ml-1 mr-1 h-2 w-2" />
+								to
+							</Button>
+						{:else}
+							<Button
+								onclick={() => {
+									setEndTime = false;
+									endHour = '';
+									endMinute = '';
+									ampmEnd = '';
+								}}
+								class="text-xs ring-glow dark:bg-slate-900 dark:text-white"
+							>
+								<Minus class="h-2 w-2" />
+								to
+							</Button>
+						{/if}
 					</div>
-				{/if}
 
-				<TimezonePicker
-					onValueChange={(newValue: any) => (timezone = newValue)}
-					oninput={debouncedUpdateEvent}
-				/>
+					{#if setEndTime}
+						<div class="flex flex-row items-center justify-between space-x-4">
+							<!-- End Time Inputs -->
+							<div class="grid grid-cols-4 items-center gap-2">
+								<Clock8
+									class="ml-4 mr-1 h-4 w-4 rounded-xl bg-white text-slate-500 ring-glow dark:bg-slate-900"
+								/>
 
-				<div class="flex flex-row items-center">
-					<LocationInput
-						bind:location
-						bind:geocodedLocation
-						bind:latitude
-						bind:longitude
-						onSave={debouncedUpdateEvent}
+								<div class="font-mono">
+									<DoubleDigitsPicker
+										maxValue={12}
+										bind:value={endHour}
+										placeholder="HH"
+										oninput={debouncedUpdateEvent}
+									/>
+								</div>
+								<div class="font-mono">
+									<DoubleDigitsPicker
+										bind:value={endMinute}
+										placeholder="mm"
+										oninput={debouncedUpdateEvent}
+									/>
+								</div>
+								<div class="w-18">
+									<AmPmPicker
+										onValueChange={(newValue: any) => (ampmEnd = newValue)}
+										oninput={debouncedUpdateEvent}
+									/>
+								</div>
+							</div>
+
+							<!-- Toggle Button -->
+
+							<Button class="hidden text-xs ring-glow"></Button>
+						</div>
+					{/if}
+
+					<TimezonePicker
+						onValueChange={(newValue: any) => (timezone = newValue)}
+						oninput={debouncedUpdateEvent}
 					/>
-				</div>
-				<!-- <TextAreaAutoGrow
-					cls={'bg-white dark:bg-slate-900'}
-					placeholder="Details"
-					bind:value={details}
-					oninput={debouncedUpdateEvent}
-				/> -->
-				<TipTapTextEditor
-					bind:content={details}
-					oninput={debouncedUpdateEvent}
-					class="bg-white dark:bg-slate-900 "
-				/>
-				<MaxCapacity oninput={debouncedUpdateEvent} bind:value={maxCapacity} />
-				<GuestCountFeature oninput={debouncedUpdateEvent} bind:value={maxNumGuest} />
-			</form>
 
-			<div class="mt-5 flex w-full justify-center space-x-2">
-				<Button
-					class="flex w-1/2 items-center justify-center bg-teal-600 p-4 ring-glow hover:bg-teal-500 dark:bg-teal-700 dark:text-white dark:hover:bg-teal-500"
-					onclick={startEditEventStyle}
-				>
-					<Palette class="mr-1" />
-					Styles
-				</Button>
-				<Button
-					class="flex w-1/2 items-center justify-center bg-indigo-600 p-4 ring-glow hover:bg-indigo-500 dark:bg-indigo-700 dark:text-white dark:hover:bg-indigo-500"
-					disabled={!event || event?.user_id != currUserId}
-					onclick={startEditAdmins}
-				>
-					<Shield class="mr-1" />
-					Admins
-				</Button>
-			</div>
-		</section>
-		<!-- <hr class="mt-3 border-1 rounded-full border-t-4 border-gray-200 w-full" /> -->
+					<div class="flex flex-row items-center">
+						<LocationInput
+							bind:location
+							bind:geocodedLocation
+							bind:latitude
+							bind:longitude
+							onSave={debouncedUpdateEvent}
+						/>
+					</div>
+					<!-- <TextAreaAutoGrow
+							cls={'bg-white dark:bg-slate-900'}
+							placeholder="Details"
+							bind:value={details}
+							oninput={debouncedUpdateEvent}
+						/> -->
+					<TipTapTextEditor
+						bind:content={details}
+						oninput={debouncedUpdateEvent}
+						class="bg-white dark:bg-slate-900 "
+					/>
+					<MaxCapacity oninput={debouncedUpdateEvent} bind:value={maxCapacity} />
+					<GuestCountFeature oninput={debouncedUpdateEvent} bind:value={maxNumGuest} />
+				</form>
+				<div class="my-10 sm:w-[450px]">
+					<div class="grid w-full grid-cols-2 gap-2">
+						<a class="flex w-full" href={cancelUrl}>
+							<Button
+								class="w-full ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-700"
+							>
+								<Undo2 class="ml-1 mr-1 h-4 w-4" /> Cancel
+							</Button>
+						</a>
 
-		<div class="my-10 sm:w-[450px]">
-			<div class="grid w-full grid-cols-2 gap-2">
-				<a class="flex w-full" href={cancelUrl}>
-					<Button
-						class="w-full ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-700"
-					>
-						<Undo2 class="ml-1 mr-1 h-4 w-4" /> Cancel
-					</Button>
-				</a>
-
-				{#if isEventCreated && !isEventPublished}
-					<Button
-						disabled={submitDisabled}
-						type="submit"
-						class={`w-full ${submitDisabled ? 'bg-slate-400 dark:bg-slate-600' : 'bg-blue-600 hover:bg-blue-500 dark:bg-blue-700 dark:hover:bg-blue-600'} ring-glow dark:text-white`}
-						onclick={() => {
-							updateEvent().then(() => {
-								redirectToDashboard();
-							});
-						}}
-					>
-						<ArrowDownToLine class="ml-1 mr-1 h-4 w-4" />Save Draft
-					</Button>
-				{/if}
-				{#if !userIsOutOfLogs || isEventPublished}
-					<Button
-						id="upsert-bonfire"
-						disabled={submitDisabled}
-						type="submit"
-						class={`w-full ${submitDisabled ? 'bg-slate-400 dark:bg-slate-600' : 'bg-green-600 hover:bg-green-500 dark:bg-green-700 dark:hover:bg-green-600'} ring-glow dark:text-white`}
-						onclick={(e) => {
-							handleSubmit(e, true);
-						}}
-					>
-						{#if isEventSaving}
-							<span class="loading loading-spinner loading-xs ml-2"> </span>
+						{#if isEventCreated && !isEventPublished}
+							<Button
+								disabled={submitDisabled}
+								type="submit"
+								class={`w-full ${submitDisabled ? 'bg-slate-400 dark:bg-slate-600' : 'bg-blue-600 hover:bg-blue-500 dark:bg-blue-700 dark:hover:bg-blue-600'} ring-glow dark:text-white`}
+								onclick={() => {
+									updateEvent().then(() => {
+										redirectToDashboard();
+									});
+								}}
+							>
+								<ArrowDownToLine class="ml-1 mr-1 h-4 w-4" />Save Draft
+							</Button>
+						{/if}
+						{#if !userIsOutOfLogs || isEventPublished}
+							<Button
+								id="upsert-bonfire"
+								disabled={submitDisabled}
+								type="submit"
+								class={`w-full ${submitDisabled ? 'bg-slate-400 dark:bg-slate-600' : 'bg-green-600 hover:bg-green-500 dark:bg-green-700 dark:hover:bg-green-600'} ring-glow dark:text-white`}
+								onclick={(e) => {
+									handleSubmit(e, true);
+								}}
+							>
+								{#if isEventSaving}
+									<span class="loading loading-spinner loading-xs ml-2"> </span>
+								{/if}
+								{#if isEventPublished}
+									<Save class="ml-1 mr-1 h-4 w-4" />
+									Save
+								{:else}
+									<BookCheck class="ml-1 mr-1 h-4 w-4" />
+									Publish
+								{/if}
+							</Button>
 						{/if}
 						{#if isEventPublished}
-							<Save class="ml-1 mr-1 h-4 w-4" />
-							Save
-						{:else}
-							<BookCheck class="ml-1 mr-1 h-4 w-4" />
-							Publish
+							<UnpublishEventBtn {submitDisabled} eventId={event.id} />
 						{/if}
-					</Button>
-				{/if}
-				{#if isEventPublished}
-					<UnpublishEventBtn {submitDisabled} eventId={event.id} />
-				{/if}
-				{#if mode == EventFormType.UPDATE && event && currUserId == event.user_id}
-					<DeleteEventBtn
-						{submitDisabled}
-						{currUserId}
-						eventCreatorUserId={event.user_id}
-						eventId={event.id}
-					/>
-				{/if}
-			</div>
-		</div>
-	{:else if currentEventEditingMode == editingStyles}
-		<div class="md:7/8 w-5/6">
-			<div class="sticky top-2 mt-2 flex justify-center">
-				<Button
-					class="w-full bg-violet-600 ring-glow hover:bg-violet-500 dark:bg-violet-700 dark:text-white dark:hover:bg-violet-600 sm:w-[450px]"
-					onclick={stopEditEventStyle}
-				>
-					<ChevronLeft class="mr-1" />
+						{#if mode == EventFormType.UPDATE && event && currUserId == event.user_id}
+							<DeleteEventBtn
+								{submitDisabled}
+								{currUserId}
+								eventCreatorUserId={event.user_id}
+								eventId={event.id}
+							/>
+						{/if}
+					</div>
+				</div>
+			</Tabs.Content>
+			<Tabs.Content value="styles">
+				<EventStyler {eventId} bind:finalStyleCss bind:overlayColor bind:overlayOpacity bind:font />
+			</Tabs.Content>
+			<Tabs.Content value="admins">
+				<EventAdminEditor eventId={event?.id} {currUserId} eventCreatorId={event?.user_id} />
+			</Tabs.Content>
+			<Tabs.Content value="reminders">Event reminders settings</Tabs.Content>
+		</Tabs.Root>
+	</section>
 
-					Back
-				</Button>
-			</div>
-
-			<EventStyler bind:finalStyleCss bind:overlayColor bind:overlayOpacity bind:font />
-		</div>
-	{:else if currentEventEditingMode == editingAdmins}
-		<div class="md:7/8 w-5/6">
-			<div class="sticky top-2 mt-2 flex justify-center">
-				<Button
-					class="w-full bg-violet-600 ring-glow hover:bg-violet-500 dark:bg-violet-700 dark:text-white dark:hover:bg-violet-600 sm:w-[450px]"
-					onclick={stopEditAdmins}
-				>
-					<ChevronLeft class="mr-1" />
-
-					Back
-				</Button>
-			</div>
-			<EventAdminEditor eventId={event?.id} {currUserId} eventCreatorId={event?.user_id} />
-		</div>
-	{/if}
 	{#if showError}
 		<div class="mt-2 rounded-md bg-red-100 p-3 text-red-700">
 			{errorMessage}

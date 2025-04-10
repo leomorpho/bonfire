@@ -9,8 +9,12 @@
 	import ScrollArea from '../ui/scroll-area/scroll-area.svelte';
 	import FontsDialog from './FontsDialog.svelte';
 	import type { FontSelection } from '$lib/types';
+	import { getFeHttpTriplitClient } from '$lib/triplit';
+	import { page } from '$app/stores';
+	import { Save } from '@lucide/svelte';
 
 	let {
+		eventId = null,
 		finalStyleCss = $bindable<string>(),
 		overlayColor = $bindable<string>(),
 		overlayOpacity = $bindable<number>(),
@@ -19,6 +23,8 @@
 		bgOverlaySelector = 'bg-overlay-selector',
 		horizontalScroll = false
 	} = $props();
+
+	let youHaveUnsavedChanges = $state(false);
 
 	// Currently selected style
 	let selectedStyle: { id: number; name: string; cssTemplate: string } | null = $state(null);
@@ -39,6 +45,7 @@
 	 * @param style - The selected style object.
 	 */
 	function applyStyle(
+		setNewStyle = false,
 		style: { id: number; name: string; cssTemplate: string } | null = null,
 		cleanup = true
 	) {
@@ -82,6 +89,10 @@
 
 		// Update the selected style and target
 		selectedStyle = style;
+
+		if (setNewStyle) {
+			youHaveUnsavedChanges = true;
+		}
 	}
 
 	// DOM references for button-specific styles
@@ -117,7 +128,7 @@
 
 	function clearOverlay() {
 		overlayForShadnSlider[0] = 0;
-		applyStyle();
+		applyStyle(true);
 	}
 
 	/**
@@ -135,54 +146,90 @@
 		applyStyle(); // Apply styles explicitly
 		applyStylesToButtons();
 	});
+
+	const updateEvent = async () => {
+		if (!eventId) {
+			return;
+		}
+		try {
+			const feHttpClient = getFeHttpTriplitClient($page.data.jwt);
+			await feHttpClient.update('events', eventId, async (entity) => {
+				entity.style = finalStyleCss;
+				entity.overlay_color = overlayColor;
+				entity.overlay_opacity = overlayOpacity;
+				entity.font = JSON.stringify(font) || null;
+			});
+
+			console.log('🔄 Event updated successfully');
+			youHaveUnsavedChanges = false;
+		} catch (error) {
+			console.error('❌ Error updating event:', error);
+		}
+	};
 </script>
 
-<div class="sticky top-10 mx-2 flex justify-center">
-	<div class="flex max-w-96 space-x-2">
-		<Popover.Root>
-			<Popover.Trigger class="mt-3 flex w-1/2 justify-center sm:w-[450px]">
-				<Button
-					id="edit-overlay"
-					class="h-10 w-full bg-rose-600 ring-glow hover:bg-rose-500 dark:bg-rose-900 dark:text-white dark:hover:bg-rose-800"
-				>
-					<PaintRoller class="mr-1" />
-					Overlay
-				</Button>
-			</Popover.Trigger>
-			<Popover.Content class="bg-slate-200 dark:bg-slate-800 dark:text-white">
-				<div class="flex w-full justify-center">Overlay</div>
-				<div class="mt-7 flex w-full items-center justify-center space-x-5">
-					<div class="mb-4 flex items-center justify-center">
-						<input
-							type="color"
-							bind:value={overlayColor}
-							class="mt-1 block h-10 w-10 rounded-md border border-gray-300"
-							oninput={() => applyStyle()}
-						/>
+<div class="sticky top-10 mx-2">
+	<div class="flex justify-center">
+		<div class="flex max-w-96 space-x-2">
+			<Popover.Root>
+				<Popover.Trigger class="mt-3 flex w-1/2 justify-center sm:w-[450px]">
+					<Button
+						id="edit-overlay"
+						class="h-10 w-full bg-rose-600 ring-glow hover:bg-rose-500 dark:bg-rose-900 dark:text-white dark:hover:bg-rose-800"
+					>
+						<PaintRoller class="mr-1" />
+						Overlay
+					</Button>
+				</Popover.Trigger>
+				<Popover.Content class="bg-slate-200 dark:bg-slate-800 dark:text-white">
+					<div class="flex w-full justify-center">Overlay</div>
+					<div class="mt-7 flex w-full items-center justify-center space-x-5">
+						<div class="mb-4 flex items-center justify-center">
+							<input
+								type="color"
+								bind:value={overlayColor}
+								class="mt-1 block h-10 w-10 rounded-md border border-gray-300"
+								oninput={() => {
+									applyStyle(true);
+									youHaveUnsavedChanges = true;
+								}}
+							/>
+						</div>
+
+						<div class="mb-4 flex w-full flex-col items-center">
+							<label
+								for="overlay-opacity"
+								class="my-4 block text-sm font-medium text-gray-700 dark:text-slate-100"
+								>Opacity: {Math.round(overlayOpacity * 100)}%</label
+							>
+
+							<Slider
+								bind:value={overlayForShadnSlider}
+								min={0}
+								max={1}
+								step={0.001}
+								oninput={() => {
+									applyStyle(true);
+									youHaveUnsavedChanges = true;
+								}}
+							/>
+						</div>
 					</div>
+					<Button class="mt-3 w-full" onclick={clearOverlay}>Clear</Button>
+				</Popover.Content>
+			</Popover.Root>
 
-					<div class="mb-4 flex w-full flex-col items-center">
-						<label
-							for="overlay-opacity"
-							class="my-4 block text-sm font-medium text-gray-700 dark:text-slate-100"
-							>Opacity: {Math.round(overlayOpacity * 100)}%</label
-						>
-
-						<Slider
-							bind:value={overlayForShadnSlider}
-							min={0}
-							max={1}
-							step={0.001}
-							oninput={() => applyStyle()}
-						/>
-					</div>
-				</div>
-				<Button class="mt-3 w-full" onclick={clearOverlay}>Clear</Button>
-			</Popover.Content>
-		</Popover.Root>
-
-		<FontsDialog bind:font onSelect={() => applyStyle()} />
+			<FontsDialog bind:font onSelect={() => applyStyle(true)} />
+		</div>
 	</div>
+	{#if youHaveUnsavedChanges && eventId}
+		<div class="mt-2 flex w-full justify-center animate-pulse">
+			<Button
+				class="rounded-full bg-green-600 animate-in fade-in zoom-in zoom-out fade-out hover:bg-green-500 dark:text-white"
+				onclick={updateEvent}><Save class="h-5 w-5" /></Button
+			>
+		</div>
+	{/if}
 </div>
 
 {#snippet galleryStyle(style: any)}
@@ -190,7 +237,7 @@
 		class="h-full w-full max-w-full rounded-lg style-button-{style.id} select-bordered flex items-center justify-center border-4"
 		class:selected={selectedStyle?.id === style.id}
 		style={style.cssTemplate}
-		onclick={() => applyStyle(style)}
+		onclick={() => applyStyle(true, style)}
 	>
 		<div
 			class="rounded-lg bg-white p-1 text-xs dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800 sm:text-sm"
