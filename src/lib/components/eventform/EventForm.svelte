@@ -474,6 +474,7 @@
 		styleStore.set(finalStyleCss);
 		overlayColorStore.set(overlayColor);
 		overlayOpacityStore.set(overlayOpacity);
+		fontStore.set(font);
 
 		(async () => {
 			// NOTE: for testing

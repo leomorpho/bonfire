@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { parseColor, randomSort, stylesGallery } from '$lib/styles';
+	import { fontStore, parseColor, randomSort, stylesGallery } from '$lib/styles';
 	import { onMount } from 'svelte';
 	import * as Popover from '$lib/components/ui/popover/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
@@ -11,7 +11,6 @@
 	import type { FontSelection } from '$lib/types';
 	import { getFeHttpTriplitClient } from '$lib/triplit';
 	import { page } from '$app/stores';
-	import { Save } from '@lucide/svelte';
 
 	let {
 		eventId = null,
@@ -23,8 +22,6 @@
 		bgOverlaySelector = 'bg-overlay-selector',
 		horizontalScroll = false
 	} = $props();
-
-	let youHaveUnsavedChanges = $state(false);
 
 	// Currently selected style
 	let selectedStyle: { id: number; name: string; cssTemplate: string } | null = $state(null);
@@ -91,7 +88,8 @@
 		selectedStyle = style;
 
 		if (setNewStyle) {
-			youHaveUnsavedChanges = true;
+			updateEvent(eventId);
+			fontStore.set(font);
 		}
 	}
 
@@ -147,7 +145,7 @@
 		applyStylesToButtons();
 	});
 
-	const updateEvent = async () => {
+	const updateEvent = async (eventId: string) => {
 		if (!eventId) {
 			return;
 		}
@@ -161,7 +159,6 @@
 			});
 
 			console.log('🔄 Event updated successfully');
-			youHaveUnsavedChanges = false;
 		} catch (error) {
 			console.error('❌ Error updating event:', error);
 		}
@@ -191,7 +188,6 @@
 								class="mt-1 block h-10 w-10 rounded-md border border-gray-300"
 								oninput={() => {
 									applyStyle(true);
-									youHaveUnsavedChanges = true;
 								}}
 							/>
 						</div>
@@ -210,7 +206,6 @@
 								step={0.001}
 								oninput={() => {
 									applyStyle(true);
-									youHaveUnsavedChanges = true;
 								}}
 							/>
 						</div>
@@ -222,14 +217,6 @@
 			<FontsDialog bind:font onSelect={() => applyStyle(true)} />
 		</div>
 	</div>
-	{#if youHaveUnsavedChanges && eventId}
-		<div class="mt-2 flex w-full justify-center animate-pulse">
-			<Button
-				class="rounded-full bg-green-600 animate-in fade-in zoom-in zoom-out fade-out hover:bg-green-500 dark:text-white"
-				onclick={updateEvent}><Save class="h-5 w-5" /></Button
-			>
-		</div>
-	{/if}
 </div>
 
 {#snippet galleryStyle(style: any)}

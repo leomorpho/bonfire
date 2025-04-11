@@ -87,7 +87,7 @@ END:VCALENDAR`;
 				Outlook Calendar
 			</DropdownMenu.Item>
 			<DropdownMenu.Item onclick={(e) => downloadICSFile(e, eventDetails)}>
-				Apple Calendar (.ics)
+				Apple Calendar
 			</DropdownMenu.Item>
 		</DropdownMenu.Group>
 	</DropdownMenu.Content>
