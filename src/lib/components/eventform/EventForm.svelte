@@ -176,40 +176,45 @@
 		}
 	});
 
-	// NOTE: this is a hack and I dont like it. The way to go is refactor the code in EventStyler so it's reusable.
-	$effect(() => {
-		const fontStyle = font ? font.style : '';
+	// // NOTE: this is a hack and I dont like it. The way to go is refactor the code in EventStyler so it's reusable.
+	// $effect(() => {
+	// 	const fontStyle = font ? font.style : '';
+	// 	const styleElementId = 'dynamic-preview-style'; // Specific ID for the style element
 
-		// Add the font CDN link to the document head if a font is selected
-		if (font && font.cdn) {
-			const fontLink = document.createElement('link');
-			fontLink.href = font.cdn;
-			fontLink.rel = 'stylesheet';
-			document.head.appendChild(fontLink);
-		}
+	// 	// Add the font CDN link to the document head if a font is selected
+	// 	if (font && font.cdn) {
+	// 		const fontLink = document.createElement('link');
+	// 		fontLink.href = font.cdn;
+	// 		fontLink.rel = 'stylesheet';
+	// 		document.head.appendChild(fontLink);
+	// 	}
 
-		if (finalStyleCss) {
-			// Replace the placeholder selector with the actual target
-			const completeCss = `
-				.bg-color-selector {
-					${finalStyleCss}
-					${fontStyle}
-				}
+	// 	if (finalStyleCss) {
+	// 		// Replace the placeholder selector with the actual target
+	// 		const completeCss = `
+	// 			.bg-color-selector {
+	// 				${finalStyleCss}
+	// 				${fontStyle}
+	// 			}
 
-				.bg-overlay-selector {
-						background-color: rgba(var(--overlay-color-rgb, ${parseColor(overlayColor)}), ${overlayOpacity});
-					}
-				`;
+	// 			.bg-overlay-selector {
+	// 					background-color: rgba(var(--overlay-color-rgb, ${parseColor(overlayColor)}), ${overlayOpacity});
+	// 				}
+	// 			`;
+	// 		// Remove any existing style element with the same ID if it is a child of the head
+	// 		const existingStyleElement = document.getElementById(styleElementId);
+	// 		if (existingStyleElement && document.head.contains(existingStyleElement)) {
+	// 			document.head.removeChild(existingStyleElement);
+	// 		}
 
-			// console.log('applying css', completeCss);
-
-			// Create a new <style> tag for the selected preview style
-			const styleElement = document.createElement('style');
-			styleElement.type = 'text/css';
-			styleElement.textContent = completeCss;
-			document.head.appendChild(styleElement);
-		}
-	});
+	// 		// Create a new <style> tag for the selected preview style
+	// 		const styleElement = document.createElement('style');
+	// 		styleElement.id = styleElementId; // Assign the specific ID
+	// 		styleElement.type = 'text/css';
+	// 		styleElement.textContent = completeCss;
+	// 		document.head.appendChild(styleElement);
+	// 	}
+	// });
 
 	if (event) {
 		const startTime = parseDateTime(event.start_time);

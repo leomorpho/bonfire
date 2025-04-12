@@ -48,15 +48,19 @@
 	) {
 		const fontStyle = font ? font.style : '';
 		finalStyleCss = style?.cssTemplate ?? finalStyleCss;
+		const styleElementId = 'dynamic-preview-style'; // Specific ID for the style element
+		const fontElementId = 'dynamic-preview-font'; // Specific ID for the font element
 
-		if (styleElement && cleanup) {
-			// Remove the previously applied preview style
-			document.head.removeChild(styleElement);
+		// Remove any existing style element with the same ID if it is a child of the head
+		const existingFontElement = document.getElementById(fontElementId);
+		if (existingFontElement && document.head.contains(existingFontElement)) {
+			document.head.removeChild(existingFontElement);
 		}
 
 		// Add the font CDN link to the document head if a font is selected
 		if (font && font.cdn) {
 			const fontLink = document.createElement('link');
+			fontLink.id = fontElementId;
 			fontLink.href = font.cdn;
 			fontLink.rel = 'stylesheet';
 			document.head.appendChild(fontLink);
@@ -78,8 +82,15 @@
 			console.log('applying css', completeCss);
 		}
 
+		// Remove any existing style element with the same ID if it is a child of the head
+		const existingStyleElement = document.getElementById(styleElementId);
+		if (existingStyleElement && document.head.contains(existingStyleElement)) {
+			document.head.removeChild(existingStyleElement);
+		}
+
 		// Create a new <style> tag for the selected preview style
 		styleElement = document.createElement('style');
+		styleElement.id = styleElementId; // Assign the specific ID
 		styleElement.type = 'text/css';
 		styleElement.textContent = completeCss;
 		document.head.appendChild(styleElement);
