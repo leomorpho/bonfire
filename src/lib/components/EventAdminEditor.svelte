@@ -45,8 +45,7 @@
 					])
 				])
 				.Include('admin_role', (rel) => rel('admin_role').Include('added_by_user'))
-				.Include('user')
-				,
+				.Include('user'),
 			(results) => {
 				// Separate attendees into admins and non-admins
 				currentAdminAttendees = results.filter((attendee) => attendee.admin_role !== null);
@@ -173,14 +172,14 @@
 <div class="mx-4 mb-16 flex flex-col items-center justify-center">
 	<section class="w-full sm:w-[450px]">
 		<h1
-			class="mb-5 flex w-full justify-center rounded-xl bg-white p-2 text-lg font-semibold dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
+			class="mb-5 flex w-full justify-center rounded-xl bg-white p-2 text-lg font-semibold dark:bg-slate-900 dark:text-white"
 		>
-			Add an admin
+			Admins
 		</h1>
 		<Collapsible.Root class="mb-5 rounded-lg bg-slate-200/80 dark:bg-slate-800/80 dark:text-white">
 			<Collapsible.Trigger class="flex w-full items-center justify-between space-x-4 px-4">
 				<div class="invisible"></div>
-				<h4 class="text-sm font-semibold">Admin Permissions</h4>
+				<h4 class="text-sm font-semibold">What can admins do?</h4>
 				<Button variant="ghost" size="sm" class="w-9 p-0">
 					<ChevronsUpDown />
 					<span class="sr-only">Toggle</span>
@@ -288,7 +287,9 @@
 			</h1>
 			<div class="space-y-4">
 				{#each currentAdminAttendees as adminAttendee (adminAttendee.user.id)}
-					<Card.Root class="bg-slate-100/80 dark:bg-slate-900/80 dark:text-white dark:hover:bg-slate-800">
+					<Card.Root
+						class="bg-slate-100/80 dark:bg-slate-900/80 dark:text-white dark:hover:bg-slate-800"
+					>
 						<Card.Header>
 							<Card.Title class="flex items-center">
 								<ProfileAvatar userId={adminAttendee.user?.id} baseHeightPx={40} />

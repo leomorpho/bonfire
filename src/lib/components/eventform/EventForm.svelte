@@ -476,21 +476,13 @@
 
 <div class="mx-4 flex flex-col items-center justify-center">
 	<section class="mt-8 w-full sm:w-[450px]">
-		<h2
-			class="mb-2 flex w-full items-center justify-between rounded-xl bg-white p-2 text-lg font-semibold dark:bg-slate-900"
-		>
-			<BackButton url={eventId ? `/bonfire/${eventId}` : '/dashboard'} />
-			<div>
-				{mode === EventFormType.CREATE
-					? capitalize(EventFormType.CREATE)
-					: capitalize(EventFormType.UPDATE)} a Bonfire
-			</div>
-			<div></div>
-		</h2>
 		<Tabs.Root value="info" class="w-full">
 			<div class="sticky top-2 z-50 mt-7 flex w-full justify-center">
-				<div>
-					<Tabs.List class="mb-1 w-full animate-in fade-in zoom-in">
+				<div
+					class="mb-2 flex w-full items-center justify-between rounded-xl bg-white p-2 text-lg font-semibold dark:bg-slate-900"
+				>
+					<BackButton url={eventId ? `/bonfire/${eventId}` : '/dashboard'} />
+					<Tabs.List class="w-min animate-in fade-in zoom-in dark:bg-slate-700 dark:text-white">
 						<Tabs.Trigger
 							id="event-info-tab"
 							value="info"
@@ -516,10 +508,16 @@
 							><BellRing class="h-5 w-5" /></Tabs.Trigger
 						>
 					</Tabs.List>
+					<div></div>
 				</div>
 			</div>
 
 			<Tabs.Content value="info">
+				<h1
+					class="mb-2 flex w-full justify-center rounded-xl bg-white p-2 text-lg font-semibold dark:bg-slate-900 dark:text-white"
+				>
+					General info
+				</h1>
 				<form class="space-y-2">
 					{#if userIsOutOfLogs && !isEventPublished}
 						<OutOfLogs />
