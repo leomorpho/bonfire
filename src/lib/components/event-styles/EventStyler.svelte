@@ -34,7 +34,7 @@
 
 	$effect(() => {
 		overlayOpacity = overlayForShadnSlider[0];
-		applyStyle();
+		applyStyle(true);
 	});
 
 	/**
@@ -44,7 +44,6 @@
 	function applyStyle(
 		setNewStyle = false,
 		style: { id: number; name: string; cssTemplate: string } | null = null,
-		cleanup = true
 	) {
 		const fontStyle = font ? font.style : '';
 		finalStyleCss = style?.cssTemplate ?? finalStyleCss;
