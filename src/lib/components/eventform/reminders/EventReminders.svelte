@@ -1,4 +1,9 @@
 <script lang="ts">
+	import { onMount } from "svelte";
+
+	onMount(()=>{
+		
+	})
 </script>
 
 <div class="mx-4 mb-16 flex flex-col items-center justify-center">

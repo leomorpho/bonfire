@@ -9,6 +9,7 @@
 	import {
 		getEffectivePermissionSettingForEvent,
 		getPermissionFiltersForEventAndPermissionType,
+		hasAnyEffectivePermissionGranted,
 		toggleSettingsPermission
 	} from '$lib/permissions';
 	import type { PermissionsArray } from '$lib/types';
@@ -21,10 +22,12 @@
 	let isSecondaryReminderGranted: any = $state(null);
 	let isEventActivityGranted: any = $state(null);
 
+	let hasNoDeliveryPermissionSet = $state(false);
+
 	onMount(() => {
 		const client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
-		const unsubscribe = client.subscribe(
+		const unsubscribeFromNotificationPermissions = client.subscribe(
 			client
 				.query('notification_permissions')
 				.Where(
@@ -51,9 +54,9 @@
 							console.warn(`Unknown permission type: ${result.permission}`);
 					}
 				});
-				console.log('secondaryReminders', secondaryReminders);
-				console.log('secondaryReminders', secondaryReminders);
-				console.log('eventActivities', eventActivities);
+				// console.log('secondaryReminders', secondaryReminders);
+				// console.log('secondaryReminders', secondaryReminders);
+				// console.log('eventActivities', eventActivities);
 
 				// Set the effective permission settings for each category
 				isPrimaryReminderGranted = getEffectivePermissionSettingForEvent(primaryReminders);
@@ -68,7 +71,25 @@
 			}
 		);
 
-		return () => unsubscribe();
+		const unsubscribeFromDeliveryPermissions = client.subscribe(
+			client
+				.query('delivery_permissions')
+				.Where(
+					and([['user_id', '=', userId], getPermissionFiltersForEventAndPermissionType(eventId)])
+				),
+			(results) => {
+				hasNoDeliveryPermissionSet = !hasAnyEffectivePermissionGranted(results);
+			},
+			(error) => {
+				console.error('Error fetching delivery permissions in NotificationTypes:', error);
+				permissionsLoading = false;
+			}
+		);
+
+		return () => {
+			unsubscribeFromNotificationPermissions();
+			unsubscribeFromDeliveryPermissions();
+		};
 	});
 
 	async function togglePermission(permissionType: string, granted: boolean) {
@@ -92,6 +113,15 @@
 <div class={`${cls}`}>
 	<h3 class="flex justify-between text-xl font-semibold">Notification Permissions</h3>
 
+	{#if hasNoDeliveryPermissionSet}
+		<div
+			class="mb-4 rounded-lg bg-yellow-50 p-4 text-sm text-yellow-800 dark:bg-gray-800 dark:text-yellow-300"
+			role="alert"
+		>
+			<span class="font-medium">You won't receive any notifications!</span> You first need to grant at
+			least 1 delivery permission.
+		</div>
+	{/if}
 	<div class="w-full space-y-5">
 		<PermissionToggle
 			permissionName={NotificationPermissions.primary_reminder}

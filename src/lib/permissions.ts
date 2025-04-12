@@ -6,8 +6,8 @@ export async function toggleSettingsPermission(
 	userId: string,
 	permissionType: string,
 	granted: boolean,
-	modelName:string,
-	eventId: string | null = null,
+	modelName: string,
+	eventId: string | null = null
 ) {
 	try {
 		if (!client) {
@@ -62,5 +62,43 @@ export const getEffectivePermissionSettingForEvent = (permissions: PermissionsAr
 	const generalPermission = permissions.find((perm) => perm.event_id === undefined);
 
 	// Return the granted status and id of the general permission, or default values if none is found
-	return generalPermission ? generalPermission.granted : false;
+	return generalPermission ? generalPermission.granted : true;
+};
+
+/**
+ * Checks if at least one permission type is effectively granted, considering
+ * event-specific permissions overriding general ones.
+ * @param permissions - Array of permission objects.
+ * @returns True if at least one permission type is effectively granted, otherwise false.
+ */
+export const hasAnyEffectivePermissionGranted = (permissions: PermissionsArray): boolean => {
+	// Create a set of unique permission types
+	const permissionTypes = new Set(permissions.map((perm) => perm.permission));
+
+	// Iterate over each permission type
+	for (const type of permissionTypes) {
+		// Find the event-specific permission for this type
+		const eventSpecificPermission = permissions.find(
+			(perm) => perm.permission === type && perm.event_id !== undefined
+		);
+
+		// If an event-specific permission is found, check its granted status
+		if (eventSpecificPermission) {
+			if (eventSpecificPermission.granted) {
+				return true; // Event-specific permission is granted
+			}
+		} else {
+			// Otherwise, find the general permission for this type
+			const generalPermission = permissions.find(
+				(perm) => perm.permission === type && perm.event_id === undefined
+			);
+
+			// Check the granted status of the general permission
+			if (generalPermission && generalPermission.granted) {
+				return true; // General permission is granted
+			}
+		}
+	}
+
+	return false; // No permissions are effectively granted
 };

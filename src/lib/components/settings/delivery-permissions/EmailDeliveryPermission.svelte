@@ -34,7 +34,7 @@
 					])
 				),
 			(results) => {
-				console.log('results email', results);
+				// console.log('results email', results);
 				isGranted = getEffectivePermissionSettingForEvent(results);
 				loadingPermisison = false;
 			},

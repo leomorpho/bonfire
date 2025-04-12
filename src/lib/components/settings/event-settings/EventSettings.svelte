@@ -5,7 +5,7 @@
 
 	let { eventId } = $props();
 	const permissionClasses =
-		'p-3 sm:p-5 bg-slate-100/80 dark:bg-slate-900/80 rounded-xl space-y-5 w-full';
+		'p-3 sm:p-5 bg-slate-100/80 p-3 dark:bg-slate-800/80 rounded-xl space-y-5 w-full';
 </script>
 
 <div class="flex w-full justify-center">
