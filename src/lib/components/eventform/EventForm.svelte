@@ -20,7 +20,12 @@
 	import TimezonePicker from '$lib/components/TimezonePicker.svelte';
 	import Datepicker from '$lib/components/Datepicker.svelte';
 	import AmPmPicker from '$lib/components/AmPmPicker.svelte';
-	import { getFeHttpTriplitClient, getFeWorkerTriplitClient, waitForUserId } from '$lib/triplit';
+	import {
+		createRemindersObjects,
+		getFeHttpTriplitClient,
+		getFeWorkerTriplitClient,
+		waitForUserId
+	} from '$lib/triplit';
 	import { goto } from '$app/navigation';
 	import type { TriplitClient } from '@triplit/client';
 	import { defaultMaxEventCapacity, EventFormType, Status } from '$lib/enums';
@@ -269,7 +274,6 @@
 			return;
 		}
 		isEventSaving = true;
-		const feHttpClient = getFeHttpTriplitClient($page.data.jwt);
 		try {
 			eventCreated = true;
 
@@ -302,7 +306,9 @@
 			};
 			console.log('🔍 Event Data being sent to insert:', JSON.stringify(eventData, null, 2));
 
-			event = await feHttpClient.insert('events', eventData);
+			event = await client.http.insert('events', eventData);
+
+			await createRemindersObjects(client.http, eventId, eventName, eventStartDatetime as Date);
 
 			// Create a transaction if the user has enough logs remaining
 			if (checkCanCreateTransaction(userIsOutOfLogs, createTransaction, isEventPublished)) {
@@ -327,8 +333,7 @@
 
 	const updateEvent = async (createTransaction = false, publishEventNow = null) => {
 		try {
-			const feHttpClient = getFeHttpTriplitClient($page.data.jwt);
-			await feHttpClient.update('events', event.id, async (entity) => {
+			await client.http.update('events', event.id, async (entity) => {
 				entity.title = eventName;
 				entity.description = details || null;
 				entity.location = location;

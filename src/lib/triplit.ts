@@ -235,3 +235,34 @@ export async function checkEventIsOpenForNewGoingAttendees(
 		}
 	}
 }
+
+export const createRemindersObjects = async (
+	client: HttpClient,
+	eventId: string,
+	eventName: string,
+	eventStartDatetime: Date
+) => {
+	// Calculate the send_at dates for the reminders
+	const oneWeekBefore = new Date(eventStartDatetime.getTime() - 24 * 7 * 60 * 60 * 1000);
+	const oneWeekBeforeInHours = 24 * 7;
+	const oneDayBefore = new Date(eventStartDatetime.getTime() - 24 * 60 * 60 * 1000);
+	const onDayBeforeInHours = 24;
+
+	// Create the reminder for GOING and MAYBE attendees one week before the event
+	await client.insert('event_reminders', {
+		event_id: eventId,
+		lead_time_in_hours_before_event_starts: oneWeekBeforeInHours,
+		target_attendee_statuses: new Set([Status.GOING, Status.MAYBE]),
+		send_at: oneWeekBefore,
+		text: `Reminder: your event "${eventName}" is happening in one week!`
+	});
+
+	// Create the reminder for GOING attendees one day before the event
+	await client.insert('event_reminders', {
+		event_id: eventId,
+		lead_time_in_hours_before_event_starts: onDayBeforeInHours,
+		target_attendee_statuses: new Set([Status.GOING]),
+		send_at: oneDayBefore,
+		text: `Reminder: your event "${eventName}" is happening tomorrow!`
+	});
+};

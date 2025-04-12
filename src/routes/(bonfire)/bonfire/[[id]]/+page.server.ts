@@ -2,6 +2,7 @@ import { Status, tempAttendeeSecretParam } from '$lib/enums';
 import { generateSignedUrl } from '$lib/filestorage.js';
 import { wasUserPreviouslyDeleted } from '$lib/rsvp.js';
 import { triplitHttpClient } from '$lib/server/triplit';
+import { createRemindersObjects } from '$lib/triplit.js';
 import { redirect } from '@sveltejs/kit';
 import { and } from '@triplit/client';
 
@@ -54,7 +55,6 @@ export const load = async ({ params, locals, url }) => {
 	}
 
 	let isUserAnAttendee = false;
-
 	try {
 		event = await triplitHttpClient.fetchOne(
 			triplitHttpClient
@@ -67,6 +67,7 @@ export const load = async ({ params, locals, url }) => {
 				.Include('banner_media')
 				.Include('event_admins')
 				.Include('bring_items_list', (rel) => rel('bring_items').Select(['id']))
+				.Include('event_reminders')
 				.SubqueryOne(
 					'organizer',
 					triplitHttpClient
@@ -134,6 +135,12 @@ export const load = async ({ params, locals, url }) => {
 
 		if (event.bring_items_list) {
 			numBringListItems = event.bring_items_list.length;
+		}
+		console.log('====> event.event_reminders', event.event_reminders);
+
+		if (event.event_reminders.length == 0) {
+			console.log('====>', eventId, event.title, event.start_time);
+			await createRemindersObjects(triplitHttpClient, eventId, event.title, event.start_time);
 		}
 
 		// console.log("numAnnouncements", numAnnouncements)
