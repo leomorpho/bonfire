@@ -36,7 +36,6 @@
 		getNextFont
 	} from '$lib/styles';
 	import { generatePassphraseId } from '$lib/utils';
-	import ChevronLeft from 'svelte-radix/ChevronLeft.svelte';
 	import LocationInput from '../input/location/LocationInput.svelte';
 	import EventAdminEditor from '../EventAdminEditor.svelte';
 	import { debounce } from 'lodash-es';
@@ -53,6 +52,7 @@
 	import type { FontSelection } from '$lib/types';
 	import { BellRing, Info, PaintBucket, RefreshCw, TypeOutline } from '@lucide/svelte';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
+	import EventReminders from './reminders/EventReminders.svelte';
 
 	let { mode, event = null, currUserId = null } = $props();
 
@@ -524,7 +524,7 @@
 			<div></div>
 		</h2>
 		<Tabs.Root value="info" class="w-full">
-			<div class="sticky top-2 z-50 mt-2 flex w-full justify-center">
+			<div class="sticky top-2 z-50 mt-7 flex w-full justify-center">
 				<div>
 					<Tabs.List class="mb-1 w-full animate-in fade-in zoom-in">
 						<Tabs.Trigger
@@ -575,7 +575,7 @@
 							</div>
 						</div>
 					{/if}
-					<div class="mt-5 flex w-full justify-center space-x-2 text-xs">
+					<div class="mt-3 flex w-full justify-center space-x-2 text-xs">
 						<Button
 							class="justify-centerp-4 flex items-center bg-violet-600 ring-glow hover:bg-violet-500 dark:bg-violet-700 dark:text-white dark:hover:bg-violet-500"
 							onclick={getRandomTheme}
@@ -787,7 +787,9 @@
 			<Tabs.Content value="admins">
 				<EventAdminEditor eventId={event?.id} {currUserId} eventCreatorId={event?.user_id} />
 			</Tabs.Content>
-			<Tabs.Content value="reminders">Event reminders settings</Tabs.Content>
+			<Tabs.Content value="reminders">
+				<EventReminders />
+			</Tabs.Content>
 		</Tabs.Root>
 	</section>
 

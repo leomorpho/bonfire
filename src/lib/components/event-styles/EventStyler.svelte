@@ -165,6 +165,11 @@
 	};
 </script>
 
+<h1
+	class="mb-2 flex w-full justify-center rounded-xl bg-white p-2 text-lg font-semibold dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
+>
+	Set event styles
+</h1>
 <div class="sticky top-10 mx-2">
 	<div class="flex justify-center">
 		<div class="flex max-w-96 space-x-2">
