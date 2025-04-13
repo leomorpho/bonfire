@@ -47,12 +47,20 @@
 		<div class="space-y-4">
 			{#if reminders.length > 0}
 				{#each reminders as reminder (reminder.id)}
-					<Reminder {reminder} />
+					<Reminder
+						id={reminder.id}
+						text={reminder.text}
+						sendAt={reminder.send_at}
+						targetAttendeeStatuses={reminder.target_attendee_statuses}
+						sentAt={reminder.sent_at}
+						dropped={reminder.dropped}
+						eventStartDatetime={reminder.event_start_datetime}
+					/>
 				{/each}
 			{:else}
 				<div class="flex w-full justify-center">
 					<div class="rounded-xl bg-slate-800/80 p-2 text-base">
-						There seems to be no reminders set up...
+						There seems to be no reminders set up yet...
 					</div>
 				</div>
 			{/if}
