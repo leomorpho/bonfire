@@ -205,27 +205,6 @@
 					</ul>
 				</div>
 			</CollapsibleContent>
-			<!-- <Collapsible.Content class="space-y-2 py-2" forceMount>
-				<div transition:slide={{ duration: 300 }}>
-					<ul class="ml-5 list-disc pl-5">
-						<li class="rounded-md px-4 py-1 text-sm">Modify event details</li>
-						<li class="rounded-md px-4 py-1 text-sm">
-							Manage announcements (create, update, delete)
-						</li>
-						<li class="rounded-md px-4 py-1 text-sm">Remove attendees</li>
-						<li class="rounded-md px-4 py-1 text-sm">
-							Delete files that don’t belong in the bonfire
-						</li>
-					</ul>
-
-
-					<div class="mt-5 flex justify-center px-4 text-sm font-semibold">Limitations</div>
-					<ul class="ml-5 list-disc pl-5">
-						<li class="rounded-md px-4 py-1 text-sm">Cannot assign or revoke admin roles</li>
-						<li class="rounded-md px-4 py-1 text-sm">Cannot transfer account ownership</li>
-					</ul>
-				</div>
-			</Collapsible.Content> -->
 		</Collapsible.Root>
 
 		<Popover.Root bind:open>

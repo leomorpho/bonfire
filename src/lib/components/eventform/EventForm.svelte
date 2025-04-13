@@ -22,7 +22,6 @@
 	import AmPmPicker from '$lib/components/AmPmPicker.svelte';
 	import {
 		createRemindersObjects,
-		getFeHttpTriplitClient,
 		getFeWorkerTriplitClient,
 		waitForUserId
 	} from '$lib/triplit';
@@ -755,7 +754,7 @@
 				<EventAdminEditor eventId={event?.id} {currUserId} eventCreatorId={event?.user_id} />
 			</Tabs.Content>
 			<Tabs.Content value="reminders">
-				<EventReminders />
+				<EventReminders {eventId}/>
 			</Tabs.Content>
 		</Tabs.Root>
 	</section>

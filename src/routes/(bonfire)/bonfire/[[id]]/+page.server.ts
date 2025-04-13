@@ -136,10 +136,8 @@ export const load = async ({ params, locals, url }) => {
 		if (event.bring_items_list) {
 			numBringListItems = event.bring_items_list.length;
 		}
-		console.log('====> event.event_reminders', event.event_reminders);
 
 		if (event.event_reminders.length == 0) {
-			console.log('====>', eventId, event.title, event.start_time);
 			await createRemindersObjects(triplitHttpClient, eventId, event.title, event.start_time);
 		}
 

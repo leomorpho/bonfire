@@ -328,14 +328,6 @@ export const schema = S.Collections({
 							['event.event_admins.user_id', '=', '$role.userId']
 						])
 					]
-				},
-				delete: {
-					filter: [
-						or([
-							['event.user_id', '=', '$role.userId'],
-							['event.event_admins.user_id', '=', '$role.userId']
-						])
-					]
 				}
 			},
 			temp: {
