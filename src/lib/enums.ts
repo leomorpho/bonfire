@@ -155,8 +155,7 @@ export const HistoryChangesConstants = {
 };
 
 export const NotificationPermissions = {
-	primary_reminder: 'primary_reminder',
-	secondary_reminder: 'secondary_reminder',
+	event_reminders: 'event_reminders',
 	event_activity: 'event_activity'
 };
 

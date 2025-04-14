@@ -13,13 +13,14 @@
 		toggleSettingsPermission
 	} from '$lib/permissions';
 	import type { PermissionsArray } from '$lib/types';
+	import { Activity } from 'lucide-svelte';
+	import { BellRing, MicVocal } from '@lucide/svelte';
 
 	let { userId, eventId = null, class: cls = null } = $props();
 
 	let permissionsLoading = $state(true);
 
-	let isPrimaryReminderGranted: any = $state(null);
-	let isSecondaryReminderGranted: any = $state(null);
+	let isEventRemindersGranted: any = $state(null);
 	let isEventActivityGranted: any = $state(null);
 
 	let hasNoDeliveryPermissionSet = $state(false);
@@ -35,17 +36,13 @@
 				),
 			(results) => {
 				// Separate results into respective categories
-				const primaryReminders: PermissionsArray = [];
-				const secondaryReminders: PermissionsArray = [];
+				const eventReminders: PermissionsArray = [];
 				const eventActivities: PermissionsArray = [];
 
 				results.forEach((result: any) => {
 					switch (result.permission) {
-						case NotificationPermissions.primary_reminder:
-							primaryReminders.push(result);
-							break;
-						case NotificationPermissions.secondary_reminder:
-							secondaryReminders.push(result);
+						case NotificationPermissions.event_reminders:
+							eventReminders.push(result);
 							break;
 						case NotificationPermissions.event_activity:
 							eventActivities.push(result);
@@ -59,8 +56,7 @@
 				// console.log('eventActivities', eventActivities);
 
 				// Set the effective permission settings for each category
-				isPrimaryReminderGranted = getEffectivePermissionSettingForEvent(primaryReminders);
-				isSecondaryReminderGranted = getEffectivePermissionSettingForEvent(secondaryReminders);
+				isEventRemindersGranted = getEffectivePermissionSettingForEvent(eventReminders);
 				isEventActivityGranted = getEffectivePermissionSettingForEvent(eventActivities);
 
 				permissionsLoading = false;
@@ -124,22 +120,21 @@
 	{/if}
 	<div class="w-full space-y-5">
 		<PermissionToggle
-			permissionName={NotificationPermissions.primary_reminder}
-			isGranted={isPrimaryReminderGranted}
+			permissionName={NotificationPermissions.event_reminders}
+			isGranted={isEventRemindersGranted}
 			togglePermissionFunc={() =>
-				togglePermission(NotificationPermissions.primary_reminder, !isPrimaryReminderGranted)}
-		/>
-		<PermissionToggle
-			permissionName={NotificationPermissions.secondary_reminder}
-			isGranted={isSecondaryReminderGranted}
-			togglePermissionFunc={() =>
-				togglePermission(NotificationPermissions.secondary_reminder, !isSecondaryReminderGranted)}
-		/>
+				togglePermission(NotificationPermissions.event_reminders, !isEventRemindersGranted)}
+		>
+			<Activity class="mr-2 h-4 w-4" />
+		</PermissionToggle>
+
 		<PermissionToggle
 			permissionName={NotificationPermissions.event_activity}
 			isGranted={isEventActivityGranted}
 			togglePermissionFunc={() =>
 				togglePermission(NotificationPermissions.event_activity, !isEventActivityGranted)}
-		/>
+		>
+			<MicVocal class="mr-2 h-4 w-4" />
+		</PermissionToggle>
 	</div>
 </div>
