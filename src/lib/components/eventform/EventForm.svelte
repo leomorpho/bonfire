@@ -20,11 +20,7 @@
 	import TimezonePicker from '$lib/components/TimezonePicker.svelte';
 	import Datepicker from '$lib/components/Datepicker.svelte';
 	import AmPmPicker from '$lib/components/AmPmPicker.svelte';
-	import {
-		createRemindersObjects,
-		getFeWorkerTriplitClient,
-		waitForUserId
-	} from '$lib/triplit';
+	import { getFeWorkerTriplitClient, waitForUserId } from '$lib/triplit';
 	import { goto } from '$app/navigation';
 	import type { TriplitClient } from '@triplit/client';
 	import { defaultMaxEventCapacity, EventFormType, Status } from '$lib/enums';
@@ -306,8 +302,6 @@
 			console.log('🔍 Event Data being sent to insert:', JSON.stringify(eventData, null, 2));
 
 			event = await client.http.insert('events', eventData);
-
-			await createRemindersObjects(client.http, eventId, eventName, eventStartDatetime as Date);
 
 			// Create a transaction if the user has enough logs remaining
 			if (checkCanCreateTransaction(userIsOutOfLogs, createTransaction, isEventPublished)) {
@@ -673,16 +667,11 @@
 							onSave={debouncedUpdateEvent}
 						/>
 					</div>
-					<!-- <TextAreaAutoGrow
-							cls={'bg-white dark:bg-slate-900'}
-							placeholder="Details"
-							bind:value={details}
-							oninput={debouncedUpdateEvent}
-						/> -->
+					
 					<TipTapTextEditor
 						bind:content={details}
 						oninput={debouncedUpdateEvent}
-						class="bg-white dark:bg-slate-900 "
+						class="bg-white dark:bg-slate-900"
 					/>
 					<MaxCapacity oninput={debouncedUpdateEvent} bind:value={maxCapacity} />
 					<GuestCountFeature oninput={debouncedUpdateEvent} bind:value={maxNumGuest} />
@@ -754,7 +743,7 @@
 				<EventAdminEditor eventId={event?.id} {currUserId} eventCreatorId={event?.user_id} />
 			</Tabs.Content>
 			<Tabs.Content value="reminders">
-				<EventReminders {eventId}/>
+				<EventReminders {eventId} />
 			</Tabs.Content>
 		</Tabs.Root>
 	</section>

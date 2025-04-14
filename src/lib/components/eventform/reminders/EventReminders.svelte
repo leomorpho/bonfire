@@ -14,7 +14,11 @@
 		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
 		const unsubscribeFromEventRemindersQuery = client.subscribe(
-			client.query('event_reminders').Where(['event_id', '=', eventId]).Order('send_at', 'ASC'),
+			client
+				.query('event_reminders')
+				.Where(['event_id', '=', eventId])
+				.Include('event')
+				.Order('send_at', 'ASC'),
 			(results) => {
 				reminders = results;
 				remindersLoading = false;
@@ -54,7 +58,7 @@
 						targetAttendeeStatuses={reminder.target_attendee_statuses}
 						sentAt={reminder.sent_at}
 						dropped={reminder.dropped}
-						eventStartDatetime={reminder.event_start_datetime}
+						eventStartDatetime={reminder.event.start_time}
 					/>
 				{/each}
 			{:else}

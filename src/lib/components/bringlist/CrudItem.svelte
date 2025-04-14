@@ -5,7 +5,7 @@
 	import { Label } from '$lib/components/ui/label/index.js';
 	import ItemCategory from './items/ItemCategory.svelte';
 	import { BringListCountTypes } from '$lib/enums';
-	import TextAreaAutoGrow from '../TextAreaAutoGrow.svelte';
+	import TextAreaAutoGrow from '../input/TextAreaAutoGrow.svelte';
 	import {
 		assignBringItem,
 		createBringItem,
@@ -169,7 +169,7 @@
 				</div>
 			</div>
 			<TextAreaAutoGrow
-				cls={''}
+				class={''}
 				placeholder={`Any details you'd like to add about that item you're bringing?`}
 				bind:value={details}
 				oninput={() => {}}
