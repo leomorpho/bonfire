@@ -119,7 +119,7 @@
 							isEnabled = !isEnabled;
 							debouncedUpdate();
 						}}
-                        disabled={!!sentAt}
+						disabled={!!sentAt}
 					/>
 				</div>
 			</div>
@@ -165,19 +165,5 @@
 			oninput={debouncedUpdate}
 			maxValue={eventStartCalendarDate}
 		/>
-
-		<div
-			class="flex w-full items-center justify-between space-x-2 rounded-xl bg-slate-100 p-2 px-3 dark:bg-slate-900"
-		>
-			<Label.Root class="sm:text-base" for={id}>Enabled</Label.Root>
-			<Switch.Root
-				{id}
-				checked={!dropped}
-				onclick={() => {
-					isEnabled = !isEnabled;
-					debouncedUpdate();
-				}}
-			/>
-		</div>
 	</Card.Content>
 </Card.Root>

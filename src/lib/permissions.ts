@@ -62,7 +62,7 @@ export const getEffectivePermissionSettingForEvent = (permissions: PermissionsAr
 	const generalPermission = permissions.find((perm) => perm.event_id === undefined);
 
 	// Return the granted status and id of the general permission, or default values if none is found
-	return generalPermission ? generalPermission.granted : true;
+	return generalPermission ? generalPermission.granted : false;
 };
 
 /**

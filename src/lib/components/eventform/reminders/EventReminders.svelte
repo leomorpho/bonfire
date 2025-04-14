@@ -4,6 +4,7 @@
 	import type { TriplitClient } from '@triplit/client';
 	import { onMount } from 'svelte';
 	import Reminder from './Reminder.svelte';
+	import ShowUsersWontBeReached from './ShowUsersWontBeReached.svelte';
 
 	let { eventId } = $props();
 	let client: TriplitClient;
@@ -48,6 +49,8 @@
 		>
 			Reminders
 		</h1>
+		<ShowUsersWontBeReached {eventId} />
+
 		<div class="space-y-4">
 			{#if reminders.length > 0}
 				{#each reminders as reminder (reminder.id)}

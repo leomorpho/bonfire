@@ -50,7 +50,13 @@ export const schema = S.Collections({
 			attendances: S.RelationMany('attendees', {
 				where: [['user_id', '=', '$id']]
 			}),
-			favourite_non_profit: S.RelationById('non_profits', '$favourite_non_profit_id')
+			favourite_non_profit: S.RelationById('non_profits', '$favourite_non_profit_id'),
+			delivery_permissions: S.RelationMany('delivery_permissions', {
+				where: [['user_id', '=', '$id']]
+			}),
+			notification_permissions: S.RelationMany('delivery_permissions', {
+				where: [['user_id', '=', '$id']]
+			}),
 		},
 		permissions: {
 			admin: {
