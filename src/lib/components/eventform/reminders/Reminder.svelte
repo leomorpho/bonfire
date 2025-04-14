@@ -12,6 +12,8 @@
 	import TextAreaAutoGrow from '$lib/components/input/TextAreaAutoGrow.svelte';
 	import { Check } from 'lucide-svelte';
 	import { toast } from 'svelte-sonner';
+	import * as Label from '$lib/components/ui/label/index.js';
+	import * as Switch from '$lib/components/ui/switch/index.js';
 
 	// Destructure individual fields from props
 	let { id, text, sendAt, targetAttendeeStatuses, sentAt, dropped, eventStartDatetime } = $props();
@@ -42,7 +44,7 @@
 		try {
 			const updatedReminder = {
 				text: text,
-				dropped: isEnabled,
+				dropped: !isEnabled,
 				send_at: new Date(sendAtDateValue.year, sendAtDateValue.month - 1, sendAtDateValue.day),
 				lead_time_in_hours_before_event_starts: calculateLeadTimeInHours(
 					eventStartDatetime,
@@ -83,20 +85,23 @@
 		...(targetAttendeeStatuses.has(Status.MAYBE) ? [Status.MAYBE] : [])
 	]);
 
-	// $effect(() => {
-	// 	// TODO: hack because the oninput don't trigger the save
-	// 	if (sendAtDateValue) {
-	// 		debouncedUpdate();
-	// 	}
-	// });
+	// Utility function to determine class names
+	function getContainerClasses() {
+		let baseClasses = 'flex items-center rounded-xl p-2 transition-all duration-200 sm:px-3';
+		if (dropped) {
+			return `${baseClasses} bg-red-500 dark:bg-red-600 line-through`;
+		}
+		if (sentAt && isEnabled) {
+			return `${baseClasses} bg-green-500 dark:bg-green-600`;
+		}
+		return `${baseClasses} bg-yellow-400 dark:bg-yellow-600`;
+	}
 </script>
 
 <Card.Root class="bg-slate-100/80 dark:bg-slate-900/80 dark:text-white">
 	<Card.Content class="space-y-3 text-base sm:space-y-4">
-		<div class="flex w-full justify-center text-sm">
-			<div
-				class={`flex items-center rounded-xl p-2 sm:px-3 ${sentAt ? 'bg-green-500 dark:bg-green-600' : 'bg-yellow-400 dark:bg-yellow-600'}`}
-			>
+		<div class="flex w-full items-center justify-center text-sm">
+			<div class={getContainerClasses()}>
 				{#if sentAt}
 					<Check class="mr-2 h-4 w-4" />
 					<strong class="mr-1">Sent on</strong>
@@ -106,6 +111,17 @@
 					{leadTimeInDays}
 					{leadTimeInDays > 1 ? 'days' : 'day'}
 				{/if}
+				<div class="ml-2 flex items-center">
+					<Switch.Root
+						{id}
+						checked={!dropped}
+						onclick={() => {
+							isEnabled = !isEnabled;
+							debouncedUpdate();
+						}}
+                        disabled={!!sentAt}
+					/>
+				</div>
 			</div>
 		</div>
 
@@ -150,18 +166,18 @@
 			maxValue={eventStartCalendarDate}
 		/>
 
-		<!-- <div
+		<div
 			class="flex w-full items-center justify-between space-x-2 rounded-xl bg-slate-100 p-2 px-3 dark:bg-slate-900"
 		>
 			<Label.Root class="sm:text-base" for={id}>Enabled</Label.Root>
 			<Switch.Root
 				{id}
-				checked={!isEnabled}
+				checked={!dropped}
 				onclick={() => {
 					isEnabled = !isEnabled;
 					debouncedUpdate();
 				}}
 			/>
-		</div> -->
+		</div>
 	</Card.Content>
 </Card.Root>
