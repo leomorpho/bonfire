@@ -80,7 +80,7 @@
 		}
 
 		await toggleSettingsPermission(
-			client,
+			client?.http,
 			userId,
 			DeliveryPermissions.sms_notifications,
 			true,
@@ -91,7 +91,7 @@
 
 	async function unsubscribeFromSms() {
 		await toggleSettingsPermission(
-			client,
+			client?.http,
 			userId,
 			DeliveryPermissions.sms_notifications,
 			false,

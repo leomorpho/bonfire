@@ -2,7 +2,9 @@ import { eq } from 'drizzle-orm';
 import { db } from './db';
 import { userTable } from './schema';
 import { triplitHttpClient } from '$lib/server/triplit';
-import { NUM_DEFAULT_LOGS_NEW_SIGNUP } from '$lib/enums';
+import { NotificationPermissions, NUM_DEFAULT_LOGS_NEW_SIGNUP } from '$lib/enums';
+import { toggleNotificationPermission } from '$lib/permissions';
+import type { HttpClient } from '@triplit/client';
 
 export const getUserByEmail = async (email: string) => {
 	const user = await db.select().from(userTable).where(eq(userTable.email, email));
@@ -51,6 +53,11 @@ export const createNewUser = async (user: NewUser) => {
 		user_id: result[0].id,
 		num_logs: user.num_logs ?? NUM_DEFAULT_LOGS_NEW_SIGNUP
 	});
+
+	// Grant revokable notification permissions
+	for (const permissionType of Object.values(NotificationPermissions)) {
+		await toggleNotificationPermission(triplitHttpClient as HttpClient, result[0].id, permissionType, true);
+	}
 
 	return result[0];
 };

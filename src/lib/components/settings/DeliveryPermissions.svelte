@@ -19,7 +19,7 @@
 	onMount(() => {
 		const client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
-		const unsubscribeFromDeliveryPermissions = client.subscribe(
+		const unsubscribeFromNotificationPermissions = client.subscribe(
 			client
 				.query('notification_permissions')
 				.Where(
@@ -28,6 +28,7 @@
 			(results) => {
 				// Check if any permission has granted = true
 				hasNoNotificationPermissionSet = !hasAnyEffectivePermissionGranted(results);
+				console.log('hasNoNotificationPermissionSet', hasNoNotificationPermissionSet, results);
 			},
 			(error) => {
 				console.error('Error fetching notifications permissions in DeliveryPermissions:', error);
@@ -35,7 +36,7 @@
 		);
 
 		return () => {
-			unsubscribeFromDeliveryPermissions();
+			unsubscribeFromNotificationPermissions();
 		};
 	});
 </script>

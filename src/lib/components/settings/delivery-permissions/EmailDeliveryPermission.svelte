@@ -57,7 +57,7 @@
 
 	async function subscribeToEmail() {
 		await toggleSettingsPermission(
-			client,
+			client?.http,
 			userId,
 			DeliveryPermissions.email_notifications,
 			true,
@@ -68,7 +68,7 @@
 
 	async function unsubscribeFromEmail() {
 		await toggleSettingsPermission(
-			client,
+			client?.http,
 			userId,
 			DeliveryPermissions.email_notifications,
 			false,

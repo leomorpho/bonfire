@@ -24,7 +24,6 @@
 				.Include('delivery_permissions')
 				.Include('notification_permissions'),
 			(results) => {
-				console.log('attendees ---------=========', results);
 				const userIdsWontBeReachedSet = new Set([]);
 				for (const user of results) {
 					if (

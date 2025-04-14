@@ -1,8 +1,25 @@
-import { or, type Models, type TriplitClient, type WhereFilter } from '@triplit/client';
+import { HttpClient, or, type Models, type WhereFilter } from '@triplit/client';
 import type { PermissionsArray } from './types';
 
+export async function toggleNotificationPermission(
+	client: HttpClient | null | undefined,
+	userId: string,
+	permissionType: string,
+	granted: boolean,
+	eventId: string | null = null
+) {
+	await toggleSettingsPermission(
+		client,
+		userId,
+		permissionType,
+		granted,
+		'notification_permissions',
+		eventId
+	);
+}
+
 export async function toggleSettingsPermission(
-	client: TriplitClient | null | undefined,
+	client: HttpClient | null | undefined,
 	userId: string,
 	permissionType: string,
 	granted: boolean,
@@ -22,12 +39,12 @@ export async function toggleSettingsPermission(
 
 		if (perm) {
 			// Update existing permission
-			await client.http.update(modelName, perm.id, (o) => {
+			await client.update(modelName, perm.id, (o) => {
 				o.granted = granted;
 			});
 		} else {
 			// Create new permission if it doesn't exist
-			return await client.http.insert(modelName, {
+			return await client.insert(modelName, {
 				id: id,
 				user_id: userId,
 				permission: permissionType,

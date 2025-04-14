@@ -126,7 +126,7 @@
 
 	async function subscribeToPushDeliveryPerm() {
 		await toggleSettingsPermission(
-			client,
+			client?.http,
 			userId,
 			DeliveryPermissions.push_notifications,
 			true,
@@ -137,7 +137,7 @@
 
 	async function unsubscribeFromPushDeliveryPerm() {
 		await toggleSettingsPermission(
-			client,
+			client?.http,
 			userId,
 			DeliveryPermissions.push_notifications,
 			false,

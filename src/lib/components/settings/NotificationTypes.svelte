@@ -92,7 +92,7 @@
 		try {
 			const client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 			await toggleSettingsPermission(
-				client,
+				client.http,
 				userId,
 				permissionType,
 				granted,

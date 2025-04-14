@@ -85,7 +85,7 @@
 				phone_number: phoneNumber
 			});
 			await toggleSettingsPermission(
-				client,
+				client?.http,
 				userId,
 				DeliveryPermissions.sms_notifications,
 				true,
