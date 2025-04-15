@@ -58,7 +58,7 @@ test('Create bonfire', async ({ page }) => {
 	const eventName = `${faker.animal.dog()} birthday party!`;
 	const details = `Join us for ${eventName} It will be a fun evening filled with dog treats!`;
 
-	await expect(page.getByRole('heading', { name: 'Create a Bonfire' })).toBeVisible();
+	await expect(page.getByRole('heading', { name: 'General info' })).toBeVisible();
 	await expect(page.getByPlaceholder('Event Name')).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Pick a date' })).toBeVisible();
 	await expect(page.getByPlaceholder('HH')).toBeVisible();
@@ -67,7 +67,7 @@ test('Create bonfire', async ({ page }) => {
 	await expect(page.getByRole('button', { name: 'to' }).first()).toBeVisible();
 	await expect(page.getByText('Enter event address...')).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Cancel' })).toBeVisible();
-	await expect(page.getByRole('button', { name: 'Styles' })).toBeVisible();
+	await expect(page.locator('#event-styles-tab')).toBeVisible();
 
 	// Check that create button is disabled
 	await expect(page.locator('#upsert-bonfire')).toBeDisabled();
@@ -164,7 +164,7 @@ test('Create bonfire', async ({ page }) => {
 	await page.locator('#add-to-calendar').click();
 	await expect(page.getByRole('menuitem', { name: 'Google Calendar' })).toBeVisible();
 	await expect(page.getByRole('menuitem', { name: 'Outlook Calendar' })).toBeVisible();
-	await expect(page.getByRole('menuitem', { name: 'Apple Calendar (.ics)' })).toBeVisible();
+	await expect(page.getByRole('menuitem', { name: 'Apple Calendar' })).toBeVisible();
 
 	// Click on share button
 	await expect(page.getByRole('button', { name: 'Share Bonfire' })).toBeVisible();
@@ -199,7 +199,8 @@ test('Create bonfire', async ({ page }) => {
 
 	// Go to edit page and set background
 	await page.locator('#edit-bonfire').getByRole('button').click();
-	await page.getByRole('button', { name: 'Styles' }).click();
+	await page.locator('#event-styles-tab').click();
+
 	await page.getByRole('button', { name: 'Optical Illusion Pattern', exact: true }).click();
 
 	await page.locator('#edit-overlay').getByRole('button').click();
@@ -480,7 +481,7 @@ test('Temp attendee view', async ({ browser }) => {
 	await expect(tempAttendeePage.getByRole('menuitem', { name: 'Google Calendar' })).toBeVisible();
 	await expect(tempAttendeePage.getByRole('menuitem', { name: 'Outlook Calendar' })).toBeVisible();
 	await expect(
-		tempAttendeePage.getByRole('menuitem', { name: 'Apple Calendar (.ics)' })
+		tempAttendeePage.getByRole('menuitem', { name: 'Apple Calendar' })
 	).toBeVisible();
 	await tempAttendeePage.keyboard.press('Escape'); // Close dropdown
 
@@ -1174,5 +1175,6 @@ test('Delete/Leaving attendees', async ({ browser }) => {
 	).toBeVisible();
 });
 
+// TODO: test event vs global permissions
 // TODO: test max capacity of bonfire
 // TODO: only logged in "users" can message, not temp users
