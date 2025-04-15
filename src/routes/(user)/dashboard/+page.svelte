@@ -11,6 +11,7 @@
 	import PullToRefresh from '$lib/components/settings/PullToRefresh.svelte';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import { Status } from '$lib/enums';
+	import PermissionsPausedMsg from '$lib/components/settings/PermissionsPausedMsg.svelte';
 
 	let client: TriplitClient;
 
@@ -80,7 +81,7 @@
 			(results) => {
 				futureAttendances = results;
 				futureEventsLoading = false;
-				console.log('===>, futureAttendances', futureAttendances);
+				// console.log('===>, futureAttendances', futureAttendances);
 			},
 			(error) => {
 				console.error('Error fetching future attendances:', error);
@@ -123,6 +124,8 @@
 
 <div class="mx-4 mb-48 flex flex-col items-center justify-center sm:mb-20">
 	<section class="md:2/3 mt-8 w-full sm:w-2/3 md:w-[700px]">
+		<!-- <PermissionsPausedMsg {userId} /> -->
+
 		<Tabs.Root value={activeTab} class="w-full">
 			<div class="flex w-full justify-center">
 				<Tabs.List class="mb-1 w-full bg-transparent animate-in fade-in zoom-in">

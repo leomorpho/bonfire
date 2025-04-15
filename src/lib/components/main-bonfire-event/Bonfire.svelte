@@ -46,6 +46,7 @@
 	import EventHistory from './EventHistory.svelte';
 	import { SlidersHorizontal } from '@lucide/svelte';
 	import EventSettings from '../settings/event-settings/EventSettings.svelte';
+	import PermissionsPausedMsg from '../settings/PermissionsPausedMsg.svelte';
 	// import EventStylerBottomSheet from '../event-styles/EventStylerBottomSheet.svelte';
 
 	let {
@@ -607,6 +608,7 @@
 							{#if isUnverifiedUser}
 								<UnverifiedUserMsg {eventId} {tempAttendee} {tempAttendeeSecret} />
 							{/if}
+							<!-- <PermissionsPausedMsg userId={currUserId} /> -->
 
 							<EventInfo
 								{bannerInfo}
@@ -766,8 +768,9 @@
 					</Tabs.Content>
 					<Tabs.Content value="user-settings" class="mb-10 w-full">
 						<div class="animate-fadeIn mb-2 w-full">
-							<EventSettings {eventId}/>
-						</div>					</Tabs.Content>
+							<EventSettings {eventId} />
+						</div>
+					</Tabs.Content>
 					<Tabs.Content value="history" class="mb-10 w-full">
 						<div class="animate-fadeIn mb-2 w-full">
 							<EventHistory {eventId} />
