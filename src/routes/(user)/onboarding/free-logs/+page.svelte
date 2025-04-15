@@ -51,7 +51,6 @@
 	});
 
 	const claimLogs = async () => {
-		console.log('$page.data.user.id', $page.data.user.id);
 		await client.update('user', $page.data.user.id, async (entity: any) => {
 			entity.is_fully_onboarded = true;
 		});
@@ -61,7 +60,7 @@
 			goto(tempAttendanceUrl);
 		}
 
-		goto('/dashboard'); // Redirect users to their dashboard
+		goto('/onboarding/permissions'); // Redirect users to their dashboard
 	};
 
 	const styles = `background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/asteroids.jpg'); /* Replace with the URL of your tileable image */

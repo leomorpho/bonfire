@@ -52,9 +52,12 @@
 			permission above.
 		</div>
 	{/if}
-
 	{#if checkDeviceSupportsPushNotifications()}
 		<PushDeliveryPermission {userId} {eventId} />
+	{:else}
+		<p class="text-xs">
+			Install our web app for iOS and Android notifications. (Not in app stores)
+		</p>
 	{/if}
 
 	<EmailDeliveryPermission {userId} {eventId} />
