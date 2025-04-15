@@ -68,22 +68,6 @@ export const eventTransactionLogsTable = sqliteTable('eventTransactionLogs', {
 	num_logs_change: integer('num_logs_change').notNull()
 });
 
-export const notificationPermissionTable = sqliteTable('notification_permission', {
-	id: integer('id').primaryKey({ autoIncrement: true }),
-	userId: text('user_id')
-		.notNull()
-		.unique()
-		.references(() => userTable.id),
-	oneDayReminder: integer('one_day_reminder', { mode: 'boolean' }).notNull().default(false),
-	eventActivity: integer('event_activity', { mode: 'boolean' }).notNull().default(false),
-	created_at: text('timestamp')
-		.notNull()
-		.default(sql`(current_timestamp)`),
-	updated_at: text('timestamp')
-		.notNull()
-		.default(sql`(current_timestamp)`)
-});
-
 export const deletedUserTable = sqliteTable('deleted_user', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
 	userId: text('user_id').notNull(),
