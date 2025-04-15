@@ -30,6 +30,7 @@
 
 {#if isClient}
 	<Button
+	id="back-page-navigation"
 		type="button"
 		onclick={handleNavigation}
 		class="back-button my-1 bg-slate-200 text-black shadow-lg hover:bg-slate-100 dark:bg-slate-700 dark:text-white dark:hover:bg-slate-500 rounded-full"

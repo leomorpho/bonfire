@@ -44,8 +44,8 @@ export async function loginUser(
 	}
 
 	// Finish onboarding
-	await page.getByRole('button', { name: 'Continue' }).click();
-	await page.getByRole('button', { name: 'Continue' }).click();
+	await page.locator("#agree-to-free-logs-btn").click();
+	await page.locator("#finish-permission-onboarding-btn").click();
 
 	await page.getByRole('tab', { name: 'Upcoming' }).click();
 	await expect(page.getByRole('link', { name: 'Dashboard' })).toBeVisible();

@@ -96,15 +96,17 @@
 					</p>
 					<p>(1 log = 1 bonfire event)</p>
 
-					<Button class="mt-6 flex w-full items-center justify-center gap-2" onclick={claimLogs}>
+					<Button
+						id="agree-to-free-logs-btn"
+						class="mt-6 flex w-full items-center justify-center gap-2"
+						onclick={claimLogs}
+					>
 						<PartyPopper class="h-5 w-5" /> Continue
 					</Button>
 					<p class="mt-4 text-sm text-gray-600 dark:text-gray-400">
 						Need more? Get them in your profile.
 					</p>
 				</div>
-
-				<!-- </div> -->
 			</FadeIn>
 		</div>
 	</div>

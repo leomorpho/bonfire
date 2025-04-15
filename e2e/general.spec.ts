@@ -203,10 +203,9 @@ test('Create bonfire', async ({ page }) => {
 
 	await page.getByRole('button', { name: 'Optical Illusion Pattern', exact: true }).click();
 
-	await page.locator('#edit-overlay').getByRole('button').click();
+	await page.locator('#edit-overlay').click();
 	await expect(page.getByRole('button', { name: 'Clear' })).toBeVisible();
-	await page.getByRole('button', { name: 'chevron left Back' }).click();
-	await page.locator('#upsert-bonfire').click();
+	await page.locator("#back-page-navigation").click();
 
 	// Verify address as it used to be mangled (possible bug again) when coming back from edit page
 	await page.locator('#share-location').click();
@@ -618,12 +617,10 @@ test('Event admins', async ({ browser }) => {
 
 	// Now event creator will add above attendee as an admin
 	await eventCreatorPage.locator('#edit-bonfire').getByRole('button').click();
-	await eventCreatorPage.getByRole('button', { name: 'Admins' }).click();
-	await expect(eventCreatorPage.getByRole('heading', { name: 'Add an admin' })).toBeVisible();
-	await expect(
-		eventCreatorPage.getByRole('button', { name: 'Admin Permissions Toggle' })
-	).toBeVisible();
-	await eventCreatorPage.getByRole('button', { name: 'Admin Permissions Toggle' }).click();
+	await eventCreatorPage.locator("#event-admins-tab").click();
+	
+	await eventCreatorPage.getByRole('button', { name: 'What can admins do? Toggle' }).click();
+
 	await expect(eventCreatorPage.getByText('Modify event details')).toBeVisible();
 	await expect(eventCreatorPage.getByText('Remove attendees')).toBeVisible();
 	await expect(eventCreatorPage.getByText('No admins yet')).toBeVisible();

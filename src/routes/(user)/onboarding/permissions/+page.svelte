@@ -1,7 +1,5 @@
 <script lang="ts">
-	import FadeIn from '$lib/components/containers/FadeIn.svelte';
 	import { page } from '$app/stores';
-	import NotificationTypes from '$lib/components/settings/NotificationTypes.svelte';
 	import DeliveryPermissions from '$lib/components/settings/DeliveryPermissions.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { ArrowRight } from 'lucide-svelte';
@@ -39,7 +37,10 @@
 				</div>
 
 				<a href="/dashboard">
-					<Button class="mt-6 flex w-full items-center justify-center gap-2">
+					<Button
+						id="finish-permission-onboarding-btn"
+						class="mt-6 flex w-full items-center justify-center gap-2"
+					>
 						<ArrowRight class="h-5 w-5" /> Continue
 					</Button>
 				</a>
