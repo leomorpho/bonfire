@@ -66,8 +66,8 @@
 				{/each}
 			{:else}
 				<div class="flex w-full justify-center">
-					<div class="rounded-xl bg-slate-800/80 p-2 text-base">
-						There seems to be no reminders set up yet...
+					<div class="rounded-xl bg-slate-800/80 p-2 text-sm text-center">
+						Reminders only get created once the event is itself created.
 					</div>
 				</div>
 			{/if}

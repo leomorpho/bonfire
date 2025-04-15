@@ -85,7 +85,7 @@
 				type="multiple"
 				class="flex flex-wrap rounded-lg bg-slate-100/80 p-1 dark:bg-slate-700/80"
 			>
-				<ToggleGroup.Item
+				<!-- <ToggleGroup.Item
 					onclick={() => editor.chain().focus().toggleBold().run()}
 					class={`${editor.isActive('bold') ? 'active' : ''}`}
 					value="bold"
@@ -100,7 +100,7 @@
 					aria-label="Toggle italic"
 				>
 					<Italic class="size-4" />
-				</ToggleGroup.Item>
+				</ToggleGroup.Item> -->
 				<ToggleGroup.Item
 					onclick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
 					class={`${editor.isActive('heading', { level: 1 }) ? 'active' : ''}`}

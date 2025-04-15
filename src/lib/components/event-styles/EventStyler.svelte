@@ -180,7 +180,7 @@
 >
 	Styles
 </h1>
-<div class="sticky top-10 mx-2">
+<div class="sticky top-16 mx-2">
 	<div class="flex justify-center">
 		<div class="flex max-w-96 space-x-2">
 			<Popover.Root>
@@ -251,7 +251,7 @@
 
 <div class="gallery my-5 h-full">
 	<div
-		class={`${horizontalScroll ? 'flex h-full' : 'grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'}`}
+		class={`${horizontalScroll ? 'flex h-full' : 'grid grid-cols-1 gap-6 md:gap-4 md:grid-cols-2 lg:grid-cols-3'}`}
 	>
 		{#if horizontalScroll}
 			<ScrollArea

@@ -254,7 +254,7 @@ export const createRemindersObjects = async (
 		lead_time_in_hours_before_event_starts: oneWeekBeforeInHours,
 		target_attendee_statuses: new Set([Status.GOING, Status.MAYBE]),
 		send_at: oneWeekBefore,
-		text: `Reminder: your event "${eventName}" is happening in one week!`
+		text: `Your event "${eventName}" is just one week away! Get ready!`
 	});
 
 	// Create the reminder for GOING attendees one day before the event
@@ -263,6 +263,6 @@ export const createRemindersObjects = async (
 		lead_time_in_hours_before_event_starts: onDayBeforeInHours,
 		target_attendee_statuses: new Set([Status.GOING]),
 		send_at: oneDayBefore,
-		text: `Reminder: your event "${eventName}" is happening tomorrow!`
+		text: `Your event "${eventName}" is just one week away! Get ready!`
 	});
 };

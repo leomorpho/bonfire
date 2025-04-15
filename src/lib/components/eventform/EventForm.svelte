@@ -473,7 +473,7 @@
 </script>
 
 <div class="mx-4 flex flex-col items-center justify-center">
-	<section class="mt-8 w-full sm:w-[450px]">
+	<section class="px-3 sm:px-0 mt-8 w-full sm:w-[450px] lg:w-[600px]">
 		<Tabs.Root value="info" class="w-full">
 			<div class="sticky top-2 z-50 mt-7 flex w-full justify-center">
 				<div
@@ -485,25 +485,25 @@
 							id="event-info-tab"
 							value="info"
 							class="focus:outline-none focus-visible:ring-0 data-[state=active]:bg-cyan-500 data-[state=active]:text-white dark:data-[state=active]:bg-cyan-600"
-							><Info class="h-5 w-5" /></Tabs.Trigger
+							><Info class="h-4 w-4 sm:h-5 sm:w-5" /></Tabs.Trigger
 						>
 						<Tabs.Trigger
 							id="event-styles-tab"
 							value="styles"
 							class="focus:outline-none focus-visible:ring-0 data-[state=active]:bg-cyan-500 data-[state=active]:text-white dark:data-[state=active]:bg-cyan-600"
-							><Palette class="h-5 w-5" /></Tabs.Trigger
+							><Palette class="h-4 w-4 sm:h-5 sm:w-5" /></Tabs.Trigger
 						>
 						<Tabs.Trigger
 							id="event-admins-tab"
 							value="admins"
 							class="focus:outline-none focus-visible:ring-0 data-[state=active]:bg-cyan-500 data-[state=active]:text-white dark:data-[state=active]:bg-cyan-600"
-							><Shield class="h-5 w-5" /></Tabs.Trigger
+							><Shield class="h-4 w-4 sm:h-5 sm:w-5" /></Tabs.Trigger
 						>
 						<Tabs.Trigger
 							id="event-reminders-tab"
 							value="reminders"
 							class="focus:outline-none focus-visible:ring-0 data-[state=active]:bg-cyan-500 data-[state=active]:text-white dark:data-[state=active]:bg-cyan-600"
-							><BellRing class="h-5 w-5" /></Tabs.Trigger
+							><BellRing class="h-4 w-4 sm:h-5 sm:w-5" /></Tabs.Trigger
 						>
 					</Tabs.List>
 					<div></div>
@@ -676,7 +676,7 @@
 					<MaxCapacity oninput={debouncedUpdateEvent} bind:value={maxCapacity} />
 					<GuestCountFeature oninput={debouncedUpdateEvent} bind:value={maxNumGuest} />
 				</form>
-				<div class="my-10 sm:w-[450px]">
+				<div class="my-10 flex md:w-full justify-center">
 					<div class="grid w-full grid-cols-2 gap-2">
 						<a class="flex w-full" href={cancelUrl}>
 							<Button
