@@ -250,8 +250,8 @@ importers:
         specifier: ^5.2.6
         version: 5.2.7(svelte@5.26.3)(vite@5.4.18(@types/node@22.14.1))(vitest@2.1.9)
       '@triplit/cli':
-        specifier: ^1.0.25
-        version: 1.0.25(better-sqlite3@11.9.1)(typescript@5.8.3)
+        specifier: ^1.0.26
+        version: 1.0.26(better-sqlite3@11.9.1)(typescript@5.8.3)
       '@types/better-sqlite3':
         specifier: ^7.6.11
         version: 7.6.13
@@ -1788,8 +1788,8 @@ packages:
   '@libsql/core@0.14.0':
     resolution: {integrity: sha512-nhbuXf7GP3PSZgdCY2Ecj8vz187ptHlZQ0VRc751oB2C1W8jQUXKKklvt7t1LJiUTQBVJuadF628eUk+3cRi4Q==}
 
-  '@libsql/core@0.15.3':
-    resolution: {integrity: sha512-q5l+h0vtXbn1gTfpkau4P946IutaaiRzpfPX9lJzEOWu2Pt1n9BtbIWpDYLk8A5t81xXWlZvvCe9GgE61tgFrw==}
+  '@libsql/core@0.15.4':
+    resolution: {integrity: sha512-NMvh6xnn3vrcd7DNehj0HiJcRWB2a8hHhJUTkOBej3Pf3KB21HOmdOUjXxJ5pGbjWXh4ezQBmHtF5ozFhocXaA==}
 
   '@libsql/darwin-arm64@0.4.7':
     resolution: {integrity: sha512-yOL742IfWUlUevnI5PdnIT4fryY3LYTdLm56bnY0wXBw7dhFcnjuA7jrH3oSVz2mjZTHujxoITgAE7V6Z+eAbg==}
@@ -3040,8 +3040,8 @@ packages:
   '@transloadit/prettier-bytes@0.3.5':
     resolution: {integrity: sha512-xF4A3d/ZyX2LJWeQZREZQw+qFX4TGQ8bGVP97OLRt6sPO6T0TNHBFTuRHOJh7RNmYOBmQ9MHxpolD9bXihpuVA==}
 
-  '@triplit/cli@1.0.25':
-    resolution: {integrity: sha512-1PoocEKbB1kZFDgFHfDEryy3ivKKDEgwYvZ/q5F9e31ZgjkySvgtUVhLol7SQAeqFM9QTVs8Ad88LD4IArS27Q==}
+  '@triplit/cli@1.0.26':
+    resolution: {integrity: sha512-3Jr+uiuDR4QWa4YhZXy/4veRrHHwwIVRuUfDIvGFH/vWuA6OByukVeOUc0Aq737jMPSe2YPUUcxgHwbPu651NQ==}
     engines: {node: '>=16.0.0'}
     hasBin: true
 
@@ -3051,6 +3051,20 @@ packages:
 
   '@triplit/db@1.0.19':
     resolution: {integrity: sha512-FwlTqmY7COd74UbGS4futKdd+GrpgjcqxMFyi85uv9jMvkNOh+NqThjK0iHwaT65DgsQLf6OA/WY0ovqbjPyQg==}
+    peerDependencies:
+      better-sqlite3: '*'
+      expo-sqlite: '*'
+      lmdb: '*'
+    peerDependenciesMeta:
+      better-sqlite3:
+        optional: true
+      expo-sqlite:
+        optional: true
+      lmdb:
+        optional: true
+
+  '@triplit/db@1.0.20':
+    resolution: {integrity: sha512-4UugJm6nIwK8VJEetd/6qy0g0l62u99yaNvA8hlMzR2PhUlX6MnXpZWBgT3Y8bxUHz70IxN6Nx95U5UKl0VgMA==}
     peerDependencies:
       better-sqlite3: '*'
       expo-sqlite: '*'
@@ -7953,7 +7967,7 @@ snapshots:
 
   '@libsql/client-wasm@0.15.3':
     dependencies:
-      '@libsql/core': 0.15.3
+      '@libsql/core': 0.15.4
       js-base64: 3.7.7
 
   '@libsql/client@0.14.0':
@@ -7971,7 +7985,7 @@ snapshots:
     dependencies:
       js-base64: 3.7.7
 
-  '@libsql/core@0.15.3':
+  '@libsql/core@0.15.4':
     dependencies:
       js-base64: 3.7.7
 
@@ -9435,9 +9449,9 @@ snapshots:
 
   '@transloadit/prettier-bytes@0.3.5': {}
 
-  '@triplit/cli@1.0.25(better-sqlite3@11.9.1)(typescript@5.8.3)':
+  '@triplit/cli@1.0.26(better-sqlite3@11.9.1)(typescript@5.8.3)':
     dependencies:
-      '@triplit/db': 1.0.19(better-sqlite3@11.9.1)(typescript@5.8.3)
+      '@triplit/db': 1.0.20(better-sqlite3@11.9.1)(typescript@5.8.3)
       esbuild: 0.23.1
       source-map: 0.7.4
     optionalDependencies:
@@ -9461,6 +9475,19 @@ snapshots:
       - typescript
 
   '@triplit/db@1.0.19(better-sqlite3@11.9.1)(typescript@5.8.3)':
+    dependencies:
+      '@triplit/logger': 0.0.3(typescript@5.8.3)
+      core-js: 3.41.0
+      elen: 1.0.10
+      nanoid: 5.1.5
+      sorted-btree: 1.8.1
+      web-worker: 1.5.0
+    optionalDependencies:
+      better-sqlite3: 11.9.1
+    transitivePeerDependencies:
+      - typescript
+
+  '@triplit/db@1.0.20(better-sqlite3@11.9.1)(typescript@5.8.3)':
     dependencies:
       '@triplit/logger': 0.0.3(typescript@5.8.3)
       core-js: 3.41.0

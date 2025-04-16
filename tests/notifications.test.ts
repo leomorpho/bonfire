@@ -1,23 +1,13 @@
 import { Status } from '$lib/enums';
-import { createNewAnnouncementNotificationQueueObject } from '$lib/notification';
+import { createNewAnnouncementNotificationQueueObject } from '../src/lib/notification_queue';
 import { createNewUser } from '$lib/server/database/user.model';
-import { runNotificationProcessor } from '$lib/server/push';
-import { serverTriplitClient } from '$lib/server/triplit';
+import { runNotificationProcessor } from '$lib/server/notifications';
+import { triplitHttpClient } from '$lib/server/triplit';
 import { arrayToStringRepresentation, stringRepresentationToArray } from '$lib/utils';
 import { faker } from '@faker-js/faker';
-import { TriplitClient } from '@triplit/client';
 import { and } from '@triplit/client';
 import { generateId } from 'lucia';
 import { describe, it, expect } from 'vitest';
-import { schema } from '../triplit/schema';
-import { env as publicEnv } from '$env/dynamic/public';
-import { env as privateEnv } from '$env/dynamic/private';
-
-const serverTriplitClient = new TriplitClient({
-	schema,
-	serverUrl: publicEnv.PUBLIC_TRIPLIT_URL,
-	token: privateEnv.TRIPLIT_SERVICE_TOKEN
-});
 
 async function createNewTestUser(
 	email: string | null = null,
@@ -35,7 +25,7 @@ async function createNewTestUser(
 
 	await createNewUser(user);
 
-	await serverTriplitClient.insert('user', {
+	await triplitHttpClient.insert('user', {
 		id: user.id,
 		username: username ?? faker.internet.username()
 	});
@@ -56,7 +46,7 @@ async function createNewEvent(userId: string) {
 		overlay_opacity: faker.number.float({ min: 0, max: 1 })
 	};
 
-	const result = await serverTriplitClient.insert('events', event);
+	const result = await triplitHttpClient.insert('events', event);
 	return result;
 }
 
@@ -71,7 +61,7 @@ async function createNewAnnouncement(
 		user_id: userId
 	};
 
-	const result = await serverTriplitClient.insert('announcement', announcement);
+	const result = await triplitHttpClient.insert('announcement', announcement);
 	return result;
 }
 
@@ -82,17 +72,15 @@ async function createNewAttendance(eventId: string, userId: string, status: Stat
 		user_id: userId,
 		status: status
 	};
-	const result = await serverTriplitClient.insert('attendees', attendance);
+	const result = await triplitHttpClient.insert('attendees', attendance);
 	return result;
 }
 
 async function markAllNotificationsAsSeen() {
-	const notifications = await serverTriplitClient.fetch(
-		serverTriplitClient.query('notifications')
-	);
+	const notifications = await triplitHttpClient.fetch(triplitHttpClient.query('notifications'));
 
 	for (const notification of notifications) {
-		await serverTriplitClient.update('notifications', notification.id, (entity) => {
+		await triplitHttpClient.update('notifications', notification.id, (entity) => {
 			entity.seen_at = new Date();
 			return entity;
 		});
@@ -103,9 +91,7 @@ async function markAllNotificationsAsSeen() {
  * Ensures each object ID in notifications is unique for a notification type, user, and event.
  */
 export async function validateUniqueNotifications() {
-	const notifications = await serverTriplitClient.fetch(
-		serverTriplitClient.query('notifications')
-	);
+	const notifications = await triplitHttpClient.fetch(triplitHttpClient.query('notifications'));
 
 	const groupedNotifications = notifications.reduce((acc, notification) => {
 		const key = `${notification.object_type}-${notification.user_id}-${notification.event_id}`;
@@ -125,7 +111,7 @@ export async function validateUniqueNotifications() {
 
 			if (uniqueObjectIds.length !== objectIds.length) {
 				notification.object_ids = arrayToStringRepresentation(uniqueObjectIds);
-				await serverTriplitClient.update('notifications', notification.id, (entity) => {
+				await triplitHttpClient.update('notifications', notification.id, (entity) => {
 					entity.object_ids = notification.object_ids;
 					return entity;
 				});
@@ -157,7 +143,7 @@ describe('Announcement notifications', () => {
 		await createNewAttendance(event?.id as string, attendingUser3.id, Status.GOING);
 
 		await createNewAnnouncementNotificationQueueObject(
-			serverTriplitClient as TriplitClient,
+			triplitHttpClient,
 			user?.id as string,
 			event?.id as string,
 			[announcement?.id as string]
@@ -165,32 +151,26 @@ describe('Announcement notifications', () => {
 
 		await runNotificationProcessor();
 
-		const notificationsForEventCreator = await serverTriplitClient.fetch(
-			serverTriplitClient
-				.query('notifications')
-				.Where(
-					and([
-						['user_id', '=', user.id],
-						['event_id', '=', event?.id as string]
-					])
-				)
-				
-		);
-
-		const notificationsForAttendees = await serverTriplitClient.fetch(
-			serverTriplitClient
-				.query('notifications')
-				.Where(
-					and([
-						['user_id', '!=', user.id],
-						['event_id', '=', event?.id as string]
-					])
-				)
-				
+		const notificationsForEventCreator = await triplitHttpClient.fetch(
+			triplitHttpClient.query('notifications').Where(
+				and([
+					['user_id', '=', user.id],
+					['event_id', '=', event?.id as string]
+				])
+			)
 		);
 
 		// Event creator should have no announcement notification
 		expect(notificationsForEventCreator).toHaveLength(0);
+
+		const notificationsForAttendees = await triplitHttpClient.fetch(
+			triplitHttpClient.query('notifications').Where(
+				and([
+					['user_id', 'in', [attendingUser1.id, attendingUser2.id, attendingUser3.id]],
+					['event_id', '=', event?.id as string]
+				])
+			)
+		);
 
 		// All 3 attendees should have a notification
 		expect(notificationsForAttendees).toHaveLength(3);
@@ -216,13 +196,13 @@ describe('Announcement notifications', () => {
 
 		// Create 2 notifications, which should merge because the previous one is unread
 		await createNewAnnouncementNotificationQueueObject(
-			serverTriplitClient as TriplitClient,
+			triplitHttpClient,
 			user?.id as string,
 			event?.id as string,
 			[announcement?.id as string]
 		);
 		await createNewAnnouncementNotificationQueueObject(
-			serverTriplitClient as TriplitClient,
+			triplitHttpClient,
 			user?.id as string,
 			event?.id as string,
 			[announcement?.id as string]
@@ -230,16 +210,13 @@ describe('Announcement notifications', () => {
 
 		await runNotificationProcessor();
 
-		const notificationsForAttendees = await serverTriplitClient.fetch(
-			serverTriplitClient
-				.query('notifications')
-				.Where(
-					and([
-						['user_id', '!=', user.id],
-						['event_id', '=', event?.id as string]
-					])
-				)
-				
+		const notificationsForAttendees = await triplitHttpClient.fetch(
+			triplitHttpClient.query('notifications').Where(
+				and([
+					['user_id', '!=', user.id],
+					['event_id', '=', event?.id as string]
+				])
+			)
 		);
 
 		// All 3 attendees should have a single notification
@@ -271,7 +248,7 @@ describe('Announcement notifications', () => {
 
 		// Create 1st notification
 		await createNewAnnouncementNotificationQueueObject(
-			serverTriplitClient as TriplitClient,
+			triplitHttpClient,
 			user?.id as string,
 			event?.id as string,
 			[announcement1?.id as string]
@@ -282,7 +259,7 @@ describe('Announcement notifications', () => {
 
 		// Create 2nd notification
 		await createNewAnnouncementNotificationQueueObject(
-			serverTriplitClient as TriplitClient,
+			triplitHttpClient,
 			user?.id as string,
 			event?.id as string,
 			[announcement2?.id as string]
@@ -290,31 +267,25 @@ describe('Announcement notifications', () => {
 
 		await runNotificationProcessor();
 
-		const notificationsForAttendees = await serverTriplitClient.fetch(
-			serverTriplitClient
-				.query('notifications')
-				.Where(
-					and([
-						['user_id', '!=', user.id],
-						['event_id', '=', event?.id as string]
-					])
-				)
-				
+		const notificationsForAttendees = await triplitHttpClient.fetch(
+			triplitHttpClient.query('notifications').Where(
+				and([
+					['user_id', '!=', user.id],
+					['event_id', '=', event?.id as string]
+				])
+			)
 		);
 		console.log('---> notificationsForAttendees', notificationsForAttendees);
 		// All 3 attendees should have a single notification
 		expect(notificationsForAttendees).toHaveLength(6);
 
-		const notificationsForAttendingUser1 = await serverTriplitClient.fetch(
-			serverTriplitClient
-				.query('notifications')
-				.Where(
-					and([
-						['user_id', '=', attendingUser1.id],
-						['event_id', '=', event?.id as string]
-					])
-				)
-				
+		const notificationsForAttendingUser1 = await triplitHttpClient.fetch(
+			triplitHttpClient.query('notifications').Where(
+				and([
+					['user_id', '=', attendingUser1.id],
+					['event_id', '=', event?.id as string]
+				])
+			)
 		);
 		expect(notificationsForAttendingUser1).toHaveLength(2);
 
@@ -323,7 +294,7 @@ describe('Announcement notifications', () => {
 });
 
 function createAttendeeId(eventId: string, userId: string) {
-	throw new Error('Function not implemented.');
+	return eventId + '_' + userId;
 }
 // function sleep(ms) {
 // 	return new Promise((resolve) => setTimeout(resolve, ms));

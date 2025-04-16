@@ -22,8 +22,8 @@
 		"migrate:staging": "tsx ./migrate.ts --staging",
 		"migrate:prod": "tsx ./migrate.ts --prod",
 		"seed": "vite-node --options.transformMode.ssr='/.*/' src/scripts/seed.ts",
-		"triplit": "npx @triplit/cli@1.0.25 dev",
-		"schema": "npx @triplit/cli@1.0.25 schema push"
+		"triplit": "npx @triplit/cli@1.0.26 dev",
+		"schema": "npx @triplit/cli@1.0.26 schema push"
 	},
 	"devDependencies": {
 		"@faker-js/faker": "^9.2.0",
@@ -36,7 +36,7 @@
 		"@tailwindcss/typography": "^0.5.16",
 		"@testing-library/jest-dom": "^6.6.3",
 		"@testing-library/svelte": "^5.2.6",
-		"@triplit/cli": "^1.0.25",
+		"@triplit/cli": "^1.0.26",
 		"@types/better-sqlite3": "^7.6.11",
 		"@types/eslint": "^9.6.1",
 		"@types/fluent-ffmpeg": "^2.1.27",
