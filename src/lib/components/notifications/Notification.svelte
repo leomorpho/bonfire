@@ -14,6 +14,7 @@
 	import MessageContent from '../im/MessageContent.svelte';
 	import { MoreHorizontal, MoreVertical } from 'lucide-svelte';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
+	import { slide } from 'svelte/transition';
 
 	let { notification, toggleDialog, deleteNotification, isCurrenUserEventAdmin = false } = $props();
 
@@ -165,8 +166,10 @@
 </script>
 
 <div
-	class="notification-item reltive relative rounded-lg bg-slate-100 p-4 dark:bg-slate-900 mt-3"
+	class="notification-item reltive relative mt-3 rounded-lg bg-slate-100 p-4 dark:bg-slate-900"
 	bind:this={cardRef}
+	in:slide={{ duration: 300 }}
+	out:slide={{ duration: 100 }}
 >
 	<DropdownMenu.Root>
 		<DropdownMenu.Trigger class="absolute right-2 top-1"
