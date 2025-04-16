@@ -86,23 +86,7 @@ export const getStrValueOfRSVP = (status: string) => {
 	}
 };
 
-export enum NotificationType {
-	ANNOUNCEMENT = 'announcement',
-	FILES = 'files',
-	ATTENDEES = 'attendees',
-	TEMP_ATTENDEES = 'temp_attendees',
-	ADMIN_ADDED = 'admin_added',
-	NEW_MESSAGE = 'new_message'
-}
-
 export const MAX_NUM_PUSH_NOTIF_PER_NOTIFICATION = 3;
-
-// TODO: deprecate in favor of NotificationPermissions
-// Define an enum for permission types
-export const PermissionType = {
-	ONE_DAY_REMINDER: 'oneDayReminder',
-	EVENT_ACTIVITY: 'eventActivity'
-} as const;
 
 export const TempNameCheckingState = {
 	CHECKING: 'CHECKING',
@@ -154,9 +138,21 @@ export const HistoryChangesConstants = {
 	change_update: 'update'
 };
 
+export enum NotificationType {
+	ANNOUNCEMENT = 'announcement',
+	FILES = 'files',
+	ATTENDEES = 'attendees',
+	TEMP_ATTENDEES = 'temp_attendees',
+	ADMIN_ADDED = 'admin_added',
+	NEW_MESSAGE = 'new_message',
+	REMINDER = 'reminder'
+}
+
 export const NotificationPermissions = {
 	event_reminders: 'event_reminders',
-	event_activity: 'event_activity'
+	event_activity: 'event_activity',
+	event_files_uploaded: 'event_files_uploaded',
+	event_messages: 'event_messages'
 };
 
 export const DeliveryPermissions = {
@@ -164,6 +160,64 @@ export const DeliveryPermissions = {
 	sms_notifications: 'sms_notifications',
 	email_notifications: 'email_notifications'
 };
+
+export const notificationTypeToPermMap: {
+	[key in NotificationType]: (typeof NotificationPermissions)[keyof typeof NotificationPermissions];
+} = {
+	[NotificationType.ANNOUNCEMENT]: NotificationPermissions.event_activity,
+	[NotificationType.FILES]: NotificationPermissions.event_files_uploaded,
+	[NotificationType.ATTENDEES]: NotificationPermissions.event_activity,
+	[NotificationType.TEMP_ATTENDEES]: NotificationPermissions.event_activity,
+	[NotificationType.ADMIN_ADDED]: NotificationPermissions.event_activity,
+	[NotificationType.NEW_MESSAGE]: NotificationPermissions.event_messages,
+	[NotificationType.REMINDER]: NotificationPermissions.event_activity
+};
+
+export const notificationTypesNoRateLimit = new Set([NotificationPermissions.event_reminders]);
+
+// Define the mapping of notification types to delivery types
+export const notificationTypeToDeliveryMap: {
+	[key in NotificationType]: (typeof DeliveryPermissions)[keyof typeof DeliveryPermissions][];
+} = {
+	[NotificationType.ANNOUNCEMENT]: [
+		DeliveryPermissions.push_notifications,
+		DeliveryPermissions.email_notifications,
+		DeliveryPermissions.sms_notifications
+	],
+	[NotificationType.FILES]: [
+		DeliveryPermissions.push_notifications,
+		DeliveryPermissions.email_notifications
+	],
+	[NotificationType.ATTENDEES]: [
+		DeliveryPermissions.push_notifications,
+		DeliveryPermissions.email_notifications
+	],
+	[NotificationType.TEMP_ATTENDEES]: [
+		DeliveryPermissions.push_notifications,
+		DeliveryPermissions.email_notifications
+	],
+	[NotificationType.ADMIN_ADDED]: [
+		DeliveryPermissions.push_notifications,
+		DeliveryPermissions.email_notifications
+	],
+	[NotificationType.NEW_MESSAGE]: [
+		DeliveryPermissions.push_notifications,
+		DeliveryPermissions.email_notifications,
+		DeliveryPermissions.sms_notifications
+	],
+	[NotificationType.REMINDER]: [
+		DeliveryPermissions.push_notifications,
+		DeliveryPermissions.sms_notifications,
+		DeliveryPermissions.email_notifications
+	]
+};
+
+// Define a set of notification types that support flattening
+export const flattenableNotificationTypes = new Set([
+	NotificationType.ANNOUNCEMENT,
+	NotificationType.FILES,
+	NotificationType.NEW_MESSAGE
+]);
 
 // TODO: technically 160 but don't wanna deal with counting unicode chars correctly for now, see TexAreaAutoGrow
 export const maxSmsLenInChars = 100;

@@ -35,7 +35,6 @@ export const schema = S.Collections({
 			id: S.String(),
 			username: S.String(),
 			is_fully_onboarded: S.Optional(S.Boolean({ default: false })),
-
 			favourite_non_profit_id: S.Optional(S.String()), // Non-profit the user currently contributes to by default
 			created_at: S.Optional(S.Date({ default: S.Default.now() })),
 			updated_at: S.Optional(S.Date({ default: null, nullable: true }))

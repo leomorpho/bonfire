@@ -1,19 +1,18 @@
 import { and } from '@triplit/client';
 import {
-	MAX_NUM_PUSH_NOTIF_PER_NOTIFICATION,
 	NotificationType,
 	NOTIFY_OF_ATTENDING_STATUS_CHANGE,
-	PermissionType,
+	NotificationPermissions,
 	Status,
-	TaskName
+	TaskName,
+	notificationTypeToPermMap,
+	flattenableNotificationTypes,
+	DeliveryPermissions,
+	notificationTypeToDeliveryMap,
+	notificationTypesNoRateLimit
 } from '$lib/enums';
-import type {
-	NotificationQueueEntry,
-	NotificationTypescriptType,
-	PushNotificationPayload
-} from '$lib/types';
+import type { NotificationQueueEntry, PushNotificationPayload } from '$lib/types';
 import { arrayToStringRepresentation, stringRepresentationToArray } from '$lib/utils';
-import { sendPushNotification } from '$lib/webpush';
 import {
 	getAttendeeUserIdsOfEvent,
 	triplitHttpClient,
@@ -25,6 +24,35 @@ import {
 	validateUserIds
 } from './triplit';
 import { getTaskLockState, updateTaskLockState } from './database/tasklock';
+import { sendPushNotification } from '$lib/webpush';
+
+export class Notification {
+	eventId: string;
+	userId: string;
+	message: string;
+	objectType: NotificationType;
+	objectIds: string[];
+	pushNotificationPayload: PushNotificationPayload;
+	requiredPermissions: PermissionValue[];
+
+	constructor(
+		eventId: string,
+		userId: string,
+		message: string,
+		objectType: NotificationType,
+		objectIds: string[],
+		pushNotificationPayload: PushNotificationPayload,
+		requiredPermissions: PermissionValue[]
+	) {
+		this.eventId = eventId;
+		this.userId = userId;
+		this.message = message;
+		this.objectType = objectType;
+		this.objectIds = objectIds;
+		this.pushNotificationPayload = pushNotificationPayload;
+		this.requiredPermissions = requiredPermissions;
+	}
+}
 
 export const runNotificationProcessor = async () => {
 	const taskName = TaskName.PROCESS_NOTIFICATION_QUEUE;
@@ -116,22 +144,40 @@ export async function processNotificationQueue(notificationQueueEntry: Notificat
 		return;
 	}
 
+	// Create a list of Notification objects
+	let notifications: Notification[] = [];
+
 	// Send notifications based on the type
 	switch (notificationQueueEntry.object_type) {
 		case NotificationType.ANNOUNCEMENT:
-			await notifyAttendeesOfAnnouncements(notificationQueueEntry.event_id, validObjectIds);
+			// await notifyAttendeesOfAnnouncements(notificationQueueEntry.event_id, validObjectIds);
+			notifications.push(
+				...(await createAnnouncementNotifications(notificationQueueEntry.event_id, validObjectIds))
+			);
 			break;
 		case NotificationType.FILES:
-			await notifyAttendeesOfFiles(notificationQueueEntry.event_id, validObjectIds);
+			// await notifyAttendeesOfFiles(notificationQueueEntry.event_id, validObjectIds);
+			notifications.push(
+				...(await createFileNotifications(notificationQueueEntry.event_id, validObjectIds))
+			);
 			break;
 		case NotificationType.ATTENDEES:
-			await notifyEventCreatorOfAttendees(notificationQueueEntry.event_id, validObjectIds);
+			// await notifyEventCreatorOfAttendees(notificationQueueEntry.event_id, validObjectIds);
+			notifications.push(
+				...(await createAttendeeNotifications(notificationQueueEntry.event_id, validObjectIds))
+			);
 			break;
 		case NotificationType.TEMP_ATTENDEES:
-			await notifyEventCreatorOfTemporaryAttendees(notificationQueueEntry.event_id, validObjectIds);
+			// await notifyEventCreatorOfTemporaryAttendees(notificationQueueEntry.event_id, validObjectIds);
+			notifications.push(
+				...(await createTempAttendeeNotifications(notificationQueueEntry.event_id, validObjectIds))
+			);
 			break;
 		case NotificationType.ADMIN_ADDED:
-			await notifyAttendeeOfTheirNewAdminRole(notificationQueueEntry.event_id, validObjectIds);
+			// await notifyAttendeeOfTheirNewAdminRole(notificationQueueEntry.event_id, validObjectIds);
+			notifications.push(
+				...(await createAdminAddedNotifications(notificationQueueEntry.event_id, validObjectIds))
+			);
 			break;
 		case NotificationType.NEW_MESSAGE:
 			if (validObjectIds.length != 1) {
@@ -139,12 +185,20 @@ export async function processNotificationQueue(notificationQueueEntry: Notificat
 					`new message notification created with not exactly 1 message: ${validObjectIds}`
 				);
 			}
-			await notifyAttendeesOfNewMessages(notificationQueueEntry.event_id, validObjectIds[0]);
+			// await notifyAttendeesOfNewMessages(notificationQueueEntry.event_id, validObjectIds[0]);
+			notifications.push(
+				...(await createNewMessageNotifications(notificationQueueEntry.event_id, validObjectIds[0]))
+			);
 			break;
 		default:
 			console.error(`Unknown object_type: ${notificationQueueEntry.object_type}`);
 			return;
 	}
+
+	notifications = await bulkPersistNotifications(notifications);
+
+	// Bulk notify end-users with these objects
+	await bulkNotifyUsers(notifications);
 
 	// Mark the notification as sent
 	await triplitHttpClient.update(
@@ -185,66 +239,97 @@ async function getUnreadExistingNotification(
 	return null;
 }
 
+// TODO: I've removed all flattening for now...will need to be done prior to creating notifications?
+async function mergeSimilarNotifications(
+	newObjectIds: string[],
+	userId: string,
+	eventId: string,
+	notificationType: NotificationType
+): Promise<boolean> {
+	const existingNotification = await getUnreadExistingNotification(
+		userId,
+		eventId,
+		notificationType
+	);
+
+	if (!existingNotification) {
+		return false;
+	}
+
+	const existingObjectIds = existingNotification
+		? stringRepresentationToArray(existingNotification.object_ids)
+		: [];
+
+	const updatedIds = Array.from(new Set([...existingObjectIds, ...newObjectIds]));
+
+	await triplitHttpClient.update('notifications', existingNotification.id, {
+		object_ids: arrayToStringRepresentation(updatedIds)
+	});
+
+	return true;
+}
+
 // TODO: update all notification handlers to bulk insert for efficiency
 
-async function notifyAttendeesOfAnnouncements(
+async function createAnnouncementNotifications(
 	eventId: string,
 	announcementIds: string[]
-): Promise<void> {
-	if (!announcementIds.length) return;
+): Promise<Notification[]> {
+	if (!announcementIds.length) return [];
 
 	const attendingUserIds = await getAttendeeUserIdsOfEvent(
 		eventId,
 		NOTIFY_OF_ATTENDING_STATUS_CHANGE,
-		true // Do not notify announcement creator, i.e., event creator
+		true, // Do not notify announcement creator, i.e., event creator
+		notificationTypeToPermMap[NotificationType.ANNOUNCEMENT] as NotificationType
 	);
 
-	if (!attendingUserIds.length) return;
-
 	// TODO: filter out people who've already seen it
+	const notifications: Notification[] = [];
 
 	for (const attendeeUserId of attendingUserIds) {
-		const existingNotification = await getUnreadExistingNotification(
-			attendeeUserId,
-			eventId,
-			NotificationType.ANNOUNCEMENT
-		);
-
-		const existingObjectIds = existingNotification
-			? stringRepresentationToArray(existingNotification.object_ids)
-			: [];
-		const updatedObjectIds = Array.from(new Set([...existingObjectIds, ...announcementIds]));
-
-		const numObjects = updatedObjectIds.length;
+		const numObjects = announcementIds.length;
 		const message = `📢 You have ${numObjects} new ${numObjects > 1 ? 'announcements' : 'announcement'} in an event you're attending!`;
 		const pushNotificationPayload = { title: 'New Announcements', body: message };
 
-		await handleNotification(
-			existingNotification as NotificationTypescriptType | null,
-			attendeeUserId,
-			eventId,
-			NotificationType.ANNOUNCEMENT,
-			updatedObjectIds,
-			message,
-			pushNotificationPayload,
-			[PermissionType.EVENT_ACTIVITY]
+		notifications.push(
+			new Notification(
+				eventId,
+				attendeeUserId,
+				message,
+				NotificationType.ANNOUNCEMENT,
+				announcementIds,
+				pushNotificationPayload,
+				[NotificationPermissions.event_activity]
+			)
 		);
 	}
+
+	return notifications;
 }
 
-async function notifyAttendeesOfFiles(eventId: string, fileIds: string[]): Promise<void> {
-	if (!fileIds.length) return;
+async function createFileNotifications(
+	eventId: string,
+	fileIds: string[]
+): Promise<Notification[]> {
+	if (!fileIds.length) return [];
 
 	const fileQuery = triplitHttpClient
 		.query('files')
-		// .Select(['id', 'uploader_id']) // TODO: triplit bug preventing select
+		.Select(['id', 'uploader_id'])
 		.Where([['id', 'in', fileIds]]);
 	const files = await triplitHttpClient.fetch(fileQuery);
 	const fileUploaderMap = new Map(files.map((file) => [file.id, file.uploader_id]));
 
-	const attendingUserIds = await getAttendeeUserIdsOfEvent(eventId, [Status.GOING, Status.MAYBE]);
+	// TODO: filter out users who turned off the associated permission
+	const attendingUserIds = await getAttendeeUserIdsOfEvent(
+		eventId,
+		[Status.GOING, Status.MAYBE],
+		false,
+		notificationTypeToPermMap[NotificationType.FILES] as NotificationType
+	);
 
-	if (!attendingUserIds.length) return;
+	const notifications: Notification[] = [];
 
 	for (const attendeeUserId of attendingUserIds) {
 		const filteredFileIds = fileIds.filter(
@@ -253,163 +338,136 @@ async function notifyAttendeesOfFiles(eventId: string, fileIds: string[]): Promi
 
 		if (!filteredFileIds.length) continue;
 
-		const existingNotification = await getUnreadExistingNotification(
-			attendeeUserId,
-			eventId,
-			NotificationType.FILES
-		);
-
-		const existingObjectIds = existingNotification
-			? stringRepresentationToArray(existingNotification.object_ids)
-			: [];
-		const updatedObjectIds = Array.from(new Set([...existingObjectIds, ...filteredFileIds]));
-		const numObjects = updatedObjectIds.length;
+		const numObjects = filteredFileIds.length;
 		const message = `📷 You have ${numObjects} new media ${numObjects > 1 ? 'files' : 'file'} in an event you're attending!`;
 		const pushNotificationPayload = { title: 'New Files', body: message };
 
-		await handleNotification(
-			existingNotification as NotificationTypescriptType | null,
-			attendeeUserId,
-			eventId,
-			NotificationType.FILES,
-			updatedObjectIds,
-			message,
-			pushNotificationPayload,
-			[PermissionType.EVENT_ACTIVITY]
+		notifications.push(
+			new Notification(
+				eventId,
+				attendeeUserId,
+				message,
+				NotificationType.FILES,
+				filteredFileIds,
+				pushNotificationPayload,
+				[NotificationPermissions.event_activity]
+			)
 		);
 	}
+	return notifications;
 }
 
-async function notifyEventCreatorOfAttendees(
+async function createAttendeeNotifications(
 	eventId: string,
 	attendeeIds: string[]
-): Promise<void> {
-	if (!attendeeIds.length) return;
+): Promise<Notification[]> {
+	if (!attendeeIds.length) return [];
 
 	const creatorQuery = triplitHttpClient
 		.query('events')
-		// .Select(['user_id', 'title']) // TODO: triplit bug preventing select
+		.Select(['user_id', 'title'])
 		.Where([['id', '=', eventId]]);
 	const [event] = await triplitHttpClient.fetch(creatorQuery);
 
-	if (!event) return;
+	if (!event) return [];
 
-	const existingNotification = await getUnreadExistingNotification(
-		event.user_id,
-		eventId,
-		NotificationType.ATTENDEES
-	);
-
-	const existingObjectIds = existingNotification
-		? stringRepresentationToArray(existingNotification.object_ids)
-		: [];
-	const updatedObjectIds = Array.from(new Set([...existingObjectIds, ...attendeeIds]));
-
-	const attendeeCount = updatedObjectIds.length;
+	const attendeeCount = attendeeIds.length;
 	const attendeeWord = attendeeCount === 1 ? 'attendee' : 'attendees';
 	const message = `🍻 ${attendeeCount} new ${attendeeWord} ${attendeeCount === 1 ? 'is' : 'are'} now attending your event "${event.title}".`;
 
 	const pushNotificationPayload = { title: 'New Attendees', body: message };
 
-	await handleNotification(
-		existingNotification as NotificationTypescriptType | null,
-		event.user_id,
-		eventId,
-		NotificationType.ATTENDEES,
-		updatedObjectIds,
-		message,
-		pushNotificationPayload,
-		[PermissionType.EVENT_ACTIVITY]
-	);
+	return [
+		new Notification(
+			eventId,
+			event.user_id,
+			message,
+			NotificationType.ATTENDEES,
+			attendeeIds,
+			pushNotificationPayload,
+			[NotificationPermissions.event_activity]
+		)
+	];
 }
 
-async function notifyEventCreatorOfTemporaryAttendees(
+async function createTempAttendeeNotifications(
 	eventId: string,
 	attendeeIds: string[]
-): Promise<void> {
-	if (!attendeeIds.length) return;
+): Promise<Notification[]> {
+	if (!attendeeIds.length) return [];
 
 	const creatorQuery = triplitHttpClient
 		.query('events')
-		// .Select(['user_id', 'title']) // TODO: triplit bug preventing select
+		.Select(['user_id', 'title'])
 		.Where([['id', '=', eventId]]);
 	const [event] = await triplitHttpClient.fetch(creatorQuery);
 
-	if (!event) return;
+	if (!event) return [];
 
-	const existingNotification = await getUnreadExistingNotification(
-		event.user_id,
-		eventId,
-		NotificationType.TEMP_ATTENDEES
-	);
-
-	const existingObjectIds = existingNotification
-		? stringRepresentationToArray(existingNotification.object_ids)
-		: [];
-	const updatedObjectIds = Array.from(new Set([...existingObjectIds, ...attendeeIds]));
-
-	const attendeeCount = updatedObjectIds.length;
+	const attendeeCount = attendeeIds.length;
 	const attendeeWord = attendeeCount === 1 ? 'attendee' : 'attendees';
 	const message = `🍻 ${attendeeCount} new temporary account ${attendeeWord} ${attendeeCount === 1 ? 'is' : 'are'} now attending your event "${event.title}".`;
 
 	const pushNotificationPayload = { title: 'New Temporary Account Attendees', body: message };
 
-	await handleNotification(
-		existingNotification as NotificationTypescriptType | null,
-		event.user_id,
-		eventId,
-		NotificationType.TEMP_ATTENDEES,
-		updatedObjectIds,
-		message,
-		pushNotificationPayload,
-		[PermissionType.EVENT_ACTIVITY]
-	);
+	return [
+		new Notification(
+			eventId,
+			event.user_id,
+			message,
+			NotificationType.TEMP_ATTENDEES,
+			attendeeIds,
+			pushNotificationPayload,
+			[NotificationPermissions.event_activity]
+		)
+	];
 }
 
-async function notifyAttendeeOfTheirNewAdminRole(eventId: string, newAdminUserIds: string[]) {
+async function createAdminAddedNotifications(
+	eventId: string,
+	newAdminUserIds: string[]
+): Promise<Notification[]> {
 	const creatorQuery = triplitHttpClient
 		.query('events')
-		// .Select(['id', 'title']) // TODO: triplit bug preventing select
+		.Select(['id', 'title'])
 		.Where([['id', '=', eventId]]);
 	const [event] = await triplitHttpClient.fetch(creatorQuery);
 
-	if (!event) return;
+	if (!event) return [];
+
+	const notifications: Notification[] = [];
 
 	for (const newAdminUserId of newAdminUserIds) {
-		const existingNotification = await getUnreadExistingNotification(
-			newAdminUserId, // Send notification to each individual user
-			eventId,
-			NotificationType.ADMIN_ADDED
-		);
-
-		const existingObjectIds = existingNotification
-			? stringRepresentationToArray(existingNotification.object_ids)
-			: [];
-		const updatedObjectIds = Array.from(new Set([...existingObjectIds, newAdminUserId]));
-
 		const message = `🔐 You have been made an admin for the event: "${event.title}".`;
 		const pushNotificationPayload = { title: "You're now an event admin!", body: message };
 
-		await handleNotification(
-			existingNotification as NotificationTypescriptType | null,
-			newAdminUserId,
-			eventId,
-			NotificationType.ADMIN_ADDED,
-			updatedObjectIds,
-			message,
-			pushNotificationPayload,
-			[PermissionType.EVENT_ACTIVITY]
+		notifications.push(
+			new Notification(
+				eventId,
+				newAdminUserId,
+				message,
+				NotificationType.ADMIN_ADDED,
+				[newAdminUserId],
+				pushNotificationPayload,
+				[NotificationPermissions.event_activity]
+			)
 		);
 	}
+
+	return notifications;
 }
 
-async function notifyAttendeesOfNewMessages(eventId: string, newMessageId: string): Promise<void> {
-	if (!newMessageId) return;
+async function createNewMessageNotifications(
+	eventId: string,
+	newMessageId: string
+): Promise<Notification[]> {
+	if (!newMessageId) return [];
 
 	const attendingUserIds = await getAttendeeUserIdsOfEvent(
 		eventId,
 		NOTIFY_OF_ATTENDING_STATUS_CHANGE,
-		false
+		false,
+		notificationTypeToPermMap[NotificationType.NEW_MESSAGE] as NotificationType
 	);
 
 	// Remove sender ID from list of attendees
@@ -417,7 +475,7 @@ async function notifyAttendeesOfNewMessages(eventId: string, newMessageId: strin
 		triplitHttpClient.query('event_messages').Where(['id', '=', newMessageId]).Select(['user_id'])
 	);
 
-	if (!attendingUserIds.length) return;
+	if (!attendingUserIds.length) return [];
 
 	// Extract user_ids from the messages
 	const senderIds: Array<string> = messages.map((message: { user_id: string }) => message.user_id);
@@ -455,176 +513,204 @@ async function notifyAttendeesOfNewMessages(eventId: string, newMessageId: strin
 	const message = `💬 You have a new message in an event you're attending`;
 	const pushNotificationPayload = { title: 'New Message', body: message };
 
-	// TODO: might want to check if user received more than X new message notifs in Y time, and not send notifs if that's the case
-
-	const notifications = filteredAttendingUserIds.map((attendeeUserId) => ({
-		event_id: eventId,
-		user_id: attendeeUserId,
-		message,
-		object_type: NotificationType.NEW_MESSAGE,
-		object_ids: arrayToStringRepresentation([newMessageId]),
-		num_push_notifications_sent: 1,
-		extra_id: Array.from(threadIds)[0] // Convert Set to Array to access the first element
-	}));
-
-	await triplitHttpClient.bulkInsert({
-		notifications: notifications
-	});
-
-	for (const attendeeUserId of filteredAttendingUserIds) {
-		await sendPushNotification(attendeeUserId, pushNotificationPayload, [
-			PermissionType.EVENT_ACTIVITY
-		]);
-	}
+	return filteredAttendingUserIds.map(
+		(attendeeUserId) =>
+			new Notification(
+				eventId,
+				attendeeUserId,
+				message,
+				NotificationType.NEW_MESSAGE,
+				[newMessageId],
+				pushNotificationPayload,
+				[NotificationPermissions.event_activity]
+			)
+	);
 }
 
-export type PermissionValue = (typeof PermissionType)[keyof typeof PermissionType];
+export type PermissionValue =
+	(typeof NotificationPermissions)[keyof typeof NotificationPermissions];
 
-async function handleNotification(
-	existingNotification: NotificationTypescriptType | null,
-	recipientUserId: string,
-	eventId: string,
-	objectType: string,
-	updatedObjectIds: string[],
-	message: string,
-	pushNotificationPayload: PushNotificationPayload,
-	requiredPermissions: PermissionValue[]
-): Promise<void> {
-	let pushNotificationSent = false;
+export async function bulkPersistNotifications(
+	notifications: Notification[]
+): Promise<Notification[]> {
+	// List to keep track of notifications that need to be created in the DB
+	const notificationsToCreate: Notification[] = [];
 
-	if (existingNotification) {
-		if (existingNotification.num_push_notifications_sent < MAX_NUM_PUSH_NOTIF_PER_NOTIFICATION) {
-			await sendPushNotification(recipientUserId, pushNotificationPayload, requiredPermissions);
-			pushNotificationSent = true;
-		}
-		await triplitHttpClient.update('notifications', existingNotification.id, (entity: any) => {
-			entity.object_ids = arrayToStringRepresentation(updatedObjectIds);
-			entity.message = message;
+	// For each notification, if the type supports it, check if we can flatten it with a prior unread one.
+	for (const notification of notifications) {
+		if (flattenableNotificationTypes.has(notification.objectType)) {
+			const userId = notification.userId;
+			const eventId = notification.eventId;
+			const notificationType = notification.objectType;
 
-			if (pushNotificationSent) {
-				entity.num_push_notifications_sent = (entity.num_push_notifications_sent || 0) + 1;
-			}
-		});
-		// console.debug(`Updated notification for user ${recipientUserId}.`);
-	} else {
-		await triplitHttpClient.insert('notifications', {
-			event_id: eventId,
-			user_id: recipientUserId,
-			message,
-			object_type: objectType,
-			object_ids: arrayToStringRepresentation(updatedObjectIds),
-			num_push_notifications_sent: 1
-		});
-
-		await sendPushNotification(recipientUserId, pushNotificationPayload, requiredPermissions);
-		console.debug(`Created a new notification for user ${recipientUserId}.`);
-	}
-}
-
-export const runReminderNotificationTask = async () => {
-	const taskName = TaskName.SEND_REMINDER_NOTIFICATIONS;
-
-	try {
-		const locked = await getTaskLockState(taskName);
-		if (locked) {
-			console.debug('Task is already running. Skipping execution.');
-			return;
-		} else {
-			console.debug('Start reminder notification task.');
-		}
-		await updateTaskLockState(taskName, true);
-
-		// NOTE: choosing to NOT set a start time for the filtering in order
-		// to make sure notifications eventually get sent if issues occurred in infra.
-		// Filtering can then be done later to decide or not to drop reminders.
-		const now = new Date();
-		const inOneHour = new Date(now.getTime() + 60 * 60 * 1000);
-
-		const query = triplitHttpClient.query('event_reminders').Where(
-			and([
-				['send_at', '<=', inOneHour],
-				['sent_at', 'isDefined', false]
-			])
-		);
-
-		// Fetch the events
-		const reminders = await triplitHttpClient.fetch(query);
-
-		// Process each reminder
-		for (const reminder of reminders) {
-			const sendAtWithLeadTime = new Date(
-				reminder.send_at.getTime() +
-					reminder.lead_time_in_hours_before_event_starts * 60 * 60 * 1000
+			// Try to merge similar notifications
+			const merged = await mergeSimilarNotifications(
+				notification.objectIds,
+				userId,
+				eventId,
+				notificationType
 			);
 
-			if (sendAtWithLeadTime < now) {
-				// Drop the reminder if the condition is met
-				console.error(`Dropping reminder ${reminder.id} as it is past the lead time.`);
-				await markReminderAsDropped(reminder.id);
+			if (merged) {
+				// If merged successfully, skip creating this notification
 				continue;
 			}
+		}
 
-			await sendReminderNotifications(
-				reminder.id,
-				reminder.event_id,
-				reminder.text,
-				reminder.target_attendee_statuses
-			);
-		}
-	} catch (error) {
-		console.error('Error running reminder notification task:', error);
-	} finally {
-		try {
-			await updateTaskLockState(taskName, false);
-		} catch (e) {
-			console.log('Failed to release task lock', e);
-		}
+		// If not merged, add to the list of notifications to create
+		notificationsToCreate.push(notification);
 	}
-};
 
-async function markReminderAsDropped(reminderId: string): Promise<void> {
-	await triplitHttpClient.update('event_reminders', reminderId, (entity) => {
-		entity.sent_at = new Date(); // Mark as sent to avoid reprocessing
-		entity.dropped = true; // Optionally, add a field to mark as dropped
+	// Map Notification objects to the database schema
+	const notificationObjects = notificationsToCreate.map((notification) => ({
+		event_id: notification.eventId,
+		user_id: notification.userId,
+		message: notification.message,
+		object_type: notification.objectType,
+		object_ids: arrayToStringRepresentation(notification.objectIds),
+		num_push_notifications_sent: 1, // Assuming each notification starts with 1 push notification sent
+		created_at: new Date() // Set the creation timestamp
+	}));
+
+	// Bulk insert the notifications that need to be created
+	await triplitHttpClient.bulkInsert({
+		notifications: notificationObjects
 	});
-	console.debug(`Marked reminder ${reminderId} as dropped.`);
+
+	return notificationsToCreate;
 }
 
-async function sendReminderNotifications(
-	reminderId: string,
-	eventId: string,
-	reminderText: string,
-	reminderTargetAttendeeStatuses: Set<string>
-): Promise<void> {
-	// Convert Set<string> to Status[]
-	const targetStatuses: Status[] = Array.from(reminderTargetAttendeeStatuses).map((status) => {
-		// Ensure the status is a valid enum value
-		if (Object.values(Status).includes(status as Status)) {
-			return status as Status;
-		} else {
-			throw new Error(`Invalid status: ${status}`);
+export async function bulkNotifyUsers(notifications: Notification[]): Promise<void> {
+	// If we got these notifications, we can assume the notification permissions were respected.
+	// We just need to check delivery permissions.
+
+	// Map Notification objects to the database schema
+	const userIds = notifications.map((notification) => notification.userId);
+
+	// Fetch delivery permissions for all users
+	const deliveryPerms = await triplitHttpClient.fetch(
+		triplitHttpClient.query('delivery_permissions').Where(['user_id', 'in', userIds])
+	);
+
+	// Create a map of user IDs to their delivery permissions
+	const userDeliveryPermsMap: { [key: string]: { [key: string]: boolean } } = {};
+	deliveryPerms.forEach((perm) => {
+		if (!userDeliveryPermsMap[perm.user_id]) {
+			userDeliveryPermsMap[perm.user_id] = {};
+		}
+		userDeliveryPermsMap[perm.user_id][perm.permission] = perm.granted;
+	});
+
+	// Separate notifications by delivery type
+	const notificationsByDeliveryType: { [key: string]: Notification[] } = {
+		push_notifications: [],
+		sms_notifications: [],
+		email_notifications: []
+	};
+
+	for (const notification of notifications) {
+		const userId = notification.userId;
+		const userDeliveryPerms = userDeliveryPermsMap[userId];
+
+		if (!userDeliveryPerms) {
+			console.warn(`No delivery permissions found for user ${userId}`);
+			continue;
+		}
+
+		const deliveryTypes = notificationTypeToDeliveryMap[notification.objectType];
+
+		for (const deliveryType of deliveryTypes) {
+			if (userDeliveryPerms[deliveryType]) {
+				notificationsByDeliveryType[deliveryType].push(notification);
+			}
+		}
+	}
+
+	// Extract user IDs for SMS and email notifications
+	const smsUserIds = new Set(
+		notificationsByDeliveryType[DeliveryPermissions.sms_notifications].map(
+			(notification) => notification.userId
+		)
+	);
+	const emailUserIds = new Set(
+		notificationsByDeliveryType[DeliveryPermissions.email_notifications].map(
+			(notification) => notification.userId
+		)
+	);
+
+	// Combine user IDs for a single query
+	const uniqueUserIds = Array.from(new Set([...smsUserIds, ...emailUserIds]));
+
+	// Bulk query user model to get phone numbers and emails
+	const usersWithPersonalData = await triplitHttpClient.fetch(
+		triplitHttpClient
+			.query('user_personal_data')
+			.Where(['user_id', 'in', uniqueUserIds])
+			.Select(['user_id', 'phone_number', 'email'])
+	);
+
+	// Create maps of user ID to phone number and email
+	const userPhoneNumberMap: { [key: string]: string } = {};
+	const userEmailMap: { [key: string]: string } = {};
+	usersWithPersonalData.forEach((user) => {
+		if (user.phone_number) {
+			userPhoneNumberMap[user.user_id] = user.phone_number;
+		}
+		if (user.email) {
+			userEmailMap[user.user_id] = user.email;
 		}
 	});
 
-	const attendingUserIds = await getAttendeeUserIdsOfEvent(eventId, targetStatuses);
-
-	if (!attendingUserIds.length) return;
-
-	const pushNotificationPayload: PushNotificationPayload = {
-		title: 'Event Reminder',
-		body: reminderText
-	};
-
-	for (const attendeeUserId of attendingUserIds) {
-		await sendPushNotification(attendeeUserId, pushNotificationPayload, [
-			PermissionType.EVENT_ACTIVITY
-		]);
+	/// Send notifications by delivery type
+	for (const deliveryType of Object.keys(notificationsByDeliveryType)) {
+		const notificationsToSend = notificationsByDeliveryType[deliveryType];
+		if (notificationsToSend.length > 0) {
+			switch (deliveryType) {
+				case DeliveryPermissions.push_notifications:
+					for (const notification of notificationsToSend) {
+						const isRateLimitEnabled = !notificationTypesNoRateLimit.has(notification.objectType);
+						await sendPushNotification(
+							notification.userId,
+							notification.pushNotificationPayload,
+							isRateLimitEnabled
+						);
+					}
+					break;
+				case DeliveryPermissions.sms_notifications:
+					for (const notification of notificationsToSend) {
+						const phoneNumber = userPhoneNumberMap[notification.userId];
+						if (phoneNumber) {
+							await sendSmsNotification(notification.userId, phoneNumber, notification.message);
+						} else {
+							console.warn(`No phone number found for user ${notification.userId}`);
+						}
+					}
+					break;
+				case DeliveryPermissions.email_notifications:
+					for (const notification of notificationsToSend) {
+						const email = userEmailMap[notification.userId];
+						if (email) {
+							await sendEmailNotification(email, notification.message);
+						} else {
+							console.warn(`No email found for user ${notification.userId}`);
+						}
+					}
+					break;
+				default:
+					console.warn(`Unsupported delivery type: ${deliveryType}`);
+			}
+		}
 	}
+}
 
-	// TODO: only get users who have the permission enabled, and send on all granted delivery channels.
+async function sendSmsNotification(
+	userId: string,
+	phoneNumber: string,
+	message: string
+): Promise<void> {
+	console.log(`Sending SMS notification to phone number ${phoneNumber}:`, message);
+}
 
-	await triplitHttpClient.update('event_reminders', reminderId, async (entity) => {
-		entity.sent_at = new Date();
-	});
-	console.debug(`Sent reminder notifications for event ${eventId}.`);
+async function sendEmailNotification(email: string, message: string): Promise<void> {
+	console.log(`Sending email notification to email ${email}:`, message);
 }

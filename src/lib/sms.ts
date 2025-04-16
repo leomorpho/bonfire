@@ -7,15 +7,15 @@ const client = twilio(privateEnv.TWILIO_ACCOUNT_SID, privateEnv.TWILIO_AUTH_TOKE
 /**
  * Sends a text message using Twilio.
  *
- * @param {string} to - The recipient's phone number in E.164 format.
+ * @param {string} toPhoneNumber - The recipient's phone number in E.164 format.
  * @param {string} body - The content of the message.
  * @returns {Promise<string>} The SID of the sent message.
  */
-export async function sendSmsMessage(toUserId: string, to: string, body: string) {
+export async function sendSmsMessage(toUserId: string, toPhoneNumber: string, body: string) {
     try {
 		const message = await client.messages.create({
 			from: privateEnv.TWILIO_PHONE_NUMBER,
-			to,
+			to: toPhoneNumber,
 			body
 		});
 

@@ -13,8 +13,8 @@
 		toggleSettingsPermission
 	} from '$lib/permissions';
 	import type { PermissionsArray } from '$lib/types';
-	import { Activity } from 'lucide-svelte';
-	import { BellRing, MicVocal } from '@lucide/svelte';
+	import { Activity, MessageCircle } from 'lucide-svelte';
+	import { Image, MicVocal } from '@lucide/svelte';
 
 	let { userId, eventId = null, class: cls = null } = $props();
 
@@ -22,6 +22,8 @@
 
 	let isEventRemindersGranted: any = $state(null);
 	let isEventActivityGranted: any = $state(null);
+	let isEventFileUploadedGranted: any = $state(null);
+	let isEventMessagesGranted: any = $state(null);
 
 	let hasNoDeliveryPermissionSet = $state(false);
 
@@ -38,6 +40,8 @@
 				// Separate results into respective categories
 				const eventReminders: PermissionsArray = [];
 				const eventActivities: PermissionsArray = [];
+				const eventFilesUploaded: PermissionsArray = [];
+				const eventMessages: PermissionsArray = [];
 
 				results.forEach((result: any) => {
 					switch (result.permission) {
@@ -47,17 +51,22 @@
 						case NotificationPermissions.event_activity:
 							eventActivities.push(result);
 							break;
+						case NotificationPermissions.event_files_uploaded:
+							eventFilesUploaded.push(result);
+							break;
+						case NotificationPermissions.event_messages:
+							eventMessages.push(result);
+							break;
 						default:
 							console.warn(`Unknown permission type: ${result.permission}`);
 					}
 				});
-				// console.log('secondaryReminders', secondaryReminders);
-				// console.log('secondaryReminders', secondaryReminders);
-				// console.log('eventActivities', eventActivities);
 
 				// Set the effective permission settings for each category
 				isEventRemindersGranted = getEffectivePermissionSettingForEvent(eventReminders);
 				isEventActivityGranted = getEffectivePermissionSettingForEvent(eventActivities);
+				isEventFileUploadedGranted = getEffectivePermissionSettingForEvent(eventFilesUploaded);
+				isEventMessagesGranted = getEffectivePermissionSettingForEvent(eventMessages);
 
 				permissionsLoading = false;
 			},
@@ -135,6 +144,24 @@
 				togglePermission(NotificationPermissions.event_activity, !isEventActivityGranted)}
 		>
 			<MicVocal class="mr-2 h-4 w-4" />
+		</PermissionToggle>
+
+		<PermissionToggle
+			permissionName={NotificationPermissions.event_files_uploaded}
+			isGranted={isEventActivityGranted}
+			togglePermissionFunc={() =>
+				togglePermission(NotificationPermissions.event_files_uploaded, !isEventActivityGranted)}
+		>
+			<Image class="mr-2 h-4 w-4" />
+		</PermissionToggle>
+
+		<PermissionToggle
+			permissionName={NotificationPermissions.event_messages}
+			isGranted={isEventActivityGranted}
+			togglePermissionFunc={() =>
+				togglePermission(NotificationPermissions.event_messages, !isEventActivityGranted)}
+		>
+			<MessageCircle class="mr-2 h-4 w-4" />
 		</PermissionToggle>
 	</div>
 </div>

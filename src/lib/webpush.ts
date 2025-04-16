@@ -47,7 +47,6 @@ async function hasExceededUnreadNotificationLimitInTimeframe(
 				['created_at', '>=', timeFrameAgo]
 			])
 			.Select(['id'])
-			
 	);
 
 	// Return true if the number of unread notifications exceeds the limit
@@ -63,43 +62,17 @@ async function hasExceededUnreadNotificationLimitInTimeframe(
 export async function sendPushNotification(
 	userId: string,
 	payload: { title: string; body: string; icon?: string; badge?: number },
-	requiredPermissions: PermissionValue[] // Array of required permissions
+	rateLimitEnabled = true
 ): Promise<void> {
-	if (await hasExceededUnreadNotificationLimitInTimeframe(userId)) {
+	if (rateLimitEnabled && (await hasExceededUnreadNotificationLimitInTimeframe(userId))) {
 		// Don't send any new push notification.
-		return;
-	}
-	// Check user permissions
-	const userPermissions = await db
-		.select({
-			oneDayReminder: notificationPermissionTable.oneDayReminder,
-			eventActivity: notificationPermissionTable.eventActivity
-		})
-		.from(notificationPermissionTable)
-		.where(eq(notificationPermissionTable.userId, userId));
-
-	if (!userPermissions.length) {
-		// console.debug(`No permissions found for user ID: ${userId}`);
-		return;
-	}
-
-	// Check if user has at least one required permission
-	const hasPermission = requiredPermissions.some((permission) => userPermissions[0][permission]);
-
-	if (!hasPermission) {
-		// console.debug(`User ID: ${userId} does not have required permissions.`);
 		return;
 	}
 
 	// Fetch subscriptions for the given userId
-	const subscriptions = await db
-		.select({
-			endpoint: pushSubscriptionTable.endpoint,
-			p256dh: pushSubscriptionTable.p256dh,
-			auth: pushSubscriptionTable.auth
-		})
-		.from(pushSubscriptionTable)
-		.where(eq(pushSubscriptionTable.userId, userId));
+	const subscriptions = await triplitHttpClient.fetch(
+		triplitHttpClient.query('push_subscription_registrations').Where(['user.id', '=', userId])
+	);
 
 	if (!subscriptions.length) {
 		// console.info(`No push subscriptions found for user ID: ${userId}`);
@@ -132,8 +105,8 @@ export async function sendPushNotification(
 			const pushSubscription = {
 				endpoint: subscription.endpoint,
 				keys: {
-					p256dh: subscription.p256dh,
-					auth: subscription.auth
+					p256dh: subscription.p256dh ?? '', // TODO: should we not just return here if it's empty?
+					auth: subscription.auth ?? ''
 				}
 			};
 
