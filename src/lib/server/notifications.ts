@@ -27,6 +27,7 @@ import { getTaskLockState, updateTaskLockState } from './database/tasklock';
 import { sendPushNotification } from '$lib/webpush';
 import { sendSmsMessage } from '$lib/sms';
 import { sendEmailNotification } from './email/email';
+import { env as publicEnv } from '$env/dynamic/public';
 
 export class Notification {
 	eventId: string;
@@ -661,6 +662,8 @@ export async function bulkNotifyUsers(notifications: Notification[]): Promise<vo
 		}
 	});
 
+	let notificationsLink = publicEnv.PUBLIC_ORIGIN;
+
 	/// Send notifications by delivery type
 	for (const deliveryType of Object.keys(notificationsByDeliveryType)) {
 		const notificationsToSend = notificationsByDeliveryType[deliveryType];
@@ -678,12 +681,16 @@ export async function bulkNotifyUsers(notifications: Notification[]): Promise<vo
 					break;
 				case DeliveryPermissions.sms_notifications:
 					for (const notification of notificationsToSend) {
+						if (notification.eventId) {
+							notificationsLink = `${notificationsLink}/bonfire/${notification.eventId}`;
+						}
+
 						const phoneNumber = userPhoneNumberMap[notification.userId];
 						if (phoneNumber) {
 							await sendSmsMessage(
 								notification.userId,
 								phoneNumber,
-								notification.message,
+								notification.message + notificationsLink,
 								notification.objectType
 							);
 						} else {

@@ -18,6 +18,8 @@ export async function sendSmsMessage(
 	body: string,
 	notificationType: NotificationType
 ) {
+
+	
 	try {
 		const message = await client.messages.create({
 			from: privateEnv.TWILIO_PHONE_NUMBER,
