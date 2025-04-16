@@ -139,6 +139,7 @@ export const HistoryChangesConstants = {
 };
 
 export enum NotificationType {
+	OTP_VERIFICATION = 'otp',
 	ANNOUNCEMENT = 'announcement',
 	FILES = 'files',
 	ATTENDEES = 'attendees',
@@ -162,7 +163,9 @@ export const DeliveryPermissions = {
 };
 
 export const notificationTypeToPermMap: {
-	[key in NotificationType]: (typeof NotificationPermissions)[keyof typeof NotificationPermissions];
+	[key in NotificationType]:
+		| (typeof NotificationPermissions)[keyof typeof NotificationPermissions]
+		| null;
 } = {
 	[NotificationType.ANNOUNCEMENT]: NotificationPermissions.event_activity,
 	[NotificationType.FILES]: NotificationPermissions.event_files_uploaded,
@@ -170,7 +173,8 @@ export const notificationTypeToPermMap: {
 	[NotificationType.TEMP_ATTENDEES]: NotificationPermissions.event_activity,
 	[NotificationType.ADMIN_ADDED]: NotificationPermissions.event_activity,
 	[NotificationType.NEW_MESSAGE]: NotificationPermissions.event_messages,
-	[NotificationType.REMINDER]: NotificationPermissions.event_activity
+	[NotificationType.REMINDER]: NotificationPermissions.event_activity,
+	[NotificationType.OTP_VERIFICATION]: null
 };
 
 export const notificationTypesNoRateLimit = new Set([NotificationPermissions.event_reminders]);
@@ -209,7 +213,8 @@ export const notificationTypeToDeliveryMap: {
 		DeliveryPermissions.push_notifications,
 		DeliveryPermissions.sms_notifications,
 		DeliveryPermissions.email_notifications
-	]
+	],
+	[NotificationType.OTP_VERIFICATION]: []
 };
 
 // Define a set of notification types that support flattening
@@ -218,6 +223,18 @@ export const flattenableNotificationTypes = new Set([
 	NotificationType.FILES,
 	NotificationType.NEW_MESSAGE
 ]);
+
+// Define the mapping of notification types to email subjects
+export const notificationTypeToSubject: { [key in NotificationType]: string } = {
+	[NotificationType.ANNOUNCEMENT]: 'New announcement for your event!',
+	[NotificationType.FILES]: 'New media files uploaded to your event',
+	[NotificationType.ATTENDEES]: 'New attendees joined your event!',
+	[NotificationType.TEMP_ATTENDEES]: 'New temporary attendees added to your event',
+	[NotificationType.ADMIN_ADDED]: 'You were added as an admin to an event!',
+	[NotificationType.NEW_MESSAGE]: 'New messages in your event!',
+	[NotificationType.REMINDER]: 'Reminder: your event is coming up soon!',
+	[NotificationType.OTP_VERIFICATION]: ''
+};
 
 // TODO: technically 160 but don't wanna deal with counting unicode chars correctly for now, see TexAreaAutoGrow
 export const maxSmsLenInChars = 100;

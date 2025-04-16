@@ -1,10 +1,11 @@
 import { HttpClient, or, type Models, type WhereFilter } from '@triplit/client';
 import type { PermissionsArray } from './types';
+import { DeliveryPermissions, NotificationPermissions } from './enums';
 
 export async function toggleNotificationPermission(
 	client: HttpClient | null | undefined,
 	userId: string,
-	permissionType: string,
+	permissionType: keyof typeof NotificationPermissions,
 	granted: boolean,
 	eventId: string | null = null
 ) {
@@ -14,6 +15,23 @@ export async function toggleNotificationPermission(
 		permissionType,
 		granted,
 		'notification_permissions',
+		eventId
+	);
+}
+
+export async function toggleDeliveryPermission(
+	client: HttpClient | null | undefined,
+	userId: string,
+	permissionType: keyof typeof DeliveryPermissions,
+	granted: boolean,
+	eventId: string | null = null
+) {
+	await toggleSettingsPermission(
+		client,
+		userId,
+		permissionType,
+		granted,
+		'delivery_permissions',
 		eventId
 	);
 }

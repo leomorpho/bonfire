@@ -1,6 +1,7 @@
 import { env as privateEnv } from '$env/dynamic/private';
 import twilio from 'twilio';
 import { triplitHttpClient } from './server/triplit';
+import type { NotificationType } from './enums';
 
 const client = twilio(privateEnv.TWILIO_ACCOUNT_SID, privateEnv.TWILIO_AUTH_TOKEN);
 
@@ -11,8 +12,13 @@ const client = twilio(privateEnv.TWILIO_ACCOUNT_SID, privateEnv.TWILIO_AUTH_TOKE
  * @param {string} body - The content of the message.
  * @returns {Promise<string>} The SID of the sent message.
  */
-export async function sendSmsMessage(toUserId: string, toPhoneNumber: string, body: string) {
-    try {
+export async function sendSmsMessage(
+	toUserId: string,
+	toPhoneNumber: string,
+	body: string,
+	notificationType: NotificationType
+) {
+	try {
 		const message = await client.messages.create({
 			from: privateEnv.TWILIO_PHONE_NUMBER,
 			to: toPhoneNumber,
@@ -22,7 +28,7 @@ export async function sendSmsMessage(toUserId: string, toPhoneNumber: string, bo
 		// Add audit log
 		await triplitHttpClient.insert('sent_notification_sms', {
 			user_id: toUserId,
-			content: body
+			type: notificationType
 		});
 
 		console.log('Message SID:', message.sid);

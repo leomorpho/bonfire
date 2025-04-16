@@ -4,9 +4,14 @@ import { dev } from '$app/environment';
 import { inline } from '@css-inline/css-inline';
 import layout from './layout.html?raw';
 import login from './login-email.html?raw';
+import notificationEmail from './notification-email.html?raw';
 // import postmark from 'postmark';
 import { Resend } from 'resend';
 import { env as privateEnv } from '$env/dynamic/private';
+import { triplitHttpClient } from '../triplit';
+import type { NotificationType } from '$lib/enums';
+import { generateId } from 'lucia/dist/crypto';
+import { and } from '@triplit/client';
 
 const localClient = new SMTPClient({
 	host: 'localhost',
@@ -39,6 +44,28 @@ export const loginEmailHtmlTemplate = (variables: LoginEmailVariables) => {
 	);
 };
 
+type NotificationEmailVariables = LayoutEmailVariables & {
+	message: string;
+	subject: string;
+	unsubscribeFromAllUrl: string;
+	unsubscribeFromEventUrl: string;
+	settingsUrl: string;
+};
+
+export const notificationEmailHtmlTemplate = (variables: NotificationEmailVariables) => {
+	return inline(
+		layout
+			.replaceAll('{{{ @content }}}', notificationEmail)
+			.replaceAll('{{ subject }}', variables.subject)
+			.replaceAll('{{ message }}', variables.message)
+			.replaceAll('{{ product_url }}', variables.product_url)
+			.replaceAll('{{ product_name }}', variables.product_name)
+			.replaceAll('{{ unsubscribe_from_all_url }}', variables.unsubscribeFromAllUrl)
+			.replaceAll('{{ unsubscribe_from_event_url }}', variables.unsubscribeFromEventUrl)
+			.replaceAll('{{ settings_url }}', variables.settingsUrl)
+	);
+};
+
 const sendTestEmail = async (options: {
 	from: string;
 	to: string;
@@ -59,14 +86,65 @@ const sendTestEmail = async (options: {
 	}
 };
 
-export const sendEmail = async (options: {
-	from: string;
-	to: string;
-	subject: string;
-	html: string;
-	headers?: Record<string, string>;
-}) => {
+export const createEmailAuditTrailEntry = async (
+	userId: string,
+	notificationType: NotificationType
+) => {
+	await triplitHttpClient.insert('sent_emails', {
+		user_id: userId,
+		type: notificationType
+	});
+};
+
+export const createUnsubscribableEmailAuditTrailEntry = async (
+	userId: string,
+	notificationType: NotificationType
+): Promise<string> => {
+	const secretToken = generateId(20);
+
+	await triplitHttpClient.insert('sent_emails', {
+		user_id: userId,
+		type: notificationType,
+		secret_token: secretToken
+	});
+	return secretToken;
+};
+
+export const verifyUnsubscribableEmailAuditTrailEntry = async (
+	code: string,
+	userId: string
+): Promise<boolean> => {
+	const res = await triplitHttpClient.fetch(
+		triplitHttpClient.query('sent_emails').Where(
+			and([
+				['user_id', '=', userId],
+				['secret_token', '=', code]
+			])
+		)
+	);
+	if (res.length == 1) {
+		return true;
+	} else {
+		return false;
+	}
+};
+
+export const sendEmail = async (
+	options: {
+		from: string;
+		to: string;
+		subject: string;
+		html: string;
+		headers?: Record<string, string>;
+	},
+	notificationType: NotificationType,
+	userId: string,
+	createAuditDbEntry: boolean = true
+) => {
 	try {
+		if (createAuditDbEntry) {
+			await createEmailAuditTrailEntry(userId, notificationType);
+		}
 		if (dev) {
 			return await sendTestEmail(options);
 		}

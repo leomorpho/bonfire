@@ -168,7 +168,7 @@ export const schema = S.Collections({
 		schema: S.Schema({
 			id: S.Id(), //
 			user_id: S.String(),
-			content: S.String(),
+			type: S.String(),
 			created_at: S.Optional(S.Date({ default: S.Default.now() }))
 		}),
 		relationships: {
@@ -180,11 +180,12 @@ export const schema = S.Collections({
 			anon: {}
 		}
 	},
-	sent_notification_emails: {
+	sent_emails: {
 		schema: S.Schema({
 			id: S.Id(), //
 			user_id: S.String(),
-			content: S.String(),
+			type: S.String(),
+			secret_token: S.Optional(S.String()),
 			created_at: S.Optional(S.Date({ default: S.Default.now() }))
 		}),
 		relationships: {

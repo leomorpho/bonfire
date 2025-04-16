@@ -9,7 +9,8 @@ import {
 	flattenableNotificationTypes,
 	DeliveryPermissions,
 	notificationTypeToDeliveryMap,
-	notificationTypesNoRateLimit
+	notificationTypesNoRateLimit,
+	notificationTypeToSubject
 } from '$lib/enums';
 import type { NotificationQueueEntry, PushNotificationPayload } from '$lib/types';
 import { arrayToStringRepresentation, stringRepresentationToArray } from '$lib/utils';
@@ -25,6 +26,13 @@ import {
 } from './triplit';
 import { getTaskLockState, updateTaskLockState } from './database/tasklock';
 import { sendPushNotification } from '$lib/webpush';
+import {
+	createUnsubscribableEmailAuditTrailEntry,
+	notificationEmailHtmlTemplate,
+	sendEmail
+} from './email/email';
+import { env as publicEnv } from '$env/dynamic/public';
+import { generateId } from 'lucia/dist/crypto';
 
 export class Notification {
 	eventId: string;
@@ -690,7 +698,12 @@ export async function bulkNotifyUsers(notifications: Notification[]): Promise<vo
 					for (const notification of notificationsToSend) {
 						const email = userEmailMap[notification.userId];
 						if (email) {
-							await sendEmailNotification(email, notification.message);
+							await sendEmailNotification(
+								email,
+								notification.objectType,
+								notification.message,
+								notification.userId
+							);
 						} else {
 							console.warn(`No email found for user ${notification.userId}`);
 						}
@@ -711,6 +724,43 @@ async function sendSmsNotification(
 	console.log(`Sending SMS notification to phone number ${phoneNumber}:`, message);
 }
 
-async function sendEmailNotification(email: string, message: string): Promise<void> {
-	console.log(`Sending email notification to email ${email}:`, message);
+async function sendEmailNotification(
+	userEmail: string,
+	type: NotificationType,
+	message: string,
+	userId: string,
+	eventId?:string
+): Promise<void> {
+	console.log(`Sending email notification to email ${userEmail}:`, message);
+
+	const subject = notificationTypeToSubject[type] ?? 'You have a new notification';
+
+	const settingsUrl = `${publicEnv.PUBLIC_ORIGIN}/settings`;
+
+	const secretToken = await createUnsubscribableEmailAuditTrailEntry(userId, type);
+	const unsubscribeFromAllUrl = `${publicEnv.PUBLIC_ORIGIN}/email-subscriptions/unsubscribe?code=${secretToken}&userId=${userId}`;
+	const unsubscribeFromEventUrl = `${publicEnv.PUBLIC_ORIGIN}/email-subscriptions/unsubscribe?code=${secretToken}&userId=${userId}&eventId=${eventId}`;
+
+	await sendEmail(
+		{
+			from: `${publicEnv.PUBLIC_PROJECT_NAME} <${publicEnv.PUBLIC_FROM_EMAIL}>`,
+			to: userEmail,
+			subject: subject,
+			html: notificationEmailHtmlTemplate({
+				subject: subject,
+				message: message,
+				product_url: publicEnv.PUBLIC_ORIGIN,
+				product_name: publicEnv.PUBLIC_PROJECT_NAME,
+				unsubscribeFromAllUrl: unsubscribeFromAllUrl,
+				unsubscribeFromEventUrl: unsubscribeFromEventUrl,
+				settingsUrl: settingsUrl
+			}),
+			headers: {
+				'X-Entity-Ref-ID': generateId(20)
+			}
+		},
+		type,
+		userId,
+		false
+	);
 }

@@ -56,7 +56,12 @@ export const createNewUser = async (user: NewUser) => {
 
 	// Grant revokable notification permissions
 	for (const permissionType of Object.values(NotificationPermissions)) {
-		await toggleNotificationPermission(triplitHttpClient as HttpClient, result[0].id, permissionType, true);
+		await toggleNotificationPermission(
+			triplitHttpClient as HttpClient,
+			result[0].id,
+			permissionType as keyof typeof NotificationPermissions,
+			true
+		);
 	}
 
 	return result[0];

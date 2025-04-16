@@ -1,6 +1,7 @@
 import { error, json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { sendSmsMessage } from '$lib/sms';
+import { NotificationType } from '$lib/enums';
 
 export const POST: RequestHandler = async ({ request, locals }) => {
 	const { userPhoneNumber, verificationCode } = await request.json();
@@ -13,7 +14,12 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 	const msgBody = `${verificationCode} is your Bonfire verification code`;
 
 	// Verify the code (implement your verification logic here)
-	const success = await sendSmsMessage(user.id, userPhoneNumber, msgBody);
+	const success = await sendSmsMessage(
+		user.id,
+		userPhoneNumber,
+		msgBody,
+		NotificationType.OTP_VERIFICATION
+	);
 
 	if (success) {
 		return json({ success: true, message: 'Verification code sent' });
