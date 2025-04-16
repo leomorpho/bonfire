@@ -9,8 +9,7 @@ import {
 	flattenableNotificationTypes,
 	DeliveryPermissions,
 	notificationTypeToDeliveryMap,
-	notificationTypesNoRateLimit,
-	notificationTypeToSubject
+	notificationTypesNoRateLimit
 } from '$lib/enums';
 import type { NotificationQueueEntry, PushNotificationPayload } from '$lib/types';
 import { arrayToStringRepresentation, stringRepresentationToArray } from '$lib/utils';
@@ -26,13 +25,8 @@ import {
 } from './triplit';
 import { getTaskLockState, updateTaskLockState } from './database/tasklock';
 import { sendPushNotification } from '$lib/webpush';
-import {
-	createUnsubscribableEmailAuditTrailEntry,
-	notificationEmailHtmlTemplate,
-	sendEmail
-} from './email/email';
-import { env as publicEnv } from '$env/dynamic/public';
-import { generateId } from 'lucia/dist/crypto';
+import { sendSmsMessage } from '$lib/sms';
+import { sendEmailNotification } from './email/email';
 
 export class Notification {
 	eventId: string;
@@ -276,8 +270,6 @@ async function mergeSimilarNotifications(
 
 	return true;
 }
-
-// TODO: update all notification handlers to bulk insert for efficiency
 
 async function createAnnouncementNotifications(
 	eventId: string,
@@ -688,7 +680,12 @@ export async function bulkNotifyUsers(notifications: Notification[]): Promise<vo
 					for (const notification of notificationsToSend) {
 						const phoneNumber = userPhoneNumberMap[notification.userId];
 						if (phoneNumber) {
-							await sendSmsNotification(notification.userId, phoneNumber, notification.message);
+							await sendSmsMessage(
+								notification.userId,
+								phoneNumber,
+								notification.message,
+								notification.objectType
+							);
 						} else {
 							console.warn(`No phone number found for user ${notification.userId}`);
 						}
@@ -714,53 +711,4 @@ export async function bulkNotifyUsers(notifications: Notification[]): Promise<vo
 			}
 		}
 	}
-}
-
-async function sendSmsNotification(
-	userId: string,
-	phoneNumber: string,
-	message: string
-): Promise<void> {
-	console.log(`Sending SMS notification to phone number ${phoneNumber}:`, message);
-}
-
-async function sendEmailNotification(
-	userEmail: string,
-	type: NotificationType,
-	message: string,
-	userId: string,
-	eventId?:string
-): Promise<void> {
-	console.log(`Sending email notification to email ${userEmail}:`, message);
-
-	const subject = notificationTypeToSubject[type] ?? 'You have a new notification';
-
-	const settingsUrl = `${publicEnv.PUBLIC_ORIGIN}/settings`;
-
-	const secretToken = await createUnsubscribableEmailAuditTrailEntry(userId, type);
-	const unsubscribeFromAllUrl = `${publicEnv.PUBLIC_ORIGIN}/email-subscriptions/unsubscribe?code=${secretToken}&userId=${userId}`;
-	const unsubscribeFromEventUrl = `${publicEnv.PUBLIC_ORIGIN}/email-subscriptions/unsubscribe?code=${secretToken}&userId=${userId}&eventId=${eventId}`;
-
-	await sendEmail(
-		{
-			from: `${publicEnv.PUBLIC_PROJECT_NAME} <${publicEnv.PUBLIC_FROM_EMAIL}>`,
-			to: userEmail,
-			subject: subject,
-			html: notificationEmailHtmlTemplate({
-				subject: subject,
-				message: message,
-				product_url: publicEnv.PUBLIC_ORIGIN,
-				product_name: publicEnv.PUBLIC_PROJECT_NAME,
-				unsubscribeFromAllUrl: unsubscribeFromAllUrl,
-				unsubscribeFromEventUrl: unsubscribeFromEventUrl,
-				settingsUrl: settingsUrl
-			}),
-			headers: {
-				'X-Entity-Ref-ID': generateId(20)
-			}
-		},
-		type,
-		userId,
-		false
-	);
 }

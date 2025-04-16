@@ -9,9 +9,10 @@ import notificationEmail from './notification-email.html?raw';
 import { Resend } from 'resend';
 import { env as privateEnv } from '$env/dynamic/private';
 import { triplitHttpClient } from '../triplit';
-import type { NotificationType } from '$lib/enums';
+import { notificationTypeToSubject, type NotificationType } from '$lib/enums';
 import { generateId } from 'lucia/dist/crypto';
 import { and } from '@triplit/client';
+import { env as publicEnv } from '$env/dynamic/public';
 
 const localClient = new SMTPClient({
 	host: 'localhost',
@@ -47,6 +48,8 @@ export const loginEmailHtmlTemplate = (variables: LoginEmailVariables) => {
 type NotificationEmailVariables = LayoutEmailVariables & {
 	message: string;
 	subject: string;
+	actionButtonName: string;
+	actionButtonUrl: string;
 	unsubscribeFromAllUrl: string;
 	unsubscribeFromEventUrl: string;
 	settingsUrl: string;
@@ -58,6 +61,8 @@ export const notificationEmailHtmlTemplate = (variables: NotificationEmailVariab
 			.replaceAll('{{{ @content }}}', notificationEmail)
 			.replaceAll('{{ subject }}', variables.subject)
 			.replaceAll('{{ message }}', variables.message)
+			.replaceAll('{{ action_button_name }}', variables.actionButtonName)
+			.replaceAll('{{ action_button_url }}', variables.actionButtonUrl)
 			.replaceAll('{{ product_url }}', variables.product_url)
 			.replaceAll('{{ product_name }}', variables.product_name)
 			.replaceAll('{{ unsubscribe_from_all_url }}', variables.unsubscribeFromAllUrl)
@@ -162,3 +167,51 @@ export const sendEmail = async (
 		console.error(`failed to send the email to ${options.to} from ${options.from}`, e);
 	}
 };
+
+export async function sendEmailNotification(
+	userEmail: string,
+	type: NotificationType,
+	message: string,
+	userId: string,
+	eventId?: string
+): Promise<void> {
+	console.log(`Sending email notification to email ${userEmail}:`, message);
+
+	const subject = notificationTypeToSubject[type] ?? 'You have a new notification';
+
+	const settingsUrl = `${publicEnv.PUBLIC_ORIGIN}/settings`;
+
+	const secretToken = await createUnsubscribableEmailAuditTrailEntry(userId, type);
+	const unsubscribeFromAllUrl = `${publicEnv.PUBLIC_ORIGIN}/email-subscriptions/unsubscribe?code=${secretToken}&userId=${userId}`;
+	const unsubscribeFromEventUrl = `${publicEnv.PUBLIC_ORIGIN}/email-subscriptions/unsubscribe?code=${secretToken}&userId=${userId}&eventId=${eventId}`;
+
+	let notificationsLink = publicEnv.PUBLIC_ORIGIN;
+	if (eventId) {
+		notificationsLink = `${notificationsLink}/bonfire/${eventId}`;
+	}
+
+	await sendEmail(
+		{
+			from: `${publicEnv.PUBLIC_PROJECT_NAME} <${publicEnv.PUBLIC_FROM_EMAIL}>`,
+			to: userEmail,
+			subject: subject,
+			html: notificationEmailHtmlTemplate({
+				subject: subject,
+				message: message,
+				actionButtonName: 'Click here to see notifications',
+				actionButtonUrl: notificationsLink,
+				product_url: publicEnv.PUBLIC_ORIGIN,
+				product_name: publicEnv.PUBLIC_PROJECT_NAME,
+				unsubscribeFromAllUrl: unsubscribeFromAllUrl,
+				unsubscribeFromEventUrl: unsubscribeFromEventUrl,
+				settingsUrl: settingsUrl
+			}),
+			headers: {
+				'X-Entity-Ref-ID': generateId(20)
+			}
+		},
+		type,
+		userId,
+		false
+	);
+}
