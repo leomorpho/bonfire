@@ -44,7 +44,7 @@
 	import SignUpMsg from './SignUpMsg.svelte';
 	import SetProfilePicAlert from './SetProfilePicAlert.svelte';
 	import EventHistory from './EventHistory.svelte';
-	import { SlidersHorizontal } from '@lucide/svelte';
+	import { CircleAlert, SlidersHorizontal } from '@lucide/svelte';
 	import EventSettings from '../settings/event-settings/EventSettings.svelte';
 	import PermissionsPausedMsg from '../settings/PermissionsPausedMsg.svelte';
 	// import EventStylerBottomSheet from '../event-styles/EventStylerBottomSheet.svelte';
@@ -661,12 +661,19 @@
 									/>
 
 									<Button
+										disabled={!eventIsPublished}
 										onclick={() => handleShare(eventTitle, eventLocation, eventId)}
 										class="mt-4 flex w-full items-center justify-center ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
 									>
 										<Share class="h-5 w-5" />
-										Share Bonfire</Button
-									>
+										<span class="">Share Bonfire</span>
+										{#if !eventIsPublished}
+											<span class="ml-2 flex items-center truncate text-red-500">
+												<CircleAlert class="mr-1" />
+												<span>Publish event first</span>
+											</span>
+										{/if}
+									</Button>
 								</div>
 							</div>
 							<HorizRule />
