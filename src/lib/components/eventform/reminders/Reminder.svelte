@@ -12,11 +12,12 @@
 	import TextAreaAutoGrow from '$lib/components/input/TextAreaAutoGrow.svelte';
 	import { Check } from 'lucide-svelte';
 	import { toast } from 'svelte-sonner';
-	import * as Label from '$lib/components/ui/label/index.js';
 	import * as Switch from '$lib/components/ui/switch/index.js';
+	import { generateReminderMessage } from '$lib/utils';
 
 	// Destructure individual fields from props
-	let { id, text, sendAt, targetAttendeeStatuses, sentAt, dropped, eventStartDatetime } = $props();
+	let { id, text, sendAt, targetAttendeeStatuses, sentAt, dropped, eventStartDatetime, eventName } =
+		$props();
 
 	let client: TriplitClient;
 	let isEnabled = $state(!dropped);
@@ -76,14 +77,23 @@
 		return Math.abs(Math.round(diffInMs / (1000 * 60 * 60))); // Convert milliseconds to hours
 	};
 
-	let leadTimeInDays = $derived(
-		Math.round(calculateLeadTimeInHours(eventStartDatetime, sendAtDateValue) / 24)
-	);
+	const calculateLeadTimeInDays = (eventStartDatetime: Date, sendAtDateValue: CalendarDate) => {
+		return Math.round(calculateLeadTimeInHours(eventStartDatetime, sendAtDateValue) / 24);
+	};
+
+	let leadTimeInDays = $derived(calculateLeadTimeInDays(eventStartDatetime, sendAtDateValue));
 
 	let selectedStatuses = $state([
 		...(targetAttendeeStatuses.has(Status.GOING) ? [Status.GOING] : []),
 		...(targetAttendeeStatuses.has(Status.MAYBE) ? [Status.MAYBE] : [])
 	]);
+
+	$effect(() => {
+		if (sendAtDateValue) {
+			const leadTimeInDays = calculateLeadTimeInDays(eventStartDatetime, sendAtDateValue);
+			text = generateReminderMessage(leadTimeInDays, eventName);
+		}
+	});
 
 	// Utility function to determine class names
 	function getContainerClasses() {
@@ -98,7 +108,9 @@
 	}
 </script>
 
-<Card.Root class="bg-slate-100/80 dark:bg-slate-900/80 dark:text-white">
+<Card.Root
+	class={`bg-slate-100/80 dark:bg-slate-900/80 dark:text-white ${dropped ? 'line-through' : ''}`}
+>
 	<Card.Content class="space-y-3 text-base sm:space-y-4">
 		<div class="flex w-full items-center justify-center text-sm">
 			<div class={getContainerClasses()}>
@@ -107,9 +119,7 @@
 					<strong class="mr-1">Sent on</strong>
 					{sentAt ? new Date(sentAt).toLocaleString() : 'Not sent yet'}
 				{:else}
-					<strong class="mr-1">Sending in </strong>
-					{leadTimeInDays}
-					{leadTimeInDays > 1 ? 'days' : 'day'}
+					<strong>Sending {leadTimeInDays} {leadTimeInDays > 1 ? 'days' : 'day'} ahead</strong>
 				{/if}
 				<div class="ml-2 flex items-center">
 					<Switch.Root

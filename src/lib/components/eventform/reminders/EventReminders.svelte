@@ -6,7 +6,7 @@
 	import Reminder from './Reminder.svelte';
 	import ShowUsersWontBeReached from './ShowUsersWontBeReached.svelte';
 
-	let { eventId } = $props();
+	let { eventId, eventName } = $props();
 	let client: TriplitClient;
 	let remindersLoading = $state(true);
 	let reminders: any = $state([]);
@@ -62,6 +62,7 @@
 						sentAt={reminder.sent_at}
 						dropped={reminder.dropped}
 						eventStartDatetime={reminder.event.start_time}
+						{eventName}
 					/>
 				{/each}
 			{:else}

@@ -319,3 +319,14 @@ export const checkDeviceSupportsPushNotifications = () => {
 	console.log('isAppInstallable', isAppInstallable);
 	return isAppInstallable;
 };
+
+/**
+ * Generates a reminder message string.
+ * @param days - The number of days until the event.
+ * @param eventName - The name of the event.
+ * @returns The formatted reminder message string.
+ */
+export function generateReminderMessage(days: number, eventName: string): string {
+	const dayString = days === 1 ? '1 day' : `${days} days`;
+	return `${dayString} reminder! Your event "${eventName}" is coming up! Get ready!`;
+}

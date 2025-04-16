@@ -743,7 +743,7 @@
 				<EventAdminEditor eventId={event?.id} {currUserId} eventCreatorId={event?.user_id} />
 			</Tabs.Content>
 			<Tabs.Content value="reminders">
-				<EventReminders {eventId} />
+				<EventReminders {eventId} {eventName} />
 			</Tabs.Content>
 		</Tabs.Root>
 	</section>

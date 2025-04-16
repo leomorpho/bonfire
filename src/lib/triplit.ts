@@ -7,6 +7,7 @@ import { LOCAL_INDEXEDDB_NAME, Status, UserTypes } from './enums';
 import { WorkerClient } from '@triplit/client/worker-client';
 import workerUrl from '@triplit/client/worker-client-operator?url';
 import { jwtDecode } from 'jwt-decode';
+import { generateReminderMessage } from './utils';
 
 export const userIdStore = writable<string | null>(null);
 export const userTypeStore = writable<string | null>(null);
@@ -254,7 +255,7 @@ export const createRemindersObjects = async (
 		lead_time_in_hours_before_event_starts: oneWeekBeforeInHours,
 		target_attendee_statuses: new Set([Status.GOING, Status.MAYBE]),
 		send_at: oneWeekBefore,
-		text: `Your event "${eventName}" is just one week away! Get ready!`
+		text: generateReminderMessage(7, eventName)
 	});
 
 	// Create the reminder for GOING attendees one day before the event
@@ -263,6 +264,7 @@ export const createRemindersObjects = async (
 		lead_time_in_hours_before_event_starts: onDayBeforeInHours,
 		target_attendee_statuses: new Set([Status.GOING]),
 		send_at: oneDayBefore,
-		text: `Your event "${eventName}" is just one week away! Get ready!`
+		text: generateReminderMessage(1, eventName)
 	});
 };
+
