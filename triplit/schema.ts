@@ -1514,7 +1514,14 @@ export const schema = S.Collections({
 		permissions: {
 			user: {
 				read: {
-					filter: [['user_id', '=', '$role.userId']] // Users can only read their own logs
+					filter: [
+						or([
+							['user_id', '=', '$role.userId'],
+							['event.user_id', '=', '$role.userId'],
+							['user.attendances.event.user_id', '=', '$role.userId'],
+							['user.attendances.event.event_admins.user_id', '=', '$role.userId']
+						])
+					]
 				},
 				insert: { filter: [true] },
 				update: {
@@ -1545,7 +1552,14 @@ export const schema = S.Collections({
 		permissions: {
 			user: {
 				read: {
-					filter: [['user_id', '=', '$role.userId']] // Users can only read their own logs
+					filter: [
+						or([
+							['user_id', '=', '$role.userId'],
+							['event.user_id', '=', '$role.userId'],
+							['user.attendances.event.user_id', '=', '$role.userId'],
+							['user.attendances.event.event_admins.user_id', '=', '$role.userId']
+						])
+					]
 				},
 				insert: { filter: [true] },
 				update: {

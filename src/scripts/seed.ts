@@ -14,6 +14,8 @@ import { uploadBannerImage, uploadProfileImage } from '$lib/filestorage';
 import { assignBringItem, createBringItem } from '$lib/bringlist';
 import { createTempAttendance, createUserAttendance } from '$lib/rsvp';
 
+const isFirstRunEver = false;
+
 const profileImagesDir = 'src/scripts/data/profile-pics';
 const bannerImagesDir = 'src/scripts/data/banner';
 
@@ -43,7 +45,9 @@ await client.insert('user', { id: user2?.id, username: 'Jo' });
 
 const path = profileImagesDir + '/mike.jpg';
 // TODO: could probably check if image exists in S3 first
-await uploadProfileImage(path, user?.id as string, false);
+if (isFirstRunEver) {
+	await uploadProfileImage(path, user?.id as string, false);
+}
 
 const now = new Date(); // Current date and time
 const fiveWeeksLater = new Date(now.getTime() + 5 * 7 * 24 * 60 * 60 * 1000); // Add 5 weeks in milliseconds
@@ -69,8 +73,10 @@ const output = await client.insert('events', {
 });
 const eventCreated = output;
 
-const bannerImagePath = bannerImagesDir + '/mike-bd-banner.jpg';
-await uploadBannerImage(bannerImagePath, user?.id as string, eventCreated.id, false);
+if (isFirstRunEver) {
+	const bannerImagePath = bannerImagesDir + '/mike-bd-banner.jpg';
+	await uploadBannerImage(bannerImagePath, user?.id as string, eventCreated.id, false);
+}
 
 await createNewThread(client, output.id, user?.id as string, MAIN_THREAD);
 
@@ -162,7 +168,7 @@ for (let i = 0; i < knownData.length; i++) {
 
 	await client.insert('user', { id: attendeeUser?.id, username: attendeeData.username });
 
-	if (attendeeData.photo) {
+	if (attendeeData.photo && isFirstRunEver) {
 		const path = profileImagesDir + '/' + attendeeData.photo;
 		// TODO: could probably check if image exists in S3 first
 		await uploadProfileImage(path, attendeeUser?.id as string, false);
