@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { X, Heart } from 'lucide-svelte';
 	import { Button } from '../ui/button';
+	import { percentProfitsToCharity } from '$lib/enums';
 </script>
 
 <div
@@ -14,7 +15,7 @@
 				Choose a Cause & Make an Impact <span class="mx-1">🌍</span>
 			</p>
 			<p class="text-sm text-green-700 dark:text-green-300">
-				We donate <strong>25% of our profits</strong> to charity. Your choice matters! Select a cause
+				We donate <strong>`${percentProfitsToCharity}`% of our profits</strong> to charity. Your choice matters! Select a cause
 				now, and we’ll allocate funds based on what our amazing users support.
 			</p>
 		</div>

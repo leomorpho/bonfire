@@ -31,6 +31,7 @@ function createPersistentStore<T>(
 		}
 	};
 }
+export const percentProfitsToCharity = 25;
 
 // Usage for tempAttendeeSecretStore
 export const tempAttendeeSecretStore = createPersistentStore<string | null>('tempAttendeeId', null);

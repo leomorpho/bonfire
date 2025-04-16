@@ -8,10 +8,11 @@
 
 	import PricingFeature from './PricingFeature.svelte';
 	import { Asterisk } from '@lucide/svelte';
+	import { percentProfitsToCharity } from '$lib/enums';
 </script>
 
 {#snippet warning()}
-	<div class="absolute -right-2 top-2">
+	<div class="absolute -right-3 top-0">
 		<HoverCard.Root>
 			<HoverCard.Trigger>
 				<div
@@ -80,7 +81,7 @@
 						></PricingFeature>
 						{@render warning()}
 					</div>
-					<PricingFeature featureText={'25% of our profits will go to a charity of your choice'} />
+					<PricingFeature featureText={`${percentProfitsToCharity}% of our profits will go to a charity of your choice`} />
 					<PricingFeature
 						featureText={'Support our small team at Bonfire to help keep the platform run smoothly'}
 					/>

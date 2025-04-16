@@ -1,4 +1,5 @@
 <script>
+	import { percentProfitsToCharity } from '$lib/enums';
 	import Container from './Container.svelte';
 	import Iphone15ProMock from './Iphone15ProMock.svelte';
 	import StreamingVideoPlayer from './StreamingVideoPlayer.svelte';
@@ -90,7 +91,7 @@
 				>
 					<div class="text-xl font-bold sm:text-3xl">Feel good about supporting a cause</div>
 					<p>
-						At Bonfire, 25% of our profits support top-rated charities. Choose a cause you care
+						At Bonfire, {`${percentProfitsToCharity}`}% of our profits support top-rated charities. Choose a cause you care
 						about—plant trees, cure diseases, or support environmental efforts. Your contribution
 						makes a real impact.
 					</p>

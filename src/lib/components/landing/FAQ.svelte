@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { percentProfitsToCharity } from '$lib/enums';
 	import type { Faq } from '$lib/types';
 	import Container from '../Container.svelte';
 
@@ -30,7 +31,7 @@
 		// },
 		{
 			question: 'If I make a purchase, where does my money go?',
-			answer: 'When you buy additional Logs, 25% of our profits support a nonprofit of your choice within the app. The rest helps keep Bonfire running smoothly. I (Toby) appreciate your support and am dedicated to giving you the best experience possible.'
+			answer: `When you buy additional Logs, ${percentProfitsToCharity}% of our profits support a nonprofit of your choice within the app. The rest helps keep Bonfire running smoothly. I (Toby) appreciate your support and am dedicated to giving you the best experience possible.`
 		},
 		{
 			question: 'How can I contact Bonfire if I have a question or issue?',
