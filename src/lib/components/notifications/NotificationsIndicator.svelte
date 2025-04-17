@@ -16,7 +16,7 @@
 				['user_id', '=', userId],
 				['seen_at', '=', null]
 			])
-			.Select(['id', 'object_type', 'object_ids']) // TODO: pretty sure we only need
+			.Select(['id'])
 			.Order('created_at', 'DESC');
 	};
 

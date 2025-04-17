@@ -27,10 +27,17 @@
 
 	const fetchLinkedObjects = async () => {
 		// console.log('notification', notification);
-		if (!notification.object_ids || !notification.object_type) return;
+		if (!((notification.object_ids || notification.object_ids_set) || notification.object_ids_set) || !notification.object_type)
+			return;
 
 		const client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
-		const objectIds = stringRepresentationToArray(notification.object_ids);
+		// TODO: below work is due to new field for set
+		const objectIdsSet1 = new Set(stringRepresentationToArray(notification.object_ids));
+		const objectIdsSet2 = notification.object_ids_set;
+		objectIdsSet2.forEach((id: string) => objectIdsSet1.add(id));
+
+		// Step 3: Convert the combined set to an array
+		const objectIds = Array.from(objectIdsSet1);
 
 		let query;
 		switch (notification.object_type) {

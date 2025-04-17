@@ -133,16 +133,11 @@
 
 		threadMessagesQuery = threadMessagesQuery
 			.Include('user')
-			.Include('seen_by', (rel) =>
-				rel('seen_by')
-					.Where([['user_id', '=', currUserId]])
-					
-			)
+			.Include('seen_by', (rel) => rel('seen_by').Where([['user_id', '=', currUserId]]))
 			.Include('emoji_reactions', (rel) =>
 				rel('emoji_reactions').Select(['id', 'emoji', 'user_id'])
 			)
-			.Order('created_at', 'DESC')
-			;
+			.Order('created_at', 'DESC');
 
 		const { unsubscribe: unsubscribeFromMessages, loadMore } = client.subscribeWithExpand(
 			threadMessagesQuery,
@@ -204,7 +199,7 @@
 						['object_type', '=', NotificationType.NEW_MESSAGE]
 					])
 				])
-				.Select(['id', 'object_ids']),
+				.Select(['id', 'object_ids', 'object_ids_set']),
 			(results, info) => {
 				// Create an array to store the IDs of messages that are marked as seen
 				const seenMessageIds: Set<string> = new Set();
@@ -220,16 +215,19 @@
 				results.forEach((notification: any) => {
 					const messageIds = stringRepresentationToArray(notification.object_ids);
 					const messageId = messageIds[0];
-					// console.log('==> seenMessageIds', seenMessageIds);
+
 					if (seenMessageIds.has(messageId)) {
-						// console.log(
-						// 	'==> notificationIdsNeedToBeMarkedAsSeen',
-						// 	notificationIdsNeedToBeMarkedAsSeen
-						// );
 						// We need to mark that notification as seen
 						notificationIdsNeedToBeMarkedAsSeen.add(notification.id);
-						notificationIdsNeedToBeMarkedAsSeen = new Set(notificationIdsNeedToBeMarkedAsSeen);
 					}
+
+					const messageIdsSet = notification.objects_ids_set;
+					messageIdsSet.forEach((messageId: string) => {
+						if (seenMessageIds.has(messageId)) {
+							// We need to mark that notification as seen
+							notificationIdsNeedToBeMarkedAsSeen.add(notification.id);
+						}
+					});
 				});
 			},
 			(error) => {

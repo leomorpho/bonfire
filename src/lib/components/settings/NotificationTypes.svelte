@@ -14,7 +14,7 @@
 	} from '$lib/permissions';
 	import type { PermissionsArray } from '$lib/types';
 	import { Activity, MessageCircle } from 'lucide-svelte';
-	import { Image, MicVocal } from '@lucide/svelte';
+	import { BellRing, Image, MicVocal } from '@lucide/svelte';
 
 	let { userId, eventId = null, class: cls = null } = $props();
 
@@ -134,7 +134,7 @@
 			togglePermissionFunc={() =>
 				togglePermission(NotificationPermissions.event_reminders, !isEventRemindersGranted)}
 		>
-			<Activity class="mr-2 h-4 w-4" />
+			<BellRing class="mr-2 h-4 w-4" />
 		</PermissionToggle>
 
 		<PermissionToggle
@@ -143,7 +143,7 @@
 			togglePermissionFunc={() =>
 				togglePermission(NotificationPermissions.event_activity, !isEventActivityGranted)}
 		>
-			<MicVocal class="mr-2 h-4 w-4" />
+			<Activity class="mr-2 h-4 w-4" />
 		</PermissionToggle>
 
 		<PermissionToggle

@@ -244,6 +244,41 @@ export const notificationTypeToSubject: { [key in NotificationType]: string } = 
 	[NotificationType.ADMIN_UPDATES]: 'There is a new update for your event!'
 };
 
+type NotificationTypeMapping = {
+	[key in NotificationType]: {
+		singularObjectName: string;
+		pluralObjectName: string;
+	};
+};
+
+export const notificationTypeMapping: NotificationTypeMapping = {
+	[NotificationType.ANNOUNCEMENT]: {
+		singularObjectName: 'announcement',
+		pluralObjectName: 'announcements'
+	},
+	[NotificationType.FILES]: {
+		singularObjectName: 'media file',
+		pluralObjectName: 'media files'
+	},
+	[NotificationType.NEW_MESSAGE]: {
+		singularObjectName: 'message',
+		pluralObjectName: 'messages'
+	},
+	[NotificationType.ATTENDEES]: {
+		singularObjectName: 'attendee',
+		pluralObjectName: 'attendees'
+	},
+	[NotificationType.TEMP_ATTENDEES]: {
+		singularObjectName: 'temporary account attendee',
+		pluralObjectName: 'temporary account attendees'
+	},
+	[NotificationType.ADMIN_ADDED]: {
+		singularObjectName: 'admin',
+		pluralObjectName: 'admins'
+	},
+	// Add other notification types as needed
+};
+
 // TODO: technically 160 but don't wanna deal with counting unicode chars correctly for now, see TexAreaAutoGrow
 export const maxSmsLenInChars = 100;
 export const defaultMaxEventCapacity = 15;

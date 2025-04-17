@@ -105,14 +105,18 @@ export async function validateUniqueNotifications() {
 	for (const [key, group] of Object.entries(groupedNotifications)) {
 		const allObjectIds = new Set();
 		for (const notification of group) {
-			const objectIds = stringRepresentationToArray(notification.object_ids);
+			const objectIds1 = stringRepresentationToArray(notification.object_ids);
+			const objectIds2 = notification.objects_ids_set;
+			const objectIds = Array.from(new Set([...objectIds1, ...objectIds2]));
+
 			const uniqueObjectIds = objectIds.filter((id) => !allObjectIds.has(id));
 			uniqueObjectIds.forEach((id) => allObjectIds.add(id));
 
 			if (uniqueObjectIds.length !== objectIds.length) {
 				notification.object_ids = arrayToStringRepresentation(uniqueObjectIds);
 				await triplitHttpClient.update('notifications', notification.id, (entity) => {
-					entity.object_ids = notification.object_ids;
+					entity.object_ids = arrayToStringRepresentation(uniqueObjectIds);
+					entity.objects_ids_set = new Set(uniqueObjectIds);
 					return entity;
 				});
 			}

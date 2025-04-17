@@ -20,6 +20,7 @@ export type NotificationQueueEntry = {
 	user_id: string;
 	object_type: NotificationType;
 	object_ids: string; // Comma-separated list of IDs
+	object_ids_set: Set<string>;
 	event_id: string; // Event ID to validate associations
 	sent_at: Date | null;
 };
@@ -31,6 +32,7 @@ export type NotificationTypescriptType = {
 	message: string;
 	object_type: NotificationType;
 	object_ids: string; // Comma-separated list of IDs
+	object_ids_set: Set<string>;
 	created_at: Date | null;
 	seen_at: Date | null;
 	num_push_notifications_sent: number;

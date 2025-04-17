@@ -29,7 +29,8 @@ export async function createNewAttendanceNotificationQueueObject(
 		user_id: userId,
 		event_id: eventId,
 		object_type: NotificationType.ATTENDEES,
-		object_ids: objectIds
+		object_ids: objectIds,
+		object_ids_set: new Set(attendeeIds)
 	});
 }
 
@@ -59,7 +60,8 @@ export async function createNewTemporaryAttendanceNotificationQueueObject(
 		user_id: userId,
 		event_id: eventId,
 		object_type: NotificationType.TEMP_ATTENDEES,
-		object_ids: objectIds
+		object_ids: objectIds,
+		object_ids_set: new Set(attendeeIds)
 	});
 }
 
@@ -90,7 +92,8 @@ export async function createNewAnnouncementNotificationQueueObject(
 		user_id: userId,
 		event_id: eventId,
 		object_type: NotificationType.ANNOUNCEMENT,
-		object_ids: objectIds
+		object_ids: objectIds,
+		object_ids_set: new Set(announcementIds)
 	});
 }
 
@@ -126,18 +129,19 @@ export async function createNewFileNotificationQueueObject(
 					['object_type', '=', NotificationType.FILES]
 				])
 			)
-			.Select(['id', 'object_ids'])
-			
+			.Select(['id', 'object_ids', 'object_ids_set'])
 	);
 
 	if (existingQueue && existingQueue.length > 0) {
 		// If an existing object is found, merge the new objectIds with the old ones
 		const existingObjectIds = JSON.parse(existingQueue[0].object_ids) as string[];
-		const updatedObjectIds = JSON.stringify([...new Set([...existingObjectIds, ...fileIds])]);
+		const updatedSet = new Set([...existingObjectIds, ...fileIds]);
+		const updatedObjectIds = JSON.stringify([...updatedSet]);
 
 		// Update the existing record with the new objectIds
 		await client.update('notifications_queue', existingQueue[0].id, async (entity) => {
 			entity.object_ids = updatedObjectIds;
+			entity.object_ids_set = new Set([...updatedSet, ...entity.object_ids_set]);
 		});
 	} else {
 		// If no existing object is found, create a new notification queue object
@@ -145,7 +149,8 @@ export async function createNewFileNotificationQueueObject(
 			user_id: userId,
 			event_id: eventId,
 			object_type: NotificationType.FILES,
-			object_ids: objectIds
+			object_ids: objectIds,
+			object_ids_set: new Set(fileIds)
 		});
 	}
 }
@@ -184,7 +189,7 @@ export async function createNewAdminNotificationQueueObject(
 		// 			])
 		// 		)
 		// 		.Select(['id', 'object_ids'])
-		// 		
+		//
 		// );
 
 		// if (existingQueue && existingQueue.length > 0) {
@@ -202,7 +207,8 @@ export async function createNewAdminNotificationQueueObject(
 			user_id: userId,
 			event_id: eventId,
 			object_type: NotificationType.ADMIN_ADDED,
-			object_ids: objectIds
+			object_ids: objectIds,
+			object_ids_set: userIdsBecomingAdmins
 		});
 		// }
 	} catch (e) {
@@ -223,9 +229,7 @@ export async function createNewMessageNotificationQueueObject(
 	messageIds: string[]
 ): Promise<void> {
 	if (!isNonEmptyArray(messageIds)) {
-		throw new Error(
-			'messageIds in createNewMessageNotificationQueueObject cannot be empty.'
-		);
+		throw new Error('messageIds in createNewMessageNotificationQueueObject cannot be empty.');
 	}
 
 	// TODO: check that announcementIds points to real objects
@@ -237,6 +241,7 @@ export async function createNewMessageNotificationQueueObject(
 		user_id: userId,
 		event_id: eventId,
 		object_type: NotificationType.NEW_MESSAGE,
-		object_ids: objectIds
+		object_ids: objectIds,
+		object_ids_set: messageIds
 	});
 }

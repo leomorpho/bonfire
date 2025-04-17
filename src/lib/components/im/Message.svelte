@@ -9,7 +9,7 @@
 	} from '$lib/utils';
 	import { onDestroy } from 'svelte';
 	import ProfileAvatar from '../profile/profile-avatar/ProfileAvatar.svelte';
-	import { and } from '@triplit/client';
+	import { and, or } from '@triplit/client';
 	import { EMOJI_REACTION_TYPE, NotificationType } from '$lib/enums';
 	import MessageContextMenu from './MessageContextMenu.svelte';
 	import { toggleEmojiReaction } from '$lib/emoji';
@@ -104,17 +104,17 @@
 		try {
 			// Fetch the notification
 			const results = await client.fetch(
-				client
-					.query('notifications')
-					.Where([
-						and([
-							['user_id', '=', $page.data.user.id],
-							['seen_at', '=', null],
+				client.query('notifications').Where([
+					and([
+						['user_id', '=', $page.data.user.id],
+						['seen_at', '=', null],
+						or([
 							['object_ids', '=', arrayToStringRepresentation([messageId])],
-							['object_type', '=', NotificationType.NEW_MESSAGE]
-						])
+							['object_ids_set', 'has', messageId]
+						]),
+						['object_type', '=', NotificationType.NEW_MESSAGE]
 					])
-					
+				])
 			);
 			if (results.length == 1) {
 				existingNotif = results[0];

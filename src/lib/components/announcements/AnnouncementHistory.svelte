@@ -2,7 +2,7 @@
 	import ScrollArea from '$lib/jsrepo/ui/scroll-area/scroll-area.svelte';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { onMount } from 'svelte';
-	import { and, type TriplitClient } from '@triplit/client';
+	import { and, or, type TriplitClient } from '@triplit/client';
 	import { page } from '$app/stores';
 	import { getFeWorkerTriplitClient } from '$lib/triplit';
 	import { NotificationType } from '$lib/enums';
@@ -26,7 +26,10 @@
 		const unsubscribe = client.subscribe(
 			client.query('notifications').Where(
 				and([
-					['object_ids', 'like', `%${announcementId}%`],
+					or([
+						['object_ids', 'like', `%${announcementId}%`],
+						['object_ids_set', 'has', announcementId]
+					]),
 					['event_id', '=', event_id],
 					['object_type', '=', NotificationType.ANNOUNCEMENT]
 				])

@@ -30,6 +30,7 @@ import {
 	createAttendeeNotifications,
 	createFileNotifications,
 	createNewMessageNotifications,
+	createNotificationMessageAndTitle,
 	createTempAttendeeNotifications
 } from '$lib/server/notifications/notifications';
 
@@ -39,6 +40,7 @@ export class Notification {
 	message: string;
 	objectType: NotificationType;
 	objectIds: string[];
+	objectIdsSet: Set<string>;
 	pushNotificationPayload: PushNotificationPayload;
 	requiredPermissions: PermissionValue[];
 	isInAppOnly: boolean;
@@ -49,6 +51,7 @@ export class Notification {
 		message: string,
 		objectType: NotificationType,
 		objectIds: string[],
+		objectIdsSet: Set<string>,
 		pushNotificationPayload: PushNotificationPayload,
 		requiredPermissions: PermissionValue[],
 		isInAppOnly: boolean = false
@@ -58,6 +61,7 @@ export class Notification {
 		this.message = message;
 		this.objectType = objectType;
 		this.objectIds = objectIds;
+		this.objectIdsSet = objectIdsSet;
 		this.pushNotificationPayload = pushNotificationPayload;
 		this.requiredPermissions = requiredPermissions;
 		this.isInAppOnly = isInAppOnly;
@@ -106,7 +110,9 @@ export async function processNotificationQueue(notificationQueueEntry: Notificat
 	// TODO: create new system that uses sets instead of string for arrays of IDs. Do
 	// not break reverse compatibility, just create a new field in notifications.
 	// Parse object_ids into an array
-	const objectIds = stringRepresentationToArray(notificationQueueEntry.object_ids);
+	const objectIdsOriginal = stringRepresentationToArray(notificationQueueEntry.object_ids);
+	const objectIdsSet = notificationQueueEntry.object_ids_set;
+	const objectIds = Array.from(new Set([...objectIdsOriginal, ...objectIdsSet]));
 
 	// Validate the object IDs based on object_type
 	let validObjectIds: string[] = [];
@@ -241,7 +247,6 @@ async function getUnreadExistingNotification(
 	return null;
 }
 
-// TODO: I've removed all flattening for now...will need to be done prior to creating notifications?
 async function mergeSimilarNotifications(
 	newObjectIds: string[],
 	userId: string,
@@ -258,14 +263,29 @@ async function mergeSimilarNotifications(
 		return false;
 	}
 
-	const existingObjectIds = existingNotification
+	const existingObjectIds1 = existingNotification
 		? stringRepresentationToArray(existingNotification.object_ids)
 		: [];
+	const existingObjectIds2 = new Set(existingNotification.objects_ids_set);
+	const existingObjectIds = Array.from(
+		new Set([...new Set(existingObjectIds1), ...existingObjectIds2])
+	);
 
-	const updatedIds = Array.from(new Set([...existingObjectIds, ...newObjectIds]));
+	const updatedIdsSet = new Set([...existingObjectIds, ...newObjectIds]);
+	const updatedIds = Array.from(updatedIdsSet);
+	const numObjects = updatedIds.length;
+
+	// Generate the updated message and title
+	const { message } = createNotificationMessageAndTitle(
+		notificationType,
+		undefined, // No event title needed
+		numObjects
+	);
 
 	await triplitHttpClient.update('notifications', existingNotification.id, {
-		object_ids: arrayToStringRepresentation(updatedIds)
+		object_ids: arrayToStringRepresentation(updatedIds),
+		objects_ids_set: updatedIdsSet,
+		message: message // Update the message with the new count
 	});
 
 	return true;
@@ -312,6 +332,7 @@ export async function bulkPersistNotifications(
 		message: notification.message,
 		object_type: notification.objectType,
 		object_ids: arrayToStringRepresentation(notification.objectIds),
+        objects_ids_set: notification.objectIdsSet,
 		num_push_notifications_sent: 1, // Assuming each notification starts with 1 push notification sent
 		created_at: new Date() // Set the creation timestamp
 	}));
