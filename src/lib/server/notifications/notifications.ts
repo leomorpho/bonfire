@@ -93,6 +93,7 @@ export async function createAnnouncementNotifications(
 					message,
 					NotificationType.ANNOUNCEMENT,
 					announcementIds,
+					new Set(announcementIds),
 					pushNotificationPayload,
 					[NotificationPermissions.event_activity],
 					isInAppOnly // Set the isInAppOnly field
@@ -153,6 +154,7 @@ export async function createFileNotifications(
 					message,
 					NotificationType.FILES,
 					filteredFileIds,
+					new Set(filteredFileIds),
 					pushNotificationPayload,
 					[NotificationPermissions.event_activity],
 					isInAppOnly // Set the isInAppOnly field
@@ -206,6 +208,7 @@ export async function createAttendeeNotifications(
 				message,
 				NotificationType.ATTENDEES,
 				attendeeIds,
+				new Set(attendeeIds),
 				pushNotificationPayload,
 				[NotificationPermissions.event_activity],
 				false // isInAppOnly = false
@@ -222,6 +225,7 @@ export async function createAttendeeNotifications(
 				message,
 				NotificationType.ATTENDEES,
 				attendeeIds,
+				new Set(attendeeIds),
 				pushNotificationPayload,
 				[NotificationPermissions.event_activity],
 				true // isInAppOnly = true
@@ -271,6 +275,7 @@ export async function createTempAttendeeNotifications(
 				message,
 				NotificationType.TEMP_ATTENDEES,
 				attendeeIds,
+				new Set(attendeeIds),
 				pushNotificationPayload,
 				[NotificationPermissions.event_activity],
 				false // isInAppOnly = false
@@ -287,6 +292,7 @@ export async function createTempAttendeeNotifications(
 				message,
 				NotificationType.TEMP_ATTENDEES,
 				attendeeIds,
+				new Set(attendeeIds),
 				pushNotificationPayload,
 				[NotificationPermissions.event_activity],
 				true // isInAppOnly = true
@@ -331,6 +337,7 @@ export async function createAdminAddedNotifications(
 					message,
 					NotificationType.ADMIN_ADDED,
 					[newAdminUserId],
+					new Set([newAdminUserId]),
 					pushNotificationPayload,
 					[NotificationPermissions.event_activity],
 					false // isInAppOnly = false
@@ -347,6 +354,7 @@ export async function createAdminAddedNotifications(
 					message,
 					NotificationType.ADMIN_ADDED,
 					[newAdminUserId],
+					new Set([newAdminUserId]),
 					pushNotificationPayload,
 					[NotificationPermissions.event_activity],
 					true // isInAppOnly = true
@@ -431,6 +439,7 @@ export async function createNewMessageNotifications(
 				message,
 				NotificationType.NEW_MESSAGE,
 				[newMessageId],
+				new Set([newMessageId]),
 				pushNotificationPayload,
 				[NotificationPermissions.event_activity],
 				false // isInAppOnly = false
@@ -447,6 +456,7 @@ export async function createNewMessageNotifications(
 				message,
 				NotificationType.NEW_MESSAGE,
 				[newMessageId],
+				new Set([newMessageId]),
 				pushNotificationPayload,
 				[NotificationPermissions.event_activity],
 				true // isInAppOnly = true

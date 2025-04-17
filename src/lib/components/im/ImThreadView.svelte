@@ -9,7 +9,7 @@
 	import Button from '../ui/button/button.svelte';
 	import { ChevronDown } from 'lucide-svelte';
 	import SvgLoader from '../SvgLoader.svelte';
-	import { and } from '@triplit/client';
+	import { and, TriplitClient } from '@triplit/client';
 	import { stringRepresentationToArray } from '$lib/utils';
 	import { NotificationType } from '$lib/enums';
 	import { loaderState } from './infiniteLoader/loaderState.svelte';
@@ -86,10 +86,10 @@
 	const markNotifAsRead = async (id: string) => {
 		console.log(`marking notification with id ${id} as seen`);
 		try {
-			const client = getFeWorkerTriplitClient($page.data.jwt);
+			const client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
 			// Update the notification to mark it as seen
-			await client.update('notifications', id, async (e: any) => {
+			await client?.update('notifications', id, async (e: any) => {
 				e.seen_at = new Date();
 			});
 
@@ -105,7 +105,7 @@
 	};
 
 	onMount(() => {
-		const client = getFeWorkerTriplitClient($page.data.jwt);
+		const client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
 		let threadMessagesQuery = client.query('event_messages');
 
@@ -221,7 +221,7 @@
 						notificationIdsNeedToBeMarkedAsSeen.add(notification.id);
 					}
 
-					const messageIdsSet = notification.objects_ids_set;
+					const messageIdsSet = notification.object_ids_set;
 					messageIdsSet.forEach((messageId: string) => {
 						if (seenMessageIds.has(messageId)) {
 							// We need to mark that notification as seen

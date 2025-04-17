@@ -9,7 +9,7 @@
 	} from '$lib/utils';
 	import { onDestroy } from 'svelte';
 	import ProfileAvatar from '../profile/profile-avatar/ProfileAvatar.svelte';
-	import { and, or } from '@triplit/client';
+	import { and, or, TriplitClient } from '@triplit/client';
 	import { EMOJI_REACTION_TYPE, NotificationType } from '$lib/enums';
 	import MessageContextMenu from './MessageContextMenu.svelte';
 	import { toggleEmojiReaction } from '$lib/emoji';
@@ -97,14 +97,14 @@
 	};
 
 	const markMessageAsSeen = async (messageId: string) => {
-		const client = getFeWorkerTriplitClient($page.data.jwt);
+		const client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
 		let existingNotif: any;
 
 		try {
 			// Fetch the notification
-			const results = await client.fetch(
-				client.query('notifications').Where([
+			const results = await client?.fetch(
+				client?.query('notifications').Where([
 					and([
 						['user_id', '=', $page.data.user.id],
 						['seen_at', '=', null],

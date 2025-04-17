@@ -924,7 +924,7 @@ export const schema = S.Collections({
 			event_id: S.String(),
 			object_type: S.String(),
 			object_ids: S.String(),
-			objects_ids_set: S.Optional(S.Set(S.String())),
+			object_ids_set: S.Optional(S.Set(S.String())),
 			created_at: S.Date({ default: S.Default.now() }), // Timestamp for creation
 			sent_at: S.Date({ nullable: true, default: null }), // Timestamp for when the notification was sent
 			sent: S.Boolean({ default: false })
@@ -986,7 +986,7 @@ export const schema = S.Collections({
 			message: S.String(), // Notification content
 			object_type: S.String(),
 			object_ids: S.String(), // TODO: should have made this a set of IDs, would make so much more sense for checking with triplit logic (has/nothas filters)
-			objects_ids_set: S.Optional(S.Set(S.String())),
+			object_ids_set: S.Optional(S.Set(S.String())),
 			extra_id: S.Optional(S.String()),
 			created_at: S.Date({ default: S.Default.now() }), // Timestamp of when the notification was sent
 			seen_at: S.Date({ nullable: true, default: null }),

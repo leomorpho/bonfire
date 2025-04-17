@@ -111,7 +111,7 @@ export async function processNotificationQueue(notificationQueueEntry: Notificat
 	// not break reverse compatibility, just create a new field in notifications.
 	// Parse object_ids into an array
 	const objectIdsOriginal = stringRepresentationToArray(notificationQueueEntry.object_ids);
-	const objectIdsSet = notificationQueueEntry.object_ids_set;
+	const objectIdsSet = notificationQueueEntry.object_ids_set || new Set([]);
 	const objectIds = Array.from(new Set([...objectIdsOriginal, ...objectIdsSet]));
 
 	// Validate the object IDs based on object_type
@@ -266,7 +266,8 @@ async function mergeSimilarNotifications(
 	const existingObjectIds1 = existingNotification
 		? stringRepresentationToArray(existingNotification.object_ids)
 		: [];
-	const existingObjectIds2 = new Set(existingNotification.objects_ids_set);
+
+	const existingObjectIds2 = existingNotification.object_ids_set || new Set([]);
 	const existingObjectIds = Array.from(
 		new Set([...new Set(existingObjectIds1), ...existingObjectIds2])
 	);
@@ -284,7 +285,7 @@ async function mergeSimilarNotifications(
 
 	await triplitHttpClient.update('notifications', existingNotification.id, {
 		object_ids: arrayToStringRepresentation(updatedIds),
-		objects_ids_set: updatedIdsSet,
+		object_ids_set: updatedIdsSet,
 		message: message // Update the message with the new count
 	});
 
@@ -332,7 +333,7 @@ export async function bulkPersistNotifications(
 		message: notification.message,
 		object_type: notification.objectType,
 		object_ids: arrayToStringRepresentation(notification.objectIds),
-        objects_ids_set: notification.objectIdsSet,
+		object_ids_set: notification.objectIdsSet,
 		num_push_notifications_sent: 1, // Assuming each notification starts with 1 push notification sent
 		created_at: new Date() // Set the creation timestamp
 	}));

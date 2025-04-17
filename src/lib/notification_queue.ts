@@ -30,7 +30,7 @@ export async function createNewAttendanceNotificationQueueObject(
 		event_id: eventId,
 		object_type: NotificationType.ATTENDEES,
 		object_ids: objectIds,
-		object_ids_set: new Set(attendeeIds)
+		object_ids_set: new Set(attendeeIds || [])
 	});
 }
 
@@ -61,7 +61,7 @@ export async function createNewTemporaryAttendanceNotificationQueueObject(
 		event_id: eventId,
 		object_type: NotificationType.TEMP_ATTENDEES,
 		object_ids: objectIds,
-		object_ids_set: new Set(attendeeIds)
+		object_ids_set: new Set(attendeeIds || [])
 	});
 }
 
@@ -93,7 +93,7 @@ export async function createNewAnnouncementNotificationQueueObject(
 		event_id: eventId,
 		object_type: NotificationType.ANNOUNCEMENT,
 		object_ids: objectIds,
-		object_ids_set: new Set(announcementIds)
+		object_ids_set: new Set(announcementIds || [])
 	});
 }
 
@@ -150,7 +150,7 @@ export async function createNewFileNotificationQueueObject(
 			event_id: eventId,
 			object_type: NotificationType.FILES,
 			object_ids: objectIds,
-			object_ids_set: new Set(fileIds)
+			object_ids_set: new Set(fileIds || [])
 		});
 	}
 }
@@ -208,7 +208,7 @@ export async function createNewAdminNotificationQueueObject(
 			event_id: eventId,
 			object_type: NotificationType.ADMIN_ADDED,
 			object_ids: objectIds,
-			object_ids_set: userIdsBecomingAdmins
+			object_ids_set: new Set(userIdsBecomingAdmins || [])
 		});
 		// }
 	} catch (e) {
@@ -242,6 +242,6 @@ export async function createNewMessageNotificationQueueObject(
 		event_id: eventId,
 		object_type: NotificationType.NEW_MESSAGE,
 		object_ids: objectIds,
-		object_ids_set: messageIds
+		object_ids_set: new Set(messageIds || [])
 	});
 }
