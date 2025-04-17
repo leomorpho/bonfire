@@ -147,7 +147,8 @@ export enum NotificationType {
 	TEMP_ATTENDEES = 'temp_attendees',
 	ADMIN_ADDED = 'admin_added',
 	NEW_MESSAGE = 'new_message',
-	REMINDER = 'reminder'
+	REMINDER = 'reminder',
+	ADMIN_UPDATES = 'admin_updates'
 }
 
 export const NotificationPermissions = {
@@ -175,7 +176,8 @@ export const notificationTypeToPermMap: {
 	[NotificationType.ADMIN_ADDED]: NotificationPermissions.event_activity,
 	[NotificationType.NEW_MESSAGE]: NotificationPermissions.event_messages,
 	[NotificationType.REMINDER]: NotificationPermissions.event_activity,
-	[NotificationType.OTP_VERIFICATION]: null
+	[NotificationType.OTP_VERIFICATION]: null,
+	[NotificationType.ADMIN_UPDATES]: NotificationPermissions.event_activity
 };
 
 export const notificationTypesNoRateLimit = new Set([NotificationPermissions.event_reminders]);
@@ -215,7 +217,11 @@ export const notificationTypeToDeliveryMap: {
 		DeliveryPermissions.sms_notifications,
 		DeliveryPermissions.email_notifications
 	],
-	[NotificationType.OTP_VERIFICATION]: []
+	[NotificationType.OTP_VERIFICATION]: [],
+	[NotificationType.ADMIN_UPDATES]: [
+		DeliveryPermissions.push_notifications,
+		DeliveryPermissions.email_notifications
+	]
 };
 
 // Define a set of notification types that support flattening
@@ -234,7 +240,8 @@ export const notificationTypeToSubject: { [key in NotificationType]: string } = 
 	[NotificationType.ADMIN_ADDED]: 'You were added as an admin to an event!',
 	[NotificationType.NEW_MESSAGE]: 'New messages in your event!',
 	[NotificationType.REMINDER]: 'Reminder: your event is coming up soon!',
-	[NotificationType.OTP_VERIFICATION]: ''
+	[NotificationType.OTP_VERIFICATION]: '',
+	[NotificationType.ADMIN_UPDATES]: 'There is a new update for your event!'
 };
 
 // TODO: technically 160 but don't wanna deal with counting unicode chars correctly for now, see TexAreaAutoGrow

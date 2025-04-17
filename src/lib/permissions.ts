@@ -1,6 +1,6 @@
 import { HttpClient, or, type Models, type WhereFilter } from '@triplit/client';
 import type { PermissionsArray } from './types';
-import { DeliveryPermissions, NotificationPermissions } from './enums';
+import { DeliveryPermissions, NotificationPermissions, NotificationType } from './enums';
 
 export async function toggleNotificationPermission(
 	client: HttpClient | null | undefined,
@@ -84,22 +84,42 @@ export const getPermissionFiltersForEventAndPermissionType = (eventId: string | 
 	return or(eventIdFilter);
 };
 
-export const getEffectivePermissionSettingForEvent = (permissions: PermissionsArray): boolean => {
-	// Find the permission with an event_id set
+/**
+ * Gets the effective permission setting for an event, considering event-specific permissions
+ * overriding general ones. Optionally checks if the effective permission is of a specific type.
+ * @param permissions - Array of permission objects.
+ * @param permissionType - Optional specific permission type to check.
+ * @returns True if the effective permission is granted (and of the specific type if provided), otherwise false.
+ */
+export const getEffectivePermissionSettingForEvent = (
+	permissions: PermissionsArray,
+	permissionType?: NotificationType
+): boolean => {
+	// Find the event-specific permission
 	const eventSpecificPermission = permissions.find((perm) => perm.event_id !== undefined);
 
-	// If an event-specific permission is found, return its granted status and id
+	// If an event-specific permission is found, check its granted status and optionally its type
 	if (eventSpecificPermission) {
+		if (permissionType && eventSpecificPermission.permission !== permissionType) {
+			return false; // Event-specific permission is not of the required type
+		}
 		return eventSpecificPermission.granted;
 	}
 
-	// If no event-specific permission is found, return the granted status and id of the general permission
+	// If no event-specific permission is found, find the general permission
 	const generalPermission = permissions.find((perm) => perm.event_id === undefined);
 
-	// Return the granted status and id of the general permission, or default values if none is found
-	return generalPermission ? generalPermission.granted : false;
-};
+	// Check the granted status and optionally the type of the general permission
+	if (generalPermission) {
+		if (permissionType && generalPermission.permission !== permissionType) {
+			return false; // General permission is not of the required type
+		}
+		return generalPermission.granted;
+	}
 
+	// Return false if no permissions are found or if the type does not match
+	return false;
+};
 /**
  * Checks if at least one permission type is effectively granted, considering
  * event-specific permissions overriding general ones.

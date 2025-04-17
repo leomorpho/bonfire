@@ -46,6 +46,12 @@ export const schema = S.Collections({
 			user_log_tokens: S.RelationOne('user_log_tokens', {
 				where: [['user_id', '=', '$id']]
 			}),
+			created_events: S.RelationMany('events', {
+				where: [['user_id', '=', '$id']]
+			}),
+			admin_for_events: S.RelationMany('attendees', {
+				where: [['user_id', '=', '$id']]
+			}),
 			attendances: S.RelationMany('attendees', {
 				where: [['user_id', '=', '$id']]
 			}),

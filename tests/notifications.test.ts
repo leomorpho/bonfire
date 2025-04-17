@@ -1,7 +1,7 @@
 import { Status } from '$lib/enums';
 import { createNewAnnouncementNotificationQueueObject } from '../src/lib/notification_queue';
 import { createNewUser } from '$lib/server/database/user.model';
-import { runNotificationProcessor } from '$lib/server/notifications';
+import { runNotificationProcessor } from '$lib/server/notifications/engine';
 import { triplitHttpClient } from '$lib/server/triplit';
 import { arrayToStringRepresentation, stringRepresentationToArray } from '$lib/utils';
 import { faker } from '@faker-js/faker';

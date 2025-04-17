@@ -2,7 +2,7 @@ import { NotificationType, Status } from '$lib/enums';
 import type { AttendeeTypescriptType, FileTypescriptType } from '$lib/types';
 import { env as publicEnv } from '$env/dynamic/public';
 import { env as privateEnv } from '$env/dynamic/private';
-import { and, HttpClient } from '@triplit/client';
+import { and, or, HttpClient } from '@triplit/client';
 import { spawn } from 'child_process';
 import { dev } from '$app/environment';
 import { schema } from '../../../triplit/schema';
@@ -72,7 +72,7 @@ export async function getAttendeeUserIdsOfEvent(
 	statuses: Status[],
 	excludeCreator: boolean = false,
 	notificationPermission: NotificationType | null = null
-): Promise<string[]> {
+): Promise<{ granted: string[]; notGranted: string[] }> {
 	// Fetch the event to get the creator's user ID if excludeCreator is true
 	let creatorUserId: string | null = null;
 	if (excludeCreator) {
@@ -97,27 +97,68 @@ export async function getAttendeeUserIdsOfEvent(
 
 	const query = triplitHttpClient
 		.query('attendees')
-		.Where(
-			and([
-				['user.notification_permissions.permission', '=', notificationPermission],
-				['user.notification_permissions.granted', '=', true],
-				...attendeeQueryConditions
-			])
-		)
+		.Where(and([...attendeeQueryConditions]))
 		.Include('user', (rel) => rel('user').Select(['id']).Include('notification_permissions'))
 		.Select(['user_id']);
 	const results = await triplitHttpClient.fetch(query);
 
-	// TODO: filter out all who dont have notificationPermission
-	const attendeesWithPermission = [];
+	const attendeesWithPermission: string[] = [];
+	const attendeesWithoutPermission: string[] = [];
 
 	for (const attendee of results) {
-		if (getEffectivePermissionSettingForEvent(attendee.user.notification_permissions)) {
-			attendeesWithPermission.push(attendee);
+		const hasPermission = getEffectivePermissionSettingForEvent(
+			attendee.user.notification_permissions,
+			notificationPermission
+		);
+		if (hasPermission) {
+			attendeesWithPermission.push(attendee.user_id);
+		} else {
+			attendeesWithoutPermission.push(attendee.user_id);
 		}
 	}
 
-	return attendeesWithPermission.map((attendee: AttendeeTypescriptType) => attendee.user_id);
+	return {
+		granted: attendeesWithPermission,
+		notGranted: attendeesWithoutPermission
+	};
+}
+
+export async function getAdminUserIdsOfEvent(
+	eventId: string,
+	notificationPermission: NotificationType | null = null
+): Promise<{ granted: string[]; notGranted: string[] }> {
+	const users = await triplitHttpClient.fetch(
+		triplitHttpClient
+			.query('user')
+			.Where(
+				or([
+					['created_events.id', '=', eventId],
+					['admin_for_events.id', '=', eventId]
+				])
+			)
+			.Include('notification_permissions')
+			.Select(['id'])
+	);
+
+	const adminsWithPermission: string[] = [];
+	const adminsWithoutPermission: string[] = [];
+
+	for (const user of users) {
+		const hasPermission = getEffectivePermissionSettingForEvent(
+			user.notification_permissions,
+			notificationPermission
+		);
+		if (hasPermission) {
+			adminsWithPermission.push(user.id);
+		} else {
+			adminsWithoutPermission.push(user.id);
+		}
+	}
+
+	return {
+		granted: adminsWithPermission,
+		notGranted: adminsWithoutPermission
+	};
 }
 
 export async function validateAnnouncements(announcementIds: string[]): Promise<string[]> {
