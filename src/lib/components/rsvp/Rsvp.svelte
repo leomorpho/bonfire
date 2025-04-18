@@ -226,8 +226,8 @@
 							class={rsvpStatus === Status.NOT_GOING ? '' : ''}
 							onclick={(event) => leaveEvent(event)}
 						>
-							<RsvpNameWithLoader>
-								<LogOut class="m2-1" /> Leave event
+							<RsvpNameWithLoader bind:isLoading={isProcessingRsvp}>
+								<LogOut class="mr-2" /> Leave event
 							</RsvpNameWithLoader>
 						</DropdownMenu.Item>
 					{/if}
@@ -259,7 +259,13 @@
 				updateRSVP(e, rsvpStatus, newRsvpStatusToSave, numGuestsCurrentAttendeeIsBringing);
 			}}
 		>
-			<RsvpNameWithLoader bind:isLoading={isProcessingRsvp}>Let's go!</RsvpNameWithLoader>
+			{#if isProcessingRsvp}
+				<div class="loading loading-spinner loading-xs mr-2"></div>
+			{:else}
+				<div></div>
+			{/if}
+			Let's go!
+			<div></div>
 		</Button>
 	</Dialog.Content>
 </Dialog.Root>
