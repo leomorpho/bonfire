@@ -48,6 +48,10 @@ export const createNewUser = async (user: NewUser) => {
 		return null;
 	}
 	await triplitHttpClient.insert('user', { id: result[0].id, username: '' });
+	await triplitHttpClient.insert('user_personal_data', {
+		user_id: result[0].id,
+		email: user.email
+	});
 
 	await triplitHttpClient.insert('user_log_tokens', {
 		user_id: result[0].id,
