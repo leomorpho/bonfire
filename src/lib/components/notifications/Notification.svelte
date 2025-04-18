@@ -209,22 +209,21 @@
 		</DropdownMenu.Content>
 	</DropdownMenu.Root>
 
+	<!-- Display additional metadata -->
+	<p class="text-xs text-gray-500 mb-1">
+		{formatHumanReadable(notification.created_at)}
+	</p>
+
 	<!-- Display message -->
 	<p class="font-medium">
 		{notification.message} in
 		<a
 			href={`/bonfire/${notification.event_id}`}
 			onclick={toggleDialog}
-			class="italic text-blue-500 hover:underline">{eventTitle}:</a
-		>
+			class="italic text-blue-500 hover:underline"
+			>{eventTitle}:
+		</a>
 	</p>
-
-	<!-- Display additional metadata -->
-	{#if notification.object_type === 'attendees'}
-		<p class="text-sm text-gray-500">
-			{formatHumanReadable(notification.created_at)}
-		</p>
-	{/if}
 
 	<!-- Show loading indicator while fetching linked objects -->
 	{#if isLoading}
@@ -261,10 +260,12 @@
 						/>
 					{/each}
 				{:else if notification.object_type === NotificationType.NEW_MESSAGE}
-					{#each linkedObjects as message}
-						<div class="flex w-full items-center justify-center space-x-3">
+					<!-- Show the first two messages -->
+					{#each linkedObjects.slice(0, 2) as message}
+						<div class="my-2 flex w-full items-center justify-center space-x-3">
 							<ProfileAvatar userId={message.user.id} baseHeightPx={30} />
 							<MessageContent
+								class="rounded-xl"
 								username={message.user?.username}
 								content={message.content}
 								created_at={message.created_at}
@@ -272,6 +273,12 @@
 							/>
 						</div>
 					{/each}
+					{#if linkedObjects.length > 2}
+						<!-- Indicate additional messages -->
+						<div class="my-2 flex w-full items-center justify-center space-x-3 text-gray-500">
+							...and a few more
+						</div>
+					{/if}
 				{:else if notification.object_type === NotificationType.ATTENDEES}
 					{#if linkedObjects.length > maxNumAttendeesToShowInline}
 						<Collapsible.Root class="space-y-2">

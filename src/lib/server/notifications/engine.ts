@@ -280,10 +280,7 @@ async function mergeSimilarNotifications(
 	const numObjects = mergedObjectIds.length;
 
 	// Generate the updated message and title
-	const { message } = createNotificationMessageAndTitle(
-		notificationType,
-		numObjects
-	);
+	const { message } = createNotificationMessageAndTitle(notificationType, numObjects);
 
 	// Delete the old notifications
 	for (const notification of existingNotifications) {
@@ -354,6 +351,8 @@ export async function bulkPersistNotifications(
 	await triplitHttpClient.bulkInsert({
 		notifications: notificationObjects
 	});
+
+	console.log('Before filtering for isInAppOnly ========>', notificationsToCreate);
 
 	// Filter and return only notifications that have isInAppOnly set to false
 	return notificationsToCreate.filter((notification) => !notification.isInAppOnly);
