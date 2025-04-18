@@ -152,7 +152,7 @@ export const updateRSVPForLoggedInUser = async (
 			}
 		}
 
-		if (NOTIFY_OF_ATTENDING_STATUS_CHANGE.includes(prevStatus as Status)) {
+		if (NOTIFY_OF_ATTENDING_STATUS_CHANGE.includes(newStatus as Status)) {
 			try {
 				await createNewAttendanceNotificationQueueObject(client, userId, eventId, [attendanceId]);
 			} catch (e) {
