@@ -15,6 +15,7 @@
 	import TempAttendeeDialog from './TempAttendeeDialog.svelte';
 	import UpdatePlusOneSelect from './UpdatePlusOneSelect.svelte';
 	import { updateRSVPForLoggedInUser, updateRSVPForTempUser } from '$lib/rsvp';
+	import RsvpNameWithLoader from './RsvpNameWithLoader.svelte';
 
 	let {
 		rsvpStatus = Status.DEFAULT,
@@ -37,6 +38,7 @@
 	let tempUserRsvpStatus: null | string = $state(null);
 	let isPlusOneSelectDialogOpenForFullUser = $state(false);
 
+	let isProcessingRsvp = $state(false);
 	let showAddToCalendar = $state(false);
 
 	let client: TriplitClient;
@@ -90,6 +92,7 @@
 				return;
 			}
 			console.log('updating RSVP status for logged in user');
+			isProcessingRsvp = true;
 			await updateRSVPForLoggedInUser(
 				client,
 				userId,
@@ -112,7 +115,7 @@
 				toast.error("You don't have a valid identity, please create a new one");
 				return;
 			}
-
+			isProcessingRsvp = true;
 			try {
 				await updateRSVPForTempUser(
 					newValue as string,
@@ -127,9 +130,12 @@
 			}
 		}
 		dropdownOpen = false;
+		isProcessingRsvp = false;
+		isPlusOneSelectDialogOpenForFullUser = false;
 	};
 
 	const leaveEvent = async (event: Event) => {
+		isProcessingRsvp = true;
 		try {
 			await updateRSVP(event, rsvpStatus, Status.LEFT);
 		} catch (e) {
@@ -190,7 +196,9 @@
 						onclick={(event) =>
 							updateRSVP(event, rsvpStatus, Status.GOING, numGuestsCurrentAttendeeIsBringing)}
 					>
-						<Smile /> Going
+						<RsvpNameWithLoader bind:isLoading={isProcessingRsvp}>
+							<Smile class="mr-2" /> Going
+						</RsvpNameWithLoader>
 					</DropdownMenu.Item>
 					<DropdownMenu.Item
 						id="rsvp-button-maybe"
@@ -198,7 +206,9 @@
 						onclick={(event) =>
 							updateRSVP(event, rsvpStatus, Status.MAYBE, numGuestsCurrentAttendeeIsBringing)}
 					>
-						<Meh /> Maybe
+						<RsvpNameWithLoader bind:isLoading={isProcessingRsvp}>
+							<Meh class="mr-2" /> Maybe
+						</RsvpNameWithLoader>
 					</DropdownMenu.Item>
 					<DropdownMenu.Item
 						id="rsvp-button-not-going"
@@ -206,7 +216,9 @@
 						onclick={(event) =>
 							updateRSVP(event, rsvpStatus, Status.NOT_GOING, numGuestsCurrentAttendeeIsBringing)}
 					>
-						<Frown /> Not going
+						<RsvpNameWithLoader bind:isLoading={isProcessingRsvp}>
+							<Frown class="mr-2" /> Not going
+						</RsvpNameWithLoader>
 					</DropdownMenu.Item>
 					{#if rsvpStatus != Status.DEFAULT && userId && userId != eventOwnerId}
 						<DropdownMenu.Item
@@ -214,7 +226,9 @@
 							class={rsvpStatus === Status.NOT_GOING ? '' : ''}
 							onclick={(event) => leaveEvent(event)}
 						>
-							<LogOut /> Leave event
+							<RsvpNameWithLoader>
+								<LogOut class="m2-1" /> Leave event
+							</RsvpNameWithLoader>
 						</DropdownMenu.Item>
 					{/if}
 				</DropdownMenu.Group>
@@ -240,12 +254,12 @@
 			maxGuests={maxNumGuestsAllowedPerAttendee}
 		/>
 		<Button
-			class="w-full"
+			class="flex w-full items-center justify-between"
 			onclick={(e) => {
 				updateRSVP(e, rsvpStatus, newRsvpStatusToSave, numGuestsCurrentAttendeeIsBringing);
 			}}
 		>
-			Let's go!
+			<RsvpNameWithLoader bind:isLoading={isProcessingRsvp}>Let's go!</RsvpNameWithLoader>
 		</Button>
 	</Dialog.Content>
 </Dialog.Root>
