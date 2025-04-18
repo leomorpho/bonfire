@@ -64,7 +64,7 @@ export const createUserAttendance = async (
 	}
 
 	const attendance = await client.insert('attendees', {
-		id: 'at_' + createAttendeeId(eventId, userId),
+		id: createAttendeeId(eventId, userId),
 		user_id: userId,
 		event_id: eventId,
 		status: newStatus,
