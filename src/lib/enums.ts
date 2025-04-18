@@ -228,7 +228,9 @@ export const notificationTypeToDeliveryMap: {
 export const flattenableNotificationTypes = new Set([
 	NotificationType.ANNOUNCEMENT,
 	NotificationType.FILES,
-	NotificationType.NEW_MESSAGE
+	NotificationType.NEW_MESSAGE,
+	NotificationType.TEMP_ATTENDEES,
+	NotificationType.ATTENDEES
 ]);
 
 // Define the mapping of notification types to email subjects

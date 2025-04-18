@@ -184,7 +184,19 @@ describe('Announcement notifications', () => {
 		const user = await createNewTestUser();
 		const event = await createNewEvent(user.id);
 
-		const announcement = await createNewAnnouncement(
+		const announcement1 = await createNewAnnouncement(
+			faker.string.alphanumeric(100),
+			event?.id as string,
+			user.id
+		);
+
+		const announcement2 = await createNewAnnouncement(
+			faker.string.alphanumeric(100),
+			event?.id as string,
+			user.id
+		);
+
+		const announcement3 = await createNewAnnouncement(
 			faker.string.alphanumeric(100),
 			event?.id as string,
 			user.id
@@ -203,13 +215,20 @@ describe('Announcement notifications', () => {
 			triplitHttpClient,
 			user?.id as string,
 			event?.id as string,
-			[announcement?.id as string]
+			[announcement1?.id as string]
 		);
 		await createNewAnnouncementNotificationQueueObject(
 			triplitHttpClient,
 			user?.id as string,
 			event?.id as string,
-			[announcement?.id as string]
+			[announcement2?.id as string]
+		);
+
+		await createNewAnnouncementNotificationQueueObject(
+			triplitHttpClient,
+			user?.id as string,
+			event?.id as string,
+			[announcement3?.id as string]
 		);
 
 		await runNotificationProcessor();

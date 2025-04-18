@@ -1,4 +1,4 @@
-import { and } from '@triplit/client';
+import { and, or } from '@triplit/client';
 import {
 	NotificationType,
 	NotificationPermissions,
@@ -223,28 +223,27 @@ export async function processNotificationQueue(notificationQueueEntry: Notificat
 	// console.debug(`Notification ${notificationQueueEntry.id} marked as sent.`);
 }
 
-async function getUnreadExistingNotification(
+async function getUnreadExistingNotifications(
 	attendeeUserId: string,
 	eventId: string,
-	object_type: NotificationType
+	objectType: NotificationType
+	// objectIds: Array<string>
 ) {
+	// const objectIdsFilter = or(objectIds.map((id) => ['object_ids_set', 'has', id]));
+
 	const query = triplitHttpClient
 		.query('notifications')
 		.Where(
 			and([
 				['user_id', '=', attendeeUserId],
 				['event_id', '=', eventId],
-				['object_type', '=', object_type],
+				['object_type', '=', objectType],
+				// objectIdsFilter
 				['seen_at', '=', null]
 			])
 		)
 		.Order('created_at', 'DESC');
-	const notifs = await triplitHttpClient.fetch(query);
-
-	if (notifs.length > 0) {
-		return notifs[0];
-	}
-	return null;
+	return await triplitHttpClient.fetch(query);
 }
 
 async function mergeSimilarNotifications(
@@ -253,28 +252,32 @@ async function mergeSimilarNotifications(
 	eventId: string,
 	notificationType: NotificationType
 ): Promise<boolean> {
-	const existingNotification = await getUnreadExistingNotification(
+	const existingNotifications = await getUnreadExistingNotifications(
 		userId,
 		eventId,
 		notificationType
+		// newObjectIds
 	);
 
-	if (!existingNotification) {
+	if (!existingNotifications || existingNotifications.length === 0) {
 		return false;
 	}
 
-	const existingObjectIds1 = existingNotification
-		? stringRepresentationToArray(existingNotification.object_ids)
-		: [];
+	// Merge object IDs from all existing notifications
+	const mergedObjectIdsSet = new Set<string>();
+	existingNotifications.forEach((notification) => {
+		const objectIdsArray = stringRepresentationToArray(notification.object_ids);
+		const objectIdsSet = notification.object_ids_set || new Set();
+		objectIdsArray.forEach((id) => mergedObjectIdsSet.add(id));
+		objectIdsSet.forEach((id) => mergedObjectIdsSet.add(id));
+	});
 
-	const existingObjectIds2 = existingNotification.object_ids_set || new Set([]);
-	const existingObjectIds = Array.from(
-		new Set([...new Set(existingObjectIds1), ...existingObjectIds2])
-	);
+	// Add new object IDs to the merged set
+	newObjectIds.forEach((id) => mergedObjectIdsSet.add(id));
 
-	const updatedIdsSet = new Set([...existingObjectIds, ...newObjectIds]);
-	const updatedIds = Array.from(updatedIdsSet);
-	const numObjects = updatedIds.length;
+	// Convert the merged set to an array
+	const mergedObjectIds = Array.from(mergedObjectIdsSet);
+	const numObjects = mergedObjectIds.length;
 
 	// Generate the updated message and title
 	const { message } = createNotificationMessageAndTitle(
@@ -283,10 +286,20 @@ async function mergeSimilarNotifications(
 		numObjects
 	);
 
-	await triplitHttpClient.update('notifications', existingNotification.id, {
-		object_ids: arrayToStringRepresentation(updatedIds),
-		object_ids_set: updatedIdsSet,
-		message: message // Update the message with the new count
+	// Delete the old notifications
+	for (const notification of existingNotifications) {
+		await triplitHttpClient.delete('notifications', notification.id);
+	}
+
+	// Create a new notification with the merged object IDs
+	await triplitHttpClient.insert('notifications', {
+		user_id: userId,
+		event_id: eventId,
+		object_type: notificationType,
+		object_ids: arrayToStringRepresentation(mergedObjectIds),
+		object_ids_set: mergedObjectIdsSet,
+		message: message
+		// Add other necessary fields for the notification
 	});
 
 	return true;
