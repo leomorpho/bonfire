@@ -15,7 +15,6 @@ import { Notification } from '$lib/server/notifications/engine';
 
 export function createNotificationMessageAndTitle(
 	notificationType: NotificationType,
-	eventTitle?: string,
 	numObjects: number = 1
 ): { message: string; title: string } {
 	const { singularObjectName, pluralObjectName } = notificationTypeMapping[notificationType];
@@ -24,35 +23,31 @@ export function createNotificationMessageAndTitle(
 
 	switch (notificationType) {
 		case NotificationType.ANNOUNCEMENT:
-			message = eventTitle
-				? `📢 You have ${numObjects} new ${numObjects > 1 ? pluralObjectName : singularObjectName} in the event "${eventTitle}".`
-				: `📢 You have ${numObjects} new ${numObjects > 1 ? pluralObjectName : singularObjectName} in an event you're attending!`;
+			message = `📢 You have ${numObjects} new ${numObjects > 1 ? pluralObjectName : singularObjectName}`;
 			title = 'New Announcements';
 			break;
 		case NotificationType.FILES:
-			message = eventTitle
-				? `📷 You have ${numObjects} new ${numObjects > 1 ? pluralObjectName : singularObjectName} in the event "${eventTitle}".`
-				: `📷 You have ${numObjects} new ${numObjects > 1 ? pluralObjectName : singularObjectName} in an event you're attending!`;
+			message = `📷 You have ${numObjects} new ${numObjects > 1 ? pluralObjectName : singularObjectName}`;
 			title = 'New Files';
 			break;
 		case NotificationType.NEW_MESSAGE:
-			message = `💬 You have a new message in an event you're attending`;
+			message = `💬 You have ${numObjects} new ${numObjects > 1 ? pluralObjectName : singularObjectName}`;
 			title = 'New Message';
 			break;
 		case NotificationType.ATTENDEES:
-			message = `🍻 ${numObjects} new ${numObjects > 1 ? pluralObjectName : singularObjectName} ${numObjects === 1 ? 'is' : 'are'} now attending your event "${eventTitle}".`;
+			message = `🍻 You have ${numObjects} new ${numObjects > 1 ? pluralObjectName : singularObjectName}`;
 			title = 'New Attendees';
 			break;
 		case NotificationType.TEMP_ATTENDEES:
-			message = `🍻 ${numObjects} new temporary account ${numObjects > 1 ? pluralObjectName : singularObjectName} ${numObjects === 1 ? 'is' : 'are'} now attending your event "${eventTitle}".`;
+			message = `🍻 You have ${numObjects} new ${numObjects > 1 ? pluralObjectName : singularObjectName}`;
 			title = 'New Temporary Account Attendees';
 			break;
 		case NotificationType.ADMIN_ADDED:
-			message = `🔐 You have been made an admin for the event: "${eventTitle}".`;
+			message = `🔐 You have been made an admin`;
 			title = "You're now an event admin!";
 			break;
 		default:
-			message = 'You have a new notification.';
+			message = 'You have a new notification';
 			title = 'New Notification';
 	}
 
@@ -81,7 +76,6 @@ export async function createAnnouncementNotifications(
 			const numObjects = announcementIds.length;
 			const { message } = createNotificationMessageAndTitle(
 				NotificationType.ANNOUNCEMENT,
-				undefined, // No event title needed
 				numObjects,
 			);
 			const pushNotificationPayload = { title: 'New Announcements', body: message };
@@ -142,7 +136,6 @@ export async function createFileNotifications(
 			const numObjects = filteredFileIds.length;
 			const { message } = createNotificationMessageAndTitle(
 				NotificationType.FILES,
-				undefined, // No event title needed
 				numObjects,
 			);
 			const pushNotificationPayload = { title: 'New Files', body: message };
@@ -187,7 +180,6 @@ export async function createAttendeeNotifications(
 
 	const { message } = createNotificationMessageAndTitle(
 		NotificationType.ATTENDEES,
-		undefined, // No event title needed
 		attendeeCount,
 	);
 	const pushNotificationPayload = { title: 'New Attendees', body: message };
@@ -254,7 +246,6 @@ export async function createTempAttendeeNotifications(
 
 	const { message } = createNotificationMessageAndTitle(
 		NotificationType.TEMP_ATTENDEES,
-		undefined, // No event title needed
 		attendeeCount,
 	);
 	const pushNotificationPayload = { title: 'New Temporary Account Attendees', body: message };
@@ -324,7 +315,6 @@ export async function createAdminAddedNotifications(
 	for (const newAdminUserId of newAdminUserIds) {
 		const { message } = createNotificationMessageAndTitle(
 			NotificationType.ADMIN_ADDED,
-			undefined // No event title needed
 		);
 		const pushNotificationPayload = { title: "You're now an event admin!", body: message };
 
@@ -421,10 +411,7 @@ export async function createNewMessageNotifications(
 	const numObjects = 1; // Since it's a single message
 	const { message } = createNotificationMessageAndTitle(
 		NotificationType.NEW_MESSAGE,
-		undefined, // No event title needed
 		numObjects,
-		'message',
-		'messages'
 	);
 	const pushNotificationPayload = { title: 'New Message', body: message };
 

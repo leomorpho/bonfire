@@ -1,7 +1,7 @@
 import { NotificationPermissions, NotificationType, Status, TaskName } from '$lib/enums';
 import type { PushNotificationPayload } from '$lib/types';
 import { getTaskLockState, updateTaskLockState } from './database/tasklock';
-import { bulkNotifyUsers, bulkPersistNotifications, Notification } from './notifications';
+import { Notification, bulkNotifyUsers, bulkPersistNotifications } from './notifications/engine';
 import { getAttendeeUserIdsOfEvent, triplitHttpClient } from './triplit';
 import { and } from '@triplit/client';
 
@@ -102,7 +102,7 @@ async function sendReminderNotifications(
 	if (!attendingUserIds.length) return;
 
 	// Create Notification objects
-	const notifications: Notification[] = attendingUserIds.map((attendeeUserId) => {
+	const notifications: Notification[] = attendingUserIds.map((attendeeUserId: string) => {
 		const pushNotificationPayload: PushNotificationPayload = {
 			title: 'Event Reminder',
 			body: reminderText
@@ -114,6 +114,7 @@ async function sendReminderNotifications(
 			reminderText,
 			NotificationType.REMINDER,
 			[reminderId],
+			new Set([reminderId]),
 			pushNotificationPayload,
 			[NotificationPermissions.event_reminders]
 		);

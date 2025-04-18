@@ -282,7 +282,6 @@ async function mergeSimilarNotifications(
 	// Generate the updated message and title
 	const { message } = createNotificationMessageAndTitle(
 		notificationType,
-		undefined, // No event title needed
 		numObjects
 	);
 
