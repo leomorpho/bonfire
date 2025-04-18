@@ -70,7 +70,7 @@ export function pushTriplitSchema() {
 export async function getAttendeeUserIdsOfEvent(
 	eventId: string,
 	statuses: Status[],
-	notificationPermission: NotificationType | null = null
+	notificationType: NotificationType | null = null
 ): Promise<{ granted: string[]; notGranted: string[] }> {
 	const query = triplitHttpClient
 		.query('attendees')
@@ -94,12 +94,13 @@ export async function getAttendeeUserIdsOfEvent(
 	const attendeesWithPermission: string[] = [];
 	const attendeesWithoutPermission: string[] = [];
 
+	
 	for (const attendee of results) {
-		console.log('======> DOWN results =>', attendee);
+		// console.log('======> DOWN results =>', attendee.notification_permissions);
 
 		const hasPermission = getEffectivePermissionSettingForEvent(
 			attendee.notification_permissions,
-			notificationPermission
+			notificationType
 		);
 		if (hasPermission) {
 			attendeesWithPermission.push(attendee.user_id);

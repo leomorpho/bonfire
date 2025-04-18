@@ -1,6 +1,11 @@
 import { HttpClient, or, type Models, type WhereFilter } from '@triplit/client';
 import type { PermissionsArray } from './types';
-import { DeliveryPermissions, NotificationPermissions, NotificationType } from './enums';
+import {
+	DeliveryPermissions,
+	NotificationPermissions,
+	NotificationType,
+	notificationTypeToPermMap
+} from './enums';
 
 export async function toggleNotificationPermission(
 	client: HttpClient | null | undefined,
@@ -93,8 +98,14 @@ export const getPermissionFiltersForEventAndPermissionType = (eventId: string | 
  */
 export const getEffectivePermissionSettingForEvent = (
 	permissions: PermissionsArray,
-	permissionType?: NotificationType
+	notificationType?: NotificationType
 ): boolean => {
+	let permissionType = null;
+
+	if (notificationType) {
+		permissionType = notificationTypeToPermMap[notificationType];
+	}
+
 	// Find the event-specific permission
 	const eventSpecificPermission = permissions.find((perm) => perm.event_id !== undefined);
 

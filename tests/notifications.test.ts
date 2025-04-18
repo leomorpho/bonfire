@@ -391,7 +391,7 @@ describe('getAttendeeUserIdsOfEvent', () => {
 		const result = await getAttendeeUserIdsOfEvent(
 			event.id,
 			[Status.GOING],
-			NotificationPermissions.event_activity
+			NotificationType.ANNOUNCEMENT
 		);
 
 		expect(result.granted).toContain(attendingUser1.id);
@@ -405,8 +405,7 @@ describe('getAttendeeUserIdsOfEvent', () => {
 		const result = await getAttendeeUserIdsOfEvent(
 			event.id,
 			[Status.GOING],
-			false,
-			NotificationPermissions.event_activity
+			NotificationType.ANNOUNCEMENT
 		);
 
 		expect(result.granted).toHaveLength(0);
