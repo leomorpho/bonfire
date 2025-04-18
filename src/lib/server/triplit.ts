@@ -70,44 +70,35 @@ export function pushTriplitSchema() {
 export async function getAttendeeUserIdsOfEvent(
 	eventId: string,
 	statuses: Status[],
-	excludeCreator: boolean = false,
 	notificationPermission: NotificationType | null = null
 ): Promise<{ granted: string[]; notGranted: string[] }> {
-	// Fetch the event to get the creator's user ID if excludeCreator is true
-	let creatorUserId: string | null = null;
-	if (excludeCreator) {
-		const eventQuery = triplitHttpClient
-			.query('events')
-			.Select(['user_id'])
-			.Where([['id', '=', eventId]]);
-		const [event] = await triplitHttpClient.fetch(eventQuery);
-		creatorUserId = event?.user_id || null;
-	}
-
-	// Build the attendees query
-	const attendeeQueryConditions: any[] = [
-		['event_id', '=', eventId],
-		['status', 'in', statuses]
-	];
-
-	// Add condition to exclude the creator if applicable
-	if (excludeCreator && creatorUserId) {
-		attendeeQueryConditions.push(['user_id', '!=', creatorUserId]);
-	}
-
 	const query = triplitHttpClient
 		.query('attendees')
-		.Where(and([...attendeeQueryConditions]))
-		.Include('user', (rel) => rel('user').Select(['id']).Include('notification_permissions'))
+		.Where(
+			and([
+				['event_id', '=', eventId],
+				['status', 'in', statuses]
+			])
+		)
+		.SubqueryMany(
+			'notification_permissions',
+			triplitHttpClient
+				.query('notification_permissions')
+				.Where(['user_id', '=', '$1.user_id'])
+				// .Select(['granted', 'permission', 'event_id'])
+		)
 		.Select(['user_id']);
+
 	const results = await triplitHttpClient.fetch(query);
 
 	const attendeesWithPermission: string[] = [];
 	const attendeesWithoutPermission: string[] = [];
 
 	for (const attendee of results) {
+		console.log('======> DOWN results =>', attendee);
+
 		const hasPermission = getEffectivePermissionSettingForEvent(
-			attendee.user.notification_permissions,
+			attendee.notification_permissions,
 			notificationPermission
 		);
 		if (hasPermission) {

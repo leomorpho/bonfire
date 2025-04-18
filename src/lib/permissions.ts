@@ -120,6 +120,7 @@ export const getEffectivePermissionSettingForEvent = (
 	// Return false if no permissions are found or if the type does not match
 	return false;
 };
+
 /**
  * Checks if at least one permission type is effectively granted, considering
  * event-specific permissions overriding general ones.

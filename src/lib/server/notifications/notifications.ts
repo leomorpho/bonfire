@@ -64,7 +64,6 @@ export async function createAnnouncementNotifications(
 		await getAttendeeUserIdsOfEvent(
 			eventId,
 			NOTIFY_OF_ATTENDING_STATUS_CHANGE,
-			true, // Do not notify announcement creator, i.e., event creator
 			notificationTypeToPermMap[NotificationType.ANNOUNCEMENT] as NotificationType
 		);
 
@@ -119,7 +118,6 @@ export async function createFileNotifications(
 		await getAttendeeUserIdsOfEvent(
 			eventId,
 			[Status.GOING, Status.MAYBE],
-			false,
 			notificationTypeToPermMap[NotificationType.FILES] as NotificationType
 		);
 
@@ -366,7 +364,6 @@ export async function createNewMessageNotifications(
 		await getAttendeeUserIdsOfEvent(
 			eventId,
 			NOTIFY_OF_ATTENDING_STATUS_CHANGE,
-			false,
 			notificationTypeToPermMap[NotificationType.NEW_MESSAGE] as NotificationType
 		);
 

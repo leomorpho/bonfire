@@ -59,7 +59,7 @@ export const schema = S.Collections({
 			delivery_permissions: S.RelationMany('delivery_permissions', {
 				where: [['user_id', '=', '$id']]
 			}),
-			notification_permissions: S.RelationMany('delivery_permissions', {
+			notification_permissions: S.RelationMany('notification_permissions', {
 				where: [['user_id', '=', '$id']]
 			})
 		},

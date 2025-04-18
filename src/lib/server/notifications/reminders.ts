@@ -95,7 +95,6 @@ async function sendReminderNotifications(
 	const attendingUserIds = await getAttendeeUserIdsOfEvent(
 		eventId,
 		targetStatuses,
-		false,
 		NotificationType.REMINDER
 	);
 

@@ -7,7 +7,10 @@ import { arrayToStringRepresentation, stringRepresentationToArray } from '$lib/u
 import { faker } from '@faker-js/faker';
 import { and } from '@triplit/client';
 import { generateId } from 'lucia';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
+import { NotificationPermissions, NotificationType } from '../src/lib/enums';
+import { getAttendeeUserIdsOfEvent } from '$lib/server/triplit';
+import { getEffectivePermissionSettingForEvent } from '$lib/permissions';
 
 async function createNewTestUser(
 	email: string | null = null,
@@ -125,61 +128,6 @@ export async function validateUniqueNotifications() {
 }
 
 describe('Announcement notifications', () => {
-	it('Event creator should not get announcement notifications', async () => {
-		const user = await createNewTestUser();
-		// console.log('user', user);
-		const event = await createNewEvent(user.id);
-		// console.log('event', event);
-
-		const announcement = await createNewAnnouncement(
-			faker.string.alphanumeric(100),
-			event?.id as string,
-			user.id
-		);
-		// console.log('announcement', announcement);
-
-		const attendingUser1 = await createNewTestUser();
-		const attendingUser2 = await createNewTestUser();
-		const attendingUser3 = await createNewTestUser();
-
-		await createNewAttendance(event?.id as string, attendingUser1.id, Status.GOING);
-		await createNewAttendance(event?.id as string, attendingUser2.id, Status.GOING);
-		await createNewAttendance(event?.id as string, attendingUser3.id, Status.GOING);
-
-		await createNewAnnouncementNotificationQueueObject(
-			triplitHttpClient,
-			user?.id as string,
-			event?.id as string,
-			[announcement?.id as string]
-		);
-
-		await runNotificationProcessor();
-
-		const notificationsForEventCreator = await triplitHttpClient.fetch(
-			triplitHttpClient.query('notifications').Where(
-				and([
-					['user_id', '=', user.id],
-					['event_id', '=', event?.id as string]
-				])
-			)
-		);
-
-		// Event creator should have no announcement notification
-		expect(notificationsForEventCreator).toHaveLength(0);
-
-		const notificationsForAttendees = await triplitHttpClient.fetch(
-			triplitHttpClient.query('notifications').Where(
-				and([
-					['user_id', 'in', [attendingUser1.id, attendingUser2.id, attendingUser3.id]],
-					['event_id', '=', event?.id as string]
-				])
-			)
-		);
-
-		// All 3 attendees should have a notification
-		expect(notificationsForAttendees).toHaveLength(3);
-	});
-
 	it('Notifications merge if of same type and not yet read', async () => {
 		const user = await createNewTestUser();
 		const event = await createNewEvent(user.id);
@@ -322,3 +270,146 @@ function createAttendeeId(eventId: string, userId: string) {
 // function sleep(ms) {
 // 	return new Promise((resolve) => setTimeout(resolve, ms));
 // }
+
+describe('getEffectivePermissionSettingForEvent', () => {
+	let user1, user2, event;
+
+	beforeEach(async () => {
+		// Seed data: Create users and an event
+		user1 = await createNewTestUser();
+		user2 = await createNewTestUser();
+		event = await createNewEvent(user1.id);
+
+		// Create attendances
+		await createNewAttendance(event.id, user1.id, Status.GOING);
+		await createNewAttendance(event.id, user2.id, Status.GOING);
+	});
+
+	it('should return true if event-specific permission is granted', async () => {
+		// Set event-specific permission for user1
+		await triplitHttpClient.insert('notification_permissions', {
+			user_id: user1.id,
+			event_id: event.id,
+			permission: NotificationType.ANNOUNCEMENT,
+			granted: true
+		});
+
+		const permissions = await triplitHttpClient.fetch(
+			triplitHttpClient.query('notification_permissions').Where([['user_id', '=', user1.id]])
+		);
+
+		const result = getEffectivePermissionSettingForEvent(permissions, NotificationType.ANNOUNCEMENT);
+		expect(result).toBe(true);
+	});
+
+	it('should return false if event-specific permission is not granted', async () => {
+		// Set event-specific permission for user1
+		await triplitHttpClient.insert('notification_permissions', {
+			user_id: user1.id,
+			event_id: event.id,
+			permission: NotificationType.ANNOUNCEMENT,
+			granted: false
+		});
+
+		const permissions = await triplitHttpClient.fetch(
+			triplitHttpClient.query('notification_permissions').Where([['user_id', '=', user1.id]])
+		);
+
+		const result = getEffectivePermissionSettingForEvent(permissions, NotificationType.ANNOUNCEMENT);
+		expect(result).toBe(false);
+	});
+
+	it('should return true if general permission is granted and no event-specific permission exists', async () => {
+		// Set general permission for user1
+		await triplitHttpClient.insert('notification_permissions', {
+			user_id: user1.id,
+			permission: NotificationType.ANNOUNCEMENT,
+			granted: true
+		});
+
+		const permissions = await triplitHttpClient.fetch(
+			triplitHttpClient.query('notification_permissions').Where([['user_id', '=', user1.id]])
+		);
+
+		const result = getEffectivePermissionSettingForEvent(permissions, NotificationType.ANNOUNCEMENT);
+		expect(result).toBe(true);
+	});
+
+	it('should return false if general permission is not granted and no event-specific permission exists', async () => {
+		// Set general permission for user1
+		await triplitHttpClient.insert('notification_permissions', {
+			user_id: user1.id,
+			permission: NotificationType.ANNOUNCEMENT,
+			granted: false
+		});
+
+		const permissions = await triplitHttpClient.fetch(
+			triplitHttpClient.query('notification_permissions').Where([['user_id', '=', user1.id]])
+		);
+
+		const result = getEffectivePermissionSettingForEvent(permissions, NotificationType.ANNOUNCEMENT);
+		expect(result).toBe(false);
+	});
+
+	it('should return false if no permissions are found', async () => {
+		const permissions: any[] = [];
+
+		const result = getEffectivePermissionSettingForEvent(permissions, NotificationType.ANNOUNCEMENT);
+		expect(result).toBe(false);
+	});
+
+	it('should return false if the permission type does not match', async () => {
+		// Set event-specific permission for user1
+		await triplitHttpClient.insert('notification_permissions', {
+			user_id: user1.id,
+			event_id: event.id,
+			permission: NotificationType.ANNOUNCEMENT,
+			granted: true
+		});
+
+		const permissions = await triplitHttpClient.fetch(
+			triplitHttpClient.query('notification_permissions').Where([['user_id', '=', user1.id]])
+		);
+
+		const result = getEffectivePermissionSettingForEvent(permissions, NotificationType.REMINDER);
+		expect(result).toBe(false);
+	});
+});
+
+describe('getAttendeeUserIdsOfEvent', () => {
+	it('should return attendee user IDs with and without notification permissions', async () => {
+		// Seed data: Create an event, attendees, and notification permissions
+		const event = await createNewEvent('user-1');
+		const attendingUser1 = await createNewTestUser();
+		const attendingUser2 = await createNewTestUser();
+		const attendingUser3 = await createNewTestUser();
+
+		await createNewAttendance(event.id, attendingUser1.id, Status.GOING);
+		await createNewAttendance(event.id, attendingUser2.id, Status.GOING);
+		await createNewAttendance(event.id, attendingUser3.id, Status.GOING);
+
+		const result = await getAttendeeUserIdsOfEvent(
+			event.id,
+			[Status.GOING],
+			NotificationPermissions.event_activity
+		);
+
+		expect(result.granted).toContain(attendingUser1.id);
+		expect(result.granted).toContain(attendingUser3.id);
+		expect(result.granted).toContain(attendingUser2.id);
+	});
+
+	it('should handle the case where no attendees match the criteria', async () => {
+		const event = await createNewEvent('user-1');
+
+		const result = await getAttendeeUserIdsOfEvent(
+			event.id,
+			[Status.GOING],
+			false,
+			NotificationPermissions.event_activity
+		);
+
+		expect(result.granted).toHaveLength(0);
+		expect(result.notGranted).toHaveLength(0);
+	});
+});
