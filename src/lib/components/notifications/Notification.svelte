@@ -12,7 +12,7 @@
 	import { NotificationType } from '$lib/enums';
 	// import Message from '../im/Message.svelte';
 	import MessageContent from '../im/MessageContent.svelte';
-	import { MoreHorizontal, MoreVertical } from 'lucide-svelte';
+	import { MoreHorizontal } from 'lucide-svelte';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import { slide } from 'svelte/transition';
 
@@ -22,12 +22,16 @@
 	let linkedObjects = $state([]);
 	let isLoading = $state(true);
 	let cardRef: HTMLElement | null = $state(null); // Initialize as null to ensure proper type handling
+	let eventTitle = $state('...');
 
 	const maxNumAttendeesToShowInline = 3;
 
 	const fetchLinkedObjects = async () => {
 		// console.log('notification', notification);
-		if (!((notification.object_ids || notification.object_ids_set) || notification.object_ids_set) || !notification.object_type)
+		if (
+			!(notification.object_ids || notification.object_ids_set || notification.object_ids_set) ||
+			!notification.object_type
+		)
 			return;
 
 		const client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
@@ -151,6 +155,18 @@
 		};
 		init();
 
+		const getEventTitle = async () => {
+			const client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
+
+			const event = await client.fetchOne(
+				client.query('events').Where(['id', '=', notification.event_id]).Select(['title'])
+			);
+
+			eventTitle = event?.title;
+		};
+
+		getEventTitle();
+
 		const observer = new IntersectionObserver(
 			async ([entry]) => {
 				if (entry.isIntersecting) {
@@ -194,7 +210,14 @@
 	</DropdownMenu.Root>
 
 	<!-- Display message -->
-	<p class="font-medium">{notification.message}</p>
+	<p class="font-medium">
+		{notification.message} in
+		<a
+			href={`/bonfire/${notification.event_id}`}
+			onclick={toggleDialog}
+			class="italic text-blue-500 hover:underline">{eventTitle}:</a
+		>
+	</p>
 
 	<!-- Display additional metadata -->
 	{#if notification.object_type === 'attendees'}
@@ -230,32 +253,24 @@
 				<!-- Customize rendering for each object type -->
 				{#if notification.object_type === NotificationType.ANNOUNCEMENT}
 					{#each linkedObjects as obj}
-						<a class="m-1" href={`/bonfire/${obj.event_id}`} onclick={toggleDialog}>
-							<Announcement
-								eventId={obj.event_id}
-								currUserId={userId}
-								currentUserAttendeeId={obj.attendeeId}
-								announcement={obj}
-							/>
-						</a>
+						<Announcement
+							eventId={obj.event_id}
+							currUserId={userId}
+							currentUserAttendeeId={obj.attendeeId}
+							announcement={obj}
+						/>
 					{/each}
-					<!-- {:else if notification.object_type === 'files'}
-					<a class="my-2" href={`/bonfire/${obj.event_id}`} onclick={toggleDialog}>
-						{notification.}
-					</a> -->
 				{:else if notification.object_type === NotificationType.NEW_MESSAGE}
 					{#each linkedObjects as message}
-						<a href={`/bonfire/${notification.event_id}`} onclick={toggleDialog}>
-							<div class="flex w-full items-center justify-center space-x-3">
-								<ProfileAvatar userId={message.user.id} baseHeightPx={30} />
-								<MessageContent
-									username={message.user?.username}
-									content={message.content}
-									created_at={message.created_at}
-									deleted_by_user_id={message.deleted_by_user_id}
-								/>
-							</div>
-						</a>
+						<div class="flex w-full items-center justify-center space-x-3">
+							<ProfileAvatar userId={message.user.id} baseHeightPx={30} />
+							<MessageContent
+								username={message.user?.username}
+								content={message.content}
+								created_at={message.created_at}
+								deleted_by_user_id={message.deleted_by_user_id}
+							/>
+						</div>
 					{/each}
 				{:else if notification.object_type === NotificationType.ATTENDEES}
 					{#if linkedObjects.length > maxNumAttendeesToShowInline}
