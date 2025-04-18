@@ -165,12 +165,16 @@
 							: publicEnv.PUBLIC_VAPID_PUBLIC_KEY
 					});
 					try {
-						const { p256dh, auth } = subscription.keys || {};
+						const p256dh = subscription.getKey('p256dh');
+						const auth = subscription.getKey('auth');
+
+						console.log('Subscription ===>', subscription, p256dh, auth);
+
 						await client?.insert('push_subscription_registrations', {
 							user_id: userId,
 							endpoint: subscription.endpoint,
-							p256dh: p256dh,
-							auth: auth
+							p256dh: arrayBufferToBase64(p256dh),
+							auth: arrayBufferToBase64(auth)
 						});
 
 						await subscribeToPushDeliveryPerm();
@@ -192,6 +196,21 @@
 		} else {
 			console.log('subscribeToPush: cannot subscribe because there is no service worker');
 		}
+	}
+
+	// Helper function to convert ArrayBuffer to base64 string
+	function arrayBufferToBase64(buffer: ArrayBuffer | null): string {
+		if (!buffer) {
+			return '';
+		}
+		
+		let binary = '';
+		const bytes = new Uint8Array(buffer);
+		const len = bytes.byteLength;
+		for (let i = 0; i < len; i++) {
+			binary += String.fromCharCode(bytes[i]);
+		}
+		return btoa(binary);
 	}
 
 	async function unsubscribeFromPush() {
