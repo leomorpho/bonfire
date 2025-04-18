@@ -238,9 +238,9 @@
 			{
 				localOnly: false,
 				onRemoteFulfilled: () => {
-					console.log(
-						"server has sent back results for the unread notifications for this thread's subscription"
-					);
+					// console.log(
+					// 	"server has sent back results for the unread notifications for this thread's subscription"
+					// );
 				}
 			}
 		);

@@ -65,7 +65,7 @@
 	<!-- Notification Badge -->
 	{#if notificationsCount > 0}
 		<div
-			class="absolute -right-7 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-xs font-bold text-white sm:h-5 sm:w-5 sm:text-sm"
+			class="absolute -right-3 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-xs font-bold text-white sm:h-5 sm:w-5 sm:text-sm"
 		>
 			{#if notificationsCount <= 10}
 				{notificationsCount}
