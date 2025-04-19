@@ -6,13 +6,13 @@ import { BringListCountTypes, Status } from '$lib/enums';
 import {
 	createNewAnnouncementNotificationQueueObject,
 	createNewAttendanceNotificationQueueObject
-} from '$lib/notification';
+} from '$lib/notification_queue';
 import { env as publicEnv } from '$env/dynamic/public';
 import { env as privateEnv } from '$env/dynamic/private';
-import { createAttendeeId } from '$lib/utils';
 import { createNewThread, MAIN_THREAD } from '$lib/im';
 import { uploadBannerImage, uploadProfileImage } from '$lib/filestorage';
 import { assignBringItem, createBringItem } from '$lib/bringlist';
+import { createTempAttendance, createUserAttendance } from '$lib/rsvp';
 
 const profileImagesDir = 'src/scripts/data/profile-pics';
 const bannerImagesDir = 'src/scripts/data/banner';
@@ -48,7 +48,7 @@ await uploadProfileImage(path, user?.id as string, false);
 const now = new Date(); // Current date and time
 const fiveWeeksLater = new Date(now.getTime() + 5 * 7 * 24 * 60 * 60 * 1000); // Add 5 weeks in milliseconds
 
-const { output } = await client.insert('events', {
+const output = await client.insert('events', {
 	title: "Mike's birthay party",
 	description:
 		'Come celebrate my birthday with good vibes, great company, and plenty of food & drinks. Let me know if you can make it—see you there! 🥳',
@@ -122,7 +122,7 @@ for (let i = 0; i < announcementContents.length; i++) {
 		user_id: user?.id, // Event creator is making the announcement
 		event_id: eventCreated?.id
 	});
-	const announcementId = announcement?.output?.id;
+	const announcementId = announcement?.id;
 
 	await createNewAnnouncementNotificationQueueObject(client, user?.id as string, eventCreated?.id, [
 		announcementId
@@ -168,18 +168,30 @@ for (let i = 0; i < knownData.length; i++) {
 		await uploadProfileImage(path, attendeeUser?.id as string, false);
 	}
 
-	const newAttendeeResult = await client.insert('attendees', {
-		id: createAttendeeId(eventCreated.id, attendeeUser?.id as string),
-		event_id: eventCreated?.id, // TODO: rename to something sane, that's a shit name
-		user_id: attendeeUser?.id,
-		status: getRandomStatus()
-	});
+	/**
+	 * Generates a random integer between 0 and n (inclusive).
+	 *
+	 * @param {number} n - The upper bound of the random integer.
+	 * @returns {number} - A random integer between 0 and n.
+	 */
+	function getRandomInt(n: number) {
+		return Math.floor(Math.random() * (n + 1));
+	}
+
+	console.log('attendeeUser.id', attendeeUser?.id, 'eventCreated.id', eventCreated.id);
+	const newAttendeeResult = await createUserAttendance(
+		client,
+		attendeeUser?.id as string,
+		eventCreated.id,
+		getRandomStatus(),
+		getRandomInt(4)
+	);
 
 	await createNewAttendanceNotificationQueueObject(
 		client,
 		attendeeUser?.id as string,
 		eventCreated?.id,
-		[newAttendeeResult.output?.id]
+		[newAttendeeResult?.id]
 	);
 
 	// Randomly mark some users as having seen the announcements
@@ -199,6 +211,32 @@ for (let i = 0; i < knownData.length; i++) {
 		user: attendeeUser?.email
 	});
 }
+
+await createTempAttendance(
+	client,
+	null,
+	eventCreated?.id as string,
+	getRandomStatus(),
+	'Maxime',
+	0
+);
+await createTempAttendance(
+	client,
+	null,
+	eventCreated?.id as string,
+	getRandomStatus(),
+	'Roxanne',
+	2
+);
+await createTempAttendance(
+	client,
+	null,
+	eventCreated?.id as string,
+	getRandomStatus(),
+	'Christa',
+	5
+);
+await createTempAttendance(client, null, eventCreated?.id as string, getRandomStatus(), 'Abodo', 3);
 
 const messages = [
 	"Hey everyone! Let's start planning Mike's birthday party. Any ideas for the venue?",
@@ -237,19 +275,16 @@ const messages = [
 // Seed messages for Mike's event
 const messageCount = messages.length; // Number of messages to generate
 const attendees = await client.fetch(
-	client.query('attendees').where(['event_id', '=', eventCreated?.id]).build()
+	client.query('attendees').Where(['event_id', '=', eventCreated?.id])
 );
 
 const thread = await client.fetchOne(
-	client
-		.query('event_threads')
-		.where([
-			and([
-				['event_id', '=', eventCreated?.id],
-				['name', '=', MAIN_THREAD]
-			])
+	client.query('event_threads').Where([
+		and([
+			['event_id', '=', eventCreated?.id],
+			['name', '=', MAIN_THREAD]
 		])
-		.build()
+	])
 );
 if (!thread) {
 	throw new Error('thread not created');

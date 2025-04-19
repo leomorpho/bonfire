@@ -14,6 +14,7 @@
 	import { ModeWatcher } from 'mode-watcher';
 	import { onMount } from 'svelte';
 	import { getFeWorkerTriplitClient } from '$lib/triplit';
+	import '@fontsource-variable/montserrat';
 
 	let { children } = $props();
 
@@ -180,4 +181,12 @@
 	#everything-everywhere-all-at-once {
 		padding-top: env(safe-area-inset-top) !important;
 	}
+
+	:global(body) {
+		font-family: 'Montserrat Variable', sans-serif;
+	}
+
+	/* :global(.bonfire-layout) {
+		font-family: 'JetBrains Mono Variable', monospace;
+	} */
 </style>

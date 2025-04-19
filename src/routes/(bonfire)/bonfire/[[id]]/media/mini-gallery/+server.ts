@@ -22,13 +22,13 @@ export const GET = async ({ locals, url, params }) => {
 			existingAttendee = await triplitHttpClient.fetchOne(
 				triplitHttpClient
 					.query('temporary_attendees')
-					.where(
+					.Where(
 						and([
 							['secret_mapping.id', '=', tempAttendeeSecret],
 							['event_id', '=', id]
 						])
 					)
-					.build()
+					
 			);
 			if (existingAttendee) {
 				tempAttendeeExists = true;
@@ -78,10 +78,10 @@ export const GET = async ({ locals, url, params }) => {
 	// 	// Fetch files for the given event ID
 	// 	const eventFilesQuery = triplitHttpClient
 	// 		.query('files')
-	// 		.where('event_id', '=', id)
-	// 		.order('uploaded_at', 'DESC')
+	// 		.Where('event_id', '=', id)
+	// 		.Order('uploaded_at', 'DESC')
 	// 		.limit(MAX_NUM_IMAGES_IN_MINI_GALLERY)
-	// 		.build();
+	// 		;
 
 	// 	const eventFiles = await triplitHttpClient.fetch(eventFilesQuery);
 

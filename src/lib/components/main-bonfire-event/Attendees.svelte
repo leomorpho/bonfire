@@ -5,7 +5,7 @@
 	import NoAttendeesYet from '../attendance/NoAttendeesYet.svelte';
 	import { Skeleton } from '../ui/skeleton';
 	import { fade } from 'svelte/transition';
-	import ProfileAvatar from '../ProfileAvatar.svelte';
+	import ProfileAvatar from '../profile/profile-avatar/ProfileAvatar.svelte';
 	import AttendeesDialog from '../AttendeesDialog.svelte';
 
 	let {
@@ -14,6 +14,8 @@
 		allAttendeesGoing,
 		allAttendeesMaybeGoing,
 		allAttendeesNotGoing,
+		allAttendeesLeft,
+		allAttendeesRemoved,
 		eventNumAttendeesGoing,
 		showMaxNumPeople = 10,
 		isCurrenUserEventAdmin = false
@@ -31,9 +33,12 @@
 		allAttendeesNotGoing.length +
 			allAttendeesNotGoing.reduce((sum, a) => sum + (a.guest_count || 0), 0)
 	);
+
+	let totalLeft = $derived(allAttendeesLeft.length);
+	let totalRemoved = $derived(allAttendeesRemoved.length);
 </script>
 
-<div class="mx-3 mt-5 items-center">
+<div class="mx-3 mt-5 items-center text-base">
 	{#if attendeesLoading}
 		<div class="flex flex-wrap items-center -space-x-3">
 			{#each Array(20).fill(null) as _, index}
@@ -65,11 +70,15 @@
 					{allAttendeesGoing}
 					{allAttendeesMaybeGoing}
 					{allAttendeesNotGoing}
+					{allAttendeesLeft}
+					{allAttendeesRemoved}
 					{showMaxNumPeople}
 					{isCurrenUserEventAdmin}
 					numAttendeesGoing={totalGoing}
 					numAttendeesMaybeGoing={totalMaybe}
 					numAttendeesNotGoing={totalNotGoing}
+					numAttendeesLeft={totalLeft}
+					numAttendeesRemoved={totalRemoved}
 				/>
 			</div>
 		{:else if allAttendeesGoing.length == 0}

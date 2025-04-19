@@ -2,37 +2,41 @@
 	import AuroraText from '../AuroraText.svelte';
 	import Container from '../Container.svelte';
 	import { Image } from '@unpic/svelte';
+
+	let { class: cls = null } = $props();
 </script>
 
 <Container>
-	<div id="about-us" class="sm:mb-15">
+	<div id="about-us" class={`sm:mb-15 ${cls}`}>
 		<div class="mx-auto max-w-2xl px-6 lg:px-8">
-			<h2 class="mb-5 text-center text-2xl font-bold md:text-4xl">We are Bonfire</h2>
-			<div class="my-5 flex flex-col sm:flex-row">
-				<!-- <Image
-					class="rounded-lg"
-					height={200}
-					src=""
-					layout="constrained"
-					aspectRatio={5 / 3}
-					alt="TODO"
-				/> -->
-				<div class="space-y-7">
-					We're a small, passionate team bringing the warmth of a bonfire to your events. We take
-					pride in our work and rely on user support to keep improving. If you love what we do,
-					consider donating to help us grow—every bit makes a difference!
-					<!-- <p>
-						We are a small, independent team made up of passionate developers and creators who are
-						committed to bringing the warmth and connection of a real bonfire to your private
-						events. We take pride in our work and strive to provide you with top-notch support and
-						service.
-					</p>
+			<h2 class="mb-5 text-center text-3xl font-bold md:text-4xl">Who's behind Bonfire?</h2>
+			<div class="my-5 flex flex-col text-base">
+				<div class="mb-5 mr-5 flex w-full justify-center">
+					<Image
+						class="rounded-full"
+						height={302}
+						width={300}
+						aspectRatio={1}
+						src="https://f002.backblazeb2.com/file/bonfire-public/website-public/about-us/IMG_3627.jpeg"
+						layout="constrained"
+						alt="TODO"
+					/>
+				</div>
+
+				<div class="space-y-7 text-center">
 					<p>
-						As a small team, we rely on the support of our users to keep the app running and to
-						continue improving our platform. If you love what we do and want to help us keep the
-						bonfire burning, please consider making a donation to support our team. Every little bit
-						helps and we are incredibly grateful for your support.
-					</p> -->
+						Currently, it's just me (hi, I’m Toby!). This is a labor of love—designed to make events
+						more personal, meaningful, and easy to share. I handle everything from coding to
+						support, and I'm incredibly grateful to have had help from multiple friends on key parts
+						of this journey.
+					</p>
+
+					<p>
+						Bonfire is an indie, self-bootstrapped project, crafted with dedication to enhance your
+						event experiences and support my family. Your feedback, sharing, and donations make a
+						real difference, helping sustain and grow Bonfire. If you believe in our mission, please
+						consider supporting us. Every contribution is deeply appreciated.
+					</p>
 				</div>
 			</div>
 		</div>

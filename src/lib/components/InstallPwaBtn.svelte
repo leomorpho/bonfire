@@ -45,6 +45,9 @@
 		if (hasDismissedRecently()) {
 			return;
 		}
+		if (dev) {
+			return;
+		}
 		// Show the install prompt if conditions are met
 		if (
 			pwaInstallComponent &&

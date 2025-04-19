@@ -9,7 +9,7 @@
 	import { page } from '$app/stores';
 	import { assignBringItem, deleteBringAssignment, updateBringAssignment } from '$lib/bringlist';
 	import { toast } from 'svelte-sonner';
-	import ProfileAvatar from '../ProfileAvatar.svelte';
+	import ProfileAvatar from '../profile/profile-avatar/ProfileAvatar.svelte';
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
 	import { fade, slide } from 'svelte/transition';
 	import { Tween } from 'svelte/motion';
@@ -38,8 +38,6 @@
 		duration: 200,
 		easing: cubicOut
 	});
-
-
 
 	let isOpen = $state(false);
 	let userIdToNumBroughtWhenDialogOpen: any = $state({});
@@ -113,14 +111,14 @@
 				if (tempUserCommitment == 0) {
 					await deleteBringAssignment(client, userAssignment.id);
 					if (showToasts) {
-						toast.success(`You're now bringing no "${item.name}""`);
+						toast.success(`You're now bringing no "${item.name}"`);
 					}
 				} else {
 					const preSaveTempUserCommitment = tempUserCommitment;
 
 					await updateBringAssignment(client, userAssignment.id, { quantity: tempUserCommitment });
 					if (showToasts) {
-						toast.success(`You're now bringing ${preSaveTempUserCommitment} "${item.name}""`);
+						toast.success(`You're now bringing ${preSaveTempUserCommitment} "${item.name}"`);
 					}
 				}
 			} catch (e) {
@@ -142,7 +140,7 @@
 					tempUserCommitment
 				);
 				if (showToasts) {
-					toast.success(`You're now bringing ${preSaveTempUserCommitment} "${item.name}""`);
+					toast.success(`You're now bringing ${preSaveTempUserCommitment} "${item.name}"`);
 				}
 			} catch (e) {
 				console.error('failed to assign bring assignment', e);
@@ -169,7 +167,7 @@
 	<Dialog.Content class="rounded-xl">
 		<ScrollArea class="w-full">
 			<Dialog.Header class="mt-3">
-				{#if isAdmin}
+				{#if isAdmin || (item.created_by_user_id == currUserId && !isTempUser)}
 					<div id="edit-bring-list-item" class="flex w-full justify-center">
 						<CrudItem {eventId} {numAttendeesGoing} {item}>
 							<Button

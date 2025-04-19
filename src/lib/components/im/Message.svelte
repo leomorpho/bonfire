@@ -8,8 +8,8 @@
 		isMobile
 	} from '$lib/utils';
 	import { onDestroy } from 'svelte';
-	import ProfileAvatar from '../ProfileAvatar.svelte';
-	import { and } from '@triplit/client';
+	import ProfileAvatar from '../profile/profile-avatar/ProfileAvatar.svelte';
+	import { and, or, TriplitClient } from '@triplit/client';
 	import { EMOJI_REACTION_TYPE, NotificationType } from '$lib/enums';
 	import MessageContextMenu from './MessageContextMenu.svelte';
 	import { toggleEmojiReaction } from '$lib/emoji';
@@ -97,24 +97,24 @@
 	};
 
 	const markMessageAsSeen = async (messageId: string) => {
-		const client = getFeWorkerTriplitClient($page.data.jwt);
+		const client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
 		let existingNotif: any;
 
 		try {
 			// Fetch the notification
-			const results = await client.fetch(
-				client
-					.query('notifications')
-					.where([
-						and([
-							['user_id', '=', $page.data.user.id],
-							['seen_at', '=', null],
+			const results = await client?.fetch(
+				client?.query('notifications').Where([
+					and([
+						['user_id', '=', $page.data.user.id],
+						['seen_at', '=', null],
+						or([
 							['object_ids', '=', arrayToStringRepresentation([messageId])],
-							['object_type', '=', NotificationType.NEW_MESSAGE]
-						])
+							['object_ids_set', 'has', messageId]
+						]),
+						['object_type', '=', NotificationType.NEW_MESSAGE]
 					])
-					.build()
+				])
 			);
 			if (results.length == 1) {
 				existingNotif = results[0];
@@ -250,7 +250,7 @@
 				{canInteract}
 			>
 				<div
-					class="leading-1.5 flex w-full max-w-[320px] flex-col p-4
+					class="message-data leading-1.5 flex w-full max-w-[320px] flex-col p-4
 			{isOwnMessage ? 'from-me rounded-s-xl rounded-se-xl bg-blue-100 p-4 dark:bg-blue-600' : ''}
 	{!isOwnMessage && !isUnseen
 						? 'from-them rounded-e-xl rounded-ss-xl bg-gray-100 p-4 dark:bg-gray-800'

@@ -53,66 +53,9 @@ if [ "$KAMAL_VERSION" != "$remote_head" ]; then
   exit 1
 fi
 
-# # Check if KAMAL_DESTINATION is set
-# if [ ! -z "$KAMAL_DESTINATION" ]; then
-#   echo "🛠️ KAMAL_DESTINATION is set to $KAMAL_DESTINATION"
-
-#   # Load environment variables from the appropriate secrets file
-#   if [ "$KAMAL_DESTINATION" = "staging" ]; then
-#     echo "🔐 Loading secrets for Staging..."
-#     if [ -f ".kamal/secrets.staging" ]; then
-#       # Filter out comments and empty lines before exporting
-#       while IFS= read -r line; do
-#         # Skip empty lines and lines that start with #
-#         if [[ ! "$line" =~ ^# && ! -z "$line" ]]; then
-#           export "$line"
-#         fi
-#       done < ".kamal/secrets.staging"
-#     else
-#       echo "❌ ERROR: Secrets file for Staging not found at ~/.kamal/secrets.staging!"
-#       exit 1
-#     fi
-#   elif [ "$KAMAL_DESTINATION" = "prod" ]; then
-#     echo "🔐 Loading secrets for Production..."
-#     if [ -f ".kamal/secrets.prod" ]; then
-#       # Filter out comments and empty lines before exporting
-#       while IFS= read -r line; do
-#         # Skip empty lines and lines that start with #
-#         if [[ ! "$line" =~ ^# && ! -z "$line" ]]; then
-#           export "$line"
-#         fi
-#       done < ".kamal/secrets.prod"
-#     else
-#       echo "❌ ERROR: Secrets file for Production not found at ~/.kamal/secrets.prod!"
-#       exit 1
-#     fi
-#   else
-#     echo "❌ ERROR: Invalid KAMAL_DESTINATION value! It must be either 'staging' or 'prod'."
-#     exit 1
-#   fi
-# fi
-
-# # Ensure required env vars exist
-# if [ -z "$TURSO_DB_URL" ]; then
-#   echo "❌ ERROR: TURSO_DB_URL is not set!"
-#   exit 1
-# fi
-
-# if [ -z "$TURSO_DB_AUTH_TOKEN" ]; then
-#   echo "❌ ERROR: TURSO_DB_AUTH_TOKEN is not set!"
-#   exit 1
-# fi
-
-# if [ -z "$TRIPLIT_SERVICE_TOKEN" ]; then
-#   echo "❌ ERROR: TRIPLIT_SERVICE_TOKEN is not set!"
-#   exit 1
-# fi
-
-# if [ -z "$PUBLIC_TRIPLIT_URL" ]; then
-#   echo "❌ ERROR: PUBLIC_TRIPLIT_URL is not set!"
-#   exit 1
-# fi
-
+# Run unit tests
+echo "🧪 Running unit tests..."
+npm run test:unit
 
 # # Run Drizzle migrations locally
 # echo "🔄 Running Drizzle migrations locally..."

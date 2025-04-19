@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { defaultMaxNumGuestsPerAttendee } from './../../enums.ts';
 	import EventStyler from '../event-styles/EventStyler.svelte';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { CalendarDate, type DateValue } from '@internationalized/date';
@@ -12,33 +13,28 @@
 		Palette,
 		Shield,
 		BookCheck,
-		Save
+		Save,
+		Undo2
 	} from 'lucide-svelte';
 	import DoubleDigitsPicker from '$lib/components/DoubleDigitsPicker.svelte';
 	import TimezonePicker from '$lib/components/TimezonePicker.svelte';
 	import Datepicker from '$lib/components/Datepicker.svelte';
 	import AmPmPicker from '$lib/components/AmPmPicker.svelte';
-	import {
-		getFeHttpTriplitClient,
-		getFeWorkerTriplitClient,
-		upsertUserAttendance,
-		waitForUserId
-	} from '$lib/triplit';
+	import { getFeWorkerTriplitClient, waitForUserId } from '$lib/triplit';
 	import { goto } from '$app/navigation';
 	import type { TriplitClient } from '@triplit/client';
-	import { EventFormType, Status } from '$lib/enums';
+	import { defaultMaxEventCapacity, EventFormType, Status } from '$lib/enums';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 	import {
 		overlayColorStore,
 		overlayOpacityStore,
-		parseColor,
-		stylesGallery,
 		styleStore,
-		randomSort
+		fontStore,
+		getNextTheme,
+		getNextFont
 	} from '$lib/styles';
 	import { generatePassphraseId } from '$lib/utils';
-	import ChevronLeft from 'svelte-radix/ChevronLeft.svelte';
 	import LocationInput from '../input/location/LocationInput.svelte';
 	import EventAdminEditor from '../EventAdminEditor.svelte';
 	import { debounce } from 'lodash-es';
@@ -51,12 +47,13 @@
 	import TipTapTextEditor from '../input/tiptap/TipTapTextEditor.svelte';
 	import MaxCapacity from './MaxCapacity.svelte';
 	import GuestCountFeature from './GuestCountFeature.svelte';
+	import { upsertUserAttendance } from '$lib/rsvp';
+	import type { FontSelection } from '$lib/types';
+	import { BellRing, Info, PaintBucket, RefreshCw, TypeOutline } from '@lucide/svelte';
+	import * as Tabs from '$lib/components/ui/tabs/index.js';
+	import EventReminders from './reminders/EventReminders.svelte';
 
 	let { mode, event = null, currUserId = null } = $props();
-
-	const editingMainEvent = 'editing_main_event';
-	const editingStyles = 'editing_styles';
-	const editingAdmins = 'editing_admins';
 
 	// ✅ Form Fields
 	let eventName: string = $state(event?.title ?? ''); // State for event name
@@ -72,15 +69,16 @@
 	let endHour = $state(''); // State for hour
 	let endMinute = $state(''); // State for minute
 	let ampmEnd: string = $state('PM'); // State for AM/PM
-	let maxCapacity: number | null = $state(event?.max_capacity);
-	let maxNumGuest: number | null = $state(event?.max_num_guests_per_attendee ?? 0);
+	let maxCapacity: number | null = $state(event?.max_capacity ?? defaultMaxEventCapacity);
+	let maxNumGuest: number | null = $state(
+		event?.max_num_guests_per_attendee ?? defaultMaxNumGuestsPerAttendee
+	);
 	let latitude: number | null = $state(event?.latitude);
 	let longitude: number | null = $state(event?.longitude);
 
 	// ✅ State Variables
 	let client: TriplitClient;
 	let eventId = $state(event?.id);
-	let currentEventEditingMode = $state(editingMainEvent);
 	let cancelUrl = $state(event && event.id ? `/bonfire/${event.id}` : '/');
 	let timezone = $state({});
 	let setEndTime = $state(false);
@@ -95,11 +93,13 @@
 		!(dateValue && eventName.length > 0 && startHour.length > 0) || !event || isEventSaving
 	);
 
-	const defaultBackground = randomSort(stylesGallery)[0].cssTemplate;
-	console.log('defaultBackground', defaultBackground);
+	let defaultBackground = getNextTheme();
+	let defaultFont: FontSelection = getNextFont();
+
 	let finalStyleCss: string = $state(event?.style ?? defaultBackground);
 	let overlayColor: string = $state(event?.overlay_color ?? '#000000');
 	let overlayOpacity: number = $state(event?.overlay_opacity ?? 0.4);
+	let font: FontSelection | null = $state(event?.font ? JSON.parse(event?.font) : defaultFont);
 
 	let eventStartDatetime: Date | null = $state(null);
 	let eventEndDatetime: Date | null = $state(null);
@@ -112,9 +112,18 @@
 	let userIsOutOfLogs = $derived(!numLogsLoading && numLogs == 0 && event && !event.isPublished);
 	let userFavoriteNonProfitId = $state(null);
 
+	const getRandomTheme = () => {
+		finalStyleCss = getNextTheme();
+	};
+
+	const getRandomFont = () => {
+		font = getNextFont();
+	};
+
 	$effect(() => {
 		console.log('userFavoriteNonProfitId', userFavoriteNonProfitId);
 	});
+
 	// Build eventStartDatetime dynamically
 	$effect(() => {
 		if (dateValue && startHour) {
@@ -163,30 +172,6 @@
 	$effect(() => {
 		if (!eventCreated && eventName && eventStartDatetime) {
 			createEvent(false);
-		}
-	});
-
-	// NOTE: this is a hack and I dont like it. The way to go is refactor the code in EventStyler so it's reusable.
-	$effect(() => {
-		if (finalStyleCss) {
-			// Replace the placeholder selector with the actual target
-			const completeCss = `
-		.bg-color-selector {
-			${finalStyleCss}
-		}
-
-		.bg-overlay-selector {
-				background-color: rgba(var(--overlay-color-rgb, ${parseColor(overlayColor)}), ${overlayOpacity});
-			}
-		`;
-
-			// console.log('applying css', completeCss);
-
-			// Create a new <style> tag for the selected preview style
-			const styleElement = document.createElement('style');
-			styleElement.type = 'text/css';
-			styleElement.textContent = completeCss;
-			document.head.appendChild(styleElement);
 		}
 	});
 
@@ -269,12 +254,21 @@
 		}
 	}
 
+	function generateSecureId(length = 12) {
+		const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+		let result = '';
+		const charactersLength = characters.length;
+		for (let i = 0; i < length; i++) {
+			result += characters.charAt(crypto.getRandomValues(new Uint32Array(1))[0] % charactersLength);
+		}
+		return result;
+	}
+
 	const createEvent = async (createTransaction = false) => {
 		if (isEventSaving) {
 			return;
 		}
 		isEventSaving = true;
-		const feHttpClient = getFeHttpTriplitClient($page.data.jwt);
 		try {
 			eventCreated = true;
 
@@ -284,7 +278,7 @@
 				showError = true;
 				return;
 			}
-			eventId = await generatePassphraseId('', 48);
+			eventId = await generateSecureId(20);
 
 			const eventData = {
 				id: eventId,
@@ -298,6 +292,7 @@
 				style: finalStyleCss || '',
 				overlay_color: overlayColor || '#000000',
 				overlay_opacity: overlayOpacity || 0.4,
+				font: JSON.stringify(font) || null,
 				max_capacity: maxCapacity || null,
 				max_num_guests_per_attendee: maxNumGuest || 0,
 				non_profit_id: userFavoriteNonProfitId || null,
@@ -306,8 +301,7 @@
 			};
 			console.log('🔍 Event Data being sent to insert:', JSON.stringify(eventData, null, 2));
 
-			const { output } = await feHttpClient.insert('events', eventData);
-			event = output;
+			event = await client.http.insert('events', eventData);
 
 			// Create a transaction if the user has enough logs remaining
 			if (checkCanCreateTransaction(userIsOutOfLogs, createTransaction, isEventPublished)) {
@@ -332,8 +326,7 @@
 
 	const updateEvent = async (createTransaction = false, publishEventNow = null) => {
 		try {
-			const feHttpClient = getFeHttpTriplitClient($page.data.jwt);
-			await feHttpClient.update('events', event.id, async (entity) => {
+			await client.http.update('events', event.id, async (entity) => {
 				entity.title = eventName;
 				entity.description = details || null;
 				entity.location = location;
@@ -343,13 +336,13 @@
 				entity.style = finalStyleCss;
 				entity.overlay_color = overlayColor;
 				entity.overlay_opacity = overlayOpacity;
+				entity.font = JSON.stringify(font) || null;
 				entity.max_capacity = maxCapacity;
 				entity.max_num_guests_per_attendee = maxNumGuest || 0;
 				entity.latitude = latitude;
 				entity.longitude = longitude;
 				entity.is_published = publishEventNow ?? isEventPublished;
 			});
-			console.log('UPDATING', latitude, longitude);
 
 			if (checkCanCreateTransaction(userIsOutOfLogs, createTransaction, isEventPublished)) {
 				event = await createBonfireTransaction(eventId);
@@ -378,6 +371,7 @@
 		styleStore.set(finalStyleCss);
 		overlayColorStore.set(overlayColor);
 		overlayOpacityStore.set(overlayOpacity);
+		fontStore.set(font);
 
 		if (!event || eventId) {
 			goto(`/dashboard`);
@@ -434,20 +428,6 @@
 		);
 	};
 
-	const startEditEventStyle = () => {
-		currentEventEditingMode = editingStyles;
-	};
-	const stopEditEventStyle = () => {
-		currentEventEditingMode = editingMainEvent;
-	};
-
-	const startEditAdmins = () => {
-		currentEventEditingMode = editingAdmins;
-	};
-	const stopEditAdmins = () => {
-		currentEventEditingMode = editingMainEvent;
-	};
-
 	function capitalize(str: string) {
 		return str.charAt(0).toUpperCase() + str.slice(1);
 	}
@@ -456,6 +436,7 @@
 		styleStore.set(finalStyleCss);
 		overlayColorStore.set(overlayColor);
 		overlayOpacityStore.set(overlayOpacity);
+		fontStore.set(font);
 
 		(async () => {
 			// NOTE: for testing
@@ -467,16 +448,11 @@
 		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
 		const unsubscribeFromUserLogsQuery = client.subscribe(
-			client
-				.query('user')
-				.where(['id', '=', $page.data.user.id])
-				.include('user_log_tokens')
-				.build(),
+			client.query('user').Where(['id', '=', $page.data.user.id]).Include('user_log_tokens'),
 			(results) => {
-				console.log('results', results);
-				console.log('results[0].favourite_non_profit_id', results[0].favourite_non_profit_id);
-				if (results[0].user_log_tokens) {
-					numLogs = results[0].user_log_tokens.num_logs;
+				console.log('logs query', results);
+				if (results && results.length > 0) {
+					numLogs = results[0].user_log_tokens?.num_logs ?? 0;
 					userFavoriteNonProfitId = results[0].favourite_non_profit_id;
 					numLogsLoading = false;
 				}
@@ -497,275 +473,281 @@
 </script>
 
 <div class="mx-4 flex flex-col items-center justify-center">
-	{#if currentEventEditingMode == editingMainEvent}
-		<section class="mt-8 w-full sm:w-[450px]">
-			<h2
-				class="mb-2 flex w-full items-center justify-between rounded-xl bg-white p-2 text-lg font-semibold dark:bg-slate-900"
-			>
-				<BackButton url={`/bonfire/${eventId}`} />
-				<div>
-					{mode === EventFormType.CREATE
-						? capitalize(EventFormType.CREATE)
-						: capitalize(EventFormType.UPDATE)} a Bonfire
+	<section class="px-3 sm:px-0 mt-8 w-full sm:w-[450px] lg:w-[600px]">
+		<Tabs.Root value="info" class="w-full">
+			<div class="sticky top-2 z-50 mt-7 flex w-full justify-center">
+				<div
+					class="mb-2 flex w-full items-center justify-between rounded-xl bg-white p-2 text-lg font-semibold dark:bg-slate-900"
+				>
+					<BackButton url={eventId ? `/bonfire/${eventId}` : '/dashboard'} />
+					<Tabs.List class="w-min animate-in fade-in zoom-in dark:bg-slate-700 dark:text-white">
+						<Tabs.Trigger
+							id="event-info-tab"
+							value="info"
+							class="focus:outline-none focus-visible:ring-0 data-[state=active]:bg-cyan-500 data-[state=active]:text-white dark:data-[state=active]:bg-cyan-600"
+							><Info class="h-4 w-4 sm:h-5 sm:w-5" /></Tabs.Trigger
+						>
+						<Tabs.Trigger
+							id="event-styles-tab"
+							value="styles"
+							class="focus:outline-none focus-visible:ring-0 data-[state=active]:bg-cyan-500 data-[state=active]:text-white dark:data-[state=active]:bg-cyan-600"
+							><Palette class="h-4 w-4 sm:h-5 sm:w-5" /></Tabs.Trigger
+						>
+						<Tabs.Trigger
+							id="event-admins-tab"
+							value="admins"
+							class="focus:outline-none focus-visible:ring-0 data-[state=active]:bg-cyan-500 data-[state=active]:text-white dark:data-[state=active]:bg-cyan-600"
+							><Shield class="h-4 w-4 sm:h-5 sm:w-5" /></Tabs.Trigger
+						>
+						<Tabs.Trigger
+							id="event-reminders-tab"
+							value="reminders"
+							class="focus:outline-none focus-visible:ring-0 data-[state=active]:bg-cyan-500 data-[state=active]:text-white dark:data-[state=active]:bg-cyan-600"
+							><BellRing class="h-4 w-4 sm:h-5 sm:w-5" /></Tabs.Trigger
+						>
+					</Tabs.List>
+					<div></div>
 				</div>
-				<div></div>
-			</h2>
-			<form class="space-y-2">
-				{#if userIsOutOfLogs && !isEventPublished}
-					<OutOfLogs />
-				{:else if !isEventPublished}
-					<div class="flex justify-center">
-						<div
-							class="rounded-lg bg-slate-300 bg-opacity-70 p-1 px-2 text-xs shadow-lg dark:bg-slate-600 dark:bg-opacity-70"
-						>
-							You have
+			</div>
 
-							{#if numLogsLoading}
-								<LoadingSpinner cls="w-3 h-3 mx-1" />
-							{:else}
-								{numLogs}
-							{/if}
-							logs remaining (1 log = 1 bonfire event)
-						</div>
-					</div>
-				{/if}
-				<Input
-					type="text"
-					placeholder="Event Name"
-					bind:value={eventName}
-					class="w-full bg-white dark:bg-slate-900"
-					oninput={debouncedUpdateEvent}
-				/>
-				<Datepicker bind:value={dateValue} oninput={debouncedUpdateEvent} />
+			<Tabs.Content value="info">
+				<h1
+					class="mb-2 flex w-full justify-center rounded-xl bg-white p-2 text-lg font-semibold dark:bg-slate-900 dark:text-white"
+				>
+					General info
+				</h1>
+				<form class="space-y-2">
+					{#if userIsOutOfLogs && !isEventPublished}
+						<OutOfLogs />
+					{:else if !isEventPublished}
+						<div class="flex justify-center">
+							<div
+								class="rounded-lg bg-slate-300 bg-opacity-70 p-1 px-2 text-xs shadow-lg dark:bg-slate-600 dark:bg-opacity-70"
+							>
+								You have
 
-				<div class="flex flex-row items-center justify-between space-x-4">
-					<!-- Start Time Inputs -->
-					<div class="grid grid-cols-4 items-center gap-2">
-						<Clock
-							class="ml-4 mr-1 h-4 w-4 rounded-xl bg-white text-slate-500 ring-glow dark:bg-slate-900"
-						/>
-						<div class="font-mono">
-							<DoubleDigitsPicker
-								maxValue={12}
-								bind:value={startHour}
-								placeholder="HH"
-								oninput={debouncedUpdateEvent}
-							/>
+								{#if numLogsLoading}
+									<LoadingSpinner cls="w-3 h-3 mx-1" />
+								{:else}
+									{numLogs}
+								{/if}
+								logs remaining (1 log = 1 bonfire event)
+							</div>
 						</div>
-						<div class="font-mono">
-							<DoubleDigitsPicker
-								bind:value={startMinute}
-								placeholder="mm"
-								oninput={debouncedUpdateEvent}
-							/>
-						</div>
-						<div class="w-18">
-							<AmPmPicker
-								onValueChange={(newValue: any) => (ampmStart = newValue)}
-								oninput={debouncedUpdateEvent}
-							/>
-						</div>
-					</div>
-
-					<!-- Toggle Button -->
-					{#if !setEndTime}
-						<Button
-							onclick={() => {
-								setEndTime = true;
-							}}
-							class="text-xs ring-glow dark:bg-slate-900 dark:text-white"
-						>
-							<Plus class="ml-1 mr-1 h-2 w-2" />
-							to
-						</Button>
-					{:else}
-						<Button
-							onclick={() => {
-								setEndTime = false;
-								endHour = '';
-								endMinute = '';
-								ampmEnd = '';
-							}}
-							class="text-xs ring-glow dark:bg-slate-900 dark:text-white"
-						>
-							<Minus class="h-2 w-2" />
-							to
-						</Button>
 					{/if}
-				</div>
+					<div class="mt-3 flex w-full justify-center space-x-2 text-xs">
+						<Button
+							class="justify-centerp-4 flex items-center bg-violet-600 ring-glow hover:bg-violet-500 dark:bg-violet-700 dark:text-white dark:hover:bg-violet-500"
+							onclick={getRandomTheme}
+						>
+							<PaintBucket class="mr-1" />
+							<RefreshCw class="mr-1" />
+						</Button>
+						<Button
+							class="flex items-center justify-center bg-violet-600 p-4 ring-glow hover:bg-violet-500 dark:bg-violet-700 dark:text-white dark:hover:bg-violet-500"
+							onclick={getRandomFont}
+						>
+							<TypeOutline class="mr-1" />
+							<RefreshCw class="mr-1" />
+						</Button>
+					</div>
+					<Input
+						type="text"
+						placeholder="Event Name"
+						bind:value={eventName}
+						class="w-full bg-white dark:bg-slate-900"
+						oninput={debouncedUpdateEvent}
+					/>
+					<Datepicker bind:value={dateValue} oninput={debouncedUpdateEvent} />
 
-				{#if setEndTime}
 					<div class="flex flex-row items-center justify-between space-x-4">
-						<!-- End Time Inputs -->
+						<!-- Start Time Inputs -->
 						<div class="grid grid-cols-4 items-center gap-2">
-							<Clock8
+							<Clock
 								class="ml-4 mr-1 h-4 w-4 rounded-xl bg-white text-slate-500 ring-glow dark:bg-slate-900"
 							/>
-
 							<div class="font-mono">
 								<DoubleDigitsPicker
 									maxValue={12}
-									bind:value={endHour}
+									bind:value={startHour}
 									placeholder="HH"
 									oninput={debouncedUpdateEvent}
 								/>
 							</div>
 							<div class="font-mono">
 								<DoubleDigitsPicker
-									bind:value={endMinute}
+									bind:value={startMinute}
 									placeholder="mm"
 									oninput={debouncedUpdateEvent}
 								/>
 							</div>
 							<div class="w-18">
 								<AmPmPicker
-									onValueChange={(newValue: any) => (ampmEnd = newValue)}
+									onValueChange={(newValue: any) => (ampmStart = newValue)}
 									oninput={debouncedUpdateEvent}
 								/>
 							</div>
 						</div>
 
 						<!-- Toggle Button -->
-
-						<Button class="hidden text-xs ring-glow"></Button>
+						{#if !setEndTime}
+							<Button
+								onclick={() => {
+									setEndTime = true;
+								}}
+								class="text-xs ring-glow dark:bg-slate-900 dark:text-white"
+							>
+								<Plus class="ml-1 mr-1 h-2 w-2" />
+								to
+							</Button>
+						{:else}
+							<Button
+								onclick={() => {
+									setEndTime = false;
+									endHour = '';
+									endMinute = '';
+									ampmEnd = '';
+								}}
+								class="text-xs ring-glow dark:bg-slate-900 dark:text-white"
+							>
+								<Minus class="h-2 w-2" />
+								to
+							</Button>
+						{/if}
 					</div>
-				{/if}
 
-				<TimezonePicker
-					onValueChange={(newValue: any) => (timezone = newValue)}
-					oninput={debouncedUpdateEvent}
-				/>
+					{#if setEndTime}
+						<div class="flex flex-row items-center justify-between space-x-4">
+							<!-- End Time Inputs -->
+							<div class="grid grid-cols-4 items-center gap-2">
+								<Clock8
+									class="ml-4 mr-1 h-4 w-4 rounded-xl bg-white text-slate-500 ring-glow dark:bg-slate-900"
+								/>
 
-				<div class="flex flex-row items-center">
-					<LocationInput
-						bind:location
-						bind:geocodedLocation
-						bind:latitude
-						bind:longitude
-						onSave={debouncedUpdateEvent}
+								<div class="font-mono">
+									<DoubleDigitsPicker
+										maxValue={12}
+										bind:value={endHour}
+										placeholder="HH"
+										oninput={debouncedUpdateEvent}
+									/>
+								</div>
+								<div class="font-mono">
+									<DoubleDigitsPicker
+										bind:value={endMinute}
+										placeholder="mm"
+										oninput={debouncedUpdateEvent}
+									/>
+								</div>
+								<div class="w-18">
+									<AmPmPicker
+										onValueChange={(newValue: any) => (ampmEnd = newValue)}
+										oninput={debouncedUpdateEvent}
+									/>
+								</div>
+							</div>
+
+							<!-- Toggle Button -->
+
+							<Button class="hidden text-xs ring-glow"></Button>
+						</div>
+					{/if}
+
+					<TimezonePicker
+						onValueChange={(newValue: any) => (timezone = newValue)}
+						oninput={debouncedUpdateEvent}
 					/>
+
+					<div class="flex flex-row items-center">
+						<LocationInput
+							bind:location
+							bind:geocodedLocation
+							bind:latitude
+							bind:longitude
+							onSave={debouncedUpdateEvent}
+						/>
+					</div>
+					
+					<TipTapTextEditor
+						bind:content={details}
+						oninput={debouncedUpdateEvent}
+						class="bg-white dark:bg-slate-900"
+					/>
+					<MaxCapacity oninput={debouncedUpdateEvent} bind:value={maxCapacity} />
+					<GuestCountFeature oninput={debouncedUpdateEvent} bind:value={maxNumGuest} />
+				</form>
+				<div class="my-10 flex md:w-full justify-center">
+					<div class="grid w-full grid-cols-2 gap-2">
+						<a class="flex w-full" href={cancelUrl}>
+							<Button
+								class="w-full ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-700"
+							>
+								<Undo2 class="ml-1 mr-1 h-4 w-4" /> Cancel
+							</Button>
+						</a>
+
+						{#if isEventCreated && !isEventPublished}
+							<Button
+								disabled={submitDisabled}
+								type="submit"
+								class={`w-full ${submitDisabled ? 'bg-slate-400 dark:bg-slate-600' : 'bg-blue-600 hover:bg-blue-500 dark:bg-blue-700 dark:hover:bg-blue-600'} ring-glow dark:text-white`}
+								onclick={() => {
+									updateEvent().then(() => {
+										redirectToDashboard();
+									});
+								}}
+							>
+								<ArrowDownToLine class="ml-1 mr-1 h-4 w-4" />Save Draft
+							</Button>
+						{/if}
+						{#if !userIsOutOfLogs || isEventPublished}
+							<Button
+								id="upsert-bonfire"
+								disabled={submitDisabled}
+								type="submit"
+								class={`w-full ${submitDisabled ? 'bg-slate-400 dark:bg-slate-600' : 'bg-green-600 hover:bg-green-500 dark:bg-green-700 dark:hover:bg-green-600'} ring-glow dark:text-white`}
+								onclick={(e) => {
+									handleSubmit(e, true);
+								}}
+							>
+								{#if isEventSaving}
+									<span class="loading loading-spinner loading-xs ml-2"> </span>
+								{/if}
+								{#if isEventPublished}
+									<Save class="ml-1 mr-1 h-4 w-4" />
+									Save
+								{:else}
+									<BookCheck class="ml-1 mr-1 h-4 w-4" />
+									Publish
+								{/if}
+							</Button>
+						{/if}
+						{#if isEventPublished}
+							<UnpublishEventBtn {submitDisabled} eventId={event.id} />
+						{/if}
+						{#if mode == EventFormType.UPDATE && event && currUserId == event.user_id}
+							<DeleteEventBtn
+								{submitDisabled}
+								{currUserId}
+								eventCreatorUserId={event.user_id}
+								eventId={event.id}
+							/>
+						{/if}
+					</div>
 				</div>
-				<!-- <TextAreaAutoGrow
-					cls={'bg-white dark:bg-slate-900'}
-					placeholder="Details"
-					bind:value={details}
-					oninput={debouncedUpdateEvent}
-				/> -->
-				<TipTapTextEditor
-					bind:content={details}
-					oninput={debouncedUpdateEvent}
-					class="bg-white dark:bg-slate-900 "
-				/>
-				<MaxCapacity oninput={debouncedUpdateEvent} bind:value={maxCapacity} />
-				<GuestCountFeature oninput={debouncedUpdateEvent} bind:value={maxNumGuest} />
-			</form>
+			</Tabs.Content>
+			<Tabs.Content value="styles">
+				<EventStyler {eventId} bind:finalStyleCss bind:overlayColor bind:overlayOpacity bind:font />
+			</Tabs.Content>
+			<Tabs.Content value="admins">
+				<EventAdminEditor eventId={event?.id} {currUserId} eventCreatorId={event?.user_id} />
+			</Tabs.Content>
+			<Tabs.Content value="reminders">
+				<EventReminders {eventId} {eventName} />
+			</Tabs.Content>
+		</Tabs.Root>
+	</section>
 
-			<div class="mt-5 grid w-full grid-cols-1 gap-2 sm:grid-cols-2">
-				<Button
-					class="justify-centerp-4 flex items-center ring-glow dark:bg-slate-700 dark:text-white dark:hover:bg-slate-500"
-					onclick={startEditEventStyle}
-				>
-					<Palette class="mr-1" />
-					Edit event style
-				</Button>
-				<Button
-					class="flex items-center justify-center p-4 ring-glow dark:bg-slate-700 dark:text-white dark:hover:bg-slate-500"
-					disabled={!event || event?.user_id != currUserId}
-					onclick={startEditAdmins}
-				>
-					<Shield class="mr-1" />
-					Edit admins
-				</Button>
-			</div>
-		</section>
-		<div class="my-10 w-full sm:w-[450px]">
-			<a href={cancelUrl}>
-				<Button
-					class="sticky top-2 mt-2 w-full ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-700"
-				>
-					Cancel
-				</Button>
-			</a>
-			{#if isEventCreated && !isEventPublished}
-				<Button
-					disabled={submitDisabled}
-					type="submit"
-					class={`sticky top-2 mt-2 w-full ${submitDisabled ? 'bg-slate-400 dark:bg-slate-600' : 'bg-blue-500 hover:bg-blue-400 dark:bg-blue-700 dark:hover:bg-blue-600'} ring-glow dark:text-white`}
-					onclick={() => {
-						updateEvent().then(() => {
-							redirectToDashboard();
-						});
-					}}
-				>
-					<ArrowDownToLine class="ml-1 mr-1 h-4 w-4" />Save Draft
-				</Button>
-			{/if}
-			{#if !userIsOutOfLogs || isEventPublished}
-				<Button
-					id="upsert-bonfire"
-					disabled={submitDisabled}
-					type="submit"
-					class={`sticky top-2 mt-2 w-full ${submitDisabled ? 'bg-slate-400 dark:bg-slate-600' : 'bg-green-500 hover:bg-green-400 dark:bg-green-700 dark:hover:bg-green-600'} ring-glow dark:text-white`}
-					onclick={(e) => {
-						handleSubmit(e, true);
-					}}
-				>
-					{#if isEventSaving}
-						<span class="loading loading-spinner loading-xs ml-2"> </span>
-					{/if}
-					{#if isEventPublished}
-						<Save class="ml-1 mr-1 h-4 w-4" />
-						Save
-					{:else}
-						<BookCheck class="ml-1 mr-1 h-4 w-4" />
-						Publish
-					{/if}
-				</Button>
-			{/if}
-			<div class="flex space-x-1">
-				{#if isEventPublished}
-					<UnpublishEventBtn {submitDisabled} eventId={event.id} />
-				{/if}
-				{#if mode == EventFormType.UPDATE && event && currUserId == event.user_id}
-					<DeleteEventBtn
-						{submitDisabled}
-						{currUserId}
-						eventCreatorUserId={event.user_id}
-						eventId={event.id}
-					/>
-				{/if}
-			</div>
-		</div>
-	{:else if currentEventEditingMode == editingStyles}
-		<div class="md:7/8 w-5/6">
-			<div class="sticky top-2 mt-2 flex justify-center">
-				<Button
-					class="w-full bg-violet-500 ring-glow hover:bg-violet-400 dark:bg-violet-700 dark:text-white dark:hover:bg-violet-600 sm:w-[450px]"
-					onclick={stopEditEventStyle}
-				>
-					<ChevronLeft class="mr-1" />
-
-					Back
-				</Button>
-			</div>
-
-			<EventStyler bind:finalStyleCss bind:overlayColor bind:overlayOpacity />
-		</div>
-	{:else if currentEventEditingMode == editingAdmins}
-		<div class="md:7/8 w-5/6">
-			<div class="sticky top-2 mt-2 flex justify-center">
-				<Button
-					class="w-full bg-violet-500 ring-glow hover:bg-violet-400 dark:bg-violet-700 dark:text-white dark:hover:bg-violet-600 sm:w-[450px]"
-					onclick={stopEditAdmins}
-				>
-					<ChevronLeft class="mr-1" />
-
-					Back
-				</Button>
-			</div>
-			<EventAdminEditor eventId={event?.id} {currUserId} eventCreatorId={event?.user_id} />
-		</div>
-	{/if}
 	{#if showError}
 		<div class="mt-2 rounded-md bg-red-100 p-3 text-red-700">
 			{errorMessage}

@@ -24,7 +24,7 @@
 		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
 		const unsubscribeFromUserLogsQuery = client.subscribe(
-			client.query('user_log_tokens').where(['user_id', '=', $page.data.user.id]).build(),
+			client.query('user_log_tokens').Where(['user_id', '=', $page.data.user.id]),
 			(results) => {
 				loadingNumLogs = false;
 				numLogs = results[0].num_logs;
@@ -43,9 +43,9 @@
 		const unsubscribeUser = client.subscribe(
 			client
 				.query('user')
-				.include('favourite_non_profit')
-				.where(['id', '=', $page.data.user.id])
-				.build(),
+				.Include('favourite_non_profit')
+				.Where(['id', '=', $page.data.user.id])
+				,
 			(result) => {
 				nonProfit = result[0]?.favourite_non_profit || null;
 				console.log('--> result.nonProfit', nonProfit);

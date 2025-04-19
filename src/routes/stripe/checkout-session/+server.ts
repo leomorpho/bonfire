@@ -19,7 +19,7 @@ export async function POST({ url, request, locals }): Promise<Response> {
 	}
 
 	const userLogsTokenObject = await triplitHttpClient.fetchOne(
-		triplitHttpClient.query('user_log_tokens').where(['user_id', '=', user.id]).build()
+		triplitHttpClient.query('user_log_tokens').Where(['user_id', '=', user.id])
 	);
 
 	if (!userLogsTokenObject) {

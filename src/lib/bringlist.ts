@@ -20,7 +20,7 @@ export async function createBringItem(
 	quantityNeeded: number,
 	details: string
 ): Promise<object> {
-	const { output } = await client.insert('bring_items', {
+	const output = await client.insert('bring_items', {
 		event_id: eventId,
 		name,
 		unit,
@@ -52,12 +52,7 @@ export async function updateBringItem(
 	}>
 ): Promise<object> {
 	// Ensure the user is an admin
-	const item = await client.fetchOne(
-		client
-			.query('bring_items')
-			.where([['id', '=', itemId]])
-			.build()
-	);
+	const item = await client.fetchOne(client.query('bring_items').Where([['id', '=', itemId]]));
 	if (!item) throw new Error('Item not found');
 
 	const updatedItem = await client.update('bring_items', itemId, (item) => {
@@ -74,17 +69,28 @@ export async function updateBringItem(
  * @param {string} userId - The admin deleting the item.
  * @returns {Promise<void>}
  */
-export async function deleteBringItem(client: WorkerClient, itemId: string): Promise<void> {
-	// Ensure the user is an admin
-	const item = await client.fetchOne(
-		client
-			.query('bring_items')
-			.where([['id', '=', itemId]])
-			.build()
-	);
-	if (!item) throw new Error('Item not found');
+export async function deleteBringItemAndAssignments(
+	client: WorkerClient,
+	itemId: string
+): Promise<void> {
+	try {
+		// Fetch all related bring_assignments
+		const assignments = await client.fetch(
+			client.query('bring_assignments').Where([['bring_item_id', '=', itemId]])
+		);
 
-	await client.delete('bring_items', itemId);
+		// Delete each assignment
+		for (const assignment of assignments) {
+			await client.delete('bring_assignments', assignment.id);
+		}
+
+		// Delete the bring_item
+		await client.delete('bring_items', itemId);
+
+		console.log('Bring item and related assignments deleted successfully.');
+	} catch (error) {
+		console.error('Error deleting bring item and assignments:', error);
+	}
 }
 
 /**
@@ -97,7 +103,7 @@ export async function deleteBringItem(client: WorkerClient, itemId: string): Pro
  * @returns {Promise<object>} - The newly created assignment.
  */
 export async function assignBringItem(
-	client: WorkerClient,
+	client: WorkerClient | HttpClient,
 	itemId: string,
 	assignedToUserId: string | null,
 	assignedToTempUserId: string | null,
@@ -108,15 +114,10 @@ export async function assignBringItem(
 		throw new Error('bring item must be assigned to a user or a temp user');
 	}
 	// Ensure the item exists
-	const item = await client.fetchOne(
-		client
-			.query('bring_items')
-			.where([['id', '=', itemId]])
-			.build()
-	);
+	const item = await client.fetchOne(client.query('bring_items').Where([['id', '=', itemId]]));
 	if (!item) throw new Error('Item not found');
 
-	const { output } = await client.insert('bring_assignments', {
+	const output = await client.insert('bring_assignments', {
 		bring_item_id: itemId,
 		assigned_to_user_id: assignedToUserId,
 		assigned_to_temp_attendee_id: assignedToTempUserId,
@@ -143,10 +144,7 @@ export async function updateBringAssignment(
 ): Promise<object> {
 	// Ensure the assignment exists
 	const assignment = await client.fetchOne(
-		client
-			.query('bring_assignments')
-			.where([['id', '=', assignmentId]])
-			.build()
+		client.query('bring_assignments').Where([['id', '=', assignmentId]])
 	);
 	if (!assignment) throw new Error('Assignment not found');
 
@@ -170,10 +168,7 @@ export async function deleteBringAssignment(
 ): Promise<void> {
 	// Ensure the assignment exists
 	const assignment = await client.fetchOne(
-		client
-			.query('bring_assignments')
-			.where([['id', '=', assignmentId]])
-			.build()
+		client.query('bring_assignments').Where([['id', '=', assignmentId]])
 	);
 	if (!assignment) throw new Error('Assignment not found');
 

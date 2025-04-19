@@ -58,7 +58,7 @@ test('Create bonfire', async ({ page }) => {
 	const eventName = `${faker.animal.dog()} birthday party!`;
 	const details = `Join us for ${eventName} It will be a fun evening filled with dog treats!`;
 
-	await expect(page.getByRole('heading', { name: 'Create a Bonfire' })).toBeVisible();
+	await expect(page.getByRole('heading', { name: 'General info' })).toBeVisible();
 	await expect(page.getByPlaceholder('Event Name')).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Pick a date' })).toBeVisible();
 	await expect(page.getByPlaceholder('HH')).toBeVisible();
@@ -67,7 +67,7 @@ test('Create bonfire', async ({ page }) => {
 	await expect(page.getByRole('button', { name: 'to' }).first()).toBeVisible();
 	await expect(page.getByText('Enter event address...')).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Cancel' })).toBeVisible();
-	await expect(page.getByRole('button', { name: 'Edit event style' })).toBeVisible();
+	await expect(page.locator('#event-styles-tab')).toBeVisible();
 
 	// Check that create button is disabled
 	await expect(page.locator('#upsert-bonfire')).toBeDisabled();
@@ -156,7 +156,7 @@ test('Create bonfire', async ({ page }) => {
 
 	await expect(page.locator('#going-attendees').locator('.profile-avatar')).toHaveCount(0);
 	// And set back to "going"
-	await page.getByText('Not going').last().click();
+	await page.locator('#rsvp-button').getByText('Not going').click();
 	await page.getByRole('menuitem', { name: 'Going', exact: true }).click();
 	await expect(page.locator('#rsvp-button').first()).toHaveText('Going');
 	await expect(page.locator('#going-attendees').locator('.profile-avatar')).toHaveCount(1);
@@ -164,7 +164,7 @@ test('Create bonfire', async ({ page }) => {
 	await page.locator('#add-to-calendar').click();
 	await expect(page.getByRole('menuitem', { name: 'Google Calendar' })).toBeVisible();
 	await expect(page.getByRole('menuitem', { name: 'Outlook Calendar' })).toBeVisible();
-	await expect(page.getByRole('menuitem', { name: 'Apple Calendar (.ics)' })).toBeVisible();
+	await expect(page.getByRole('menuitem', { name: 'Apple Calendar' })).toBeVisible();
 
 	// Click on share button
 	await expect(page.getByRole('button', { name: 'Share Bonfire' })).toBeVisible();
@@ -199,13 +199,13 @@ test('Create bonfire', async ({ page }) => {
 
 	// Go to edit page and set background
 	await page.locator('#edit-bonfire').getByRole('button').click();
-	await page.getByRole('button', { name: 'Edit event style' }).click();
+	await page.locator('#event-styles-tab').click();
+
 	await page.getByRole('button', { name: 'Optical Illusion Pattern', exact: true }).click();
-	await page.getByText('Edit overlay').click();
-	await expect(page.getByText('Overlay', { exact: true })).toBeVisible();
+
+	await page.locator('#edit-overlay').click();
 	await expect(page.getByRole('button', { name: 'Clear' })).toBeVisible();
-	await page.getByRole('button', { name: 'chevron left Back' }).click();
-	await page.locator('#upsert-bonfire').click();
+	await page.locator("#back-page-navigation").click();
 
 	// Verify address as it used to be mangled (possible bug again) when coming back from edit page
 	await page.locator('#share-location').click();
@@ -480,7 +480,7 @@ test('Temp attendee view', async ({ browser }) => {
 	await expect(tempAttendeePage.getByRole('menuitem', { name: 'Google Calendar' })).toBeVisible();
 	await expect(tempAttendeePage.getByRole('menuitem', { name: 'Outlook Calendar' })).toBeVisible();
 	await expect(
-		tempAttendeePage.getByRole('menuitem', { name: 'Apple Calendar (.ics)' })
+		tempAttendeePage.getByRole('menuitem', { name: 'Apple Calendar' })
 	).toBeVisible();
 	await tempAttendeePage.keyboard.press('Escape'); // Close dropdown
 
@@ -506,10 +506,12 @@ test('Temp attendee view', async ({ browser }) => {
 	).toBeVisible();
 	await expect(tempAttendeePage.getByText('This action cannot be undone')).toBeVisible();
 	await tempAttendeePage.getByRole('button', { name: 'Continue' }).click();
-	await expect(tempAttendeePage.locator('.gallery-item')).toHaveCount(1);
+	await tempAttendeePage.reload();
+	await expect(tempAttendeePage.locator('.gallery-item')).toHaveCount(1, { timeout: 30000 });
 
 	// See if event owner can see the remove user screen
-	await eventCreatorPage.locator('#going-attendees').locator('.profile-avatar').click();
+	await eventCreatorPage.locator('.back-button').first().click();
+	await eventCreatorPage.locator('#going-attendees .profile-avatar.temp-user').click();
 	await expect(
 		eventCreatorPage.getByRole('button', { name: 'Remove user from event' })
 	).toBeVisible();
@@ -521,6 +523,8 @@ test('Temp attendee view', async ({ browser }) => {
 	await expect(eventCreatorPage.getByRole('button', { name: 'Yes, remove' })).toBeVisible();
 	await expect(eventCreatorPage.getByRole('button', { name: 'Cancel' })).toBeVisible();
 	await eventCreatorPage.getByRole('button', { name: 'cross 2 Close' }).click();
+
+	// TODO: update the num of guests a temp is bringing
 });
 
 test('Temp -> normal attendee transformation', async ({ browser }) => {
@@ -613,12 +617,10 @@ test('Event admins', async ({ browser }) => {
 
 	// Now event creator will add above attendee as an admin
 	await eventCreatorPage.locator('#edit-bonfire').getByRole('button').click();
-	await eventCreatorPage.getByRole('button', { name: 'Edit admins' }).click();
-	await expect(eventCreatorPage.getByRole('heading', { name: 'Add an admin' })).toBeVisible();
-	await expect(
-		eventCreatorPage.getByRole('button', { name: 'Admin Permissions Toggle' })
-	).toBeVisible();
-	await eventCreatorPage.getByRole('button', { name: 'Admin Permissions Toggle' }).click();
+	await eventCreatorPage.locator("#event-admins-tab").click();
+	
+	await eventCreatorPage.getByRole('button', { name: 'What can admins do? Toggle' }).click();
+
 	await expect(eventCreatorPage.getByText('Modify event details')).toBeVisible();
 	await expect(eventCreatorPage.getByText('Remove attendees')).toBeVisible();
 	await expect(eventCreatorPage.getByText('No admins yet')).toBeVisible();
@@ -713,9 +715,11 @@ test('Bring list items', async ({ browser }) => {
 	await eventCreatorPage.getByPlaceholder('5').fill('5');
 	const bringItemDetails = 'Because dogs are fantastic';
 	await eventCreatorPage
-		.getByRole('textbox', { name: 'We need enough to feed 5' })
+		.getByRole('textbox', {
+			name: "Any details you'd like to add"
+		})
 		.fill(bringItemDetails);
-	await eventCreatorPage.getByLabel('Add list item').getByRole('button', { name: 'Add' }).click();
+	await eventCreatorPage.getByRole('button', { name: 'Add' }).click();
 	await expect(
 		eventCreatorPage.locator('.bring-list-item-btn').getByRole('button', { name: 'Dogs' })
 	).toBeVisible();
@@ -733,7 +737,9 @@ test('Bring list items', async ({ browser }) => {
 	await eventCreatorPage.locator('#edit-bring-list-item').click();
 	const bringItemDetailsImproved = bringItemDetails + ', but cats are ok';
 	await eventCreatorPage
-		.getByRole('textbox', { name: 'We need enough to feed 5' })
+		.getByRole('textbox', {
+			name: "Any details you'd like to add"
+		})
 		.fill(bringItemDetailsImproved);
 	await eventCreatorPage.getByRole('button', { name: 'Save Changes' }).click();
 	// Let event creator bring 1 dog
@@ -745,6 +751,15 @@ test('Bring list items', async ({ browser }) => {
 		el.value = 1;
 		el.dispatchEvent(new Event('input', { bubbles: true })); // Ensure event triggers
 	});
+	await slider.evaluate((el) => {
+		el.value = 1;
+		el.dispatchEvent(new Event('input', { bubbles: true })); // Ensure event triggers
+	});
+	await expect(eventCreatorPage.getByText('bringing 1', { exact: true })).toHaveCount(1, {
+		timeout: 2000
+	});
+	await expect(eventCreatorPage.getByText("You're bringing 1 of this")).toBeVisible();
+
 	await eventCreatorPage.getByRole('button', { name: 'Submit' }).click();
 
 	// Let temp attendee bring one dog, and verify the details is updated
@@ -763,6 +778,8 @@ test('Bring list items', async ({ browser }) => {
 		el.value = 1;
 		el.dispatchEvent(new Event('input', { bubbles: true })); // Ensure event triggers
 	});
+	// await expect(eventCreatorPage.getByText('bringing for')).toHaveCount(2, { timeout: 2000 });
+
 	await tempAttendeePage.getByRole('button', { name: 'Submit' }).click();
 
 	// Check event owner can see who's bringing what
@@ -770,8 +787,10 @@ test('Bring list items', async ({ browser }) => {
 		.locator('.bring-list-item-btn')
 		.getByRole('button', { name: 'Dogs' })
 		.click();
-	await expect(eventCreatorPage.getByText('bringing for')).toHaveCount(2, { timeout: 2000 });
-	await expect(eventCreatorPage.getByText("You're bringing enough for 1 person")).toBeVisible();
+	await expect(eventCreatorPage.getByText('bringing 1', { exact: true })).toHaveCount(2, {
+		timeout: 2000
+	});
+	await expect(eventCreatorPage.getByText("You're bringing 1 of this")).toBeVisible();
 
 	// Have event owner delete bring list item and check it's gone
 	await eventCreatorPage.locator('#edit-bring-list-item').click();
@@ -861,16 +880,13 @@ test('Add logs', async ({ page }) => {
 	await expect(page.getByRole('button', { name: '$5 for 10 logs' })).toBeVisible();
 
 	const userEntry = await serverTriplitClient.fetchOne(
-		serverTriplitClient.query('user').where('username', '=', username).build()
+		serverTriplitClient.query('user').Where('username', '=', username)
 	);
 	expect(userEntry).not.toBeNull();
 	console.log('userEntry ====>', userEntry);
 
 	const userLogTokenEntry = await serverTriplitClient.fetchOne(
-		serverTriplitClient
-			.query('user_log_tokens')
-			.where('user_id', '=', userEntry?.id as string)
-			.build()
+		serverTriplitClient.query('user_log_tokens').Where('user_id', '=', userEntry?.id as string)
 	);
 	expect(userLogTokenEntry).not.toBeNull();
 	console.log('userLogTokenEntry ====>', userLogTokenEntry);
@@ -888,5 +904,274 @@ test('Add logs', async ({ page }) => {
 	await expect(page.getByText('You have 6 logs remaining.')).toBeVisible();
 });
 
+test('Messaging', async ({ browser }) => {
+	const context1 = await browser.newContext();
+	const context2 = await browser.newContext();
+	const eventCreatorPage = await context1.newPage();
+	const attendeePage = await context2.newPage();
+
+	await eventCreatorPage.goto(WEBSITE_URL);
+
+	// Create event from creator POV
+	const eventOwnerEmail = faker.internet.email();
+	const eventOwnerUsername = faker.person.firstName();
+	await loginUser(eventCreatorPage, eventOwnerEmail, eventOwnerUsername);
+
+	const eventName = `${faker.animal.dog()} birthday party!`;
+	const eventDetails = 'It will be fun!';
+	await createBonfire(eventCreatorPage, eventName, eventDetails, 1);
+	await expect(eventCreatorPage.getByRole('heading', { name: eventName })).toBeVisible();
+
+	const eventUrl = eventCreatorPage.url();
+	await eventCreatorPage.locator('#discussions-tab').click();
+
+	// Sign up user
+	const adminEmail = faker.internet.email();
+	const adminUsername = faker.person.firstName();
+	await loginUser(attendeePage, adminEmail, adminUsername);
+
+	await attendeePage.goto(eventUrl);
+	await expect(attendeePage.getByText('1 going')).toBeVisible();
+	await attendeePage.getByText('RSVP', { exact: true }).click();
+	await attendeePage.locator('#rsvp-button-going').click();
+	await attendeePage.getByText("Let's go!", { exact: true }).click();
+
+	// Create message interaction
+	await attendeePage.locator('#discussions-tab').click();
+
+	await attendeePage.getByRole('textbox', { name: 'Write a message...' }).click();
+	await attendeePage.getByRole('textbox', { name: 'Write a message...' }).fill('Hey there baby!');
+	await attendeePage.getByRole('button', { name: 'Send Message' }).click();
+
+	// Ensure the button is visible from both people
+	await expect(
+		attendeePage.locator('.message-data').filter({ hasText: 'Hey there baby!' })
+	).toBeVisible();
+	await expect(attendeePage.getByText('No more messages.')).toBeVisible();
+
+	await expect(
+		eventCreatorPage.locator('.message-data').filter({ hasText: 'Hey there baby!' })
+	).toBeVisible();
+	await expect(eventCreatorPage.getByText('No more messages.')).toBeVisible();
+
+	// Hover over the message container to trigger the emoji picker rendering
+	const messageContainer = attendeePage
+		.locator('div[role="button"]')
+		.filter({ has: attendeePage.locator('.message-data').filter({ hasText: 'Hey there baby!' }) });
+	await messageContainer.hover();
+
+	// Wait for the emoji picker to be visible
+	await expect(messageContainer.locator('.emoji-picker')).toBeVisible();
+
+	// Click the emoji-picker within the message container
+	await messageContainer.locator('.emoji-picker').click();
+	await attendeePage.getByRole('menuitem', { name: '😀, grinning face, grinning,' }).click();
+	await expect(attendeePage.getByText('😀').first()).toBeVisible();
+	await expect(eventCreatorPage.getByText('😀').first()).toBeVisible();
+
+	// Send another message from the event creator's POV
+	await eventCreatorPage.getByRole('textbox', { name: 'Write a message...' }).click();
+	await eventCreatorPage
+		.getByRole('textbox', { name: 'Write a message...' })
+		.fill('Looking forward to it!');
+	await eventCreatorPage.getByRole('button', { name: 'Send Message' }).click();
+
+	// Ensure the new message is visible from both users
+	await expect(
+		eventCreatorPage.locator('.message-data').filter({ hasText: 'Looking forward to it!' })
+	).toBeVisible();
+	await expect(
+		attendeePage.locator('.message-data').filter({ hasText: 'Looking forward to it!' })
+	).toBeVisible();
+});
+
+test('Delete/Leaving attendees', async ({ browser }) => {
+	const context1 = await browser.newContext();
+	const context2 = await browser.newContext();
+	const context3 = await browser.newContext();
+	const eventCreatorPage = await context1.newPage();
+	const attendeePage = await context2.newPage();
+	const tempAttendeePage = await context3.newPage();
+
+	await eventCreatorPage.goto(WEBSITE_URL);
+
+	// Create event from creator POV
+	const eventOwnerEmail = faker.internet.email();
+	const eventOwnerUsername = faker.person.firstName();
+	await loginUser(eventCreatorPage, eventOwnerEmail, eventOwnerUsername);
+
+	const eventName = `${faker.animal.dog()} birthday party!`;
+	const eventDetails = 'It will be fun!';
+	await createBonfire(eventCreatorPage, eventName, eventDetails, 1);
+	await expect(eventCreatorPage.getByRole('heading', { name: eventName })).toBeVisible();
+
+	const eventUrl = eventCreatorPage.url();
+
+	// Sign up user
+	const attendeeEmail = faker.internet.email();
+	const attendeeUsername = faker.person.firstName();
+	await loginUser(attendeePage, attendeeEmail, attendeeUsername);
+
+	// Set user as going
+	await attendeePage.goto(eventUrl);
+	await attendeePage.getByText('RSVP', { exact: true }).click();
+	await attendeePage.locator('#rsvp-button-going').click();
+	await attendeePage.getByText("Let's go!", { exact: true }).click();
+
+	// Set temp user as going
+	const tempAttendeeName = faker.person.firstName();
+	await navigateTo(tempAttendeePage, eventUrl);
+	await tempAttendeePage.getByText('RSVP', { exact: true }).click();
+	await tempAttendeePage.getByRole('menuitem', { name: 'Going', exact: true }).click();
+	await tempAttendeePage.getByPlaceholder('Tony Garfunkel').click();
+	await tempAttendeePage.getByPlaceholder('Tony Garfunkel').fill(tempAttendeeName);
+	await tempAttendeePage.getByRole('button', { name: 'Generate URL' }).click();
+	await expect(tempAttendeePage.getByRole('heading', { name: 'Hey There!' })).toBeVisible();
+
+	// -----------------------------------
+	// PART 1: make user leave event
+	await attendeePage.getByText('Going', { exact: true }).click();
+	await attendeePage.locator('#rsvp-button-leave').click();
+
+	// User should not see event in dashboard anymore
+	await expect(attendeePage.locator('.event-card')).toHaveCount(0, { timeout: 1000 });
+
+	// Verify admin
+	await eventCreatorPage.locator('#see-attendees-dialog').click();
+	await expect(eventCreatorPage.getByText('Only visible to admins')).toBeVisible();
+
+	await expect(eventCreatorPage.getByRole('heading', { name: '1 left' })).toBeVisible();
+
+	// Reset user as going
+	await attendeePage.goto(eventUrl);
+	await attendeePage.getByText('RSVP', { exact: true }).click();
+	await attendeePage.locator('#rsvp-button-going').click();
+	await attendeePage.getByText("Let's go!", { exact: true }).click();
+
+	// No need for temp attendee page anymore, close it
+	await tempAttendeePage.close();
+
+	// -----------------------------------
+	// PART 2: remove temp and full user from event
+
+	// Locate the dialog and scope the locator to it
+	const attendeesDialog = eventCreatorPage.getByRole('dialog', { name: 'Attendees' });
+
+	// Locate and click the profile avatar for the temporary attendee within the dialog
+	await attendeesDialog
+		.locator('.profile-avatar')
+		.filter({ hasText: tempAttendeeName.substring(0, 2) })
+		.first()
+		.click();
+
+	// Proceed with the removal steps for the temporary attendee
+	await eventCreatorPage.getByRole('button', { name: 'Remove user from event' }).click();
+	await eventCreatorPage.getByRole('button', { name: 'Yes, remove' }).click();
+
+	// Ensure the dialog is still visible (if necessary)
+	await expect(attendeesDialog).toBeVisible();
+
+	// Locate and click the profile avatar for the full attendee within the dialog
+	await attendeesDialog
+		.locator('.profile-avatar')
+		.filter({ hasText: attendeeUsername.substring(0, 2) })
+		.first()
+		.click();
+
+	// Proceed with the removal steps for the full attendee
+	await eventCreatorPage.getByRole('button', { name: 'Remove user from event' }).click();
+	await eventCreatorPage.getByRole('button', { name: 'Yes, remove' }).click();
+
+	await expect(eventCreatorPage.getByRole('heading', { name: '2 removed' })).toBeVisible();
+
+	// -----------------------------------
+	// PART 3: Have admin look at history
+
+	// Locate and click the profile avatar for the full attendee within the dialog
+	await eventCreatorPage
+		.locator('.profile-avatar')
+		.filter({ hasText: attendeeUsername.substring(0, 2) })
+		.first()
+		.click();
+
+	await eventCreatorPage.locator('.profile-history-tab').click();
+	await expect(
+		eventCreatorPage
+			.getByLabel('History')
+			.getByText(attendeeUsername + ' joined the event with')
+			.first()
+	).toBeVisible();
+
+	await expect(
+		eventCreatorPage
+			.getByLabel('History')
+			.getByText(eventOwnerUsername + ' deleted this user from the event')
+			.first()
+	).toBeVisible();
+
+	// Simulate pressing the Escape key to close the profile popup
+	await eventCreatorPage.keyboard.press('Escape');
+
+	// Locate and click the profile avatar for the temporary attendee within the dialog
+	await eventCreatorPage
+		.locator('.profile-avatar')
+		.filter({ hasText: tempAttendeeName.substring(0, 2) })
+		.first()
+		.click();
+
+	await eventCreatorPage.locator('.profile-history-tab').click();
+	await expect(
+		eventCreatorPage
+			.getByLabel('History')
+			.getByText(tempAttendeeName + ' joined the event with')
+			.first()
+	).toBeVisible();
+
+	await expect(
+		eventCreatorPage
+			.getByLabel('History')
+			.getByText(eventOwnerUsername + ' deleted this user from the event')
+			.first()
+	).toBeVisible();
+
+	// Simulate pressing the Escape key to close the profile popup
+	await eventCreatorPage.keyboard.press('Escape');
+	// Simulate pressing the Escape key to close attendees popup
+	await eventCreatorPage.keyboard.press('Escape');
+
+	// Go to events history tab
+	await eventCreatorPage.locator('#history-tab').click();
+	await expect(eventCreatorPage.getByRole('heading', { name: 'History' })).toBeVisible();
+
+	// Check the history there
+	await expect(
+		eventCreatorPage.getByText(tempAttendeeName + ' joined the event with').first()
+	).toBeVisible();
+
+	await expect(
+		eventCreatorPage
+			.getByText(`${eventOwnerUsername} deleted ${tempAttendeeName} from the event`)
+			.first()
+	).toBeVisible();
+
+	await expect(
+		eventCreatorPage.getByText(attendeeUsername + ' joined the event with').first()
+	).toBeVisible();
+
+	await expect(
+		eventCreatorPage
+			.getByText(`${eventOwnerUsername} deleted ${attendeeUsername} from the event`)
+			.first()
+	).toBeVisible();
+
+	// -----------------------------------
+	// PART 4: Have removed user try to access the event page again
+	await attendeePage.goto(eventUrl);
+	await expect(
+		attendeePage.getByRole('heading', { name: 'This Event is Unpublished' })
+	).toBeVisible();
+});
+
+// TODO: test event vs global permissions
 // TODO: test max capacity of bonfire
 // TODO: only logged in "users" can message, not temp users

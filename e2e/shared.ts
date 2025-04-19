@@ -44,7 +44,8 @@ export async function loginUser(
 	}
 
 	// Finish onboarding
-	await page.getByRole('button', { name: 'Continue' }).click();
+	await page.locator("#agree-to-free-logs-btn").click();
+	await page.locator("#finish-permission-onboarding-btn").click();
 
 	await page.getByRole('tab', { name: 'Upcoming' }).click();
 	await expect(page.getByRole('link', { name: 'Dashboard' })).toBeVisible();
@@ -114,7 +115,7 @@ export async function createBonfire(
 
 	await page.locator('#create-bonfire-button').click();
 
-	await expect(page.getByRole('heading', { name: 'Create a Bonfire' })).toBeVisible();
+	await expect(page.getByRole('heading', { name: 'General info' })).toBeVisible();
 	await expect(page.getByPlaceholder('Event Name')).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Pick a date' })).toBeVisible();
 	await expect(page.getByPlaceholder('HH')).toBeVisible();
@@ -123,7 +124,7 @@ export async function createBonfire(
 	await expect(page.getByRole('button', { name: 'to' }).first()).toBeVisible();
 	await expect(page.getByText('Enter event address...')).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Cancel' })).toBeVisible();
-	await expect(page.getByRole('button', { name: 'Edit event style' })).toBeVisible();
+	await expect(page.locator('#event-styles-tab')).toBeVisible();
 
 	// Enter info and date
 	await page.getByPlaceholder('Event Name').click();
@@ -144,8 +145,9 @@ export async function createBonfire(
 	await page.getByPlaceholder('1600 Pennsylvania Avenue,').fill('15 rue du luxembourg, mouscron');
 	await page.getByText('Rue du Luxembourg 15, 7700').click();
 
-	if (maxGuestsPerAttendee > 0) {
-		await page.getByRole('checkbox', { name: 'Enable attendees bringing' }).click();
+	if (maxGuestsPerAttendee == 0) {
+		await page.getByRole('checkbox', { name: 'Let attendees bring guests' }).click();
+	} else {
 		await page.locator('#maxNumberOfGuestsPerAttendeeInput').click();
 		await page.locator('#maxNumberOfGuestsPerAttendeeInput').fill('05');
 	}

@@ -11,7 +11,7 @@
 	} = $props();
 </script>
 
-<div class="flex w-full justify-between space-x-2">
+<div class="flex w-full items-center justify-between space-x-2">
 	<AddressInput bind:location bind:geocodedLocation {onSave} />
 	<MapMarkerInput bind:geocodedLocation bind:latitude bind:longitude {onSave} />
 </div>

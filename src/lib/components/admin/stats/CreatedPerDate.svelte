@@ -53,7 +53,7 @@
 		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
 		const unsubscribe = client.subscribe(
-			client.query(modelName).select([dateFieldName]).order(dateFieldName, 'DESC').build(),
+			client.query(modelName).Select([dateFieldName]).Order(dateFieldName, 'DESC'),
 			(results) => {
 				timeSeries = createTimeSeries(results);
 				console.log('timeSeries for', modelName, timeSeries);

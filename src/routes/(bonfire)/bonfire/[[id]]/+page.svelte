@@ -21,9 +21,7 @@
 	let eventLocation = $derived(event?.location);
 	let eventNumAttendeesGoing = $derived($page.data.numAttendingGoing);
 	let bannerInfo: BannerInfo = $state($page.data.bannerInfo);
-	let maxNumGuestsAllowedPerAttendee: number = $state(
-		$page.data.event.max_num_guests_per_attendee ?? 0
-	);
+	let maxNumGuestsAllowedPerAttendee: number = $state(event?.max_num_guests_per_attendee ?? 0);
 
 	if (tempAttendeeId) {
 		tempAttendeeSecretStore.set(tempAttendeeId);

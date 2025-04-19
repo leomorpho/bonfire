@@ -29,9 +29,9 @@
 			<AlertDialog.Title>Reset Local Data?</AlertDialog.Title>
 			<AlertDialog.Description>
 				<div class="mb-5 font-semibold">
-					If you're experiencing issues, this can help by restoring default settings.
+					If you're experiencing issues, this can help by resetting your local app data.
 				</div>
-				This will reset app data on this device. Your saved data will sync back when you log in again.
+				Your saved data will sync back when you log back in.
 			</AlertDialog.Description>
 		</AlertDialog.Header>
 		<AlertDialog.Footer>

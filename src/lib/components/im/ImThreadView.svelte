@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { createNewThread, getThread, MAIN_THREAD, sendMessage } from '$lib/im';
-	import { getFeWorkerTriplitClient } from '$lib/triplit';
+	import { getFeHttpTriplitClient, getFeWorkerTriplitClient } from '$lib/triplit';
 	import { onDestroy, onMount } from 'svelte';
 	import ImInput from './ImInput.svelte';
 	import type { WorkerClient } from '@triplit/client/worker-client';
@@ -9,7 +9,7 @@
 	import Button from '../ui/button/button.svelte';
 	import { ChevronDown } from 'lucide-svelte';
 	import SvgLoader from '../SvgLoader.svelte';
-	import { and } from '@triplit/client';
+	import { and, TriplitClient } from '@triplit/client';
 	import { stringRepresentationToArray } from '$lib/utils';
 	import { NotificationType } from '$lib/enums';
 	import { loaderState } from './infiniteLoader/loaderState.svelte';
@@ -86,10 +86,10 @@
 	const markNotifAsRead = async (id: string) => {
 		console.log(`marking notification with id ${id} as seen`);
 		try {
-			const client = getFeWorkerTriplitClient($page.data.jwt);
+			const client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
 			// Update the notification to mark it as seen
-			await client.update('notifications', id, async (e: any) => {
+			await client?.update('notifications', id, async (e: any) => {
 				e.seen_at = new Date();
 			});
 
@@ -105,19 +105,19 @@
 	};
 
 	onMount(() => {
-		const client = getFeWorkerTriplitClient($page.data.jwt);
+		const client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
 		let threadMessagesQuery = client.query('event_messages');
 
 		if (threadId) {
-			threadMessagesQuery = threadMessagesQuery.where([
+			threadMessagesQuery = threadMessagesQuery.Where([
 				and([
 					['thread_id', '=', threadId],
 					['thread.event_id', '=', eventId]
 				])
 			]);
 		} else {
-			threadMessagesQuery = threadMessagesQuery.where([
+			threadMessagesQuery = threadMessagesQuery.Where([
 				and([
 					['thread.name', '=', MAIN_THREAD],
 					['thread.event_id', '=', eventId]
@@ -126,23 +126,18 @@
 		}
 
 		if (maxNumMessages) {
-			threadMessagesQuery = threadMessagesQuery.limit(maxNumMessages);
+			threadMessagesQuery = threadMessagesQuery.Limit(maxNumMessages);
 		} else {
-			threadMessagesQuery = threadMessagesQuery.limit(maxNumMessagesLoadedPerRequest);
+			threadMessagesQuery = threadMessagesQuery.Limit(maxNumMessagesLoadedPerRequest);
 		}
 
 		threadMessagesQuery = threadMessagesQuery
-			.include('user')
-			.include('seen_by', (rel) =>
-				rel('seen_by')
-					.where([['user_id', '=', currUserId]])
-					.build()
+			.Include('user')
+			.Include('seen_by', (rel) => rel('seen_by').Where([['user_id', '=', currUserId]]))
+			.Include('emoji_reactions', (rel) =>
+				rel('emoji_reactions').Select(['id', 'emoji', 'user_id'])
 			)
-			.include('emoji_reactions', (rel) =>
-				rel('emoji_reactions').select(['id', 'emoji', 'user_id']).build()
-			)
-			.order('created_at', 'DESC')
-			.build();
+			.Order('created_at', 'DESC');
 
 		const { unsubscribe: unsubscribeFromMessages, loadMore } = client.subscribeWithExpand(
 			threadMessagesQuery,
@@ -195,7 +190,7 @@
 		const unsubscribeFromUnreadThreadNotifs = client.subscribe(
 			client
 				.query('notifications')
-				.where([
+				.Where([
 					and([
 						['event_id', '=', eventId],
 						['extra_id', '=', threadId],
@@ -204,8 +199,7 @@
 						['object_type', '=', NotificationType.NEW_MESSAGE]
 					])
 				])
-				.select(['id', 'object_ids'])
-				.build(),
+				.Select(['id', 'object_ids', 'object_ids_set']),
 			(results, info) => {
 				// Create an array to store the IDs of messages that are marked as seen
 				const seenMessageIds: Set<string> = new Set();
@@ -221,16 +215,19 @@
 				results.forEach((notification: any) => {
 					const messageIds = stringRepresentationToArray(notification.object_ids);
 					const messageId = messageIds[0];
-					// console.log('==> seenMessageIds', seenMessageIds);
+
 					if (seenMessageIds.has(messageId)) {
-						// console.log(
-						// 	'==> notificationIdsNeedToBeMarkedAsSeen',
-						// 	notificationIdsNeedToBeMarkedAsSeen
-						// );
 						// We need to mark that notification as seen
 						notificationIdsNeedToBeMarkedAsSeen.add(notification.id);
-						notificationIdsNeedToBeMarkedAsSeen = new Set(notificationIdsNeedToBeMarkedAsSeen);
 					}
+
+					const messageIdsSet = notification.object_ids_set;
+					messageIdsSet.forEach((messageId: string) => {
+						if (seenMessageIds.has(messageId)) {
+							// We need to mark that notification as seen
+							notificationIdsNeedToBeMarkedAsSeen.add(notification.id);
+						}
+					});
 				});
 			},
 			(error) => {
@@ -241,9 +238,9 @@
 			{
 				localOnly: false,
 				onRemoteFulfilled: () => {
-					console.log(
-						"server has sent back results for the unread notifications for this thread's subscription"
-					);
+					// console.log(
+					// 	"server has sent back results for the unread notifications for this thread's subscription"
+					// );
 				}
 			}
 		);
@@ -313,7 +310,7 @@
 	};
 
 	const handleSendMessage = async (message: string) => {
-		const client = getFeWorkerTriplitClient($page.data.jwt);
+		const client = getFeHttpTriplitClient($page.data.jwt);
 
 		try {
 			if (!threadId) {
@@ -369,7 +366,7 @@
 	};
 </script>
 
-<div class="relative flex h-full w-full flex-col">
+<div id="messenger" class="relative flex h-full w-full flex-col">
 	<div
 		id="scroller"
 		bind:this={chatContainerRef}
@@ -394,7 +391,7 @@
 				{/snippet}
 
 				{#snippet noData()}
-					<p>No more messages.</p>
+					<p class="text-base">No more messages.</p>
 				{/snippet}
 				{#each messages as message (message.id)}
 					<Message

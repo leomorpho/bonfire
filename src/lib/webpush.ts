@@ -7,7 +7,7 @@ import { dev } from '$app/environment';
 import { notificationPermissionTable, pushSubscriptionTable } from './server/database/schema';
 import { eq } from 'drizzle-orm';
 import { db } from './server/database/db';
-import type { PermissionValue } from './server/push';
+import type { PermissionValue } from './server/notifications';
 import { triplitHttpClient } from './server/triplit';
 
 if (
@@ -41,13 +41,12 @@ async function hasExceededUnreadNotificationLimitInTimeframe(
 	const unreadNotifications = await triplitHttpClient.fetch(
 		triplitHttpClient
 			.query('notifications')
-			.where([
+			.Where([
 				['user_id', '=', userId],
 				['seen_at', '=', null],
 				['created_at', '>=', timeFrameAgo]
 			])
-			.select(['id'])
-			.build()
+			.Select(['id'])
 	);
 
 	// Return true if the number of unread notifications exceeds the limit
@@ -63,43 +62,17 @@ async function hasExceededUnreadNotificationLimitInTimeframe(
 export async function sendPushNotification(
 	userId: string,
 	payload: { title: string; body: string; icon?: string; badge?: number },
-	requiredPermissions: PermissionValue[] // Array of required permissions
+	rateLimitEnabled = true
 ): Promise<void> {
-	if (await hasExceededUnreadNotificationLimitInTimeframe(userId)) {
+	if (rateLimitEnabled && (await hasExceededUnreadNotificationLimitInTimeframe(userId))) {
 		// Don't send any new push notification.
-		return;
-	}
-	// Check user permissions
-	const userPermissions = await db
-		.select({
-			oneDayReminder: notificationPermissionTable.oneDayReminder,
-			eventActivity: notificationPermissionTable.eventActivity
-		})
-		.from(notificationPermissionTable)
-		.where(eq(notificationPermissionTable.userId, userId));
-
-	if (!userPermissions.length) {
-		// console.debug(`No permissions found for user ID: ${userId}`);
-		return;
-	}
-
-	// Check if user has at least one required permission
-	const hasPermission = requiredPermissions.some((permission) => userPermissions[0][permission]);
-
-	if (!hasPermission) {
-		// console.debug(`User ID: ${userId} does not have required permissions.`);
 		return;
 	}
 
 	// Fetch subscriptions for the given userId
-	const subscriptions = await db
-		.select({
-			endpoint: pushSubscriptionTable.endpoint,
-			p256dh: pushSubscriptionTable.p256dh,
-			auth: pushSubscriptionTable.auth
-		})
-		.from(pushSubscriptionTable)
-		.where(eq(pushSubscriptionTable.userId, userId));
+	const subscriptions = await triplitHttpClient.fetch(
+		triplitHttpClient.query('push_subscription_registrations').Where(['user.id', '=', userId])
+	);
 
 	if (!subscriptions.length) {
 		// console.info(`No push subscriptions found for user ID: ${userId}`);
@@ -117,7 +90,7 @@ export async function sendPushNotification(
 	// Define VAPID options
 	const options = {
 		vapidDetails: {
-			subject: `mailto:${env.env.PUBLIC_FROM_EMAIL}`,
+			subject: `mailto:${publicEnv.PUBLIC_FROM_EMAIL}`,
 			publicKey,
 			privateKey
 		},
@@ -132,8 +105,8 @@ export async function sendPushNotification(
 			const pushSubscription = {
 				endpoint: subscription.endpoint,
 				keys: {
-					p256dh: subscription.p256dh,
-					auth: subscription.auth
+					p256dh: subscription.p256dh ?? '', // TODO: should we not just return here if it's empty?
+					auth: subscription.auth ?? ''
 				}
 			};
 
@@ -145,9 +118,4 @@ export async function sendPushNotification(
 			}
 		})
 	);
-	if (dev) {
-		console.log(
-			'Push NOTIFICAITON ############################################################################'
-		);
-	}
 }

@@ -1,6 +1,6 @@
 import { Status } from '$lib/enums.js';
+import { createAttendeeId } from '$lib/rsvp';
 import { triplitHttpClient } from '$lib/server/triplit.js';
-import { createAttendeeId } from '$lib/utils';
 import { redirect } from '@sveltejs/kit';
 
 // Step 2: Implement the form load function
@@ -16,14 +16,12 @@ export const load = async (event) => {
 	// sure they show up on the dashboard since we list by attendance object.
 	const eventQuery = triplitHttpClient
 		.query('events')
-		.where('user_id', '=', user.id)
-		.subquery(
+		.Where('user_id', '=', user.id)
+		.SubqueryOne(
 			'self_attendance',
-			triplitHttpClient.query('attendees').where('user_id', '=', user.id).build()
+			triplitHttpClient.query('attendees').Where('user_id', '=', user.id)
 		)
-		.include('attendees')
-		.build();
-
+		.Include('attendees'); // TODO: this is repetitive (from the subquery)
 	const events = await triplitHttpClient.fetch(eventQuery);
 
 	// Process each event and conditionally insert attendance

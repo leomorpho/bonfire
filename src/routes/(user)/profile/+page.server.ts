@@ -12,12 +12,12 @@ export const load = async (event) => {
 
 	const query = triplitHttpClient
 		.query('user')
-		.include('profile_image')
-		.include('user_log_tokens')
+		.Include('profile_image')
+		.Include('user_log_tokens')
 
-		.where('id', '=', user.id)
-		// .select(['full_image_key', 'small_image_key']) // TODO: select bug in http client
-		.build();
+		.Where('id', '=', user.id)
+		// .Select(['full_image_key', 'small_image_key']) // TODO: select bug in http client
+		;
 
 	const userWithProfileImage = await triplitHttpClient.fetchOne(query);
 

@@ -47,7 +47,7 @@ export async function GET({ url, request }): Promise<Response> {
 	const tempAttendeeId = url.searchParams.get(tempAttendeeSecretParam);
 
 	const triplitUser = await triplitHttpClient.fetchOne(
-		triplitHttpClient.query('user').where('id', '=', user.id).build()
+		triplitHttpClient.query('user').Where('id', '=', user.id)
 	);
 
 	let existingAttendee = null;

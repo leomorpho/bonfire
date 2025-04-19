@@ -15,8 +15,8 @@
 	import * as Card from '$lib/components/ui/card/index.js';
 	import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
 	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
-	import { createNewAdminNotificationQueueObject } from '$lib/notification';
-	import ProfileAvatar from './ProfileAvatar.svelte';
+	// import { createNewAdminNotificationQueueObject } from '$lib/notification_queue';
+	import ProfileAvatar from './profile/profile-avatar/ProfileAvatar.svelte';
 	import { slide } from 'svelte/transition';
 	import CollapsibleContent from './CollapsibleContent.svelte';
 
@@ -38,15 +38,14 @@
 		const unsubscribeFromEventAttendeesQuery = client.subscribe(
 			client
 				.query('attendees')
-				.where([
+				.Where([
 					and([
 						['event_id', '=', eventId],
 						['user_id', '!=', eventCreatorId] // Exclude the event creator
 					])
 				])
-				.include('admin_role', (rel) => rel('admin_role').include('added_by_user').build())
-				.include('user')
-				.build(),
+				.Include('admin_role', (rel) => rel('admin_role').Include('added_by_user'))
+				.Include('user'),
 			(results) => {
 				// Separate attendees into admins and non-admins
 				currentAdminAttendees = results.filter((attendee) => attendee.admin_role !== null);
@@ -171,16 +170,16 @@
 </script>
 
 <div class="mx-4 mb-16 flex flex-col items-center justify-center">
-	<section class="mt-8 w-full sm:w-[450px]">
+	<section class="w-full sm:w-[450px]">
 		<h1
-			class="mb-5 flex w-full justify-center rounded-xl bg-white p-2 text-lg font-semibold dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
+			class="mb-5 flex w-full justify-center rounded-xl bg-white p-2 text-lg font-semibold dark:bg-slate-900 dark:text-white"
 		>
-			Add an admin
+			Admins
 		</h1>
 		<Collapsible.Root class="mb-5 rounded-lg bg-slate-200/80 dark:bg-slate-800/80 dark:text-white">
 			<Collapsible.Trigger class="flex w-full items-center justify-between space-x-4 px-4">
 				<div class="invisible"></div>
-				<h4 class="text-sm font-semibold">Admin Permissions</h4>
+				<h4 class="text-sm font-semibold">What can admins do?</h4>
 				<Button variant="ghost" size="sm" class="w-9 p-0">
 					<ChevronsUpDown />
 					<span class="sr-only">Toggle</span>
@@ -206,27 +205,6 @@
 					</ul>
 				</div>
 			</CollapsibleContent>
-			<!-- <Collapsible.Content class="space-y-2 py-2" forceMount>
-				<div transition:slide={{ duration: 300 }}>
-					<ul class="ml-5 list-disc pl-5">
-						<li class="rounded-md px-4 py-1 text-sm">Modify event details</li>
-						<li class="rounded-md px-4 py-1 text-sm">
-							Manage announcements (create, update, delete)
-						</li>
-						<li class="rounded-md px-4 py-1 text-sm">Remove attendees</li>
-						<li class="rounded-md px-4 py-1 text-sm">
-							Delete files that don’t belong in the bonfire
-						</li>
-					</ul>
-
-
-					<div class="mt-5 flex justify-center px-4 text-sm font-semibold">Limitations</div>
-					<ul class="ml-5 list-disc pl-5">
-						<li class="rounded-md px-4 py-1 text-sm">Cannot assign or revoke admin roles</li>
-						<li class="rounded-md px-4 py-1 text-sm">Cannot transfer account ownership</li>
-					</ul>
-				</div>
-			</Collapsible.Content> -->
 		</Collapsible.Root>
 
 		<Popover.Root bind:open>
@@ -288,7 +266,9 @@
 			</h1>
 			<div class="space-y-4">
 				{#each currentAdminAttendees as adminAttendee (adminAttendee.user.id)}
-					<Card.Root class="bg-slate-100/80 dark:bg-slate-900/80 dark:text-white dark:hover:bg-slate-800">
+					<Card.Root
+						class="bg-slate-100/80 dark:bg-slate-900/80 dark:text-white dark:hover:bg-slate-800"
+					>
 						<Card.Header>
 							<Card.Title class="flex items-center">
 								<ProfileAvatar userId={adminAttendee.user?.id} baseHeightPx={40} />

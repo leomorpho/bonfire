@@ -3,7 +3,7 @@
 	import { Button } from '../ui/button';
 	import BonfireBanner from './BonfireBanner.svelte';
 	import { formatHumanReadable, formatHumanReadableHour } from '$lib/utils';
-	import ProfileAvatar from '../ProfileAvatar.svelte';
+	import ProfileAvatar from '../profile/profile-avatar/ProfileAvatar.svelte';
 	import ShareLocation from '../ShareLocation.svelte';
 	import Map from '$lib/components/map/Map.svelte';
 	import DOMPurify from 'dompurify';
@@ -44,20 +44,20 @@
 	{/if}
 	<div class="flex w-full justify-center">
 		<h1
-			class="rounded-xl bg-slate-100 p-3 px-5 text-center text-3xl font-bold dark:bg-slate-900 sm:px-10 sm:text-4xl lg:text-5xl"
+			class="rounded-xl bg-slate-100/70 p-3 px-5 text-center text-3xl font-bold dark:bg-slate-900/70 sm:px-10 sm:text-4xl lg:text-5xl"
 		>
 			{eventTitle}
 		</h1>
 	</div>
 
-	<div class="flex w-full md:space-x-3">
-		<div class="hidden lg:block w-full">
+	<div class="flex w-full lg:space-x-3 text-base">
+		<div class="hidden w-full lg:block">
 			<EventDetails {eventDescription} />
 		</div>
 		<div
-			class="h-fit w-full rounded-xl bg-slate-100/90 p-2 pt-5 text-center shadow-lg dark:bg-slate-900/90 lg:max-w-64"
+			class="h-fit w-full rounded-xl bg-slate-100/70 p-2 pt-5 text-center shadow-lg dark:bg-slate-900/70 lg:max-w-64"
 		>
-			<div class="flex items-center justify-center font-medium">
+			<div class="flex w-full items-center justify-center font-medium">
 				<Calendar class="mr-2 !h-4 !w-4 shrink-0" />{formatHumanReadable(eventStartTime)}
 				{#if eventEndTime}to {formatHumanReadableHour(eventEndTime)}{/if}
 			</div>
@@ -85,7 +85,8 @@
 										class="mt-2 flex items-center justify-center rounded-xl bg-slate-100 p-2 dark:bg-slate-800"
 									>
 										{#if eventLocation}
-											{@html DOMPurify.sanitize(eventLocation)}
+											<!-- {@html DOMPurify.sanitize(eventLocation)} -->
+											{@html eventLocation}
 										{:else if latitude && longitude}
 											Get Directions
 										{/if}

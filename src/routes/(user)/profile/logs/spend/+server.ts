@@ -8,6 +8,7 @@ import {
 } from '$lib/enums';
 import { and } from '@triplit/client';
 import type { UserLogToken } from '$lib/types';
+import { createRemindersObjects } from '$lib/triplit';
 
 export const POST: RequestHandler = async ({ request, locals }) => {
 	try {
@@ -26,15 +27,12 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		}
 
 		const transactions = await triplitHttpClient.fetch(
-			triplitHttpClient
-				.query('transactions')
-				.where([
-					and([
-						['user_id', '=', userId],
-						['event_id', '=', event_id]
-					])
+			triplitHttpClient.query('transactions').Where([
+				and([
+					['user_id', '=', userId],
+					['event_id', '=', event_id]
 				])
-				.build()
+			])
 		);
 		if (transactions.length > 0) {
 			throw new Error('a transaction already exists for this bonfire');
@@ -49,9 +47,8 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		const userLogTokens: UserLogToken | null = await triplitHttpClient.fetchOne(
 			triplitHttpClient
 				.query('user_log_tokens')
-				.where('user_id', '=', userId)
-				.select(['id', 'num_logs'])
-				.build()
+				.Where('user_id', '=', userId)
+				.Select(['id', 'num_logs'])
 		);
 
 		if (!userLogTokens) {
@@ -86,8 +83,17 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		});
 
 		const event = await triplitHttpClient.fetchOne(
-			triplitHttpClient.query('events').where('id', '=', event_id).build()
+			triplitHttpClient.query('events').Where('id', '=', event_id)
 		);
+
+		if (event) {
+			await createRemindersObjects(
+				triplitHttpClient,
+				event_id,
+				event?.title,
+				event?.start_time as Date
+			);
+		}
 
 		// Return success response
 		return json({ success: true, event: event }, { status: 201 });

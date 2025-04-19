@@ -2,12 +2,11 @@
 	import { formatHumanReadableWithContext } from '$lib/utils';
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
 
-	let { username, content, created_at, deleted_by_user_id } = $props();
+	let { username, content, created_at, deleted_by_user_id, class: cls = null } = $props();
 </script>
 
 <div
-	class="leading-1.5 flex max-h-[200px] w-full max-w-[320px]
-			flex-col overflow-hidden rounded-s-xl rounded-se-xl bg-blue-100 p-4 dark:bg-blue-600"
+	class={`leading-1.5 flex max-h-[200px] w-full max-w-[320px] flex-col overflow-hidden rounded-s-xl rounded-se-xl bg-blue-100 p-4 dark:bg-blue-600 ${cls}`}
 >
 	<ScrollArea>
 		<div class="flex items-center space-x-2 rtl:space-x-reverse">

@@ -1,16 +1,17 @@
 <script lang="ts">
 	import { getFeWorkerTriplitClient, waitForUserId } from '$lib/triplit';
 	import { onMount } from 'svelte';
-	import type { FetchOptions, TriplitClient } from '@triplit/client';
+	import { and, type TriplitClient } from '@triplit/client';
 	import Loader from '$lib/components/Loader.svelte';
 	import { DatabaseZap, Frown, Plus } from 'lucide-svelte';
 	import EventCard from '$lib/components/EventCard.svelte';
 	import { page } from '$app/stores';
 	import { dev } from '$app/environment';
 	import Button from '$lib/components/ui/button/button.svelte';
-	import PullToRefresh from '$lib/components/PullToRefresh.svelte';
-	import SvgLoader from '$lib/components/SvgLoader.svelte';
+	import PullToRefresh from '$lib/components/settings/PullToRefresh.svelte';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
+	import { Status } from '$lib/enums';
+	import PermissionsPausedMsg from '$lib/components/settings/PermissionsPausedMsg.svelte';
 
 	let client: TriplitClient;
 
@@ -31,57 +32,36 @@
 		const currentDate = new Date();
 		const futureDate = new Date(currentDate.getTime() - 24 * 60 * 60 * 1000); // Add 24 hours in milliseconds
 
-		let query = client
+		return client
 			.query('attendees')
-			.where(['user_id', '=', currUserID])
-			.where('event.start_time', future ? '>=' : '<', futureDate.toISOString());
-
-		return (
-			query
-				.subquery(
-					'organizer_name',
-					client.query('user').where(['id', '=', '$1.event.user_id']).select(['username']).build(),
-					'one'
-				)
-				.include('event')
-				// .subquery(
-				// 	'attendees',
-				// 	client.query('attendees').where(['event_id', '=', '$1.event_id']).select(['status']).build()
-				// )
-				// .subquery(
-				// 	'temporary_attendees',
-				// 	client
-				// 		.query('temporary_attendees')
-				// 		.where(['event_id', '=', '$1.event_id'])
-				// 		.select(['status'])
-				// 		.build()
-				// )
-				.order('event.start_time', 'DESC')
-				.build()
-		);
+			.Where(
+				and([
+					['user_id', '=', currUserID],
+					['status', 'nin', [Status.LEFT, Status.REMOVED]]
+				])
+			)
+			.Where('event.start_time', future ? '>=' : '<', futureDate.toISOString())
+			.Include('event', (rel) =>
+				rel('event').Include('user', (rel) => rel('user').Select(['username']))
+			)
+			.Order('event.start_time', 'ASC');
 	}
 
 	const initEvents = async () => {
 		// let pastAttendanceQuery = createAttendanceQuery(client, userId, true);
-		// console.log('----> ??? ', await client.fetch(pastAttendanceQuery.build()));
+		// console.log('----> ??? ', await client.fetch(pastAttendanceQuery));
 		if (dev) {
-			console.log(
-				'all events this user can see',
-				await client.fetch(client.query('events').build())
-			);
-			console.log('all users this user can see', await client.fetch(client.query('user').build()));
+			console.log('all events this user can see', await client.fetch(client.query('events')));
+			console.log('all users this user can see', await client.fetch(client.query('user')));
 			console.log(
 				'all profile_images this user can see',
-				await client.fetch(client.query('profile_images').build())
+				await client.fetch(client.query('profile_images'))
 			);
-			console.log(
-				'all attendees this user can see',
-				await client.fetch(client.query('attendees').build())
-			);
-			console.log('all files this user can see', await client.fetch(client.query('files').build()));
+			console.log('all attendees this user can see', await client.fetch(client.query('attendees')));
+			console.log('all files this user can see', await client.fetch(client.query('files')));
 			console.log(
 				'all announcement this user can see',
-				await client.fetch(client.query('announcement').build())
+				await client.fetch(client.query('announcement'))
 			);
 		}
 	};
@@ -93,11 +73,6 @@
 			console.error('Failed to get events:', error);
 		});
 
-		const queryOptions = {
-			policy: 'local-and-remote',
-			timeout: 2000 // Optional: Wait for up to 2s before showing local data
-		} as FetchOptions;
-
 		let futureAttendanceQuery = createAttendanceQuery(client, $page.data.user.id, true);
 		let pastAttendanceQuery = createAttendanceQuery(client, $page.data.user.id, false);
 
@@ -106,10 +81,10 @@
 			(results) => {
 				futureAttendances = results;
 				futureEventsLoading = false;
-				console.log('===>, futureAttendances', futureAttendances);
+				// console.log('===>, futureAttendances', futureAttendances);
 			},
 			(error) => {
-				console.error('Error fetching current temporary attendee:', error);
+				console.error('Error fetching future attendances:', error);
 			},
 			{
 				localOnly: false,
@@ -149,6 +124,8 @@
 
 <div class="mx-4 mb-48 flex flex-col items-center justify-center sm:mb-20">
 	<section class="md:2/3 mt-8 w-full sm:w-2/3 md:w-[700px]">
+		<!-- <PermissionsPausedMsg {userId} /> -->
+
 		<Tabs.Root value={activeTab} class="w-full">
 			<div class="flex w-full justify-center">
 				<Tabs.List class="mb-1 w-full bg-transparent animate-in fade-in zoom-in">
@@ -188,13 +165,14 @@
 				{:else}
 					<div>
 						{#each futureAttendances as attendance}
+							{console.log('attendance.event.is_published', attendance.event.is_published)}
 							<div class="my-7 sm:my-10">
 								<EventCard
 									event={attendance.event}
 									{userId}
-									eventCreatorName={attendance.organizer_name['username']}
+									eventCreatorName={attendance.event.user.username}
 									rsvpStatus={attendance.status}
-									isPublished={attendance.event.is_published}
+									isPublished={attendance.event.is_published ?? false}
 									numGuests={attendance.guest_count}
 									maxNumGuestsAllowedPerAttendee={attendance.event.max_num_guests_per_attendee}
 								/>
@@ -205,10 +183,7 @@
 			</Tabs.Content>
 			<Tabs.Content value="discussions" class="mb-2 h-fit w-full">
 				{#if pastEventsLoading}
-					<div class="h-32">
-						<div class="font-mono">Loading...</div>
-						<SvgLoader />
-					</div>
+					<Loader />
 				{:else if pastAttendances.length == 0}
 					<div
 						class="mx-auto mt-10 flex w-full max-w-sm flex-col items-center justify-center gap-2 space-y-5 rounded-lg bg-slate-100 p-6 text-center dark:bg-slate-800 dark:text-white sm:mt-16 sm:w-2/3"
@@ -225,12 +200,10 @@
 								<EventCard
 									event={attendance.event}
 									{userId}
-									eventCreatorName={attendance.organizer_name['username']}
+									eventCreatorName={attendance.event.user.username}
 									rsvpStatus={attendance.status}
-									isPublished={attendance.event.is_published}
+									isPublished={attendance.event.is_published ?? false}
 									numGuests={attendance.guest_count}
-									attendeesStatuses={attendance.attendees}
-									temporaryAttendeesStatuses={attendance.temporary_attendees}
 									maxNumGuestsAllowedPerAttendee={attendance.event.max_num_guests_per_attendee}
 								/>
 							</div>

@@ -5,7 +5,7 @@
 	import { page } from '$app/stores';
 	import { ArrowLeftRight, FlameKindling, HeartHandshake, Pencil, Plus } from 'lucide-svelte';
 	import { getFeWorkerTriplitClient } from '$lib/triplit';
-	import ProfileAvatar from '$lib/components/ProfileAvatar.svelte';
+	import ProfileAvatar from '$lib/components/profile/profile-avatar/ProfileAvatar.svelte';
 	import SvgLoader from '$lib/components/SvgLoader.svelte';
 	import { addUserRequest } from '$lib/profilestore';
 	import FadeIn from '$lib/components/containers/FadeIn.svelte';
@@ -21,10 +21,10 @@
 		const unsubscribeFromUserQuery = client.subscribe(
 			client
 				.query('user')
-				.include('profile_image')
-				.include('user_log_tokens')
-				.where(['id', '=', $page.data.user.id])
-				.build(),
+				.Include('profile_image')
+				.Include('user_log_tokens')
+				.Where(['id', '=', $page.data.user.id])
+				,
 			(results) => {
 				user = results[0];
 				console.log('user', user);
@@ -51,7 +51,7 @@
 </script>
 
 <FadeIn>
-	<div class="mx-2 flex flex-col items-center justify-center">
+	<div class="mx-2 flex flex-col items-center justify-center mb-10">
 		<!-- History of thoughts and moods -->
 		<section class="mt-8 flex w-full flex-col items-center justify-center sm:w-[450px]">
 			<h2 class="my-6 text-2xl font-semibold">My Profile</h2>

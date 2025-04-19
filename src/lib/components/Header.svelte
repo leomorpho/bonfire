@@ -19,6 +19,9 @@
 	import { tick } from 'svelte';
 	import TopBanner from './marketing/TopBanner.svelte';
 
+	if ($page.data.user && $page.data.user.id) {
+		console.log('current user id ->', $page.data.user.id);
+	}
 	async function handleDropdownClick(href: string) {
 		if (href.startsWith('/#')) {
 			const id = href.substring(2);
@@ -97,7 +100,7 @@
 				<Menu class="h-5 w-5 sm:h-5 sm:w-5" />
 			</div>
 		</DropdownMenu.Trigger>
-		<DropdownMenu.Content class="m-2 p-4 dark:bg-slate-950 ">
+		<DropdownMenu.Content class="z-[51] m-2 p-4 dark:bg-slate-950">
 			<DropdownMenu.Group>
 				<!-- <DropdownMenu.Label>My Account</DropdownMenu.Label> -->
 				<!-- <DropdownMenu.Separator /> -->
@@ -130,7 +133,7 @@
 
 <div class="w-full">
 	<Container>
-		<header bind:this={navbarRef} class="navbar py-0 px-0">
+		<header bind:this={navbarRef} class="navbar px-0 py-0">
 			<div class="navbar-start">
 				<Logo />
 			</div>

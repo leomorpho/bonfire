@@ -1,6 +1,6 @@
-import { BringListCountTypes, TransactionType } from '$lib/enums';
+import { BringListCountTypes, HistoryChangesConstants, TransactionType } from '$lib/enums';
 import { MAIN_THREAD } from '$lib/im';
-import { Schema as S, type Roles, type ClientSchema, or, and } from '@triplit/client';
+import { Schema as S, type Roles, or, and } from '@triplit/client';
 
 // Define roles
 export const roles: Roles = {
@@ -28,298 +28,41 @@ export const roles: Roles = {
 	}
 };
 
-export const bringSchema = {
-	bring_items: {
-		schema: S.Schema({
-			id: S.Id(),
-			event_id: S.String(),
-			event: S.RelationById('events', '$event_id'),
-			name: S.String(), // Item name (e.g., "Coca Cola", "Buns", "Beers")
-			unit: S.String({
-				enum: [BringListCountTypes.PER_PERSON, BringListCountTypes.COUNT] as const
-			}),
-			quantity_needed: S.Number(), // How much is requested
-			details: S.String({ nullable: true, default: null }),
-			created_by_user_id: S.String(), // Only admins can create items
-			created_by_user: S.RelationById('user', '$created_by_user_id'),
-			created_at: S.Date({ default: S.Default.now() }),
-			bring_assignments: S.RelationMany('bring_assignments', {
-				where: [['bring_item_id', '=', '$id']]
-			})
-		}),
-		permissions: {
-			user: {
-				read: { filter: [['event.attendees.user_id', '=', '$role.userId']] },
-				insert: {
-					filter: [
-						or([
-							['event.event_admins.user_id', '=', '$role.userId'],
-							['event.user_id', '=', '$role.userId']
-						])
-					]
-				},
-				update: {
-					filter: [
-						or([
-							['event.event_admins.user_id', '=', '$role.userId'],
-							['event.user_id', '=', '$role.userId']
-						])
-					]
-				},
-				delete: {
-					filter: [
-						or([
-							['event.event_admins.user_id', '=', '$role.userId'],
-							['event.user_id', '=', '$role.userId']
-						])
-					]
-				}
-			},
-			temp: {
-				read: {
-					filter: [['event.temporary_attendees.id', '=', '$role.temporaryAttendeeId']]
-				}
-			},
-			anon: {}
-		}
-	},
-	bring_assignments: {
-		schema: S.Schema({
-			id: S.Id(),
-			bring_item_id: S.String(), // Item being assigned
-			bring_item: S.RelationById('bring_items', '$bring_item_id'),
-			assigned_to_user_id: S.String({ nullable: true }),
-			assigned_to_user: S.RelationById('user', '$assigned_to_user_id'),
-			assigned_to_temp_attendee_id: S.String({ nullable: true }),
-			assigned_to_temp_attendee: S.RelationById(
-				'temporary_attendees',
-				'$assigned_to_temp_attendee_id'
-			),
-			assigned_by_user_id: S.String({ nullable: true }), // Who assigned it (null if self-assigned)
-			assigned_by_user: S.Optional(S.RelationById('user', '$assigned_by_user_id')),
-			quantity: S.Number(), // How much they are bringing
-			created_at: S.Date({ default: S.Default.now() })
-		}),
-		permissions: {
-			user: {
-				read: { filter: [['bring_item.event.attendees.user_id', '=', '$role.userId']] },
-				insert: {
-					filter: [
-						or([
-							['bring_item.event.attendees.user_id', '=', '$role.userId'], // Attendees can self-assign
-							['bring_item.event.event_admins.user_id', '=', '$role.userId'], // Admins can assign anyone
-							['bring_item.event.user_id', '=', '$role.userId'] // Event owner can assign anyone
-						])
-					]
-				},
-				update: {
-					filter: [
-						or([
-							['bring_item.event.attendees.user_id', '=', '$role.userId'], // Attendees can self-assign
-							['bring_item.event.event_admins.user_id', '=', '$role.userId'], // Admins can assign anyone
-							['bring_item.event.user_id', '=', '$role.userId'] // Event owner can assign anyone
-						])
-					]
-				},
-				delete: {
-					filter: [
-						or([
-							['assigned_to_user_id', '=', '$role.userId'], // Users can remove their own assignment
-							['bring_item.event.event_admins.user_id', '=', '$role.userId'], // Admins can remove assignments
-							['bring_item.event.user_id', '=', '$role.userId'] // Event owner
-						])
-					]
-				}
-			},
-			temp: {
-				read: {
-					filter: [['bring_item.event.temporary_attendees.id', '=', '$role.temporaryAttendeeId']]
-				},
-				insert: {
-					filter: [['bring_item.event.temporary_attendees.id', '=', '$role.temporaryAttendeeId']]
-				},
-				update: {
-					filter: [['assigned_to_temp_attendee_id', '=', '$role.temporaryAttendeeId']]
-				},
-				delete: {
-					filter: [['assigned_to_temp_attendee_id', '=', '$role.temporaryAttendeeId']]
-				}
-			},
-			anon: {}
-		}
-	}
-} satisfies ClientSchema;
-
-export const userLogsTokenSchema = {
-	user_log_tokens: {
-		schema: S.Schema({
-			id: S.Id(),
-			user_id: S.String(), // User who owns the logs
-			user: S.RelationById('user', '$user_id'), // Relation to the user
-			num_logs: S.Number({ default: 0 }), // Number of logs the user has
-			updated_at: S.Date({ default: S.Default.now() }), // Last updated timestamp
-			stripe_customer_id: S.String({ nullable: true, default: null })
-		}),
-		permissions: {
-			user: {
-				read: {
-					filter: [['user_id', '=', '$role.userId']] // Users can only read their own logs
-				}
-			},
-			admin: {
-				read: { filter: [true] }, // Admins can read all user logs
-				update: { filter: [true] } // Admins can modify user logs
-			},
-			temp: {},
-			anon: {}
-		}
-	},
-	transactions: {
-		schema: S.Schema({
-			id: S.Id(),
-			user_id: S.String(), // User who made the transaction
-			user: S.RelationById('user', '$user_id'), // Relation to the user
-			event_id: S.String({ nullable: true, default: null }),
-			event: S.RelationById('events', '$event_id'),
-			stripe_payment_intent: S.String({ nullable: true, default: null }), // Stripe Payment Intent ID
-			transaction_type: S.String({
-				enum: [
-					TransactionType.PURCHASE,
-					TransactionType.REFUND,
-					TransactionType.BONFIRE_HOSTED
-				] as const
-			}), // Type of transaction
-			num_log_tokens: S.Number(), // Number of logs purchased/refunded
-			total_money_amount: S.Number({ default: null, nullable: true }),
-			currency: S.String({ default: null, nullable: true }),
-			created_at: S.Date({ default: S.Default.now() }) // Timestamp of transaction
-			// user_donation: S.RelationOne('user_donations', {
-			// 	// Link to possible donation
-			// 	where: [['transaction_id', '=', '$id']]
-			// })
-		}),
-		permissions: {
-			user: {
-				read: {
-					filter: [or([['user_id', '=', '$role.userId']])] // Users can only see their own transactions
-				}
-			},
-			admin: {
-				read: { filter: [true] } // Admins can see all transactions
-			},
-			temp: {},
-			anon: {}
-		}
-	}
-} satisfies ClientSchema;
-
-export const donationsSchema = {
-	non_profits: {
-		schema: S.Schema({
-			id: S.Id(),
-			name: S.String(), // Name of the non-profit
-			description: S.String({ nullable: true }), // Short description
-			photo_url: S.String({ nullable: true }), // Public S3 path for a logo/photo
-			website_url: S.String({ nullable: true }), // External website link
-			effective_start_date: S.Date({ default: S.Default.now() }), // When the non-profit became eligible
-			effective_end_date: S.Date({ nullable: true, default: null }), // When the non-profit is no longer eligible
-			created_at: S.Date({ default: S.Default.now() }), // Timestamp when added
-			updated_at: S.Date({ default: S.Default.now() }) // Timestamp for updates
-		}),
-		permissions: {
-			admin: {
-				read: { filter: [true] },
-				insert: { filter: [true] },
-				update: { filter: [true] }
-			},
-			user: {
-				read: {
-					filter: [true]
-				}
-			},
-			temp: {
-				read: {
-					filter: [true]
-				}
-			},
-			anon: {
-				read: {
-					filter: [true]
-				}
-			}
-		}
-	}
-	// user_donations: {
-	// 	schema: S.Schema({
-	// 		id: S.Id(),
-	// 		user_id: S.String(), // User who made the donation
-	// 		user: S.RelationById('user', '$user_id'), // Relation to the user
-	// 		non_profit_id: S.String(), // Chosen non-profit
-	// 		non_profit: S.RelationById('non_profits', '$non_profit_id'), // Relation to non-profits
-	// 		transaction_id: S.String(), // Related payment transaction
-	// 		transaction: S.RelationById('transactions', '$transaction_id'), // Relation to transactions
-	// 		created_at: S.Date({ default: S.Default.now() }) // Timestamp of donation
-	// 	}),
-	// 	permissions: {
-	// 		user: {
-	// 			read: { filter: [['user_id', '=', '$role.userId']] }, // Users can read their own donations
-	// 			insert: { filter: [['user_id', '=', '$role.userId']] } // Users can donate
-	// 		},
-	// 		admin: {
-	// 			read: { filter: [true] } // Admins can view all donations
-	// 		},
-	// 		temp: {},
-	// 		anon: {}
-	// 	}
-	// },
-	// non_profit_payouts: {
-	// 	schema: S.Schema({
-	// 		id: S.Id(),
-	// 		non_profit_id: S.String(), // Non-profit receiving the payout
-	// 		non_profit: S.RelationById('non_profits', '$non_profit_id'), // Relation to non-profits
-	// 		payout_amount: S.Number(), // Total amount paid out (in cents)
-	// 		currency: S.String(), // Currency of payout
-	// 		payout_date: S.Date({ default: S.Default.now() }), // Date when the payout occurred
-	// 		status: S.String({ enum: ['pending', 'completed', 'failed'] as const }), // Payout status
-	// 		transaction_reference: S.String({ nullable: true }) // External payment reference
-	// 	}),
-	// 	permissions: {
-	// 		admin: {
-	// 			read: { filter: [true] }, // Admins can read all payouts
-	// 			insert: { filter: [true] }, // Admins can log payouts
-	// 			update: { filter: [true] } // Admins can update payout status
-	// 		},
-	// 		user: {
-	// 			read: { filter: [false] } // Users cannot see payout logs
-	// 		},
-	// 		temp: {},
-	// 		anon: {}
-	// 	}
-	// }
-} satisfies ClientSchema;
-
 // Define schema with permissions
-export const schema = {
+export const schema = S.Collections({
 	user: {
 		schema: S.Schema({
 			id: S.String(),
 			username: S.String(),
 			is_fully_onboarded: S.Optional(S.Boolean({ default: false })),
+			favourite_non_profit_id: S.Optional(S.String()), // Non-profit the user currently contributes to by default
+			created_at: S.Optional(S.Date({ default: S.Default.now() })),
+			updated_at: S.Optional(S.Date({ default: null, nullable: true }))
+		}),
+		relationships: {
 			profile_image: S.RelationOne('profile_images', {
 				where: [['user_id', '=', '$id']]
 			}),
 			user_log_tokens: S.RelationOne('user_log_tokens', {
 				where: [['user_id', '=', '$id']]
 			}),
+			created_events: S.RelationMany('events', {
+				where: [['user_id', '=', '$id']]
+			}),
+			admin_for_events: S.RelationMany('attendees', {
+				where: [['user_id', '=', '$id']]
+			}),
 			attendances: S.RelationMany('attendees', {
 				where: [['user_id', '=', '$id']]
 			}),
-
-			favourite_non_profit_id: S.Optional(S.String()), // Non-profit the user currently contributes to by default
 			favourite_non_profit: S.RelationById('non_profits', '$favourite_non_profit_id'),
-			created_at: S.Optional(S.Date({ default: S.Default.now() })),
-			updated_at: S.Optional(S.Date({ default: null, nullable: true }))
-		}),
+			delivery_permissions: S.RelationMany('delivery_permissions', {
+				where: [['user_id', '=', '$id']]
+			}),
+			notification_permissions: S.RelationMany('notification_permissions', {
+				where: [['user_id', '=', '$id']]
+			})
+		},
 		permissions: {
 			admin: {
 				read: { filter: [true] }
@@ -356,16 +99,43 @@ export const schema = {
 			anon: {}
 		}
 	},
+	user_personal_data: {
+		schema: S.Schema({
+			id: S.Id(), //
+			user_id: S.String(),
+			email: S.Optional(S.String()),
+			phone_country_code: S.Optional(S.String()),
+			phone_number: S.Optional(S.String())
+		}),
+		relationships: {
+			user: S.RelationById('user', '$user_id') // Relation to the user table
+		},
+		permissions: {
+			user: {
+				read: {
+					filter: [['user_id', '=', '$role.userId']]
+				},
+				insert: { filter: [true] },
+				update: {
+					filter: [['user_id', '=', '$role.userId']]
+				}
+			},
+			temp: {},
+			anon: {}
+		}
+	},
 	profile_images: {
 		schema: S.Schema({
 			id: S.Id(), // Unique ID for the image
 			user_id: S.String(), // ID of the user who owns the image
-			user: S.RelationById('user', '$user_id'), // Relation to the user table
 			full_image_key: S.String(), // Key for the full version of the image
 			small_image_key: S.String(), // Key for the smaller version of the image
 			uploaded_at: S.Date({ default: S.Default.now() }), // Timestamp of upload
 			blurr_hash: S.Optional(S.String({ nullable: true, default: null, optional: true }))
 		}),
+		relationships: {
+			user: S.RelationById('user', '$user_id') // Relation to the user table
+		},
 		permissions: {
 			user: {
 				read: {
@@ -400,6 +170,39 @@ export const schema = {
 			anon: {}
 		}
 	},
+	sent_notification_sms: {
+		schema: S.Schema({
+			id: S.Id(), //
+			user_id: S.String(),
+			type: S.String(),
+			created_at: S.Optional(S.Date({ default: S.Default.now() }))
+		}),
+		relationships: {
+			user: S.RelationById('user', '$user_id') // Relation to the user table
+		},
+		permissions: {
+			user: {},
+			temp: {},
+			anon: {}
+		}
+	},
+	sent_emails: {
+		schema: S.Schema({
+			id: S.Id(), //
+			user_id: S.String(),
+			type: S.String(),
+			secret_token: S.Optional(S.String()),
+			created_at: S.Optional(S.Date({ default: S.Default.now() }))
+		}),
+		relationships: {
+			user: S.RelationById('user', '$user_id') // Relation to the user table
+		},
+		permissions: {
+			user: {},
+			temp: {},
+			anon: {}
+		}
+	},
 	events: {
 		schema: S.Schema({
 			id: S.Id(),
@@ -412,70 +215,62 @@ export const schema = {
 			latitude: S.Optional(S.Number()),
 			longitude: S.Optional(S.Number()),
 			user_id: S.String(),
-			user: S.RelationById('user', '$user_id'),
 			max_num_guests_per_attendee: S.Optional(S.Number({ default: 0 })),
-			attendees: S.RelationMany('attendees', {
-				where: [['event_id', '=', '$id']]
-			}),
-			temporary_attendees: S.RelationMany('temporary_attendees', {
-				where: [['event_id', '=', '$id']]
-			}),
-			announcements: S.RelationMany('announcement', {
-				where: [['event_id', '=', '$id']]
-			}),
-			files: S.RelationMany('files', {
-				where: [['event_id', '=', '$id']]
-			}),
-			banner_media: S.RelationOne('banner_media', {
-				where: [['event_id', '=', '$id']]
-			}),
-			viewers: S.RelationMany('event_viewers', {
-				where: [['event_id', '=', '$id']]
-			}),
-			event_admins: S.RelationMany('event_admins', {
-				where: [['event_id', '=', '$id']]
-			}),
-			bring_items: S.RelationMany('bring_items', {
-				where: [['event_id', '=', '$id']]
-			}),
 			transaction_id: S.Optional(S.String()),
-			transaction: S.RelationOne('transactions', {
-				where: [['event_id', '=', '$id']]
-			}),
 			non_profit_id: S.Optional(S.String({ nullable: true })), // Non-profit the event contributes to
-			non_profit: S.RelationById('non_profits', '$non_profit_id'),
-
 			style: S.String({ nullable: true }),
 			overlay_color: S.String({ nullable: true, optional: true }),
 			overlay_opacity: S.Number({ nullable: true, optional: true }),
+			font: S.Optional(S.String({ nullable: true })),
 			created_at: S.Optional(S.Date({ default: S.Default.now() })),
 			max_capacity: S.Optional(S.Number({ default: null, nullable: true })),
 			is_published: S.Optional(S.Boolean({ default: false }))
 		}),
+		relationships: {
+			user: S.RelationById('user', '$user_id'),
+			event_reminders: S.RelationMany('event_reminders', {
+				where: [['event_id', '=', '$1.id']]
+			}),
+			attendees: S.RelationMany('attendees', {
+				where: [['event_id', '=', '$1.id']]
+			}),
+			temporary_attendees: S.RelationMany('temporary_attendees', {
+				where: [['event_id', '=', '$1.id']]
+			}),
+			announcements: S.RelationMany('announcement', {
+				where: [['event_id', '=', '$1.id']]
+			}),
+			files: S.RelationMany('files', {
+				where: [['event_id', '=', '$1.id']]
+			}),
+			banner_media: S.RelationOne('banner_media', {
+				where: [['event_id', '=', '$1.id']]
+			}),
+			viewers: S.RelationMany('event_viewers', {
+				where: [['event_id', '=', '$1.id']]
+			}),
+			event_admins: S.RelationMany('event_admins', {
+				where: [['event_id', '=', '$1.id']]
+			}),
+			bring_items: S.RelationMany('bring_items', {
+				where: [['event_id', '=', '$1.id']]
+			}),
+			transaction: S.RelationOne('transactions', {
+				where: [['event_id', '=', '$1.id']]
+			}),
+			non_profit: S.RelationById('non_profits', '$1.non_profit_id')
+		},
 		permissions: {
 			admin: {
 				read: { filter: [true] }
-				// insert: { filter: [true] },
-				// update: { filter: [true] }
 			},
 			user: {
 				read: {
 					filter: [
-						and([
-							or([
-								['user_id', '=', '$role.userId'], // User can read their own events
-								['attendees.user_id', '=', '$role.userId'], // A user can see events they are attending
-								['viewers.user_id', '=', '$role.userId'] // Event viewers can see event
-							]),
-							or([
-								['transaction_id', '!=', null],
-								// TODO: below is temporary
-								// TODO: update based on when payment system goes live
-								and([
-									['transaction_id', '=', null],
-									['start_time', '<=', '2025-03-25T00:00:00.000Z']
-								])
-							])
+						or([
+							['user_id', '=', '$role.userId'], // User can read their own events
+							['attendees.user_id', '=', '$role.userId'], // A user can see events they are attending
+							['viewers.user_id', '=', '$role.userId'] // Event viewers can see event
 						])
 					]
 				},
@@ -503,19 +298,67 @@ export const schema = {
 			anon: {}
 		}
 	},
+	event_reminders: {
+		schema: S.Schema({
+			id: S.Id(), // Unique ID for each entry
+			event_id: S.String(), // ID of the event this admin is associated with
+			text: S.String(),
+			lead_time_in_hours_before_event_starts: S.Number(),
+			target_attendee_statuses: S.Set(S.String()),
+			send_at: S.Date(), // Timestamp when the reminder should be sent (ideally)
+			sent_at: S.Optional(S.Date()), // Timestamp when the reminder was sent, null if not sent
+			created_at: S.Date({ default: S.Default.now() }), // Timestamp when the admin was added
+			updated_at: S.Date({ default: S.Default.now() }), // Timestamp when the entry was last updated
+			dropped: S.Boolean({ default: false })
+		}),
+		relationships: {
+			event: S.RelationById('events', '$event_id') // Relation to the events table
+		},
+		permissions: {
+			user: {
+				read: {
+					filter: [
+						or([
+							['event.attendees.user_id', '=', '$role.userId'],
+							['event.user_id', '=', '$role.userId'],
+							['event.event_admins.user_id', '=', '$role.userId']
+						])
+					]
+				},
+				update: {
+					filter: [
+						or([
+							['event.user_id', '=', '$role.userId'],
+							['event.event_admins.user_id', '=', '$role.userId']
+						])
+					]
+				}
+			},
+			temp: {
+				read: {
+					filter: [
+						['event.temporary_attendees.id', '=', '$role.temporaryAttendeeId'] // Temp users can view event admins if they're part of the event
+					]
+				}
+			},
+			anon: {}
+		}
+	},
 	event_admins: {
 		schema: S.Schema({
 			id: S.Id(), // Unique ID for each entry
 			event_id: S.String(), // ID of the event this admin is associated with
-			event: S.RelationById('events', '$event_id'), // Relation to the events table
 			user_id: S.String(), // ID of the user who is an admin
-			user: S.RelationById('user', '$user_id'), // Relation to the user table
 			added_by_user_id: S.String(), // ID of the user who added this admin
-			added_by_user: S.RelationById('user', '$added_by_user_id'), // Relation to the user who added this admin
 			role: S.String({ default: 'editor' }), // Role of the admin (e.g., editor, moderator)
 			created_at: S.Date({ default: S.Default.now() }), // Timestamp when the admin was added
 			updated_at: S.Date({ default: S.Default.now() }) // Timestamp when the entry was last updated
 		}),
+		relationships: {
+			event: S.RelationById('events', '$event_id'), // Relation to the events table
+			user: S.RelationById('user', '$user_id'), // Relation to the user table
+			added_by_user: S.RelationById('user', '$added_by_user_id') // Relation to the user who added this admin
+		},
 		permissions: {
 			user: {
 				read: {
@@ -567,11 +410,13 @@ export const schema = {
 		schema: S.Schema({
 			id: S.Id(),
 			event_id: S.String(), // ID of the event
-			event: S.RelationById('events', '$event_id'), // Link to the event
 			user_id: S.String(),
-			user: S.RelationById('user', '$user_id'),
 			created_at: S.Optional(S.Date({ default: S.Default.now() }))
 		}),
+		relationships: {
+			event: S.RelationById('events', '$event_id'), // Link to the event
+			user: S.RelationById('user', '$user_id')
+		},
 		permissions: {
 			user: {
 				read: {
@@ -588,15 +433,17 @@ export const schema = {
 		schema: S.Schema({
 			id: S.Id(),
 			event_id: S.String(), // ID of the event
-			event: S.RelationById('events', '$event_id'), // Link to the event
 			user_id: S.String(), // ID of the attendee
-			user: S.RelationById('user', '$user_id'), // Link to the user
 			status: S.String({ default: 'undecided' }), // RSVP status: attending, not attending, undecided
 			guest_count: S.Optional(S.Number({ default: 0 })), // Number of additional guests
 			// special_requests: S.String({ nullable: true }), // Any special requests (e.g., dietary)
 			// NOTE: updated_at is a terrible name, it should be created_at
-			updated_at: S.Date({ default: S.Default.now() }), // Last updated timestamp
+			updated_at: S.Date({ default: S.Default.now() }) // Last updated timestamp
 			// Foreign Key Relations
+		}),
+		relationships: {
+			event: S.RelationById('events', '$event_id'), // Link to the event
+			user: S.RelationById('user', '$user_id'), // Link to the user
 			seen_announcements: S.RelationMany('seen_announcements', {
 				where: [['attendee_id', '=', '$id']] // Link to seen_announcements
 			}),
@@ -611,7 +458,7 @@ export const schema = {
 					])
 				]
 			})
-		}),
+		},
 		permissions: {
 			admin: {
 				read: { filter: [true] }
@@ -631,15 +478,11 @@ export const schema = {
 						])
 					]
 				},
-				// Update/insert is managed by BE
-				delete: {
+				update: {
 					filter: [
 						or([
-							// Event creator can delete anyone attending
 							['event.user_id', '=', '$role.userId'],
-							// Users can remove themselves from the event
-							['user_id', '=', '$role.userId'],
-							['event.event_admins.user_id', '=', '$role.userId'] // Event admins can update files
+							['event.event_admins.user_id', '=', '$role.userId']
 						])
 					]
 				}
@@ -661,9 +504,11 @@ export const schema = {
 		schema: S.Schema({
 			id: S.Id(),
 			temporary_attendee_id: S.String(),
-			temporary_attendee: S.RelationById('temporary_attendees', '$temporary_attendee_id'),
 			created_at: S.Optional(S.Date({ default: S.Default.now() }))
 		}),
+		relationships: {
+			temporary_attendee: S.RelationById('temporary_attendees', '$temporary_attendee_id')
+		},
 		permissions: {
 			user: {},
 			temp: {},
@@ -674,15 +519,17 @@ export const schema = {
 		schema: S.Schema({
 			id: S.Id(),
 			event_id: S.String(), // ID of the event
-			event: S.RelationById('events', '$event_id'), // Link to the event
 			status: S.String({ default: 'undecided' }), // RSVP status: attending, not attending, undecided
 			name: S.String(),
 			guest_count: S.Optional(S.Number({ default: 0 })), // Number of additional guests
-			updated_at: S.Date({ default: S.Default.now() }), // Last updated timestamp
+			updated_at: S.Date({ default: S.Default.now() }) // Last updated timestamp
+		}),
+		relationships: {
+			event: S.RelationById('events', '$event_id'), // Link to the event
 			secret_mapping: S.RelationOne('temporary_attendees_secret_mapping', {
 				where: [['temporary_attendee_id', '=', '$id']]
 			})
-		}),
+		},
 		permissions: {
 			admin: {
 				read: { filter: [true] }
@@ -700,11 +547,13 @@ export const schema = {
 						])
 					]
 				},
-				delete: {
+				update: {
 					filter: [
 						or([
-							['event.user_id', '=', '$role.userId'], // Event creator can delete anyone attending
-							['event.event_admins.user_id', '=', '$role.userId'] // Event admins can update files
+							// Event creator can edit
+							['event.user_id', '=', '$role.userId'],
+							// A user should be able to only query for users and attendees who are attending a same event:
+							['event.event_admins.user_id', '=', '$role.userId']
 						])
 					]
 				}
@@ -718,10 +567,117 @@ export const schema = {
 							['event.temporary_attendees.id', '=', '$role.temporaryAttendeeId']
 						])
 					]
+				}
+			},
+			anon: {}
+		}
+	},
+	attendees_changes: {
+		schema: S.Schema({
+			id: S.Id(),
+			attendee_id: S.String(), // ID of the attendee
+			field_name: S.Optional(S.String()), // Name of the field that changed (e.g., 'status', 'guest_count')
+			old_value: S.Optional(S.String()), // Previous value of the field
+			new_value: S.Optional(S.String()), // New value of the field
+			change_timestamp: S.Date({ default: S.Default.now() }), // Timestamp of the change
+			changed_by: S.String(), // ID of the user who made the change
+			change_type: S.String({
+				enum: [
+					HistoryChangesConstants.change_delete,
+					HistoryChangesConstants.change_update,
+					HistoryChangesConstants.change_create
+				]
+			}) // Type of change (e.g., 'update')
+		}),
+		relationships: {
+			attendee: S.RelationById('attendees', '$attendee_id'), // Link to the attendee
+			changed_user: S.RelationById('user', '$changed_by') // Link to the user who made the change
+		},
+		permissions: {
+			admin: {
+				read: { filter: [true] }
+			},
+			user: {
+				read: {
+					filter: [
+						or([
+							// User can read changes related to their own attendees
+							['attendee.user_id', '=', '$role.userId'],
+							// Event creator can see changes for their event's attendees
+							['attendee.event.user_id', '=', '$role.userId'],
+							// Admins can see attendees' changes
+							['attendee.event.event_admins.user_id', '=', '$role.userId']
+						])
+					]
 				},
-				// Update/insert is managed by BE
-				delete: {
-					filter: [['id', '=', '$role.temporaryAttendeeId']]
+				insert: {
+					filter: [
+						or([
+							['attendee.event.user_id', '=', '$role.userId'],
+							['attendee.event.event_admins.user_id', '=', '$role.userId']
+						])
+					]
+				}
+			},
+			temp: {},
+			anon: {}
+		}
+	},
+	temporary_attendees_changes: {
+		schema: S.Schema({
+			id: S.Id(),
+			temporary_attendee_id: S.String(), // ID of the attendee
+			field_name: S.Optional(S.String()), // Name of the field that changed (e.g., 'status', 'guest_count')
+			old_value: S.Optional(S.String()), // Previous value of the field
+			new_value: S.Optional(S.String()), // New value of the field
+			change_timestamp: S.Date({ default: S.Default.now() }), // Timestamp of the change
+			changed_by: S.String(), // ID of the user who made the change
+			changed_by_id_type: S.String({
+				enum: [HistoryChangesConstants.user_id, HistoryChangesConstants.temporary_attendee_id]
+			}),
+			change_type: S.String({
+				enum: [
+					HistoryChangesConstants.change_delete,
+					HistoryChangesConstants.change_update,
+					HistoryChangesConstants.change_create
+				]
+			}) // Type of change (e.g., 'update')
+		}),
+		relationships: {
+			temporary_attendee: S.RelationById('temporary_attendees', '$temporary_attendee_id') // Link to the temporary attendee
+		},
+		permissions: {
+			admin: {
+				read: { filter: [true] }
+			},
+			user: {
+				read: {
+					filter: [
+						or([
+							// Event creator can see changes for their event's attendees
+							['temporary_attendee.event.user_id', '=', '$role.userId'],
+							// Admins can see attendees' changes
+							['temporary_attendee.event.event_admins.user_id', '=', '$role.userId']
+						])
+					]
+				},
+				insert: {
+					filter: [
+						or([
+							['temporary_attendee.event.user_id', '=', '$role.userId'],
+							['temporary_attendee.event.event_admins.user_id', '=', '$role.userId']
+						])
+					]
+				}
+			},
+			temp: {
+				read: {
+					filter: [
+						or([
+							// User can read changes related to their own attendees
+							['temporary_attendee.id', '=', '$role.temporaryAttendeeId']
+						])
+					]
 				}
 			},
 			anon: {}
@@ -739,19 +695,21 @@ export const schema = {
 			size_in_bytes: S.Number(),
 			uploaded_at: S.Date({ default: S.Default.now() }),
 			uploader_id: S.String({ nullable: true, default: null, optional: true }), // ID of the attendee
-			uploader: S.RelationById('user', '$user_id'), // Link to the user
 			temp_uploader_id: S.String({ nullable: true, default: null, optional: true }), // ID of the attendee
-			temp_uploader: S.RelationById('temporary_attendees', '$id'), // Link to the user
 			event_id: S.String(), // ID of the event
+			// Link to supporting files; for example, for videos, we save a frame and link it to the video.
+			linked_file_id: S.String({ nullable: true, default: null, optional: true }),
+			is_linked_file: S.Boolean({ default: false })
+		}),
+		relationships: {
+			uploader: S.RelationById('user', '$user_id'), // Link to the user
+			temp_uploader: S.RelationById('temporary_attendees', '$id'), // Link to the user
 			event: S.RelationById('events', '$event_id'), // Link to the event
 			seen_by: S.RelationMany('seen_gallery_items', {
 				where: [['gallery_item_id', '=', '$id']]
 			}),
-			// Link to supporting files; for example, for videos, we save a frame and link it to the video.
-			linked_file_id: S.String({ nullable: true, default: null, optional: true }),
-			linked_file: S.RelationById('files', '$linked_file_id'),
-			is_linked_file: S.Boolean({ default: false })
-		}),
+			linked_file: S.RelationById('files', '$linked_file_id')
+		},
 		permissions: {
 			user: {
 				read: {
@@ -815,10 +773,12 @@ export const schema = {
 			size_in_bytes: S.Number(),
 			uploaded_at: S.Date({ default: S.Default.now() }),
 			uploader_id: S.String({ nullable: true, default: null, optional: true }), // ID of the attendee
-			uploader: S.RelationById('user', '$user_id'), // Link to the user
-			event_id: S.String(), // ID of the event
-			event: S.RelationById('events', '$event_id') // Link to the event
+			event_id: S.String() // ID of the event
 		}),
+		relationships: {
+			uploader: S.RelationById('user', '$user_id'), // Link to the user
+			event: S.RelationById('events', '$event_id') // Link to the event
+		},
 		permissions: {
 			user: {
 				read: {
@@ -854,13 +814,15 @@ export const schema = {
 			content: S.String(),
 			created_at: S.Date({ default: S.Default.now() }),
 			user_id: S.String(),
+			event_id: S.String()
+		}),
+		relationships: {
 			user: S.RelationById('user', '$user_id'),
-			event_id: S.String(),
 			event: S.RelationById('events', '$event_id'),
 			seen_by: S.RelationMany('seen_announcements', {
 				where: [['announcement_id', '=', '$id']]
 			})
-		}),
+		},
 		permissions: {
 			user: {
 				read: {
@@ -912,11 +874,13 @@ export const schema = {
 		schema: S.Schema({
 			id: S.Id(),
 			attendee_id: S.String(), // ID of the attendee
-			attendee: S.RelationById('attendees', '$attendee_id'), // Link to the attendee
 			announcement_id: S.String(), // ID of the seen announcement
-			announcement: S.RelationById('announcement', '$announcement_id'), // Link to the announcement
 			seen_at: S.Date({ default: S.Default.now() }) // Timestamp when the announcement was seen
 		}),
+		relationships: {
+			attendee: S.RelationById('attendees', '$attendee_id'), // Link to the attendee
+			announcement: S.RelationById('announcement', '$announcement_id') // Link to the announcement
+		},
 		permissions: {
 			user: {
 				read: { filter: [['attendee.user_id', '=', '$role.userId']] }, // Only the user can read their seen announcements
@@ -934,11 +898,13 @@ export const schema = {
 		schema: S.Schema({
 			id: S.Id(),
 			attendee_id: S.String(), // ID of the attendee
-			attendee: S.RelationById('attendees', '$attendee_id'), // Link to the attendee
 			gallery_item_id: S.String(), // ID of the seen gallery item
-			gallery_item: S.RelationById('files', '$gallery_item_id'), // Link to the gallery item
 			seen_at: S.Date({ default: S.Default.now() }) // Timestamp when the gallery item was seen
 		}),
+		relationships: {
+			attendee: S.RelationById('attendees', '$attendee_id'), // Link to the attendee
+			gallery_item: S.RelationById('files', '$gallery_item_id') // Link to the gallery item
+		},
 		permissions: {
 			user: {
 				read: { filter: [['attendee.user_id', '=', '$role.userId']] }, // Only the user can read their seen gallery items
@@ -955,15 +921,18 @@ export const schema = {
 		schema: S.Schema({
 			id: S.Id(),
 			user_id: S.String(), // ID of the user creating the notification
-			user: S.RelationById('user', '$user_id'),
 			event_id: S.String(),
-			event: S.RelationById('events', '$event_id'),
 			object_type: S.String(),
 			object_ids: S.String(),
+			object_ids_set: S.Optional(S.Set(S.String())),
 			created_at: S.Date({ default: S.Default.now() }), // Timestamp for creation
 			sent_at: S.Date({ nullable: true, default: null }), // Timestamp for when the notification was sent
 			sent: S.Boolean({ default: false })
 		}),
+		relationships: {
+			user: S.RelationById('user', '$user_id'),
+			event: S.RelationById('events', '$event_id')
+		},
 		permissions: {
 			user: {
 				read: {
@@ -1013,21 +982,32 @@ export const schema = {
 		schema: S.Schema({
 			id: S.Id(),
 			event_id: S.String({ nullable: true }), // Optional ID of the related event
-			event: S.RelationById('events', '$event_id'), // Link to the event
 			user_id: S.String(), // Optional ID of the recipient
-			user: S.RelationById('user', '$user_id'), // Link to the user
 			message: S.String(), // Notification content
 			object_type: S.String(),
 			object_ids: S.String(), // TODO: should have made this a set of IDs, would make so much more sense for checking with triplit logic (has/nothas filters)
+			object_ids_set: S.Optional(S.Set(S.String())),
 			extra_id: S.Optional(S.String()),
 			created_at: S.Date({ default: S.Default.now() }), // Timestamp of when the notification was sent
 			seen_at: S.Date({ nullable: true, default: null }),
 			num_push_notifications_sent: S.Number({ default: 0 })
 			// last_push_notifications_sent_at: S.Date({ nullable: true, default: null, optional: true })
 		}),
+		relationships: {
+			event: S.RelationById('events', '$event_id'), // Link to the event
+			user: S.RelationById('user', '$user_id') // Link to the user
+		},
 		permissions: {
 			user: {
-				read: { filter: [['user_id', '=', '$role.userId']] }, // Users can read their own notifications
+				read: {
+					filter: [
+						or([
+							['user_id', '=', '$role.userId'], // Users can read their own notifications
+							['event.event_admins.user_id', '=', '$role.userId'], // Event admins can see event notifications
+							['event.user_id', '=', '$role.userId'] // Event owner can see event notifications
+						])
+					]
+				},
 				update: { filter: [['user_id', '=', '$role.userId']] }, // Users can update their own notifications to mark them as read
 				delete: { filter: [['user_id', '=', '$role.userId']] } // Users can update their own notifications to mark them as read
 			},
@@ -1068,16 +1048,18 @@ export const schema = {
 		schema: S.Schema({
 			id: S.Id(),
 			event_id: S.String(), // ID of the event this message belongs to
-			event: S.RelationById('events', '$event_id'), // Link to the event
 			user_id: S.String({ nullable: true, default: null }), // ID of the user who created the thread
-			user: S.RelationById('user', '$user_id'), // Relation to the user
 			name: S.String({ default: MAIN_THREAD }), // Thread name
 			created_at: S.Date({ default: S.Default.now() }), // Timestamp when the message was sent
-			updated_at: S.Optional(S.Date({ nullable: true, default: null })), // Timestamp when the message was edited
+			updated_at: S.Optional(S.Date({ nullable: true, default: null })) // Timestamp when the message was edited
+		}),
+		relationships: {
+			event: S.RelationById('events', '$event_id'), // Link to the event
+			user: S.RelationById('user', '$user_id'), // Relation to the user
 			messages: S.RelationMany('event_messages', {
 				where: [['thread_id', '=', '$id']]
 			})
-		}),
+		},
 		permissions: {
 			user: {
 				read: {
@@ -1119,19 +1101,21 @@ export const schema = {
 		schema: S.Schema({
 			id: S.Id(),
 			thread_id: S.String({ nullable: false }), // Message must belong to a thread
-			thread: S.RelationById('event_threads', '$thread_id'), // Relation to the thread
 			user_id: S.String(), // ID of the user who sent the message
-			user: S.RelationById('user', '$user_id'), // Relation to the user
 			parent_message_id: S.String({ nullable: true, default: null }), // Supports future threading
-			parent_message: S.Optional(S.RelationById('event_messages', '$parent_message_id')), // Parent message relation
 			content: S.String({ nullable: true }), // Text content of the message
-			seen_by: S.RelationMany('event_message_seen', { where: [['message_id', '=', '$id']] }), // Tracks who has seen the message
-			emoji_reactions: S.RelationMany('emoji_reactions', { where: [['entity_id', '=', '$id']] }), // Tracks who has seen the message
 			created_at: S.Date({ default: S.Default.now() }), // Timestamp when the message was sent
 			updated_at: S.Optional(S.Date({ nullable: true, default: null })), // Timestamp when the message was edited
-			deleted_by_user_id: S.String({ nullable: true, default: null }), // ID of the user who sent the message
-			deleted_by_user: S.RelationById('user', '$user_id') // Relation to the user
+			deleted_by_user_id: S.String({ nullable: true, default: null }) // ID of the user who sent the message
 		}),
+		relationships: {
+			thread: S.RelationById('event_threads', '$thread_id'), // Relation to the thread
+			user: S.RelationById('user', '$user_id'), // Relation to the user
+			parent_message: S.RelationById('event_messages', '$parent_message_id'), // Parent message relation
+			seen_by: S.RelationMany('event_message_seen', { where: [['message_id', '=', '$id']] }), // Tracks who has seen the message
+			emoji_reactions: S.RelationMany('emoji_reactions', { where: [['entity_id', '=', '$id']] }), // Tracks who has seen the message
+			deleted_by_user: S.RelationById('user', '$user_id') // Relation to the user
+		},
 		permissions: {
 			user: {
 				read: {
@@ -1177,11 +1161,13 @@ export const schema = {
 		schema: S.Schema({
 			id: S.Id(),
 			message_id: S.String(), // ID of the message
-			message: S.RelationById('event_messages', '$message_id'), // Relation to the message
 			user_id: S.String(), // User who has seen the message
-			user: S.RelationById('user', '$user_id'), // Relation to the user
 			seen_at: S.Date({ default: S.Default.now() }) // Timestamp when the message was seen
 		}),
+		relationships: {
+			message: S.RelationById('event_messages', '$message_id'), // Relation to the message
+			user: S.RelationById('user', '$user_id') // Relation to the user
+		},
 		permissions: {
 			user: {
 				read: {
@@ -1207,11 +1193,13 @@ export const schema = {
 			entity_id: S.String(), // ID of the message
 			entity_type: S.String(), // Type of the entity: message, announcement etc
 			user_id: S.String(), // User who has seen the message
-			user: S.RelationById('user', '$user_id'), // Relation to the user
 			event_id: S.String(),
-			event: S.RelationById('events', '$event_id'),
 			created_at: S.Date({ default: S.Default.now() }) // Timestamp when the message was seen
 		}),
+		relationships: {
+			user: S.RelationById('user', '$user_id'), // Relation to the user
+			event: S.RelationById('events', '$event_id')
+		},
 		permissions: {
 			user: {
 				read: {
@@ -1246,11 +1234,13 @@ export const schema = {
 			entity_id: S.String(), // ID of the message
 			entity_type: S.String(), // Type of the entity: message, announcement etc
 			user_id: S.String(), // User who has seen the message
-			user: S.RelationById('user', '$user_id'), // Relation to the user
 			event_id: S.String(),
-			event: S.RelationById('events', '$event_id'),
 			created_at: S.Date({ default: S.Default.now() }) // Timestamp when the message was seen
 		}),
+		relationships: {
+			user: S.RelationById('user', '$user_id'), // Relation to the user
+			event: S.RelationById('events', '$event_id')
+		},
 		permissions: {
 			user: {
 				read: {
@@ -1279,7 +1269,350 @@ export const schema = {
 			anon: {}
 		}
 	},
-	...bringSchema,
-	...userLogsTokenSchema,
-	...donationsSchema
-} satisfies ClientSchema;
+	bring_items: {
+		schema: S.Schema({
+			id: S.Id(),
+			event_id: S.String(),
+			name: S.String(), // Item name (e.g., "Coca Cola", "Buns", "Beers")
+			unit: S.String({
+				enum: [BringListCountTypes.PER_PERSON, BringListCountTypes.COUNT] as const
+			}),
+			quantity_needed: S.Number(), // How much is requested
+			details: S.String({ nullable: true, default: null }),
+			created_by_user_id: S.String(), // Only admins can create items
+			created_at: S.Date({ default: S.Default.now() })
+		}),
+		relationships: {
+			event: S.RelationById('events', '$event_id'),
+			created_by_user: S.RelationById('user', '$created_by_user_id'),
+			bring_assignments: S.RelationMany('bring_assignments', {
+				where: [['bring_item_id', '=', '$id']]
+			})
+		},
+		permissions: {
+			user: {
+				read: { filter: [['event.attendees.user_id', '=', '$role.userId']] },
+				insert: {
+					filter: [
+						or([
+							['event.event_admins.user_id', '=', '$role.userId'],
+							['event.user_id', '=', '$role.userId'],
+							['event.attendees.user_id', '=', '$role.userId']
+						])
+					]
+				},
+				update: {
+					filter: [
+						or([
+							['event.event_admins.user_id', '=', '$role.userId'],
+							['event.user_id', '=', '$role.userId'],
+							['created_by_user_id', '=', '$role.userId'] // Allow users to update their own items
+						])
+					]
+				},
+				delete: {
+					filter: [
+						or([
+							['event.event_admins.user_id', '=', '$role.userId'],
+							['event.user_id', '=', '$role.userId'],
+							['created_by_user_id', '=', '$role.userId'] // Allow users to update their own items
+						])
+					]
+				}
+			},
+			temp: {
+				read: {
+					filter: [['event.temporary_attendees.id', '=', '$role.temporaryAttendeeId']]
+				},
+				insert: {
+					filter: [['event.temporary_attendees.id', '=', '$role.temporaryAttendeeId']]
+				},
+				update: {
+					filter: [['created_by_user_id', '=', '$role.temporaryAttendeeId']]
+				},
+				delete: {
+					filter: [['created_by_user_id', '=', '$role.temporaryAttendeeId']]
+				}
+			},
+			anon: {}
+		}
+	},
+	bring_assignments: {
+		schema: S.Schema({
+			id: S.Id(),
+			bring_item_id: S.String(), // Item being assigned
+			assigned_to_user_id: S.String({ nullable: true }),
+			assigned_to_temp_attendee_id: S.String({ nullable: true }),
+			assigned_by_user_id: S.String({ nullable: true }), // Who assigned it (null if self-assigned)
+			quantity: S.Number(), // How much they are bringing
+			created_at: S.Date({ default: S.Default.now() })
+		}),
+		relationships: {
+			bring_item: S.RelationById('bring_items', '$bring_item_id'),
+			assigned_to_user: S.RelationById('user', '$assigned_to_user_id'),
+			assigned_to_temp_attendee: S.RelationById(
+				'temporary_attendees',
+				'$assigned_to_temp_attendee_id'
+			),
+			assigned_by_user: S.RelationById('user', '$assigned_by_user_id')
+		},
+		permissions: {
+			user: {
+				read: {
+					// filter: [true]
+					filter: [['bring_item.event.attendees.user_id', '=', '$role.userId']]
+				},
+				insert: {
+					filter: [
+						or([
+							['bring_item.event.attendees.user_id', '=', '$role.userId'], // Attendees can self-assign
+							['bring_item.event.event_admins.user_id', '=', '$role.userId'], // Admins can assign anyone
+							['bring_item.event.user_id', '=', '$role.userId'] // Event owner can assign anyone
+						])
+					]
+				},
+				update: {
+					filter: [
+						or([
+							['bring_item.event.attendees.user_id', '=', '$role.userId'], // Attendees can self-assign
+							['bring_item.event.event_admins.user_id', '=', '$role.userId'], // Admins can assign anyone
+							['bring_item.event.user_id', '=', '$role.userId'] // Event owner can assign anyone
+						])
+					]
+				},
+				delete: {
+					filter: [
+						or([
+							['assigned_to_user_id', '=', '$role.userId'], // Users can remove their own assignment
+							['bring_item.event.event_admins.user_id', '=', '$role.userId'], // Admins can remove assignments
+							['bring_item.event.user_id', '=', '$role.userId'] // Event owner
+						])
+					]
+				}
+			},
+			temp: {
+				read: {
+					filter: [['bring_item.event.temporary_attendees.id', '=', '$role.temporaryAttendeeId']]
+				},
+				insert: {
+					filter: [['bring_item.event.temporary_attendees.id', '=', '$role.temporaryAttendeeId']]
+				},
+				update: {
+					filter: [['assigned_to_temp_attendee_id', '=', '$role.temporaryAttendeeId']]
+				},
+				delete: {
+					filter: [['assigned_to_temp_attendee_id', '=', '$role.temporaryAttendeeId']]
+				}
+			},
+			anon: {}
+		}
+	},
+	user_log_tokens: {
+		schema: S.Schema({
+			id: S.Id(),
+			user_id: S.String(), // User who owns the logs
+			num_logs: S.Number({ default: 0 }), // Number of logs the user has
+			updated_at: S.Date({ default: S.Default.now() }), // Last updated timestamp
+			stripe_customer_id: S.String({ nullable: true, default: null })
+		}),
+		relationships: {
+			user: S.RelationById('user', '$user_id') // Relation to the user
+		},
+		permissions: {
+			user: {
+				read: {
+					filter: [['user_id', '=', '$role.userId']] // Users can only read their own logs
+				}
+			},
+			admin: {
+				read: { filter: [true] }, // Admins can read all user logs
+				update: { filter: [true] } // Admins can modify user logs
+			},
+			temp: {},
+			anon: {}
+		}
+	},
+	transactions: {
+		schema: S.Schema({
+			id: S.Id(),
+			user_id: S.String(), // User who made the transaction
+			event_id: S.String({ nullable: true, default: null }),
+			stripe_payment_intent: S.String({ nullable: true, default: null }), // Stripe Payment Intent ID
+			transaction_type: S.String({
+				enum: [
+					TransactionType.PURCHASE,
+					TransactionType.REFUND,
+					TransactionType.BONFIRE_HOSTED
+				] as const
+			}), // Type of transaction
+			num_log_tokens: S.Number(), // Number of logs purchased/refunded
+			total_money_amount: S.Number({ default: null, nullable: true }),
+			currency: S.String({ default: null, nullable: true }),
+			created_at: S.Date({ default: S.Default.now() }) // Timestamp of transaction
+			// user_donation: S.RelationOne('user_donations', {
+			// 	// Link to possible donation
+			// 	where: [['transaction_id', '=', '$id']]
+			// })
+		}),
+		relationships: {
+			user: S.RelationById('user', '$user_id'), // Relation to the user
+			event: S.RelationById('events', '$event_id')
+		},
+		permissions: {
+			user: {
+				read: {
+					filter: [or([['user_id', '=', '$role.userId']])] // Users can only see their own transactions
+				}
+			},
+			admin: {
+				read: { filter: [true] } // Admins can see all transactions
+			},
+			temp: {},
+			anon: {}
+		}
+	},
+	non_profits: {
+		schema: S.Schema({
+			id: S.Id(),
+			name: S.String(), // Name of the non-profit
+			description: S.String({ nullable: true }), // Short description
+			photo_url: S.String({ nullable: true }), // Public S3 path for a logo/photo
+			website_url: S.String({ nullable: true }), // External website link
+			effective_start_date: S.Date({ default: S.Default.now() }), // When the non-profit became eligible
+			effective_end_date: S.Date({ nullable: true, default: null }), // When the non-profit is no longer eligible
+			created_at: S.Date({ default: S.Default.now() }), // Timestamp when added
+			updated_at: S.Date({ default: S.Default.now() }) // Timestamp for updates
+		}),
+		permissions: {
+			admin: {
+				read: { filter: [true] },
+				insert: { filter: [true] },
+				update: { filter: [true] }
+			},
+			user: {
+				read: {
+					filter: [true]
+				}
+			},
+			temp: {
+				read: {
+					filter: [true]
+				}
+			},
+			anon: {
+				read: {
+					filter: [true]
+				}
+			}
+		}
+	},
+	notification_permissions: {
+		schema: S.Schema({
+			id: S.Id(),
+			user_id: S.String(),
+			event_id: S.Optional(S.String()), // If set, it applies only to this event
+			permission: S.String(),
+			granted: S.Boolean({ default: false }),
+			created_at: S.Date({ default: S.Default.now() }) // Timestamp when added
+		}),
+		relationships: {
+			user: S.RelationById('user', '$user_id'), // Relation to the user
+			event: S.RelationById('events', '$event_id')
+		},
+		permissions: {
+			user: {
+				read: {
+					filter: [
+						or([
+							['user_id', '=', '$role.userId'],
+							['event.user_id', '=', '$role.userId'],
+							['user.attendances.event.user_id', '=', '$role.userId'],
+							['user.attendances.event.event_admins.user_id', '=', '$role.userId']
+						])
+					]
+				},
+				insert: { filter: [true] },
+				update: {
+					filter: [['user_id', '=', '$role.userId']] // Users can only read their own logs
+				}
+			},
+			admin: {
+				read: { filter: [true] },
+				update: { filter: [true] }
+			},
+			temp: {},
+			anon: {}
+		}
+	},
+	delivery_permissions: {
+		schema: S.Schema({
+			id: S.Id(),
+			user_id: S.String(),
+			event_id: S.Optional(S.String()), // If set, it applies only to this event
+			permission: S.String(),
+			granted: S.Boolean({ default: false }),
+			created_at: S.Date({ default: S.Default.now() }) // Timestamp when added
+		}),
+		relationships: {
+			user: S.RelationById('user', '$user_id'), // Relation to the user
+			event: S.RelationById('events', '$event_id')
+		},
+		permissions: {
+			user: {
+				read: {
+					filter: [
+						or([
+							['user_id', '=', '$role.userId'],
+							['event.user_id', '=', '$role.userId'],
+							['user.attendances.event.user_id', '=', '$role.userId'],
+							['user.attendances.event.event_admins.user_id', '=', '$role.userId']
+						])
+					]
+				},
+				insert: { filter: [true] },
+				update: {
+					filter: [['user_id', '=', '$role.userId']] // Users can only read their own logs
+				}
+			},
+			admin: {
+				read: { filter: [true] },
+				update: { filter: [true] }
+			},
+			temp: {},
+			anon: {}
+		}
+	},
+	push_subscription_registrations: {
+		schema: S.Schema({
+			id: S.Id(),
+			user_id: S.String(),
+			endpoint: S.String(),
+			p256dh: S.Optional(S.String()),
+			auth: S.Optional(S.String()),
+			created_at: S.Date({ default: S.Default.now() }) // Timestamp when added
+		}),
+		relationships: {
+			user: S.RelationById('user', '$user_id') // Relation to the user
+		},
+		permissions: {
+			user: {
+				read: {
+					filter: [['user_id', '=', '$role.userId']] // Users can only read their own
+				},
+				insert: { filter: [true] },
+				update: {
+					filter: [['user_id', '=', '$role.userId']] // Users can only read their own
+				},
+				delete: {
+					filter: [['user_id', '=', '$role.userId']] // Users can only delete their own
+				}
+			},
+			admin: {
+				read: { filter: [true] },
+				update: { filter: [true] }
+			},
+			temp: {},
+			anon: {}
+		}
+	}
+});

@@ -44,8 +44,8 @@
 	// });
 </script>
 
-<div class="relative flex flex-col rounded-xl bg-slate-100/90 shadow-lg dark:bg-slate-900/90">
-	<button
+<div class="relative flex flex-col rounded-xl bg-slate-100/70 shadow-lg dark:bg-slate-900/70">
+	<!-- <button
 		class="my-3 flex w-full items-center justify-center font-semibold sm:text-xl md:text-2xl lg:mb-5"
 		onclick={toggleExpand}
 		aria-expanded={isExpanded}
@@ -53,13 +53,13 @@
 	>
 		<span class="flex items-center">
 			<BookOpen class="mr-2" />
-			Details
+			About
 		</span>
-	</button>
-	<div class="w-full rounded-b-xl dark:bg-slate-800 dark:text-white">
+	</button> -->
+	<div class="w-full rounded-b-xl dark:text-white">
 		<div
 			id="event-description-content-collapsed"
-			class={`prose prose-sm w-full todo-max-h-[${maxHeight}px] overflow-hidden px-4
+			class={`p-2 prose prose-sm w-full todo-max-h-[${maxHeight}px] overflow-hidden px-4
              text-black ease-in-out sm:prose-base focus:outline-none prose-h1:text-black prose-h2:text-black 
             prose-p:text-black prose-blockquote:text-black prose-strong:text-black 
             dark:text-white dark:prose-h1:text-white dark:prose-h2:text-white dark:prose-p:text-white 
@@ -86,7 +86,10 @@
 						class="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-200 via-slate-100/10 to-transparent dark:from-slate-900 dark:via-slate-900/10"
 					></div>
 				{/if}
-				<div id="pot-pourri">{@html DOMPurify.sanitize(eventDescription)}</div>
+				<div id="pot-pourri">
+					<!-- {@html DOMPurify.sanitize(eventDescription)} -->
+					{@html eventDescription}
+				</div>
 				<!-- {/if} -->
 				<!-- {#if showExpandButton}
 				<button
@@ -103,7 +106,7 @@
 				</button>
 			{/if} -->
 			{:else}
-				<div class="py-3 flex w-full justify-center">
+				<div class="flex w-full justify-center py-3">
 					{'No details yet...'}
 				</div>
 			{/if}

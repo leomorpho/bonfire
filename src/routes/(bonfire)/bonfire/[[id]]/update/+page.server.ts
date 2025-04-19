@@ -18,13 +18,13 @@ export const load = async (event) => {
 		const event = await triplitHttpClient.fetchOne(
 			triplitHttpClient
 				.query('events')
-				.where([
+				.Where([
 					and([
 						['user_id', '=', user.id],
 						['id', '=', eventId]
 					])
 				])
-				.build()
+				
 		);
 
 		if (event) {
@@ -34,15 +34,14 @@ export const load = async (event) => {
 		const admin = await triplitHttpClient.fetchOne(
 			triplitHttpClient
 				.query('event_admins')
-				.where([
+				.Where([
 					and([
 						['user_id', '=', user.id],
 						['event_id', '=', eventId]
 					])
 				])
-				.build()
+				
 		);
-		console.log('----====> admin', admin);
 		if (!admin) {
 			throw redirect(302, `/bonfire/${eventId}`);
 		}

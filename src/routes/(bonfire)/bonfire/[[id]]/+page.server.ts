@@ -1,6 +1,8 @@
 import { Status, tempAttendeeSecretParam } from '$lib/enums';
 import { generateSignedUrl } from '$lib/filestorage.js';
+import { wasUserPreviouslyDeleted } from '$lib/rsvp.js';
 import { triplitHttpClient } from '$lib/server/triplit';
+import { createRemindersObjects } from '$lib/triplit.js';
 import { redirect } from '@sveltejs/kit';
 import { and } from '@triplit/client';
 
@@ -16,6 +18,13 @@ export const load = async ({ params, locals, url }) => {
 
 	// Get the user from locals
 	const user = locals.user;
+
+	// If this user was previously deleted from this event, block them from
+	// accessing again by pretending it is not published.
+	if (await wasUserPreviouslyDeleted(triplitHttpClient, user?.id, eventId)) {
+		redirect(303, '/bonfire/not-yet-published');
+	}
+
 	// console.log('logged in user', user);
 	let event = null;
 	let numAttendingGoing = 0;
@@ -35,8 +44,7 @@ export const load = async ({ params, locals, url }) => {
 			const existingAttendee = await triplitHttpClient.fetchOne(
 				triplitHttpClient
 					.query('temporary_attendees')
-					.where(['secret_mapping.id', '=', tempAttendeeSecretStr])
-					.build()
+					.Where(['secret_mapping.id', '=', tempAttendeeSecretStr])
 			);
 			if (existingAttendee) {
 				tempAttendeeId = existingAttendee.id;
@@ -46,46 +54,27 @@ export const load = async ({ params, locals, url }) => {
 		}
 	}
 
-	if (user) {
-		try {
-			// TODO: probably rate limit the number of new events you can see per minute
-
-			// Add viewer object so user is in the event viewer list else
-			// they won't be able to query for that event in FE
-			await triplitHttpClient.insert('event_viewers', {
-				id: `${eventId}-${user.id}`,
-				event_id: eventId,
-				user_id: user.id
-			});
-		} catch (e) {
-			console.log(e);
-		}
-	}
-
 	let isUserAnAttendee = false;
-
 	try {
 		event = await triplitHttpClient.fetchOne(
 			triplitHttpClient
 				.query('events')
-				.where(and([['id', '=', eventId as string]]))
-				.include('announcements_list', (rel) => rel('announcements').select(['id']).build())
-				.include('attendees')
-				.include('temporary_attendees')
-				.include('files_list', (rel) => rel('files').select(['id']).build())
-				.include('banner_media')
-				.include('event_admins')
-				.include('bring_items_list', (rel) => rel('bring_items').select(['id']).build())
-				.subquery(
+				.Where(and([['id', '=', eventId as string]]))
+				.Include('announcements_list', (rel) => rel('announcements').Select(['id']))
+				.Include('attendees')
+				.Include('temporary_attendees')
+				.Include('files_list', (rel) => rel('files').Select(['id']))
+				.Include('banner_media')
+				.Include('event_admins')
+				.Include('bring_items_list', (rel) => rel('bring_items').Select(['id']))
+				.Include('event_reminders')
+				.SubqueryOne(
 					'organizer',
 					triplitHttpClient
 						.query('user')
-						.where(['id', '=', '$1.user_id'])
-						.select(['username', 'id'])
-						.build(),
-					'one'
+						.Where(['id', '=', '$1.user_id'])
+						.Select(['username', 'id'])
 				)
-				.build()
 		);
 	} catch (e) {
 		console.debug(`failed to fetch event with id ${eventId}`, e);
@@ -148,8 +137,28 @@ export const load = async ({ params, locals, url }) => {
 			numBringListItems = event.bring_items_list.length;
 		}
 
+		if (event.event_reminders.length == 0) {
+			await createRemindersObjects(triplitHttpClient as HttpClient, eventId, event.title, event.start_time);
+		}
+
 		// console.log("numAnnouncements", numAnnouncements)
 		// console.log("numFiles", numFiles)
+	}
+
+	if (!isUserAnAttendee) {
+		try {
+			// TODO: probably rate limit the number of new events you can see per minute
+
+			// Add viewer object so user is in the event viewer list else
+			// they won't be able to query for that event in FE
+			await triplitHttpClient.insert('event_viewers', {
+				id: `${eventId}-${user.id}`,
+				event_id: eventId,
+				user_id: user.id
+			});
+		} catch (e) {
+			console.log(e);
+		}
 	}
 
 	const bannerInfo = {

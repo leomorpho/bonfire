@@ -5,13 +5,22 @@
 	import Loader from '$lib/components/Loader.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
-	import { Share, Images, Megaphone, Plus, ShoppingBasket } from 'lucide-svelte';
+	import {
+		Share,
+		Images,
+		Megaphone,
+		Plus,
+		ShoppingBasket,
+		History,
+		MessageCircle,
+		Info
+	} from 'lucide-svelte';
 	import Rsvp from '$lib/components/rsvp/Rsvp.svelte';
 	import { onMount } from 'svelte';
 	import { Status, tempAttendeeSecretStore, tempAttendeeSecretParam } from '$lib/enums';
 	import MiniGallery from '$lib/components/MiniGallery.svelte';
 	import { toast } from 'svelte-sonner';
-	import Annoucements from '$lib/components/Annoucements.svelte';
+	import Annoucements from '$lib/components/announcements/Annoucements.svelte';
 	import HorizRule from '$lib/components/HorizRule.svelte';
 	import EventDoesNotExist from '$lib/components/EventDoesNotExist.svelte';
 	import CenterScreenMessage from '$lib/components/CenterScreenMessage.svelte';
@@ -22,7 +31,6 @@
 	import ImThreadView from '$lib/components/im/ImThreadView.svelte';
 	import NumNewMessageIndicator from '$lib/components/im/NumNewMessageIndicator.svelte';
 	import {
-		addUserRequest,
 		addUserRequests,
 		type TempUserData,
 		updateTempUsersLiveDataStoreEntry
@@ -34,8 +42,11 @@
 	import EventInfo from '$lib/components/main-bonfire-event/EventInfo.svelte';
 	import Attendees from '$lib/components/main-bonfire-event/Attendees.svelte';
 	import SignUpMsg from './SignUpMsg.svelte';
-	import Alert from '../Alert.svelte';
 	import SetProfilePicAlert from './SetProfilePicAlert.svelte';
+	import EventHistory from './EventHistory.svelte';
+	import { CircleAlert, SlidersHorizontal } from '@lucide/svelte';
+	import EventSettings from '../settings/event-settings/EventSettings.svelte';
+	import PermissionsPausedMsg from '../settings/PermissionsPausedMsg.svelte';
 	// import EventStylerBottomSheet from '../event-styles/EventStylerBottomSheet.svelte';
 
 	let {
@@ -85,18 +96,23 @@
 	let loadEventFiles = $state(true);
 
 	let attendeesGoing: any = $state([]);
+	let tempAttendeesGoing: any = $state([]);
+
 	let attendeesMaybeGoing: any = $state([]);
+	let tempAttendeesMaybeGoing: any = $state([]);
+
 	let attendeesNotGoing: any = $state([]);
+	let tempAttendeesNotGoing: any = $state([]);
+
+	let attendeesLeft: any = $state([]);
+	let attendeesRemoved: any = $state([]);
+	let tempAttendeesRemoved: any = $state([]);
+
 	let attendeesLoading = $state(true);
 	let tempAttendeesLoading = $state(true);
-	let tempAttendeesGoing: any = $state([]);
-	let tempAttendeesMaybeGoing: any = $state([]);
-	let tempAttendeesNotGoing: any = $state([]);
 
 	let latitude = $state(null);
 	let longitude = $state(null);
-
-	let profile_image = $state();
 
 	if (tempAttendeeId) {
 		tempAttendeeSecretStore.set(tempAttendeeId);
@@ -162,6 +178,11 @@
 	let allAttendeesMaybeGoing = $derived([
 		...(attendeesMaybeGoing || []),
 		...(tempAttendeesMaybeGoing || [])
+	]);
+	let allAttendeesLeft = $derived([...(attendeesLeft || [])]);
+	let allAttendeesRemoved = $derived([
+		...(attendeesRemoved || []),
+		...(tempAttendeesRemoved || [])
 	]);
 
 	// Count real users, temporary users and all their guests
@@ -255,10 +276,7 @@
 		let unsubscribeTemporaryUserQuery = null;
 		if (isUnverifiedUser) {
 			unsubscribeTemporaryUserQuery = client.subscribe(
-				client
-					.query('temporary_attendees')
-					.where([['id', '=', tempAttendeeId]])
-					.build(),
+				client.query('temporary_attendees').Where([['id', '=', tempAttendeeId]]),
 				(results) => {
 					if (results.length == 1) {
 						tempAttendee = results[0];
@@ -296,15 +314,13 @@
 		const unsubscribeFromEventQuery = client.subscribe(
 			client
 				.query('events')
-				.where([['id', '=', eventId]])
-				.include('banner_media')
-				.include('event_admins')
-				.subquery(
+				.Where([['id', '=', eventId]])
+				.Include('banner_media')
+				.Include('event_admins')
+				.SubqueryOne(
 					'organizer',
-					client.query('user').where(['id', '=', '$1.user_id']).select(['username', 'id']).build(),
-					'one'
-				)
-				.build(),
+					client.query('user').Where(['id', '=', '$1.user_id']).Select(['username', 'id'])
+				),
 			(results) => {
 				if (results.length == 1) {
 					const event: any = results[0] as EventTypescriptType;
@@ -334,7 +350,10 @@
 							);
 						}
 
-						if (event.banner_media.blurr_hash != bannerInfo.bannerBlurHash) {
+						if (
+							event.banner_media?.blurr_hash &&
+							event.banner_media.blurr_hash != bannerInfo.bannerBlurHash
+						) {
 							fetchBannerInfo(eventId, tempAttendeeSecret);
 						}
 						eventLoading = false;
@@ -366,15 +385,16 @@
 		const unsubscribeAttendeesQuery = client.subscribe(
 			client
 				.query('attendees')
-				.where([['event_id', '=', eventId]])
-				.include('user')
-				.build(),
+				.Where([['event_id', '=', eventId]])
+				.Include('user'),
 			(results) => {
 				console.log('attendees', results);
 				// Separate attendees into different variables by status
 				attendeesGoing = results.filter((attendee) => attendee.status === Status.GOING);
 				attendeesNotGoing = results.filter((attendee) => attendee.status === Status.NOT_GOING);
 				attendeesMaybeGoing = results.filter((attendee) => attendee.status === Status.MAYBE);
+				attendeesLeft = results.filter((attendee) => attendee.status === Status.LEFT);
+				attendeesRemoved = results.filter((attendee) => attendee.status === Status.REMOVED);
 
 				const userIds = [...new Set(results.map((attendee) => attendee.user_id))];
 				if (dev) {
@@ -383,7 +403,7 @@
 
 				addUserRequests(userIds);
 				attendeesLoading = false;
-				console.log('results', results);
+				// console.log('results', results);
 			},
 			(error) => {
 				console.error('Error fetching attendees:', error);
@@ -391,19 +411,17 @@
 		);
 
 		const unsubscribeTempAttendeesQuery = client.subscribe(
-			client
-				.query('temporary_attendees')
-				.where([['event_id', '=', eventId]])
-				.build(),
+			client.query('temporary_attendees').Where([['event_id', '=', eventId]]),
 			(results) => {
 				// // Separate attendees into different variables by status
 				tempAttendeesGoing = results.filter((attendee) => attendee.status === Status.GOING);
 				tempAttendeesNotGoing = results.filter((attendee) => attendee.status === Status.NOT_GOING);
 				tempAttendeesMaybeGoing = results.filter((attendee) => attendee.status === Status.MAYBE);
+				tempAttendeesRemoved = results.filter((attendee) => attendee.status === Status.REMOVED);
 
 				for (let attendee of results) {
 					const tempUser: TempUserData = {
-						id: attendee.id,
+						id: attendee?.id,
 						username: attendee.name
 					};
 					updateTempUsersLiveDataStoreEntry(tempUser);
@@ -418,9 +436,8 @@
 		const unsubscribeFromFilesQuery = client.subscribe(
 			client
 				.query('files')
-				.where([['event_id', '=', eventId]])
-				.select(['id'])
-				.build(),
+				.Where([['event_id', '=', eventId]])
+				.Select(['id']),
 			(results) => {
 				// If there are less than 3 files in the events eventFiles, fetch the latest 3
 				(async () => {
@@ -461,11 +478,6 @@
 	});
 
 	const handleShare = async (eventTitle: string, eventLocation: string, eventId: string) => {
-		if (!navigator.share) {
-			alert('Sharing is not supported on this browser.');
-			return;
-		}
-
 		// Prepare shareable data
 		const shareData = {
 			title: `Hey! You're invited to ${eventTitle}!`, // Use the event title
@@ -483,6 +495,9 @@
 			console.error('Error copying to clipboard:', error);
 		}
 
+		if (!navigator.share) {
+			return;
+		}
 		navigator
 			.share(shareData)
 			.then(() => {
@@ -493,11 +508,16 @@
 			});
 	};
 
-	function scrollToBottom() {
-		window.scrollTo({
-			top: document.body.scrollHeight,
-			behavior: 'smooth'
-		});
+	function scrollElementIntoView(elementId: string) {
+		const element = document.getElementById(elementId);
+		if (element) {
+			element.scrollIntoView({
+				behavior: 'smooth',
+				block: 'nearest' // Use 'start' to align top, 'end' to align bottom, or 'nearest' for the closest edge
+			});
+		} else {
+			console.error('Element not found:', elementId);
+		}
 	}
 
 	let activeTab = $state('about');
@@ -520,8 +540,12 @@
 		<EventDoesNotExist />
 	{:else}
 		<div class="mx-4 flex flex-col items-center justify-center">
-			<SetProfilePicAlert {currUserId}/>
-
+			{#if !isUnverifiedUser && !isAnonymousUser}
+				<SetProfilePicAlert {currUserId} />
+			{/if}
+			{#if isAnonymousUser || isUnverifiedUser}
+				<SignUpMsg />
+			{/if}
 			{#if isCurrenUserEventAdmin}
 				<div class="flex">
 					<EditEventButton {eventIsPublished} />
@@ -534,29 +558,57 @@
 				<Tabs.Root value={activeTab} class="w-full">
 					<div class="flex w-full justify-center">
 						<Tabs.List class="mb-1 w-full bg-transparent animate-in fade-in zoom-in">
-							<div class="rounded-lg bg-slate-700 p-2">
-								<Tabs.Trigger value="about" class="focus:outline-none focus-visible:ring-0">
-									About
+							<div class="rounded-lg bg-slate-200 p-2 dark:bg-slate-700">
+								<Tabs.Trigger
+									id="about-tab"
+									value="about"
+									class="focus:outline-none focus-visible:ring-0 data-[state=active]:bg-emerald-500 data-[state=active]:text-white dark:data-[state=active]:bg-emerald-600"
+								>
+									<Info class="h-5 w-5" />
 								</Tabs.Trigger>
 								<Tabs.Trigger
+									id="discussions-tab"
 									value="discussions"
-									class="focus:outline-none focus-visible:ring-0"
-									onclick={scrollToBottom}
+									class="focus:outline-none focus-visible:ring-0 data-[state=active]:bg-orange-500 data-[state=active]:text-white dark:data-[state=active]:bg-orange-600"
+									onclick={() => {
+										scrollElementIntoView('messenger');
+									}}
 								>
-									<NumNewMessageIndicator>Discussions</NumNewMessageIndicator>
+									<NumNewMessageIndicator>
+										<MessageCircle class="h-5 w-5" />
+									</NumNewMessageIndicator>
 								</Tabs.Trigger>
+								<Tabs.Trigger
+									id="settings-tab"
+									value="user-settings"
+									class="focus:outline-none focus-visible:ring-0 data-[state=active]:bg-blue-500 data-[state=active]:text-white dark:data-[state=active]:bg-blue-600"
+								>
+									<div class="flex items-center justify-center">
+										<SlidersHorizontal class="h-5 w-5" />
+									</div>
+								</Tabs.Trigger>
+								{#if isCurrenUserEventAdmin}
+									<Tabs.Trigger
+										id="history-tab"
+										value="history"
+										class="focus:outline-none focus-visible:ring-0 data-[state=active]:bg-purple-500 data-[state=active]:text-white dark:data-[state=active]:bg-purple-600"
+									>
+										<div class="flex items-center justify-center">
+											<History class="h-5 w-5" />
+										</div>
+									</Tabs.Trigger>
+								{/if}
 							</div>
 						</Tabs.List>
 					</div>
 					<Tabs.Content value="about" class="mb-10 w-full">
 						<div class="animate-fadeIn">
 							<!-- TODO: allow temp attendees to delete themselves -->
-							{#if isAnonymousUser || isUnverifiedUser}
-								<SignUpMsg />
-							{/if}
+
 							{#if isUnverifiedUser}
 								<UnverifiedUserMsg {eventId} {tempAttendee} {tempAttendeeSecret} />
 							{/if}
+							<!-- <PermissionsPausedMsg userId={currUserId} /> -->
 
 							<EventInfo
 								{bannerInfo}
@@ -579,6 +631,8 @@
 								{allAttendeesGoing}
 								{allAttendeesMaybeGoing}
 								{allAttendeesNotGoing}
+								{allAttendeesLeft}
+								{allAttendeesRemoved}
 								{eventNumAttendeesGoing}
 								{showMaxNumPeople}
 								{isCurrenUserEventAdmin}
@@ -607,19 +661,28 @@
 									/>
 
 									<Button
+										disabled={!eventIsPublished}
 										onclick={() => handleShare(eventTitle, eventLocation, eventId)}
 										class="mt-4 flex w-full items-center justify-center ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
 									>
 										<Share class="h-5 w-5" />
-										Share Bonfire</Button
-									>
+										<span class="">Share Bonfire</span>
+										{#if !eventIsPublished}
+											<span class="ml-2 flex items-center truncate text-red-500">
+												<CircleAlert class="mr-1" />
+												<span>Publish event first</span>
+											</span>
+										{/if}
+									</Button>
 								</div>
 							</div>
 							<HorizRule />
 							<div class="my-10 flex flex-col md:flex-row md:space-x-2">
 								<div class="w-full rounded-xl p-0 md:w-1/2 md:p-2">
 									<div class="flex justify-center rounded-xl bg-white p-5 dark:bg-slate-900">
-										<div class="flex font-semibold"><Megaphone class="mr-2" /> Announcements</div>
+										<div class="flex items-center font-semibold">
+											<Megaphone class="mr-2" /> Announcements
+										</div>
 									</div>
 									{#if rsvpStatus}
 										<div class="my-2">
@@ -642,7 +705,9 @@
 								<HorizRule />
 								<div class="w-full rounded-xl p-0 md:w-1/2 md:p-2">
 									<div class="flex justify-center rounded-xl bg-white p-5 dark:bg-slate-900">
-										<div class="flex font-semibold"><ShoppingBasket class="mr-2" /> Bring List</div>
+										<div class="flex items-center font-semibold">
+											<ShoppingBasket class="mr-2" /> Bring List
+										</div>
 									</div>
 
 									{#if currUserId || tempAttendeeId}
@@ -669,7 +734,7 @@
 
 							<div>
 								<div class="flex justify-center rounded-xl bg-white p-5 dark:bg-slate-900">
-									<div class="flex font-semibold"><Images class="mr-2" /> Gallery</div>
+									<div class="flex items-center font-semibold"><Images class="mr-2" /> Gallery</div>
 								</div>
 								{#if rsvpStatus}
 									<div class="mb-10">
@@ -708,18 +773,30 @@
 							{/if}
 						</div>
 					</Tabs.Content>
+					<Tabs.Content value="user-settings" class="mb-10 w-full">
+						<div class="animate-fadeIn mb-2 w-full">
+							<EventSettings {eventId} />
+						</div>
+					</Tabs.Content>
+					<Tabs.Content value="history" class="mb-10 w-full">
+						<div class="animate-fadeIn mb-2 w-full">
+							<EventHistory {eventId} />
+						</div>
+					</Tabs.Content>
 				</Tabs.Root>
 			</section>
 		</div>
 	{/if}
-	<div class="mx-4 flex flex-col items-center justify-center">
+	<div class="mx-4 flex flex-col items-center justify-center pb-5">
 		<section
 			class="mt-10 flex w-full justify-center sm:w-[450px] md:w-[550px] lg:w-[800px] xl:w-[950px]"
 		>
 			<HorizRule />
 
 			<a class="flex w-full justify-center" href="/bonfire/create">
-				<Button variant="link">Host your event with Bonfire</Button>
+				<Button variant="link" class="rounded-xl bg-orange-300/60 dark:bg-orange-800/60"
+					>Host your event with Bonfire</Button
+				>
 			</a>
 		</section>
 	</div>

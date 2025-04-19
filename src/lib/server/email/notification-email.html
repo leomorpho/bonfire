@@ -1,0 +1,48 @@
+<h1>{{ subject }}</h1>
+<p>{{ message }}</p>
+
+<!-- Action -->
+<table
+  class="body-action"
+  align="center"
+  width="100%"
+  cellpadding="0"
+  cellspacing="0"
+>
+  <tr>
+    <td align="center">
+      <!-- Border based button https://litmus.com/blog/a-guide-to-bulletproof-buttons-in-email-design -->
+      <table width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tr>
+          <td align="center">
+            <table border="0" cellspacing="0" cellpadding="0">
+              <tr>
+                <td>
+                  <a
+                    href="{{ action_button_url }}"
+                    class="button button--"
+                    target="_blank"
+                    >{{ action_button_name }}</a
+                  >
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+
+<p >Best regards, <br /><br />Toby from the {{ product_name }} Team</p>
+
+<!-- Unsubscribe Links -->
+<p style="margin-top: 20px; font-size: 12px;">
+    Manage emails:
+    <ul style="list-style-type: disc; padding-left: 20px; margin: 10px 0 0 0; font-size: 12px;">
+        <li><a href="{{ unsubscribe_from_event_url }}" style="color: #ff5733;">Unsubscribe from event.</a></li>
+        <li><a href="{{ unsubscribe_from_all_url }}" style="color: #ff5733;">Unsubscribe from all event.</a></li>
+        <li><a href="{{ settings_url }}" style="color: #ff5733;">Email preferences.</a></li>
+    </ul>
+</p>

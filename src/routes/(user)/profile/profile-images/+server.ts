@@ -13,8 +13,8 @@ export const GET = async ({ locals, url }) => {
 			const existingTempAttendee = await triplitHttpClient.fetchOne(
 				triplitHttpClient
 					.query('temporary_attendees')
-					.where(['secret_mapping.id', '=', tempAttendeeSecret])
-					.build()
+					.Where(['secret_mapping.id', '=', tempAttendeeSecret])
+					
 			);
 			if (existingTempAttendee) {
 				tempAttendeeExists = true;
@@ -41,9 +41,9 @@ export const GET = async ({ locals, url }) => {
 		// Fetch all users and include profile images
 		const usersQuery = triplitHttpClient
 			.query('user')
-			.where('id', 'in', userIds)
-			.include('profile_image') // Ensure the relation exists
-			.build();
+			.Where('id', 'in', userIds)
+			.Include('profile_image') // Ensure the relation exists
+			;
 
 		const users = await triplitHttpClient.fetch(usersQuery);
 

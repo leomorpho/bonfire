@@ -31,6 +31,7 @@ function createPersistentStore<T>(
 		}
 	};
 }
+export const percentProfitsToCharity = 25;
 
 // Usage for tempAttendeeSecretStore
 export const tempAttendeeSecretStore = createPersistentStore<string | null>('tempAttendeeId', null);
@@ -51,12 +52,15 @@ export enum Status {
 	GOING = 'going',
 	NOT_GOING = 'not_going',
 	MAYBE = 'maybe',
-	WAITLIST = 'waitlist', // TODO: not yet in effect
+	LEFT = 'left',
+	REMOVED = 'removed',
+	WAITLIST = 'waitlisted', // TODO: not yet in effect
 	DEFAULT = 'RSVP'
 }
 
 export enum TaskName {
-	PROCESS_NOTIFICATION_QUEUE = 'process_notification_queue'
+	PROCESS_NOTIFICATION_QUEUE = 'process_notification_queue',
+	SEND_REMINDER_NOTIFICATIONS = 'send_reminder_notifications'
 }
 
 export enum EventFormType {
@@ -83,22 +87,7 @@ export const getStrValueOfRSVP = (status: string) => {
 	}
 };
 
-export enum NotificationType {
-	ANNOUNCEMENT = 'announcement',
-	FILES = 'files',
-	ATTENDEES = 'attendees',
-	TEMP_ATTENDEES = 'temp_attendees',
-	ADMIN_ADDED = 'admin_added',
-	NEW_MESSAGE = 'new_message'
-}
-
 export const MAX_NUM_PUSH_NOTIF_PER_NOTIFICATION = 3;
-
-// Define an enum for permission types
-export const PermissionType = {
-	ONE_DAY_REMINDER: 'oneDayReminder',
-	EVENT_ACTIVITY: 'eventActivity'
-} as const;
 
 export const TempNameCheckingState = {
 	CHECKING: 'CHECKING',
@@ -139,3 +128,161 @@ export const TransactionType = {
 export type TransactionType = (typeof TransactionType)[keyof typeof TransactionType];
 
 export const ABS_MAX_GUEST_NUM = 6;
+
+export const HistoryChangesConstants = {
+	user_id: 'user_id',
+	temporary_attendee_id: 'temporary_attendee_id',
+	field_name_status: 'status',
+	field_name_num_guests: 'num_guests',
+	change_create: 'create',
+	change_delete: 'delete',
+	change_update: 'update'
+};
+
+export enum NotificationType {
+	OTP_VERIFICATION = 'otp',
+	ANNOUNCEMENT = 'announcement',
+	FILES = 'files',
+	ATTENDEES = 'attendees',
+	TEMP_ATTENDEES = 'temp_attendees',
+	ADMIN_ADDED = 'admin_added',
+	NEW_MESSAGE = 'new_message',
+	REMINDER = 'reminder',
+	ADMIN_UPDATES = 'admin_updates'
+}
+
+export const NotificationPermissions = {
+	event_reminders: 'event_reminders',
+	event_activity: 'event_activity',
+	event_files_uploaded: 'event_files_uploaded',
+	event_messages: 'event_messages'
+};
+
+export const DeliveryPermissions = {
+	push_notifications: 'push_notifications',
+	// sms_notifications: 'sms_notifications',
+	email_notifications: 'email_notifications'
+};
+
+export const notificationTypeToPermMap: {
+	[key in NotificationType]:
+		| (typeof NotificationPermissions)[keyof typeof NotificationPermissions]
+		| null;
+} = {
+	[NotificationType.ANNOUNCEMENT]: NotificationPermissions.event_activity,
+	[NotificationType.FILES]: NotificationPermissions.event_files_uploaded,
+	[NotificationType.ATTENDEES]: NotificationPermissions.event_activity,
+	[NotificationType.TEMP_ATTENDEES]: NotificationPermissions.event_activity,
+	[NotificationType.ADMIN_ADDED]: NotificationPermissions.event_activity,
+	[NotificationType.NEW_MESSAGE]: NotificationPermissions.event_messages,
+	[NotificationType.REMINDER]: NotificationPermissions.event_activity,
+	[NotificationType.OTP_VERIFICATION]: null,
+	[NotificationType.ADMIN_UPDATES]: NotificationPermissions.event_activity
+};
+
+export const notificationTypesNoRateLimit = new Set([NotificationPermissions.event_reminders]);
+
+// Define the mapping of notification types to delivery types
+export const notificationTypeToDeliveryMap: {
+	[key in NotificationType]: (typeof DeliveryPermissions)[keyof typeof DeliveryPermissions][];
+} = {
+	[NotificationType.ANNOUNCEMENT]: [
+		DeliveryPermissions.push_notifications,
+		DeliveryPermissions.email_notifications,
+		// DeliveryPermissions.sms_notifications
+	],
+	[NotificationType.FILES]: [
+		DeliveryPermissions.push_notifications,
+		DeliveryPermissions.email_notifications
+	],
+	[NotificationType.ATTENDEES]: [
+		DeliveryPermissions.push_notifications,
+		DeliveryPermissions.email_notifications
+	],
+	[NotificationType.TEMP_ATTENDEES]: [
+		DeliveryPermissions.push_notifications,
+		DeliveryPermissions.email_notifications
+	],
+	[NotificationType.ADMIN_ADDED]: [
+		DeliveryPermissions.push_notifications,
+		DeliveryPermissions.email_notifications
+	],
+	[NotificationType.NEW_MESSAGE]: [
+		DeliveryPermissions.push_notifications,
+		DeliveryPermissions.email_notifications,
+		// DeliveryPermissions.sms_notifications
+	],
+	[NotificationType.REMINDER]: [
+		DeliveryPermissions.push_notifications,
+		// DeliveryPermissions.sms_notifications,
+		DeliveryPermissions.email_notifications
+	],
+	[NotificationType.OTP_VERIFICATION]: [],
+	[NotificationType.ADMIN_UPDATES]: [
+		DeliveryPermissions.push_notifications,
+		DeliveryPermissions.email_notifications
+	]
+};
+
+// Define a set of notification types that support flattening
+export const flattenableNotificationTypes = new Set([
+	NotificationType.ANNOUNCEMENT,
+	NotificationType.FILES,
+	NotificationType.NEW_MESSAGE,
+	NotificationType.TEMP_ATTENDEES,
+	NotificationType.ATTENDEES
+]);
+
+// Define the mapping of notification types to email subjects
+export const notificationTypeToSubject: { [key in NotificationType]: string } = {
+	[NotificationType.ANNOUNCEMENT]: 'New Event Announcement!',
+	[NotificationType.FILES]: 'New Media Files Uploaded',
+	[NotificationType.ATTENDEES]: 'New Attendees Joined!',
+	[NotificationType.TEMP_ATTENDEES]: 'New Temporary Attendees Added',
+	[NotificationType.ADMIN_ADDED]: 'You’re Now an Admin!',
+	[NotificationType.NEW_MESSAGE]: 'New Event Messages!',
+	[NotificationType.REMINDER]: 'Event Reminder!',
+	[NotificationType.OTP_VERIFICATION]: '',
+	[NotificationType.ADMIN_UPDATES]: 'Event Update!'
+};
+
+
+type NotificationTypeMapping = {
+	[key in NotificationType]: {
+		singularObjectName: string;
+		pluralObjectName: string;
+	};
+};
+
+export const notificationTypeMapping: NotificationTypeMapping = {
+	[NotificationType.ANNOUNCEMENT]: {
+		singularObjectName: 'announcement',
+		pluralObjectName: 'announcements'
+	},
+	[NotificationType.FILES]: {
+		singularObjectName: 'media file',
+		pluralObjectName: 'media files'
+	},
+	[NotificationType.NEW_MESSAGE]: {
+		singularObjectName: 'message',
+		pluralObjectName: 'messages'
+	},
+	[NotificationType.ATTENDEES]: {
+		singularObjectName: 'attendee',
+		pluralObjectName: 'attendees'
+	},
+	[NotificationType.TEMP_ATTENDEES]: {
+		singularObjectName: 'temporary account attendee',
+		pluralObjectName: 'temporary account attendees'
+	},
+	[NotificationType.ADMIN_ADDED]: {
+		singularObjectName: 'admin',
+		pluralObjectName: 'admins'
+	},
+	// Add other notification types as needed
+};
+
+// TODO: technically 160 but don't wanna deal with counting unicode chars correctly for now, see TexAreaAutoGrow
+export const maxSmsLenInChars = 100;
+export const defaultMaxEventCapacity = 15;
+export const defaultMaxNumGuestsPerAttendee = 5;

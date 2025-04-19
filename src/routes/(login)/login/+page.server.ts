@@ -17,6 +17,7 @@ import { dev } from '$app/environment';
 import {
 	LOGIN_TYPE_ACTIVATION,
 	LOGIN_TYPE_MAGIC_LINK,
+	NotificationType,
 	NUM_DEFAULT_LOGS_NEW_SIGNUP
 } from '$lib/enums';
 
@@ -93,20 +94,24 @@ export const actions = {
 		await deleteAllEmailOTPsForUser(user.id);
 		const verification_token = await createEmailVerificationOTP(user.id, user.email);
 
-		await sendEmail({
-			from: `${publicEnv.PUBLIC_PROJECT_NAME} <${publicEnv.PUBLIC_FROM_EMAIL}>`,
-			to: user.email,
-			subject: `Your ${login_type} pin for ${publicEnv.PUBLIC_PROJECT_NAME}`,
-			html: loginEmailHtmlTemplate({
-				login_type: login_type,
-				product_url: publicEnv.PUBLIC_ORIGIN,
-				product_name: publicEnv.PUBLIC_PROJECT_NAME,
-				verification_token: verification_token
-			}),
-			headers: {
-				'X-Entity-Ref-ID': generateId(20)
-			}
-		});
+		await sendEmail(
+			{
+				from: `${publicEnv.PUBLIC_PROJECT_NAME} <${publicEnv.PUBLIC_FROM_EMAIL}>`,
+				to: user.email,
+				subject: `Your ${login_type} pin for ${publicEnv.PUBLIC_PROJECT_NAME}`,
+				html: loginEmailHtmlTemplate({
+					login_type: login_type,
+					product_url: publicEnv.PUBLIC_ORIGIN,
+					product_name: publicEnv.PUBLIC_PROJECT_NAME,
+					verification_token: verification_token
+				}),
+				headers: {
+					'X-Entity-Ref-ID': generateId(20)
+				}
+			},
+			NotificationType.OTP_VERIFICATION,
+			user.id
+		);
 
 		return { form };
 	},

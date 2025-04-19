@@ -34,9 +34,8 @@
 		const unsubscribeFromUserQuery = client.subscribe(
 			client
 				.query('user')
-				.where(['id', '=', $page.data.user.id])
-				.select(['id', 'username', 'is_fully_onboarded'])
-				.build(),
+				.Where(['id', '=', $page.data.user.id])
+				.Select(['id', 'username', 'is_fully_onboarded']),
 			(results) => {
 				// If there are less than 3 files in the events eventFiles, fetch the latest 3
 				if (results.length == 1) {
@@ -64,27 +63,33 @@
 	const handleSubmit = async (e: Event) => {
 		const userId = (await waitForUserId()) as string;
 
-		await client.update('user', userId, async (entity) => {
-			entity.username = username;
-			entity.updated_at = new Date();
-		});
+		client
+			.update('user', userId, async (entity) => {
+				entity.username = username;
+				entity.updated_at = new Date();
+			})
+			.then(async () => {
+				// If user is not onboarded, redirect to onboarding flow
+				if (!userIsFullyOnboarded) {
+					goto('/onboarding/free-logs');
+					return;
+				}
 
-		// If user is not onboarded, redirect to onboarding flow
-		if (!userIsFullyOnboarded) {
-			goto('/onboarding');
-			return;
-		}
-		goto('/dashboard');
+				goto('/dashboard');
 
-		const tempAttendanceUrl = await redirectToTempAttendanceInBonfireIfAvailable();
-		if (tempAttendanceUrl) {
-			goto(tempAttendanceUrl);
-		}
+				const tempAttendanceUrl = await redirectToTempAttendanceInBonfireIfAvailable();
+				if (tempAttendanceUrl) {
+					goto(tempAttendanceUrl);
+				}
+			})
+			.catch((error) => {
+				console.error('Error updating user:', error);
+			});
 	};
 </script>
 
 <div class="p-safe flex min-h-screen items-center justify-center dark:text-white">
-	<form class="m-2 w-full max-w-96 space-y-4 text-center sm:max-w-md" onsubmit={handleSubmit}>
+	<div class="m-2 w-full max-w-96 space-y-4 text-center sm:max-w-md">
 		<div class="text-lg font-semibold">Choose Your Username</div>
 
 		<Input
@@ -97,6 +102,6 @@
 		<div class="text-sm text-yellow-600 dark:text-yellow-200">
 			This is how friends will recognize you. It's required to attend any bonfire.
 		</div>
-		<Button type="submit" disabled={!submitEnabled} class="w-full">Save</Button>
-	</form>
+		<Button type="submit" disabled={!submitEnabled} onclick={handleSubmit} class="w-full">Save</Button>
+	</div>
 </div>

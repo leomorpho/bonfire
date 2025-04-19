@@ -119,7 +119,11 @@ export const loadPassphraseScript = () => {
 	});
 };
 
-export const generatePassphraseId = async (prefix: string | null = null, wordsLen: number = 24) => {
+export const generatePassphraseId = async (prefix: string | null = null, wordsLen: number = 8) => {
+	if (prefix) {
+		return prefix + '_' + generateId(wordsLen);
+	}
+	return generateId(wordsLen);
 	try {
 		// Ensure the Passphrase script is loaded
 		await loadPassphraseScript();
@@ -231,10 +235,6 @@ export function detectTailwindTheme(): 'light' | 'dark' {
 	return 'light';
 }
 
-export const createAttendeeId = (eventId: string, userId: string) => {
-	return eventId + '-' + userId;
-};
-
 export const isMobile = () => {
 	// Ensure we are in the browser to avoid SSR issues
 	if (typeof window === 'undefined' || typeof navigator === 'undefined') {
@@ -267,3 +267,66 @@ export const redirectToTempAttendanceInBonfireIfAvailable = async () => {
 		return `/bonfire/${bonfireId}?${tempAttendeeSecretParam}=${tempAttendeeSecret}`;
 	}
 };
+
+/**
+ * Converts a snake_case string to a normal sentence-like string.
+ *
+ * @param {string} snakeCaseString - The string in snake_case format.
+ * @returns {string} - The transformed string in normal sentence format.
+ */
+export function snakeCaseToNormal(snakeCaseString: string) {
+	if (!snakeCaseString) {
+		return ''; // Return an empty string if input is undefined or empty
+	}
+
+	return snakeCaseString
+		.split('_') // Split the string by underscores
+		.join(' '); // Join the words with spaces
+}
+
+export const checkDeviceSupportsPushNotifications = () => {
+	if (typeof window === 'undefined') {
+		return false;
+	}
+	function isBrowserOnIOS() {
+		const ua = window.navigator.userAgent;
+		const webkit = !!ua.match(/WebKit/i);
+		const iOS = !!ua.match(/iPad/i) || !!ua.match(/iPhone/i);
+
+		if (webkit && iOS) {
+			return true;
+		}
+		return false;
+	}
+
+	let isAppInstallable = false;
+
+	// Check for standalone mode in Safari on iOS
+	// @ts-expect-error fuck that
+	const isStandalone = window.navigator.standalone;
+
+	const isAppInstalled = isStandalone || window.matchMedia('(display-mode: standalone)').matches;
+
+	const privateBrowsing = !('serviceWorker' in navigator);
+
+	console.log('privateBrowsing', privateBrowsing);
+	console.log('isAppInstalled', isAppInstalled);
+
+	if (!isAppInstalled) {
+		isAppInstallable = !isBrowserOnIOS() && !isStandalone && !privateBrowsing;
+	}
+
+	console.log('isAppInstallable', isAppInstallable);
+	return isAppInstallable;
+};
+
+/**
+ * Generates a reminder message string.
+ * @param days - The number of days until the event.
+ * @param eventName - The name of the event.
+ * @returns The formatted reminder message string.
+ */
+export function generateReminderMessage(days: number, eventName: string): string {
+	const dayString = days === 1 ? '1 day' : `${days} days`;
+	return `${dayString} reminder! Your event "${eventName}" is coming up! Get ready!`;
+}

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { TriplitClient } from '@triplit/client';
 	import { page } from '$app/stores';
-	import AnnouncementForm from '$lib/components/AnnouncementForm.svelte';
+	import AnnouncementForm from '$lib/components/announcements/AnnouncementForm.svelte';
 	import { getFeWorkerTriplitClient } from '$lib/triplit';
 	import SvgLoader from '$lib/components/SvgLoader.svelte';
 	import { onMount } from 'svelte';
@@ -15,10 +15,8 @@
 
 			let announcementQuery = client
 				.query('announcement')
-				.where(['id', '=', $page.params.announcement_id])
-				.order('created_at', 'DESC')
-				.build();
-
+				.Where(['id', '=', $page.params.announcement_id])
+				.Order('created_at', 'DESC');
 			announcement = await client.fetchOne(announcementQuery);
 		};
 
@@ -42,7 +40,9 @@
 				announcement={announcement ? announcement : null}
 			/>
 		{:else}
-			<SvgLoader />
+			<div class="flex w-full justify-center">
+				<SvgLoader />
+			</div>
 		{/if}
 	</section>
 </div>

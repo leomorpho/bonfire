@@ -110,7 +110,7 @@ describe('Permissions Tests', () => {
 
 		const user1DB = db.withSessionVars(user1Token);
 
-		const query = db.query('user').build();
+		const query = db.query('user');
 
 		const users = await user1DB.fetch(query);
 		console.log('users', users);
@@ -118,3 +118,58 @@ describe('Permissions Tests', () => {
 		// expect(user1Messages[0].text).toBe('Hello, world!');
 	});
 });
+
+
+// describe('getEffectivePermissionSettingForEvent', () => {
+// 	it('should return true if event-specific permission is granted', () => {
+// 		const permissions = [
+// 			{ event_id: 'event-1', permission: NotificationType.ANNOUNCEMENT, granted: true }
+// 		];
+
+// 		const result = getEffectivePermissionSettingForEvent(permissions, NotificationType.ANNOUNCEMENT);
+// 		expect(result).toBe(true);
+// 	});
+
+// 	it('should return false if event-specific permission is not granted', () => {
+// 		const permissions = [
+// 			{ event_id: 'event-1', permission: NotificationType.ANNOUNCEMENT, granted: false }
+// 		];
+
+// 		const result = getEffectivePermissionSettingForEvent(permissions, NotificationType.ANNOUNCEMENT);
+// 		expect(result).toBe(false);
+// 	});
+
+// 	it('should return true if general permission is granted and no event-specific permission exists', () => {
+// 		const permissions = [
+// 			{ permission: NotificationType.ANNOUNCEMENT, granted: true }
+// 		];
+
+// 		const result = getEffectivePermissionSettingForEvent(permissions, NotificationType.ANNOUNCEMENT);
+// 		expect(result).toBe(true);
+// 	});
+
+// 	it('should return false if general permission is not granted and no event-specific permission exists', () => {
+// 		const permissions = [
+// 			{ permission: NotificationType.ANNOUNCEMENT, granted: false }
+// 		];
+
+// 		const result = getEffectivePermissionSettingForEvent(permissions, NotificationType.ANNOUNCEMENT);
+// 		expect(result).toBe(false);
+// 	});
+
+// 	it('should return false if no permissions are found', () => {
+// 		const permissions: any[] = [];
+
+// 		const result = getEffectivePermissionSettingForEvent(permissions, NotificationType.ANNOUNCEMENT);
+// 		expect(result).toBe(false);
+// 	});
+
+// 	it('should return false if the permission type does not match', () => {
+// 		const permissions = [
+// 			{ event_id: 'event-1', permission: NotificationType.ANNOUNCEMENT, granted: true }
+// 		];
+
+// 		const result = getEffectivePermissionSettingForEvent(permissions, NotificationType.REMINDER);
+// 		expect(result).toBe(false);
+// 	});
+// });

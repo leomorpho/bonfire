@@ -2,18 +2,11 @@
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import { Smile, Meh, Frown, HandMetal, LogOut } from 'lucide-svelte';
 	import type { TriplitClient } from '@triplit/client';
-	import { and } from '@triplit/client';
-	import { getFeWorkerTriplitClient, upsertUserAttendance } from '$lib/triplit';
-	import {
-		getStrValueOfRSVP,
-		NOTIFY_OF_ATTENDING_STATUS_CHANGE,
-		Status,
-		tempAttendeeSecretParam
-	} from '$lib/enums';
+	import { getFeWorkerTriplitClient } from '$lib/triplit';
+	import { getStrValueOfRSVP, Status, tempAttendeeSecretParam } from '$lib/enums';
 	import AddToCalendar from '../AddToCalendar.svelte';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
-	import { createNewAttendanceNotificationQueueObject } from '$lib/notification';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { toast } from 'svelte-sonner';
@@ -21,6 +14,8 @@
 	import PlusOneSelect from './PlusOneSelect.svelte';
 	import TempAttendeeDialog from './TempAttendeeDialog.svelte';
 	import UpdatePlusOneSelect from './UpdatePlusOneSelect.svelte';
+	import { updateRSVPForLoggedInUser, updateRSVPForTempUser } from '$lib/rsvp';
+	import RsvpNameWithLoader from './RsvpNameWithLoader.svelte';
 
 	let {
 		rsvpStatus = Status.DEFAULT,
@@ -43,6 +38,7 @@
 	let tempUserRsvpStatus: null | string = $state(null);
 	let isPlusOneSelectDialogOpenForFullUser = $state(false);
 
+	let isProcessingRsvp = $state(false);
 	let showAddToCalendar = $state(false);
 
 	let client: TriplitClient;
@@ -63,9 +59,13 @@
 	// Function to handle RSVP updates
 	const updateRSVP = async (
 		event: Event,
+		oldValue: string | null,
 		newValue: string | null,
 		numGuestsCurrentAttendeeIsBringing: number | null = 0
 	) => {
+		if (oldValue == newValue) {
+			return;
+		}
 		if (!newValue) {
 			newValue = rsvpStatus;
 		}
@@ -92,168 +92,59 @@
 				return;
 			}
 			console.log('updating RSVP status for logged in user');
-			await updateRSVPForLoggedInUser(newValue as string, numGuestsCurrentAttendeeIsBringing);
-		} else {
-			console.log('updating RSVP status for temporary user');
-			await updateRSVPForTempUser(newValue as string, numGuestsCurrentAttendeeIsBringing);
-		}
-		dropdownOpen = false;
-	};
-
-	const deleteAttendance = async (event: Event) => {
-		let attendance;
-
-		try {
-			const query = client
-				.query('attendees')
-				.where([
-					and([
-						['user_id', '=', userId],
-						['event_id', '=', eventId as string]
-					])
-				])
-				.select(['id'])
-				.build();
-			attendance = await client.fetchOne(query);
-		} catch (e) {
-			console.error(`failed to fetch attendance for event ${eventId} and user ${userId}:`, e);
-		}
-
-		if (!attendance) {
-			console.error(
-				`tried to delete attendance for event ${eventId} and user ${userId} but it does NOT exist`
+			isProcessingRsvp = true;
+			await updateRSVPForLoggedInUser(
+				client,
+				userId,
+				eventId,
+				rsvpStatus,
+				newValue as string,
+				numGuestsCurrentAttendeeIsBringing
 			);
-			return;
-		}
-		try {
-			await client.delete('attendees', attendance.id);
-			toast.success(
-				'This event has been unlinked from your account and removed from your dashboard.'
-			);
-		} catch (e) {
-			console.error(`failed to delete attendance for event ${eventId} and user ${userId}:`, e);
-		} finally {
-			goto('/dashboard');
-		}
-	};
-
-	const updateRSVPForTempUser = async (
-		newValue: string,
-		numGuestsCurrentAttendeeIsBringing: number | null
-	) => {
-		const tempAttendeeSecret = $page.url.searchParams.get(tempAttendeeSecretParam);
-
-		if (!tempAttendeeSecret) {
-			toast.error("You don't have a valid identity, please create a new one");
-			return;
-		}
-
-		try {
-			// Call the SvelteKit endpoint to update RSVP
-			const response = await fetch(
-				`/bonfire/${eventId}/attend/temp-user/update-rsvp?${tempAttendeeSecretParam}=${tempAttendeeSecret}`,
-				{
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json'
-					},
-					body: JSON.stringify({
-						tempAttendeeSecret,
-						rsvpStatus: newValue,
-						numGuestsCurrentAttendeeIsBringing: numGuestsCurrentAttendeeIsBringing
-					})
-				}
-			);
-
-			if (!response.ok) {
-				const errorMessage = await response.text();
-				throw new Error(errorMessage || 'Failed to update RSVP status.');
-			}
-
-			// Update UI state or take further action if needed
-			toast.success(`RSVP successfully updated to ${newValue}`);
-			console.log('RSVP updated to:', newValue);
-		} catch (error) {
-			console.error('Failed to update RSVP status:', newValue, error);
-			toast.error('Sorry, we failed to update your RSVP status. Please try again later.');
-		}
-	};
-
-	const updateRSVPForLoggedInUser = async (
-		newValue: string,
-		numGuestsCurrentAttendeeIsBringing: number | null
-	) => {
-		try {
-			const query = client
-				.query('attendees')
-				.where([
-					and([
-						['user_id', '=', userId],
-						['event_id', '=', eventId as string]
-					])
-				])
-				.build();
-			let attendance = await client.fetchOne(query);
-
-			if (!userId || !eventId) {
-				console.error(
-					`updateRSVPForLoggedInUser: userId (${userId}) or eventId (${eventId}) is missing and prevents update of RSVP status for logged in user`
-				);
-				return;
-			}
-
-			let attendanceId = attendance?.id;
-			if (!attendance) {
-				try {
-					const attendance = await upsertUserAttendance(
-						eventId,
-						newValue as Status,
-						numGuestsCurrentAttendeeIsBringing
-					);
-					attendanceId = attendance?.id;
-				} catch (e) {
-					console.error(
-						`failed to create attendance for event ${eventId} and user ${userId}:`,
-						newValue,
-						e
-					);
-				}
-			} else {
-				try {
-					await upsertUserAttendance(
-						eventId,
-						newValue as Status,
-						numGuestsCurrentAttendeeIsBringing
-					);
-				} catch (e) {
-					console.error('failed to update attendance:', newValue, e);
-				}
-			}
 
 			// TODO: this is a hack because when putting a going status, the attendee list does not update correctly,
 			// not returning all attendees. Just reloading as that fixes the issue, though not ideal.
-			let reload = false;
 			if (rsvpStatus == Status.DEFAULT) {
-				reload = true;
-			}
-			rsvpStatus = newValue; // Update the label
-
-			if (NOTIFY_OF_ATTENDING_STATUS_CHANGE.includes(rsvpStatus)) {
-				try {
-					await createNewAttendanceNotificationQueueObject(client, userId, eventId, [attendanceId]);
-				} catch (e) {
-					console.log('failed to create attendance notifications:', newValue, e);
-				}
-			}
-
-			// Perform any additional actions, e.g., API call to save the new RSVP status
-			console.log('RSVP updated to:', newValue);
-
-			if (reload) {
 				window.location.reload();
 			}
-		} catch (error) {
-			console.log('failed to update RSVP status to:', newValue, error);
+		} else {
+			console.log('updating RSVP status for temporary user');
+			const tempAttendeeSecret = $page.url.searchParams.get(tempAttendeeSecretParam);
+
+			if (!tempAttendeeSecret) {
+				toast.error("You don't have a valid identity, please create a new one");
+				return;
+			}
+			isProcessingRsvp = true;
+			try {
+				await updateRSVPForTempUser(
+					newValue as string,
+					eventId,
+					tempAttendeeSecret,
+					numGuestsCurrentAttendeeIsBringing
+				);
+				toast.success(`RSVP successfully updated to ${newValue}`);
+			} catch (e) {
+				console.error('Failed to update RSVP status:', newValue, e);
+				toast.error('Sorry, we failed to update your RSVP status. Please try again later.');
+			}
+		}
+		dropdownOpen = false;
+		isProcessingRsvp = false;
+		isPlusOneSelectDialogOpenForFullUser = false;
+	};
+
+	const leaveEvent = async (event: Event) => {
+		isProcessingRsvp = true;
+		try {
+			await updateRSVP(event, rsvpStatus, Status.LEFT);
+		} catch (e) {
+			console.error(`failed to update RSVP to leaving for event ${eventId} and user ${userId}:`, e);
+			toast.success(
+				'This event has been unlinked from your account and removed from your dashboard.'
+			);
+		} finally {
+			goto('/dashboard');
 		}
 	};
 </script>
@@ -288,7 +179,7 @@
 					{maxNumGuestsAllowedPerAttendee}
 					bind:numGuests={numGuestsCurrentAttendeeIsBringing}
 					updateCallback={(e: Event) => {
-						updateRSVP(e, newRsvpStatusToSave, numGuestsCurrentAttendeeIsBringing);
+						updateRSVP(e, rsvpStatus, newRsvpStatusToSave, numGuestsCurrentAttendeeIsBringing);
 					}}
 				/>
 			</div>
@@ -302,31 +193,42 @@
 					<DropdownMenu.Item
 						id="rsvp-button-going"
 						class={rsvpStatus === Status.GOING ? 'bg-green-400 dark:bg-green-600' : ''}
-						onclick={(event) => updateRSVP(event, Status.GOING)}
+						onclick={(event) =>
+							updateRSVP(event, rsvpStatus, Status.GOING, numGuestsCurrentAttendeeIsBringing)}
 					>
-						<Smile /> Going
+						<RsvpNameWithLoader bind:isLoading={isProcessingRsvp}>
+							<Smile class="mr-2" /> Going
+						</RsvpNameWithLoader>
 					</DropdownMenu.Item>
 					<DropdownMenu.Item
 						id="rsvp-button-maybe"
 						class={rsvpStatus === Status.MAYBE ? 'bg-yellow-400 dark:bg-yellow-600' : ''}
-						onclick={(event) => updateRSVP(event, Status.MAYBE)}
+						onclick={(event) =>
+							updateRSVP(event, rsvpStatus, Status.MAYBE, numGuestsCurrentAttendeeIsBringing)}
 					>
-						<Meh /> Maybe
+						<RsvpNameWithLoader bind:isLoading={isProcessingRsvp}>
+							<Meh class="mr-2" /> Maybe
+						</RsvpNameWithLoader>
 					</DropdownMenu.Item>
 					<DropdownMenu.Item
 						id="rsvp-button-not-going"
 						class={rsvpStatus === Status.NOT_GOING ? 'bg-red-400 dark:bg-red-600' : ''}
-						onclick={(event) => updateRSVP(event, Status.NOT_GOING)}
+						onclick={(event) =>
+							updateRSVP(event, rsvpStatus, Status.NOT_GOING, numGuestsCurrentAttendeeIsBringing)}
 					>
-						<Frown /> Not going
+						<RsvpNameWithLoader bind:isLoading={isProcessingRsvp}>
+							<Frown class="mr-2" /> Not going
+						</RsvpNameWithLoader>
 					</DropdownMenu.Item>
-					{#if rsvpStatus != Status.DEFAULT && userId != eventOwnerId}
+					{#if rsvpStatus != Status.DEFAULT && userId && userId != eventOwnerId}
 						<DropdownMenu.Item
 							id="rsvp-button-leave"
 							class={rsvpStatus === Status.NOT_GOING ? '' : ''}
-							onclick={(event) => deleteAttendance(event)}
+							onclick={(event) => leaveEvent(event)}
 						>
-							<LogOut /> Leave event
+							<RsvpNameWithLoader bind:isLoading={isProcessingRsvp}>
+								<LogOut class="mr-2" /> Leave event
+							</RsvpNameWithLoader>
 						</DropdownMenu.Item>
 					{/if}
 				</DropdownMenu.Group>
@@ -352,12 +254,18 @@
 			maxGuests={maxNumGuestsAllowedPerAttendee}
 		/>
 		<Button
-			class="w-full"
+			class="flex w-full items-center justify-between"
 			onclick={(e) => {
-				updateRSVP(e, newRsvpStatusToSave, numGuestsCurrentAttendeeIsBringing);
+				updateRSVP(e, rsvpStatus, newRsvpStatusToSave, numGuestsCurrentAttendeeIsBringing);
 			}}
 		>
+			{#if isProcessingRsvp}
+				<div class="loading loading-spinner loading-xs mr-2"></div>
+			{:else}
+				<div></div>
+			{/if}
 			Let's go!
+			<div></div>
 		</Button>
 	</Dialog.Content>
 </Dialog.Root>

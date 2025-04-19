@@ -117,6 +117,20 @@ export function updateUsersLiveDataStoreEntry(user: UserData) {
 	});
 }
 
+/**
+ * Retrieves a user by userId from usersLiveDataStore.
+ *
+ * @param {string} userId - The ID of the user to retrieve.
+ * @returns {Promise<UserData | undefined>} - The user data if found, otherwise undefined.
+ */
+export async function getUserById(userId: string): Promise<UserData | undefined> {
+	return new Promise((resolve) => {
+		usersLiveDataStore.subscribe((users) => {
+			resolve(users[userId]);
+		})();
+	});
+}
+
 export const tempUsersLiveDataStore = writable(new Map<string, TempUserData>());
 
 /**
@@ -127,6 +141,20 @@ export function updateTempUsersLiveDataStoreEntry(tempUser: TempUserData) {
 		const updatedTempUsers = new Map(tempUsers);
 		updatedTempUsers.set(tempUser.id, tempUser);
 		return updatedTempUsers;
+	});
+}
+
+/**
+ * Retrieves a temp user by tempUserId from tempUsersLiveDataStore.
+ *
+ * @param {string} tempUserId - The ID of the temp user to retrieve.
+ * @returns {Promise<TempUserData | undefined>} - The temp user data if found, otherwise undefined.
+ */
+export async function getTempUserById(tempUserId: string): Promise<TempUserData | undefined> {
+	return new Promise((resolve) => {
+		tempUsersLiveDataStore.subscribe((tempUsers) => {
+			resolve(tempUsers.get(tempUserId));
+		})();
 	});
 }
 
@@ -239,11 +267,10 @@ export async function deleteUserLiveDataStoreEntry(userId: string): Promise<void
 	usersLiveDataStore.update((users) => {
 		const updatedUsers = new Map(Object.entries(users) ?? []);
 		updatedUsers.delete(userId);
-	
+
 		// Convert back to an object since usersLiveDataStore expects a Record
 		return Object.fromEntries(updatedUsers);
 	});
-	
 }
 
 export function convertUserRequestsToMap(userRequests: UserRequest[]): Map<string, boolean> {

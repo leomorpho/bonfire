@@ -18,7 +18,7 @@
 
 <Container>
 	<div class="py-5 md:py-7"></div>
-	<h2 class="mb-10 text-center text-2xl font-bold md:text-4xl">App Features</h2>
+	<h2 class="mb-10 text-center text-3xl font-bold md:text-4xl">App Features</h2>
 	<div class="flex w-full justify-center">
 		<div
 			class="grid max-w-[80vw] grid-cols-1 justify-center gap-8 justify-self-center sm:grid-cols-2 xl:grid-cols-4"

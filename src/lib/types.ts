@@ -20,6 +20,7 @@ export type NotificationQueueEntry = {
 	user_id: string;
 	object_type: NotificationType;
 	object_ids: string; // Comma-separated list of IDs
+	object_ids_set: Set<string>;
 	event_id: string; // Event ID to validate associations
 	sent_at: Date | null;
 };
@@ -31,6 +32,7 @@ export type NotificationTypescriptType = {
 	message: string;
 	object_type: NotificationType;
 	object_ids: string; // Comma-separated list of IDs
+	object_ids_set: Set<string>;
 	created_at: Date | null;
 	seen_at: Date | null;
 	num_push_notifications_sent: number;
@@ -187,3 +189,39 @@ export type LogTokenTransaction = {
 	num_log_tokens: number; // Number of logs purchased/refunded
 	created_at: string; // Timestamp of transaction (ISO string)
 };
+
+export interface TemporaryAttendeeChange {
+	temporary_attendee_id: string;
+	changed_by: string;
+	changed_by_id_type: string;
+	change_type: string;
+	field_name?: string | null;
+	old_value?: string | null;
+	new_value?: string | null;
+}
+
+export interface AttendeeChange {
+	attendee_id: string | null;
+	changed_by: string;
+	change_type: string;
+	field_name?: string | null;
+	old_value?: string | null;
+	new_value?: string | null;
+}
+
+export interface FontSelection {
+	name: string;
+	style: string;
+	cdn: string;
+}
+
+export type NotifierPermission = {
+	id: string;
+	user_id: string;
+	event_id?: string; // Optional event_id
+	permission: string;
+	granted: boolean;
+	created_at: Date;
+};
+
+export type PermissionsArray = NotifierPermission[];

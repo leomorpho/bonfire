@@ -4,6 +4,8 @@ import { Status, tempAttendeeSecretParam } from '$lib/enums';
 import { dev } from '$app/environment';
 import { and } from '@triplit/client';
 import { checkEventIsOpenForNewGoingAttendees } from '$lib/triplit';
+import { createTempAttendance } from '$lib/rsvp';
+import { generatePassphraseId } from '$lib/utils';
 // import { RateLimiter } from 'sveltekit-rate-limiter/server';
 
 // // Initialize the rate limiter
@@ -33,9 +35,6 @@ export async function POST({ request, params }) {
 		}: { id?: string; event_id: string; status?: string; name: string; numExtraGuests: number } =
 			await request.json();
 
-		if (!id) {
-			throw error(400, 'Missing temporary attendance ID');
-		}
 		if (!name) {
 			throw error(400, 'Name is required');
 		}
@@ -54,15 +53,12 @@ export async function POST({ request, params }) {
 
 		// Check if an attendee with the same name already exists for this event
 		const existingAttendee = await triplitHttpClient.fetchOne(
-			triplitHttpClient
-				.query('temporary_attendees')
-				.where(
-					and([
-						['event_id', '=', eventId],
-						['name', '=', name]
-					])
-				)
-				.build()
+			triplitHttpClient.query('temporary_attendees').Where(
+				and([
+					['event_id', '=', eventId],
+					['name', '=', name]
+				])
+			)
 		);
 		if (existingAttendee) {
 			return json(
@@ -71,21 +67,21 @@ export async function POST({ request, params }) {
 			);
 		}
 
-		// Use Triplit to insert the temporary attendee record
-		const { output } = await triplitHttpClient.insert('temporary_attendees', {
-			event_id: eventId,
-			status: status || 'undecided', // Default status if not provided
-			name,
-			guest_count: numExtraGuests
-		});
+		const newStatus = status || 'undecided';
 
-		await triplitHttpClient.insert('temporary_attendees_secret_mapping', {
-			id: id,
-			temporary_attendee_id: output.id
-		});
+		const secretId = await generatePassphraseId('', 25);
+
+		await createTempAttendance(
+			triplitHttpClient,
+			secretId,
+			eventId,
+			newStatus,
+			name,
+			numExtraGuests
+		);
 
 		// Return the URL the FE can redirect to
-		const redirectUrl = `/bonfire/${eventId}?${tempAttendeeSecretParam}=${id}`;
+		const redirectUrl = `/bonfire/${eventId}?${tempAttendeeSecretParam}=${secretId}`;
 		return json({ success: true, redirectUrl });
 	} catch (err) {
 		console.error('Error creating temporary attendee:', err);

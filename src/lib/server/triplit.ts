@@ -1,13 +1,16 @@
-import { Status } from '$lib/enums';
+import { NotificationType, Status } from '$lib/enums';
 import type { AttendeeTypescriptType, FileTypescriptType } from '$lib/types';
 import { env as publicEnv } from '$env/dynamic/public';
 import { env as privateEnv } from '$env/dynamic/private';
-import { and, HttpClient } from '@triplit/client';
-import { createAttendeeId } from '$lib/utils';
+import { and, or, HttpClient } from '@triplit/client';
 import { spawn } from 'child_process';
 import { dev } from '$app/environment';
+import { schema } from '../../../triplit/schema';
+import { createAttendeeId } from '$lib/rsvp';
+import { getEffectivePermissionSettingForEvent } from '$lib/permissions';
 
 export const triplitHttpClient = new HttpClient({
+	schema,
 	serverUrl: publicEnv.PUBLIC_TRIPLIT_URL,
 	token: privateEnv.TRIPLIT_SERVICE_TOKEN
 });
@@ -67,49 +70,94 @@ export function pushTriplitSchema() {
 export async function getAttendeeUserIdsOfEvent(
 	eventId: string,
 	statuses: Status[],
-	excludeCreator: boolean = false
-): Promise<string[]> {
-	// Fetch the event to get the creator's user ID if excludeCreator is true
-	let creatorUserId: string | null = null;
-	if (excludeCreator) {
-		const eventQuery = triplitHttpClient
-			.query('events')
-			// .select(['user_id']) // TODO: triplit bug preventing select
-			.where([['id', '=', eventId]])
-			.build();
-
-		const [event] = await triplitHttpClient.fetch(eventQuery);
-		creatorUserId = event?.user_id || null;
-	}
-
-	// Build the attendees query
-	const attendeeQueryConditions: any[] = [
-		['event_id', '=', eventId],
-		['status', 'in', statuses]
-	];
-
-	// Add condition to exclude the creator if applicable
-	if (excludeCreator && creatorUserId) {
-		attendeeQueryConditions.push(['user_id', '!=', creatorUserId]);
-	}
-
+	notificationType: NotificationType | null = null
+): Promise<{ granted: string[]; notGranted: string[] }> {
 	const query = triplitHttpClient
 		.query('attendees')
-		// .select(['user_id'])  // TODO: triplit bug preventing select
-		.where(attendeeQueryConditions)
-		.build();
+		.Where(
+			and([
+				['event_id', '=', eventId],
+				['status', 'in', statuses]
+			])
+		)
+		.SubqueryMany(
+			'notification_permissions',
+			triplitHttpClient
+				.query('notification_permissions')
+				.Where(['user_id', '=', '$1.user_id'])
+				// .Select(['granted', 'permission', 'event_id'])
+		)
+		.Select(['user_id']);
 
-	const results = (await triplitHttpClient.fetch(query)) as AttendeeTypescriptType[];
-	return results.map((attendee: AttendeeTypescriptType) => attendee.user_id);
+	const results = await triplitHttpClient.fetch(query);
+
+	const attendeesWithPermission: string[] = [];
+	const attendeesWithoutPermission: string[] = [];
+
+	
+	for (const attendee of results) {
+		// console.log('======> DOWN results =>', attendee.notification_permissions);
+
+		const hasPermission = getEffectivePermissionSettingForEvent(
+			attendee.notification_permissions,
+			notificationType
+		);
+		if (hasPermission) {
+			attendeesWithPermission.push(attendee.user_id);
+		} else {
+			attendeesWithoutPermission.push(attendee.user_id);
+		}
+	}
+
+	return {
+		granted: attendeesWithPermission,
+		notGranted: attendeesWithoutPermission
+	};
+}
+
+export async function getAdminUserIdsOfEvent(
+	eventId: string,
+	notificationPermission: NotificationType | null = null
+): Promise<{ granted: string[]; notGranted: string[] }> {
+	const users = await triplitHttpClient.fetch(
+		triplitHttpClient
+			.query('user')
+			.Where(
+				or([
+					['created_events.id', '=', eventId],
+					['admin_for_events.id', '=', eventId]
+				])
+			)
+			.Include('notification_permissions')
+			.Select(['id'])
+	);
+
+	const adminsWithPermission: string[] = [];
+	const adminsWithoutPermission: string[] = [];
+
+	for (const user of users) {
+		const hasPermission = getEffectivePermissionSettingForEvent(
+			user.notification_permissions,
+			notificationPermission
+		);
+		if (hasPermission) {
+			adminsWithPermission.push(user.id);
+		} else {
+			adminsWithoutPermission.push(user.id);
+		}
+	}
+
+	return {
+		granted: adminsWithPermission,
+		notGranted: adminsWithoutPermission
+	};
 }
 
 export async function validateAnnouncements(announcementIds: string[]): Promise<string[]> {
 	const query = triplitHttpClient
 		.query('announcement')
-		// .select(['id']) // TODO: triplit bug preventing select
-		.where([['id', 'in', announcementIds]])
-		.build();
-
+		.Select(['id'])
+		.Where([['id', 'in', announcementIds]]);
 	// Fetch and return only the IDs
 	const results = (await triplitHttpClient.fetch(query)) as AttendeeTypescriptType[];
 
@@ -119,10 +167,8 @@ export async function validateAnnouncements(announcementIds: string[]): Promise<
 export async function validateFiles(fileIds: string[]): Promise<string[]> {
 	const query = triplitHttpClient
 		.query('files')
-		// .select(['id']) // TODO: triplit bug preventing select
-		.where([['id', 'in', fileIds]])
-		.build();
-
+		.Select(['id'])
+		.Where([['id', 'in', fileIds]]);
 	// Fetch and return only the IDs
 	const results = (await triplitHttpClient.fetch(query)) as FileTypescriptType[];
 	return results.map((file: FileTypescriptType) => file.id);
@@ -131,10 +177,8 @@ export async function validateFiles(fileIds: string[]): Promise<string[]> {
 export async function validateAttendees(attendeeIds: string[]): Promise<string[]> {
 	const query = triplitHttpClient
 		.query('attendees')
-		.where([['id', 'in', attendeeIds]])
-		// .select(['id']) // TODO: triplit bug preventing select
-		.build();
-
+		.Where([['id', 'in', attendeeIds]])
+		.Select(['id']);
 	// Fetch and return only the IDs
 	const results = (await triplitHttpClient.fetch(query)) as AttendeeTypescriptType[];
 	return results.map((attendee: AttendeeTypescriptType) => attendee.id);
@@ -143,10 +187,8 @@ export async function validateAttendees(attendeeIds: string[]): Promise<string[]
 export async function validateTempAttendees(attendeeIds: string[]): Promise<string[]> {
 	const query = triplitHttpClient
 		.query('temporary_attendees')
-		.where([['id', 'in', attendeeIds]])
-		// .select(['id']) // TODO: triplit bug preventing select
-		.build();
-
+		.Where([['id', 'in', attendeeIds]])
+		.Select(['id']);
 	// Fetch and return only the IDs
 	const results = (await triplitHttpClient.fetch(query)) as AttendeeTypescriptType[];
 	return results.map((attendee: AttendeeTypescriptType) => attendee.id);
@@ -155,10 +197,8 @@ export async function validateTempAttendees(attendeeIds: string[]): Promise<stri
 export async function validateUserIds(userIds: string[]): Promise<string[]> {
 	const query = triplitHttpClient
 		.query('user')
-		.where([['id', 'in', userIds]])
-		// .select(['id']) // TODO: triplit bug preventing select
-		.build();
-
+		.Where([['id', 'in', userIds]])
+		.Select(['id']);
 	// Fetch and return only the IDs
 	const results = (await triplitHttpClient.fetch(query)) as AttendeeTypescriptType[];
 	return results.map((user: AttendeeTypescriptType) => user.id);
@@ -167,10 +207,8 @@ export async function validateUserIds(userIds: string[]): Promise<string[]> {
 export async function validateMessageIds(userIds: string[]): Promise<string[]> {
 	const query = triplitHttpClient
 		.query('event_messages')
-		.where([['id', 'in', userIds]])
-		.select(['id'])
-		.build();
-
+		.Where([['id', 'in', userIds]])
+		.Select(['id']);
 	// Fetch and return only the IDs
 	const results = (await triplitHttpClient.fetch(query)) as AttendeeTypescriptType[];
 	return results.map((user: AttendeeTypescriptType) => user.id);
@@ -184,7 +222,7 @@ export const convertTempToPermanentUser = async (
 	existingTempAttendeeId: string,
 	existingTempAttendeeName: string,
 	existingTempAttendeeStatus: string,
-	existingTempAttendeeGuesCount: string,
+	existingTempAttendeeGuesCount: string
 ) => {
 	try {
 		console.log('---> converting temp user to permament user');
@@ -196,15 +234,12 @@ export const convertTempToPermanentUser = async (
 		}
 		// Convert temp attendee to normal attendance if user doesn't already have an attendance
 		const attendances = await triplitHttpClient.fetch(
-			triplitHttpClient
-				.query('attendees')
-				.where([
-					and([
-						['event_id', '=', eventId],
-						['user_id', '=', userId]
-					])
+			triplitHttpClient.query('attendees').Where([
+				and([
+					['event_id', '=', eventId],
+					['user_id', '=', userId]
 				])
-				.build()
+			])
 		);
 
 		if (attendances.length == 0) {
@@ -213,7 +248,7 @@ export const convertTempToPermanentUser = async (
 				user_id: userId,
 				event_id: eventId,
 				status: existingTempAttendeeStatus,
-				guest_count: existingTempAttendeeGuesCount,
+				guest_count: Number(existingTempAttendeeGuesCount)
 			});
 		} else if (attendances.length > 1) {
 			console.error(
@@ -223,15 +258,12 @@ export const convertTempToPermanentUser = async (
 
 		// Convert all files imported by this temp attendee to the current user
 		const files = await triplitHttpClient.fetch(
-			triplitHttpClient
-				.query('files')
-				.where([
-					and([
-						['event_id', '=', eventId],
-						['temp_uploader_id', '=', existingTempAttendeeId]
-					])
+			triplitHttpClient.query('files').Where([
+				and([
+					['event_id', '=', eventId],
+					['temp_uploader_id', '=', existingTempAttendeeId]
 				])
-				.build()
+			])
 		);
 
 		// Update each file to set uploader_id to the user's ID

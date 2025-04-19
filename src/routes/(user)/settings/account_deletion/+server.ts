@@ -5,8 +5,6 @@ import { error, json, type RequestEvent } from '@sveltejs/kit';
 import { db } from '$lib/server/database/db';
 import {
 	emailVerificationTokenTable,
-	notificationPermissionTable,
-	pushSubscriptionTable,
 	sessionTable,
 	signinTable,
 	userTable,
@@ -33,10 +31,6 @@ export const DELETE = async (event: RequestEvent) => {
 				.where(eq(emailVerificationTokenTable.user_id, userId));
 			await tx.delete(sessionTable).where(eq(sessionTable.userId, userId));
 			await tx.delete(signinTable).where(eq(signinTable.email, userId)); // Assuming email is used for signin tracking
-			await tx.delete(pushSubscriptionTable).where(eq(pushSubscriptionTable.userId, userId));
-			await tx
-				.delete(notificationPermissionTable)
-				.where(eq(notificationPermissionTable.userId, userId));
 
 			// Insert into deleted_user table
 			await tx.insert(deletedUserTable).values({ userId });
@@ -46,11 +40,7 @@ export const DELETE = async (event: RequestEvent) => {
 		});
 
 		// Delete events user created
-		const eventsQuery = client
-			.query('events')
-			.where(['user_id', '=', userId])
-			.select(['id'])
-			.build();
+		const eventsQuery = client.query('events').Where(['user_id', '=', userId]).Select(['id']);
 		const events = await client.fetch(eventsQuery);
 		const eventIds = events.map((event) => event.id);
 
@@ -61,14 +51,13 @@ export const DELETE = async (event: RequestEvent) => {
 		// Delete files user uploaded
 		const filesQuery = client
 			.query('files')
-			.where(
+			.Where(
 				or([
 					['uploader_id', '=', userId],
 					['event_id', 'in', eventIds]
 				])
 			)
-			.select(['id'])
-			.build();
+			.Select(['id']);
 		const files = await client.fetch(filesQuery);
 		for (const file of files) {
 			await client.delete('files', file.id);
@@ -78,14 +67,13 @@ export const DELETE = async (event: RequestEvent) => {
 
 		const attendeesQuery = client
 			.query('attendees')
-			.where(
+			.Where(
 				or([
 					['user_id', '=', userId],
 					['event_id', 'in', eventIds]
 				])
 			)
-			.select(['id'])
-			.build();
+			.Select(['id']);
 		const attendees = await client.fetch(attendeesQuery);
 		for (const attendee of attendees) {
 			await client.delete('attendees', attendee.id);
@@ -93,9 +81,8 @@ export const DELETE = async (event: RequestEvent) => {
 
 		const notificationsQuery = client
 			.query('notifications')
-			.where(['user_id', '=', userId])
-			.select(['id'])
-			.build();
+			.Where(['user_id', '=', userId])
+			.Select(['id']);
 		const notifications = await client.fetch(notificationsQuery);
 		for (const notification of notifications) {
 			await client.delete('notifications', notification.id);
@@ -103,9 +90,8 @@ export const DELETE = async (event: RequestEvent) => {
 
 		const profileImagesQuery = client
 			.query('profile_images')
-			.where(['user_id', '=', userId])
-			.select(['id'])
-			.build();
+			.Where(['user_id', '=', userId])
+			.Select(['id']);
 		const profileImages = await client.fetch(profileImagesQuery);
 		for (const profileImage of profileImages) {
 			await client.delete('profile_images', profileImage.id);

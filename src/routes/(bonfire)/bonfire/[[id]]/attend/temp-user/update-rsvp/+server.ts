@@ -1,8 +1,13 @@
 import { error, type RequestHandler } from '@sveltejs/kit';
 import { triplitHttpClient } from '$lib/server/triplit';
-import { NOTIFY_OF_ATTENDING_STATUS_CHANGE, tempAttendeeSecretParam } from '$lib/enums';
-import { createNewTemporaryAttendanceNotificationQueueObject } from '$lib/notification';
+import {
+	HistoryChangesConstants,
+	NOTIFY_OF_ATTENDING_STATUS_CHANGE,
+	tempAttendeeSecretParam
+} from '$lib/enums';
+import { createNewTemporaryAttendanceNotificationQueueObject } from '$lib/notification_queue';
 import { checkEventIsOpenForNewGoingAttendees } from '$lib/triplit';
+import type { TemporaryAttendeeChange } from '$lib/types';
 
 export const POST: RequestHandler = async ({ url, request }): Promise<Response> => {
 	try {
@@ -12,7 +17,7 @@ export const POST: RequestHandler = async ({ url, request }): Promise<Response> 
 			throw error(400, 'No temporary attendee secret provided.');
 		}
 
-		const { rsvpStatus, numGuests } = await request.json();
+		const { rsvpStatus, numGuestsCurrentAttendeeIsBringing } = await request.json();
 		if (!rsvpStatus) {
 			throw error(400, 'RSVP status is required.');
 		}
@@ -20,9 +25,8 @@ export const POST: RequestHandler = async ({ url, request }): Promise<Response> 
 		const tempAttendeeSecret = await triplitHttpClient.fetchOne(
 			triplitHttpClient
 				.query('temporary_attendees_secret_mapping')
-				.where(['id', '=', tempAttendeeSecretString])
-				.include('temporary_attendee')
-				.build()
+				.Where(['id', '=', tempAttendeeSecretString])
+				.Include('temporary_attendee')
 		);
 
 		if (!tempAttendeeSecret) {
@@ -41,16 +45,53 @@ export const POST: RequestHandler = async ({ url, request }): Promise<Response> 
 
 		await checkEventIsOpenForNewGoingAttendees(triplitHttpClient, bonfireId, rsvpStatus);
 
-		let newNumGuest = attendance.guest_count;
-		if (numGuests !== null && Number.isInteger(numGuests)) {
-			newNumGuest = numGuests;
+		// Update the RSVP status for the attendee
+		const preUpdateTemporaryAttendance = await triplitHttpClient.fetchOne(
+			triplitHttpClient.query('temporary_attendees').Where(['id', '=', temporaryAttendee.id])
+		);
+		if (!preUpdateTemporaryAttendance) {
+			throw new Error('cannot update a non-existent temporary attendee');
+		}
+		if (
+			preUpdateTemporaryAttendance.status == rsvpStatus &&
+			preUpdateTemporaryAttendance.guest_count == numGuestsCurrentAttendeeIsBringing
+		) {
+			return new Response(null, { status: 204 });
 		}
 
 		// Update the RSVP status for the attendee
 		await triplitHttpClient.update('temporary_attendees', temporaryAttendee.id, async (entity) => {
 			entity.status = rsvpStatus;
-			entity.guest_count = newNumGuest;
+			entity.guest_count = numGuestsCurrentAttendeeIsBringing;
 		});
+
+		const update: TemporaryAttendeeChange = {
+			temporary_attendee_id: temporaryAttendee.id,
+			changed_by: temporaryAttendee.id,
+			changed_by_id_type: HistoryChangesConstants.temporary_attendee_id,
+			change_type: HistoryChangesConstants.change_update
+		};
+		// Status was changed
+		if (preUpdateTemporaryAttendance.status != rsvpStatus) {
+			update.field_name = HistoryChangesConstants.field_name_status;
+			update.old_value = preUpdateTemporaryAttendance.status;
+			update.new_value = rsvpStatus;
+		}
+		// Number of guests was changed
+		if (preUpdateTemporaryAttendance.guest_count != numGuestsCurrentAttendeeIsBringing) {
+			update.field_name = HistoryChangesConstants.field_name_num_guests;
+			update.old_value = preUpdateTemporaryAttendance.guest_count?.toString();
+			update.new_value = numGuestsCurrentAttendeeIsBringing.toString();
+		}
+		// Create historical entry
+		await triplitHttpClient.insert('temporary_attendees_changes', update);
+
+		// await triplitHttpClient.insert('temporary_attendees_changes', {
+		// 	temporary_attendee_id: temporaryAttendee.id,
+		// 	changed_by: temporaryAttendee.id,
+		// 	changed_by_id_type: HistoryChangesConstants.temporary_attendee_id,
+		// 	change_type: HistoryChangesConstants.change_update
+		// });
 
 		// Optionally notify of status change
 		if (NOTIFY_OF_ATTENDING_STATUS_CHANGE.includes(rsvpStatus)) {

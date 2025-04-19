@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import AnnouncementForm from '$lib/components/AnnouncementForm.svelte';
+	import AnnouncementForm from '$lib/components/announcements/AnnouncementForm.svelte';
 	import BackButton from '$lib/components/BackButton.svelte';
 </script>
 

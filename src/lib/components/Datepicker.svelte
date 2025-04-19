@@ -1,16 +1,22 @@
 <script lang="ts">
 	import CalendarIcon from 'lucide-svelte/icons/calendar';
-	import { DateFormatter, type DateValue, getLocalTimeZone } from '@internationalized/date';
+	import { DateFormatter, type DateValue, getLocalTimeZone, today } from '@internationalized/date';
 	import { cn } from '$lib/utils.js';
 	import { buttonVariants } from '$lib/components/ui/button/index.js';
 	import { Calendar } from '$lib/components/ui/calendar/index.js';
 	import * as Popover from '$lib/components/ui/popover/index.js';
 
+	let {
+		value = $bindable<DateValue | undefined>(),
+		oninput,
+		minValue = today(getLocalTimeZone()),
+		maxValue = null
+	} = $props();
+
 	const df = new DateFormatter('en-US', {
 		dateStyle: 'long'
 	});
 
-	let { value = $bindable<DateValue | undefined>(), oninput } = $props();
 	let contentRef = $state<HTMLElement | null>(null);
 	let isPopupOpen = $state(false);
 	let prevDateEntry = value;
@@ -41,6 +47,6 @@
 		<div></div>
 	</Popover.Trigger>
 	<Popover.Content bind:ref={contentRef} class="w-auto p-0">
-		<Calendar type="single" bind:value {oninput}/>
+		<Calendar type="single" bind:value onValueChange={oninput} {minValue} {maxValue}/>
 	</Popover.Content>
 </Popover.Root>

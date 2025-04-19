@@ -1,9 +1,10 @@
-import { Status } from '$lib/enums.js';
+import { HistoryChangesConstants } from '$lib/enums.js';
 import { triplitHttpClient } from '$lib/server/triplit';
-import { createAttendeeId } from '$lib/utils';
 import { error, json } from '@sveltejs/kit';
 import { and } from '@triplit/client';
 import { checkEventIsOpenForNewGoingAttendees } from '$lib/triplit';
+import type { AttendeeChange } from '$lib/types';
+import { createUserAttendance } from '$lib/rsvp.js';
 
 export const POST = async ({ request, params, locals }) => {
 	// Extract event ID from the URL params
@@ -38,36 +39,51 @@ export const POST = async ({ request, params, locals }) => {
 	try {
 		// Check if attendance record exists
 		let attendance = await triplitHttpClient.fetchOne(
-			triplitHttpClient
-				.query('attendees')
-				.where([
-					and([
-						['user_id', '=', user.id],
-						['event_id', '=', bonfireId]
-					])
+			triplitHttpClient.query('attendees').Where([
+				and([
+					['user_id', '=', user.id],
+					['event_id', '=', bonfireId]
 				])
-				.build()
+			])
 		);
 
 		// If attendance does not exist, create it
 		if (!attendance) {
-			attendance = await triplitHttpClient.insert('attendees', {
-				id: createAttendeeId(bonfireId, user.id),
-				user_id: user.id,
-				event_id: bonfireId,
-				status,
-				guest_count: numGuests
-			});
+			await createUserAttendance(triplitHttpClient, user.id, bonfireId, status, numGuests);
 		} else {
 			let newNumGuest = attendance.guest_count;
 			if (numGuests !== null && Number.isInteger(numGuests)) {
 				newNumGuest = numGuests;
 			}
+
+			// Only create historical entry for update/delete (not create)
+			const update: AttendeeChange = {
+				attendee_id: attendance.id,
+				changed_by: user.id,
+				change_type: HistoryChangesConstants.change_update
+			};
+
+			// Status was changed
+			if (attendance.status != status) {
+				update.field_name = HistoryChangesConstants.field_name_status;
+				update.old_value = attendance.status;
+				update.new_value = status;
+			}
+			// Number of guests was changed
+			if (attendance.guest_count != numGuests) {
+				update.field_name = HistoryChangesConstants.field_name_num_guests;
+				update.old_value = attendance.guest_count?.toString();
+				update.new_value = numGuests.toString();
+			}
+
 			// Update existing attendance record
 			attendance = await triplitHttpClient.update('attendees', attendance.id, (entity) => {
 				entity.status = status;
 				entity.guest_count = newNumGuest;
 			});
+
+			// Create historical entry
+			await triplitHttpClient.insert('attendees_changes', update);
 		}
 
 		return json({ success: true, attendance });

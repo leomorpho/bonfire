@@ -1,6 +1,6 @@
 import { error, json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { createNewAdminNotificationQueueObject } from '$lib/notification';
+import { createNewAdminNotificationQueueObject } from '$lib/notification_queue';
 import { triplitHttpClient } from '$lib/server/triplit';
 import { and } from '@triplit/client';
 
@@ -23,13 +23,13 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		const event = await triplitHttpClient.fetchOne(
 			triplitHttpClient
 				.query('events')
-				.where(
+				.Where(
 					and([
 						['user_id', '=', user.id],
 						['id', '=', eventId]
 					])
 				)
-				.build()
+				
 		);
 		if (!event) {
 			throw error(401, 'Unauthorized');

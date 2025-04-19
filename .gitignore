@@ -24,3 +24,6 @@ uploads
 
 .kamal/secrets*
 .env*
+
+snapshot*
+triplit/.data/

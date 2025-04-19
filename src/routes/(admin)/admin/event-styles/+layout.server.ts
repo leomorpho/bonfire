@@ -81,7 +81,7 @@ async function syncSeamlessTiles(files: { id: string; fileKey: string }[]) {
 	try {
 		// Query the database for existing seamless tile IDs
 		const existingTiles = await triplitHttpClient.fetch(
-			triplitHttpClient.query('seamless_tiles').select(['id']).build()
+			triplitHttpClient.query('seamless_tiles').Select(['id'])
 		);
 
 		// Extract IDs of existing tiles

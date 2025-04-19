@@ -7,6 +7,7 @@ import { LOCAL_INDEXEDDB_NAME, Status, UserTypes } from './enums';
 import { WorkerClient } from '@triplit/client/worker-client';
 import workerUrl from '@triplit/client/worker-client-operator?url';
 import { jwtDecode } from 'jwt-decode';
+import { generateReminderMessage } from './utils';
 
 export const userIdStore = writable<string | null>(null);
 export const userTypeStore = writable<string | null>(null);
@@ -61,7 +62,25 @@ export function getFeWorkerTriplitClient(jwt: string) {
 	if (!browser) {
 		throw new Error('TriplitClient can only be created in the browser.');
 	}
-
+	return new TriplitClient({
+		schema,
+		serverUrl: publicEnv.PUBLIC_TRIPLIT_URL,
+		token: jwt ? jwt : publicEnv.PUBLIC_TRIPLIT_ANONYMOUS_TOKEN,
+		storage: {
+			type: dev || !browser ? 'memory' : 'indexeddb',
+			name: LOCAL_INDEXEDDB_NAME
+		}
+	});
+	// return new WorkerClient({
+	// 	workerUrl: dev ? workerUrl : undefined,
+	// 	storage: {
+	// 		type: dev || !browser ? 'memory' : 'indexeddb',
+	// 		name: LOCAL_INDEXEDDB_NAME
+	// 	},
+	// 	schema,
+	// 	serverUrl: publicEnv.PUBLIC_TRIPLIT_URL,
+	// 	token: jwt ? jwt : publicEnv.PUBLIC_TRIPLIT_ANONYMOUS_TOKEN,
+	// });
 	try {
 		// Decode JWT to extract role
 		const decoded = jwtDecode(jwt); // Decodes without verifying (safe for role extraction)
@@ -90,10 +109,6 @@ export function getFeWorkerTriplitClient(jwt: string) {
 }
 
 const createNewWorkerTriplitClient = (jwt: string) => {
-	// let syncSchema = true;
-	// if (dev) {
-	// 	syncSchema = false;
-	// }
 	return new WorkerClient({
 		workerUrl: dev ? workerUrl : undefined,
 		storage: {
@@ -104,7 +119,7 @@ const createNewWorkerTriplitClient = (jwt: string) => {
 		serverUrl: publicEnv.PUBLIC_TRIPLIT_URL,
 		token: jwt ? jwt : publicEnv.PUBLIC_TRIPLIT_ANONYMOUS_TOKEN,
 		autoConnect: browser,
-		// syncSchema: syncSchema,
+
 		onSessionError: async (type) => {
 			console.log('💀 Triplit session error occurred:', type);
 			if (type === 'ROLES_MISMATCH') {
@@ -132,10 +147,6 @@ const createNewWorkerTriplitClient = (jwt: string) => {
 					feWorkerTriplitClient?.clear();
 				}
 			}
-			// // NOTE: below causes infinite
-			// if (type === 'SCHEMA_MISMATCH') {
-			// 	console.error('schema mismatch error:', type);
-			// }
 		},
 		refreshOptions: {
 			refreshHandler: async () => {
@@ -176,32 +187,6 @@ export async function clearCache(client: TriplitClient | null, fullClear: boolea
 	}
 }
 
-export async function upsertUserAttendance(
-	eventId: string,
-	status: Status,
-	numGuests: number | null
-) {
-	try {
-		const response = await fetch(`/bonfire/${eventId}/attend/user`, {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ status, numGuests })
-		});
-
-		if (!response.ok) {
-			const errorData = await response.json();
-			throw new Error(errorData.error || 'Failed to update attendance');
-		}
-
-		const data = await response.json();
-		console.log('✅ Attendance updated:', data);
-		return data.attendance; // Return updated attendance object
-	} catch (err) {
-		console.error('❌ Error updating attendance:', err);
-		throw err;
-	}
-}
-
 export async function checkEventIsOpenForNewGoingAttendees(
 	client: TriplitClient | WorkerClient | HttpClient,
 	bonfireId: string,
@@ -210,37 +195,32 @@ export async function checkEventIsOpenForNewGoingAttendees(
 	const event = await client.fetchOne(
 		client
 			.query('events')
-			.where([['id', '=', bonfireId]])
-			.select(['max_capacity'])
-			.subquery(
+			.Where([['id', '=', bonfireId]])
+			.Select(['max_capacity'])
+			.SubqueryOne(
 				'going_users',
 				client
 					.query('attendees')
-					.where([
+					.Where([
 						and([
 							['status', '=', Status.GOING],
 							['event_id', '=', '$1.id']
 						])
 					])
-					.select(['id'])
-					.build(),
-				'one'
+					.Select(['id'])
 			)
-			.subquery(
+			.SubqueryOne(
 				'going_temps',
 				client
 					.query('temporary_attendees')
-					.where([
+					.Where([
 						and([
 							['status', '=', Status.GOING],
 							['event_id', '=', '$1.id']
 						])
 					])
-					.select(['id'])
-					.build(),
-				'one'
+					.Select(['id'])
 			)
-			.build()
 	);
 	// Check that max capacity is indeed set
 	if (!event || !event.max_capacity) {
@@ -257,3 +237,35 @@ export async function checkEventIsOpenForNewGoingAttendees(
 		}
 	}
 }
+
+export const createRemindersObjects = async (
+	client: HttpClient,
+	eventId: string,
+	eventName: string,
+	eventStartDatetime: Date
+) => {
+	// Calculate the send_at dates for the reminders
+	const oneWeekBefore = new Date(eventStartDatetime.getTime() - 24 * 7 * 60 * 60 * 1000);
+	const oneWeekBeforeInHours = 24 * 7;
+	const oneDayBefore = new Date(eventStartDatetime.getTime() - 24 * 60 * 60 * 1000);
+	const onDayBeforeInHours = 24;
+
+	// Create the reminder for GOING and MAYBE attendees one week before the event
+	await client.insert('event_reminders', {
+		event_id: eventId,
+		lead_time_in_hours_before_event_starts: oneWeekBeforeInHours,
+		target_attendee_statuses: new Set([Status.GOING, Status.MAYBE]),
+		send_at: oneWeekBefore,
+		text: generateReminderMessage(7, eventName)
+	});
+
+	// Create the reminder for GOING attendees one day before the event
+	await client.insert('event_reminders', {
+		event_id: eventId,
+		lead_time_in_hours_before_event_starts: onDayBeforeInHours,
+		target_attendee_statuses: new Set([Status.GOING]),
+		send_at: oneDayBefore,
+		text: generateReminderMessage(1, eventName)
+	});
+};
+

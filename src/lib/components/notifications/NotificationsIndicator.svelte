@@ -12,30 +12,29 @@
 	const createNotificationsQuery = (client: TriplitClient, userId: string) => {
 		return client
 			.query('notifications')
-			.where([
+			.Where([
 				['user_id', '=', userId],
 				['seen_at', '=', null]
 			])
-			.select(['id', 'object_type', 'object_ids'])
-			.order('created_at', 'DESC');
+			.Select(['id'])
+			.Order('created_at', 'DESC');
 	};
 
 	onMount(() => {
-		let client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
+		const client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 		console.log('loading notifications in NotificationsLoader');
 		const init = async () => {
 			userId = (await waitForUserId()) as string;
 
-			let notificationsQuery = createNotificationsQuery(client, userId);
+			const notificationsQuery = createNotificationsQuery(client, userId);
 
 			const unsubscribeFromNotificationsQuery = client.subscribe(
-				notificationsQuery.build(),
-				(results, info) => {
+				notificationsQuery,
+				(results) => {
 					notificationsCount = results.length;
-					console.log('NotificationsIndication new count:', notificationsCount);
 				},
 				(error) => {
-					console.error('Error fetching announcements:', error);
+					console.error('Error fetching notifications:', error);
 				},
 				// Optional
 				{

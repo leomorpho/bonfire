@@ -23,13 +23,13 @@ export async function toggleEmojiReaction(
 	const existingReactions = await client.fetch(
 		client
 			.query('emoji_reactions')
-			.where([
+			.Where([
 				['user_id', '=', userId],
 				['entity_id', '=', entityId],
 				['entity_type', '=', entityType]
 			])
-			.select(['id', 'emoji'])
-			.build()
+			.Select(['id', 'emoji'])
+			
 	);
 
 	// If single reaction per entity is enforced, remove all previous reactions

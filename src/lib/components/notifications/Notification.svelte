@@ -4,51 +4,64 @@
 	import { onMount } from 'svelte';
 	import { TriplitClient } from '@triplit/client';
 	import { formatHumanReadable, stringRepresentationToArray } from '$lib/utils';
-	import ProfileAvatar from '../ProfileAvatar.svelte';
+	import ProfileAvatar from '../profile/profile-avatar/ProfileAvatar.svelte';
 	import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
 	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
-	import Announcement from '../Announcement.svelte';
+	import Announcement from '../announcements/Announcement.svelte';
 	import { NotificationType } from '$lib/enums';
-	import Message from '../im/Message.svelte';
+	// import Message from '../im/Message.svelte';
 	import MessageContent from '../im/MessageContent.svelte';
+	import { MoreHorizontal } from 'lucide-svelte';
+	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
+	import { slide } from 'svelte/transition';
 
-	let { notification, toggleDialog, isCurrenUserEventAdmin = false } = $props();
+	let { notification, toggleDialog, deleteNotification, isCurrenUserEventAdmin = false } = $props();
 
 	let userId = $state('');
 	let linkedObjects = $state([]);
 	let isLoading = $state(true);
 	let cardRef: HTMLElement | null = $state(null); // Initialize as null to ensure proper type handling
+	let eventTitle = $state('...');
 
 	const maxNumAttendeesToShowInline = 3;
 
 	const fetchLinkedObjects = async () => {
 		// console.log('notification', notification);
-		if (!notification.object_ids || !notification.object_type) return;
+		if (
+			!(notification.object_ids || notification.object_ids_set || notification.object_ids_set) ||
+			!notification.object_type
+		)
+			return;
 
 		const client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
-		const objectIds = stringRepresentationToArray(notification.object_ids);
+		// TODO: below work is due to new field for set
+		const objectIdsSet1 = new Set(stringRepresentationToArray(notification.object_ids));
+		const objectIdsSet2 = notification.object_ids_set;
+		objectIdsSet2.forEach((id: string) => objectIdsSet1.add(id));
+
+		// Step 3: Convert the combined set to an array
+		const objectIds = Array.from(objectIdsSet1);
 
 		let query;
 		switch (notification.object_type) {
 			case NotificationType.ANNOUNCEMENT:
 				query = client
 					.query('announcement')
-					.include('seen_by')
-					.where(['id', 'in', objectIds])
-					.order('created_at', 'DESC')
-					.build();
+					.Include('seen_by')
+					.Where(['id', 'in', objectIds])
+					.Order('created_at', 'DESC');
 				break;
 			case NotificationType.FILES:
 				// Don't query the files, just redirect to event
 				isLoading = false;
-				// query = client.query('files').where(['id', 'in', objectIds]).build();
+				// query = client.query('files').Where(['id', 'in', objectIds]);
 				return;
 			case NotificationType.ATTENDEES:
-				query = client.query('attendees').include('user').where(['id', 'in', objectIds]).build();
+				query = client.query('attendees').Include('user').Where(['id', 'in', objectIds]);
 				break;
 			case NotificationType.TEMP_ATTENDEES:
-				query = client.query('temporary_attendees').where(['id', 'in', objectIds]).build();
+				query = client.query('temporary_attendees').Where(['id', 'in', objectIds]);
 				break;
 			case NotificationType.ADMIN_ADDED:
 				// Nothing needed
@@ -57,12 +70,11 @@
 			case NotificationType.NEW_MESSAGE:
 				query = client
 					.query('event_messages')
-					.where(['id', 'in', objectIds])
-					.include('user')
-					.include('emoji_reactions', (rel) =>
-						rel('emoji_reactions').select(['id', 'emoji', 'user_id']).build()
-					)
-					.build();
+					.Where(['id', 'in', objectIds])
+					.Include('user')
+					.Include('emoji_reactions', (rel) =>
+						rel('emoji_reactions').Select(['id', 'emoji', 'user_id'])
+					);
 				break;
 			default:
 				console.error(`Unknown object_type: ${notification.object_type}`);
@@ -70,6 +82,12 @@
 		}
 
 		const results = await client.fetch(query);
+
+		if (objectIds.length > 0 && results.length == 0) {
+			// The associated objects were deleted, delete this notification
+			await deleteNotification(notification.id);
+			return;
+		}
 
 		// Fetch profile images for attendees
 		if (notification.object_type === NotificationType.ATTENDEES) {
@@ -91,14 +109,10 @@
 			const eventIds = [...new Set(results.map((announcement) => announcement.event_id))];
 
 			// Query attendees table for all relevant event_id and user_id combinations
-			const attendeeQuery = client
-				.query('attendees')
-				.where([
-					['user_id', '=', userId],
-					['event_id', 'in', eventIds]
-				])
-				.build();
-
+			const attendeeQuery = client.query('attendees').Where([
+				['user_id', '=', userId],
+				['event_id', 'in', eventIds]
+			]);
 			// Fetch all relevant attendees
 			const attendees = await client.fetch(attendeeQuery);
 
@@ -111,7 +125,7 @@
 			});
 		}
 
-		console.log('results', results);
+		// console.log('results', results);
 
 		linkedObjects = results;
 		isLoading = false;
@@ -124,7 +138,7 @@
 
 		try {
 			// Update the notification as read
-			await client.update('notifications', notification.id, async (entity) => {
+			await client.http.update('notifications', notification.id, async (entity) => {
 				entity.seen_at = new Date();
 			});
 			console.log(`Notification ${notification.id} marked as read.`);
@@ -140,6 +154,18 @@
 			userId = (await waitForUserId()) as string;
 		};
 		init();
+
+		const getEventTitle = async () => {
+			const client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
+
+			const event = await client.fetchOne(
+				client.query('events').Where(['id', '=', notification.event_id]).Select(['title'])
+			);
+
+			eventTitle = event?.title;
+		};
+
+		getEventTitle();
 
 		const observer = new IntersectionObserver(
 			async ([entry]) => {
@@ -162,16 +188,42 @@
 	});
 </script>
 
-<div class="notification-item rounded-lg  bg-slate-100 dark:bg-slate-900 p-4" bind:this={cardRef}>
-	<!-- Display message -->
-	<p class="font-medium">{notification.message}</p>
+<div
+	class="notification-item reltive relative mt-3 rounded-lg bg-slate-100 p-4 dark:bg-slate-900"
+	bind:this={cardRef}
+	in:slide={{ duration: 300 }}
+	out:slide={{ duration: 100 }}
+>
+	<DropdownMenu.Root>
+		<DropdownMenu.Trigger class="absolute right-2 top-1"
+			><MoreHorizontal class="h-4 w-4" /></DropdownMenu.Trigger
+		>
+		<DropdownMenu.Content>
+			<DropdownMenu.Group>
+				<DropdownMenu.Item
+					onclick={() => {
+						deleteNotification(notification.id);
+					}}>Delete</DropdownMenu.Item
+				>
+			</DropdownMenu.Group>
+		</DropdownMenu.Content>
+	</DropdownMenu.Root>
 
 	<!-- Display additional metadata -->
-	{#if notification.object_type === 'attendees'}
-		<p class="text-sm text-gray-500">
-			{formatHumanReadable(notification.created_at)}
-		</p>
-	{/if}
+	<p class="text-xs text-gray-500 mb-1">
+		{formatHumanReadable(notification.created_at)}
+	</p>
+
+	<!-- Display message -->
+	<p class="font-medium">
+		{notification.message} in
+		<a
+			href={`/bonfire/${notification.event_id}`}
+			onclick={toggleDialog}
+			class="italic text-blue-500 hover:underline"
+			>{eventTitle}:
+		</a>
+	</p>
 
 	<!-- Show loading indicator while fetching linked objects -->
 	{#if isLoading}
@@ -200,33 +252,33 @@
 				<!-- Customize rendering for each object type -->
 				{#if notification.object_type === NotificationType.ANNOUNCEMENT}
 					{#each linkedObjects as obj}
-						<a class="m-1" href={`/bonfire/${obj.event_id}`} onclick={toggleDialog}>
-							<Announcement
-								eventId={obj.event_id}
-								currUserId={userId}
-								currentUserAttendeeId={obj.attendeeId}
-								announcement={obj}
-							/>
-						</a>
+						<Announcement
+							eventId={obj.event_id}
+							currUserId={userId}
+							currentUserAttendeeId={obj.attendeeId}
+							announcement={obj}
+						/>
 					{/each}
-					<!-- {:else if notification.object_type === 'files'}
-					<a class="my-2" href={`/bonfire/${obj.event_id}`} onclick={toggleDialog}>
-						{notification.}
-					</a> -->
 				{:else if notification.object_type === NotificationType.NEW_MESSAGE}
-					{#each linkedObjects as message}
-						<a href={`/bonfire/${notification.event_id}`} onclick={toggleDialog}>
-							<div class="flex w-full items-center justify-center space-x-3">
-								<ProfileAvatar userId={message.user.id} baseHeightPx={30}/>
-								<MessageContent
-									username={message.user?.username}
-									content={message.content}
-									created_at={message.created_at}
-									deleted_by_user_id={message.deleted_by_user_id}
-								/>
-							</div>
-						</a>
+					<!-- Show the first two messages -->
+					{#each linkedObjects.slice(0, 2) as message}
+						<div class="my-2 flex w-full items-center justify-center space-x-3">
+							<ProfileAvatar userId={message.user.id} baseHeightPx={30} />
+							<MessageContent
+								class="rounded-xl"
+								username={message.user?.username}
+								content={message.content}
+								created_at={message.created_at}
+								deleted_by_user_id={message.deleted_by_user_id}
+							/>
+						</div>
 					{/each}
+					{#if linkedObjects.length > 2}
+						<!-- Indicate additional messages -->
+						<div class="my-2 flex w-full items-center justify-center space-x-3 text-gray-500">
+							...and a few more
+						</div>
+					{/if}
 				{:else if notification.object_type === NotificationType.ATTENDEES}
 					{#if linkedObjects.length > maxNumAttendeesToShowInline}
 						<Collapsible.Root class="space-y-2">

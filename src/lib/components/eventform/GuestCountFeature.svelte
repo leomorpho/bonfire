@@ -29,7 +29,7 @@
 			for="enbale-attendees-bringing-guests"
 			class="flex w-full justify-start text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
 		>
-			Enable attendees bringing guests
+			Let attendees bring guests
 		</Label>
 	</div>
 

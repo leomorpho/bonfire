@@ -37,7 +37,6 @@
 	 */
 	function applyStyle(
 		style: { id: number; name: string; cssTemplate: string } | null = null,
-		cleanup = true
 	) {
 		finalStyleCss = style?.cssTemplate ?? finalStyleCss;
 
