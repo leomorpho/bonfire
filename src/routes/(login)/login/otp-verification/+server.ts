@@ -2,8 +2,8 @@ import { z } from 'zod';
 import { getEmailOTP, deleteEmailOTP } from '$lib/server/database/emailtoken.model';
 import { getUserByEmail, updateUser } from '$lib/server/database/user.model';
 import { lucia } from '$lib/server/auth';
-import { isWithinExpirationDate } from 'oslo';
 import { triplitHttpClient } from '$lib/server/triplit';
+import { isWithinExpirationDate } from '$lib/utils';
 
 const otpVerificationSchema = z.object({
 	otp: z.string().length(6) // OTP should be exactly 6 characters
@@ -31,7 +31,6 @@ export async function POST({ request }) {
 
 	// Fetch the OTP record from the database
 	const otpRecord = await getEmailOTP(otp);
-
 	if (!otpRecord || !isWithinExpirationDate(otpRecord.expires_at)) {
 		return new Response(
 			JSON.stringify({

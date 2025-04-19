@@ -1,10 +1,20 @@
 import { google, lucia } from '$lib/server/auth';
 import { OAuth2RequestError } from 'arctic';
 import { generateId } from 'lucia';
-import { parseJWT } from 'oslo/jwt';
-
 import type { RequestEvent } from '@sveltejs/kit';
 import { createNewUser, getUserByEmail } from '$lib/server/database/user.model';
+import jwt from 'jsonwebtoken';
+
+// Function to parse JWT and extract payload
+function parseJWT(token: string) {
+	try {
+		const decoded = jwt.decode(token);
+		return decoded;
+	} catch (error) {
+		console.error('Error decoding JWT:', error);
+		return null;
+	}
+}
 
 type GoogleUser = {
 	iss: string;

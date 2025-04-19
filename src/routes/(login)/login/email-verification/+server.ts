@@ -3,7 +3,7 @@ import { lucia } from '$lib/server/auth';
 import { deleteEmailToken, getEmailToken } from '$lib/server/database/emailtoken.model';
 import { getUserById, updateUser } from '$lib/server/database/user.model';
 import { convertTempToPermanentUser, triplitHttpClient } from '$lib/server/triplit.js';
-import { isWithinExpirationDate } from 'oslo';
+import { isWithinExpirationDate } from '$lib/utils';
 
 export async function GET({ url, request }): Promise<Response> {
 	const verificationToken = new URL(request.url).searchParams.get('verification_token');

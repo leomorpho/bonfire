@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm';
 import { db } from './db';
 import { emailVerificationOtpTable, emailVerificationTokenTable } from './schema';
 import { generateId } from 'lucia';
-import { TimeSpan, createDate } from 'oslo';
+import { addHours, addMinutes } from 'date-fns';
 
 export const deleteAllEmailTokensForUser = async (userId: string) => {
 	await db
@@ -20,7 +20,7 @@ export const createEmailVerificationToken = async (
 		id: tokenId,
 		user_id: userId,
 		email,
-		expires_at: createDate(new TimeSpan(2, 'h'))
+		expires_at: addHours(new Date(), 2)
 	});
 	return tokenId;
 };
@@ -54,7 +54,7 @@ export const createEmailVerificationOTP = async (
 	const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
 	const otpId = generateId(40); // You can modify the length of the ID here
-	const expirationTime = createDate(new TimeSpan(15, 'm')); // OTP expires in 15 minutes
+	const expirationTime = addMinutes(new Date(), 15); // OTP expires in 15 minutes
 
 	// Insert the OTP into the table
 	await db.insert(emailVerificationOtpTable).values({

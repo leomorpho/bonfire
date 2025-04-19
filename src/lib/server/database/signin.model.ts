@@ -2,12 +2,12 @@ import type { Signin } from '$lib/types';
 import { eq, lt, or } from 'drizzle-orm';
 import { db } from './db';
 import { signinTable } from './schema';
-import { TimeSpan, createDate } from 'oslo';
+import { subHours } from 'date-fns';
 
 export const getSignins = async (signin: { email: string; ip_address: string }) => {
 	const batchResult = await db.batch([
 		// 0. delete all signins that are older than 1 hour
-		db.delete(signinTable).where(lt(signinTable.logged_in_at, createDate(new TimeSpan(-1, 'h')))),
+		db.delete(signinTable).where(lt(signinTable.logged_in_at, subHours(new Date(), 1))),
 		// 1. return all signins from this ip_address in the past hours
 		db
 			.select()

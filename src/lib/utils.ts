@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import { format, isToday, isYesterday } from 'date-fns';
+import { format, isBefore, isToday, isYesterday } from 'date-fns';
 import { generateId } from 'lucia';
 import { tempAttendeeSecretStore, tempAttendeeSecretParam } from './enums';
 import { get } from 'svelte/store';
@@ -329,4 +329,8 @@ export const checkDeviceSupportsPushNotifications = () => {
 export function generateReminderMessage(days: number, eventName: string): string {
 	const dayString = days === 1 ? '1 day' : `${days} days`;
 	return `${dayString} reminder! Your event "${eventName}" is coming up! Get ready!`;
+}
+
+export function isWithinExpirationDate(expirationDate: Date) {
+	return isBefore(new Date(), expirationDate);
 }
