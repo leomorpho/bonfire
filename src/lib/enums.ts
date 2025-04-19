@@ -235,16 +235,17 @@ export const flattenableNotificationTypes = new Set([
 
 // Define the mapping of notification types to email subjects
 export const notificationTypeToSubject: { [key in NotificationType]: string } = {
-	[NotificationType.ANNOUNCEMENT]: 'New announcement for your event!',
-	[NotificationType.FILES]: 'New media files uploaded to your event',
-	[NotificationType.ATTENDEES]: 'New attendees joined your event!',
-	[NotificationType.TEMP_ATTENDEES]: 'New temporary attendees added to your event',
-	[NotificationType.ADMIN_ADDED]: 'You were added as an admin to an event!',
-	[NotificationType.NEW_MESSAGE]: 'New messages in your event!',
-	[NotificationType.REMINDER]: 'Reminder: your event is coming up soon!',
+	[NotificationType.ANNOUNCEMENT]: 'New Event Announcement!',
+	[NotificationType.FILES]: 'New Media Files Uploaded',
+	[NotificationType.ATTENDEES]: 'New Attendees Joined!',
+	[NotificationType.TEMP_ATTENDEES]: 'New Temporary Attendees Added',
+	[NotificationType.ADMIN_ADDED]: 'You’re Now an Admin!',
+	[NotificationType.NEW_MESSAGE]: 'New Event Messages!',
+	[NotificationType.REMINDER]: 'Event Reminder!',
 	[NotificationType.OTP_VERIFICATION]: '',
-	[NotificationType.ADMIN_UPDATES]: 'There is a new update for your event!'
+	[NotificationType.ADMIN_UPDATES]: 'Event Update!'
 };
+
 
 type NotificationTypeMapping = {
 	[key in NotificationType]: {

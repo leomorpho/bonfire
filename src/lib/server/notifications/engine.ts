@@ -352,8 +352,6 @@ export async function bulkPersistNotifications(
 		notifications: notificationObjects
 	});
 
-	console.log('Before filtering for isInAppOnly ========>', notificationsToCreate);
-
 	// Filter and return only notifications that have isInAppOnly set to false
 	return notificationsToCreate.filter((notification) => !notification.isInAppOnly);
 }

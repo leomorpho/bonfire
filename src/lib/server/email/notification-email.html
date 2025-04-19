@@ -1,44 +1,48 @@
 <h1>{{ subject }}</h1>
 <p>{{ message }}</p>
-<!-- Action Button -->
-<table class="body-action" align="center" width="100%" cellpadding="0" cellspacing="0" style="margin-top: 20px;">
-    <tr>
-        <td align="center">
-            <table width="100%" border="0" cellspacing="0" cellpadding="0">
-                <tr>
-                    <td align="center">
-                        <table border="0" cellspacing="0" cellpadding="0">
-                            <tr>
-                                <td
-                                    style="
-                                        font-size: 16px;
-                                        font-weight: bold;
-                                        color: #ffffff;
-                                        padding: 15px;
-                                        background-color: #ff5733;
-                                        border-radius: 5px;
-                                        text-decoration: none;
-                                    "
-                                >
-                                    <a href="{{ action_button_url }}" style="color: #ffffff; text-decoration: none;">{{ action_button_name }}</a>
-                                </td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
+
+<!-- Action -->
+<table
+  class="body-action"
+  align="center"
+  width="100%"
+  cellpadding="0"
+  cellspacing="0"
+>
+  <tr>
+    <td align="center">
+      <!-- Border based button https://litmus.com/blog/a-guide-to-bulletproof-buttons-in-email-design -->
+      <table width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tr>
+          <td align="center">
+            <table border="0" cellspacing="0" cellpadding="0">
+              <tr>
+                <td>
+                  <a
+                    href="{{ action_button_url }}"
+                    class="button button--"
+                    target="_blank"
+                    >{{ action_button_name }}</a
+                  >
+                </td>
+              </tr>
             </table>
-        </td>
-    </tr>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
 </table>
+
+
+<p >Best regards, <br /><br />Toby from the {{ product_name }} Team</p>
+
 <!-- Unsubscribe Links -->
-<p style="font-size: 12px; color: #999; margin-top: 20px;">
-    If you no longer wish to receive these emails, you can:
-    <ul style="list-style-type: none; padding: 0;">
-        <li><a href="{{ unsubscribe_from_event_url }}" style="color: #ff5733;">unsubscribe from this event's notifications</a></li>
-        <li><a href="{{ unsubscribe_from_all_url }}" style="color: #ff5733;">unsubscribe from all email notifications</a></li>
+<p style="margin-top: 20px; font-size: 12px;">
+    Manage emails:
+    <ul style="list-style-type: disc; padding-left: 20px; margin: 10px 0 0 0; font-size: 12px;">
+        <li><a href="{{ unsubscribe_from_event_url }}" style="color: #ff5733;">Unsubscribe from event.</a></li>
+        <li><a href="{{ unsubscribe_from_all_url }}" style="color: #ff5733;">Unsubscribe from all event.</a></li>
+        <li><a href="{{ settings_url }}" style="color: #ff5733;">Email preferences.</a></li>
     </ul>
-    {{#if settings_url}}
-        <br />Alternatively, you can <a href="{{ settings_url }}" style="color: #ff5733;">manage your email preferences</a>.
-    {{/if}}
 </p>
-<p>Best regards, <br /><br />The {{ product_name }} Team</p>
