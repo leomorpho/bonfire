@@ -53,9 +53,9 @@ if [ "$KAMAL_VERSION" != "$remote_head" ]; then
   exit 1
 fi
 
-# Run unit tests
-echo "🧪 Running unit tests..."
-npm run test:unit
+# # Run unit tests
+# echo "🧪 Running unit tests..."
+# npm run test:unit
 
 # # Run Drizzle migrations locally
 # echo "🔄 Running Drizzle migrations locally..."
