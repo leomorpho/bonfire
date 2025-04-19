@@ -64,7 +64,10 @@ export const taskRunner = async () => {
 		// Schedule the task
 		const notificationJob = new SimpleIntervalJob({ seconds: 3 }, notificationTask);
 		const cleanupJob = new SimpleIntervalJob({ hours: 6 }, notificationQueueCleanupTask);
-		const reminderNotificationsJob = new SimpleIntervalJob({ hours: 1 }, reminderNotificationsTask);
+		const reminderNotificationsJob = new SimpleIntervalJob(
+			{ minutes: 10 },
+			reminderNotificationsTask
+		);
 
 		scheduler.addSimpleIntervalJob(notificationJob);
 		scheduler.addSimpleIntervalJob(cleanupJob);

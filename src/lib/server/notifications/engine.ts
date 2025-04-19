@@ -481,7 +481,8 @@ export async function bulkNotifyUsers(notifications: Notification[]): Promise<vo
 								email,
 								notification.objectType,
 								notification.message,
-								notification.userId
+								notification.userId,
+								notification.eventId
 							);
 						} else {
 							console.warn(`No email found for user ${notification.userId}`);

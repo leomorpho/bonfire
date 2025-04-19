@@ -9,7 +9,7 @@ import notificationEmail from './notification-email.html?raw';
 import { Resend } from 'resend';
 import { env as privateEnv } from '$env/dynamic/private';
 import { triplitHttpClient } from '../triplit';
-import { notificationTypeToSubject, type NotificationType } from '$lib/enums';
+import { NotificationType, notificationTypeToSubject } from '$lib/enums';
 import { generateId } from 'lucia/dist/crypto';
 import { and } from '@triplit/client';
 import { env as publicEnv } from '$env/dynamic/public';
@@ -168,12 +168,31 @@ export const sendEmail = async (
 	}
 };
 
+async function createUnsubscribeUrls(
+	userId: string,
+	reminderType: NotificationType,
+	eventId: string
+): Promise<{ unsubscribeFromAllUrl: string; unsubscribeFromEventUrl: string }> {
+	// Generate the secret token
+	const secretToken = await createUnsubscribableEmailAuditTrailEntry(userId, reminderType);
+
+	// Create the unsubscribe URLs
+	const unsubscribeFromAllUrl = `${publicEnv.PUBLIC_ORIGIN}/email-subscriptions/unsubscribe?code=${secretToken}&userId=${userId}`;
+	const unsubscribeFromEventUrl = `${publicEnv.PUBLIC_ORIGIN}/email-subscriptions/unsubscribe?code=${secretToken}&userId=${userId}&eventId=${eventId}`;
+
+	// Return the URLs as an object
+	return {
+		unsubscribeFromAllUrl,
+		unsubscribeFromEventUrl
+	};
+}
+
 export async function sendEmailNotification(
 	userEmail: string,
 	type: NotificationType,
 	message: string,
 	userId: string,
-	eventId?: string
+	eventId: string
 ): Promise<void> {
 	console.log(`Sending email notification to email ${userEmail}:`, message);
 
@@ -181,9 +200,11 @@ export async function sendEmailNotification(
 
 	const settingsUrl = `${publicEnv.PUBLIC_ORIGIN}/settings`;
 
-	const secretToken = await createUnsubscribableEmailAuditTrailEntry(userId, type);
-	const unsubscribeFromAllUrl = `${publicEnv.PUBLIC_ORIGIN}/email-subscriptions/unsubscribe?code=${secretToken}&userId=${userId}`;
-	const unsubscribeFromEventUrl = `${publicEnv.PUBLIC_ORIGIN}/email-subscriptions/unsubscribe?code=${secretToken}&userId=${userId}&eventId=${eventId}`;
+	const { unsubscribeFromAllUrl, unsubscribeFromEventUrl } = await createUnsubscribeUrls(
+		userId,
+		type,
+		eventId
+	);
 
 	let notificationsLink = publicEnv.PUBLIC_ORIGIN;
 	if (eventId) {
