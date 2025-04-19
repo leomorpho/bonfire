@@ -102,7 +102,7 @@ export const runNotificationProcessor = async () => {
 	}
 };
 
-export async function processNotificationQueue(notificationQueueEntry: NotificationQueueEntry) {
+async function processNotificationQueue(notificationQueueEntry: NotificationQueueEntry) {
 	if (notificationQueueEntry.sent_at) {
 		return;
 	}
@@ -202,7 +202,6 @@ export async function processNotificationQueue(notificationQueueEntry: Notificat
 			console.error(`Unknown object_type: ${notificationQueueEntry.object_type}`);
 			return;
 	}
-
 	notifications = await bulkPersistNotifications(notifications);
 
 	// Bulk notify end-users with these objects
@@ -402,20 +401,23 @@ export async function bulkNotifyUsers(notifications: Notification[]): Promise<vo
 		}
 	}
 
+	// TODO: undo when SMS is live
 	// Extract user IDs for SMS and email notifications
-	const smsUserIds = new Set(
-		notificationsByDeliveryType[DeliveryPermissions.sms_notifications].map(
-			(notification) => notification.userId
-		)
-	);
+	// const smsUserIds = new Set(
+	// 	notificationsByDeliveryType[DeliveryPermissions.sms_notifications].map(
+	// 		(notification) => notification.userId
+	// 	)
+	// );
 	const emailUserIds = new Set(
 		notificationsByDeliveryType[DeliveryPermissions.email_notifications].map(
 			(notification) => notification.userId
 		)
 	);
+	// TODO: undo when SMS is live
 
 	// Combine user IDs for a single query
-	const uniqueUserIds = Array.from(new Set([...smsUserIds, ...emailUserIds]));
+	// const uniqueUserIds = Array.from(new Set([...smsUserIds, ...emailUserIds]));
+	const uniqueUserIds = Array.from(emailUserIds);
 
 	// Bulk query user model to get phone numbers and emails
 	const usersWithPersonalData = await triplitHttpClient.fetch(
