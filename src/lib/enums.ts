@@ -160,7 +160,7 @@ export const NotificationPermissions = {
 
 export const DeliveryPermissions = {
 	push_notifications: 'push_notifications',
-	sms_notifications: 'sms_notifications',
+	// sms_notifications: 'sms_notifications',
 	email_notifications: 'email_notifications'
 };
 
@@ -189,7 +189,7 @@ export const notificationTypeToDeliveryMap: {
 	[NotificationType.ANNOUNCEMENT]: [
 		DeliveryPermissions.push_notifications,
 		DeliveryPermissions.email_notifications,
-		DeliveryPermissions.sms_notifications
+		// DeliveryPermissions.sms_notifications
 	],
 	[NotificationType.FILES]: [
 		DeliveryPermissions.push_notifications,
@@ -210,11 +210,11 @@ export const notificationTypeToDeliveryMap: {
 	[NotificationType.NEW_MESSAGE]: [
 		DeliveryPermissions.push_notifications,
 		DeliveryPermissions.email_notifications,
-		DeliveryPermissions.sms_notifications
+		// DeliveryPermissions.sms_notifications
 	],
 	[NotificationType.REMINDER]: [
 		DeliveryPermissions.push_notifications,
-		DeliveryPermissions.sms_notifications,
+		// DeliveryPermissions.sms_notifications,
 		DeliveryPermissions.email_notifications
 	],
 	[NotificationType.OTP_VERIFICATION]: [],
