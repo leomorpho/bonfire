@@ -26,9 +26,6 @@ importers:
       '@googlemaps/google-maps-services-js':
         specifier: ^3.4.0
         version: 3.4.1
-      '@jimmyverburgt/svelte-input-otp':
-        specifier: ^0.0.3
-        version: 0.0.3(svelte@5.28.1)
       '@khmyznikov/pwa-install':
         specifier: ^0.5.3
         version: 0.5.4(@lit/react@1.0.7(@types/react@19.1.2))(@types/dom-chromium-installation-events@101.0.4)(@types/web-app-manifest@1.0.9)(lit@3.3.0)
@@ -1724,11 +1721,6 @@ packages:
   '@isaacs/ttlcache@1.4.1':
     resolution: {integrity: sha512-RQgQ4uQ+pLbqXfOmieB91ejmLwvSgv9nLx6sT6sD83s7umBypgg+OIBOBbEUiJXrfpnp9j0mRhYYdzp9uqq3lA==}
     engines: {node: '>=12'}
-
-  '@jimmyverburgt/svelte-input-otp@0.0.3':
-    resolution: {integrity: sha512-+TIG8l1W6CuZcfz22hSzQP+C2O+OXLw/hUVsB3Ab+9LHb11ew6jAGmhkXMzMe2XBoipBoy5Wv1ZeOadGsfbgkQ==}
-    peerDependencies:
-      svelte: ^4.0.0
 
   '@jridgewell/gen-mapping@0.3.8':
     resolution: {integrity: sha512-imAbBGkb+ebQyxKgzv5Hu2nmROxoDOXHh80evxdoXNOrvAnVx7zimzc1Oo5h9RlfV4vPXaE2iM5pOFbvOCClWA==}
@@ -8089,10 +8081,6 @@ snapshots:
       wrap-ansi-cjs: wrap-ansi@7.0.0
 
   '@isaacs/ttlcache@1.4.1': {}
-
-  '@jimmyverburgt/svelte-input-otp@0.0.3(svelte@5.28.1)':
-    dependencies:
-      svelte: 5.28.1
 
   '@jridgewell/gen-mapping@0.3.8':
     dependencies:

@@ -6,10 +6,10 @@
 	import { Image } from '@unpic/svelte';
 	import { tempAttendeeIdFormName, tempAttendeeSecretParam } from '$lib/enums.js';
 	import { page } from '$app/stores';
-	import { OTPInput, OTPRoot } from '@jimmyverburgt/svelte-input-otp';
-	import Minus from 'lucide-svelte/icons/minus';
 	import LoaderPage from '$lib/components/LoaderPage.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
+	import * as InputOTP from '$lib/components/ui/input-otp/index.js';
+	import { REGEXP_ONLY_DIGITS } from 'bits-ui';
 
 	const { data } = $props();
 
@@ -21,6 +21,12 @@
 
 	// Set start oneTimePasswordValue
 	let oneTimePasswordValue = $state('');
+
+	$effect(() => {
+		if (oneTimePasswordValue.length == 6) {
+			handleOtpComplete(oneTimePasswordValue);
+		}
+	});
 
 	// Handle the paste event to capture pasted digits
 	function handlePaste(event: ClipboardEvent) {
@@ -169,54 +175,31 @@
 					Paste from clipboard</Button
 				>
 				<div class="mb-5 mt-8 flex w-full justify-center sm:text-2xl" id="otp-entry">
-					<OTPRoot
-						inputMode="numeric"
-						ariaLabel="OTP Code"
-						maxLength={6}
-						on:change={handleOtpChange}
+					<InputOTP.Root
+						maxlength={6}
 						bind:value={oneTimePasswordValue}
-						autoFocus={true}
-						onComplete={handleOtpComplete}
-						className="flex items-center gap-2"
+						pattern={REGEXP_ONLY_DIGITS}
 					>
-						<div class="flex items-center">
-							<OTPInput
-								index={0}
-								className="relative flex h-12 w-8 sm:h-14 sm:w-10 md:h-18 md:w-14 items-center justify-center border-y border-r border-input sm:text-xl md:text-2xl transition-all first:rounded-l-md first:border-l last:rounded-r-md"
-								focusClassName="z-10 ring-2 ring-ring ring-offset-background"
-							/>
-							<OTPInput
-								index={1}
-								className="relative flex h-12 w-8 sm:h-14 sm:w-10 md:h-18 md:w-14 items-center justify-center border-y border-r border-input sm:text-xl md:text-2xl transition-all first:rounded-l-md first:border-l last:rounded-r-md"
-								focusClassName="z-10 ring-2 ring-ring ring-offset-background"
-							/>
-							<OTPInput
-								index={2}
-								className="relative flex h-12 w-8 sm:h-14 sm:w-10 md:h-18 md:w-14 items-center justify-center border-y border-r border-input sm:text-xl md:text-2xl transition-all first:rounded-l-md first:border-l last:rounded-r-md"
-								focusClassName="z-10 ring-2 ring-ring ring-offset-background"
-							/>
-						</div>
-						<div class="mx-1">
-							<Minus />
-						</div>
-						<div class="flex items-center">
-							<OTPInput
-								index={3}
-								className="relative flex h-12 w-8 sm:h-14 sm:w-10 md:h-18 md:w-14 items-center justify-center border-y border-r border-input sm:text-xl md:text-2xl transition-all first:rounded-l-md first:border-l last:rounded-r-md"
-								focusClassName="z-10 ring-2 ring-ring ring-offset-background"
-							/>
-							<OTPInput
-								index={4}
-								className="relative flex h-12 w-8 sm:h-14 sm:w-10 md:h-18 md:w-14 items-center justify-center border-y border-r border-input sm:text-xl md:text-2xl transition-all first:rounded-l-md first:border-l last:rounded-r-md"
-								focusClassName="z-10 ring-2 ring-ring ring-offset-background"
-							/>
-							<OTPInput
-								index={5}
-								className="relative flex h-12 w-8 sm:h-14 sm:w-10 md:h-18 md:w-14 items-center justify-center border-y border-r border-input sm:text-xl md:text-2xl transition-all first:rounded-l-md first:border-l last:rounded-r-md"
-								focusClassName="z-10 ring-2 ring-ring ring-offset-background"
-							/>
-						</div>
-					</OTPRoot>
+						{#snippet children({ cells })}
+							<InputOTP.Group>
+								{#each cells.slice(0, 3) as cell}
+									<InputOTP.Slot
+										{cell}
+										class="md:h-18 relative flex h-12 w-8 items-center justify-center border-y border-r border-input transition-all first:rounded-l-md first:border-l last:rounded-r-md sm:h-14 sm:w-10 sm:text-xl md:w-14 md:text-2xl"
+									/>
+								{/each}
+							</InputOTP.Group>
+							<InputOTP.Separator />
+							<InputOTP.Group>
+								{#each cells.slice(3, 6) as cell}
+									<InputOTP.Slot
+										{cell}
+										class="md:h-18 relative flex h-12 w-8 items-center justify-center border-y border-r border-input transition-all first:rounded-l-md first:border-l last:rounded-r-md sm:h-14 sm:w-10 sm:text-xl md:w-14 md:text-2xl"
+									/>
+								{/each}
+							</InputOTP.Group>
+						{/snippet}
+					</InputOTP.Root>
 				</div>
 				{#if otpInvalid}
 					<div

@@ -1,10 +1,8 @@
 <script lang="ts">
 	import type { CountryCode } from 'svelte-tel-input/types';
-	import { OTPInput, OTPRoot } from '@jimmyverburgt/svelte-input-otp';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { PhoneInput } from '$lib/jsrepo/ui/phone-input';
 	import { toast } from 'svelte-sonner';
-	import { Minus } from 'lucide-svelte';
 	import { getFeWorkerTriplitClient } from '$lib/triplit';
 	import { page } from '$app/stores';
 	import type { TriplitClient } from '@triplit/client';
@@ -12,6 +10,8 @@
 	import { dev } from '$app/environment';
 	import { toggleSettingsPermission } from '$lib/permissions';
 	import { DeliveryPermissions } from '$lib/enums';
+	import * as InputOTP from '$lib/components/ui/input-otp/index.js';
+	import { REGEXP_ONLY_DIGITS } from 'bits-ui';
 
 	let { userId } = $props();
 
@@ -25,6 +25,12 @@
 	let isVerifying = $state(false);
 	let otpInvalid = $state(false);
 	let verificationSent = $state(false);
+
+	$effect(() => {
+		if (verificationCodeInput.length == 6) {
+			verifyCode(verificationCodeInput);
+		}
+	});
 
 	async function sendVerificationCode() {
 		if (!phoneNumber) {
@@ -63,12 +69,12 @@
 		}
 	}
 
-	async function verifyCode() {
-		if (verificationCodeInput.length != 6) {
-			console.log('verification has wrong length', verificationCodeInput);
+	async function verifyCode(code: string) {
+		if (code.length != 6) {
+			console.log('verification has wrong length', code);
 			return;
 		}
-		if (verificationCode != verificationCodeInput) {
+		if (verificationCode != code) {
 			toast.error('Verification code is incorrect, please try again.');
 			return;
 		}
@@ -132,53 +138,31 @@
 					We've sent you a verification code. Please enter it below.
 				</div>
 				<div class="mb-5 mt-8 flex w-full justify-center sm:text-2xl" id="otp-entry">
-					<OTPRoot
-						inputMode="numeric"
-						ariaLabel="SMS verification code entry"
-						maxLength={6}
+					<InputOTP.Root
+						maxlength={6}
 						bind:value={verificationCodeInput}
-						autoFocus={true}
-						onComplete={verifyCode}
-						className="flex items-center gap-2"
+						pattern={REGEXP_ONLY_DIGITS}
 					>
-						<div class="flex items-center">
-							<OTPInput
-								index={0}
-								className="relative flex h-12 w-8 sm:h-14 sm:w-10 md:h-18 md:w-14 items-center justify-center border-y border-r border-input sm:text-xl md:text-2xl transition-all first:rounded-l-md first:border-l last:rounded-r-md"
-								focusClassName="z-10 ring-2 ring-ring ring-offset-background"
-							/>
-							<OTPInput
-								index={1}
-								className="relative flex h-12 w-8 sm:h-14 sm:w-10 md:h-18 md:w-14 items-center justify-center border-y border-r border-input sm:text-xl md:text-2xl transition-all first:rounded-l-md first:border-l last:rounded-r-md"
-								focusClassName="z-10 ring-2 ring-ring ring-offset-background"
-							/>
-							<OTPInput
-								index={2}
-								className="relative flex h-12 w-8 sm:h-14 sm:w-10 md:h-18 md:w-14 items-center justify-center border-y border-r border-input sm:text-xl md:text-2xl transition-all first:rounded-l-md first:border-l last:rounded-r-md"
-								focusClassName="z-10 ring-2 ring-ring ring-offset-background"
-							/>
-						</div>
-						<div class="mx-1">
-							<Minus />
-						</div>
-						<div class="flex items-center">
-							<OTPInput
-								index={3}
-								className="relative flex h-12 w-8 sm:h-14 sm:w-10 md:h-18 md:w-14 items-center justify-center border-y border-r border-input sm:text-xl md:text-2xl transition-all first:rounded-l-md first:border-l last:rounded-r-md"
-								focusClassName="z-10 ring-2 ring-ring ring-offset-background"
-							/>
-							<OTPInput
-								index={4}
-								className="relative flex h-12 w-8 sm:h-14 sm:w-10 md:h-18 md:w-14 items-center justify-center border-y border-r border-input sm:text-xl md:text-2xl transition-all first:rounded-l-md first:border-l last:rounded-r-md"
-								focusClassName="z-10 ring-2 ring-ring ring-offset-background"
-							/>
-							<OTPInput
-								index={5}
-								className="relative flex h-12 w-8 sm:h-14 sm:w-10 md:h-18 md:w-14 items-center justify-center border-y border-r border-input sm:text-xl md:text-2xl transition-all first:rounded-l-md first:border-l last:rounded-r-md"
-								focusClassName="z-10 ring-2 ring-ring ring-offset-background"
-							/>
-						</div>
-					</OTPRoot>
+						{#snippet children({ cells })}
+							<InputOTP.Group>
+								{#each cells.slice(0, 3) as cell}
+									<InputOTP.Slot
+										{cell}
+										class="md:h-18 relative flex h-12 w-8 items-center justify-center border-y border-r border-input transition-all first:rounded-l-md first:border-l last:rounded-r-md sm:h-14 sm:w-10 sm:text-xl md:w-14 md:text-2xl"
+									/>
+								{/each}
+							</InputOTP.Group>
+							<InputOTP.Separator />
+							<InputOTP.Group>
+								{#each cells.slice(3, 6) as cell}
+									<InputOTP.Slot
+										{cell}
+										class="md:h-18 relative flex h-12 w-8 items-center justify-center border-y border-r border-input transition-all first:rounded-l-md first:border-l last:rounded-r-md sm:h-14 sm:w-10 sm:text-xl md:w-14 md:text-2xl"
+									/>
+								{/each}
+							</InputOTP.Group>
+						{/snippet}
+					</InputOTP.Root>
 				</div>
 
 				{#if otpInvalid}
@@ -191,7 +175,9 @@
 				{/if}
 				<div class="flex w-full justify-center">
 					<Button
-						onclick={verifyCode}
+						onclick={() => {
+							verifyCode(verificationCodeInput);
+						}}
 						class="mt-5 bg-green-500 hover:bg-green-400"
 						disabled={verificationCodeInput.length != 6}
 					>

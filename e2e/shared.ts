@@ -24,16 +24,16 @@ export async function loginUser(
 	const otp = await getEmailOTP(email);
 
 	// Wait for the `otp-root` element to be visible
+	// Wait for the `otp-root` element to be visible
 	const otpRoot = page.locator('#otp-entry');
+
+	// Wait for the otpRoot to be visible
 	await otpRoot.waitFor({ state: 'visible' });
 
-	// Locate the input field inside the `otp-root` element
-	const otpInput = otpRoot.locator('input[name="otp"]');
+	// Locate the input field within the otpRoot
+	const otpInput = otpRoot.locator('input'); // Adjust the selector as needed
 
-	// Ensure the input field is visible
-	await otpInput.waitFor({ state: 'visible' });
-
-	// Type the OTP into the input field
+	// Fill the input field
 	await otpInput.fill(otp);
 
 	if (expectToSetUsername) {
@@ -44,8 +44,8 @@ export async function loginUser(
 	}
 
 	// Finish onboarding
-	await page.locator("#agree-to-free-logs-btn").click();
-	await page.locator("#finish-permission-onboarding-btn").click();
+	await page.locator('#agree-to-free-logs-btn').click();
+	await page.locator('#finish-permission-onboarding-btn').click();
 
 	await page.getByRole('tab', { name: 'Upcoming' }).click();
 	await expect(page.getByRole('link', { name: 'Dashboard' })).toBeVisible();
