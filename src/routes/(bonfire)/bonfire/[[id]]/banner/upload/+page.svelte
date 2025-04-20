@@ -48,7 +48,7 @@
 				autoOpen: 'imageEditor', // Automatically open the editor
 				showProgressDetails: true,
 				note: `Image only. Max size: ${maxMbSize}MB.`,
-				theme: theme
+				theme: theme as 'light' | 'auto' | 'dark' | undefined
 			})
 			.use(Webcam, {
 				mirror: true // Use mirror mode for webcam

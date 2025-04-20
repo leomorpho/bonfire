@@ -1,4 +1,5 @@
 import { fontFamily } from 'tailwindcss/defaultTheme';
+import type { Config } from 'tailwindcss';
 
 const plugin = require('tailwindcss/plugin');
 
@@ -160,6 +161,6 @@ const config = {
 			}
 		}
 	}
-};
+} as Config;
 
 export default config;

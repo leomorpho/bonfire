@@ -70,7 +70,7 @@
 				// proudlyDisplayPoweredByUppy: false,
 				note: `Images or videos. Max size: ${maxMbSize}MB.`,
 				metaFields: [{ id: 'name', name: 'Name', placeholder: 'File name' }],
-				theme: theme
+				theme: theme as 'light' | 'auto' | 'dark' | undefined
 			})
 			.use(Webcam, {
 				mirror: true // Use mirror mode for webcam

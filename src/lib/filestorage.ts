@@ -51,7 +51,7 @@ const s3 = new S3Client({
 	credentials: {
 		accessKeyId: s3AccessKey,
 		secretAccessKey: s3SecretKey
-	}
+	},
 });
 
 const bucketName = dev ? privateEnv.DEV_S3_BUCKET_NAME : privateEnv.S3_BUCKET_NAME;

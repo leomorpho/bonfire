@@ -160,20 +160,21 @@
 				$flash.type === 'success'
 					? 'bg-green-50 text-green-800 dark:bg-gray-800 dark:text-green-400'
 					: $flash.type === 'error'
-						? 'bg-red-50 text-red-800 dark:bg-gray-800 dark:text-red-400'
+						? 'bg-red-50 text-red-800 dark:text-red-400'
 						: $flash.type === 'warning'
-							? 'bg-yellow-50 text-yellow-800 dark:bg-gray-800 dark:text-yellow-400'
+							? 'bg-yellow-50 text-yellow-800 dark:text-yellow-400'
 							: $flash.type === 'info'
-								? 'bg-blue-50 text-blue-800 dark:bg-gray-800 dark:text-blue-400'
-								: 'bg-gray-50 text-gray-800 dark:bg-gray-800 dark:text-gray-400'
+								? 'bg-blue-50 text-blue-800 dark:text-blue-400'
+								: 'bg-gray-50 text-gray-800 dark:text-gray-400'
 			}`}
 			role="alert"
 		>
 			{$flash.message}
 		</div>
 	{/if}
-	<Toaster richColors closeButton toastOptions={{}} />
-	<ModeWatcher />
+
+	<Toaster />
+	<ModeWatcher></ModeWatcher>
 	{@render children()}
 </div>
 
