@@ -173,7 +173,7 @@
 		</div>
 	{/if}
 
-	<Toaster />
+	<Toaster richColors closeButton position="bottom-right" toastOptions={{}}/>
 	<ModeWatcher></ModeWatcher>
 	{@render children()}
 </div>
