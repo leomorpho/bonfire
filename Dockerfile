@@ -10,6 +10,9 @@ COPY .env.example .env
 COPY package.json pnpm-lock.yaml ./
 RUN npm install -g pnpm && pnpm i --frozen-lockfile
 
+# Set the NODE_OPTIONS environment variable to increase memory limit
+ENV NODE_OPTIONS="--max-old-space-size=8192"
+
 # Copy app source & build
 COPY . .
 RUN pnpm run build && \
