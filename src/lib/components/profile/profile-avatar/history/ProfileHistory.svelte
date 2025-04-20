@@ -86,5 +86,8 @@
 				<Card.Footer></Card.Footer>
 			</Card.Root>
 		{/each}
+		{#if attendeeChanges.results.length == 0}
+			<div class="flex w-full justify-center">No historical changes yet</div>
+		{/if}
 	</ScrollArea>
 {/if}
