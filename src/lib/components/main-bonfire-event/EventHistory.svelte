@@ -93,7 +93,7 @@
 						</Popover.Root>
 					{/if}
 					<!-- Text Section on the Right -->
-					<div class="flex w-full flex-col items-start font-normal text-base">
+					<div class="flex w-full flex-col items-start text-base font-normal">
 						<span>
 							<span class="font-bold">
 								{#if change.changed_by_id_type && change.changed_by_id_type == HistoryChangesConstants.temporary_attendee_id}
@@ -129,5 +129,5 @@
 		</Card.Root>
 	{/each}
 {:else if allChanges.length == 0}
-	No historical changes yet
+	<div class="flex w-full justify-center">No historical changes yet</div>
 {/if}
