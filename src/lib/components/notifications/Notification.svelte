@@ -210,7 +210,7 @@
 	</DropdownMenu.Root>
 
 	<!-- Display additional metadata -->
-	<p class="text-xs text-gray-500 mb-1">
+	<p class="mb-1 text-xs text-gray-500">
 		{formatHumanReadable(notification.created_at)}
 	</p>
 
@@ -252,12 +252,14 @@
 				<!-- Customize rendering for each object type -->
 				{#if notification.object_type === NotificationType.ANNOUNCEMENT}
 					{#each linkedObjects as obj}
-						<Announcement
-							eventId={obj.event_id}
-							currUserId={userId}
-							currentUserAttendeeId={obj.attendeeId}
-							announcement={obj}
-						/>
+						<div class="my-2">
+							<Announcement
+								eventId={obj.event_id}
+								currUserId={userId}
+								currentUserAttendeeId={obj.attendeeId}
+								announcement={obj}
+							/>
+						</div>
 					{/each}
 				{:else if notification.object_type === NotificationType.NEW_MESSAGE}
 					<!-- Show the first two messages -->

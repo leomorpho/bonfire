@@ -7,7 +7,7 @@
 	import { getFeWorkerTriplitClient } from '$lib/triplit';
 	import { page } from '$app/stores';
 	import ProfileAvatar from '../profile/profile-avatar/ProfileAvatar.svelte';
-	import { Eye, UsersRound } from '@lucide/svelte';
+	import { Eye } from '@lucide/svelte';
 	import AnnouncementHistory from './AnnouncementHistory.svelte';
 
 	let {
