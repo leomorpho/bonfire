@@ -336,3 +336,23 @@ export function generateReminderMessage(days: number, eventName: string): string
 export function isWithinExpirationDate(expirationDate: Date) {
 	return isBefore(new Date(), expirationDate);
 }
+
+// Function to create a hash of at least `minLength` characters
+export async function createHash(input: string, minLength: number) {
+	const encoder = new TextEncoder();
+	const data = encoder.encode(input);
+	let hashBuffer = await crypto.subtle.digest('SHA-256', data);
+	let hashHex = Array.from(new Uint8Array(hashBuffer))
+		.map((b) => b.toString(16).padStart(2, '0'))
+		.join('');
+
+	// Ensure the hash is at least `minLength` characters long
+	while (hashHex.length < minLength) {
+		hashBuffer = await crypto.subtle.digest('SHA-256', encoder.encode(hashHex));
+		hashHex = Array.from(new Uint8Array(hashBuffer))
+			.map((b) => b.toString(16).padStart(2, '0'))
+			.join('');
+	}
+
+	return hashHex.substring(0, minLength);
+}

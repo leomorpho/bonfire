@@ -8,6 +8,8 @@
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { page } from '$app/stores';
 	import { createNewAnnouncementNotificationQueueObject } from '$lib/notification_queue';
+	import { createHash } from '$lib/utils';
+	import { toast } from 'svelte-sonner';
 
 	// Props for the page
 	let { mode = 'update', announcement = null, eventId } = $props();
@@ -18,6 +20,7 @@
 	// States for form fields
 	let content = $state(announcement?.content ?? '');
 	let submitDisabled = $state(true);
+	let loading = $state(false);
 
 	onMount(async () => {
 		client = getFeHttpTriplitClient($page.data.jwt);
@@ -26,55 +29,71 @@
 
 	$effect(() => {
 		// Enable the submit button if all required fields are filled
-		submitDisabled = !content || !eventId;
+		submitDisabled = !content || !eventId || loading;
 	});
 
-	const handleSubmit = (e: Event) => {
+	const handleSubmit = async (e: Event) => {
 		if (!client) {
 			throw new Error('client is not instantiated');
 		}
+		if (loading) {
+			return;
+		}
 
-		e.preventDefault();
+		try {
+			loading = true;
 
-		if (!content || !eventId) return;
+			e.preventDefault();
 
-		if (mode === 'create') {
-			// Create a new announcement
-			client
-				.insert('announcement', {
-					content,
-					event_id: eventId,
-					user_id: userId // Use the authenticated user's ID
-				})
-				.then(async (output) => {
-					console.log('output...', output);
+			if (!content || !eventId) return;
 
-					await createNewAnnouncementNotificationQueueObject(client, userId as string, eventId, [
-						output?.id
-					]);
+			if (mode === 'create') {
+				// Create a new announcement
+				client
+					.insert('announcement', {
+						id: 'an_' + (await createHash(content, 25)),
+						content,
+						event_id: eventId,
+						user_id: userId // Use the authenticated user's ID
+					})
+					.then(async (output) => {
+						console.log('output...', output);
 
-					if (output) {
+						await createNewAnnouncementNotificationQueueObject(client, userId as string, eventId, [
+							output?.id
+						]);
+
+						if (output) {
+							goto(`/bonfire/${eventId}#announcements`);
+						} else {
+							console.error('Failed to create announcement');
+						}
+					})
+					.catch((error) => {
+						console.error('Error creating announcement:', error);
+						throw error;
+					});
+			} else if (mode === 'update' && announcement?.id) {
+				// Update the existing announcement
+				client
+					.update('announcement', announcement.id, async (entity) => {
+						entity.content = content;
+						entity.event_id = eventId;
+					})
+					.then(() => {
 						goto(`/bonfire/${eventId}#announcements`);
-					} else {
-						console.error('Failed to create announcement');
-					}
-				})
-				.catch((error) => {
-					console.error('Error creating announcement:', error);
-				});
-		} else if (mode === 'update' && announcement?.id) {
-			// Update the existing announcement
-			client
-				.update('announcement', announcement.id, async (entity) => {
-					entity.content = content;
-					entity.event_id = eventId;
-				})
-				.then(() => {
-					goto(`/bonfire/${eventId}#announcements`);
-				})
-				.catch((error) => {
-					console.error('Error updating announcement:', error);
-				});
+					})
+					.catch((error) => {
+						console.error('Error updating announcement:', error);
+						throw error;
+					});
+			}
+		} catch (e) {
+			toast.error(
+				'Sorry, we failed to create your announcement right now. Contact support if it persists.'
+			);
+		} finally {
+			loading = false;
 		}
 	};
 
