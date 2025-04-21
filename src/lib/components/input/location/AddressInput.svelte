@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Input } from '$lib/components/ui/input/index.js';
-	import { debounce } from '$lib/utils';
+	import { debounce } from 'lodash-es';
 	import { tick } from 'svelte';
 	import * as Command from '$lib/components/ui/command/index.js';
 	import * as Popover from '$lib/components/ui/popover/index.js';
@@ -8,12 +8,13 @@
 	import { cn } from '$lib/utils.js';
 	import Check from 'lucide-svelte/icons/check';
 	import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
-	import DOMPurify from 'dompurify';
 
 	let {
 		onSave,
 		location = $bindable<string | undefined>(),
-		geocodedLocation = $bindable<any>()
+		geocodedLocation = $bindable<any>(),
+		latitude = $bindable<number | null>(),
+		longitude = $bindable<number | null>()
 	} = $props();
 
 	let open = $state(false);
@@ -37,9 +38,6 @@
 		}
 	};
 
-	// $effect(() => {
-	// 	console.log('selectedResult', selectedResult);
-	// });
 	const enterEventLocationText = 'Enter event address...';
 
 	let selectedValue = $state(location);
@@ -127,7 +125,7 @@
 </script>
 
 <Popover.Root bind:open>
-	<Popover.Trigger bind:ref={triggerRef} onSave={resizeInputBox}>
+	<Popover.Trigger bind:ref={triggerRef}>
 		{#snippet child({ props })}
 			<Button
 				variant="outline"
@@ -150,7 +148,9 @@
 				class="h-[var(--trigger-height)]"
 				bind:value={locationQueryStr}
 				bind:ref={inputRef}
-				oninput={() => debounce(fetchSuggestions)(locationQueryStr)}
+				oninput={debounce(async () => {
+					fetchSuggestions(locationQueryStr);
+				}, 800)}
 			/>
 			<Command.List>
 				<Command.Group>
@@ -179,9 +179,13 @@
 									selectedResult = suggestion.value; // Save full object
 									location = suggestion.label; // Display label
 									geocodedLocation = suggestion.value;
+									latitude = geocodedLocation?.data.latitude;
+									longitude = geocodedLocation?.data.longitude;
+									console.log('latitude ---->', latitude);
+									console.log('longitude ---->', longitude);
 									closeAndFocusTrigger();
 								}}
-								{onSave}
+								onclick={onSave}
 							>
 								<Check class={cn(selectedResult !== suggestion.value && 'text-transparent')} />
 								<span
@@ -199,7 +203,7 @@
 							<Button
 								class="w-full"
 								disabled={locationQueryStr.length == 0}
-								onSave={() => fetchSuggestions(locationQueryStr)}>Search</Button
+								onclick={() => fetchSuggestions(locationQueryStr)}>Search</Button
 							>
 						</div>
 					{/if}

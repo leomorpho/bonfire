@@ -26,7 +26,7 @@
 	let isDialogOpen = $state(false);
 
 	// Create a reactive `LngLatLike` state
-	let geolocation: any = $state([
+	let geolocation: any = $derived([
 		longitude ? longitude : geocodedLocation?.data?.longitude || -122.4194,
 		latitude ? latitude : geocodedLocation?.data?.latitude || 37.7749
 	]);
@@ -41,15 +41,10 @@
 		latitude = null;
 	};
 
-	$effect(() => {
-		longitude = geolocation[0];
-		latitude = geolocation[1];
-
-		console.log('latitude', latitude, 'longitude', longitude);
-	});
-
 	function updateMarker(e: any) {
 		geolocation = [e.lngLat.lng, e.lngLat.lat];
+		longitude = geolocation[0];
+		latitude = geolocation[1];
 	}
 
 	let mapRef: any;
