@@ -7,7 +7,8 @@
 		value = $bindable<string>(),
 		styleClass = 'bg-white',
 		maxValue = 59,
-		placeholder = 'HH'
+		placeholder = 'HH',
+		disabled = false
 	} = $props();
 	let inputRef: HTMLInputElement | null = null; // Reference for the input element
 
@@ -50,4 +51,5 @@
 	class={`md:w-18 w-12 text-center dark:bg-slate-900 sm:w-16 ${styleClass}`}
 	onblur={() => handleBlur()}
 	{oninput}
+	{disabled}
 />

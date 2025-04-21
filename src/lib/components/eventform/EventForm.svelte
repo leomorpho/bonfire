@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { defaultMaxNumGuestsPerAttendee } from './../../enums.ts';
+	import { defaultMaxNumGuestsPerAttendee } from '$lib/enums';
 	import EventStyler from '../event-styles/EventStyler.svelte';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { CalendarDate, type DateValue } from '@internationalized/date';
@@ -114,6 +114,7 @@
 	let isEventPublished = $derived(event && event.is_published);
 	let userIsOutOfLogs = $derived(!numLogsLoading && numLogs == 0 && event && !event.isPublished);
 	let userFavoriteNonProfitId = $state(null);
+	let isEventEdittable = $state(new Date() < event.start_time);
 
 	const getRandomTheme = () => {
 		finalStyleCss = getNextTheme();
@@ -574,7 +575,11 @@
 						class="w-full bg-white dark:bg-slate-900"
 						oninput={debouncedUpdateEvent}
 					/>
-					<Datepicker bind:value={dateValue} oninput={debouncedUpdateEvent} />
+					<Datepicker
+						disabled={!isEventEdittable}
+						bind:value={dateValue}
+						oninput={debouncedUpdateEvent}
+					/>
 
 					<div class="flex flex-row items-center justify-between space-x-4">
 						<!-- Start Time Inputs -->
@@ -588,6 +593,7 @@
 									bind:value={startHour}
 									placeholder="HH"
 									oninput={debouncedUpdateEvent}
+									disabled={!isEventEdittable}
 								/>
 							</div>
 							<div class="font-mono">
@@ -595,12 +601,14 @@
 									bind:value={startMinute}
 									placeholder="mm"
 									oninput={debouncedUpdateEvent}
+									disabled={!isEventEdittable}
 								/>
 							</div>
 							<div class="w-18">
 								<AmPmPicker
 									onValueChange={(newValue: any) => (ampmStart = newValue)}
 									oninput={debouncedUpdateEvent}
+									disabled={!isEventEdittable}
 								/>
 							</div>
 						</div>
@@ -691,7 +699,10 @@
 					/>
 					<MaxCapacity oninput={debouncedUpdateEvent} bind:value={maxCapacity} />
 					<GuestCountFeature oninput={debouncedUpdateEvent} bind:value={maxNumGuest} />
-					<RequiredBringItemForAttendance oninput={debouncedUpdateEvent} bind:checked={requireGuestBringItem}/>
+					<RequiredBringItemForAttendance
+						oninput={debouncedUpdateEvent}
+						bind:checked={requireGuestBringItem}
+					/>
 				</form>
 				<div class="my-10 flex justify-center md:w-full">
 					<div class="grid w-full grid-cols-2 gap-2">

@@ -414,7 +414,7 @@
 			</div>
 		{:else}
 			<div class="flex h-full w-full items-center justify-center">
-				<div class="rounded-xl bg-white p-4 dark:bg-slate-900">No messages yet</div>
+				<div class="rounded-xl bg-white p-4 text-base dark:bg-slate-900">No messages yet</div>
 			</div>
 		{/if}
 

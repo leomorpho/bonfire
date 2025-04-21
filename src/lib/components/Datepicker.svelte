@@ -8,6 +8,7 @@
 
 	let {
 		value = $bindable<DateValue | undefined>(),
+		disabled = false,
 		oninput,
 		minValue = today(getLocalTimeZone()),
 		maxValue = null
@@ -47,6 +48,6 @@
 		<div></div>
 	</Popover.Trigger>
 	<Popover.Content bind:ref={contentRef} class="w-auto p-0">
-		<Calendar type="single" bind:value onValueChange={oninput} {minValue} {maxValue}/>
+		<Calendar {disabled} type="single" bind:value onValueChange={oninput} {minValue} {maxValue} />
 	</Popover.Content>
 </Popover.Root>
