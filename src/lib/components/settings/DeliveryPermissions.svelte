@@ -61,5 +61,5 @@
 	{/if}
 
 	<EmailDeliveryPermission {userId} {eventId} />
-	<SmsDeliveryPermission {userId} {eventId} />
+	<!-- <SmsDeliveryPermission {userId} {eventId} /> -->
 </div>
