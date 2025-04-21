@@ -720,6 +720,7 @@
 											{changeToDiscussionsTab}
 											{requireGuestBringItem}
 											{isCurrenUserEventAdmin}
+											isCurrUserAttending={!!rsvpStatus}
 										/>
 									{:else}
 										<div class="my-2">

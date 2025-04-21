@@ -24,7 +24,8 @@
 		numAttendeesGoing = 5,
 		changeToDiscussionsTab = null,
 		requireGuestBringItem = false,
-		isCurrenUserEventAdmin = false
+		isCurrenUserEventAdmin = false,
+		isCurrUserAttending = false
 	} = $props();
 
 	if (!tempAttendeeId && !currUserId) {
@@ -55,9 +56,8 @@
 		const totalBrought = calculateTotalBrought(item);
 		return item.quantity_needed ? (totalBrought / item.quantity_needed) * 100 : 0;
 	}
-
 	let showBringListFullScreen = $derived(
-		!isLoading && requireGuestBringItem && !isUserBringingSomething
+		isCurrUserAttending && !isLoading && requireGuestBringItem && !isUserBringingSomething
 	);
 
 	$effect(() => {
@@ -261,7 +261,7 @@
 	</button>
 </div>
 
-{#if currUserId}
+{#if currUserId && isCurrUserAttending}
 	<CrudItem {eventId} {numAttendeesGoing} class={'w-full'} {isAdmin}>
 		<Button
 			id="add-bring-list-item-btn"

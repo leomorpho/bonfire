@@ -26,7 +26,7 @@
 			<AlertDialog.Description>
 				<p class="text-base">
 					To ensure everyone participates in this potluck-style event, please select at least one
-					item from the list below to bring! 🍴🍲
+					item from the list below to bring! You can always adjust it later 🍴🍲
 				</p>
 				<div class="my-2">
 					{#each bringItems as item (item.id)}
