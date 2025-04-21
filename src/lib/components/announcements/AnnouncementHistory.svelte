@@ -2,10 +2,9 @@
 	import ScrollArea from '$lib/jsrepo/ui/scroll-area/scroll-area.svelte';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { onMount } from 'svelte';
-	import { and, or, type TriplitClient } from '@triplit/client';
+	import { type TriplitClient } from '@triplit/client';
 	import { page } from '$app/stores';
 	import { getFeWorkerTriplitClient } from '$lib/triplit';
-	import { NotificationType } from '$lib/enums';
 	import ProfileAvatar from '../profile/profile-avatar/ProfileAvatar.svelte';
 	import { flip } from 'svelte/animate';
 	import { fade } from 'svelte/transition';
@@ -15,36 +14,27 @@
 
 	let { children, announcementId, event_id } = $props();
 
-	let notifications: any = $state();
 	let attendeesSeen: any = $state();
-	let attendeesUnseen: any = $state();
 	let loading = $state(true);
 
 	onMount(() => {
 		const client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 		console.log('announcementId', announcementId);
-		const unsubscribe = client.subscribe(
-			client.query('notifications').Where(
-				and([
-					or([
-						['object_ids', 'like', `%${announcementId}%`],
-						['object_ids_set', 'has', announcementId]
-					]),
-					['event_id', '=', event_id],
-					['object_type', '=', NotificationType.ANNOUNCEMENT]
-				])
-			),
-			(results) => {
-				notifications = results;
 
+		const unsubscribe = client.subscribe(
+			client
+				.query('seen_announcements')
+				.Where(['announcement_id', '=', announcementId])
+				.SubqueryOne(
+					'user',
+					client.query('attendees').Where(['id', '=', '$1.attendee_id']).Select(['user_id'])
+				),
+			(results) => {
 				// Sort users based on seen status
 				attendeesSeen = results
 					.filter((notification: any) => notification.seen_at != null)
-					.map((notification: any) => notification.user_id);
-				attendeesUnseen = results
-					.filter((notification: any) => notification.seen_at == null)
-					.map((notification: any) => notification.user_id);
-
+					.map((notification: any) => notification.user.user_id);
+				console.log('attendeesSeen', attendeesSeen, results);
 				loading = false;
 			},
 			(error) => {
@@ -76,7 +66,7 @@
 				{/each}
 			</div>
 		{:else if seen}
-			<div class="flex w-full justify-center">No one has read it</div>
+			<div class="flex w-full justify-center">No one has seen this notification</div>
 		{:else}
 			<div class="flex w-full justify-center">No one missed it</div>
 		{/if}
@@ -97,7 +87,7 @@
 						Loading
 					{:else}
 						{@render attendees('Read', attendeesSeen, true)}
-						{@render attendees('Unread', attendeesUnseen)}
+						<!-- {@render attendees('Unread', attendeesUnseen)} -->
 					{/if}
 				</ScrollArea>
 			</Dialog.Description>
