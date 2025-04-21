@@ -11,11 +11,12 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { MapPin, Check, MapPinHouse } from 'lucide-svelte';
 	import { toast } from 'svelte-sonner';
+	import { debounce } from 'lodash-es';
 
 	// import { env as publicEnv } from '$env/dynamic/public';
 
 	let {
-		geocodedLocation = $bindable<any>(),
+		geocodedLocation,
 		latitude = $bindable<number | null>(),
 		longitude = $bindable<number | null>(),
 		onSave
@@ -26,7 +27,12 @@
 	let isDialogOpen = $state(false);
 
 	// Create a reactive `LngLatLike` state
-	let geolocation: any = $derived([
+	let geolocation: any = $state([
+		longitude ? longitude : geocodedLocation?.data?.longitude || -122.4194,
+		latitude ? latitude : geocodedLocation?.data?.latitude || 37.7749
+	]);
+
+	let geolocationTempStorage: any = $state([
 		longitude ? longitude : geocodedLocation?.data?.longitude || -122.4194,
 		latitude ? latitude : geocodedLocation?.data?.latitude || 37.7749
 	]);
@@ -51,6 +57,7 @@
 
 	const handleSaveLocation = () => {
 		try {
+			updateGeoData();
 			onSave();
 			toast.success('Nice! We updated your location');
 		} catch (e) {
@@ -79,6 +86,10 @@
 		} else {
 			alert('Geolocation is not supported by your browser.');
 		}
+	};
+
+	const updateGeoData = () => {
+		geolocation = geolocationTempStorage;
 	};
 </script>
 
@@ -111,7 +122,7 @@
 		<div class="relative h-[300px] w-full overflow-hidden rounded-lg">
 			<MapLibre
 				bind:this={mapRef}
-				center={geolocation}
+				center={geolocationTempStorage}
 				zoom={14}
 				class="map"
 				style={'https://tiles.stadiamaps.com/styles/alidade_smooth.json'}
@@ -123,7 +134,7 @@
 
 				<NavigationControl position="top-left" showCompass={false} />
 				<FullscreenControl position="top-left" />
-				<DefaultMarker bind:lngLat={geolocation} draggable></DefaultMarker>
+				<DefaultMarker bind:lngLat={geolocationTempStorage} draggable></DefaultMarker>
 				<ScaleControl />
 			</MapLibre>
 		</div>

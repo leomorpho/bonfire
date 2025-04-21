@@ -15,5 +15,5 @@
 
 <div class="flex w-full items-center justify-between space-x-2">
 	<AddressInput bind:location bind:geocodedLocation bind:latitude bind:longitude {onSave} />
-	<MapMarkerInput bind:geocodedLocation bind:latitude bind:longitude {onSave} />
+	<MapMarkerInput {geocodedLocation} bind:latitude bind:longitude {onSave} />
 </div>

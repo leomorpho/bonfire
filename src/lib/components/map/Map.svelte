@@ -5,7 +5,6 @@
 		NavigationControl,
 		ScaleControl,
 		FullscreenControl,
-		MapEvents
 	} from 'svelte-maplibre';
 
 	let { latitude, longitude } = $props();
@@ -45,7 +44,7 @@
 	>
 		<NavigationControl position="top-left" showCompass={false} />
 		<FullscreenControl position="top-left" />
-		<DefaultMarker bind:lngLat={geolocation} draggable></DefaultMarker>
+		<DefaultMarker lngLat={geolocation} draggable={false}></DefaultMarker>
 		<ScaleControl />
 	</MapLibre>
 </div>
