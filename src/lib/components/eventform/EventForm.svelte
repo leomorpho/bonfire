@@ -53,6 +53,7 @@
 	import { BellRing, Info, PaintBucket, RefreshCw, TypeOutline } from '@lucide/svelte';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import EventReminders from './reminders/EventReminders.svelte';
+	import RequiredBringItemForAttendance from './RequiredBringItemForAttendance.svelte';
 
 	let { mode, event = null, currUserId = null } = $props();
 
@@ -74,6 +75,7 @@
 	let maxNumGuest: number | null = $state(
 		event?.max_num_guests_per_attendee ?? defaultMaxNumGuestsPerAttendee
 	);
+	let requireGuestBringItem: boolean = $state(event?.require_guest_bring_item ?? false);
 	let latitude: number | null = $state(event?.latitude);
 	let longitude: number | null = $state(event?.longitude);
 
@@ -296,6 +298,7 @@
 				font: JSON.stringify(font) || null,
 				max_capacity: maxCapacity || null,
 				max_num_guests_per_attendee: maxNumGuest || 0,
+				require_guest_bring_item: requireGuestBringItem,
 				non_profit_id: userFavoriteNonProfitId || null,
 				latitude: latitude,
 				longitude: longitude
@@ -340,6 +343,7 @@
 				entity.font = JSON.stringify(font) || null;
 				entity.max_capacity = maxCapacity;
 				entity.max_num_guests_per_attendee = maxNumGuest || 0;
+				entity.require_guest_bring_item = requireGuestBringItem;
 				entity.latitude = latitude;
 				entity.longitude = longitude;
 				entity.is_published = publishEventNow ?? isEventPublished;
@@ -687,6 +691,7 @@
 					/>
 					<MaxCapacity oninput={debouncedUpdateEvent} bind:value={maxCapacity} />
 					<GuestCountFeature oninput={debouncedUpdateEvent} bind:value={maxNumGuest} />
+					<!-- <RequiredBringItemForAttendance oninput={debouncedUpdateEvent} bind:checked={requireGuestBringItem}/> -->
 				</form>
 				<div class="my-10 flex justify-center md:w-full">
 					<div class="grid w-full grid-cols-2 gap-2">

@@ -216,6 +216,7 @@ export const schema = S.Collections({
 			longitude: S.Optional(S.Number()),
 			user_id: S.String(),
 			max_num_guests_per_attendee: S.Optional(S.Number({ default: 0 })),
+			require_guest_bring_item: S.Optional(S.Boolean({ default: false })),
 			transaction_id: S.Optional(S.String()),
 			non_profit_id: S.Optional(S.String({ nullable: true })), // Non-profit the event contributes to
 			style: S.String({ nullable: true }),
