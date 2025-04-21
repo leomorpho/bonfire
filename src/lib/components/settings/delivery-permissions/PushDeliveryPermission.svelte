@@ -10,7 +10,7 @@
 	import { getFeWorkerTriplitClient } from '$lib/triplit';
 	import { page } from '$app/stores';
 	import { and, type TriplitClient } from '@triplit/client';
-	import PushSubscriptionPermission from '../../PushSubscriptionPermission.svelte';
+	import PushSubscriptionPermission from './PushSubscriptionPermission.svelte';
 	import {
 		getEffectivePermissionSettingForEvent,
 		getPermissionFiltersForEventAndPermissionType,

@@ -4,6 +4,7 @@
 	import Button from './ui/button/button.svelte';
 	import { Download } from 'lucide-svelte';
 	import { dev } from '$app/environment';
+	import { checkAppIsInstallable } from '$lib/utils';
 
 	let { show = true } = $props();
 
@@ -77,7 +78,7 @@
 	});
 </script>
 
-{#if !dev}
+{#if !dev && checkAppIsInstallable()}
 	<pwa-install
 		bind:this={pwaInstallComponent}
 		name="Bonfire App"

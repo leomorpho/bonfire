@@ -15,6 +15,7 @@
 	import type { PermissionsArray } from '$lib/types';
 	import { Activity, MessageCircle } from 'lucide-svelte';
 	import { BellRing, Image, MicVocal } from '@lucide/svelte';
+	import { slide } from 'svelte/transition';
 
 	let { userId, eventId = null, class: cls = null } = $props();
 
@@ -122,6 +123,7 @@
 		<div
 			class="mb-4 rounded-lg bg-yellow-50 p-4 text-sm text-yellow-800 dark:bg-gray-800 dark:text-yellow-300"
 			role="alert"
+			transition:slide={{ duration: 300 }}
 		>
 			<span class="font-medium">You won't receive any notifications!</span> You first need to grant at
 			least 1 delivery permission.

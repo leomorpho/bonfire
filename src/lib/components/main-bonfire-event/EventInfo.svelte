@@ -50,7 +50,7 @@
 		</h1>
 	</div>
 
-	<div class="flex w-full lg:space-x-3 text-base">
+	<div class="flex w-full text-base lg:space-x-3">
 		<div class="hidden w-full lg:block">
 			<EventDetails {eventDescription} />
 		</div>

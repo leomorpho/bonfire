@@ -285,38 +285,40 @@ export function snakeCaseToNormal(snakeCaseString: string) {
 }
 
 export const checkDeviceSupportsPushNotifications = () => {
+	if (typeof window === 'undefined' || typeof navigator == 'undefined') {
+		return false;
+	}
+	const notificationIsSupported = !!(
+		(
+			window.Notification /* W3C Specification */ ||
+			window.webkitNotifications /* old WebKit Browsers */ ||
+			navigator.mozNotification
+		) /* Firefox for Android and Firefox OS */
+	);
+
+	return notificationIsSupported;
+};
+
+export const checkAppIsInstallable = () => {
 	if (typeof window === 'undefined') {
 		return false;
 	}
+
 	function isBrowserOnIOS() {
 		const ua = window.navigator.userAgent;
 		const webkit = !!ua.match(/WebKit/i);
 		const iOS = !!ua.match(/iPad/i) || !!ua.match(/iPhone/i);
 
-		if (webkit && iOS) {
-			return true;
-		}
-		return false;
+		return webkit && iOS;
 	}
-
-	let isAppInstallable = false;
 
 	// Check for standalone mode in Safari on iOS
-	// @ts-expect-error fuck that
-	const isStandalone = window.navigator.standalone;
+	const isStandalone =
+		window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
 
-	const isAppInstalled = isStandalone || window.matchMedia('(display-mode: standalone)').matches;
+	// The app is installable if it is not already installed and not on iOS
+	const isAppInstallable = !isStandalone && !isBrowserOnIOS();
 
-	const privateBrowsing = !('serviceWorker' in navigator);
-
-	console.log('privateBrowsing', privateBrowsing);
-	console.log('isAppInstalled', isAppInstalled);
-
-	if (!isAppInstalled) {
-		isAppInstallable = !isBrowserOnIOS() && !isStandalone && !privateBrowsing;
-	}
-
-	console.log('isAppInstallable', isAppInstallable);
 	return isAppInstallable;
 };
 
