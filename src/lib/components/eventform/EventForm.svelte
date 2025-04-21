@@ -691,7 +691,7 @@
 					/>
 					<MaxCapacity oninput={debouncedUpdateEvent} bind:value={maxCapacity} />
 					<GuestCountFeature oninput={debouncedUpdateEvent} bind:value={maxNumGuest} />
-					<!-- <RequiredBringItemForAttendance oninput={debouncedUpdateEvent} bind:checked={requireGuestBringItem}/> -->
+					<RequiredBringItemForAttendance oninput={debouncedUpdateEvent} bind:checked={requireGuestBringItem}/>
 				</form>
 				<div class="my-10 flex justify-center md:w-full">
 					<div class="grid w-full grid-cols-2 gap-2">

@@ -12,9 +12,8 @@
 	import BonfireNoInfoCard from '../BonfireNoInfoCard.svelte';
 	import { Plus } from 'lucide-svelte';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
-	import BringListItem from './items/SharedBringListItem.svelte';
-	import AdminOnlySign from '../AdminOnlySign.svelte';
 	import BringListItemsSortedByUsers from './BringListItemsSortedByUsers.svelte';
+	import RequireUserBringSomething from './RequireUserBringSomething.svelte';
 
 	let {
 		eventId,
@@ -31,11 +30,13 @@
 		throw new Error('either temp or user id must be set for bring list');
 	}
 
-	let initialLoad = $state(true);
+	let isLoading = $state(true);
 	let bringItems: Array<BringItem> = $state([]);
 	let userItemsMap = $state({});
 	let tempAttendeeItemsMap = $state({});
 	let yourItems: Array<BringItem> = $state([]);
+	let isBringListFilled = $state(false);
+	let isUserBringingSomething = $state(false);
 
 	// Function to calculate total quantity brought for each item
 	function calculateTotalBrought(item: BringItem): number {
@@ -53,6 +54,14 @@
 		const totalBrought = calculateTotalBrought(item);
 		return item.quantity_needed ? (totalBrought / item.quantity_needed) * 100 : 0;
 	}
+
+	let showBringListFullScreen = $derived(
+		!isLoading && requireGuestBringItem && !isUserBringingSomething
+	);
+
+	$effect(() => {
+		console.log('showBringListFullScreen', showBringListFullScreen);
+	});
 
 	onMount(() => {
 		let client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
@@ -130,11 +139,18 @@
 				// Get the items for the current user
 				yourItems = userItemsMap[currUserId] || tempAttendeeItemsMap[tempAttendeeId] || [];
 
+				// Check if the entire bring list is filled
+				isBringListFilled = bringItems.every((item) => item.completion_percentage >= 100);
+
+				// Check if the current user is bringing something
+				isUserBringingSomething = yourItems.some((item) => item.bring_assignments?.length > 0);
+
 				console.log('bringItems', bringItems);
 				console.log('userItemsMap', userItemsMap);
 				console.log('tempAttendeeItemsMap', tempAttendeeItemsMap);
 				console.log('yourItems', yourItems);
-				initialLoad = false;
+				console.log('isBringListFilled', isBringListFilled);
+				console.log('isUserBringingSomething', isUserBringingSomething);
 			},
 			(error) => {
 				// handle error
@@ -142,7 +158,9 @@
 			// Optional
 			{
 				localOnly: false,
-				onRemoteFulfilled: () => {}
+				onRemoteFulfilled: () => {
+					isLoading = false;
+				}
 			}
 		);
 
@@ -152,6 +170,16 @@
 	});
 </script>
 
+<RequireUserBringSomething
+	isDialogOpen={showBringListFullScreen}
+	{eventId}
+	{currUserId}
+	{tempAttendeeId}
+	{bringItems}
+	{numAttendeesGoing}
+	{isAdmin}
+	{isUserBringingSomething}
+/>
 <Tabs.Root value="all-bring-list-items" class="mt-2 w-full">
 	<div class="flex w-full justify-center">
 		<Tabs.List>
@@ -163,7 +191,7 @@
 	</div>
 
 	<Tabs.Content value="all-bring-list-items">
-		{#if initialLoad}
+		{#if isLoading}
 			<div class="flex w-full items-center justify-center"><SvgLoader /></div>
 		{:else if bringItems.length > 0}
 			<div class="my-2">
@@ -183,7 +211,7 @@
 		{/if}
 	</Tabs.Content>
 	<Tabs.Content value="your-bring-list-items">
-		{#if initialLoad}
+		{#if isLoading}
 			<div class="flex w-full items-center justify-center"><SvgLoader /></div>
 		{:else if yourItems.length > 0}
 			<div class="my-2">
@@ -196,7 +224,7 @@
 				{/each}
 			</div>
 		{:else}
-			<BonfireNoInfoCard text={'You are not bringing any items yet'} />
+			<BonfireNoInfoCard class="text-xs" text={'You are not bringing any items yet'} />
 		{/if}
 	</Tabs.Content>
 	<Tabs.Content value="all-sorted-by-attendee-bring-list-items">

@@ -234,15 +234,17 @@
 								in:slide={{ duration: 300 }}
 								out:slide={{ duration: 100 }}
 							>
-								<ProfileAvatar
-									userId={isTempUserKey(userKey) ? null : extractUserId(userKey)}
-									tempUserId={isTempUserKey(userKey) ? extractUserId(userKey) : null}
-									baseHeightPx={40}
-								/><span
-									>bringing {#if item.unit == BringListCountTypes.PER_PERSON}for
-									{/if}
-									{Math.round(quantity)}</span
-								>
+								{#key userKey}
+									<ProfileAvatar
+										userId={isTempUserKey(userKey) ? null : extractUserId(userKey)}
+										tempUserId={isTempUserKey(userKey) ? extractUserId(userKey) : null}
+										baseHeightPx={40}
+									/><span
+										>bringing {#if item.unit == BringListCountTypes.PER_PERSON}for
+										{/if}
+										{Math.round(quantity)}</span
+									>
+								{/key}
 							</div>
 						</div>
 					{/if}
