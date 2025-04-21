@@ -32,7 +32,8 @@
 		tempUserName = null,
 		numGuests = 0,
 		showRemoveUser = true,
-		showHistory = true
+		showHistory = true,
+		onlyShowPhoto = false
 	} = $props();
 
 	let url = $state();
@@ -174,78 +175,92 @@
 	});
 </script>
 
-<Dialog.Root bind:open={dialogIsOpen}>
-	<Dialog.Trigger
-		class={`profile-avatar ${isTempUser ? 'temp-user' : ''} flex items-center justify-center focus:outline-none focus-visible:ring-0`}
-	>
-		<TriggerButton
-			{username}
-			{fallbackNameShort}
-			{isTempUser}
-			{fullsizeUrl}
-			{url}
-			{baseHeightPx}
-			{numGuests}
-		/>
-	</Dialog.Trigger>
-	<Dialog.Content class="sm:max-w-[425px]">
-		<Dialog.Header>
-			{#if showRemoveAttendeeModal}
-				<div class="space-y-8">
-					<h1 class="text-xl font-bold">Are you absolutely sure?</h1>
-					<p>
-						This action cannot be undone. This will remove {username ? username : 'this user'} from this
-						event.
-					</p>
-					<div class="space-y-2">
-						<Button
-							onclick={removeAttendee}
-							class="flex w-full items-center justify-center bg-red-500 hover:bg-red-400"
-						>
-							Yes, remove</Button
-						>
-						<Button onclick={hideRemoveUserModal} class="flex w-full items-center justify-center ">
-							Cancel</Button
-						>
-					</div>
-				</div>
-			{:else}
-				<Dialog.Title class="flex items-center justify-center"
-					>{username}
-					{#if isTempUser}
-						<div class="ml-2">
-							<div class="rounded-lg bg-yellow-400 p-1 px-2 text-xs font-light text-black">
-								temporary account
-							</div>
+{#if onlyShowPhoto}
+	<TriggerButton
+		{username}
+		{fallbackNameShort}
+		{isTempUser}
+		{fullsizeUrl}
+		{url}
+		{baseHeightPx}
+		{numGuests}
+	/>
+{:else}
+	<Dialog.Root bind:open={dialogIsOpen}>
+		<Dialog.Trigger
+			class={`profile-avatar ${isTempUser ? 'temp-user' : ''} flex items-center justify-center focus:outline-none focus-visible:ring-0`}
+		>
+			<TriggerButton
+				{username}
+				{fallbackNameShort}
+				{isTempUser}
+				{fullsizeUrl}
+				{url}
+				{baseHeightPx}
+				{numGuests}
+			/>
+		</Dialog.Trigger>
+		<Dialog.Content class="sm:max-w-[425px]">
+			<Dialog.Header>
+				{#if showRemoveAttendeeModal}
+					<div class="space-y-8">
+						<h1 class="text-xl font-bold">Are you absolutely sure?</h1>
+						<p>
+							This action cannot be undone. This will remove {username ? username : 'this user'} from
+							this event.
+						</p>
+						<div class="space-y-2">
+							<Button
+								onclick={removeAttendee}
+								class="flex w-full items-center justify-center bg-red-500 hover:bg-red-400"
+							>
+								Yes, remove</Button
+							>
+							<Button
+								onclick={hideRemoveUserModal}
+								class="flex w-full items-center justify-center "
+							>
+								Cancel</Button
+							>
 						</div>
-					{/if}
-				</Dialog.Title>
-				<Dialog.Description>
-					{#if viewerIsEventAdmin && showHistory}
-						<Tabs.Root value="about" class="mt-1 w-full">
-							<div class="flex w-full justify-center">
-								<Tabs.List>
-									<Tabs.Trigger class="profile-about-tab" value="about">About</Tabs.Trigger>
-									<Tabs.Trigger class="profile-history-tab" value="history">History</Tabs.Trigger>
-								</Tabs.List>
+					</div>
+				{:else}
+					<Dialog.Title class="flex items-center justify-center"
+						>{username}
+						{#if isTempUser}
+							<div class="ml-2">
+								<div class="rounded-lg bg-yellow-400 p-1 px-2 text-xs font-light text-black">
+									temporary account
+								</div>
 							</div>
+						{/if}
+					</Dialog.Title>
+					<Dialog.Description>
+						{#if viewerIsEventAdmin && showHistory}
+							<Tabs.Root value="about" class="mt-1 w-full">
+								<div class="flex w-full justify-center">
+									<Tabs.List>
+										<Tabs.Trigger class="profile-about-tab" value="about">About</Tabs.Trigger>
+										<Tabs.Trigger class="profile-history-tab" value="history">History</Tabs.Trigger>
+									</Tabs.List>
+								</div>
 
-							<Tabs.Content value="about">{@render content()}</Tabs.Content>
-							<Tabs.Content value="history">
-								<ProfileHistory attendeeId={attendanceId} {isTempUser} />
-							</Tabs.Content>
-						</Tabs.Root>
-					{:else}
-						{@render content()}
-					{/if}
-				</Dialog.Description>
-			{/if}
-		</Dialog.Header>
+								<Tabs.Content value="about">{@render content()}</Tabs.Content>
+								<Tabs.Content value="history">
+									<ProfileHistory attendeeId={attendanceId} {isTempUser} />
+								</Tabs.Content>
+							</Tabs.Root>
+						{:else}
+							{@render content()}
+						{/if}
+					</Dialog.Description>
+				{/if}
+			</Dialog.Header>
 
-		<Dialog.Footer></Dialog.Footer>
-	</Dialog.Content>
-</Dialog.Root>
-
+			<Dialog.Footer></Dialog.Footer>
+		</Dialog.Content>
+	</Dialog.Root>
+{/if}
 {#snippet content()}
 	{#if lastUpdatedAt}
 		<div class="flex justify-center">Last updated {formatHumanReadable(lastUpdatedAt)}</div>

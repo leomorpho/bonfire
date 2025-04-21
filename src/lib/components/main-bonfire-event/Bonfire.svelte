@@ -69,12 +69,12 @@
 		bannerInfo,
 		isUserAnAttendee,
 		jwt,
-
 		tempAttendeeId,
 		tempAttendeeSecret,
 		fileCount = 0,
 		maxNumGuestsAllowedPerAttendee = 0,
 		numGuestsCurrentAttendeeIsBringing = 0,
+		requireGuestBringItem=false,
 		showMaxNumPeople = 50
 	} = $props();
 
@@ -718,6 +718,8 @@
 											{currUserId}
 											{tempAttendeeId}
 											{changeToDiscussionsTab}
+											{requireGuestBringItem}
+											{isCurrenUserEventAdmin}
 										/>
 									{:else}
 										<div class="my-2">
