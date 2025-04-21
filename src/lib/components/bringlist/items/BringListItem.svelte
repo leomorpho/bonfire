@@ -43,7 +43,7 @@
 
 <div
 	style="background-image: {progressGradient};"
-	class={`${progress == 0 ? 'animate-alert' : ''} text-base flex h-8 w-full items-center justify-between rounded-xl bg-slate-200 p-3 text-black outline-none ring-0 focus:outline-none focus-visible:ring-0 dark:bg-slate-800 dark:text-white sm:h-10`}
+	class={`${progress == 0 ? 'animate-alert' : ''} text-base flex w-full items-center justify-between rounded-xl bg-slate-200 p-3 text-black outline-none ring-0 focus:outline-none focus-visible:ring-0 dark:bg-slate-800 dark:text-white`}
 >
 	<div class="flex items-center">
 		{itemName}
