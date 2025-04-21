@@ -4,10 +4,12 @@
 		DefaultMarker,
 		NavigationControl,
 		ScaleControl,
-		FullscreenControl,
+		FullscreenControl
 	} from 'svelte-maplibre';
 
 	let { latitude, longitude } = $props();
+
+	let map: any = $state();
 
 	// Create a reactive `LngLatLike` state
 	let geolocation: any = $state([longitude, latitude]);
@@ -19,7 +21,9 @@
 		console.log('latitude', latitude, 'longitude', longitude);
 	});
 
-	const handleMapLoad = () => {
+	const handleMapLoad = (mapInstance: any) => {
+		map = mapInstance;
+
 		// Automatically click the attribution button to collapse it
 		setTimeout(() => {
 			const summaryButton = document.querySelector(
@@ -30,6 +34,14 @@
 				summaryButton.click();
 			}
 		}, 100); // Add a small delay to ensure the element is rendered
+
+		// Disable dragging by default
+		map.dragPan.disable();
+
+		// Enable dragging on click
+		map.on('click', () => {
+			map.dragPan.enable();
+		});
 	};
 </script>
 
@@ -41,6 +53,7 @@
 		class="map"
 		style={'https://tiles.stadiamaps.com/styles/alidade_smooth.json'}
 		onload={handleMapLoad}
+		dragPan={false}
 	>
 		<NavigationControl position="top-left" showCompass={false} />
 		<FullscreenControl position="top-left" />
