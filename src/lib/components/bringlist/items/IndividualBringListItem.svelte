@@ -6,7 +6,7 @@
 </script>
 
 <div
-	class={`my-2 flex w-full items-center justify-between rounded-xl bg-slate-200 p-3 text-base text-black outline-none ring-0 focus:outline-none focus-visible:ring-0 dark:bg-slate-800 dark:text-white`}
+	class={`flex w-full items-center justify-between rounded-xl bg-slate-200 p-3 text-base text-black outline-none ring-0 focus:outline-none focus-visible:ring-0 dark:bg-slate-800 dark:text-white`}
 >
 	<div class="flex items-center">
 		{itemName}

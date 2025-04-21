@@ -15,7 +15,15 @@
 	import { Tween } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
 
-	let { item, currUserId, isTempUser, isAdmin, eventId, numAttendeesGoing } = $props();
+	let {
+		children = null,
+		item,
+		currUserId,
+		isTempUser,
+		isAdmin,
+		eventId,
+		numAttendeesGoing
+	} = $props();
 
 	/** Helper function to generate a unique key for both permanent and temporary users */
 	const getUserKey = (userId: string, isTemp: boolean) =>
@@ -155,14 +163,18 @@
 
 <Dialog.Root bind:open={isOpen}>
 	<Dialog.Trigger class="bring-list-item-btn mt-2 w-full">
-		<button class="w-full">
-			<BringListItem
-				itemName={item.name}
-				itemUnit={item.unit}
-				itemQuantityNeeded={item.quantity_needed}
-				{userIdToNumBrought}
-			/>
-		</button>
+		{#if children}
+			{@render children()}
+		{:else}
+			<button class="w-full">
+				<BringListItem
+					itemName={item.name}
+					itemUnit={item.unit}
+					itemQuantityNeeded={item.quantity_needed}
+					{userIdToNumBrought}
+				/>
+			</button>
+		{/if}
 	</Dialog.Trigger>
 	<Dialog.Content class="rounded-xl">
 		<ScrollArea class="w-full">

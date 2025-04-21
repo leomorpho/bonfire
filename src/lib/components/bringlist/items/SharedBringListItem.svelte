@@ -2,7 +2,7 @@
 	import { BringListCountTypes } from '$lib/enums';
 	import { Tally5, UserRound } from 'lucide-svelte';
 
-	let { itemName, itemUnit, itemQuantityNeeded, userIdToNumBrought } = $props();
+	let { itemName, itemUnit, itemQuantityNeeded, userIdToNumBrought, numBrought = null } = $props();
 
 	let progressGradient = $state('');
 	let progress = $state(0);
@@ -43,7 +43,7 @@
 
 <div
 	style="background-image: {progressGradient};"
-	class={`${progress == 0 ? 'animate-alert' : ''} text-base flex w-full items-center justify-between rounded-xl bg-slate-200 p-3 text-black outline-none ring-0 focus:outline-none focus-visible:ring-0 dark:bg-slate-800 dark:text-white`}
+	class={`${progress == 0 ? 'animate-alert' : ''} flex w-full items-center justify-between rounded-xl bg-slate-200 p-3 text-base text-black outline-none ring-0 focus:outline-none focus-visible:ring-0 dark:bg-slate-800 dark:text-white`}
 >
 	<div class="flex items-center">
 		{itemName}
@@ -54,7 +54,7 @@
 		{:else if itemUnit == BringListCountTypes.COUNT}
 			<Tally5 class="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
 		{/if}
-		<span>{itemQuantityNeeded}</span>
+		<span>{numBrought ? numBrought : itemQuantityNeeded}</span>
 	</div>
 </div>
 

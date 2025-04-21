@@ -1,12 +1,22 @@
 <script lang="ts">
 	import type { BringItem } from '$lib/types';
-	import { fade } from 'svelte/transition';
+	import { fade, slide } from 'svelte/transition';
 	import ProfileAvatar from '../profile/profile-avatar/ProfileAvatar.svelte';
 	import IndividualBringListItem from './items/IndividualBringListItem.svelte';
 	import { flip } from 'svelte/animate';
 	import BonfireNoInfoCard from '../BonfireNoInfoCard.svelte';
+	import BringItemProgressBar from './BringItemProgressBar.svelte';
 
-	let { userItemsMap, tempAttendeeItemsMap } = $props();
+	// TODO: what a shitty interface. This is insane prop drilling. Fix at some point.
+	let {
+		userItemsMap,
+		tempAttendeeItemsMap,
+		eventId,
+		numAttendeesGoing,
+		currUserId,
+		isTempUser,
+		isAdmin
+	} = $props();
 
 	let selectedUserId = $state<string | null>(null);
 	let isSelectedUserTemp = $state(false);
@@ -83,11 +93,22 @@
 			</h3>
 			{#if filteredItems.length > 0}
 				{#each filteredItems as item (`${selectedUserId}-${item.id}`)}
-					<IndividualBringListItem
-						itemName={item.name}
-						itemUnit={item.unit}
-						numBrought={item.bring_assignments?.[0]?.quantity ?? 0}
-					/>
+					<div in:slide={{ duration: 300 }} out:slide={{ duration: 100 }}>
+						<BringItemProgressBar
+							{eventId}
+							{item}
+							{numAttendeesGoing}
+							{currUserId}
+							{isTempUser}
+							{isAdmin}
+						>
+							<IndividualBringListItem
+								itemName={item.name}
+								itemUnit={item.unit}
+								numBrought={item.bring_assignments?.[0]?.quantity ?? 0}
+							/>
+						</BringItemProgressBar>
+					</div>
 				{/each}
 			{:else}
 				<p>No items brought by this user.</p>

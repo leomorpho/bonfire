@@ -14,6 +14,7 @@
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import BringListItemsSortedByUsers from './BringListItemsSortedByUsers.svelte';
 	import RequireUserBringSomething from './RequireUserBringSomething.svelte';
+	import { dev } from '$app/environment';
 
 	let {
 		eventId,
@@ -145,12 +146,14 @@
 				// Check if the current user is bringing something
 				isUserBringingSomething = yourItems.some((item) => item.bring_assignments?.length > 0);
 
-				console.log('bringItems', bringItems);
-				console.log('userItemsMap', userItemsMap);
-				console.log('tempAttendeeItemsMap', tempAttendeeItemsMap);
-				console.log('yourItems', yourItems);
-				console.log('isBringListFilled', isBringListFilled);
-				console.log('isUserBringingSomething', isUserBringingSomething);
+				if (dev) {
+					console.log('bringItems', bringItems);
+					console.log('userItemsMap', userItemsMap);
+					console.log('tempAttendeeItemsMap', tempAttendeeItemsMap);
+					console.log('yourItems', yourItems);
+					console.log('isBringListFilled', isBringListFilled);
+					console.log('isUserBringingSomething', isUserBringingSomething);
+				}
 			},
 			(error) => {
 				// handle error
@@ -216,11 +219,20 @@
 		{:else if yourItems.length > 0}
 			<div class="my-2">
 				{#each yourItems as item (item.id)}
-					<IndividualBringListItem
-						itemName={item.name}
-						itemUnit={item.unit}
-						numBrought={item.bring_assignments?.[0]?.quantity ?? 0}
-					/>
+					<BringItemProgressBar
+						{eventId}
+						{item}
+						{numAttendeesGoing}
+						currUserId={currUserId ? currUserId : tempAttendeeId}
+						isTempUser={!currUserId}
+						{isAdmin}
+					>
+						<IndividualBringListItem
+							itemName={item.name}
+							itemUnit={item.unit}
+							numBrought={item.bring_assignments?.[0]?.quantity ?? 0}
+						/>
+					</BringItemProgressBar>
 				{/each}
 			</div>
 		{:else}
@@ -228,7 +240,15 @@
 		{/if}
 	</Tabs.Content>
 	<Tabs.Content value="all-sorted-by-attendee-bring-list-items">
-		<BringListItemsSortedByUsers {userItemsMap} {tempAttendeeItemsMap} />
+		<BringListItemsSortedByUsers
+			{userItemsMap}
+			{tempAttendeeItemsMap}
+			{eventId}
+			{numAttendeesGoing}
+			currUserId={currUserId ? currUserId : tempAttendeeId}
+			isTempUser={!currUserId}
+			{isAdmin}
+		/>
 	</Tabs.Content>
 </Tabs.Root>
 
