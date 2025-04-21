@@ -7,7 +7,7 @@ import { LOCAL_INDEXEDDB_NAME, Status, UserTypes } from './enums';
 import { WorkerClient } from '@triplit/client/worker-client';
 import workerUrl from '@triplit/client/worker-client-operator?url';
 import { jwtDecode } from 'jwt-decode';
-import { generateReminderMessage } from './utils';
+import { createHash, generateReminderMessage } from './utils';
 
 export const userIdStore = writable<string | null>(null);
 export const userTypeStore = writable<string | null>(null);
@@ -250,8 +250,11 @@ export const createRemindersObjects = async (
 	const oneDayBefore = new Date(eventStartDatetime.getTime() - 24 * 60 * 60 * 1000);
 	const onDayBeforeInHours = 24;
 
+	const firstText = generateReminderMessage(7, eventName);
+
 	// Create the reminder for GOING and MAYBE attendees one week before the event
 	await client.insert('event_reminders', {
+		id: 'er_' + (await createHash(firstText)),
 		event_id: eventId,
 		lead_time_in_hours_before_event_starts: oneWeekBeforeInHours,
 		target_attendee_statuses: new Set([Status.GOING, Status.MAYBE]),
@@ -259,13 +262,15 @@ export const createRemindersObjects = async (
 		text: generateReminderMessage(7, eventName)
 	});
 
+	const secondText = generateReminderMessage(1, eventName);
+
 	// Create the reminder for GOING attendees one day before the event
 	await client.insert('event_reminders', {
+		id: 'er_' + (await createHash(secondText)),
 		event_id: eventId,
 		lead_time_in_hours_before_event_starts: onDayBeforeInHours,
 		target_attendee_statuses: new Set([Status.GOING]),
 		send_at: oneDayBefore,
-		text: generateReminderMessage(1, eventName)
+		text: secondText
 	});
 };
-

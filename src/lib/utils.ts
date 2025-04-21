@@ -338,7 +338,7 @@ export function isWithinExpirationDate(expirationDate: Date) {
 }
 
 // Function to create a hash of at least `minLength` characters
-export async function createHash(input: string, minLength: number) {
+export async function createHash(input: string, minLength: number = 25) {
 	const encoder = new TextEncoder();
 	const data = encoder.encode(input);
 	let hashBuffer = await crypto.subtle.digest('SHA-256', data);
