@@ -32,7 +32,8 @@
 		styleStore,
 		fontStore,
 		getNextTheme,
-		getNextFont
+		getNextFont,
+		Font
 	} from '$lib/styles';
 	import { generatePassphraseId } from '$lib/utils';
 	import LocationInput from '../input/location/LocationInput.svelte';
@@ -470,10 +471,21 @@
 			unsubscribeFromUserLogsQuery();
 		};
 	});
+
+	onMount(() => {
+		// NOTE: this is a bit of a hack and loads all fonts at once. If we add
+		// even more fonts, definitely stop doing that!
+		for (const { cdn } of Object.values(Font)) {
+			const link = document.createElement('link');
+			link.href = cdn;
+			link.rel = 'stylesheet';
+			document.head.appendChild(link);
+		}
+	});
 </script>
 
 <div class="mx-4 flex flex-col items-center justify-center">
-	<section class="px-3 sm:px-0 mt-8 w-full sm:w-[450px] lg:w-[600px]">
+	<section class="mt-8 w-full px-3 sm:w-[450px] sm:px-0 lg:w-[600px]">
 		<Tabs.Root value="info" class="w-full">
 			<div class="sticky top-2 z-50 mt-7 flex w-full justify-center">
 				<div
@@ -667,7 +679,7 @@
 							onSave={debouncedUpdateEvent}
 						/>
 					</div>
-					
+
 					<TipTapTextEditor
 						bind:content={details}
 						oninput={debouncedUpdateEvent}
@@ -676,7 +688,7 @@
 					<MaxCapacity oninput={debouncedUpdateEvent} bind:value={maxCapacity} />
 					<GuestCountFeature oninput={debouncedUpdateEvent} bind:value={maxNumGuest} />
 				</form>
-				<div class="my-10 flex md:w-full justify-center">
+				<div class="my-10 flex justify-center md:w-full">
 					<div class="grid w-full grid-cols-2 gap-2">
 						<a class="flex w-full" href={cancelUrl}>
 							<Button
