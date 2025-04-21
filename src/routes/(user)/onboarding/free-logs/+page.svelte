@@ -38,7 +38,7 @@
 							emojis,
 							confettiColors: ['#ff4500', '#ffcc00', '#ff6600', '#FFD700'],
 							confettiRadius: 9,
-							confettiNumber: 50
+							confettiNumber: 40
 						});
 					}, index * 350); // Delays each burst by 800ms
 				});

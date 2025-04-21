@@ -114,7 +114,13 @@
 	let isEventPublished = $derived(event && event.is_published);
 	let userIsOutOfLogs = $derived(!numLogsLoading && numLogs == 0 && event && !event.isPublished);
 	let userFavoriteNonProfitId = $state(null);
-	let isEventEdittable = $state(new Date() < event.start_time);
+	let isEventEdittable = $state(true);
+
+	$effect(() => {
+		if (event && event.start_time && isEventCreated) {
+			isEventEdittable = new Date() < event.start_time;
+		}
+	});
 
 	const getRandomTheme = () => {
 		finalStyleCss = getNextTheme();
