@@ -6,7 +6,7 @@ import type { Handle } from '@sveltejs/kit';
 import { dev } from '$app/environment';
 import { env as publicEnv } from '$env/dynamic/public';
 import type { ServerInit } from '@sveltejs/kit';
-import { tusHandler } from '$lib/tus';
+import { tusHandler } from '$lib/server/tus';
 // import { initializeDatabaseSchemas } from '$lib/server/migrations';
 
 export const init: ServerInit = async () => {

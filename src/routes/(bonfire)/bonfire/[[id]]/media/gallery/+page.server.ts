@@ -1,4 +1,4 @@
-import { fetchAccessibleEventFiles } from '$lib/filestorage';
+import { fetchAccessibleEventFiles } from '$lib/server/filestorage';
 import { redirect } from '@sveltejs/kit';
 
 // Step 2: Implement the form load function

@@ -4,7 +4,6 @@ import { eq } from 'drizzle-orm';
 import { error, json, type RequestEvent } from '@sveltejs/kit';
 import { db } from '$lib/server/database/db';
 import {
-	emailVerificationTokenTable,
 	sessionTable,
 	signinTable,
 	userTable,
@@ -26,9 +25,6 @@ export const DELETE = async (event: RequestEvent) => {
 		// Start a transaction to ensure atomicity
 		await db.transaction(async (tx) => {
 			// Delete related rows in dependent tables
-			await tx
-				.delete(emailVerificationTokenTable)
-				.where(eq(emailVerificationTokenTable.user_id, userId));
 			await tx.delete(sessionTable).where(eq(sessionTable.userId, userId));
 			await tx.delete(signinTable).where(eq(signinTable.email, userId)); // Assuming email is used for signin tracking
 

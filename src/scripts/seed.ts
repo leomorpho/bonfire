@@ -10,7 +10,7 @@ import {
 import { env as publicEnv } from '$env/dynamic/public';
 import { env as privateEnv } from '$env/dynamic/private';
 import { createNewThread, MAIN_THREAD } from '$lib/im';
-import { uploadBannerImage, uploadProfileImage } from '$lib/filestorage';
+import { uploadBannerImage, uploadProfileImage } from '$lib/server/filestorage';
 import { assignBringItem, createBringItem } from '$lib/bringlist';
 import { createTempAttendance, createUserAttendance } from '$lib/rsvp';
 

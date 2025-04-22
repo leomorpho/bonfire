@@ -1,6 +1,6 @@
 import { json, error } from '@sveltejs/kit';
 import { triplitHttpClient } from '$lib/server/triplit';
-import { generateSignedUrl } from '$lib/filestorage';
+import { generateSignedUrl } from '$lib/server/filestorage';
 import { tempAttendeeSecretParam } from '$lib/enums';
 import { and } from '@triplit/client';
 

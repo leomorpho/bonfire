@@ -2,7 +2,7 @@ import { json, type RequestEvent } from '@sveltejs/kit';
 import { stripeClient } from '../stripe';
 
 import { env as privateEnv } from '$env/dynamic/private';
-import { handleLogPurchaseWebhook } from '$lib/payments';
+import { handleLogPurchaseWebhook } from '$lib/server/payments';
 import { triplitHttpClient } from '$lib/server/triplit';
 import { dev } from '$app/environment';
 

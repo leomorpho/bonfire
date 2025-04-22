@@ -20,7 +20,7 @@ import {
 	validateUserIds
 } from '$lib/server/triplit';
 import { getTaskLockState, updateTaskLockState } from '$lib/server/database/tasklock';
-import { sendPushNotification } from '$lib/webpush';
+import { sendPushNotification } from '$lib/server/webpush';
 import { sendSmsMessage } from '$lib/sms';
 import { sendEmailNotification } from '$lib/server/email/email';
 import { env as publicEnv } from '$env/dynamic/public';

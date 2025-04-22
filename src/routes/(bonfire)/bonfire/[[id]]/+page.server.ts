@@ -1,5 +1,5 @@
 import { Status, tempAttendeeSecretParam } from '$lib/enums';
-import { generateSignedUrl } from '$lib/filestorage.js';
+import { generateSignedUrl } from '$lib/server/filestorage.js';
 import { wasUserPreviouslyDeleted } from '$lib/rsvp.js';
 import { triplitHttpClient } from '$lib/server/triplit';
 import { createRemindersObjects } from '$lib/triplit.js';

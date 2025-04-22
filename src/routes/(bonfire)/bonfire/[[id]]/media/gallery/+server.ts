@@ -1,5 +1,5 @@
 import { tempAttendeeSecretParam } from '$lib/enums';
-import { fetchAccessibleEventFiles } from '$lib/filestorage';
+import { fetchAccessibleEventFiles } from '$lib/server/filestorage';
 import { triplitHttpClient } from '$lib/server/triplit';
 import { error, json } from '@sveltejs/kit';
 import { and } from '@triplit/client';

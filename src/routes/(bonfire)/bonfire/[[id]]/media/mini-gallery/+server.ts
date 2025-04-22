@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import { triplitHttpClient } from '$lib/server/triplit';
-import { fetchAccessibleEventFiles, generateSignedUrl } from '$lib/filestorage';
+import { fetchAccessibleEventFiles, generateSignedUrl } from '$lib/server/filestorage';
 import { MAX_NUM_IMAGES_IN_MINI_GALLERY, tempAttendeeSecretParam } from '$lib/enums';
 import { and } from '@triplit/client';
 

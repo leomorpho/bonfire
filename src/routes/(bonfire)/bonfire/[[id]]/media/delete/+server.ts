@@ -1,6 +1,6 @@
 import { error, json } from '@sveltejs/kit';
 import { triplitHttpClient } from '$lib/server/triplit';
-import { deleteFilesFromS3 } from '$lib/filestorage';
+import { deleteFilesFromS3 } from '$lib/server/filestorage';
 import { tempAttendeeSecretParam } from '$lib/enums';
 import { and } from '@triplit/client';
 

@@ -1,7 +1,7 @@
 import type { HttpClient } from '@triplit/client';
 import type { WorkerClient } from '@triplit/client/worker-client';
 import { env as publicEnv } from '$env/dynamic/public';
-import { TransactionType } from './enums';
+import { TransactionType } from '../enums';
 
 /**
  * Handles Stripe webhook event when a user purchases logs.

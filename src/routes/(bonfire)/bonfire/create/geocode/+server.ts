@@ -1,4 +1,4 @@
-import { searchLocation } from '$lib/geocoding';
+import { searchLocation } from '$lib/server/geocoding';
 import { error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { RateLimiter } from 'sveltekit-rate-limiter/server';

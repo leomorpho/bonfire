@@ -4,11 +4,7 @@ import { env as privateEnv } from '$env/dynamic/private';
 import { env as publicEnv } from '$env/dynamic/public';
 
 import { dev } from '$app/environment';
-import { notificationPermissionTable, pushSubscriptionTable } from './server/database/schema';
-import { eq } from 'drizzle-orm';
-import { db } from './server/database/db';
-import type { PermissionValue } from './server/notifications';
-import { triplitHttpClient } from './server/triplit';
+import { triplitHttpClient } from './triplit';
 
 if (
 	(dev && (!publicEnv.PUBLIC_DEV_VAPID_PUBLIC_KEY || !privateEnv.DEV_VAPID_PRIVATE_KEY)) ||

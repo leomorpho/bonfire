@@ -1,5 +1,5 @@
 import { NUM_DEFAULT_LOGS_NEW_SIGNUP } from '$lib/enums.js';
-import { generateSignedUrl } from '$lib/filestorage.js';
+import { generateSignedUrl } from '$lib/server/filestorage.js';
 import { triplitHttpClient } from '$lib/server/triplit';
 import { redirect } from '@sveltejs/kit';
 

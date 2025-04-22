@@ -1,6 +1,6 @@
 import { error, json } from '@sveltejs/kit';
 import { triplitHttpClient } from '$lib/server/triplit';
-import { generateSignedUrl } from '$lib/filestorage';
+import { generateSignedUrl } from '$lib/server/filestorage';
 import { tempAttendeeSecretParam } from '$lib/enums';
 
 // TODO: move this endpoint to /profile/data as it's not only for profile images anymore
