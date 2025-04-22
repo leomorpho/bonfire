@@ -37,7 +37,8 @@ export const schema = S.Collections({
 			is_fully_onboarded: S.Optional(S.Boolean({ default: false })),
 			favourite_non_profit_id: S.Optional(S.String()), // Non-profit the user currently contributes to by default
 			created_at: S.Optional(S.Date({ default: S.Default.now() })),
-			updated_at: S.Optional(S.Date({ default: null, nullable: true }))
+			updated_at: S.Optional(S.Date({ default: null, nullable: true })),
+			deleted_at: S.Optional(S.Date({ default: null, nullable: true }))
 		}),
 		relationships: {
 			profile_image: S.RelationOne('profile_images', {

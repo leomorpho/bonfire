@@ -23,17 +23,6 @@ export const sessionTable = sqliteTable('session', {
 	expiresAt: integer('expires_at').notNull()
 });
 
-// NOTE: deprecating
-export const emailVerificationTokenTable = sqliteTable('email_verification_token', {
-	id: text('id').notNull().primaryKey(),
-	created_at: text('timestamp')
-		.notNull()
-		.default(sql`(current_timestamp)`),
-	user_id: text('user_id').notNull(),
-	email: text('email').notNull(),
-	expires_at: integer('expires_at', { mode: 'timestamp' }).notNull()
-});
-
 export const emailVerificationOtpTable = sqliteTable('email_verification_otp', {
 	id: text('id').notNull().primaryKey(),
 	user_id: text('user_id').notNull(),
@@ -56,22 +45,6 @@ export const taskLockTable = sqliteTable('task_locks', {
 	task_name: text('task_name').notNull().primaryKey(),
 	locked: integer('locked', { mode: 'boolean' }).notNull().default(false),
 	updated_at: text('timestamp')
-		.notNull()
-		.default(sql`(current_timestamp)`)
-});
-
-export const eventTransactionLogsTable = sqliteTable('eventTransactionLogs', {
-	id: integer('id').primaryKey({ autoIncrement: true }),
-	created_at: text('timestamp')
-		.notNull()
-		.default(sql`(current_timestamp)`),
-	num_logs_change: integer('num_logs_change').notNull()
-});
-
-export const deletedUserTable = sqliteTable('deleted_user', {
-	id: integer('id').primaryKey({ autoIncrement: true }),
-	userId: text('user_id').notNull(),
-	deleted_at: text('deleted_at')
 		.notNull()
 		.default(sql`(current_timestamp)`)
 });

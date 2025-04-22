@@ -3,12 +3,7 @@
 import { eq } from 'drizzle-orm';
 import { error, json, type RequestEvent } from '@sveltejs/kit';
 import { db } from '$lib/server/database/db';
-import {
-	sessionTable,
-	signinTable,
-	userTable,
-	deletedUserTable
-} from '$lib/server/database/schema';
+import { sessionTable, signinTable, userTable } from '$lib/server/database/schema';
 import { triplitHttpClient } from '$lib/server/triplit';
 import { or } from '@triplit/client';
 
@@ -27,12 +22,14 @@ export const DELETE = async (event: RequestEvent) => {
 			// Delete related rows in dependent tables
 			await tx.delete(sessionTable).where(eq(sessionTable.userId, userId));
 			await tx.delete(signinTable).where(eq(signinTable.email, userId)); // Assuming email is used for signin tracking
-
-			// Insert into deleted_user table
-			await tx.insert(deletedUserTable).values({ userId });
-
+			
 			// Finally, delete the user
 			await tx.delete(userTable).where(eq(userTable.id, userId));
+		});
+
+		await client.update('user', userId, {
+			deleted_at: new Date(),
+			username: ''
 		});
 
 		// Delete events user created
