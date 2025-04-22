@@ -55,7 +55,7 @@
 			<EventDetails {eventDescription} />
 		</div>
 		<div
-			class="h-fit w-full rounded-xl bg-slate-100/70 p-2 pt-5 text-center shadow-lg dark:bg-slate-900/70 lg:max-w-64"
+			class="h-fit w-full rounded-xl bg-slate-100/70 p-2 pt-5 text-center shadow-lg dark:bg-slate-900/70 lg:max-w-96"
 		>
 			<div class="flex w-full items-center justify-center font-medium">
 				<Calendar class="mr-2 !h-4 !w-4 shrink-0" />{formatHumanReadable(eventStartTime)}
