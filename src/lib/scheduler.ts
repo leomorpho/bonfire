@@ -1,8 +1,8 @@
 import { ToadScheduler, SimpleIntervalJob, Task } from 'toad-scheduler';
 import { triplitHttpClient } from './server/triplit';
-import { unlockAllTasks } from './server/database/tasklock';
 import { runNotificationProcessor } from './server/notifications/engine';
 import { runReminderNotificationTask } from './server/notifications/reminders';
+import { unlockAllTasks } from './server/tasks';
 
 const scheduler = new ToadScheduler();
 

@@ -1616,5 +1616,18 @@ export const schema = S.Collections({
 			temp: {},
 			anon: {}
 		}
+	},
+	task_locks: {
+		schema: S.Schema({
+			id: S.Id(), // NOTE: use task name as id
+			locked: S.Boolean({ default: false }),
+			updated_at: S.Optional(S.Date({ default: null, nullable: true }))
+		}),
+		permissions: {
+			user: {},
+			admin: {},
+			temp: {},
+			anon: {}
+		}
 	}
 });

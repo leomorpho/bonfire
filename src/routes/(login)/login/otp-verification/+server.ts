@@ -1,9 +1,9 @@
 import { z } from 'zod';
-import { getEmailOTP, deleteEmailOTP } from '$lib/server/database/emailtoken.model';
 import { getUserByEmail, updateUser } from '$lib/server/database/user.model';
 import { lucia } from '$lib/server/auth';
 import { triplitHttpClient } from '$lib/server/triplit';
 import { isWithinExpirationDate } from '$lib/utils';
+import { deleteEmailOTP, getEmailOTP } from '$lib/server/database/emailtoken.model';
 
 const otpVerificationSchema = z.object({
 	otp: z.string().length(6) // OTP should be exactly 6 characters

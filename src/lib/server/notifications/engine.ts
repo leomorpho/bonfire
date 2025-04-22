@@ -19,7 +19,6 @@ import {
 	validateTempAttendees,
 	validateUserIds
 } from '$lib/server/triplit';
-import { getTaskLockState, updateTaskLockState } from '$lib/server/database/tasklock';
 import { sendPushNotification } from '$lib/server/webpush';
 import { sendSmsMessage } from '$lib/sms';
 import { sendEmailNotification } from '$lib/server/email/email';
@@ -33,6 +32,7 @@ import {
 	createNotificationMessage,
 	createTempAttendeeNotifications
 } from '$lib/server/notifications/notifications';
+import { getTaskLockState, updateTaskLockState } from '../tasks';
 
 export class Notification {
 	eventId: string;

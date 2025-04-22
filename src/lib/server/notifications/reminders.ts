@@ -1,9 +1,9 @@
 import { NotificationPermissions, NotificationType, Status, TaskName } from '$lib/enums';
 import type { PushNotificationPayload } from '$lib/types';
-import { getTaskLockState, updateTaskLockState } from '../database/tasklock';
 import { Notification, bulkNotifyUsers, bulkPersistNotifications } from './engine';
 import { getAttendeeUserIdsOfEvent, triplitHttpClient } from '../triplit';
 import { and } from '@triplit/client';
+import { getTaskLockState, updateTaskLockState } from '../tasks';
 
 export const runReminderNotificationTask = async () => {
 	const taskName = TaskName.SEND_REMINDER_NOTIFICATIONS;
