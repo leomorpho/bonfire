@@ -4,17 +4,21 @@
 	import { getFeWorkerTriplitClient } from '$lib/triplit';
 	import { page } from '$app/stores';
 	import { useQuery } from '@triplit/svelte';
+	import { onMount } from 'svelte';
+	import type { TriplitClient } from '@triplit/client';
 
 	let { currUserId } = $props();
 
-	const client = getFeWorkerTriplitClient($page.data.jwt);
+	const client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
 	let show = $state(false);
-	let data = useQuery(client, client.http.query('profile_images').Where(['user_id', '=', currUserId]));
+	let data = useQuery(
+		client,
+		client.http.query('profile_images').Where(['user_id', '=', currUserId])
+	);
 
 	$effect(() => {
-		console.log('data.results?.length', data.results, data.results?.length);
-		if (data.results?.length == 0) {
+		if (data.results?.length == 0 && !data.fetchingRemote && !data.fetchingLocal && !data.error) {
 			show = true;
 		}
 	});
