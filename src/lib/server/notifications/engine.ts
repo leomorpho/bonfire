@@ -30,7 +30,7 @@ import {
 	createAttendeeNotifications,
 	createFileNotifications,
 	createNewMessageNotifications,
-	createNotificationMessageAndTitle,
+	createNotificationMessage,
 	createTempAttendeeNotifications
 } from '$lib/server/notifications/notifications';
 
@@ -129,7 +129,7 @@ async function processNotificationQueue(notificationQueueEntry: NotificationQueu
 		case NotificationType.TEMP_ATTENDEES:
 			validObjectIds = await validateTempAttendees(objectIds);
 			break;
-		case NotificationType.ADMIN_ADDED:
+		case NotificationType.YOU_WERE_ADDED_AS_ADMIN:
 			validObjectIds = await validateUserIds(objectIds);
 			break;
 		case NotificationType.NEW_MESSAGE:
@@ -182,7 +182,7 @@ async function processNotificationQueue(notificationQueueEntry: NotificationQueu
 				...(await createTempAttendeeNotifications(notificationQueueEntry.event_id, validObjectIds))
 			);
 			break;
-		case NotificationType.ADMIN_ADDED:
+		case NotificationType.YOU_WERE_ADDED_AS_ADMIN:
 			notifications.push(
 				...(await createAdminAddedNotifications(notificationQueueEntry.event_id, validObjectIds))
 			);
@@ -279,7 +279,7 @@ async function mergeSimilarNotifications(
 	const numObjects = mergedObjectIds.length;
 
 	// Generate the updated message and title
-	const { message } = createNotificationMessageAndTitle(notificationType, numObjects);
+	const message = createNotificationMessage(notificationType, numObjects);
 
 	// Delete the old notifications
 	for (const notification of existingNotifications) {

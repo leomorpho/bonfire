@@ -14,15 +14,19 @@
 	import MessageContent from '../im/MessageContent.svelte';
 	import { MoreHorizontal } from 'lucide-svelte';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
-	import { slide } from 'svelte/transition';
+	import { fade, slide } from 'svelte/transition';
+	import { flip } from 'svelte/animate';
 
 	let { notification, toggleDialog, deleteNotification, isCurrenUserEventAdmin = false } = $props();
+
+	console.log('notification', notification);
 
 	let userId = $state('');
 	let linkedObjects = $state([]);
 	let isLoading = $state(true);
 	let cardRef: HTMLElement | null = $state(null); // Initialize as null to ensure proper type handling
 	let eventTitle = $state('...');
+	let hideNotification = $state(false);
 
 	const maxNumAttendeesToShowInline = 3;
 
@@ -63,10 +67,13 @@
 			case NotificationType.TEMP_ATTENDEES:
 				query = client.query('temporary_attendees').Where(['id', 'in', objectIds]);
 				break;
-			case NotificationType.ADMIN_ADDED:
+			case NotificationType.YOU_WERE_ADDED_AS_ADMIN:
 				// Nothing needed
 				isLoading = false;
 				return;
+			case NotificationType.ADMIN_ADDED:
+				query = client.query('user').Where(['id', 'in', objectIds]);
+				break;
 			case NotificationType.NEW_MESSAGE:
 				query = client
 					.query('event_messages')
@@ -84,8 +91,9 @@
 		const results = await client.fetch(query);
 
 		if (objectIds.length > 0 && results.length == 0) {
+			// hideNotification = true;
 			// The associated objects were deleted, delete this notification
-			await deleteNotification(notification.id);
+			// await deleteNotification(notification.id);
 			return;
 		}
 
@@ -189,7 +197,7 @@
 </script>
 
 <div
-	class="notification-item reltive relative mt-3 rounded-lg bg-slate-100 p-4 dark:bg-slate-900"
+	class={`${hideNotification ? 'hidden' : ''} notification-item reltive relative mt-3 rounded-lg bg-slate-100 p-4 dark:bg-slate-900`}
 	bind:this={cardRef}
 	in:slide={{ duration: 300 }}
 	out:slide={{ duration: 100 }}
@@ -238,7 +246,7 @@
 			>
 				<Button class="mt-3">See event images</Button>
 			</a>
-		{:else if notification.object_type == NotificationType.ADMIN_ADDED}
+		{:else if notification.object_type == NotificationType.YOU_WERE_ADDED_AS_ADMIN}
 			<a
 				class="my-2 flex w-full justify-center"
 				href={`/bonfire/${notification.event_id}`}
@@ -281,6 +289,14 @@
 							...and a few more
 						</div>
 					{/if}
+				{:else if notification.object_type === NotificationType.ADMIN_ADDED}
+					<div class="mx-5 flex flex-wrap -space-x-1 text-black justify-center">
+						{#each linkedObjects as user}
+							<div in:fade={{ duration: 300 }}>
+								<ProfileAvatar userId={user.id} viewerIsEventAdmin={isCurrenUserEventAdmin} />
+							</div>
+						{/each}
+					</div>
 				{:else if notification.object_type === NotificationType.ATTENDEES}
 					{#if linkedObjects.length > maxNumAttendeesToShowInline}
 						<Collapsible.Root class="space-y-2">
@@ -299,7 +315,7 @@
 							</div>
 							<!-- Show the rest in the collapsible content -->
 							<Collapsible.Content class="text-black">
-								<div class="flex flex-wrap space-x-1 space-y-1">
+								<div class="mx-5 flex flex-wrap -space-x-1 text-black justify-center">
 									{#each linkedObjects as attendee}
 										<ProfileAvatar
 											userId={attendee.user_id}
@@ -310,7 +326,7 @@
 							</Collapsible.Content>
 						</Collapsible.Root>
 					{:else}
-						<div class="grid grid-cols-4 gap-2 text-black">
+						<div class="mx-5 flex flex-wrap -space-x-1 text-black justify-center">
 							{#each linkedObjects as attendee}
 								<ProfileAvatar
 									userId={attendee.user_id}

@@ -185,7 +185,7 @@ export async function createNewAdminNotificationQueueObject(
 		// 			and([
 		// 				['user_id', '=', userId],
 		// 				['event_id', '=', eventId],
-		// 				['object_type', '=', NotificationType.ADMIN_ADDED]
+		// 				['object_type', '=', NotificationType.YOU_WERE_ADDED_AS_ADMIN]
 		// 			])
 		// 		)
 		// 		.Select(['id', 'object_ids'])
@@ -206,7 +206,7 @@ export async function createNewAdminNotificationQueueObject(
 		await client.insert('notifications_queue', {
 			user_id: userId,
 			event_id: eventId,
-			object_type: NotificationType.ADMIN_ADDED,
+			object_type: NotificationType.YOU_WERE_ADDED_AS_ADMIN,
 			object_ids: objectIds,
 			object_ids_set: new Set(userIdsBecomingAdmins)
 		});

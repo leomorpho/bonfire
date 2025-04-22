@@ -136,8 +136,8 @@
 
 <!-- Notifications Dialog -->
 <Dialog.Root bind:open={isDialogOpen}>
-	<Dialog.Content class="flex h-full items-center justify-center sm:h-[90vh] w-full">
-		<ScrollArea class="flex h-full items-center justify-center sm:h-[90vh] w-full">
+	<Dialog.Content class="flex h-full w-full items-center justify-center sm:h-[90vh]">
+		<ScrollArea class="flex h-full w-full items-center justify-center sm:h-[90vh]">
 			<Dialog.Header class="my-8">
 				<Dialog.Title class="flex w-full justify-center">Your Notifications</Dialog.Title>
 				<Dialog.Description>

@@ -146,6 +146,7 @@ export enum NotificationType {
 	ATTENDEES = 'attendees',
 	TEMP_ATTENDEES = 'temp_attendees',
 	ADMIN_ADDED = 'admin_added',
+	YOU_WERE_ADDED_AS_ADMIN = 'you_were_added_as_admin',
 	NEW_MESSAGE = 'new_message',
 	REMINDER = 'reminder',
 	ADMIN_UPDATES = 'admin_updates'
@@ -173,6 +174,7 @@ export const notificationTypeToPermMap: {
 	[NotificationType.FILES]: NotificationPermissions.event_files_uploaded,
 	[NotificationType.ATTENDEES]: NotificationPermissions.event_activity,
 	[NotificationType.TEMP_ATTENDEES]: NotificationPermissions.event_activity,
+	[NotificationType.YOU_WERE_ADDED_AS_ADMIN]: NotificationPermissions.event_activity,
 	[NotificationType.ADMIN_ADDED]: NotificationPermissions.event_activity,
 	[NotificationType.NEW_MESSAGE]: NotificationPermissions.event_messages,
 	[NotificationType.REMINDER]: NotificationPermissions.event_activity,
@@ -188,7 +190,7 @@ export const notificationTypeToDeliveryMap: {
 } = {
 	[NotificationType.ANNOUNCEMENT]: [
 		DeliveryPermissions.push_notifications,
-		DeliveryPermissions.email_notifications,
+		DeliveryPermissions.email_notifications
 		// DeliveryPermissions.sms_notifications
 	],
 	[NotificationType.FILES]: [
@@ -203,13 +205,17 @@ export const notificationTypeToDeliveryMap: {
 		DeliveryPermissions.push_notifications,
 		DeliveryPermissions.email_notifications
 	],
+	[NotificationType.YOU_WERE_ADDED_AS_ADMIN]: [
+		DeliveryPermissions.push_notifications,
+		DeliveryPermissions.email_notifications
+	],
 	[NotificationType.ADMIN_ADDED]: [
 		DeliveryPermissions.push_notifications,
 		DeliveryPermissions.email_notifications
 	],
 	[NotificationType.NEW_MESSAGE]: [
 		DeliveryPermissions.push_notifications,
-		DeliveryPermissions.email_notifications,
+		DeliveryPermissions.email_notifications
 		// DeliveryPermissions.sms_notifications
 	],
 	[NotificationType.REMINDER]: [
@@ -239,13 +245,13 @@ export const notificationTypeToSubject: { [key in NotificationType]: string } = 
 	[NotificationType.FILES]: 'New Media Files Uploaded',
 	[NotificationType.ATTENDEES]: 'New Attendees Joined!',
 	[NotificationType.TEMP_ATTENDEES]: 'New Temporary Attendees Added',
-	[NotificationType.ADMIN_ADDED]: 'You’re Now an Admin!',
+	[NotificationType.YOU_WERE_ADDED_AS_ADMIN]: 'You’re Now an Admin!',
+	[NotificationType.ADMIN_ADDED]: 'New Admin',
 	[NotificationType.NEW_MESSAGE]: 'New Event Messages!',
 	[NotificationType.REMINDER]: 'Event Reminder!',
 	[NotificationType.OTP_VERIFICATION]: '',
 	[NotificationType.ADMIN_UPDATES]: 'Event Update!'
 };
-
 
 type NotificationTypeMapping = {
 	[key in NotificationType]: {
@@ -275,10 +281,22 @@ export const notificationTypeMapping: NotificationTypeMapping = {
 		singularObjectName: 'temporary account attendee',
 		pluralObjectName: 'temporary account attendees'
 	},
+	[NotificationType.YOU_WERE_ADDED_AS_ADMIN]: {
+		singularObjectName: 'admin',
+		pluralObjectName: 'admins'
+	},
 	[NotificationType.ADMIN_ADDED]: {
 		singularObjectName: 'admin',
 		pluralObjectName: 'admins'
 	},
+	[NotificationType.ADMIN_UPDATES]: {
+		singularObjectName: 'admin',
+		pluralObjectName: 'admins'
+	},
+	[NotificationType.REMINDER]: {
+		singularObjectName: 'reminder',
+		pluralObjectName: 'reminders'
+	}
 	// Add other notification types as needed
 };
 

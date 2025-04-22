@@ -4,7 +4,8 @@ import {
 	NotificationPermissions,
 	Status,
 	notificationTypeToPermMap,
-    notificationTypeMapping
+	notificationTypeMapping,
+	notificationTypeToSubject
 } from '$lib/enums';
 import {
 	getAdminUserIdsOfEvent,
@@ -13,45 +14,41 @@ import {
 } from '$lib/server/triplit';
 import { Notification } from '$lib/server/notifications/engine';
 
-export function createNotificationMessageAndTitle(
+export function createNotificationMessage(
 	notificationType: NotificationType,
 	numObjects: number = 1
-): { message: string; title: string } {
+): string {
 	const { singularObjectName, pluralObjectName } = notificationTypeMapping[notificationType];
 	let message = '';
-	let title = '';
 
 	switch (notificationType) {
 		case NotificationType.ANNOUNCEMENT:
 			message = `📢 You have ${numObjects} new ${numObjects > 1 ? pluralObjectName : singularObjectName}`;
-			title = 'New Announcements';
 			break;
 		case NotificationType.FILES:
 			message = `📷 You have ${numObjects} new ${numObjects > 1 ? pluralObjectName : singularObjectName}`;
-			title = 'New Files';
 			break;
 		case NotificationType.NEW_MESSAGE:
 			message = `💬 You have ${numObjects} new ${numObjects > 1 ? pluralObjectName : singularObjectName}`;
-			title = 'New Message';
 			break;
 		case NotificationType.ATTENDEES:
 			message = `🍻 You have ${numObjects} new ${numObjects > 1 ? pluralObjectName : singularObjectName}`;
-			title = 'New Attendees';
 			break;
 		case NotificationType.TEMP_ATTENDEES:
 			message = `🍻 You have ${numObjects} new ${numObjects > 1 ? pluralObjectName : singularObjectName}`;
-			title = 'New Temporary Account Attendees';
+			break;
+		case NotificationType.YOU_WERE_ADDED_AS_ADMIN:
+			message = `🔐 You have been made an admin`;
 			break;
 		case NotificationType.ADMIN_ADDED:
-			message = `🔐 You have been made an admin`;
-			title = "You're now an event admin!";
+			message = `🔐 A new admin was added`;
 			break;
+
 		default:
 			message = 'You have a new notification';
-			title = 'New Notification';
 	}
 
-	return { message, title };
+	return message;
 }
 
 export async function createAnnouncementNotifications(
@@ -73,10 +70,7 @@ export async function createAnnouncementNotifications(
 	const createNotificationsForUsers = (userIds: string[], isInAppOnly: boolean) => {
 		for (const attendeeUserId of userIds) {
 			const numObjects = announcementIds.length;
-			const { message } = createNotificationMessageAndTitle(
-				NotificationType.ANNOUNCEMENT,
-				numObjects,
-			);
+			const message = createNotificationMessage(NotificationType.ANNOUNCEMENT, numObjects);
 			const pushNotificationPayload = { title: 'New Announcements', body: message };
 
 			notifications.push(
@@ -132,10 +126,7 @@ export async function createFileNotifications(
 			if (!filteredFileIds.length) continue;
 
 			const numObjects = filteredFileIds.length;
-			const { message } = createNotificationMessageAndTitle(
-				NotificationType.FILES,
-				numObjects,
-			);
+			const message = createNotificationMessage(NotificationType.FILES, numObjects);
 			const pushNotificationPayload = { title: 'New Files', body: message };
 
 			notifications.push(
@@ -176,10 +167,7 @@ export async function createAttendeeNotifications(
 
 	const attendeeCount = attendeeIds.length;
 
-	const { message } = createNotificationMessageAndTitle(
-		NotificationType.ATTENDEES,
-		attendeeCount,
-	);
+	const message = createNotificationMessage(NotificationType.ATTENDEES, attendeeCount);
 	const pushNotificationPayload = { title: 'New Attendees', body: message };
 
 	const { granted, notGranted } = await getAdminUserIdsOfEvent(
@@ -242,10 +230,7 @@ export async function createTempAttendeeNotifications(
 
 	const attendeeCount = attendeeIds.length;
 
-	const { message } = createNotificationMessageAndTitle(
-		NotificationType.TEMP_ATTENDEES,
-		attendeeCount,
-	);
+	const message = createNotificationMessage(NotificationType.TEMP_ATTENDEES, attendeeCount);
 	const pushNotificationPayload = { title: 'New Temporary Account Attendees', body: message };
 
 	const { granted, notGranted } = await getAdminUserIdsOfEvent(
@@ -308,47 +293,72 @@ export async function createAdminAddedNotifications(
 		notificationTypeToPermMap[NotificationType.ADMIN_UPDATES] as NotificationType
 	);
 
+	// Filter out newAdminUserIds from granted and notGranted lists
+	const filteredGranted = granted.filter((userId) => !newAdminUserIds.includes(userId));
+	const filteredNotGranted = notGranted.filter((userId) => !newAdminUserIds.includes(userId));
+
 	const notifications: Notification[] = [];
 
+	let message = createNotificationMessage(NotificationType.YOU_WERE_ADDED_AS_ADMIN);
+	let pushNotificationPayload = {
+		title: notificationTypeToSubject[NotificationType.YOU_WERE_ADDED_AS_ADMIN],
+		body: message
+	};
+
 	for (const newAdminUserId of newAdminUserIds) {
-		const { message } = createNotificationMessageAndTitle(
-			NotificationType.ADMIN_ADDED,
+		notifications.push(
+			new Notification(
+				eventId,
+				newAdminUserId,
+				message,
+				NotificationType.YOU_WERE_ADDED_AS_ADMIN,
+				[newAdminUserId],
+				new Set([newAdminUserId]),
+				pushNotificationPayload,
+				[NotificationPermissions.event_activity],
+				false // isInAppOnly = false
+			)
 		);
-		const pushNotificationPayload = { title: "You're now an event admin!", body: message };
+	}
 
-		// Create notifications for granted users
-		for (const userId of granted) {
-			notifications.push(
-				new Notification(
-					eventId,
-					userId,
-					message,
-					NotificationType.ADMIN_ADDED,
-					[newAdminUserId],
-					new Set([newAdminUserId]),
-					pushNotificationPayload,
-					[NotificationPermissions.event_activity],
-					false // isInAppOnly = false
-				)
-			);
-		}
+	message = createNotificationMessage(NotificationType.ADMIN_ADDED);
+	pushNotificationPayload = {
+		title: notificationTypeToSubject[NotificationType.ADMIN_ADDED],
+		body: message
+	};
 
-		// Create notifications for not granted users
-		for (const userId of notGranted) {
-			notifications.push(
-				new Notification(
-					eventId,
-					userId,
-					message,
-					NotificationType.ADMIN_ADDED,
-					[newAdminUserId],
-					new Set([newAdminUserId]),
-					pushNotificationPayload,
-					[NotificationPermissions.event_activity],
-					true // isInAppOnly = true
-				)
-			);
-		}
+	// Create notifications for granted users
+	for (const userId of filteredGranted) {
+		notifications.push(
+			new Notification(
+				eventId,
+				userId,
+				message,
+				NotificationType.ADMIN_ADDED,
+				newAdminUserIds,
+				new Set(newAdminUserIds),
+				pushNotificationPayload,
+				[NotificationPermissions.event_activity],
+				false // isInAppOnly = false
+			)
+		);
+	}
+
+	// Create notifications for not granted users
+	for (const userId of filteredNotGranted) {
+		notifications.push(
+			new Notification(
+				eventId,
+				userId,
+				message,
+				NotificationType.ADMIN_ADDED,
+				newAdminUserIds,
+				new Set(newAdminUserIds),
+				pushNotificationPayload,
+				[NotificationPermissions.event_activity],
+				true // isInAppOnly = true
+			)
+		);
 	}
 
 	return notifications;
@@ -406,10 +416,7 @@ export async function createNewMessageNotifications(
 	);
 
 	const numObjects = 1; // Since it's a single message
-	const { message } = createNotificationMessageAndTitle(
-		NotificationType.NEW_MESSAGE,
-		numObjects,
-	);
+	const message = createNotificationMessage(NotificationType.NEW_MESSAGE, numObjects);
 	const pushNotificationPayload = { title: 'New Message', body: message };
 
 	const notifications: Notification[] = [];
