@@ -70,22 +70,22 @@ export function pushTriplitSchema() {
 export async function getAttendeeUserIdsOfEvent(
 	eventId: string,
 	statuses: Status[],
-	notificationType: NotificationType | null = null
+	notificationType: NotificationType | null = null,
+	userIdsToIgnore: string[] = []
 ): Promise<{ granted: string[]; notGranted: string[] }> {
 	const query = triplitHttpClient
 		.query('attendees')
 		.Where(
 			and([
 				['event_id', '=', eventId],
-				['status', 'in', statuses]
+				['status', 'in', statuses],
+				['user_id', 'nin', userIdsToIgnore]
 			])
 		)
 		.SubqueryMany(
 			'notification_permissions',
-			triplitHttpClient
-				.query('notification_permissions')
-				.Where(['user_id', '=', '$1.user_id'])
-				// .Select(['granted', 'permission', 'event_id'])
+			triplitHttpClient.query('notification_permissions').Where(['user_id', '=', '$1.user_id'])
+			// .Select(['granted', 'permission', 'event_id'])
 		)
 		.Select(['user_id']);
 
@@ -94,7 +94,6 @@ export async function getAttendeeUserIdsOfEvent(
 	const attendeesWithPermission: string[] = [];
 	const attendeesWithoutPermission: string[] = [];
 
-	
 	for (const attendee of results) {
 		// console.log('======> DOWN results =>', attendee.notification_permissions);
 
@@ -117,15 +116,19 @@ export async function getAttendeeUserIdsOfEvent(
 
 export async function getAdminUserIdsOfEvent(
 	eventId: string,
-	notificationPermission: NotificationType | null = null
+	notificationPermission: NotificationType | null = null,
+	userIdsToIgnore: string[] = []
 ): Promise<{ granted: string[]; notGranted: string[] }> {
 	const users = await triplitHttpClient.fetch(
 		triplitHttpClient
 			.query('user')
 			.Where(
-				or([
-					['created_events.id', '=', eventId],
-					['admin_for_events.id', '=', eventId]
+				and([
+					or([
+						['created_events.id', '=', eventId],
+						['admin_for_events.id', '=', eventId]
+					]),
+					['id', 'nin', userIdsToIgnore]
 				])
 			)
 			.Include('notification_permissions')

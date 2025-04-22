@@ -164,27 +164,47 @@ async function processNotificationQueue(notificationQueueEntry: NotificationQueu
 	switch (notificationQueueEntry.object_type) {
 		case NotificationType.ANNOUNCEMENT:
 			notifications.push(
-				...(await createAnnouncementNotifications(notificationQueueEntry.event_id, validObjectIds))
+				...(await createAnnouncementNotifications(
+					notificationQueueEntry.user_id,
+					notificationQueueEntry.event_id,
+					validObjectIds
+				))
 			);
 			break;
 		case NotificationType.FILES:
 			notifications.push(
-				...(await createFileNotifications(notificationQueueEntry.event_id, validObjectIds))
+				...(await createFileNotifications(
+					notificationQueueEntry.user_id,
+					notificationQueueEntry.event_id,
+					validObjectIds
+				))
 			);
 			break;
 		case NotificationType.ATTENDEES:
 			notifications.push(
-				...(await createAttendeeNotifications(notificationQueueEntry.event_id, validObjectIds))
+				...(await createAttendeeNotifications(
+					notificationQueueEntry.user_id,
+					notificationQueueEntry.event_id,
+					validObjectIds
+				))
 			);
 			break;
 		case NotificationType.TEMP_ATTENDEES:
 			notifications.push(
-				...(await createTempAttendeeNotifications(notificationQueueEntry.event_id, validObjectIds))
+				...(await createTempAttendeeNotifications(
+					notificationQueueEntry.user_id,
+					notificationQueueEntry.event_id,
+					validObjectIds
+				))
 			);
 			break;
 		case NotificationType.YOU_WERE_ADDED_AS_ADMIN:
 			notifications.push(
-				...(await createAdminAddedNotifications(notificationQueueEntry.event_id, validObjectIds))
+				...(await createAdminAddedNotifications(
+					notificationQueueEntry.user_id,
+					notificationQueueEntry.event_id,
+					validObjectIds
+				))
 			);
 			break;
 		case NotificationType.NEW_MESSAGE:
@@ -195,7 +215,11 @@ async function processNotificationQueue(notificationQueueEntry: NotificationQueu
 			}
 			// await notifyAttendeesOfNewMessages(notificationQueueEntry.event_id, validObjectIds[0]);
 			notifications.push(
-				...(await createNewMessageNotifications(notificationQueueEntry.event_id, validObjectIds[0]))
+				...(await createNewMessageNotifications(
+					notificationQueueEntry.user_id,
+					notificationQueueEntry.event_id,
+					validObjectIds[0]
+				))
 			);
 			break;
 		default:

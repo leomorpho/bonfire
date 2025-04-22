@@ -52,6 +52,7 @@ export function createNotificationMessage(
 }
 
 export async function createAnnouncementNotifications(
+	userIdTriggeredNotif: string,
 	eventId: string,
 	announcementIds: string[]
 ): Promise<Notification[]> {
@@ -61,7 +62,8 @@ export async function createAnnouncementNotifications(
 		await getAttendeeUserIdsOfEvent(
 			eventId,
 			NOTIFY_OF_ATTENDING_STATUS_CHANGE,
-			notificationTypeToPermMap[NotificationType.ANNOUNCEMENT] as NotificationType
+			notificationTypeToPermMap[NotificationType.ANNOUNCEMENT] as NotificationType,
+			[userIdTriggeredNotif]
 		);
 
 	// TODO: filter out people who've already seen it
@@ -96,6 +98,7 @@ export async function createAnnouncementNotifications(
 }
 
 export async function createFileNotifications(
+	userIdTriggeredNotif: string,
 	eventId: string,
 	fileIds: string[]
 ): Promise<Notification[]> {
@@ -112,7 +115,8 @@ export async function createFileNotifications(
 		await getAttendeeUserIdsOfEvent(
 			eventId,
 			[Status.GOING, Status.MAYBE],
-			notificationTypeToPermMap[NotificationType.FILES] as NotificationType
+			notificationTypeToPermMap[NotificationType.FILES] as NotificationType,
+			[userIdTriggeredNotif]
 		);
 
 	const notifications: Notification[] = [];
@@ -152,6 +156,7 @@ export async function createFileNotifications(
 }
 
 export async function createAttendeeNotifications(
+	userIdTriggeredNotif: string,
 	eventId: string,
 	attendeeIds: string[]
 ): Promise<Notification[]> {
@@ -172,7 +177,8 @@ export async function createAttendeeNotifications(
 
 	const { granted, notGranted } = await getAdminUserIdsOfEvent(
 		eventId,
-		notificationTypeToPermMap[NotificationType.ADMIN_UPDATES] as NotificationType
+		notificationTypeToPermMap[NotificationType.ADMIN_UPDATES] as NotificationType,
+		[userIdTriggeredNotif] // NOTE: in case user was made admin before new attendee notif was sent
 	);
 
 	const notifications: Notification[] = [];
@@ -215,6 +221,7 @@ export async function createAttendeeNotifications(
 }
 
 export async function createTempAttendeeNotifications(
+	userIdTriggeredNotif: string,
 	eventId: string,
 	attendeeIds: string[]
 ): Promise<Notification[]> {
@@ -277,6 +284,7 @@ export async function createTempAttendeeNotifications(
 	return notifications;
 }
 export async function createAdminAddedNotifications(
+	userIdTriggeredNotif: string,
 	eventId: string,
 	newAdminUserIds: string[]
 ): Promise<Notification[]> {
@@ -290,12 +298,9 @@ export async function createAdminAddedNotifications(
 
 	const { granted, notGranted } = await getAdminUserIdsOfEvent(
 		eventId,
-		notificationTypeToPermMap[NotificationType.ADMIN_UPDATES] as NotificationType
+		notificationTypeToPermMap[NotificationType.ADMIN_UPDATES] as NotificationType,
+		newAdminUserIds.concat(userIdTriggeredNotif)
 	);
-
-	// Filter out newAdminUserIds from granted and notGranted lists
-	const filteredGranted = granted.filter((userId) => !newAdminUserIds.includes(userId));
-	const filteredNotGranted = notGranted.filter((userId) => !newAdminUserIds.includes(userId));
 
 	const notifications: Notification[] = [];
 
@@ -328,7 +333,7 @@ export async function createAdminAddedNotifications(
 	};
 
 	// Create notifications for granted users
-	for (const userId of filteredGranted) {
+	for (const userId of granted) {
 		notifications.push(
 			new Notification(
 				eventId,
@@ -345,7 +350,7 @@ export async function createAdminAddedNotifications(
 	}
 
 	// Create notifications for not granted users
-	for (const userId of filteredNotGranted) {
+	for (const userId of notGranted) {
 		notifications.push(
 			new Notification(
 				eventId,
@@ -365,6 +370,7 @@ export async function createAdminAddedNotifications(
 }
 
 export async function createNewMessageNotifications(
+	userIdTriggeredNotif: string,
 	eventId: string,
 	newMessageId: string
 ): Promise<Notification[]> {
@@ -374,7 +380,8 @@ export async function createNewMessageNotifications(
 		await getAttendeeUserIdsOfEvent(
 			eventId,
 			NOTIFY_OF_ATTENDING_STATUS_CHANGE,
-			notificationTypeToPermMap[NotificationType.NEW_MESSAGE] as NotificationType
+			notificationTypeToPermMap[NotificationType.NEW_MESSAGE] as NotificationType,
+			[userIdTriggeredNotif]
 		);
 
 	// Remove sender ID from list of attendees
