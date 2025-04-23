@@ -81,7 +81,7 @@ export const taskRunner = async () => {
 			reminderNotificationsTask
 		);
 		const giveFreeLogToInitialInviterJob = new SimpleIntervalJob(
-			{ hours: 4 },
+			{ hours: 12 },
 			giveFreeLogToInitialInviterTask
 		);
 

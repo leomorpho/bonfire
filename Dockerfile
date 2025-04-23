@@ -37,11 +37,15 @@ COPY --from=build /app/node_modules ./node_modules
 # Include migrations
 COPY --from=build /app/drizzle ./drizzle
 
+# TODO: is below really needed???
 # Ensure @triplit/cli is installed in production
-RUN npm install -g @triplit/cli
+RUN npm install -g @triplit/cli 
+
+# Install PM2 globally
+RUN npm install -g pm2
 
 # Expose the app port
 EXPOSE 3000
 
-# Run the SvelteKit app
-CMD ["node", "build"]
+# Run the SvelteKit app using PM2
+CMD ["pm2-runtime", "start", "build/index.js", "--name", "bonfire-app", "--instances", "max"]
