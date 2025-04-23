@@ -6,36 +6,15 @@ import {
 	createNewAttendance,
 	createNewEvent,
 	createNewTestUser,
-	createNewTransaction
-} from './notifications.test';
-import { triplitHttpClient } from '$lib/server/triplit';
-
-// Define the cleanup function
-async function cleanup() {
-	// Delete all test users
-	const users = await triplitHttpClient.fetch(triplitHttpClient.query('user'));
-	for (const user of users) {
-		await triplitHttpClient.delete('user', user.id);
-	}
-
-	// Delete all test events
-	const events = await triplitHttpClient.fetch(triplitHttpClient.query('events'));
-	for (const event of events) {
-		await triplitHttpClient.delete('events', event.id);
-	}
-
-	// Delete all test attendances
-	const attendances = await triplitHttpClient.fetch(triplitHttpClient.query('attendees'));
-	for (const attendance of attendances) {
-		await triplitHttpClient.delete('attendees', attendance.id);
-	}
-}
+	createNewTransaction,
+	deleteAllEntriesInModels
+} from './common';
 
 describe('getUsersWhoGetFreeLogs', () => {
 	let user1, user2, user3, event1, event2, event3;
 
 	beforeEach(async () => {
-		await cleanup();
+		await deleteAllEntriesInModels(['user', 'events', 'attendees']);
 
 		// Create test users
 		user1 = await createNewTestUser(null, null, null, null, 'user1');
