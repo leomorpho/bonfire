@@ -10,14 +10,15 @@
 	import ToggleTheme from './ToggleTheme.svelte';
 	import { onDestroy, onMount } from 'svelte';
 	import LogoutButton from './buttons/LogoutButton.svelte';
+	import { tick } from 'svelte';
+	import TopBanner from './marketing/TopBanner.svelte';
+	import PageNavigationLoader from './PageNavigationLoader.svelte';
 
 	let isAdmin = false;
 
 	if ($page.data.user && $page.data.user.is_event_styles_admin) {
 		isAdmin = true;
 	}
-	import { tick } from 'svelte';
-	import TopBanner from './marketing/TopBanner.svelte';
 
 	if ($page.data.user && $page.data.user.id) {
 		console.log('current user id ->', $page.data.user.id);
@@ -129,6 +130,7 @@
 	</DropdownMenu.Root>
 {/snippet}
 
+<PageNavigationLoader />
 <TopBanner />
 
 <div class="w-full">
