@@ -168,6 +168,11 @@
 						numGuestsCurrentAttendeeIsBringing={numGuests}
 						{maxNumGuestsAllowedPerAttendee}
 						eventOwnerId={event.user_id}
+						eventTitle={event.title}
+						eventStartTime={event.start_time}
+						eventEndTime={event.end_time}
+						eventDescription={event.description}
+						eventLocation={event.location}
 					/>
 				</button>
 			</Card.Content>

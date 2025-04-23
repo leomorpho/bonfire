@@ -74,7 +74,7 @@
 		fileCount = 0,
 		maxNumGuestsAllowedPerAttendee = 0,
 		numGuestsCurrentAttendeeIsBringing = 0,
-		requireGuestBringItem=false,
+		requireGuestBringItem = false,
 		showMaxNumPeople = 50
 	} = $props();
 
@@ -658,6 +658,11 @@
 										{maxNumGuestsAllowedPerAttendee}
 										{numGuestsCurrentAttendeeIsBringing}
 										eventOwnerId={eventCreatorUserId}
+										{eventTitle}
+										{eventStartTime}
+										{eventEndTime}
+										{eventDescription}
+										{eventLocation}
 									/>
 
 									<Button

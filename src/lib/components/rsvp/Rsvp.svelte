@@ -25,7 +25,12 @@
 		isAnonymousUser,
 		rsvpCanBeChanged = true,
 		maxNumGuestsAllowedPerAttendee = 0,
-		numGuestsCurrentAttendeeIsBringing = 0
+		numGuestsCurrentAttendeeIsBringing = 0,
+		eventTitle,
+		eventStartTime,
+		eventEndTime = '',
+		eventDescription = '',
+		eventLocation = ''
 	} = $props();
 
 	let isAnonRsvpDialogOpen = $state(false);
@@ -235,7 +240,15 @@
 			</DropdownMenu.Content>
 		</DropdownMenu.Root>
 		{#if showAddToCalendar}
-			<span class="ml-1"> <AddToCalendar /> </span>
+			<span class="ml-1">
+				<AddToCalendar
+					title={eventTitle}
+					start={eventStartTime}
+					end={eventEndTime}
+					description={eventDescription}
+					location={eventLocation}
+				/>
+			</span>
 		{/if}
 	{:else}
 		{@render rsvpButton()}
