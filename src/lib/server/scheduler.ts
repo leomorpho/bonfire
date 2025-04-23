@@ -1,8 +1,9 @@
 import { ToadScheduler, SimpleIntervalJob, Task } from 'toad-scheduler';
-import { triplitHttpClient } from './server/triplit';
-import { runNotificationProcessor } from './server/notifications/engine';
-import { runReminderNotificationTask } from './server/notifications/reminders';
-import { unlockAllTasks } from './server/tasks';
+import { triplitHttpClient } from './triplit';
+import { runNotificationProcessor } from './notifications/notification_engine';
+import { runReminderNotificationTask } from './notifications/reminders';
+import { unlockAllTasks } from './tasks';
+import { runGiveFreeLogToInitialInviterTask } from './notifications/free_logs';
 
 const scheduler = new ToadScheduler();
 
@@ -54,7 +55,18 @@ const reminderNotificationsTask = new Task(
 
 			// console.log('Notification processing complete.');
 		} catch (error) {
-			console.error('Error while processing notifications:', error);
+			console.error('Error while generating reminders:', error);
+		}
+	}
+);
+
+const giveFreeLogToInitialInviterTask = new Task(
+	'Give a free logs to person who brought new event creators to the platform',
+	async () => {
+		try {
+			runGiveFreeLogToInitialInviterTask(3);
+		} catch (error) {
+			console.error('Error while generating free logs:', error);
 		}
 	}
 );
@@ -68,10 +80,15 @@ export const taskRunner = async () => {
 			{ minutes: 10 },
 			reminderNotificationsTask
 		);
+		const giveFreeLogToInitialInviterJob = new SimpleIntervalJob(
+			{ hours: 4 },
+			giveFreeLogToInitialInviterTask
+		);
 
 		scheduler.addSimpleIntervalJob(notificationJob);
 		scheduler.addSimpleIntervalJob(cleanupJob);
 		scheduler.addSimpleIntervalJob(reminderNotificationsJob);
+		scheduler.addSimpleIntervalJob(giveFreeLogToInitialInviterJob);
 
 		// Graceful shutdown handler
 		const handleShutdown = async () => {

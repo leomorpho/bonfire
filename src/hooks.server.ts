@@ -1,6 +1,6 @@
 import { sequence } from '@sveltejs/kit/hooks';
 import * as Sentry from '@sentry/sveltekit';
-import { taskRunner } from '$lib/scheduler';
+import { taskRunner } from '$lib/server/scheduler';
 import { lucia } from '$lib/server/auth';
 import type { Handle } from '@sveltejs/kit';
 import { dev } from '$app/environment';

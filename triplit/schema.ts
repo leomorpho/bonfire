@@ -258,7 +258,20 @@ export const schema = S.Collections({
 				where: [['event_id', '=', '$1.id']]
 			}),
 			transaction: S.RelationOne('transactions', {
-				where: [['event_id', '=', '$1.id']]
+				where: [
+					and([
+						['event_id', '=', '$1.id'],
+						['transaction_type', '=', TransactionType.BONFIRE_HOSTED]
+					])
+				]
+			}),
+			free_logs_award: S.RelationOne('transactions', {
+				where: [
+					and([
+						['event_id', '=', '$1.id'],
+						['transaction_type', '=', TransactionType.AWARD]
+					])
+				]
 			}),
 			non_profit: S.RelationById('non_profits', '$1.non_profit_id')
 		},
@@ -1159,6 +1172,7 @@ export const schema = S.Collections({
 			anon: {}
 		}
 	},
+	// TODO: nothing is shown in UI for now about who saw or didnt a message
 	event_message_seen: {
 		schema: S.Schema({
 			id: S.Id(),
@@ -1444,7 +1458,9 @@ export const schema = S.Collections({
 				enum: [
 					TransactionType.PURCHASE,
 					TransactionType.REFUND,
-					TransactionType.BONFIRE_HOSTED
+					TransactionType.BONFIRE_HOSTED,
+					TransactionType.AWARD,
+					// TransactionType.DONATION // TODO: inter-user donations not yet supported
 				] as const
 			}), // Type of transaction
 			num_log_tokens: S.Number(), // Number of logs purchased/refunded

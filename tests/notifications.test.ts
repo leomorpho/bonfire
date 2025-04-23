@@ -1,14 +1,14 @@
 import { Status } from '$lib/enums';
 import { createNewAnnouncementNotificationQueueObject } from '../src/lib/notification_queue';
 import { createNewUser } from '$lib/server/database/user.model';
-import { runNotificationProcessor } from '$lib/server/notifications/engine';
+import { runNotificationProcessor } from '$lib/server/notifications/notification_engine';
 import { triplitHttpClient } from '$lib/server/triplit';
 import { arrayToStringRepresentation, stringRepresentationToArray } from '$lib/utils';
 import { faker } from '@faker-js/faker';
 import { and } from '@triplit/client';
 import { generateId } from 'lucia';
 import { describe, it, expect, beforeEach } from 'vitest';
-import { NotificationPermissions, NotificationType } from '../src/lib/enums';
+import { NotificationType } from '../src/lib/enums';
 import { getAttendeeUserIdsOfEvent } from '$lib/server/triplit';
 import { getEffectivePermissionSettingForEvent } from '$lib/permissions';
 
@@ -298,7 +298,10 @@ describe('getEffectivePermissionSettingForEvent', () => {
 			triplitHttpClient.query('notification_permissions').Where([['user_id', '=', user1.id]])
 		);
 
-		const result = getEffectivePermissionSettingForEvent(permissions, NotificationType.ANNOUNCEMENT);
+		const result = getEffectivePermissionSettingForEvent(
+			permissions,
+			NotificationType.ANNOUNCEMENT
+		);
 		expect(result).toBe(true);
 	});
 
@@ -315,7 +318,10 @@ describe('getEffectivePermissionSettingForEvent', () => {
 			triplitHttpClient.query('notification_permissions').Where([['user_id', '=', user1.id]])
 		);
 
-		const result = getEffectivePermissionSettingForEvent(permissions, NotificationType.ANNOUNCEMENT);
+		const result = getEffectivePermissionSettingForEvent(
+			permissions,
+			NotificationType.ANNOUNCEMENT
+		);
 		expect(result).toBe(false);
 	});
 
@@ -331,7 +337,10 @@ describe('getEffectivePermissionSettingForEvent', () => {
 			triplitHttpClient.query('notification_permissions').Where([['user_id', '=', user1.id]])
 		);
 
-		const result = getEffectivePermissionSettingForEvent(permissions, NotificationType.ANNOUNCEMENT);
+		const result = getEffectivePermissionSettingForEvent(
+			permissions,
+			NotificationType.ANNOUNCEMENT
+		);
 		expect(result).toBe(true);
 	});
 
@@ -347,14 +356,20 @@ describe('getEffectivePermissionSettingForEvent', () => {
 			triplitHttpClient.query('notification_permissions').Where([['user_id', '=', user1.id]])
 		);
 
-		const result = getEffectivePermissionSettingForEvent(permissions, NotificationType.ANNOUNCEMENT);
+		const result = getEffectivePermissionSettingForEvent(
+			permissions,
+			NotificationType.ANNOUNCEMENT
+		);
 		expect(result).toBe(false);
 	});
 
 	it('should return false if no permissions are found', async () => {
 		const permissions: any[] = [];
 
-		const result = getEffectivePermissionSettingForEvent(permissions, NotificationType.ANNOUNCEMENT);
+		const result = getEffectivePermissionSettingForEvent(
+			permissions,
+			NotificationType.ANNOUNCEMENT
+		);
 		expect(result).toBe(false);
 	});
 

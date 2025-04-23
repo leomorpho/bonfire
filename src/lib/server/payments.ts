@@ -34,6 +34,7 @@ export async function handleLogPurchaseWebhook(
 			throw new Error(`non-existent price ID ${priceId} given to handleLogPurchaseWebhook`);
 	}
 	// Get log count from product ID.
+	// NOTE: quantity is how many products of a type a user purchased (how many 1-pack, 3-pack or 10-pack etc)
 	const numLogTokensPurchased = quantity * startingCount;
 
 	const userLogObject = await client.fetchOne(
@@ -68,6 +69,49 @@ export async function handleLogPurchaseWebhook(
 }
 
 /**
+ * Rewards a user with a free log and links it to the event that triggered the reward.
+ * @param {HttpClient} client - The Triplit client instance.
+ * @param {string} userId - The user ID.
+ * @param {string} eventId - The event ID that triggered the reward.
+ * @returns {Promise<void>}
+ */
+export async function rewardUserWithFreeLog(
+	client: HttpClient,
+	userId: string,
+	eventId: string
+): Promise<void> {
+	// Fetch the user's log token record
+	const userLogObject = await client.fetchOne(
+		client.query('user_log_tokens').Where(['user_id', '=', userId])
+	);
+
+	if (!userLogObject) {
+		console.error(`User not found for user ID: ${userId}`);
+		return;
+	}
+
+	// Update user's log count
+	await client.update('user_log_tokens', userLogObject.id, (log) => {
+		log.num_logs += 1;
+		log.updated_at = new Date().toISOString();
+	});
+
+	// Create a transaction record for the free log
+	await createTransaction(
+		client,
+		userId,
+		null,
+		TransactionType.AWARD,
+		1, // Number of logs rewarded
+		null, // No money amount for a reward
+		null, // No currency for a reward
+		eventId // Using eventId as a reference for the transaction
+	);
+
+	console.log(`✅ Successfully rewarded user ${userId} with 1 free log for event ${eventId}.`);
+}
+
+/**
  * Deduct logs from a user's balance.
  * @param {WorkerClient} client - The Triplit client instance.
  * @param {string} userId - The user ID.
@@ -78,7 +122,7 @@ export async function deductUserLogs(
 	client: WorkerClient,
 	userId: string,
 	numLogs: number
-): Promise<object> {
+): Promise<void> {
 	const userLog = await client.fetchOne(
 		client.query('user_log_tokens').Where([['user_id', '=', userId]])
 	);
@@ -105,11 +149,12 @@ export async function deductUserLogs(
 export async function createTransaction(
 	client: HttpClient,
 	userId: string,
-	stripePaymentIntent: string,
+	stripePaymentIntent: string | null,
 	transactionType: TransactionType,
 	numLogTokens: number,
 	totalMoneyAmount: number | null,
-	currency: string | null
+	currency: string | null,
+	eventId: string | null
 ): Promise<object> {
 	const output = await client.insert('transactions', {
 		user_id: userId,
@@ -118,6 +163,7 @@ export async function createTransaction(
 		num_log_tokens: numLogTokens,
 		total_money_amount: totalMoneyAmount,
 		currency: currency,
+		eventId: eventId,
 		created_at: new Date().toISOString()
 	});
 

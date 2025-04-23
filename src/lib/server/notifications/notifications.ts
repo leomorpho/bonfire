@@ -12,7 +12,7 @@ import {
 	getAttendeeUserIdsOfEvent,
 	triplitHttpClient
 } from '$lib/server/triplit';
-import { Notification } from '$lib/server/notifications/engine';
+import { Notification } from '$lib/server/notifications/notification_engine';
 
 export function createNotificationMessage(
 	notificationType: NotificationType,

@@ -35,7 +35,7 @@ import {
 import { getTaskLockState, updateTaskLockState } from '../tasks';
 
 export class Notification {
-	eventId: string;
+	eventId: string | null;
 	userId: string;
 	message: string;
 	objectType: NotificationType;
@@ -46,7 +46,7 @@ export class Notification {
 	isInAppOnly: boolean;
 
 	constructor(
-		eventId: string,
+		eventId: string | null,
 		userId: string,
 		message: string,
 		objectType: NotificationType,
@@ -74,7 +74,7 @@ export const runNotificationProcessor = async () => {
 	try {
 		const locked = await getTaskLockState(taskName);
 		if (locked) {
-			console.debug('Task is already running. Skipping execution.');
+			console.debug('Task runNotificationProcessor is already running. Skipping execution.');
 			return;
 		} else {
 			console.debug('Start notification processing task.');

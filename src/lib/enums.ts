@@ -60,7 +60,8 @@ export enum Status {
 
 export enum TaskName {
 	PROCESS_NOTIFICATION_QUEUE = 'process_notification_queue',
-	SEND_REMINDER_NOTIFICATIONS = 'send_reminder_notifications'
+	SEND_REMINDER_NOTIFICATIONS = 'send_reminder_notifications',
+	FREE_LOGS_REWARDS = 'free_logs_rewards'
 }
 
 export enum EventFormType {
@@ -122,8 +123,10 @@ export const UploadFileTypes = {
 
 export const TransactionType = {
 	PURCHASE: 'purchase',
+	AWARD: 'award',
 	REFUND: 'refund',
-	BONFIRE_HOSTED: 'bonfire_hosted'
+	BONFIRE_HOSTED: 'bonfire_hosted',
+	DONATION: 'donation'
 };
 export type TransactionType = (typeof TransactionType)[keyof typeof TransactionType];
 

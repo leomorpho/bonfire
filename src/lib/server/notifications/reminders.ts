@@ -1,6 +1,6 @@
 import { NotificationPermissions, NotificationType, Status, TaskName } from '$lib/enums';
 import type { PushNotificationPayload } from '$lib/types';
-import { Notification, bulkNotifyUsers, bulkPersistNotifications } from './engine';
+import { Notification, bulkNotifyUsers, bulkPersistNotifications } from './notification_engine';
 import { getAttendeeUserIdsOfEvent, triplitHttpClient } from '../triplit';
 import { and } from '@triplit/client';
 import { getTaskLockState, updateTaskLockState } from '../tasks';
@@ -11,7 +11,7 @@ export const runReminderNotificationTask = async () => {
 	try {
 		const locked = await getTaskLockState(taskName);
 		if (locked) {
-			console.debug('Task is already running. Skipping execution.');
+			console.debug('Task runReminderNotificationTask is already running. Skipping execution.');
 			return;
 		} else {
 			console.debug('Start reminder notification task.');
