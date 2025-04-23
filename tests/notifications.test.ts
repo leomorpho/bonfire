@@ -1,4 +1,4 @@
-import { Status } from '$lib/enums';
+import { Status, TransactionType } from '$lib/enums';
 import { createNewAnnouncementNotificationQueueObject } from '../src/lib/notification_queue';
 import { createNewUser } from '$lib/server/database/user.model';
 import { runNotificationProcessor } from '$lib/server/notifications/notification_engine';
@@ -84,6 +84,17 @@ export async function createNewAttendance(eventId: string, userId: string, statu
 		status: status
 	};
 	const result = await triplitHttpClient.insert('attendees', attendance);
+	return result;
+}
+
+export async function createNewTransaction(eventId: string, userId: string, type: TransactionType) {
+	const transaction = {
+		event_id: eventId,
+		user_id: userId,
+		transaction_type: type,
+		num_log_tokens: 1
+	};
+	const result = await triplitHttpClient.insert('transactions', transaction);
 	return result;
 }
 

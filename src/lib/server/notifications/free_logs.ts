@@ -12,7 +12,9 @@ export const runGiveFreeLogToInitialInviterTask = async (numHoursAgo: number) =>
 	try {
 		const locked = await getTaskLockState(taskName);
 		if (locked) {
-			console.debug('Task runGiveFreeLogToInitialInviterTask is already running. Skipping execution.');
+			console.debug(
+				'Task runGiveFreeLogToInitialInviterTask is already running. Skipping execution.'
+			);
 			return;
 		} else {
 			console.debug('Start reminder notification task.');
@@ -90,36 +92,41 @@ export const getUsersWhoGetFreeLogs = async (
 	// Filter events that do not have a free_logs_award object
 	const eventsWithoutAward = events.filter((event) => !event.free_logs_award);
 
-	// Extract user IDs from the filtered events
-	const creatorIdsOfEventsWithoutAward = eventsWithoutAward.map((event) => event.user_id);
-
 	const eventIds: string[] = [];
 
 	// userIdToEarliestAttendedEventMap maps an event creator ID to the first event they ever attended
 	const userIdToEarliestAttendedEventMap: Map<string, string> = new Map();
 
-	for (const creatorId of creatorIdsOfEventsWithoutAward) {
+	for (const event of eventsWithoutAward) {
 		// For each user_id, find their earliest attendance
 		const attendances = await triplitHttpClient.fetch(
 			triplitHttpClient
 				.query('attendees')
 				.Where(
 					and([
-						['user_id', '=', creatorId],
+						['user_id', '=', event.user_id],
 						['event.is_published', '=', true]
 					])
 				)
-				.Order('updated_at', 'DESC')
+				.Order('updated_at', 'ASC')
 				.Limit(1)
 				.Select(['event_id'])
 		);
 
 		if (attendances.length > 0) {
-			const earliestAttendedEventId = attendances[0].event_id;
+			const earliestAttendance = attendances[0];
+
+			// Ignore any user who attended one of their event first.
+			if (earliestAttendance.event_id == event.id) {
+				continue;
+			}
+			const earliestAttendedEventId = earliestAttendance.event_id;
 			eventIds.push(earliestAttendedEventId);
-			userIdToEarliestAttendedEventMap.set(creatorId, earliestAttendedEventId);
+			userIdToEarliestAttendedEventMap.set(event.user_id, earliestAttendedEventId);
 		}
 	}
+
+	console.log('userIdToEarliestAttendedEventMap', userIdToEarliestAttendedEventMap);
 
 	// Fetch the creators of the earliest attended events in a single query
 	const earliestEventCreators: { [key: string]: string }[] = await triplitHttpClient.fetch(
