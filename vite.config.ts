@@ -1,6 +1,7 @@
 import { sentrySvelteKit } from '@sentry/sveltekit';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vitest/config';
+import path from 'path';
 
 export default defineConfig({
 	plugins: [
@@ -12,12 +13,17 @@ export default defineConfig({
 		}),
 		sveltekit()
 	],
+	resolve: {
+		alias: {
+			$lib: path.resolve(__dirname, 'src/lib')
+		}
+	},
 	server: {
 		fs: {
 			allow: ['./triplit']
 		}
 	},
 	test: {
-		include: ['src/**/*.{test,spec}.{js,ts}', 'tests/**/*.test.ts']
+		include: ['src/**/*.{test,spec}.{js,ts}', 'tests/**/*.{test,spec}.{js,ts}']
 	}
 });

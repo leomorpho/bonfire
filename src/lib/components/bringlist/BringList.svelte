@@ -186,7 +186,7 @@
 <Tabs.Root value="all-bring-list-items" class="mt-2 w-full">
 	<div class="flex w-full justify-center">
 		<Tabs.List>
-			<Tabs.Trigger value="all-bring-list-items">All</Tabs.Trigger>
+			<Tabs.Trigger value="all-bring-list-items">Items</Tabs.Trigger>
 			<Tabs.Trigger value="your-bring-list-items">Yours</Tabs.Trigger>
 			<Tabs.Trigger value="all-sorted-by-attendee-bring-list-items">Everyone's</Tabs.Trigger>
 			{#if isCurrenUserEventAdmin}{/if}

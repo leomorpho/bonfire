@@ -12,14 +12,15 @@ import { NotificationType } from '../src/lib/enums';
 import { getAttendeeUserIdsOfEvent } from '$lib/server/triplit';
 import { getEffectivePermissionSettingForEvent } from '$lib/permissions';
 
-async function createNewTestUser(
+export async function createNewTestUser(
 	email: string | null = null,
 	emailVerified: boolean | null = null,
 	numLogs: number | null = null,
-	username: string | null = null
+	username: string | null = null,
+	id: string | null = null
 ) {
 	const user = {
-		id: generateId(15),
+		id: id ?? generateId(15),
 		email: email ?? faker.internet.email(),
 		email_verified: emailVerified ?? faker.datatype.boolean(),
 		num_logs: numLogs ?? faker.number.int({ min: 0, max: 100 }),
@@ -36,16 +37,23 @@ async function createNewTestUser(
 	return user;
 }
 
-async function createNewEvent(userId: string) {
+export async function createNewEvent(
+	userId: string,
+	isPublished = true,
+	startTime = faker.date.future(),
+	id: string | null = null
+) {
 	const event = {
+		id: id ?? generateId(15),
 		title: faker.lorem.words(3),
 		description: faker.lorem.sentence(),
 		location: faker.location.streetAddress(),
-		start_time: faker.date.future(),
+		start_time: startTime,
 		end_time: faker.date.future(),
 		user_id: userId,
 		style: '',
 		overlay_color: null,
+		is_published: isPublished,
 		overlay_opacity: faker.number.float({ min: 0, max: 1 })
 	};
 
@@ -53,7 +61,7 @@ async function createNewEvent(userId: string) {
 	return result;
 }
 
-async function createNewAnnouncement(
+export async function createNewAnnouncement(
 	content: string | null = null,
 	eventId: string,
 	userId: string
@@ -68,7 +76,7 @@ async function createNewAnnouncement(
 	return result;
 }
 
-async function createNewAttendance(eventId: string, userId: string, status: Status) {
+export async function createNewAttendance(eventId: string, userId: string, status: Status) {
 	const attendance = {
 		id: createAttendeeId(eventId, userId),
 		event_id: eventId,
@@ -79,7 +87,7 @@ async function createNewAttendance(eventId: string, userId: string, status: Stat
 	return result;
 }
 
-async function markAllNotificationsAsSeen() {
+export async function markAllNotificationsAsSeen() {
 	const notifications = await triplitHttpClient.fetch(triplitHttpClient.query('notifications'));
 
 	for (const notification of notifications) {
