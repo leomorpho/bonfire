@@ -42,10 +42,11 @@ COPY --from=build /app/drizzle ./drizzle
 RUN npm install -g @triplit/cli 
 
 # Install PM2 globally
-RUN npm install -g pm2
+# RUN npm install -g pm2
 
 # Expose the app port
 EXPOSE 3000
 
 # Run the SvelteKit app using PM2
-CMD ["pm2-runtime", "start", "build/index.js", "--name", "bonfire-app", "--instances", "max"]
+# CMD ["pm2-runtime", "start", "build/index.js", "--name", "bonfire-app", "--instances", "max"]
+CMD ["node", "build"]
