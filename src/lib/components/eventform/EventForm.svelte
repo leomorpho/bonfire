@@ -54,6 +54,7 @@
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import EventReminders from './reminders/EventReminders.svelte';
 	import RequiredBringItemForAttendance from './RequiredBringItemForAttendance.svelte';
+	import BetaDevAlert from '../BetaDevAlert.svelte';
 
 	let { mode, event = null, currUserId = null } = $props();
 
@@ -497,12 +498,14 @@
 
 <div class="mx-4 flex flex-col items-center justify-center">
 	<section class="mt-8 w-full px-3 sm:w-[450px] sm:px-0 lg:w-[600px]">
+
 		<Tabs.Root value="info" class="w-full">
 			<div class="sticky top-2 z-50 mt-7 flex w-full justify-center">
 				<div
 					class="mb-2 flex w-full items-center justify-between rounded-xl bg-white p-2 text-lg font-semibold dark:bg-slate-900"
 				>
 					<BackButton url={eventId ? `/bonfire/${eventId}` : '/dashboard'} />
+					
 					<Tabs.List class="w-min animate-in fade-in zoom-in dark:bg-slate-700 dark:text-white">
 						<Tabs.Trigger
 							id="event-info-tab"
@@ -532,6 +535,7 @@
 					<div></div>
 				</div>
 			</div>
+			<BetaDevAlert />
 
 			<Tabs.Content value="info">
 				<h1

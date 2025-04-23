@@ -11,6 +11,7 @@
 	import SelectNonProfitAlert from '$lib/components/payments/SelectNonProfitAlert.svelte';
 	import NonProfitCard from '$lib/components/nonprofits/NonProfitCard.svelte';
 	import SvgLoader from '$lib/components/SvgLoader.svelte';
+	import BetaDevAlert from '$lib/components/BetaDevAlert.svelte';
 
 	let numLogs = $state();
 	let loadingNumLogs = $state(true);
@@ -72,6 +73,7 @@
 		<h2>Buy more logs</h2>
 		<span></span>
 	</div>
+	<BetaDevAlert localstorageKey={'dismissed-beta-dev-alert-buy-logs'}/>
 
 	<div class="my-2 mt-5 whitespace-normal break-words text-center">
 		You have
