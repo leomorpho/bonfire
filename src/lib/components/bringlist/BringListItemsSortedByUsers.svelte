@@ -60,7 +60,7 @@
 			</button>
 		{/each}
 	</div>
-	<div class="mx-5 flex flex-wrap -space-x-2 text-black">
+	<div class="mx-5 flex flex-wrap -space-x-1 text-black">
 		{#each Object.keys(userItemsMap) as userId (`user-${userId}`)}
 			<button
 				animate:flip
@@ -72,7 +72,7 @@
 					isSelectedUserTemp = false;
 				}}
 			>
-				<ProfileAvatar {userId} baseHeightPx={40} onlyShowPhoto={true} />
+				<ProfileAvatar {userId} baseHeightPx={50} onlyShowPhoto={true} />
 			</button>
 		{/each}
 	</div>

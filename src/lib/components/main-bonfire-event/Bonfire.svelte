@@ -564,7 +564,7 @@
 									value="about"
 									class="focus:outline-none focus-visible:ring-0 data-[state=active]:bg-emerald-500 data-[state=active]:text-white dark:data-[state=active]:bg-emerald-600"
 								>
-									<Info class="h-5 w-5" />
+									<Info class="h-6 w-6" />
 								</Tabs.Trigger>
 								<Tabs.Trigger
 									id="discussions-tab"
@@ -575,7 +575,7 @@
 									}}
 								>
 									<NumNewMessageIndicator>
-										<MessageCircle class="h-5 w-5" />
+										<MessageCircle class="h-6 w-6" />
 									</NumNewMessageIndicator>
 								</Tabs.Trigger>
 								<Tabs.Trigger
@@ -584,7 +584,7 @@
 									class="focus:outline-none focus-visible:ring-0 data-[state=active]:bg-blue-500 data-[state=active]:text-white dark:data-[state=active]:bg-blue-600"
 								>
 									<div class="flex items-center justify-center">
-										<SlidersHorizontal class="h-5 w-5" />
+										<SlidersHorizontal class="h-6 w-6" />
 									</div>
 								</Tabs.Trigger>
 								{#if isCurrenUserEventAdmin}
@@ -594,7 +594,7 @@
 										class="focus:outline-none focus-visible:ring-0 data-[state=active]:bg-purple-500 data-[state=active]:text-white dark:data-[state=active]:bg-purple-600"
 									>
 										<div class="flex items-center justify-center">
-											<History class="h-5 w-5" />
+											<History class="h-6 w-6" />
 										</div>
 									</Tabs.Trigger>
 								{/if}

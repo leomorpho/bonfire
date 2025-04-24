@@ -5,7 +5,6 @@
 	function handleClick() {
 		isClicked = true;
 	}
-	$inspect(isClicked);
 </script>
 
 <button class="flex items-center justify-between" onclick={handleClick}>

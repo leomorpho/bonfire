@@ -511,25 +511,25 @@
 							id="event-info-tab"
 							value="info"
 							class="focus:outline-none focus-visible:ring-0 data-[state=active]:bg-cyan-500 data-[state=active]:text-white dark:data-[state=active]:bg-cyan-600"
-							><Info class="h-4 w-4 sm:h-5 sm:w-5" /></Tabs.Trigger
+							><Info class="h-5 w-5 sm:h-6 sm:w-6" /></Tabs.Trigger
 						>
 						<Tabs.Trigger
 							id="event-styles-tab"
 							value="styles"
 							class="focus:outline-none focus-visible:ring-0 data-[state=active]:bg-cyan-500 data-[state=active]:text-white dark:data-[state=active]:bg-cyan-600"
-							><Palette class="h-4 w-4 sm:h-5 sm:w-5" /></Tabs.Trigger
+							><Palette class="h-5 w-5 sm:h-6 sm:w-6" /></Tabs.Trigger
 						>
 						<Tabs.Trigger
 							id="event-admins-tab"
 							value="admins"
 							class="focus:outline-none focus-visible:ring-0 data-[state=active]:bg-cyan-500 data-[state=active]:text-white dark:data-[state=active]:bg-cyan-600"
-							><Shield class="h-4 w-4 sm:h-5 sm:w-5" /></Tabs.Trigger
+							><Shield class="h-5 w-5 sm:h-6 sm:w-6" /></Tabs.Trigger
 						>
 						<Tabs.Trigger
 							id="event-reminders-tab"
 							value="reminders"
 							class="focus:outline-none focus-visible:ring-0 data-[state=active]:bg-cyan-500 data-[state=active]:text-white dark:data-[state=active]:bg-cyan-600"
-							><BellRing class="h-4 w-4 sm:h-5 sm:w-5" /></Tabs.Trigger
+							><BellRing class="h-5 w-5 sm:h-6 sm:w-6" /></Tabs.Trigger
 						>
 					</Tabs.List>
 					<div></div>

@@ -1,15 +1,15 @@
 <script lang="ts">
-	import GeneratedAvatar from "$lib/components/GeneratedAvatar.svelte";
+	import GeneratedAvatar from '$lib/components/GeneratedAvatar.svelte';
 	import * as Avatar from '$lib/components/ui/avatar/index.js';
 
-    let {
-        username,
-        fallbackNameShort,
-        isTempUser=false,
-        fullsizeUrl=null,
-        url=null,
-        baseHeightPx = 50,
-		numGuests = 0,
+	let {
+		username,
+		fallbackNameShort,
+		isTempUser = false,
+		fullsizeUrl = null,
+		url = null,
+		baseHeightPx = 50,
+		numGuests = 0
 	} = $props();
 </script>
 
@@ -20,7 +20,6 @@
 		+{num}
 	</div>
 {/snippet}
-
 
 {#if fullsizeUrl || url}
 	<div class="relative">
