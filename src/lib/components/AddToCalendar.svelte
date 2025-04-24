@@ -3,9 +3,7 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { CalendarPlus } from 'lucide-svelte';
 
-	let { title, start, end = '', description = '', location = '' } = $props();
-
-	console.log('yoooooo', title, start, end, description, location);
+	let { title, start, end = null, description = '', location = '' } = $props();
 
 	// Ensure start and end are Date objects
 	start = start instanceof Date ? start : new Date(start);
@@ -15,6 +13,14 @@
 	const formatDate = (date: Date) => {
 		return date.toISOString().replace(/[-:.]/g, '').slice(0, -4);
 	};
+	// Helper function to convert HTML to plain text
+	const htmlToPlainText = (html: string) => {
+		const tempDiv = document.createElement('div');
+		tempDiv.innerHTML = html;
+		return tempDiv.textContent || tempDiv.innerText || '';
+	};
+
+	const plainTextDescription = htmlToPlainText(description);
 
 	// Google Calendar link
 	const getGoogleCalendarLink = (e: Event) => {
@@ -27,7 +33,7 @@
 		const params = new URLSearchParams({
 			text: title,
 			dates: `${startDate}/${endDate}`,
-			details: description,
+			details: plainTextDescription,
 			location: location
 		});
 		return `${baseUrl}&${params.toString()}`;
@@ -46,7 +52,7 @@
 			startdt: startDate,
 			enddt: endDate,
 			subject: title,
-			body: description,
+			body: plainTextDescription,
 			location: location
 		});
 		return `${baseUrl}?${params.toString()}`;
@@ -63,7 +69,7 @@
 VERSION:2.0
 BEGIN:VEVENT
 SUMMARY:${title}
-DESCRIPTION:${description}
+DESCRIPTION:${plainTextDescription}
 LOCATION:${location}
 DTSTART:${startDate}Z
 DTEND:${endDate}Z
