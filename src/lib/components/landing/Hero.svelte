@@ -1,7 +1,6 @@
 <script>
 	import Container from '../Container.svelte';
 	import AnimatedShinyText from '../effects/animated-shiny-text/AnimatedShinyText.svelte';
-	import Button from '../ui/button/button.svelte';
 	import OrbitingCirclesBanner from './OrbitingCirclesBanner.svelte';
 </script>
 

@@ -23,7 +23,8 @@
 		"migrate:prod": "tsx ./migrate.ts --prod",
 		"seed": "vite-node --options.transformMode.ssr='/.*/' src/scripts/seed.ts",
 		"triplit": "npx @triplit/cli@1.0.31 dev",
-		"schema": "npx @triplit/cli@1.0.31 schema push"
+		"schema": "npx @triplit/cli@1.0.31 schema push",
+		"machine-translate": "inlang machine translate --project project.inlang"
 	},
 	"devDependencies": {
 		"@faker-js/faker": "^9.7.0",
@@ -82,7 +83,9 @@
 		"vite": "^6.3.2",
 		"vite-node": "^3.1.1",
 		"vitest": "^3.1.2",
-		"zod": "^3.24.3"
+		"zod": "^3.24.3",
+		"@inlang/paraglide-js": "2.0.12",
+		"@inlang/cli": "^3.0.0"
 	},
 	"type": "module",
 	"dependencies": {
