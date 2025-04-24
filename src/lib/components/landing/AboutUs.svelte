@@ -2,6 +2,7 @@
 	import AuroraText from '../AuroraText.svelte';
 	import Container from '../Container.svelte';
 	import { Image } from '@unpic/svelte';
+	import { env as publicEnv } from '$env/dynamic/public';
 
 	let { class: cls = null } = $props();
 </script>
@@ -36,6 +37,9 @@
 						event experiences and support my family. Your feedback, sharing, and donations make a
 						real difference, helping sustain and grow Bonfire. If you believe in our mission, please
 						consider supporting us. Every contribution is deeply appreciated.
+					</p>
+					<p>
+						If you have any feedback, please feel free to reach out to us at {publicEnv.PUBLIC_FROM_EMAIL}
 					</p>
 				</div>
 			</div>

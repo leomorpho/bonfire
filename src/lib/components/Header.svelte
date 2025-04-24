@@ -13,6 +13,7 @@
 	import { tick } from 'svelte';
 	import TopBanner from './marketing/TopBanner.svelte';
 	import PageNavigationLoader from './PageNavigationLoader.svelte';
+	import { MessagesSquare } from '@lucide/svelte';
 
 	let isAdmin = false;
 
@@ -39,6 +40,7 @@
 		{ icon: House, name: 'Dashboard', href: '/dashboard' },
 		{ icon: CircleUser, name: 'Profile', href: '/profile' },
 		{ icon: Cog, name: 'Settings', href: '/settings' },
+		{ icon: MessagesSquare, name: 'Feedback', href: '/feedback' },
 		...(isAdmin ? [{ icon: Shield, name: 'Admin Panel', href: '/admin' }] : [])
 	];
 
@@ -145,9 +147,9 @@
 						<li class="flex items-center">
 							<a href={link.href}>
 								{#if link.icon}
-									<link.icon class="h-5 w-5" />
+									<link.icon class="h-5 w-5 sm:h-6 sm:w-6" />
 								{/if}
-								{link.name}
+								<!-- {link.name} -->
 							</a>
 						</li>
 					{/each}
