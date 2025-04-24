@@ -7,7 +7,6 @@ import { dev } from '$app/environment';
 import { env as publicEnv } from '$env/dynamic/public';
 import type { ServerInit } from '@sveltejs/kit';
 import { tusHandler } from '$lib/server/tus';
-import { paraglideMiddleware } from './paraglide/server';
 // import { initializeDatabaseSchemas } from '$lib/server/migrations';
 
 export const init: ServerInit = async () => {
@@ -70,23 +69,11 @@ const authHandler: Handle = async ({ event, resolve }) => {
 	}
 };
 
-// creating a handle to use the paraglide middleware
-const paraglideHandle: Handle = ({ event, resolve }) =>
-	paraglideMiddleware(event.request, ({ request: localizedRequest, locale }) => {
-		event.request = localizedRequest;
-		return resolve(event, {
-			transformPageChunk: ({ html }) => {
-				return html.replace('%lang%', locale);
-			}
-		});
-	});
-
 // 🔹 Compose all handlers using `sequence`
 export const handle: Handle = sequence(
 	Sentry.sentryHandle(),
 	authHandler, // ✅ Ensure authentication & session management
-	tusHandler, // ✅ Handle TUS uploads before SvelteKit
-	paraglideHandle
+	tusHandler // ✅ Handle TUS uploads before SvelteKit
 );
 
 // Start the scheduler when the server starts
