@@ -18,7 +18,7 @@
 	<Image
 		background={placeholder}
 		width={BannerMediaSize.LARGE_WIDTH}
-		class="hidden rounded-lg sm:block"
+		class="hidden rounded-xl sm:block"
 		src={bannerLargeSizeUrl}
 		layout="constrained"
 		aspectRatio={2 / 1}
@@ -27,7 +27,7 @@
 	<Image
 		background={placeholder}
 		width={BannerMediaSize.SMALL_WIDTH}
-		class="block rounded-lg sm:hidden"
+		class="block rounded-xl sm:hidden"
 		src={bannerSmallSizeUrl}
 		layout="constrained"
 		aspectRatio={2 / 1}
