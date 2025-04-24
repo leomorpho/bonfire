@@ -1,4 +1,1 @@
-{
-  "$schema": "https://inlang.com/schema/inlang-message-format",
-  "example_message": "Hello world {username}"
-}
+{"$schema":"https://inlang.com/schema/inlang-message-format","example_message":"Hello world {username}","deft_grand_ant_compose":"Start a Bonfire","start_a_bonfire_btn":"Start a Bonfire"}

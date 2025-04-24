@@ -1,4 +1,5 @@
 <script>
+	import { m } from '$lib/paraglide/messages';
 	import Container from '../Container.svelte';
 	import AnimatedShinyText from '../effects/animated-shiny-text/AnimatedShinyText.svelte';
 	import OrbitingCirclesBanner from './OrbitingCirclesBanner.svelte';
@@ -14,7 +15,7 @@
 				<AnimatedShinyText
 					cls="inline-flex items-center justify-center px-2 sm:px-4 sm:py-1 transition text-sm  sm:text-base ease-out hover:text-neutral-600 hover:duration-300 hover:dark:text-neutral-400"
 				>
-					<span>Start a Bonfire</span>
+					<span>{m.start_a_bonfire_btn()}</span>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						width="24"

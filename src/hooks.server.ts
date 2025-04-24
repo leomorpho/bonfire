@@ -7,7 +7,7 @@ import { dev } from '$app/environment';
 import { env as publicEnv } from '$env/dynamic/public';
 import type { ServerInit } from '@sveltejs/kit';
 import { tusHandler } from '$lib/server/tus';
-import { paraglideMiddleware } from './paraglide/server';
+import { paraglideMiddleware } from './lib/paraglide/server';
 // import { initializeDatabaseSchemas } from '$lib/server/migrations';
 
 export const init: ServerInit = async () => {
