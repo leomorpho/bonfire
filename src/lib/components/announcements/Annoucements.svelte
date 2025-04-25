@@ -49,7 +49,6 @@
 						.query('attendees')
 						.Where(['user_id', '=', userId], ['event_id', '=', eventId])
 						.Select(['id'])
-						
 				);
 
 				// console.log('---- user_id', userId);
@@ -121,8 +120,9 @@
 				/>
 			{/each}
 			{#if totalCount > maxCount}
-				<Button class="mt-3 w-full ring-glow dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-white" onclick={getAllAnnouncements}
-					>See {totalCount - maxCount} more annoucements</Button
+				<Button
+					class="mt-3 w-full ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
+					onclick={getAllAnnouncements}>See {totalCount - maxCount} more annoucements</Button
 				>
 				<Dialog.Root bind:open={isDialogOpen}>
 					<Dialog.Content class="h-full sm:h-[90vh]">
@@ -150,7 +150,9 @@
 				</Dialog.Root>
 			{/if}
 		{:else}
-			<BonfireNoInfoCard text={'No announcements yet'} />
+			<BonfireNoInfoCard
+				text={'No announcements yet. These allow event organizers to let attendees know of important updates. Turn on your notifications to receive them.'}
+			/>
 		{/if}
 	</div>
 {/if}

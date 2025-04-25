@@ -10,7 +10,7 @@
 	import { ChevronDown } from 'lucide-svelte';
 	import SvgLoader from '../SvgLoader.svelte';
 	import { and, TriplitClient } from '@triplit/client';
-	import { stringRepresentationToArray } from '$lib/utils';
+	import { scrollElementIntoView, stringRepresentationToArray } from '$lib/utils';
 	import { NotificationType } from '$lib/enums';
 	import { loaderState } from './infiniteLoader/loaderState.svelte';
 	import InfiniteLoader from './infiniteLoader/InfiniteLoader.svelte';
@@ -23,7 +23,8 @@
 		canSendIm = true,
 		maxNumMessages = null,
 		datetimeUserJoinedBonfire = null,
-		isCurrenUserEventAdmin = false
+		isCurrenUserEventAdmin = false,
+		onFocused = null
 	} = $props();
 
 	let chatContainerRef: HTMLDivElement | null = null;
@@ -364,9 +365,13 @@
 			scrollToBottom();
 		}
 	};
+
+	const focusMessenger = () => {
+		scrollElementIntoView('messenger');
+	};
 </script>
 
-<div id="messenger" class="relative flex h-full w-full flex-col">
+<button id="messenger" class="relative flex h-full w-full flex-col" onclick={focusMessenger}>
 	<div
 		id="scroller"
 		bind:this={chatContainerRef}
@@ -438,7 +443,7 @@
 	</div>
 
 	<ImInput {handleSendMessage} {canSendIm} />
-</div>
+</button>
 
 <style>
 	.container-scroll {

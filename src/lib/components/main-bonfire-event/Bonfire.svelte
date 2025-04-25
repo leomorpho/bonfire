@@ -47,6 +47,7 @@
 	import { CircleAlert, SlidersHorizontal } from '@lucide/svelte';
 	import EventSettings from '../settings/event-settings/EventSettings.svelte';
 	import PermissionsPausedMsg from '../settings/PermissionsPausedMsg.svelte';
+	import { scrollElementIntoView } from '$lib/utils';
 	// import EventStylerBottomSheet from '../event-styles/EventStylerBottomSheet.svelte';
 
 	let {
@@ -481,7 +482,7 @@
 		// Prepare shareable data
 		const shareData = {
 			title: `Hey! You're invited to ${eventTitle}!`, // Use the event title
-			text: `Please RSVP via the link—if we don’t hear from you, we’ll assume you can't make it.`,
+			text: `Hey! You're invited to ${eventTitle}! Please RSVP via the link—if we don’t hear from you, we’ll assume you can't make it.`,
 			url: `${publicEnv.PUBLIC_ORIGIN}/bonfire/${eventId}` // Use the event's unique ID in the URL
 		};
 
@@ -507,18 +508,6 @@
 				console.error('Error sharing content:', error);
 			});
 	};
-
-	function scrollElementIntoView(elementId: string) {
-		const element = document.getElementById(elementId);
-		if (element) {
-			element.scrollIntoView({
-				behavior: 'smooth',
-				block: 'nearest' // Use 'start' to align top, 'end' to align bottom, or 'nearest' for the closest edge
-			});
-		} else {
-			console.error('Element not found:', elementId);
-		}
-	}
 
 	let activeTab = $state('about');
 
@@ -556,9 +545,9 @@
 				class="mt-4 flex w-full justify-center sm:w-[450px] md:w-[550px] lg:w-[800px] xl:w-[950px]"
 			>
 				<Tabs.Root value={activeTab} class="w-full">
-					<div class="flex w-full justify-center">
+					<div class="sticky top-3 z-[52] flex w-full justify-center">
 						<Tabs.List class="mb-1 w-full bg-transparent animate-in fade-in zoom-in">
-							<div class="rounded-lg bg-slate-200 p-2 dark:bg-slate-700">
+							<div class="rounded-lg bg-white p-2 shadow-2xl dark:bg-black">
 								<Tabs.Trigger
 									id="about-tab"
 									value="about"

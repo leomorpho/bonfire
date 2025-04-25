@@ -154,7 +154,7 @@
 
 <Dialog.Root bind:open={showAlert}>
 	<Dialog.Content
-		class="w-full rounded-3xl border-0 animate-in fade-in zoom-in sm:max-w-[400px] {showContextMenu
+		class="w-full rounded-3xl border-0 animate-in fade-in zoom-in sm:max-w-[400px] z-[60] {showContextMenu
 			? 'pointer-events-none'
 			: 'pointer-events-auto'}"
 		interactOutsideBehavior="close"

@@ -356,3 +356,18 @@ export async function createHash(input: string, minLength: number = 25) {
 
 	return hashHex.substring(0, minLength);
 }
+
+export function scrollElementIntoView(elementId: string) {
+	if (typeof window === 'undefined') {
+		return;
+	}
+	const element = document.getElementById(elementId);
+	if (element) {
+		element.scrollIntoView({
+			behavior: 'smooth',
+			block: 'end' // Use 'start' to align top, 'end' to align bottom, or 'nearest' for the closest edge
+		});
+	} else {
+		console.error('Element not found:', elementId);
+	}
+}

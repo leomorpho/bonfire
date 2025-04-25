@@ -9,6 +9,7 @@
 	import { getFeHttpTriplitClient, getFeWorkerTriplitClient } from '$lib/triplit';
 	import type { HttpClient, TriplitClient } from '@triplit/client';
 	import type { WorkerClient } from '@triplit/client/worker-client';
+	import KeyBoardShortcut from '$lib/components/KeyBoardShortcut.svelte';
 
 	let jsConfetti: any;
 	let client: TriplitClient | HttpClient | WorkerClient;
@@ -72,6 +73,13 @@
   `;
 	const overlayStyle = 'background-color: rgba(var(--overlay-color-rgb, 0, 0, 0), 0.4);';
 </script>
+
+<KeyBoardShortcut
+	key="Enter"
+	callback={() => {
+		document.getElementById('agree-to-free-logs-btn')?.click();
+	}}
+/>
 
 <div class="bg-color min-h-screen w-full" style={styles}>
 	<div class="bg-overlay min-h-screen" style={overlayStyle}>

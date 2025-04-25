@@ -502,7 +502,7 @@
 		<Tabs.Root value="info" class="w-full">
 			<div class="sticky top-2 z-50 mt-7 flex w-full justify-center">
 				<div
-					class="mb-2 flex w-full items-center justify-between rounded-xl bg-white p-2 text-lg font-semibold dark:bg-slate-900"
+					class="mb-2 flex w-full items-center justify-between rounded-xl bg-white p-2 text-lg font-semibold dark:bg-slate-900 shadow-2xl"
 				>
 					<BackButton url={eventId ? `/bonfire/${eventId}` : '/dashboard'} />
 					

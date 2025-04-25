@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+	import KeyBoardShortcut from '$lib/components/KeyBoardShortcut.svelte';
 	import DeliveryPermissions from '$lib/components/settings/DeliveryPermissions.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { ArrowRight } from 'lucide-svelte';
@@ -16,6 +17,13 @@
 	const permissionClasses =
 		'p-3 sm:p-5 bg-slate-100/80 p-3 dark:bg-slate-800/80 rounded-xl space-y-5 w-full';
 </script>
+
+<KeyBoardShortcut
+	key="Enter"
+	callback={() => {
+		document.getElementById('finish-permission-onboarding-btn')?.click();
+	}}
+/>
 
 <div class="bg-color min-h-screen w-full" style={styles}>
 	<div class="bg-overlay min-h-screen" style={overlayStyle}>
