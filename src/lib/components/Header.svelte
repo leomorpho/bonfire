@@ -3,7 +3,7 @@
 	import Logo from './Logo.svelte';
 	import type { Link } from '$lib/types';
 	import Container from './Container.svelte';
-	import { Menu, Cog, CircleUser, House, Shield, KeyRound, ArrowBigRight } from 'lucide-svelte';
+	import { Menu, CircleUser, House, Shield, KeyRound } from 'lucide-svelte';
 	import { page } from '$app/stores';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
@@ -13,7 +13,7 @@
 	import { tick } from 'svelte';
 	import TopBanner from './marketing/TopBanner.svelte';
 	import PageNavigationLoader from './PageNavigationLoader.svelte';
-	import { MessagesSquare } from '@lucide/svelte';
+	import { MessagesSquare, Settings } from '@lucide/svelte';
 
 	let isAdmin = false;
 
@@ -39,7 +39,7 @@
 	const authLinks: Array<Link> = [
 		{ icon: House, name: 'Dashboard', href: '/dashboard', id: 'dashboard' },
 		{ icon: CircleUser, name: 'Profile', href: '/profile', id: 'profile' },
-		{ icon: Cog, name: 'Settings', href: '/settings', id: 'settings' },
+		{ icon: Settings, name: 'Settings', href: '/settings', id: 'settings' },
 		{ icon: MessagesSquare, name: 'Feedback', href: '/feedback', id: 'feedback' },
 		...(isAdmin ? [{ icon: Shield, name: 'Admin Panel', href: '/admin', id: 'admin-panel' }] : [])
 	];
@@ -110,9 +110,7 @@
 
 				{#each links as link}
 					<a href={link.href} id={`${link.id}-header-menu-item`}>
-						<DropdownMenu.Item
-							class="cursor-pointer p-2 px-4 text-xl sm:text-lg"
-						>
+						<DropdownMenu.Item class="cursor-pointer p-2 px-4 text-xl sm:text-lg">
 							{#if link.icon}
 								<link.icon class="mr-1 !h-6 !w-6 sm:!h-5 sm:!w-5" />
 							{/if}

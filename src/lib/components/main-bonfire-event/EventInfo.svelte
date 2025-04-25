@@ -8,8 +8,11 @@
 	import Map from '$lib/components/map/Map.svelte';
 	import DOMPurify from 'dompurify';
 	import EventDetails from './EventDetails.svelte';
+	import UpdateableEventField from './info/UpdateableEventField.svelte';
+	import { eventInputTypes } from '$lib/enums';
 
 	let {
+		eventId,
 		bannerInfo,
 		isCurrenUserEventAdmin,
 		eventOrganizerId,
@@ -42,17 +45,21 @@
 			>
 		</a>
 	{/if}
+
 	<div class="flex w-full justify-center">
-		<h1
-			class="rounded-xl bg-slate-100/70 p-3 px-5 text-center text-3xl font-bold dark:bg-slate-900/70 sm:px-10 sm:text-4xl lg:text-5xl"
-		>
-			{eventTitle}
-		</h1>
+		<UpdateableEventField
+			fieldValue={eventTitle}
+			placeholder={"Emily's birthday party!"}
+			fieldName="title"
+			{eventId}
+			isAdmin={isCurrenUserEventAdmin}
+			inputType={eventInputTypes.textarea}
+		/>
 	</div>
 
 	<div class="flex w-full text-base lg:space-x-3">
 		<div class="hidden w-full lg:block">
-			<EventDetails {eventDescription} />
+			{@render updateableDescription('lg')}
 		</div>
 		<div
 			class="h-fit w-full rounded-xl bg-slate-100/70 p-2 pt-5 text-center shadow-lg dark:bg-slate-900/70 lg:max-w-96"
@@ -115,6 +122,23 @@
 	</div>
 
 	<div class="block pt-2 lg:hidden">
-		<EventDetails {eventDescription} />
+		{@render updateableDescription('sm')}
 	</div>
 </div>
+
+{#snippet updateableDescription(id: string)}
+	<UpdateableEventField
+		fieldValue={eventDescription}
+		placeholder={"Emily's birthday party!"}
+		fieldName="description"
+		textClasses="prose prose-sm w-full overflow-hidden 
+             text-black ease-in-out sm:prose-base focus:outline-none prose-h1:text-black prose-h2:text-black 
+            prose-p:text-black prose-blockquote:text-black prose-strong:text-black 
+            dark:text-white dark:prose-h1:text-white dark:prose-h2:text-white dark:prose-p:text-white 
+            dark:prose-strong:text-white text-left"
+		{eventId}
+		isAdmin={isCurrenUserEventAdmin}
+		inputType={eventInputTypes.eventdetails}
+		{id}
+	/>
+{/snippet}

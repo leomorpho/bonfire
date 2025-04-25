@@ -169,6 +169,6 @@
 	<div
 		id="details-editor"
 		bind:this={element}
-		class={`mt-1 min-h-40 w-full rounded-lg border p-2 text-xs ${className}`}
+		class={className}
 	></div>
 </div>

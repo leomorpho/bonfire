@@ -307,3 +307,10 @@ export const notificationTypeMapping: NotificationTypeMapping = {
 export const maxSmsLenInChars = 100;
 export const defaultMaxEventCapacity = 15;
 export const defaultMaxNumGuestsPerAttendee = 5;
+
+export enum eventInputTypes {
+	textarea = 'textarea',
+	date = 'date',
+	eventdetails = 'eventdetails',
+	text = 'text'
+}

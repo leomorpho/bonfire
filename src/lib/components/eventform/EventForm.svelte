@@ -705,7 +705,7 @@
 					<TipTapTextEditor
 						bind:content={details}
 						oninput={debouncedUpdateEvent}
-						class="bg-white dark:bg-slate-900"
+						class="bg-white dark:bg-slate-900 mt-1 min-h-40 w-full rounded-lg border p-2 text-xs"
 					/>
 					<MaxCapacity oninput={debouncedUpdateEvent} bind:value={maxCapacity} />
 					<GuestCountFeature oninput={debouncedUpdateEvent} bind:value={maxNumGuest} />

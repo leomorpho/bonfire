@@ -116,7 +116,7 @@ test('Create bonfire', async ({ page }) => {
 	await page.locator('.event-card').first().click();
 
 	// Return to edit page
-	await page.locator('#edit-bonfire').getByRole('button').click();
+	await page.locator('#edit-bonfire').click();
 
 	await expect(page.getByRole('button', { name: 'Publish' })).toBeEnabled();
 	await page.waitForTimeout(100);
@@ -199,7 +199,7 @@ test('Create bonfire', async ({ page }) => {
 	await expect(page.getByLabel('Upload a new banner')).toBeVisible();
 
 	// Go to edit page and set background
-	await page.locator('#edit-bonfire').getByRole('button').click();
+	await page.locator('#edit-bonfire').click();
 	await page.locator('#event-styles-tab').click();
 
 	await page.getByRole('button', { name: 'Optical Illusion Pattern', exact: true }).click();
@@ -617,7 +617,7 @@ test('Event admins', async ({ browser }) => {
 	await adminPage.getByText("Let's go!", { exact: true }).click();
 
 	// Now event creator will add above attendee as an admin
-	await eventCreatorPage.locator('#edit-bonfire').getByRole('button').click();
+	await eventCreatorPage.locator('#edit-bonfire').click();
 	await eventCreatorPage.locator("#event-admins-tab").click();
 	
 	await eventCreatorPage.getByRole('button', { name: 'What can admins do? Toggle' }).click();
@@ -635,8 +635,8 @@ test('Event admins', async ({ browser }) => {
 	await adminPage.goto(eventUrl);
 
 	// Go to event settings
-	await expect(adminPage.locator('#edit-bonfire').getByRole('button')).toBeVisible();
-	await adminPage.locator('#edit-bonfire').getByRole('button').click();
+	await expect(adminPage.locator('#edit-bonfire')).toBeVisible();
+	await adminPage.locator('#edit-bonfire').click();
 	// Update name
 	const newEventName = eventName + ' new!';
 	await adminPage.getByPlaceholder('Event Name').click();

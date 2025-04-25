@@ -604,6 +604,7 @@
 							<!-- <PermissionsPausedMsg userId={currUserId} /> -->
 
 							<EventInfo
+								{eventId}
 								{bannerInfo}
 								{isCurrenUserEventAdmin}
 								{eventOrganizerId}
