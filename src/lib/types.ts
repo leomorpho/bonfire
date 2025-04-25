@@ -6,6 +6,7 @@ export type Link = {
 	icon: typeof SvelteComponent;
 	name: string;
 	href: string;
+	id: string;
 };
 
 export type Faq = {

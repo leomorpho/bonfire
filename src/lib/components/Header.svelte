@@ -37,11 +37,11 @@
 	}
 
 	const authLinks: Array<Link> = [
-		{ icon: House, name: 'Dashboard', href: '/dashboard' },
-		{ icon: CircleUser, name: 'Profile', href: '/profile' },
-		{ icon: Cog, name: 'Settings', href: '/settings' },
-		{ icon: MessagesSquare, name: 'Feedback', href: '/feedback' },
-		...(isAdmin ? [{ icon: Shield, name: 'Admin Panel', href: '/admin' }] : [])
+		{ icon: House, name: 'Dashboard', href: '/dashboard', id: 'dashboard' },
+		{ icon: CircleUser, name: 'Profile', href: '/profile', id: 'profile' },
+		{ icon: Cog, name: 'Settings', href: '/settings', id: 'settings' },
+		{ icon: MessagesSquare, name: 'Feedback', href: '/feedback', id: 'feedback' },
+		...(isAdmin ? [{ icon: Shield, name: 'Admin Panel', href: '/admin', id: 'admin-panel' }] : [])
 	];
 
 	const unauthLinks: Array<Link> = [
@@ -109,8 +109,10 @@
 				<!-- <DropdownMenu.Separator /> -->
 
 				{#each links as link}
-					<a href={link.href}>
-						<DropdownMenu.Item class="cursor-pointer p-2 px-4 text-xl sm:text-lg">
+					<a href={link.href} id={`${link.id}-header-menu-item`}>
+						<DropdownMenu.Item
+							class="cursor-pointer p-2 px-4 text-xl sm:text-lg"
+						>
 							{#if link.icon}
 								<link.icon class="mr-1 !h-6 !w-6 sm:!h-5 sm:!w-5" />
 							{/if}
@@ -145,7 +147,7 @@
 				<ul class="menu menu-horizontal px-1">
 					{#each links as link}
 						<li class="flex items-center">
-							<a href={link.href}>
+							<a href={link.href} id={`${link.id}-header-menu-item`}>
 								{#if link.icon}
 									<link.icon class="h-5 w-5 sm:h-6 sm:w-6" />
 								{/if}

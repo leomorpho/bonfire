@@ -48,9 +48,11 @@ export async function loginUser(
 	await page.locator('#finish-permission-onboarding-btn').click();
 
 	await page.getByRole('tab', { name: 'Upcoming' }).click();
-	await expect(page.getByRole('link', { name: 'Dashboard' })).toBeVisible();
-	await expect(page.getByRole('link', { name: 'Profile' })).toBeVisible();
-	await expect(page.getByRole('link', { name: 'Settings' })).toBeVisible();
+	await expect(page.locator('#dashboard-header-menu-item')).toBeVisible();
+
+	await expect(page.locator('#profile-header-menu-item')).toBeVisible();
+	
+	await expect(page.locator('#settings-header-menu-item')).toBeVisible();
 }
 
 export async function getEmailOTP(emailAddress: string) {

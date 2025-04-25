@@ -580,7 +580,7 @@ test('Temp -> normal attendee transformation', async ({ browser }) => {
 	await navigateTo(tempAttendeePage, eventUrl);
 
 	await expect(tempAttendeePage.getByRole('heading', { name: eventName })).toBeVisible();
-	await tempAttendeePage.getByRole('link', { name: 'Dashboard' }).click();
+	await tempAttendeePage.locator('#dashboard-header-menu-item').click();
 	await expect(tempAttendeePage.locator('.event-card')).toHaveCount(1);
 });
 
@@ -805,7 +805,7 @@ test('Consume logs', async ({ page }) => {
 	const username = faker.person.firstName() + '123456789';
 	await loginUser(page, email, username);
 
-	await page.getByRole('link', { name: 'Profile', exact: true }).click();
+	await page.locator('#profile-header-menu-item').click();
 	await expect(page.getByText('You have 3 logs remaining.')).toBeVisible();
 
 	// Create 1st bonfire
@@ -814,11 +814,11 @@ test('Consume logs', async ({ page }) => {
 	await expect(page.getByRole('heading', { name: eventName })).toBeVisible();
 	await expect(page.getByText('Not Published')).toBeHidden();
 
-	await page.getByRole('link', { name: 'Dashboard' }).click();
+	await page.locator('#dashboard-header-menu-item').click();
 	await expect(page.getByText('Not Published')).toBeHidden();
 	await expect(page.locator('.event-card')).toHaveCount(1);
 
-	await page.getByRole('link', { name: 'Profile', exact: true }).click();
+	await page.locator('#profile-header-menu-item').click();
 	await expect(page.getByText('You have 2 logs remaining.')).toBeVisible();
 
 	// Create 2nd bonfire
@@ -826,7 +826,7 @@ test('Consume logs', async ({ page }) => {
 	await createBonfire(page, eventName);
 	await expect(page.getByRole('heading', { name: eventName })).toBeVisible();
 
-	await page.getByRole('link', { name: 'Profile', exact: true }).click();
+	await page.locator('#profile-header-menu-item').click();
 	await expect(page.getByText('You have 1 log remaining.')).toBeVisible();
 
 	// Create 3rd bonfire
@@ -834,7 +834,7 @@ test('Consume logs', async ({ page }) => {
 	await createBonfire(page, eventName);
 	await expect(page.getByRole('heading', { name: eventName })).toBeVisible();
 
-	await page.getByRole('link', { name: 'Profile', exact: true }).click();
+	await page.locator('#profile-header-menu-item').click();
 	await expect(page.getByText('You have 0 log remaining.')).toBeVisible();
 });
 
@@ -856,7 +856,7 @@ test('Add logs', async ({ page }) => {
 		effective_start_date: oneWeekAgo
 	});
 
-	await page.getByRole('link', { name: 'Profile' }).click();
+	await page.locator('#profile-header-menu-item').click();
 	await page.getByRole('button', { name: 'Buy more logs' }).click();
 	await expect(page.getByRole('heading', { name: 'Buy more logs' })).toBeVisible();
 	await expect(page.getByText('Choose a Cause & Make an')).toBeVisible();
@@ -901,7 +901,7 @@ test('Add logs', async ({ page }) => {
 		}
 	);
 
-	await page.getByRole('link', { name: 'Profile' }).click();
+	await page.locator('#profile-header-menu-item').click();
 	await expect(page.getByText('You have 6 logs remaining.')).toBeVisible();
 });
 
