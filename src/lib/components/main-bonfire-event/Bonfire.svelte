@@ -535,19 +535,14 @@
 			{#if isAnonymousUser || isUnverifiedUser}
 				<SignUpMsg />
 			{/if}
-			{#if isCurrenUserEventAdmin}
-				<div class="flex">
-					<EditEventButton {eventIsPublished} />
-					<!-- <EventStylerBottomSheet {eventId} /> -->
-				</div>
-			{/if}
+
 			<section
 				class="mt-4 flex w-full justify-center sm:w-[450px] md:w-[550px] lg:w-[800px] xl:w-[950px]"
 			>
 				<Tabs.Root value={activeTab} class="w-full">
 					<div class="sticky top-3 z-[52] flex w-full justify-center">
-						<Tabs.List class="mb-1 w-full bg-transparent animate-in fade-in zoom-in">
-							<div class="rounded-lg bg-white p-2 shadow-2xl dark:bg-black">
+						<Tabs.List class="w-full bg-transparent animate-in fade-in zoom-in">
+							<div class="flex items-center rounded-lg bg-white p-2 shadow-2xl dark:bg-black">
 								<Tabs.Trigger
 									id="about-tab"
 									value="about"
@@ -584,6 +579,15 @@
 									>
 										<div class="flex items-center justify-center">
 											<History class="h-6 w-6" />
+										</div>
+									</Tabs.Trigger>
+									<Tabs.Trigger
+										id="settings-tab-where-theres-no-tab"
+										value="settings"
+										class="focus:outline-none focus-visible:ring-0 data-[state=active]:bg-purple-500 data-[state=active]:text-white dark:data-[state=active]:bg-purple-600"
+									>
+										<div class="flex items-center justify-center">
+											<EditEventButton {eventIsPublished} />
 										</div>
 									</Tabs.Trigger>
 								{/if}
