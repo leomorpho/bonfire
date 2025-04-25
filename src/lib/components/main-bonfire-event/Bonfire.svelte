@@ -581,15 +581,15 @@
 											<History class="h-6 w-6" />
 										</div>
 									</Tabs.Trigger>
-									<Tabs.Trigger
+									<div
 										id="settings-tab-where-theres-no-tab"
 										value="settings"
-										class="focus:outline-none focus-visible:ring-0 data-[state=active]:bg-purple-500 data-[state=active]:text-white dark:data-[state=active]:bg-purple-600"
+										class="ring-offset-background focus-visible:ring-ring data-[state=active]:bg-background data-[state=active]:text-foreground inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:shadow focus:outline-none focus-visible:ring-0 data-[state=active]:bg-purple-500 data-[state=active]:text-white dark:data-[state=active]:bg-purple-600"
 									>
 										<div class="flex items-center justify-center">
 											<EditEventButton {eventIsPublished} />
 										</div>
-									</Tabs.Trigger>
+									</div>
 								{/if}
 							</div>
 						</Tabs.List>

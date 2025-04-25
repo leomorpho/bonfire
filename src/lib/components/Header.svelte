@@ -13,7 +13,7 @@
 	import { tick } from 'svelte';
 	import TopBanner from './marketing/TopBanner.svelte';
 	import PageNavigationLoader from './PageNavigationLoader.svelte';
-	import { MessagesSquare, Settings } from '@lucide/svelte';
+	import { MessagesSquare, UserCog } from '@lucide/svelte';
 
 	let isAdmin = false;
 
@@ -39,7 +39,7 @@
 	const authLinks: Array<Link> = [
 		{ icon: House, name: 'Dashboard', href: '/dashboard', id: 'dashboard' },
 		{ icon: CircleUser, name: 'Profile', href: '/profile', id: 'profile' },
-		{ icon: Settings, name: 'Settings', href: '/settings', id: 'settings' },
+		{ icon: UserCog, name: 'Settings', href: '/settings', id: 'settings' },
 		{ icon: MessagesSquare, name: 'Feedback', href: '/feedback', id: 'feedback' },
 		...(isAdmin ? [{ icon: Shield, name: 'Admin Panel', href: '/admin', id: 'admin-panel' }] : [])
 	];

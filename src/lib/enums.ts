@@ -312,5 +312,6 @@ export enum eventInputTypes {
 	textarea = 'textarea',
 	date = 'date',
 	eventdetails = 'eventdetails',
-	text = 'text'
+	text = 'text',
+	address = 'address'
 }

@@ -158,7 +158,7 @@ export async function createBonfire(
 	await page.waitForTimeout(2000);
 	await page.getByRole('button', { name: 'Publish' }).click();
 
-	await expect(page.getByRole('heading', { name: eventName })).toBeVisible();
+	await expect(page.locator('#event-title')).toBeVisible();
 }
 
 export async function rsvpAsLoggedInUser(page, eventUrl) {

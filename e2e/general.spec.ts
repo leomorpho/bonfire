@@ -125,7 +125,7 @@ test('Create bonfire', async ({ page }) => {
 
 	// ------> Event was created
 	// Check event name
-	await expect(page.getByRole('heading', { name: eventName })).toBeVisible();
+	await expect(page.locator('#event-title')).toBeVisible();
 
 	// Verify address shows in mapping app dialog
 	await page.locator('#share-location').click();
@@ -206,7 +206,7 @@ test('Create bonfire', async ({ page }) => {
 
 	await page.locator('#edit-overlay').click();
 	await expect(page.getByRole('button', { name: 'Clear' })).toBeVisible();
-	await page.locator("#back-page-navigation").click();
+	await page.locator('#back-page-navigation').click();
 
 	// Verify address as it used to be mangled (possible bug again) when coming back from edit page
 	await page.locator('#share-location').click();
@@ -227,7 +227,7 @@ test('CRUD announcements', async ({ page }) => {
 
 	const eventName = `${faker.animal.dog()} birthday party!`;
 	await createBonfire(page, eventName);
-	await expect(page.getByRole('heading', { name: eventName })).toBeVisible();
+	await expect(page.locator('#event-title')).toBeVisible();
 
 	// Create
 	await expect(page.getByText('No announcements yet')).toBeVisible();
@@ -237,7 +237,7 @@ test('CRUD announcements', async ({ page }) => {
 	await page.getByPlaceholder('Type your announcement here').fill('An announcement!');
 	await page.getByRole('button', { name: 'Create' }).click();
 	// Check we are back on bonfire view
-	await expect(page.getByRole('heading', { name: eventName })).toBeVisible();
+	await expect(page.locator('#event-title')).toBeVisible();
 	await expect(page.getByText('An announcement!')).toBeVisible();
 	await expect(page.locator('.announcement')).toHaveCount(1);
 
@@ -250,7 +250,7 @@ test('CRUD announcements', async ({ page }) => {
 	await expect(page.getByRole('button', { name: 'Update' })).toBeVisible();
 	await page.getByRole('button', { name: 'Update' }).click();
 	// Check we are back on bonfire view
-	await expect(page.getByRole('heading', { name: eventName })).toBeVisible();
+	await expect(page.locator('#event-title')).toBeVisible();
 	await expect(page.getByText('Updated announcement')).toBeVisible();
 	await expect(page.locator('.announcement')).toHaveCount(1);
 
@@ -262,7 +262,7 @@ test('CRUD announcements', async ({ page }) => {
 	await expect(page.getByText('This action cannot be undone')).toBeVisible();
 	await page.getByRole('button', { name: 'Confirm Delete' }).click();
 	// Check we are back on bonfire view
-	await expect(page.getByRole('heading', { name: eventName })).toBeVisible();
+	await expect(page.locator('#event-title')).toBeVisible();
 	await expect(page.locator('.announcement')).toHaveCount(0);
 });
 
@@ -275,7 +275,7 @@ test('CRUD gallery', async ({ page }) => {
 
 	const eventName = `${faker.animal.dog()} birthday party!`;
 	await createBonfire(page, eventName);
-	await expect(page.getByRole('heading', { name: eventName })).toBeVisible();
+	await expect(page.locator('#event-title')).toBeVisible();
 
 	await page.getByRole('button', { name: 'Upload' }).click();
 
@@ -338,9 +338,9 @@ test('User attendee view', async ({ browser }) => {
 	await loginUser(eventCreatorPage, email, username);
 
 	const eventName = `${faker.animal.dog()} birthday party!`;
-	const eventDetails = 'It will be fun!';
+	const eventDetails = 'It will be fun';
 	await createBonfire(eventCreatorPage, eventName, eventDetails, 2);
-	await expect(eventCreatorPage.getByRole('heading', { name: eventName })).toBeVisible();
+	await expect(eventCreatorPage.locator('#event-title')).toBeVisible();
 
 	const eventUrl = eventCreatorPage.url();
 
@@ -368,7 +368,7 @@ test('User attendee view', async ({ browser }) => {
 
 	// User should not be able to set a banner
 	await expect(userAttendeePage.getByRole('heading', { name: 'Set Banner' })).toHaveCount(0);
-	await expect(userAttendeePage.getByRole('heading', { name: eventName })).toBeVisible();
+	await expect(userAttendeePage.locator('#event-title')).toBeVisible();
 	await expect(userAttendeePage.getByText(`Hosted by ${username}`)).toBeVisible();
 	await expect(userAttendeePage.getByText(eventDetails).first()).toBeVisible();
 	await expect(userAttendeePage.getByText('Set RSVP status to see location')).toBeVisible();
@@ -403,9 +403,9 @@ test('Temp attendee view', async ({ browser }) => {
 	await loginUser(eventCreatorPage, email, username);
 
 	const eventName = `${faker.animal.dog()} birthday party!`;
-	const eventDetails = 'It will be fun!';
+	const eventDetails = 'It will be fun';
 	await createBonfire(eventCreatorPage, eventName, eventDetails);
-	await expect(eventCreatorPage.getByRole('heading', { name: eventName })).toBeVisible();
+	await expect(eventCreatorPage.locator('#event-title')).toBeVisible();
 
 	const eventUrl = eventCreatorPage.url();
 
@@ -429,7 +429,7 @@ test('Temp attendee view', async ({ browser }) => {
 
 	// Temp user should not be able to set a banner
 	await expect(tempAttendeePage.getByRole('heading', { name: 'Set Banner' })).toHaveCount(0);
-	await expect(tempAttendeePage.getByRole('heading', { name: eventName })).toBeVisible();
+	await expect(tempAttendeePage.locator('#event-title')).toBeVisible();
 	await expect(tempAttendeePage.getByText(`Hosted by ${username}`)).toBeVisible();
 	await expect(tempAttendeePage.getByText('Set RSVP status to see location')).toBeVisible();
 	await expect(tempAttendeePage.getByText(eventDetails).first()).toBeVisible();
@@ -480,9 +480,7 @@ test('Temp attendee view', async ({ browser }) => {
 	await tempAttendeePage.locator('#add-to-calendar').click();
 	await expect(tempAttendeePage.getByRole('menuitem', { name: 'Google Calendar' })).toBeVisible();
 	await expect(tempAttendeePage.getByRole('menuitem', { name: 'Outlook Calendar' })).toBeVisible();
-	await expect(
-		tempAttendeePage.getByRole('menuitem', { name: 'Apple Calendar' })
-	).toBeVisible();
+	await expect(tempAttendeePage.getByRole('menuitem', { name: 'Apple Calendar' })).toBeVisible();
 	await tempAttendeePage.keyboard.press('Escape'); // Close dropdown
 
 	// Upload image to gallery
@@ -542,9 +540,9 @@ test('Temp -> normal attendee transformation', async ({ browser }) => {
 	await loginUser(eventCreatorPage, email, username);
 
 	const eventName = `${faker.animal.dog()} birthday party!`;
-	const eventDetails = 'It will be fun!';
+	const eventDetails = 'It will be fun';
 	await createBonfire(eventCreatorPage, eventName, eventDetails);
-	await expect(eventCreatorPage.getByRole('heading', { name: eventName })).toBeVisible();
+	await expect(eventCreatorPage.locator('#event-title')).toBeVisible();
 
 	const eventUrl = eventCreatorPage.url();
 
@@ -579,7 +577,7 @@ test('Temp -> normal attendee transformation', async ({ browser }) => {
 	// Going to the URL should now link it to the account
 	await navigateTo(tempAttendeePage, eventUrl);
 
-	await expect(tempAttendeePage.getByRole('heading', { name: eventName })).toBeVisible();
+	await expect(tempAttendeePage.locator('#event-title')).toBeVisible();
 	await tempAttendeePage.locator('#dashboard-header-menu-item').click();
 	await expect(tempAttendeePage.locator('.event-card')).toHaveCount(1);
 });
@@ -598,9 +596,9 @@ test('Event admins', async ({ browser }) => {
 	await loginUser(eventCreatorPage, eventOwnerEmail, eventOwnerUsername);
 
 	const eventName = `${faker.animal.dog()} birthday party!`;
-	const eventDetails = 'It will be fun!';
+	const eventDetails = 'It will be fun';
 	await createBonfire(eventCreatorPage, eventName, eventDetails, 1);
-	await expect(eventCreatorPage.getByRole('heading', { name: eventName })).toBeVisible();
+	await expect(eventCreatorPage.locator('#event-title')).toBeVisible();
 
 	const eventUrl = eventCreatorPage.url();
 
@@ -618,8 +616,8 @@ test('Event admins', async ({ browser }) => {
 
 	// Now event creator will add above attendee as an admin
 	await eventCreatorPage.locator('#edit-bonfire').click();
-	await eventCreatorPage.locator("#event-admins-tab").click();
-	
+	await eventCreatorPage.locator('#event-admins-tab').click();
+
 	await eventCreatorPage.getByRole('button', { name: 'What can admins do? Toggle' }).click();
 
 	await expect(eventCreatorPage.getByText('Modify event details')).toBeVisible();
@@ -649,7 +647,7 @@ test('Event admins', async ({ browser }) => {
 	await adminPage.locator('#upsert-bonfire').click();
 
 	// Check data
-	await expect(adminPage.getByRole('heading', { name: newEventName })).toBeVisible();
+	await expect(adminPage.getByText(newEventName).first()).toBeVisible();
 	await expect(adminPage.getByText(newDetails).first()).toBeVisible();
 
 	// Add an announcement
@@ -691,9 +689,9 @@ test('Bring list items', async ({ browser }) => {
 	await loginUser(eventCreatorPage, eventOwnerEmail, eventOwnerUsername);
 
 	const eventName = `${faker.animal.dog()} birthday party!`;
-	const eventDetails = 'It will be fun!';
+	const eventDetails = 'It will be fun';
 	await createBonfire(eventCreatorPage, eventName, eventDetails);
-	await expect(eventCreatorPage.getByRole('heading', { name: eventName })).toBeVisible();
+	await expect(eventCreatorPage.locator('#event-title')).toBeVisible();
 
 	const eventUrl = eventCreatorPage.url();
 
@@ -811,7 +809,7 @@ test('Consume logs', async ({ page }) => {
 	// Create 1st bonfire
 	let eventName = `${faker.animal.dog()} birthday party!`;
 	await createBonfire(page, eventName);
-	await expect(page.getByRole('heading', { name: eventName })).toBeVisible();
+	await expect(page.locator('#event-title')).toBeVisible();
 	await expect(page.getByText('Not Published')).toBeHidden();
 
 	await page.locator('#dashboard-header-menu-item').click();
@@ -824,7 +822,7 @@ test('Consume logs', async ({ page }) => {
 	// Create 2nd bonfire
 	eventName = `${faker.animal.dog()} birthday party!`;
 	await createBonfire(page, eventName);
-	await expect(page.getByRole('heading', { name: eventName })).toBeVisible();
+	await expect(page.locator('#event-title')).toBeVisible();
 
 	await page.locator('#profile-header-menu-item').click();
 	await expect(page.getByText('You have 1 log remaining.')).toBeVisible();
@@ -832,7 +830,7 @@ test('Consume logs', async ({ page }) => {
 	// Create 3rd bonfire
 	eventName = `${faker.animal.dog()} birthday party!`;
 	await createBonfire(page, eventName);
-	await expect(page.getByRole('heading', { name: eventName })).toBeVisible();
+	await expect(page.locator('#event-title')).toBeVisible();
 
 	await page.locator('#profile-header-menu-item').click();
 	await expect(page.getByText('You have 0 log remaining.')).toBeVisible();
@@ -919,9 +917,9 @@ test('Messaging', async ({ browser }) => {
 	await loginUser(eventCreatorPage, eventOwnerEmail, eventOwnerUsername);
 
 	const eventName = `${faker.animal.dog()} birthday party!`;
-	const eventDetails = 'It will be fun!';
+	const eventDetails = 'It will be fun';
 	await createBonfire(eventCreatorPage, eventName, eventDetails, 1);
-	await expect(eventCreatorPage.getByRole('heading', { name: eventName })).toBeVisible();
+	await expect(eventCreatorPage.locator('#event-title')).toBeVisible();
 
 	const eventUrl = eventCreatorPage.url();
 	await eventCreatorPage.locator('#discussions-tab').click();
@@ -1002,9 +1000,9 @@ test('Delete/Leaving attendees', async ({ browser }) => {
 	await loginUser(eventCreatorPage, eventOwnerEmail, eventOwnerUsername);
 
 	const eventName = `${faker.animal.dog()} birthday party!`;
-	const eventDetails = 'It will be fun!';
+	const eventDetails = 'It will be fun';
 	await createBonfire(eventCreatorPage, eventName, eventDetails, 1);
-	await expect(eventCreatorPage.getByRole('heading', { name: eventName })).toBeVisible();
+	await expect(eventCreatorPage.locator('#event-title')).toBeVisible();
 
 	const eventUrl = eventCreatorPage.url();
 

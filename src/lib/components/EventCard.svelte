@@ -12,6 +12,7 @@
 	import type { TriplitClient } from '@triplit/client';
 	import { onMount } from 'svelte';
 	import type { FontSelection } from '$lib/types';
+	import EditEventButton from './main-bonfire-event/EditEventButton.svelte';
 
 	let {
 		event,
@@ -177,11 +178,11 @@
 				</button>
 			</Card.Content>
 			{#if event.user_id == (userId as string)}
-				<a href={`/bonfire/${event.id}/update`}>
-					<Button variant="outline" class="m-2 rounded-full">
-						<Cog class="h-5 w-5" />
-					</Button>
-				</a>
+				<EditEventButton
+					url={`/bonfire/${event.id}/update`}
+					eventIsPublished={event.is_published}
+					class="rounded-full bg-slate-100 p-2 transition-all duration-200 hover:bg-slate-300 dark:bg-slate-900 dark:hover:bg-slate-700"
+				/>
 			{/if}
 		</div>
 	</Card.Root>

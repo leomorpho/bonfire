@@ -46,7 +46,7 @@
 		</a>
 	{/if}
 
-	<div class="flex w-full justify-center">
+	<div id="event-title" class="flex w-full justify-center">
 		<UpdateableEventField
 			fieldValue={eventTitle}
 			placeholder={"Emily's birthday party!"}
