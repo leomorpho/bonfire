@@ -91,9 +91,9 @@
 				>
 					<div class="text-xl font-bold sm:text-3xl">Feel good about supporting a cause</div>
 					<p>
-						At Bonfire, {`${percentProfitsToCharity}`}% of our profits support top-rated charities. Choose a cause you care
-						about—plant trees, cure diseases, or support environmental efforts. Your contribution
-						makes a real impact.
+						At Bonfire, {`${percentProfitsToCharity}`}% of our profits go to top-rated charities.
+						Choose a cause you care about—from planting trees to curing diseases—and make a real
+						impact with every event.
 					</p>
 				</div>
 

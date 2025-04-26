@@ -35,7 +35,13 @@
 	});
 </script>
 
-{#snippet attendees(attendees: any, numAttendees: number, statusName: string, attendeeType: string, showRemoveUser=true)}
+{#snippet attendees(
+	attendees: any,
+	numAttendees: number,
+	statusName: string,
+	attendeeType: string,
+	showRemoveUser = true
+)}
 	{#if attendees.length > 0}
 		<div class="mb-3 mt-5">
 			<h2 class="my-3 flex w-full justify-center font-semibold">
@@ -93,15 +99,21 @@
 							'not going',
 							'not-going'
 						)}
-						{#if isCurrenUserEventAdmin}
+						{#if isCurrenUserEventAdmin && numAttendeesLeft + numAttendeesRemoved > 0}
 							<div class="mt-10 rounded-xl bg-slate-200 py-3 dark:bg-slate-900">
 								<div class="my-2 flex w-full justify-center">
-									<div class="rounded-xl bg-yellow-100/50 dark:bg-yellow-800/50 p-2">
+									<div class="rounded-xl bg-yellow-100/50 p-2 dark:bg-yellow-800/50">
 										Only visible to admins
 									</div>
 								</div>
 								{@render attendees(allAttendeesLeft, numAttendeesLeft, 'left', 'left', false)}
-								{@render attendees(allAttendeesRemoved, numAttendeesRemoved, 'removed', 'removed', false)}
+								{@render attendees(
+									allAttendeesRemoved,
+									numAttendeesRemoved,
+									'removed',
+									'removed',
+									false
+								)}
 							</div>
 						{/if}
 					</Dialog.Description>

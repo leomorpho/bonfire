@@ -10,7 +10,7 @@
 
 <div class="w-fulloverflow-x-hidden">
 	<Hero />
-	<About />
+	<!-- <About /> -->
 	<Features />
 	<Pricing />
 	<AboutUs />

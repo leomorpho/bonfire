@@ -13,7 +13,7 @@
 	import { tick } from 'svelte';
 	import TopBanner from './marketing/TopBanner.svelte';
 	import PageNavigationLoader from './PageNavigationLoader.svelte';
-	import { MessagesSquare, UserCog } from '@lucide/svelte';
+	import { Cog, MessagesSquare } from '@lucide/svelte';
 
 	let isAdmin = false;
 
@@ -39,7 +39,7 @@
 	const authLinks: Array<Link> = [
 		{ icon: House, name: 'Dashboard', href: '/dashboard', id: 'dashboard' },
 		{ icon: CircleUser, name: 'Profile', href: '/profile', id: 'profile' },
-		{ icon: UserCog, name: 'Settings', href: '/settings', id: 'settings' },
+		{ icon: Cog, name: 'Settings', href: '/settings', id: 'settings' },
 		{ icon: MessagesSquare, name: 'Feedback', href: '/feedback', id: 'feedback' },
 		...(isAdmin ? [{ icon: Shield, name: 'Admin Panel', href: '/admin', id: 'admin-panel' }] : [])
 	];
@@ -103,7 +103,7 @@
 				<Menu class="h-5 w-5 sm:h-5 sm:w-5" />
 			</div>
 		</DropdownMenu.Trigger>
-		<DropdownMenu.Content class="z-[51] m-2 p-4 dark:bg-slate-950">
+		<DropdownMenu.Content class="z-[60] m-2 p-4 dark:bg-slate-950">
 			<DropdownMenu.Group>
 				<!-- <DropdownMenu.Label>My Account</DropdownMenu.Label> -->
 				<!-- <DropdownMenu.Separator /> -->

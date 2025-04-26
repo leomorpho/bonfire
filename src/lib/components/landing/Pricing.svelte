@@ -43,19 +43,15 @@
 				</div>
 				<ul class="mb-10 mt-3 space-y-5 sm:mb-20">
 					<div class="relative">
-						<PricingFeature
-							featureText={"When you create an account, you'll get 3 free logs to create 3 different Bonfires"}
-						></PricingFeature>
+						<PricingFeature featureText={'Create up to 3 Bonfires'}></PricingFeature>
 						{@render warning()}
 					</div>
 
-					<PricingFeature featureText={'RSVP to any number of Bonfires for free, always'} />
+					<PricingFeature featureText={'RSVP to any Bonfire for free'} />
 					<!-- <PricingFeature
 						featureText={'Referral program: Get 1 free log for every friend that creates an account using your referral link'}
 					/> -->
-					<PricingFeature
-						featureText={'All bonfires get deleted 14 days after they happen (can be turned off)'}
-					/>
+					<!-- <PricingFeature featureText={'Events auto-delete 14 days after completion'} /> -->
 				</ul>
 				<a class="mt-auto" href="/login"
 					><Button variant="secondary" class="w-full bg-slate-500 text-white dark:bg-slate-500"
@@ -76,14 +72,12 @@
 					<PricingFeature featureText={'All free features'} />
 
 					<div class="relative">
-						<PricingFeature
-							featureText={'Purchase logs in packs at a discounted rate. 1 log = 1 bonfire'}
+						<PricingFeature featureText={'Purchase logs at a discounted rate. 1 log = 1 bonfire'}
 						></PricingFeature>
 						{@render warning()}
 					</div>
-					<PricingFeature featureText={`${percentProfitsToCharity}% of our profits will go to a charity of your choice`} />
 					<PricingFeature
-						featureText={'Support our small team at Bonfire to help keep the platform run smoothly'}
+						featureText={`${percentProfitsToCharity}% of our profits will go to a charity of your choice`}
 					/>
 				</ul>
 				<a class="mt-auto" href="/login">

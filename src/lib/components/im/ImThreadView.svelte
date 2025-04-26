@@ -377,7 +377,7 @@
 		bind:this={chatContainerRef}
 		class="{messages.length > 0
 			? 'container-scroll overflow-y-auto'
-			: ''} h-full space-y-2 rounded-t-xl bg-white bg-opacity-20 p-2 dark:bg-black dark:bg-opacity-20"
+			: ''} h-full space-y-2 rounded-t-xl bg-white bg-opacity-20 p-2 dark:bg-black dark:bg-opacity-20 w-full"
 	>
 		<div id="anchor"></div>
 

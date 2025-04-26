@@ -497,10 +497,10 @@
 </script>
 
 <div class="mx-4 flex flex-col items-center justify-center">
-	<section class="mt-8 w-full px-3 sm:w-[450px] sm:px-0 lg:w-[600px]">
+	<section class="w-full px-3 sm:w-[450px] sm:px-0 lg:w-[600px]">
 
 		<Tabs.Root value="info" class="w-full">
-			<div class="sticky top-2 z-50 mt-7 flex w-full justify-center">
+			<div class="sticky top-2 z-50 mt-3 flex w-full justify-center">
 				<div
 					class="mb-2 flex w-full items-center justify-between rounded-xl bg-white p-2 text-lg font-semibold dark:bg-slate-900 shadow-2xl"
 				>
