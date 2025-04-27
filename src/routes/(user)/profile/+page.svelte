@@ -22,7 +22,7 @@
 			client
 				.query('user')
 				.Include('profile_image')
-				.Include('user_log_tokens')
+				// .Include('user_log_tokens')
 				.Where(['id', '=', $page.data.user.id])
 				,
 			(results) => {
@@ -83,7 +83,7 @@
 					message={'Your profile is private, visible only to those sharing an event with you.'}
 				/> -->
 
-				<div
+				<!-- <div
 					class="mt-5 flex flex-col justify-center rounded-xl bg-gradient-to-r from-blue-100 to-blue-300 p-5 dark:bg-gradient-to-r dark:from-blue-600 dark:to-blue-800"
 				>
 					{#if isUserDataLoading}
@@ -114,7 +114,7 @@
 							><HeartHandshake />The non-profit you support<span></span></Button
 						></a
 					>
-				</div>
+				</div> -->
 			{/if}
 		</section>
 	</div>

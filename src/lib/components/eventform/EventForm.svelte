@@ -108,13 +108,13 @@
 	let eventStartDatetime: Date | null = $state(null);
 	let eventEndDatetime: Date | null = $state(null);
 
-	let numLogs = $state(0);
-	let numLogsLoading = $state(true);
+	// let numLogs = $state(0);
+	// let numLogsLoading = $state(true);
 	let isEventCreated = $state(mode == EventFormType.UPDATE || false);
 	// TODO: support events created before payments system was created. There was no concept of "published"/"draft". Remove once all events have an attached transaction.
 	let isEventPublished = $derived(event && event.is_published);
-	let userIsOutOfLogs = $derived(!numLogsLoading && numLogs == 0 && event && !event.isPublished);
-	let userFavoriteNonProfitId = $state(null);
+	// let userIsOutOfLogs = $derived(!numLogsLoading && numLogs == 0 && event && !event.isPublished);
+	// let userFavoriteNonProfitId = $state(null);
 	let isEventEdittable = $state(true);
 
 	$effect(() => {
@@ -131,9 +131,9 @@
 		font = getNextFont();
 	};
 
-	$effect(() => {
-		console.log('userFavoriteNonProfitId', userFavoriteNonProfitId);
-	});
+	// $effect(() => {
+	// 	console.log('userFavoriteNonProfitId', userFavoriteNonProfitId);
+	// });
 
 	// Build eventStartDatetime dynamically
 	$effect(() => {
@@ -307,7 +307,7 @@
 				max_capacity: maxCapacity || null,
 				max_num_guests_per_attendee: maxNumGuest || 0,
 				require_guest_bring_item: requireGuestBringItem,
-				non_profit_id: userFavoriteNonProfitId || null,
+				// non_profit_id: userFavoriteNonProfitId || null,
 				latitude: latitude,
 				longitude: longitude
 			};
@@ -315,15 +315,15 @@
 
 			event = await client.http.insert('events', eventData);
 
-			// Create a transaction if the user has enough logs remaining
-			if (checkCanCreateTransaction(userIsOutOfLogs, createTransaction, isEventPublished)) {
-				event = await createBonfireTransaction(eventId);
-			}
-			if (!createTransaction) {
-				toast.success('An event draft was created! 🚀 Publish it when you’re ready.', {
-					duration: 4000
-				});
-			}
+			// // Create a transaction if the user has enough logs remaining
+			// if (checkCanCreateTransaction(userIsOutOfLogs, createTransaction, isEventPublished)) {
+			// 	event = await createBonfireTransaction(eventId);
+			// }
+			// if (!createTransaction) {
+			// 	toast.success('An event draft was created! 🚀 Publish it when you’re ready.', {
+			// 		duration: 4000
+			// 	});
+			// }
 			// Add user as attendee
 			await upsertUserAttendance(eventId, Status.GOING, 0);
 			isEventCreated = true;
@@ -336,7 +336,7 @@
 		}
 	};
 
-	const updateEvent = async (createTransaction = false, publishEventNow = null) => {
+	const updateEvent = async (createTransaction = false, publishEventNow = false) => {
 		try {
 			await client.http.update('events', event.id, async (entity) => {
 				entity.title = eventName;
@@ -357,9 +357,9 @@
 				entity.is_published = publishEventNow ?? isEventPublished;
 			});
 
-			if (checkCanCreateTransaction(userIsOutOfLogs, createTransaction, isEventPublished)) {
-				event = await createBonfireTransaction(eventId);
-			}
+			// if (checkCanCreateTransaction(userIsOutOfLogs, createTransaction, isEventPublished)) {
+			// 	event = await createBonfireTransaction(eventId);
+			// }
 			console.log('🔄 Event updated successfully');
 		} catch (error) {
 			console.error('❌ Error updating event:', error);
@@ -460,28 +460,28 @@
 	onMount(() => {
 		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
-		const unsubscribeFromUserLogsQuery = client.subscribe(
-			client.query('user').Where(['id', '=', $page.data.user.id]).Include('user_log_tokens'),
-			(results) => {
-				console.log('logs query', results);
-				if (results && results.length > 0) {
-					numLogs = results[0].user_log_tokens?.num_logs ?? 0;
-					userFavoriteNonProfitId = results[0].favourite_non_profit_id;
-					numLogsLoading = false;
-				}
-			},
-			(error) => {
-				console.error('Error fetching user log tokens:', error);
-			},
-			{
-				localOnly: false,
-				onRemoteFulfilled: () => {}
-			}
-		);
+		// const unsubscribeFromUserLogsQuery = client.subscribe(
+		// 	client.query('user').Where(['id', '=', $page.data.user.id]).Include('user_log_tokens'),
+		// 	(results) => {
+		// 		console.log('logs query', results);
+		// 		if (results && results.length > 0) {
+		// 			numLogs = results[0].user_log_tokens?.num_logs ?? 0;
+		// 			userFavoriteNonProfitId = results[0].favourite_non_profit_id;
+		// 			numLogsLoading = false;
+		// 		}
+		// 	},
+		// 	(error) => {
+		// 		console.error('Error fetching user log tokens:', error);
+		// 	},
+		// 	{
+		// 		localOnly: false,
+		// 		onRemoteFulfilled: () => {}
+		// 	}
+		// );
 
-		return () => {
-			unsubscribeFromUserLogsQuery();
-		};
+		// return () => {
+		// 	unsubscribeFromUserLogsQuery();
+		// };
 	});
 
 	onMount(() => {
@@ -498,14 +498,13 @@
 
 <div class="mx-4 flex flex-col items-center justify-center">
 	<section class="w-full px-3 sm:w-[450px] sm:px-0 lg:w-[600px]">
-
 		<Tabs.Root value="info" class="w-full">
 			<div class="sticky top-2 z-50 mt-3 flex w-full justify-center">
 				<div
-					class="mb-2 flex w-full items-center justify-between rounded-xl bg-white p-2 text-lg font-semibold dark:bg-slate-900 shadow-2xl"
+					class="mb-2 flex w-full items-center justify-between rounded-xl bg-white p-2 text-lg font-semibold shadow-2xl dark:bg-slate-900"
 				>
 					<BackButton url={eventId ? `/bonfire/${eventId}` : '/dashboard'} />
-					
+
 					<Tabs.List class="w-min animate-in fade-in zoom-in dark:bg-slate-700 dark:text-white">
 						<Tabs.Trigger
 							id="event-info-tab"
@@ -544,7 +543,7 @@
 					General info
 				</h1>
 				<form class="space-y-2">
-					{#if userIsOutOfLogs && !isEventPublished}
+					<!-- {#if userIsOutOfLogs && !isEventPublished}
 						<OutOfLogs />
 					{:else if !isEventPublished}
 						<div class="flex justify-center">
@@ -561,7 +560,7 @@
 								logs remaining (1 log = 1 bonfire event)
 							</div>
 						</div>
-					{/if}
+					{/if} -->
 					<div class="mt-3 flex w-full justify-center space-x-2 text-xs">
 						<Button
 							class="justify-centerp-4 flex items-center bg-violet-600 ring-glow hover:bg-violet-500 dark:bg-violet-700 dark:text-white dark:hover:bg-violet-500"
@@ -705,7 +704,7 @@
 					<TipTapTextEditor
 						bind:content={details}
 						oninput={debouncedUpdateEvent}
-						class="bg-white dark:bg-slate-900 mt-1 min-h-40 w-full rounded-lg border p-2 text-xs"
+						class="mt-1 min-h-40 w-full rounded-lg border bg-white p-2 text-xs dark:bg-slate-900"
 					/>
 					<MaxCapacity oninput={debouncedUpdateEvent} bind:value={maxCapacity} />
 					<GuestCountFeature oninput={debouncedUpdateEvent} bind:value={maxNumGuest} />
@@ -738,28 +737,27 @@
 								<ArrowDownToLine class="ml-1 mr-1 h-4 w-4" />Save Draft
 							</Button>
 						{/if}
-						{#if !userIsOutOfLogs || isEventPublished}
-							<Button
-								id="upsert-bonfire"
-								disabled={submitDisabled}
-								type="submit"
-								class={`w-full ${submitDisabled ? 'bg-slate-400 dark:bg-slate-600' : 'bg-green-600 hover:bg-green-500 dark:bg-green-700 dark:hover:bg-green-600'} ring-glow dark:text-white`}
-								onclick={(e) => {
-									handleSubmit(e, true);
-								}}
-							>
-								{#if isEventSaving}
-									<span class="loading loading-spinner loading-xs ml-2"> </span>
-								{/if}
-								{#if isEventPublished}
-									<Save class="ml-1 mr-1 h-4 w-4" />
-									Save
-								{:else}
-									<BookCheck class="ml-1 mr-1 h-4 w-4" />
-									Publish
-								{/if}
-							</Button>
-						{/if}
+
+						<Button
+							id="upsert-bonfire"
+							disabled={submitDisabled}
+							type="submit"
+							class={`w-full ${submitDisabled ? 'bg-slate-400 dark:bg-slate-600' : 'bg-green-600 hover:bg-green-500 dark:bg-green-700 dark:hover:bg-green-600'} ring-glow dark:text-white`}
+							onclick={(e) => {
+								handleSubmit(e, true);
+							}}
+						>
+							{#if isEventSaving}
+								<span class="loading loading-spinner loading-xs ml-2"> </span>
+							{/if}
+							{#if isEventPublished}
+								<Save class="ml-1 mr-1 h-4 w-4" />
+								Save
+							{:else}
+								<BookCheck class="ml-1 mr-1 h-4 w-4" />
+								Publish
+							{/if}
+						</Button>
 						{#if isEventPublished}
 							<UnpublishEventBtn {submitDisabled} eventId={event.id} />
 						{/if}

@@ -71,7 +71,7 @@
 			.then(async () => {
 				// If user is not onboarded, redirect to onboarding flow
 				if (!userIsFullyOnboarded) {
-					goto('/onboarding/free-logs');
+					goto('/onboarding/permisisons');
 					return;
 				}
 
