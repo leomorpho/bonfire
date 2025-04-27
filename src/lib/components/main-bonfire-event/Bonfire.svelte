@@ -562,15 +562,17 @@
 										<MessageCircle class="h-6 w-6" />
 									</NumNewMessageIndicator>
 								</Tabs.Trigger>
-								<Tabs.Trigger
-									id="settings-tab"
-									value="user-settings"
-									class="focus:outline-none focus-visible:ring-0 data-[state=active]:bg-blue-500 data-[state=active]:text-white dark:data-[state=active]:bg-blue-600"
-								>
-									<div class="flex items-center justify-center">
-										<SlidersHorizontal class="h-6 w-6" />
-									</div>
-								</Tabs.Trigger>
+								{#if currUserId}
+									<Tabs.Trigger
+										id="settings-tab"
+										value="user-settings"
+										class="focus:outline-none focus-visible:ring-0 data-[state=active]:bg-blue-500 data-[state=active]:text-white dark:data-[state=active]:bg-blue-600"
+									>
+										<div class="flex items-center justify-center">
+											<SlidersHorizontal class="h-6 w-6" />
+										</div>
+									</Tabs.Trigger>
+								{/if}
 								{#if isCurrenUserEventAdmin}
 									<Tabs.Trigger
 										id="history-tab"
@@ -584,7 +586,7 @@
 									<div
 										id="settings-tab-where-theres-no-tab"
 										value="settings"
-										class="ring-offset-background focus-visible:ring-ring data-[state=active]:bg-background data-[state=active]:text-foreground inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:shadow focus:outline-none focus-visible:ring-0 data-[state=active]:bg-purple-500 data-[state=active]:text-white dark:data-[state=active]:bg-purple-600"
+										class="inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1 text-sm font-medium ring-offset-background transition-all focus:outline-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:bg-purple-500 data-[state=active]:text-foreground data-[state=active]:text-white data-[state=active]:shadow dark:data-[state=active]:bg-purple-600"
 									>
 										<div class="flex items-center justify-center">
 											<EditEventButton {eventIsPublished} />
@@ -775,16 +777,20 @@
 							{/if}
 						</div>
 					</Tabs.Content>
-					<Tabs.Content value="user-settings" class="mb-10 w-full">
-						<div class="animate-fadeIn mb-2 w-full">
-							<EventSettings {eventId} />
-						</div>
-					</Tabs.Content>
-					<Tabs.Content value="history" class="mb-10 w-full">
-						<div class="animate-fadeIn mb-2 w-full">
-							<EventHistory {eventId} />
-						</div>
-					</Tabs.Content>
+					{#if currUserId}
+						<Tabs.Content value="user-settings" class="mb-10 w-full">
+							<div class="animate-fadeIn mb-2 w-full">
+								<EventSettings {eventId} />
+							</div>
+						</Tabs.Content>
+					{/if}
+					{#if currUserId && isCurrenUserEventAdmin}
+						<Tabs.Content value="history" class="mb-10 w-full">
+							<div class="animate-fadeIn mb-2 w-full">
+								<EventHistory {eventId} />
+							</div>
+						</Tabs.Content>
+					{/if}
 				</Tabs.Root>
 			</section>
 		</div>
