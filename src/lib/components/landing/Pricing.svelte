@@ -34,28 +34,24 @@
 		<div class="mx-auto flex w-fit flex-wrap justify-center gap-10 md:gap-16">
 			<!-- Basic package -->
 			<div class="card max-w-80 rounded-3xl bg-blue-100 p-8 shadow-xl dark:bg-blue-900">
-				<!-- <BorderBeam size={250} duration={30} borderWidth={2} cls="rounded-3xl" /> -->
-
-				<h3 class="mb-2 text-xl font-extrabold text-slate-800 dark:text-slate-200">Use for Free</h3>
+				<h3 class="mb-2 text-xl font-extrabold text-slate-800 dark:text-slate-200">
+					Free Events (Beta)
+				</h3>
 				<div class="text-5xl font-extrabold leading-snug">
 					$0 <span class="text-base font-bold">usd</span>
 					<span class="text-3xl font-medium">/ Bonfire</span>
 				</div>
 				<ul class="mb-10 mt-3 space-y-5 sm:mb-20">
 					<div class="relative">
-						<PricingFeature featureText={'Create up to 3 Bonfires'}></PricingFeature>
-						{@render warning()}
+						<PricingFeature
+							featureText={'Create unlimited free events with no attendee limits. This is a beta offer and can change at any time.'}
+						></PricingFeature>
 					</div>
-
 					<PricingFeature featureText={'RSVP to any Bonfire for free'} />
-					<!-- <PricingFeature
-						featureText={'Referral program: Get 1 free log for every friend that creates an account using your referral link'}
-					/> -->
-					<!-- <PricingFeature featureText={'Events auto-delete 14 days after completion'} /> -->
 				</ul>
-				<a class="mt-auto" href="/login"
-					><Button variant="secondary" class="w-full bg-slate-500 text-white dark:bg-slate-500"
-						><Bird /> Get Started
+				<a class="mt-auto" href="/login">
+					<Button variant="secondary" class="w-full bg-slate-500 text-white dark:bg-slate-500">
+						<Bird /> Get Started
 					</Button>
 				</a>
 			</div>
@@ -63,26 +59,19 @@
 			<div
 				class="card relative max-w-80 rounded-3xl bg-purple-100 p-8 shadow-xl dark:bg-purple-900"
 			>
-				<h3 class="mb-2 text-xl font-extrabold text-slate-800 dark:text-slate-200">By Donation</h3>
-				<div class="text-5xl font-extrabold leading-snug">
-					$1 <span class="text-base font-bold">usd</span>
-					<span class="text-3xl font-medium">/ Bonfire</span>
-				</div>
+				<h3 class="mb-2 text-xl font-extrabold text-slate-800 dark:text-slate-200">
+					Ticketed Events (Coming Soon!)
+				</h3>
+				<div class="text-5xl font-extrabold leading-snug">Coming Soon!</div>
 				<ul class="mb-10 mt-3 space-y-5 sm:mb-20">
-					<PricingFeature featureText={'All free features'} />
-
-					<div class="relative">
-						<PricingFeature featureText={'Purchase logs at a discounted rate. 1 log = 1 bonfire'}
-						></PricingFeature>
-						{@render warning()}
-					</div>
-					<PricingFeature
-						featureText={`${percentProfitsToCharity}% of our profits will go to a charity of your choice`}
-					/>
+					<PricingFeature featureText={'Set custom ticket prices'} />
+					<PricingFeature featureText={'Collect payments securely'} />
+					<PricingFeature featureText={'Track ticket sales and revenue'} />
+					<PricingFeature featureText={'Integration with multiple payment platforms'} />
 				</ul>
 				<a class="mt-auto" href="/login">
 					<Button class="w-full bg-purple-500 text-white">
-						<Flame /> Get Started
+						<Flame /> Notify Me
 					</Button>
 				</a>
 			</div>
