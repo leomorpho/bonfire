@@ -4,7 +4,7 @@
 </script>
 
 <footer
-	class="footer bg-white p-10 text-slate-400 dark:bg-slate-900 dark:text-slate-200 sm:flex sm:justify-around"
+	class="footer p-10 text-slate-400 sm:flex sm:justify-around"
 >
 	<aside class="w-full sm:w-64">
 		<Logo styleClasses="flex h-fit items-center space-x-2" />
