@@ -15,7 +15,6 @@ export const load = async (event) => {
 			triplitHttpClient
 				.query('temporary_attendees')
 				.Where(['secret_mapping.id', '=', tempAttendeeSecret])
-				
 		);
 	}
 
@@ -23,19 +22,15 @@ export const load = async (event) => {
 	if (user) {
 		const jwt = generateJWT(user.id, USER_ROLE);
 
+		// TODO: move queyr of existingAttendee in THIS function
 		if (existingAttendee) {
-			const triplitUser = await triplitHttpClient.fetchOne(
-				triplitHttpClient.query('user').Where('id', '=', user.id)
-			);
 			await convertTempToPermanentUser(
 				user.id,
 				existingAttendee.event_id,
-				triplitUser?.username,
-				triplitUser?.id,
 				existingAttendee.id,
 				existingAttendee.name,
 				existingAttendee.status,
-				existingAttendee.guest_count
+				existingAttendee.guest_count 
 			);
 		}
 

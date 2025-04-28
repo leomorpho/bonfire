@@ -1,10 +1,9 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { getFeWorkerTriplitClient, userIdStore } from '$lib/triplit';
+	import { userIdStore } from '$lib/triplit';
 	import { onMount, type Snippet } from 'svelte';
 	import type { LayoutData } from './$types';
 	import { setTempAttendeeIdParam } from '$lib/utils';
-	import { goto } from '$app/navigation';
 
 	let { data, children }: { data: LayoutData; children: Snippet } = $props();
 
@@ -14,20 +13,6 @@
 
 	onMount(() => {
 		setTempAttendeeIdParam();
-
-		const enforceUserHasUsername = async () => {
-			const client = getFeWorkerTriplitClient($page.data.jwt);
-
-			const user = await client.fetchOne(
-				client.query('user').Where(['id', '=', $page.data.user.id])
-			);
-			if (user && !user.username) {
-				goto('/profile/username');
-			}
-		};
-		if ($page.data.user) {
-			enforceUserHasUsername();
-		}
 	});
 </script>
 

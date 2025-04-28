@@ -4,7 +4,11 @@
 	import { superForm } from 'sveltekit-superforms';
 	import { ClipboardPaste, Mail } from 'lucide-svelte';
 	import { Image } from '@unpic/svelte';
-	import { tempAttendeeIdFormName, tempAttendeeSecretParam } from '$lib/enums.js';
+	import {
+		tempAttendeeIdInForm,
+		tempAttendeeSecretParam,
+		tempAttendeeSecretStore
+	} from '$lib/enums.js';
 	import { page } from '$app/stores';
 	import LoaderPage from '$lib/components/LoaderPage.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
@@ -115,12 +119,6 @@
 		}
 	}
 
-	function handleOtpChange(event: { detail: string }) {
-		if (email_sent) {
-			console.log('OTP changed:', oneTimePasswordValue);
-		}
-	}
-
 	const { enhance, errors, submitting } = superForm(data.form, {
 		onResult(event) {
 			console.log(event);
@@ -138,7 +136,8 @@
 		}
 	};
 
-	const tempAttendeeId = $page.url.searchParams.get(tempAttendeeSecretParam);
+	const tempAttendeeId =
+		$page.url.searchParams.get(tempAttendeeSecretParam) || tempAttendeeSecretStore.get();
 	console.log('tempAttendeeId', tempAttendeeId);
 </script>
 
@@ -262,7 +261,7 @@
 				<form method="post" action="/login?/login_with_email" use:enhance>
 					<!-- Add tempAttendeeId as a hidden input -->
 					{#if tempAttendeeId}
-						<input type="hidden" name={tempAttendeeIdFormName} value={tempAttendeeId} />
+						<input type="hidden" name={tempAttendeeIdInForm} value={tempAttendeeId} />
 					{/if}
 
 					<input

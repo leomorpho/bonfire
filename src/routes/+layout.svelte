@@ -15,6 +15,7 @@
 	import { onMount } from 'svelte';
 	import { getFeWorkerTriplitClient } from '$lib/triplit';
 	import '@fontsource-variable/montserrat';
+	import Onboarding from '$lib/components/Onboarding.svelte';
 
 	let { children } = $props();
 
@@ -173,10 +174,12 @@
 		</div>
 	{/if}
 
-	<Toaster richColors closeButton position="bottom-right" toastOptions={{}}/>
+	<Toaster richColors closeButton position="bottom-right" toastOptions={{}} />
 	<ModeWatcher></ModeWatcher>
 	{@render children()}
 </div>
+
+<Onboarding userId={$page.data.user?.id} />
 
 <style>
 	#everything-everywhere-all-at-once {

@@ -4,7 +4,7 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { getFeWorkerTriplitClient, waitForUserId } from '$lib/triplit';
-	import { redirectToTempAttendanceInBonfireIfAvailable } from '$lib/utils';
+	import { getTempAttendanceUrl } from '$lib/utils';
 	import type { TriplitClient } from '@triplit/client';
 	import { onMount } from 'svelte';
 
@@ -71,16 +71,15 @@
 			.then(async () => {
 				// If user is not onboarded, redirect to onboarding flow
 				if (!userIsFullyOnboarded) {
-					goto('/onboarding/permisisons');
+					goto('/onboarding/permissions');
 					return;
 				}
 
-				goto('/dashboard');
-
-				const tempAttendanceUrl = await redirectToTempAttendanceInBonfireIfAvailable();
+				const tempAttendanceUrl = await getTempAttendanceUrl();
 				if (tempAttendanceUrl) {
 					goto(tempAttendanceUrl);
 				}
+				goto('/dashboard');
 			})
 			.catch((error) => {
 				console.error('Error updating user:', error);
@@ -102,6 +101,8 @@
 		<div class="text-sm text-yellow-600 dark:text-yellow-200">
 			This is how friends will recognize you. It's required to attend any bonfire.
 		</div>
-		<Button type="submit" disabled={!submitEnabled} onclick={handleSubmit} class="w-full">Save</Button>
+		<Button type="submit" disabled={!submitEnabled} onclick={handleSubmit} class="w-full"
+			>Save</Button
+		>
 	</div>
 </div>

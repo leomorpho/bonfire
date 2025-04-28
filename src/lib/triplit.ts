@@ -274,3 +274,9 @@ export const createRemindersObjects = async (
 		text: secondText
 	});
 };
+
+export const markAsFullyOnboarded = async (client: HttpClient, userId: string) => {
+	await client.update('user', userId, async (entity: any) => {
+		entity.is_fully_onboarded = true;
+	});
+};

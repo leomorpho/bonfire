@@ -7,9 +7,10 @@ export const EMAIL_CAPTURE_PORTAL_URL = 'http://localhost:8025/';
 
 export async function loginUser(
 	page,
-	email = faker.internet.email(),
-	username = faker.person.firstName(),
-	expectToSetUsername = true
+	email: string = faker.internet.email(),
+	username: string | null = faker.person.firstName(),
+	isOnboarding: boolean = true,
+	isFirstLogin:boolean=true
 ) {
 	// Enter email
 	await navigateTo(page, WEBSITE_URL);
@@ -21,7 +22,7 @@ export async function loginUser(
 	await expect(page.getByText('Check your inbox')).toBeVisible();
 
 	// Get code from email
-	const otp = await getEmailOTP(email);
+	const otp = await getEmailOTP(email, isFirstLogin);
 
 	// Wait for the `otp-root` element to be visible
 	// Wait for the `otp-root` element to be visible
@@ -36,48 +37,48 @@ export async function loginUser(
 	// Fill the input field
 	await otpInput.fill(otp);
 
-	if (expectToSetUsername) {
+	if (username) {
 		await expect(page.getByText('Choose Your Username').first()).toBeVisible();
 		await page.getByPlaceholder('Charlotte Brönte').click();
 		await page.getByPlaceholder('Charlotte Brönte').type(username); // Simulates typing
 		await page.getByRole('button', { name: 'Save' }).click();
 	}
 
-	// Finish onboarding
-	await page.locator('#agree-to-free-logs-btn').click();
-	await page.locator('#finish-permission-onboarding-btn').click();
+	if (isOnboarding) {
+		// Finish onboarding
+		// await page.locator('#agree-to-free-logs-btn').click();
+		await page.locator('#finish-permission-onboarding-btn').click();
+	}
 
 	await page.getByRole('tab', { name: 'Upcoming' }).click();
 	await expect(page.locator('#dashboard-header-menu-item')).toBeVisible();
 
 	await expect(page.locator('#profile-header-menu-item')).toBeVisible();
-	
+
 	await expect(page.locator('#settings-header-menu-item')).toBeVisible();
 }
 
-export async function getEmailOTP(emailAddress: string) {
+export async function getEmailOTP(emailAddress: string, firstLogin = true) {
 	const browser = await chromium.launch();
 	const context = await browser.newContext();
 	const page = await context.newPage();
 
 	await navigateTo(page, EMAIL_CAPTURE_PORTAL_URL);
 
-	const emailLink = page.locator(`a:has-text("To: ${emailAddress}")`);
+	const emailLink = page.locator(`a:has-text("To: ${emailAddress}")`).first();
 	// Wait for the link to be visible
 	await emailLink.waitFor();
 
 	// Click the link or perform any other action
-	await emailLink.first().click();
+	await emailLink.click();
+
+	const expectedTitle = firstLogin ? 'Your activation pin' : 'Your magic pin';
+	const expectedText = firstLogin ? 'Here’s your activation pin' : 'Here’s your magic pin';
 
 	await expect(
-		page
-			.locator('#preview-html')
-			.contentFrame()
-			.getByRole('heading', { name: 'Your activation link' })
+		page.locator('#preview-html').contentFrame().getByRole('heading', { name: expectedTitle })
 	).toBeVisible();
-	await expect(
-		page.locator('#preview-html').contentFrame().getByText('Here’s your activation pin')
-	).toBeVisible();
+	await expect(page.locator('#preview-html').contentFrame().getByText(expectedText)).toBeVisible();
 
 	// Wait for the frame containing the email content to load
 	const emailFrame = await page.locator('#preview-html').contentFrame();

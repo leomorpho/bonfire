@@ -37,7 +37,7 @@ export const percentProfitsToCharity = 25;
 export const tempAttendeeSecretStore = createPersistentStore<string | null>('tempAttendeeId', null);
 
 export const tempAttendeeSecretParam = 'temp-secret';
-export const tempAttendeeIdFormName = 'tempAttendeeIdFormName';
+export const tempAttendeeIdInForm = 'tempAttendeeIdInForm';
 
 export const TEMP_ATTENDEE_MIN_NAME_LEN = 2;
 export const MAX_NUM_IMAGES_IN_MINI_GALLERY = 3;

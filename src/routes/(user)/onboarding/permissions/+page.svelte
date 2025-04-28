@@ -3,6 +3,11 @@
 	import KeyBoardShortcut from '$lib/components/KeyBoardShortcut.svelte';
 	import DeliveryPermissions from '$lib/components/settings/DeliveryPermissions.svelte';
 	import { Button } from '$lib/components/ui/button';
+	import {
+		getFeHttpTriplitClient,
+		getFeWorkerTriplitClient,
+		markAsFullyOnboarded
+	} from '$lib/triplit';
 	import { ArrowRight } from 'lucide-svelte';
 
 	const styles = `background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/asteroids.jpg'); /* Replace with the URL of your tileable image */
@@ -16,6 +21,10 @@
 
 	const permissionClasses =
 		'p-3 sm:p-5 bg-slate-100/80 p-3 dark:bg-slate-800/80 rounded-xl space-y-5 w-full';
+
+	const completeOnboarding = async () => {
+		await markAsFullyOnboarded(getFeHttpTriplitClient($page.data.jwt), $page.data.user.id);
+	};
 </script>
 
 <KeyBoardShortcut
@@ -48,6 +57,7 @@
 					<Button
 						id="finish-permission-onboarding-btn"
 						class="mt-6 flex w-full items-center justify-center gap-2"
+						onclick={completeOnboarding}
 					>
 						<ArrowRight class="h-5 w-5" /> Continue
 					</Button>

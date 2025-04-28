@@ -256,8 +256,8 @@ export const setTempAttendeeInfoInLocalstorage = async (
 	localStorage.setItem('bonfireId', bonfireId);
 };
 
-export const redirectToTempAttendanceInBonfireIfAvailable = async () => {
-	console.log('check for redirectToTempAttendanceInBonfireIfAvailable');
+export const getTempAttendanceUrl = async () => {
+	console.log('check for getTempAttendanceUrl');
 	const tempAttendeeSecret = localStorage.getItem('tempAttendeeSecret');
 	const bonfireId = localStorage.getItem('bonfireId');
 	localStorage.removeItem('tempAttendeeSecret');

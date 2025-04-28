@@ -220,18 +220,19 @@ export async function validateMessageIds(userIds: string[]): Promise<string[]> {
 export const convertTempToPermanentUser = async (
 	userId: string,
 	eventId: string,
-	triplitUserUsername: string | null,
-	triplitUserId: string,
 	existingTempAttendeeId: string,
 	existingTempAttendeeName: string,
 	existingTempAttendeeStatus: string,
-	existingTempAttendeeGuesCount: string
+	existingTempAttendeeGuesCount: number | null | undefined
 ) => {
 	try {
+		const user = await triplitHttpClient.fetchOne(
+			triplitHttpClient.query('user').Where('id', '=', userId)
+		);
 		console.log('---> converting temp user to permament user');
 
-		if (!triplitUserUsername) {
-			triplitHttpClient.update('user', triplitUserId, async (e) => {
+		if (!user?.username) {
+			triplitHttpClient.update('user', userId, async (e) => {
 				e.username = existingTempAttendeeName;
 			});
 		}
@@ -251,7 +252,7 @@ export const convertTempToPermanentUser = async (
 				user_id: userId,
 				event_id: eventId,
 				status: existingTempAttendeeStatus,
-				guest_count: Number(existingTempAttendeeGuesCount)
+				guest_count: existingTempAttendeeGuesCount
 			});
 		} else if (attendances.length > 1) {
 			console.error(

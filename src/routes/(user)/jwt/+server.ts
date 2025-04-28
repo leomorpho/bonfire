@@ -18,7 +18,6 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 			triplitHttpClient
 				.query('temporary_attendees')
 				.Where(['secret_mapping.id', '=', tempAttendeeSecret])
-				
 		);
 	}
 
@@ -27,18 +26,13 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 		const jwt = generateJWT(user.id, USER_ROLE);
 
 		if (existingAttendee) {
-			const triplitUser = await triplitHttpClient.fetchOne(
-				triplitHttpClient.query('user').Where('id', '=', user.id)
-			);
 			await convertTempToPermanentUser(
 				user.id,
 				existingAttendee.event_id,
-				triplitUser?.username,
-				triplitUser?.id,
 				existingAttendee.id,
 				existingAttendee.name,
 				existingAttendee.status,
-				existingAttendee.guest_count
+				existingAttendee.guest_count 
 			);
 		}
 

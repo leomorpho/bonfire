@@ -20,11 +20,12 @@ import {
 	NotificationType,
 	NUM_DEFAULT_LOGS_NEW_SIGNUP
 } from '$lib/enums';
+import { convertTempToPermanentUser, triplitHttpClient } from '$lib/server/triplit.js';
 
 // Zod validation schema for login_with_email (requires email)
 const loginSchema = z.object({
 	email: z.string().trim().email(),
-	tempAttendeeIdFormName: z.string().optional()
+	tempAttendeeIdInForm: z.string().optional()
 });
 
 export const load = async ({ locals }) => {
@@ -48,6 +49,15 @@ export const actions = {
 		let user = await getUserByEmail(form.data.email);
 		let login_type = LOGIN_TYPE_MAGIC_LINK;
 
+		let existingTempAttendee = null;
+		if (form.data.tempAttendeeIdInForm) {
+			existingTempAttendee = await triplitHttpClient.fetchOne(
+				triplitHttpClient
+					.query('temporary_attendees')
+					.Where(['secret_mapping.id', '=', form.data.tempAttendeeIdInForm])
+			);
+		}
+
 		if (!user) {
 			user = await createNewUser({
 				id: generateId(15),
@@ -60,6 +70,17 @@ export const actions = {
 				throw error(500, 'Failed to create new user');
 			}
 			login_type = LOGIN_TYPE_ACTIVATION;
+		}
+
+		if (existingTempAttendee) {
+			await convertTempToPermanentUser(
+				user.id,
+				existingTempAttendee.event_id,
+				existingTempAttendee.id,
+				existingTempAttendee.name,
+				existingTempAttendee.status,
+				existingTempAttendee.guest_count
+			);
 		}
 
 		const ip_address = getClientAddress();

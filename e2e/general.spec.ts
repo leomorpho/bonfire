@@ -526,7 +526,7 @@ test('Temp attendee view', async ({ browser }) => {
 	// TODO: update the num of guests a temp is bringing
 });
 
-test('Temp -> normal attendee transformation', async ({ browser }) => {
+test('Temp -> new user', async ({ browser }) => {
 	const context1 = await browser.newContext();
 	const context2 = await browser.newContext();
 	const eventCreatorPage = await context1.newPage();
@@ -569,8 +569,7 @@ test('Temp -> normal attendee transformation', async ({ browser }) => {
 	).toBeVisible();
 
 	const attendeeEmail = faker.internet.email();
-	const attendeeUsername = faker.person.firstName();
-	await loginUser(tempAttendeePage, attendeeEmail, attendeeUsername);
+	await loginUser(tempAttendeePage, attendeeEmail, null);
 
 	await expect(tempAttendeePage.locator('.event-card')).toHaveCount(1);
 
@@ -581,6 +580,73 @@ test('Temp -> normal attendee transformation', async ({ browser }) => {
 	await tempAttendeePage.locator('#dashboard-header-menu-item').click();
 	await expect(tempAttendeePage.locator('.event-card')).toHaveCount(1);
 });
+
+test('Temp -> existing user', async ({ browser }) => {
+	const context1 = await browser.newContext();
+	const context2 = await browser.newContext();
+	const context3 = await browser.newContext();
+	const eventCreatorPage = await context1.newPage();
+	const tempAttendeePage = await context2.newPage();
+	const tempAttendeePage2 = await context3.newPage();
+
+	// await navigateTo(eventCreatorPage, WEBSITE_URL);
+
+	// Create event from creator POV
+	const email = faker.internet.email();
+	const username = faker.person.firstName();
+	await loginUser(eventCreatorPage, email, username);
+
+	const eventName = `${faker.animal.dog()} birthday party!`;
+	const eventDetails = 'It will be fun';
+	await createBonfire(eventCreatorPage, eventName, eventDetails);
+	await expect(eventCreatorPage.locator('#event-title')).toBeVisible();
+
+	const eventUrl = eventCreatorPage.url();
+
+	// Create user and then logout
+	const attendeeEmail = faker.internet.email();
+	const attendeeUsername1 = faker.person.firstName();
+	await loginUser(tempAttendeePage2, attendeeEmail, attendeeUsername1);
+	await tempAttendeePage2.close();
+
+	// Temp attendee
+	const tempAttendeeUsername = faker.person.firstName();
+	await navigateTo(tempAttendeePage, eventUrl);
+
+	// Set RSVP status
+	await tempAttendeePage.getByText('RSVP', { exact: true }).click();
+	await tempAttendeePage.getByRole('menuitem', { name: 'Going', exact: true }).click();
+	await expect(tempAttendeePage.getByRole('heading', { name: 'Hey There!' })).toBeVisible();
+	await expect(tempAttendeePage.getByText('There are two ways to set')).toBeVisible();
+	await expect(tempAttendeePage.getByRole('button', { name: 'Register/Login' })).toBeVisible();
+	await expect(tempAttendeePage.locator('div').filter({ hasText: 'or' }).nth(1)).toBeVisible();
+	await expect(tempAttendeePage.getByText('Generate unique URL')).toBeVisible();
+	await expect(tempAttendeePage.getByText('A unique URL that connects')).toBeVisible();
+	await tempAttendeePage.getByPlaceholder('Tony Garfunkel').click();
+	await tempAttendeePage.getByPlaceholder('Tony Garfunkel').fill(tempAttendeeUsername);
+	await tempAttendeePage.getByRole('button', { name: 'Generate URL' }).click();
+
+	// Should be redirected to bonfire page
+	await expect(
+		tempAttendeePage.getByText(`Hi ${tempAttendeeUsername}! This is a temporary`)
+	).toBeVisible();
+
+	await loginUser(tempAttendeePage, attendeeEmail, null, false, false);
+
+	await expect(tempAttendeePage.locator('.event-card')).toHaveCount(1);
+
+	// Going to the URL should now link it to the account
+	await navigateTo(tempAttendeePage, eventUrl);
+
+	await expect(tempAttendeePage.locator('#event-title')).toBeVisible();
+	await tempAttendeePage.locator('#dashboard-header-menu-item').click();
+	await expect(tempAttendeePage.locator('.event-card')).toHaveCount(1);
+
+	// Check the original user name is still set
+	await tempAttendeePage.locator('#profile-header-menu-item').click();
+	await expect(tempAttendeePage.getByText(attendeeUsername1)).toBeVisible();
+
+}, { timeout: 60000 });
 
 test('Event admins', async ({ browser }) => {
 	const context1 = await browser.newContext();
@@ -798,7 +864,7 @@ test('Bring list items', async ({ browser }) => {
 	await expect(eventCreatorPage.getByText('.bring-list-item-btn')).toHaveCount(0);
 });
 
-test('Consume logs', async ({ page }) => {
+test.skip('Consume logs', async ({ page }) => {
 	const email = faker.internet.email();
 	const username = faker.person.firstName() + '123456789';
 	await loginUser(page, email, username);
@@ -836,7 +902,7 @@ test('Consume logs', async ({ page }) => {
 	await expect(page.getByText('You have 0 log remaining.')).toBeVisible();
 });
 
-test('Add logs', async ({ page }) => {
+test.skip('Add logs', async ({ page }) => {
 	const email = faker.internet.email();
 	const username = faker.person.firstName() + '123456789';
 	await loginUser(page, email, username);

@@ -4,7 +4,7 @@
 	import { Gift, PartyPopper } from 'lucide-svelte';
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
-	import { loadScript, redirectToTempAttendanceInBonfireIfAvailable } from '$lib/utils';
+	import { loadScript, getTempAttendanceUrl } from '$lib/utils';
 	import { page } from '$app/stores';
 	import { getFeHttpTriplitClient, getFeWorkerTriplitClient } from '$lib/triplit';
 	import type { HttpClient, TriplitClient } from '@triplit/client';
@@ -52,11 +52,7 @@
 	});
 
 	const claimLogs = async () => {
-		await client.update('user', $page.data.user.id, async (entity: any) => {
-			entity.is_fully_onboarded = true;
-		});
-
-		const tempAttendanceUrl = await redirectToTempAttendanceInBonfireIfAvailable();
+		const tempAttendanceUrl = await getTempAttendanceUrl();
 		if (tempAttendanceUrl) {
 			goto(tempAttendanceUrl);
 		}
