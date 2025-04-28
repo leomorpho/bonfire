@@ -49,12 +49,12 @@
 		{itemName}
 	</div>
 	<div class="flex items-center">
+		<span> {`${totalBrought}/${itemQuantityNeeded}`}</span>
 		{#if itemUnit == BringListCountTypes.PER_PERSON}
-			<UserRound class="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+			<UserRound class="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
 		{:else if itemUnit == BringListCountTypes.COUNT}
-			<Tally5 class="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+			<Tally5 class="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
 		{/if}
-		<span>{numBrought ? numBrought : itemQuantityNeeded}</span>
 	</div>
 </div>
 
