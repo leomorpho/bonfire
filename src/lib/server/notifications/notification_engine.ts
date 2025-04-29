@@ -81,11 +81,12 @@ export const runNotificationProcessor = async () => {
 		}
 		await updateTaskLockState(taskName, true);
 
-		const query = triplitHttpClient.query('notifications_queue').Where([
-			['sent', '=', false] // Only fetch unsent notifications
-		]);
 		// Fetch the notifications
-		const notifications_queue_items = await triplitHttpClient.fetch(query);
+		const notifications_queue_items = await triplitHttpClient.fetch(
+			triplitHttpClient.query('notifications_queue').Where([
+				['sent', '=', false] // Only fetch unsent notifications
+			])
+		);
 
 		// Process each notifications
 		for (const notification_queue_item of notifications_queue_items) {

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
+	import KeyBoardShortcut from '$lib/components/KeyBoardShortcut.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { getFeWorkerTriplitClient, waitForUserId } from '$lib/triplit';
@@ -87,6 +88,13 @@
 	};
 </script>
 
+<KeyBoardShortcut
+	key="Enter"
+	callback={() => {
+		document.getElementById('submit-username')?.click();
+	}}
+/>
+
 <div class="p-safe flex min-h-screen items-center justify-center dark:text-white">
 	<div class="m-2 w-full max-w-96 space-y-4 text-center sm:max-w-md">
 		<div class="text-lg font-semibold">Choose Your Username</div>
@@ -101,7 +109,7 @@
 		<div class="text-sm text-yellow-600 dark:text-yellow-200">
 			This is how friends will recognize you. It's required to attend any bonfire.
 		</div>
-		<Button type="submit" disabled={!submitEnabled} onclick={handleSubmit} class="w-full"
+		<Button id="submit-username" type="submit" disabled={!submitEnabled} onclick={handleSubmit} class="w-full"
 			>Save</Button
 		>
 	</div>

@@ -19,18 +19,13 @@ export async function createNewAttendanceNotificationQueueObject(
 		throw new Error('attendeeIds in createNewAttendanceNotificationQueueObject cannot be empty.');
 	}
 
-	// TODO: check that attendeeIds points to real objects
-
-	// Stringify the list of IDs, even if it's a single item
-	const objectIds = JSON.stringify(attendeeIds);
-
 	// Qeueue a notification to be processed
 	await client.insert('notifications_queue', {
 		user_id: userId,
 		event_id: eventId,
 		object_type: NotificationType.ATTENDEES,
-		object_ids: objectIds,
-		object_ids_set: new Set(attendeeIds)
+		object_ids: JSON.stringify(attendeeIds),
+		object_ids_set: attendeeIds
 	});
 }
 
@@ -50,18 +45,13 @@ export async function createNewTemporaryAttendanceNotificationQueueObject(
 		throw new Error('attendeeIds in createNewAttendanceNotificationQueueObject cannot be empty.');
 	}
 
-	// TODO: check that attendeeIds points to real objects
-
-	// Stringify the list of IDs, even if it's a single item
-	const objectIds = JSON.stringify(attendeeIds);
-
 	// Qeueue a notification to be processed
 	await client.insert('notifications_queue', {
 		user_id: userId,
 		event_id: eventId,
 		object_type: NotificationType.TEMP_ATTENDEES,
-		object_ids: objectIds,
-		object_ids_set: new Set(attendeeIds)
+		object_ids: JSON.stringify(attendeeIds),
+		object_ids_set: attendeeIds
 	});
 }
 
@@ -83,17 +73,12 @@ export async function createNewAnnouncementNotificationQueueObject(
 		);
 	}
 
-	// TODO: check that announcementIds points to real objects
-
-	// Stringify the list of IDs, even if it's a single item
-	const objectIds = JSON.stringify(announcementIds);
-
 	await client.insert('notifications_queue', {
 		user_id: userId,
 		event_id: eventId,
 		object_type: NotificationType.ANNOUNCEMENT,
-		object_ids: objectIds,
-		object_ids_set: new Set(announcementIds)
+		object_ids: JSON.stringify(announcementIds),
+		object_ids_set: announcementIds
 	});
 }
 
@@ -112,11 +97,6 @@ export async function createNewFileNotificationQueueObject(
 	if (!isNonEmptyArray(fileIds)) {
 		throw new Error('fileIds in createNewFileNotificationQueueObject cannot be empty.');
 	}
-
-	// TODO: check that fileIds points to real objects
-
-	// Stringify the list of IDs, even if it's a single item
-	const objectIds = JSON.stringify(fileIds);
 
 	// Try to find an existing notification queue object with the same userId, eventId, and object_type
 	const existingQueue = await client.fetch(
@@ -149,8 +129,8 @@ export async function createNewFileNotificationQueueObject(
 			user_id: userId,
 			event_id: eventId,
 			object_type: NotificationType.FILES,
-			object_ids: objectIds,
-			object_ids_set: new Set(fileIds)
+			object_ids: JSON.stringify(fileIds),
+			object_ids_set: fileIds
 		});
 	}
 }
@@ -173,42 +153,14 @@ export async function createNewAdminNotificationQueueObject(
 			'attendee IDs of admins in createNewAdminNotificationQueueObject cannot be empty.'
 		);
 	}
-	// Convert admin IDs to JSON string
-	const objectIds = JSON.stringify(userIdsBecomingAdmins);
-
 	try {
-		// Check if a notification queue entry already exists for this event and user
-		// const existingQueue = await client.fetch(
-		// 	client
-		// 		.query('notifications_queue')
-		// 		.Where(
-		// 			and([
-		// 				['user_id', '=', userId],
-		// 				['event_id', '=', eventId],
-		// 				['object_type', '=', NotificationType.YOU_WERE_ADDED_AS_ADMIN]
-		// 			])
-		// 		)
-		// 		.Select(['id', 'object_ids'])
-		//
-		// );
-
-		// if (existingQueue && existingQueue.length > 0) {
-		// 	// Merge new admin IDs with existing ones
-		// 	const existingObjectIds = JSON.parse(existingQueue[0].object_ids) as string[];
-		// 	const updatedObjectIds = JSON.stringify([...new Set([...existingObjectIds, ...userIdsBecomingAdmins])]);
-
-		// 	// Update the existing notification queue entry
-		// 	await client.update('notifications_queue', existingQueue[0].id, async (entity) => {
-		// 		entity.object_ids = updatedObjectIds;
-		// 	});
-		// } else {
 		// Create a new notification queue entry
 		await client.insert('notifications_queue', {
 			user_id: userId,
 			event_id: eventId,
 			object_type: NotificationType.YOU_WERE_ADDED_AS_ADMIN,
-			object_ids: objectIds,
-			object_ids_set: new Set(userIdsBecomingAdmins)
+			object_ids: JSON.stringify(userIdsBecomingAdmins),
+			object_ids_set: userIdsBecomingAdmins
 		});
 		// }
 	} catch (e) {
@@ -232,16 +184,11 @@ export async function createNewMessageNotificationQueueObject(
 		throw new Error('messageIds in createNewMessageNotificationQueueObject cannot be empty.');
 	}
 
-	// TODO: check that announcementIds points to real objects
-
-	// Stringify the list of IDs, even if it's a single item
-	const objectIds = JSON.stringify(messageIds);
-
 	await client.insert('notifications_queue', {
 		user_id: userId,
 		event_id: eventId,
 		object_type: NotificationType.NEW_MESSAGE,
-		object_ids: objectIds,
-		object_ids_set: new Set(messageIds)
+		object_ids: JSON.stringify(messageIds),
+		object_ids_set: messageIds
 	});
 }

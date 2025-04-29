@@ -77,19 +77,21 @@
 	<!-- Edit Button Positioned Absolutely -->
 	{#if currUserId == announcement.user_id || isCurrenUserEventAdmin}
 		<div class="absolute -right-1 -top-1">
-			<Button class="rounded-xl p-2" variant="outline">
-				<AnnouncementHistory announcementId={announcement.id} event_id={announcement.event_id}>
-					<Eye class="!h-4 !w-4" />
-				</AnnouncementHistory>
-			</Button>
-			<a
-				href={`/bonfire/${eventId}/announcement/${announcement.id}/update`}
-				class="update-announcement"
-			>
+			<div class="flex space-x-1">
 				<Button class="rounded-xl p-2" variant="outline">
-					<Pencil class="!h-4 !w-4" />
+					<AnnouncementHistory announcementId={announcement.id} event_id={announcement.event_id}>
+						<Eye class="!h-4 !w-4" />
+					</AnnouncementHistory>
 				</Button>
-			</a>
+				<a
+					href={`/bonfire/${eventId}/announcement/${announcement.id}/update`}
+					class="update-announcement"
+				>
+					<Button class="rounded-xl p-2" variant="outline">
+						<Pencil class="!h-4 !w-4" />
+					</Button>
+				</a>
+			</div>
 		</div>
 	{/if}
 
