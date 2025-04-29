@@ -2,7 +2,7 @@
 	import { HttpClient, TriplitClient } from '@triplit/client';
 	import { Textarea } from '$lib/components/ui/textarea/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
-	import { getFeHttpTriplitClient, waitForUserId } from '$lib/triplit';
+	import { getFeHttpTriplitClient, getFeWorkerTriplitClient, waitForUserId } from '$lib/triplit';
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
@@ -12,10 +12,9 @@
 	import { toast } from 'svelte-sonner';
 
 	// Props for the page
-	let { mode = 'update', announcement = null, eventId } = $props();
+	let { mode = 'update', announcement = null, eventId, userId, currentUserAttendeeId } = $props();
 
-	let client: TriplitClient | HttpClient | undefined = $state();
-	let userId = $state();
+	let client: TriplitClient | undefined = $state();
 
 	// States for form fields
 	let content = $state(announcement?.content ?? '');
@@ -23,8 +22,7 @@
 	let loading = $state(false);
 
 	onMount(async () => {
-		client = getFeHttpTriplitClient($page.data.jwt);
-		userId = await waitForUserId();
+		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 	});
 
 	$effect(() => {
@@ -48,16 +46,22 @@
 			if (!content || !eventId) return;
 
 			if (mode === 'create') {
+				const id = 'an_' + (await createHash(content, 25));
 				// Create a new announcement
-				client
+				await client.http
 					.insert('announcement', {
-						id: 'an_' + (await createHash(content, 25)),
+						id: id,
 						content,
 						event_id: eventId,
 						user_id: userId // Use the authenticated user's ID
 					})
 					.then(async (output) => {
-						console.log('output...', output);
+						// Insert new seen_announcements record
+						await client?.http.insert('seen_announcements', {
+							attendee_id: currentUserAttendeeId,
+							announcement_id: id,
+							seen_at: new Date()
+						});
 
 						await createNewAnnouncementNotificationQueueObject(client, userId as string, eventId, [
 							output?.id

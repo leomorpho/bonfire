@@ -2,6 +2,23 @@
 	import { page } from '$app/stores';
 	import AnnouncementForm from '$lib/components/announcements/AnnouncementForm.svelte';
 	import BackButton from '$lib/components/BackButton.svelte';
+	import { getFeWorkerTriplitClient } from '$lib/triplit';
+	import type { TriplitClient } from '@triplit/client';
+	import { onMount } from 'svelte';
+
+	let attendance = $state();
+
+	onMount(() => {
+		const init = async () => {
+			let client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
+
+			attendance = await client.fetchOne(
+				client.query('attendees').Where(['user_id', '=', $page.data.user.id])
+			);
+		};
+
+		init();
+	});
 </script>
 
 <div class="mx-4 flex flex-col items-center justify-center">
@@ -14,6 +31,11 @@
 			<div></div>
 		</h2>
 
-		<AnnouncementForm mode="create" eventId={$page.params.id} />
+		<AnnouncementForm
+			mode="create"
+			eventId={$page.params.id}
+			userId={$page.data.user.id}
+			currentUserAttendeeId={attendance?.id}
+		/>
 	</section>
 </div>

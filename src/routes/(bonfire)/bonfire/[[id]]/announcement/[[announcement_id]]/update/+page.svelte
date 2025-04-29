@@ -8,16 +8,22 @@
 	import BackButton from '$lib/components/BackButton.svelte';
 
 	let announcement = $state();
+	let attendance = $state();
 
 	onMount(() => {
 		const init = async () => {
 			let client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
-			let announcementQuery = client
-				.query('announcement')
-				.Where(['id', '=', $page.params.announcement_id])
-				.Order('created_at', 'DESC');
-			announcement = await client.fetchOne(announcementQuery);
+			announcement = await client.fetchOne(
+				client
+					.query('announcement')
+					.Where(['id', '=', $page.params.announcement_id])
+					.Order('created_at', 'DESC')
+			);
+
+			attendance = await client.fetchOne(
+				client.query('attendees').Where(['user_id', '=', $page.data.user.id])
+			);
 		};
 
 		init();
@@ -38,6 +44,8 @@
 				mode="update"
 				eventId={$page.params.id}
 				announcement={announcement ? announcement : null}
+				userId={$page.data.user.id}
+				currentUserAttendeeId={attendance?.id}
 			/>
 		{:else}
 			<div class="flex w-full justify-center">

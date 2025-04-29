@@ -31,7 +31,7 @@
 
 		try {
 			// Insert new seen_announcements record
-			await client.insert('seen_announcements', {
+			await client?.insert('seen_announcements', {
 				attendee_id: currentUserAttendeeId,
 				announcement_id: announcement.id,
 				seen_at: new Date()
