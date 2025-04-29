@@ -15,7 +15,6 @@
 	import { MoreHorizontal } from 'lucide-svelte';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import { fade, slide } from 'svelte/transition';
-	import { flip } from 'svelte/animate';
 
 	let { notification, toggleDialog, deleteNotification, isCurrenUserEventAdmin = false } = $props();
 
@@ -91,7 +90,8 @@
 		const results = await client.fetch(query);
 
 		if (objectIds.length > 0 && results.length == 0) {
-			// hideNotification = true;
+			hideNotification = true;
+
 			// The associated objects were deleted, delete this notification
 			// await deleteNotification(notification.id);
 			return;

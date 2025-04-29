@@ -6,6 +6,7 @@
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 	import { and, TriplitClient } from '@triplit/client';
+	import { Eye, EyeClosed } from 'lucide-svelte';
 
 	let { children } = $props(); // Allow custom button text or children
 	let isDialogOpen = $state(false); // Dialog open state
@@ -139,7 +140,9 @@
 	<Dialog.Content class="flex h-full w-full items-center justify-center sm:h-[90vh]">
 		<ScrollArea class="flex h-full w-full items-center justify-center sm:h-[90vh]">
 			<Dialog.Header class="my-8">
-				<Dialog.Title class="flex w-full justify-center">Your Notifications</Dialog.Title>
+				<Dialog.Title class="flex w-full items-center justify-center"
+					>Your Notifications</Dialog.Title
+				>
 				<Dialog.Description>
 					{#if allUnreadNotifications.length == 0 && allSeenNotifications.length == 0}
 						<div
@@ -150,7 +153,7 @@
 					{/if}
 					{#if allUnreadNotifications.length > 0}
 						<!-- Show unread notifications -->
-						<h3 class="text font-bold">Unread</h3>
+						<h3 class="text flex justify-center font-bold"><Eye class="mr-2 h-4 w-4" /> Unread</h3>
 						{#each allUnreadNotifications as notification (notification.id)}
 							<div class="my-3">
 								<Notification
@@ -166,7 +169,9 @@
 
 					{#if allSeenNotifications.length > 0}
 						<!-- Show seen notifications -->
-						<h3 class="text mt-6 font-bold">Seen</h3>
+						<h3 class="text mt-6 flex items-center justify-center font-bold">
+							<EyeClosed class="mr-2 h-4 w-4" /> Seen
+						</h3>
 						{#each allSeenNotifications as notification (notification.id)}
 							<div class="my-3">
 								<Notification
