@@ -155,7 +155,7 @@
 
 <Dialog.Root bind:open={showAlert}>
 	<Dialog.Content
-		class="w-full rounded-3xl border-0 animate-in fade-in zoom-in sm:max-w-[400px] z-[60] {showContextMenu
+		class="w-full rounded-3xl border-0 animate-in fade-in zoom-in sm:max-w-[400px]  {showContextMenu
 			? 'pointer-events-none'
 			: 'pointer-events-auto'}"
 		interactOutsideBehavior="close"
@@ -178,7 +178,7 @@
 				<CustomAlertDialog
 					continueCallback={() => onDelete(message.id)}
 					dialogDescription={'This message will be deleted. This cannot be undone.'}
-					cls={'w-full'}
+					cls={'w-full z-[60]'}
 				>
 					<Button
 						class="flex w-full justify-between bg-slate-200 text-red-500 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700"
