@@ -46,7 +46,7 @@
 </script>
 
 <!-- Map Container -->
-<div class="relative h-[200px] w-full overflow-hidden rounded-lg">
+<div class="relative h-[150px] w-full overflow-hidden rounded-lg">
 	<MapLibre
 		center={geolocation}
 		zoom={14}

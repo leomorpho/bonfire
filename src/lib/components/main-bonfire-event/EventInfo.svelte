@@ -27,9 +27,11 @@
 		latitude = null,
 		longitude = null
 	} = $props();
+
+	let isMapPresent = $derived(latitude && longitude);
 </script>
 
-<div class="relative mt-5 space-y-3 rounded-xl py-4 sm:mt-0" in:fade={{ duration: 300 }}>
+<div class="relative mt-5 space-y-2 rounded-xl py-2 sm:mt-0" in:fade={{ duration: 300 }}>
 	<div id="event-title" class="flex w-full justify-center">
 		<UpdateableEventField
 			fieldValue={eventTitle}
@@ -58,60 +60,62 @@
 	<div class="w-full">
 		{@render updateableDescription('lg')}
 	</div>
-	<div class="flex w-full text-base lg:space-x-3">
+	<div class="flex w-full text-sm lg:space-x-3">
 		<div
-			class="h-fit w-full rounded-xl bg-slate-100/70 p-2 pt-5 text-center shadow-lg dark:bg-slate-900/70 lg:max-w-96"
+			class={` flex h-fit w-full items-center rounded-xl bg-slate-100/70 p-2 mt-2 text-center shadow-lg dark:bg-slate-900/70 ${isMapPresent ? 'flex-col md:flex md:flex-row md:space-x-5 lg:space-x-10' : 'flex-col'}`}
 		>
-			<div class="flex w-full items-center justify-center font-medium">
-				<Calendar class="mr-2 !h-4 !w-4 shrink-0" />{formatHumanReadable(eventStartTime)}
-				{#if eventEndTime}to {formatHumanReadableHour(eventEndTime)}{/if}
-			</div>
-			<div class="my-2 flex items-center justify-center font-light">
-				{#if eventOrganizerId}
-					<UserRound class="mr-2 !h-4 !w-4 shrink-0" />Hosted by
-					<span class="ml-1 font-bold">{eventOrganizerUsername}</span>
-					{#if rsvpStatus}
-						<div class="ml-2">
-							<ProfileAvatar userId={eventOrganizerId} />
-						</div>
+			<div class={`${isMapPresent ? 'w-full md:w-1/2 ' : 'w-full'}`}>
+				<div class="flex w-full items-center justify-center font-medium">
+					<Calendar class="mr-2 !h-4 !w-4 shrink-0" />{formatHumanReadable(eventStartTime)}
+					{#if eventEndTime}to {formatHumanReadableHour(eventEndTime)}{/if}
+				</div>
+				<div class="my-2 flex items-center justify-center font-light">
+					{#if eventOrganizerId}
+						<UserRound class="mr-2 !h-4 !w-4 shrink-0" />Hosted by
+						<span class="ml-1 font-bold">{eventOrganizerUsername}</span>
+						{#if rsvpStatus}
+							<div class="ml-2">
+								<ProfileAvatar userId={eventOrganizerId} />
+							</div>
+						{/if}
 					{/if}
-				{/if}
-			</div>
+				</div>
 
-			<div class="flex items-center justify-center font-light">
-				{#if rsvpStatus}
-					{#if eventLocation || (latitude && longitude)}
-						<div class="flex items-center justify-center">
-							{#if latitude && longitude}
-								<ShareLocation lat={latitude} lon={longitude}>
-									<div
-										id="share-location"
-										class="mt-2 flex items-center justify-center rounded-xl bg-slate-100 p-2 dark:bg-slate-800"
-									>
-										{#if eventLocation}
-											<!-- {@html DOMPurify.sanitize(eventLocation)} -->
-											{@html eventLocation}
-										{:else if latitude && longitude}
-											Get Directions
-										{/if}
-										<Car class="ml-2 !h-4 !w-4 shrink-0" />
+				<div class="flex items-center justify-center font-light">
+					{#if rsvpStatus}
+						{#if eventLocation || (latitude && longitude)}
+							<div class="flex items-center justify-center">
+								{#if latitude && longitude}
+									<ShareLocation lat={latitude} lon={longitude}>
+										<div
+											id="share-location"
+											class="mt-2 flex items-center justify-center rounded-xl bg-slate-100 p-2 dark:bg-slate-800"
+										>
+											{#if eventLocation}
+												<!-- {@html DOMPurify.sanitize(eventLocation)} -->
+												{@html eventLocation}
+											{:else if latitude && longitude}
+												Get Directions
+											{/if}
+											<Car class="ml-2 !h-4 !w-4 shrink-0" />
+										</div>
+									</ShareLocation>
+								{:else}
+									<div class="flex items-center justify-center p-2">
+										{eventLocation}
 									</div>
-								</ShareLocation>
-							{:else}
-								<div class="flex items-center justify-center p-2">
-									{eventLocation}
-								</div>
-							{/if}
-						</div>
+								{/if}
+							</div>
+						{:else}
+							<div>No address set</div>
+						{/if}
 					{:else}
-						<div>No address set</div>
+						Set RSVP status to see location
 					{/if}
-				{:else}
-					Set RSVP status to see location
-				{/if}
+				</div>
 			</div>
-			{#if latitude && longitude}
-				<div class="m-2">
+			{#if isMapPresent}
+				<div class="m-2 px-1.5 w-full md:w-1/2">
 					<Map {latitude} {longitude} />
 				</div>
 			{/if}

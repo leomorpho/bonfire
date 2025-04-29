@@ -117,7 +117,7 @@
 		{:else}
 			<button
 				onclick={updateEventAndCloseEditability}
-				class="absolute right-2 top-2 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-green-500 hover:bg-green-300 dark:bg-green-700 dark:hover:bg-green-500"
+				class="absolute right-2 top-2 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-green-500 hover:bg-green-300 dark:bg-green-700 dark:hover:bg-green-500 transition-all duration-300"
 			>
 				<Save class="h-6 w-6" />
 			</button>

@@ -4,7 +4,7 @@
 
 <div class="flex w-full justify-center text-base">
 	<div
-		class="mt-5 flex w-fit justify-center rounded-lg bg-slate-100 p-2 text-center text-sm opacity-80 dark:bg-slate-800 dark:opacity-80"
+		class="mt-3 md:mt-1 flex w-fit justify-center rounded-lg bg-slate-100 p-2 text-center text-sm opacity-80 dark:bg-slate-800 dark:opacity-80"
 	>
 		{#if rsvpEnabled}
 			This event is limited to {maxCapacity} attendees going, as set by the organizer.
