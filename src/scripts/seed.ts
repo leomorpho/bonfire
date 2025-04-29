@@ -2,7 +2,7 @@ import { createNewUser } from '$lib/server/database/user.model';
 import { generateId } from 'lucia';
 import { faker } from '@faker-js/faker';
 import { and, HttpClient } from '@triplit/client';
-import { BringListCountTypes, Status } from '$lib/enums';
+import { BringListCountTypes, mainDemoEventId, Status } from '$lib/enums';
 import {
 	createNewAnnouncementNotificationQueueObject,
 	createNewAttendanceNotificationQueueObject
@@ -49,6 +49,7 @@ const now = new Date(); // Current date and time
 const fiveWeeksLater = new Date(now.getTime() + 5 * 7 * 24 * 60 * 60 * 1000); // Add 5 weeks in milliseconds
 
 const output = await client.insert('events', {
+	id: mainDemoEventId,
 	title: "Mike's birthay party",
 	description:
 		'Come celebrate my birthday with good vibes, great company, and plenty of food & drinks. Let me know if you can make it—see you there! 🥳',

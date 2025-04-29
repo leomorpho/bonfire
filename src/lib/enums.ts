@@ -315,3 +315,5 @@ export enum eventInputTypes {
 	text = 'text',
 	address = 'address'
 }
+
+export const mainDemoEventId = 'the-coolest-demo-event';
