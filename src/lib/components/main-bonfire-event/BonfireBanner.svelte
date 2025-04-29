@@ -14,83 +14,80 @@
 
 	const placeholder = blurhashToCssGradientString(blurhash ?? 'LEHV6nWB2yk8pyo0adR*.7kCMdnj');
 
-	let largeImageLoaded = $state(false);
-	let smallImageLoaded = $state(false);
+	let imageLoaded = $state(false);
 
-	const handleImageLoad = (size: string) => {
-		if (size === 'large') {
-			largeImageLoaded = true;
-		} else if (size === 'small') {
-			smallImageLoaded = true;
-		}
+	const handleImageLoad = () => {
+		imageLoaded=true
 	};
 </script>
 
-<div class="image-container relative inline-block">
-	<div class="image-wrapper hidden rounded-xl sm:block">
-		{#if !largeImageLoaded}
-			<img
-				style="display: none;"
-				src={bannerLargeSizeUrl}
-				alt="Preload large image, but there is no actual image"
-				onload={() => handleImageLoad('large')}
-			/>
-			{@render skeleton()}
-		{/if}
-		{#if largeImageLoaded}
-			<div in:fade={{ duration: 800 }}>
-				<Image
-					priority={true}
-					background={placeholder}
-					width={BannerMediaSize.LARGE_WIDTH}
-					class="rounded-xl animate-in fade-in duration-300"
+<div class="max-h-[400px]">
+	<div class="image-container inline-block">
+		<div class="image-wrapper hidden rounded-xl sm:block">
+			{#if !imageLoaded}
+				<img
+					style="display: none;"
 					src={bannerLargeSizeUrl}
-					layout="constrained"
-					aspectRatio={2 / 1}
-					alt={'Banner for large screens'}
+					alt="Preload large image, but there is no actual image"
+					onload={handleImageLoad}
 				/>
-			</div>
-		{/if}
-	</div>
-	<div class="image-wrapper block rounded-xl sm:hidden">
-		{#if !smallImageLoaded}
-			<img
-				style="display: none;"
-				src={bannerSmallSizeUrl}
-				alt="Preload small image, but there is no actual image"
-				onload={() => handleImageLoad('small')}
-			/>
-			{@render skeleton()}
-		{/if}
-		{#if smallImageLoaded}
-			<div in:fade={{ duration: 800 }}>
-				<Image
-					priority={true}
-					background={placeholder}
-					width={BannerMediaSize.SMALL_WIDTH}
-					class="rounded-xl animate-in fade-in duration-300"
-					src={bannerSmallSizeUrl}
-					layout="constrained"
-					aspectRatio={2 / 1}
-					alt={'Banner for mobile'}
-				/>
-			</div>
-		{/if}
-	</div>
-	{#if isCurrenUserEventAdmin}
-		<div
-			class="absolute right-2 top-2 rounded-full bg-white p-2 shadow-md hover:bg-slate-100 dark:bg-slate-800 dark:text-white"
-		>
-			<a class="flex w-full" href="banner/upload" aria-label="Upload a new banner">
-				<Pen class="no-shrink h-5 w-5" />
-			</a>
+				{@render skeleton()}
+			{/if}
+			{#if imageLoaded}
+				<div in:fade={{ duration: 800 }} class="flex w-full justify-center">
+					<Image
+						priority={true}
+						background={placeholder}
+						width={BannerMediaSize.LARGE_WIDTH}
+						class="rounded-xl duration-300 animate-in fade-in"
+						src={bannerLargeSizeUrl}
+						layout="constrained"
+						aspectRatio={2 / 1}
+						alt={'Banner for large screens'}
+					/>
+				</div>
+			{/if}
 		</div>
-	{/if}
+		<div class="image-wrapper block rounded-xl sm:hidden">
+			{#if !imageLoaded}
+				<img
+					style="display: none;"
+					src={bannerSmallSizeUrl}
+					alt="Preload small image, but there is no actual image"
+					onload={handleImageLoad}
+				/>
+				{@render skeleton()}
+			{/if}
+			{#if imageLoaded}
+				<div in:fade={{ duration: 800 }} class="flex w-full justify-center">
+					<Image
+						priority={true}
+						background={placeholder}
+						width={BannerMediaSize.SMALL_WIDTH}
+						class="rounded-xl duration-300 animate-in fade-in"
+						src={bannerSmallSizeUrl}
+						layout="constrained"
+						aspectRatio={2 / 1}
+						alt={'Banner for mobile'}
+					/>
+				</div>
+			{/if}
+		</div>
+		{#if isCurrenUserEventAdmin}
+			<div
+				class="absolute right-2 top-2 rounded-full bg-white p-2 shadow-md hover:bg-slate-100 dark:bg-slate-800 dark:text-white"
+			>
+				<a class="flex w-full" href="banner/upload" aria-label="Upload a new banner">
+					<Pen class="no-shrink h-5 w-5" />
+				</a>
+			</div>
+		{/if}
+	</div>
 </div>
 
 {#snippet skeleton()}
 	<div
-		class="skeleton-loader animate-pulse bg-gradient-to-br from-slate-100 to-slate-300 dark:from-slate-700 dark:to-slate-800"
+		class="skeleton-loader max-h-[400px] animate-pulse bg-gradient-to-br from-slate-100 to-slate-300 dark:from-slate-700 dark:to-slate-800"
 	></div>
 {/snippet}
 

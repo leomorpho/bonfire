@@ -31,7 +31,7 @@
 	let isMapPresent = $derived(latitude && longitude);
 </script>
 
-<div class="relative mt-5 space-y-2 rounded-xl py-2 sm:mt-0" in:fade={{ duration: 300 }}>
+<div class="relative mt-5 space-y-3 rounded-xl py-2 sm:mt-0" in:fade={{ duration: 300 }}>
 	<div id="event-title" class="flex w-full justify-center">
 		<UpdateableEventField
 			fieldValue={eventTitle}
@@ -51,18 +51,20 @@
 		/>
 	{:else if isCurrenUserEventAdmin}
 		<a class="flex w-full" href="banner/upload">
-			<Button class="w-full dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600"
+			<Button class="fdark:text-white w-full dark:bg-slate-700 dark:hover:bg-slate-600"
 				>Set a banner image</Button
 			>
 		</a>
 	{/if}
 
-	<div class="w-full">
-		{@render updateableDescription('lg')}
+	<div class="flex w-full justify-center">
+		<div class="w-fit">
+			{@render updateableDescription('lg')}
+		</div>
 	</div>
 	<div class="flex w-full text-sm lg:space-x-3">
 		<div
-			class={` flex h-fit w-full items-center rounded-xl bg-slate-100/70 p-2 mt-2 text-center shadow-lg dark:bg-slate-900/70 ${isMapPresent ? 'flex-col md:flex md:flex-row md:space-x-5 lg:space-x-10' : 'flex-col'}`}
+			class={`flex h-fit w-full items-center rounded-xl bg-slate-100/70 p-2 text-center shadow-lg dark:bg-slate-900/70 ${isMapPresent ? 'flex-col md:flex md:flex-row md:space-x-5 lg:space-x-10' : 'flex-col'}`}
 		>
 			<div class={`${isMapPresent ? 'w-full md:w-1/2 ' : 'w-full'}`}>
 				<div class="flex w-full items-center justify-center font-medium">
@@ -115,7 +117,7 @@
 				</div>
 			</div>
 			{#if isMapPresent}
-				<div class="m-2 px-1.5 w-full md:w-1/2">
+				<div class="m-2 w-full px-1.5 md:w-1/2">
 					<Map {latitude} {longitude} />
 				</div>
 			{/if}
