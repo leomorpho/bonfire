@@ -1240,3 +1240,4 @@ test('Delete/Leaving attendees', async ({ browser }) => {
 // TODO: test event vs global permissions
 // TODO: test max capacity of bonfire
 // TODO: only logged in "users" can message, not temp users
+// TODO: any way to test Google login

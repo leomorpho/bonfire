@@ -8,8 +8,7 @@ import jwt from 'jsonwebtoken';
 // Function to parse JWT and extract payload
 function parseJWT(token: string) {
 	try {
-		const decoded = jwt.decode(token);
-		return decoded;
+		return jwt.decode(token);
 	} catch (error) {
 		console.error('Error decoding JWT:', error);
 		return null;
@@ -49,14 +48,21 @@ export async function GET(event: RequestEvent): Promise<Response> {
 			throw new Error('Invalid idToken received');
 		}
 
-		const google_user = parseJWT(idToken)!.payload as GoogleUser;
+		const google_user = parseJWT(idToken) as GoogleUser;
+		if (!google_user || !google_user.email) {
+			console.error('Failed to decode JWT or email is missing');
+			return new Response(null, {
+				status: 400
+			});
+		}
+
 		let user = await getUserByEmail(google_user.email);
 
 		if (!user) {
 			const user_id = generateId(15);
 			user = await createNewUser({
 				id: user_id,
-				email: google_user!.email,
+				email: google_user.email,
 				email_verified: true,
 				num_logs: 3,
 				is_event_styles_admin: false
