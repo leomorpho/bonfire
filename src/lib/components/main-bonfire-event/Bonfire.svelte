@@ -16,7 +16,7 @@
 		Info
 	} from 'lucide-svelte';
 	import Rsvp from '$lib/components/rsvp/Rsvp.svelte';
-	import { onMount } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import { Status, tempAttendeeSecretStore, tempAttendeeSecretParam } from '$lib/enums';
 	import MiniGallery from '$lib/components/MiniGallery.svelte';
 	import { toast } from 'svelte-sonner';
@@ -512,9 +512,11 @@
 	let activeTab = $state('about');
 
 	// Function to programmatically change tabs
-	const changeToDiscussionsTab = () => {
+	const changeToDiscussionsTab = async () => {
 		activeTab = ''; // NOTE: this is a hack to make it work, otherwise it only works the first time.
 		activeTab = 'discussions';
+		await tick(); // Ensure the DOM is updated
+		await scrollElementIntoView('messenger');
 	};
 </script>
 
