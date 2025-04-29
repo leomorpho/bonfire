@@ -6,10 +6,11 @@
 	import ProfileAvatar from '../profile/profile-avatar/ProfileAvatar.svelte';
 	import ShareLocation from '../ShareLocation.svelte';
 	import Map from '$lib/components/map/Map.svelte';
-	import DOMPurify from 'dompurify';
-	import EventDetails from './EventDetails.svelte';
+	// import DOMPurify from 'dompurify';
+	// import EventDetails from './EventDetails.svelte';
 	import UpdateableEventField from './info/UpdateableEventField.svelte';
 	import { eventInputTypes } from '$lib/enums';
+	import { fade, slide } from 'svelte/transition';
 
 	let {
 		eventId,
@@ -30,7 +31,11 @@
 
 <div class="relative mt-5 space-y-3 rounded-xl py-4 sm:mt-0">
 	{#if bannerInfo && bannerInfo.bannerIsSet}
-		<div class="flex w-full justify-center">
+		<div
+			class="flex w-full justify-center"
+			in:fade={{ duration: 300 }}
+			out:fade={{ duration: 100 }}
+		>
 			<BonfireBanner
 				blurhash={bannerInfo.bannerBlurHash}
 				bannerSmallSizeUrl={bannerInfo.bannerSmallSizeUrl}
