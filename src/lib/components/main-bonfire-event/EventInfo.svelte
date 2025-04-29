@@ -62,9 +62,9 @@
 			{@render updateableDescription('lg')}
 		</div>
 	</div>
-	<div class="flex w-full text-sm lg:space-x-3">
+	<div class="flex w-full text-sm lg:space-x-3 justify-center">
 		<div
-			class={`flex h-fit w-full items-center rounded-xl bg-slate-100/70 p-2 text-center shadow-lg dark:bg-slate-900/70 ${isMapPresent ? 'flex-col md:flex md:flex-row md:space-x-5 lg:space-x-10' : 'flex-col'}`}
+			class={`flex h-fit w-fit items-center rounded-xl bg-slate-100/70 p-2 text-center shadow-lg dark:bg-slate-900/70 ${isMapPresent ? 'flex-col md:flex md:flex-row md:space-x-5 lg:space-x-10' : 'flex-col'}`}
 		>
 			<div class={`${isMapPresent ? 'w-full md:w-1/2 ' : 'w-full'}`}>
 				<div class="flex w-full items-center justify-center font-medium">

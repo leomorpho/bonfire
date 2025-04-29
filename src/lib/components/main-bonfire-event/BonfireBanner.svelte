@@ -17,7 +17,7 @@
 	let imageLoaded = $state(false);
 
 	const handleImageLoad = () => {
-		imageLoaded=true
+		imageLoaded = true;
 	};
 </script>
 
@@ -35,16 +35,19 @@
 			{/if}
 			{#if imageLoaded}
 				<div in:fade={{ duration: 800 }} class="flex w-full justify-center">
-					<Image
-						priority={true}
-						background={placeholder}
-						width={BannerMediaSize.LARGE_WIDTH}
-						class="rounded-xl duration-300 animate-in fade-in"
-						src={bannerLargeSizeUrl}
-						layout="constrained"
-						aspectRatio={2 / 1}
-						alt={'Banner for large screens'}
-					/>
+					<div class="relative">
+						<Image
+							priority={true}
+							background={placeholder}
+							width={BannerMediaSize.LARGE_WIDTH}
+							class="rounded-xl duration-300 animate-in fade-in"
+							src={bannerLargeSizeUrl}
+							layout="constrained"
+							aspectRatio={2 / 1}
+							alt={'Banner for large screens'}
+						/>
+						{@render editButton()}
+					</div>
 				</div>
 			{/if}
 		</div>
@@ -60,28 +63,22 @@
 			{/if}
 			{#if imageLoaded}
 				<div in:fade={{ duration: 800 }} class="flex w-full justify-center">
-					<Image
-						priority={true}
-						background={placeholder}
-						width={BannerMediaSize.SMALL_WIDTH}
-						class="rounded-xl duration-300 animate-in fade-in"
-						src={bannerSmallSizeUrl}
-						layout="constrained"
-						aspectRatio={2 / 1}
-						alt={'Banner for mobile'}
-					/>
+					<div class="relative">
+						<Image
+							priority={true}
+							background={placeholder}
+							width={BannerMediaSize.SMALL_WIDTH}
+							class="rounded-xl duration-300 animate-in fade-in"
+							src={bannerSmallSizeUrl}
+							layout="constrained"
+							aspectRatio={2 / 1}
+							alt={'Banner for mobile'}
+						/>
+						{@render editButton()}
+					</div>
 				</div>
 			{/if}
 		</div>
-		{#if isCurrenUserEventAdmin}
-			<div
-				class="absolute right-2 top-2 rounded-full bg-white p-2 shadow-md hover:bg-slate-100 dark:bg-slate-800 dark:text-white"
-			>
-				<a class="flex w-full" href="banner/upload" aria-label="Upload a new banner">
-					<Pen class="no-shrink h-5 w-5" />
-				</a>
-			</div>
-		{/if}
 	</div>
 </div>
 
@@ -89,6 +86,18 @@
 	<div
 		class="skeleton-loader max-h-[400px] animate-pulse bg-gradient-to-br from-slate-100 to-slate-300 dark:from-slate-700 dark:to-slate-800"
 	></div>
+{/snippet}
+
+{#snippet editButton()}
+	{#if isCurrenUserEventAdmin}
+		<div
+			class="absolute right-2 top-2 rounded-full bg-white p-2 shadow-md transition-all duration-200 hover:bg-slate-200 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-600"
+		>
+			<a class="flex w-full" href="banner/upload" aria-label="Upload a new banner">
+				<Pen class="no-shrink h-5 w-5" />
+			</a>
+		</div>
+	{/if}
 {/snippet}
 
 <style>
