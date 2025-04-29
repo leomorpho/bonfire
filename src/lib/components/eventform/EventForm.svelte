@@ -354,7 +354,7 @@
 				entity.require_guest_bring_item = requireGuestBringItem;
 				entity.latitude = latitude;
 				entity.longitude = longitude;
-				entity.is_published = publishEventNow ?? isEventPublished;
+				entity.is_published = isEventPublished || publishEventNow;
 			});
 
 			// if (checkCanCreateTransaction(userIsOutOfLogs, createTransaction, isEventPublished)) {

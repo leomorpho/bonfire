@@ -10,7 +10,7 @@
 	// import EventDetails from './EventDetails.svelte';
 	import UpdateableEventField from './info/UpdateableEventField.svelte';
 	import { eventInputTypes } from '$lib/enums';
-	import { fade, slide } from 'svelte/transition';
+	import { fade } from 'svelte/transition';
 
 	let {
 		eventId,
@@ -29,28 +29,7 @@
 	} = $props();
 </script>
 
-<div class="relative mt-5 space-y-3 rounded-xl py-4 sm:mt-0">
-	{#if bannerInfo && bannerInfo.bannerIsSet}
-		<div
-			class="flex w-full justify-center"
-			in:fade={{ duration: 300 }}
-			out:fade={{ duration: 100 }}
-		>
-			<BonfireBanner
-				blurhash={bannerInfo.bannerBlurHash}
-				bannerSmallSizeUrl={bannerInfo.bannerSmallSizeUrl}
-				bannerLargeSizeUrl={bannerInfo.bannerLargeSizeUrl}
-				{isCurrenUserEventAdmin}
-			/>
-		</div>
-	{:else if isCurrenUserEventAdmin}
-		<a class="flex w-full" href="banner/upload">
-			<Button class="w-full dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600"
-				>Set a banner image</Button
-			>
-		</a>
-	{/if}
-
+<div class="relative mt-5 space-y-3 rounded-xl py-4 sm:mt-0" in:fade={{ duration: 300 }}>
 	<div id="event-title" class="flex w-full justify-center">
 		<UpdateableEventField
 			fieldValue={eventTitle}
@@ -61,11 +40,25 @@
 			inputType={eventInputTypes.textarea}
 		/>
 	</div>
+	{#if bannerInfo && bannerInfo.bannerIsSet}
+		<BonfireBanner
+			blurhash={bannerInfo.bannerBlurHash}
+			bannerSmallSizeUrl={bannerInfo.bannerSmallSizeUrl}
+			bannerLargeSizeUrl={bannerInfo.bannerLargeSizeUrl}
+			{isCurrenUserEventAdmin}
+		/>
+	{:else if isCurrenUserEventAdmin}
+		<a class="flex w-full" href="banner/upload">
+			<Button class="w-full dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600"
+				>Set a banner image</Button
+			>
+		</a>
+	{/if}
 
+	<div class="w-full">
+		{@render updateableDescription('lg')}
+	</div>
 	<div class="flex w-full text-base lg:space-x-3">
-		<div class="hidden w-full lg:block">
-			{@render updateableDescription('lg')}
-		</div>
 		<div
 			class="h-fit w-full rounded-xl bg-slate-100/70 p-2 pt-5 text-center shadow-lg dark:bg-slate-900/70 lg:max-w-96"
 		>
@@ -86,7 +79,6 @@
 			</div>
 
 			<div class="flex items-center justify-center font-light">
-				<!-- <MapPin class="mr-2 !h-4 !w-4 shrink-0" /> -->
 				{#if rsvpStatus}
 					{#if eventLocation || (latitude && longitude)}
 						<div class="flex items-center justify-center">
@@ -124,10 +116,6 @@
 				</div>
 			{/if}
 		</div>
-	</div>
-
-	<div class="block pt-2 lg:hidden">
-		{@render updateableDescription('sm')}
 	</div>
 </div>
 
