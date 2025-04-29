@@ -243,7 +243,7 @@
 <style>
 	.bg-color {
 		width: 100vw;
-		height: 100vh;
+		height: 100%;
 		opacity: 0;
 		animation: fadeIn 0.3s ease-in-out 0.3s;
 		animation-fill-mode: forwards;
