@@ -40,7 +40,6 @@
 	overlayOpacityStore.subscribe((value) => {
 		overlayOpacity = value;
 	});
-
 	fontStore.subscribe((value) => {
 		font = value;
 	});
@@ -94,7 +93,7 @@
 		let previousUsers: Record<string, string> = {}; // Stores previous user data as stringified JSON
 
 		if ($page.data.user) {
-			client = getFeWorkerTriplitClient($page.data.jwt);
+			client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
 			// Subscribe to live updates of attendees and their profile images
 			unsubscribeFromUserQuery = client.subscribe(

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { fontStore } from './../../../../lib/styles.ts';
 	import { page } from '$app/stores';
 	import { tempAttendeeSecretStore, tempAttendeeSecretParam } from '$lib/enums';
 	import type { BannerInfo, EventTypescriptType } from '$lib/types';
@@ -26,6 +27,10 @@
 
 	if (tempAttendeeId) {
 		tempAttendeeSecretStore.set(tempAttendeeId);
+	}
+
+	if (event?.font) {
+		fontStore.set(JSON.parse(event?.font));
 	}
 </script>
 

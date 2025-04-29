@@ -12,6 +12,7 @@
 	import MessageContent from './MessageContent.svelte';
 	import { toast } from 'svelte-sonner';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
+	import type { TriplitClient } from '@triplit/client';
 
 	let {
 		children,
@@ -72,8 +73,8 @@
 	};
 
 	const onDelete = async (messageId: string) => {
-		const client = await getFeWorkerTriplitClient($page.data.jwt);
-		await client.update('event_messages', messageId, async (entity: any) => {
+		const client = await getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
+		await client.http.update('event_messages', messageId, async (entity: any) => {
 			entity.content = '';
 			entity.deleted_by_user_id = $page.data.user.id;
 		});
