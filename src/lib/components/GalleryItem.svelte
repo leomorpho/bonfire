@@ -65,7 +65,7 @@
 </script>
 
 {#snippet image()}
-	<div class="relative aspect-[5/3] w-full overflow-hidden rounded-lg bg-gray-200">
+	<div class="relative aspect-[5/3] w-full overflow-hidden rounded-lg bg-gray-200 animate-in fade-in zoom-in duration-300">
 		{#if fileType.startsWith('image/')}
 			<Image
 				width={wPixel}

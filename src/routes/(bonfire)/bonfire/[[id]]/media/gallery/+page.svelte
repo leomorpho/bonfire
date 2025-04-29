@@ -714,7 +714,7 @@
 			{:else}
 				<div class="flex h-full w-full justify-center">
 					<div
-						class="mt-20 flex h-12 w-2/3 items-center justify-center rounded-xl bg-slate-200 text-sm dark:bg-slate-800 dark:text-white sm:text-base"
+						class="mt-20 flex h-12 w-fit items-center justify-center rounded-xl bg-slate-200 text-sm dark:bg-slate-800 dark:text-white sm:text-base"
 					>
 						<div>No files yet</div>
 					</div>

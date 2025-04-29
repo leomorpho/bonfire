@@ -1,7 +1,5 @@
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card/index.js';
-	import { Button } from '$lib/components/ui/button/index.js';
-	import { Cog } from 'lucide-svelte';
 	import { formatHumanReadable } from '$lib/utils';
 	import Rsvp from './rsvp/Rsvp.svelte';
 	import { parseColor } from '$lib/styles';
@@ -123,7 +121,7 @@
 
 <button
 	onclick={() => goto(`/bonfire/${event.id}`)}
-	class="event-card animate-fadeIn pointer-events-auto w-full cursor-pointer"
+	class="event-card animate-fadeIn pointer-events-auto w-full cursor-pointer animate-in fade-in duration-300"
 >
 	<Card.Root class="relative my-4 w-full bg-slate-100 dark:bg-slate-900" style={event.style}>
 		<!-- Not Published Marker -->
@@ -188,18 +186,3 @@
 	</Card.Root>
 </button>
 
-<style>
-	@keyframes fadeIn {
-		from {
-			opacity: 0;
-			transform: translateY(-5px);
-		}
-		to {
-			opacity: 1;
-			transform: translateY(0);
-		}
-	}
-	.animate-fadeIn {
-		animation: fadeIn 0.3s ease-out;
-	}
-</style>

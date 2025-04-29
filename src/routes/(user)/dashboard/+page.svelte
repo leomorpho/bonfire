@@ -169,7 +169,7 @@
 								<EventCard
 									event={attendance.event}
 									{userId}
-									eventCreatorName={attendance.event.user.username}
+									eventCreatorName={attendance.event.user.username??''}
 									rsvpStatus={attendance.status}
 									isPublished={attendance.event.is_published ?? false}
 									numGuests={attendance.guest_count}

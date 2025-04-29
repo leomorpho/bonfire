@@ -43,7 +43,7 @@
 					priority={true}
 					background={placeholder}
 					width={BannerMediaSize.LARGE_WIDTH}
-					class="rounded-xl"
+					class="rounded-xl animate-in fade-in duration-300"
 					src={bannerLargeSizeUrl}
 					layout="constrained"
 					aspectRatio={2 / 1}
@@ -68,7 +68,7 @@
 					priority={true}
 					background={placeholder}
 					width={BannerMediaSize.SMALL_WIDTH}
-					class="rounded-xl"
+					class="rounded-xl animate-in fade-in duration-300"
 					src={bannerSmallSizeUrl}
 					layout="constrained"
 					aspectRatio={2 / 1}

@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { fontStore } from './../../../../lib/styles.ts';
 	import { page } from '$app/stores';
 	import { tempAttendeeSecretStore, tempAttendeeSecretParam } from '$lib/enums';
 	import type { BannerInfo, EventTypescriptType } from '$lib/types';
 	import Bonfire from '$lib/components/main-bonfire-event/Bonfire.svelte';
+	import { fontStore } from '$lib/styles';
 
 	const showMaxNumPeople = 50;
 	const tempAttendeeId = $page.data.tempAttendeeId;
