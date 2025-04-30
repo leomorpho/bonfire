@@ -6,10 +6,12 @@
 	import Pricing from '$lib/components/landing/Pricing.svelte';
 	import AboutUs from '$lib/components/landing/AboutUs.svelte';
 	import Features from '$lib/components/landing/Features.svelte';
+	import EventCards from '$lib/components/landing/EventCards.svelte';
 </script>
 
 <div class="w-full overflow-x-hidden">
 	<Hero />
+	<EventCards />
 	<!-- <About /> -->
 	<Features />
 	<Pricing />

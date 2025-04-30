@@ -103,7 +103,7 @@
 				<Menu class="h-5 w-5 sm:h-5 sm:w-5" />
 			</div>
 		</DropdownMenu.Trigger>
-		<DropdownMenu.Content class="z-[60] m-2 p-4 dark:bg-slate-950">
+		<DropdownMenu.Content class="z-[60] m-2 p-4 dark:bg-slate-950 rounded-2xl">
 			<DropdownMenu.Group>
 				<!-- <DropdownMenu.Label>My Account</DropdownMenu.Label> -->
 				<!-- <DropdownMenu.Separator /> -->

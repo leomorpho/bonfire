@@ -11,6 +11,7 @@
 	import { onMount } from 'svelte';
 	import type { FontSelection } from '$lib/types';
 	import EditEventButton from './main-bonfire-event/EditEventButton.svelte';
+	import { browser } from '$app/environment';
 
 	let {
 		eventId,
@@ -36,7 +37,7 @@
 	let rsvpCanBeChanged = new Date(eventStartTime) >= new Date();
 	let font: FontSelection | null = fontStr ? JSON.parse(fontStr) : null;
 
-	if (font && font.cdn) {
+	if (browser && font && font.cdn) {
 		const fontLink = document.createElement('link');
 		fontLink.href = font.cdn;
 		fontLink.rel = 'stylesheet';
