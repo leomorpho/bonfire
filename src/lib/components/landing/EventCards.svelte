@@ -1,18 +1,30 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import EventCard from '../EventCard.svelte';
-	import { browser } from '$app/environment';
 	import emblaCarouselSvelte from 'embla-carousel-svelte';
 	import Autoscroll from 'embla-carousel-auto-scroll';
 	import { WheelGesturesPlugin } from 'embla-carousel-wheel-gestures';
+	import { onMount } from 'svelte';
+	import { browser } from '$app/environment';
 
 	let emblaApi;
 	let options = { loop: true };
 	let plugins = [Autoscroll(), WheelGesturesPlugin()];
 
 	function onInit(event) {
+		if (!browser) return;
+
 		emblaApi = event.detail;
-		console.log(emblaApi.slideNodes()); // Access API
+		// console.log("WHHHHHHHAAAAAT", emblaApi.slideNodes()); // Access API
+
+		const carousel = document.querySelector('.embla');
+		carousel?.classList.remove('invisible');
+		carousel?.classList.add('animate-fadeIn');
+
+		const slides = carousel?.querySelectorAll('.embla__slide');
+		slides?.forEach((slide) => {
+			slide.classList.remove('hidden');
+			slide.classList.add('animate-fadeIn');
+		});
 	}
 	// Function to add days to the current date and set a specific time
 	const addDays = (date: Date, days: number, hours: number, minutes: number): Date => {
@@ -29,11 +41,17 @@
 	const futureDate4 = addDays(new Date(), 120, 12, 30); // 120 days from now at 12:30 PM
 	const futureDate5 = addDays(new Date(), 150, 14, 0); // 150 days from now at 2:00 PM
 	const futureDate6 = addDays(new Date(), 180, 19, 30); // 180 days from now at 3:30 PM
+
+	onMount(() => {});
 </script>
 
-<div class="mt-3 embla" use:emblaCarouselSvelte={{ options, plugins }} onemblaInit={onInit}>
+<div
+	class="embla invisible mt-3 h-[270px] overflow-hidden"
+	use:emblaCarouselSvelte={{ options, plugins }}
+	onemblaInit={onInit}
+>
 	<div class="embla__container flex">
-		<div class="embla__slide">
+		<div class="embla__slide hidden">
 			<div class="w-96 flex-shrink-0 px-2">
 				<EventCard
 					eventId="wedding-1"
@@ -60,7 +78,7 @@
 			</div>
 		</div>
 
-		<div class="embla__slide">
+		<div class="embla__slide hidden">
 			<div class="w-96 flex-shrink-0 px-2">
 				<EventCard
 					eventId="birthday-1"
@@ -86,7 +104,7 @@
 			</div>
 		</div>
 
-		<div class="embla__slide">
+		<div class="embla__slide hidden">
 			<div class="w-96 flex-shrink-0 px-2">
 				<EventCard
 					eventId="conference-1"
@@ -112,7 +130,7 @@
 			</div>
 		</div>
 
-		<div class="embla__slide">
+		<div class="embla__slide hidden">
 			<div class="w-96 flex-shrink-0 px-2">
 				<EventCard
 					eventId="festival-1"
@@ -138,7 +156,7 @@
 			</div>
 		</div>
 
-		<div class="embla__slide">
+		<div class="embla__slide hidden">
 			<div class="w-96 flex-shrink-0 px-2">
 				<EventCard
 					eventId="workshop-1"
@@ -163,7 +181,7 @@
 				/>
 			</div>
 		</div>
-		<div class="embla__slide">
+		<div class="embla__slide hidden">
 			<div class="w-96 flex-shrink-0 px-2">
 				<EventCard
 					eventId="fundraiser-1"
@@ -192,10 +210,17 @@
 </div>
 
 <style>
-	.embla {
-		overflow: hidden;
+	@keyframes fadeIn {
+		from {
+			opacity: 0;
+			transform: translateY(-5px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
 	}
-	.embla__container {
-		display: flex;
+	.animate-fadeIn {
+		animation: fadeIn 0.7s ease-out;
 	}
 </style>

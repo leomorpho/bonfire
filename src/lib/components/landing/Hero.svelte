@@ -1,8 +1,13 @@
 <script lang="ts">
+	import { browser } from '$app/environment';
 	import { Button } from '$lib/jsrepo/ui/button';
 	import Container from '../Container.svelte';
 	import AnimatedShinyText from '../effects/animated-shiny-text/AnimatedShinyText.svelte';
-	import OrbitingCirclesBanner from './OrbitingCirclesBanner.svelte';
+
+	const titleFont = JSON.parse("{}")
+	const subtitleFont = JSON.parse("{}")
+
+
 </script>
 
 {#snippet startBonfireBtn()}
@@ -39,22 +44,15 @@
 <Container>
 	<div class="relative flex w-full flex-col items-center justify-center md:flex-row">
 		<div class="flex w-fit flex-col justify-center">
-			<div
+			<div style={titleFont?.style}
 				class="pointer-events-none z-10 whitespace-pre-wrap bg-gradient-to-b from-[#ffd319] via-[#ff2975] to-[#8c1eff] bg-clip-text p-1 text-center text-6xl font-bold leading-none tracking-tighter text-transparent sm:mt-8 sm:text-left sm:text-7xl"
 			>
 				Effortless <br />Gatherings
 			</div>
-			<p class="text-md mb-6 mt-5 text-center sm:mb-8 sm:mt-7 sm:text-left sm:text-lg">
+			<p style={subtitleFont?.style} class="text-md mb-6 mt-5 text-center sm:mb-8 sm:mt-7 sm:text-left sm:text-lg">
 				The simplest way to keep your guests up to date.
 			</p>
 			{@render startBonfireBtn()}
 		</div>
-
-		<!-- <div class="hidden w-full min-w-[450px] p-5 sm:p-10 md:block md:w-1/2">
-			<OrbitingCirclesBanner />
-		</div> -->
 	</div>
 </Container>
-<!-- <div class="mt-2 block overflow-x-clip md:hidden md:py-10">
-	<OrbitingCirclesBanner rounded={false} />
-</div> -->

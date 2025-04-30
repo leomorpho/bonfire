@@ -48,8 +48,6 @@
 		`background-color: rgba(var(--overlay-color-rgb, ${parseColor(overlayColor)}), ${overlayOpacity});`
 	);
 
-	$inspect('font', font);
-
 	function countStatuses(statusesArray: any) {
 		return statusesArray.reduce(
 			(acc, statusObj) => {

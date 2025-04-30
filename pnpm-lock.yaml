@@ -152,9 +152,6 @@ importers:
       embla-carousel-autoplay:
         specifier: ^8.6.0
         version: 8.6.0(embla-carousel@8.6.0)
-      embla-carousel-svelte:
-        specifier: ^8.6.0
-        version: 8.6.0(svelte@5.28.1)
       embla-carousel-wheel-gestures:
         specifier: ^8.0.2
         version: 8.0.2(embla-carousel@8.6.0)
@@ -300,6 +297,9 @@ importers:
       drizzle-kit:
         specifier: ^0.31.0
         version: 0.31.0
+      embla-carousel-svelte:
+        specifier: ^8.6.0
+        version: 8.6.0(svelte@5.28.1)
       eslint:
         specifier: ^9.25.0
         version: 9.25.0(jiti@1.21.7)
