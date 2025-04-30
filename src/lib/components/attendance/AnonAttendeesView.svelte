@@ -4,9 +4,9 @@
 	let { numAttendingGoing } = $props();
 </script>
 
-<div class="flex justify-center">
+<div class="flex w-full justify-center">
 	<div
-		class="flex w-full items-center justify-center rounded-lg bg-purple-500 bg-opacity-75 p-2 text-sm text-white ring-glow sm:w-2/3"
+		class="flex w-fit items-center justify-center rounded-lg bg-purple-500 bg-opacity-75 p-2 px-4 md:px-8 text-sm text-white ring-glow"
 	>
 		<Avatar.Root
 			class="mr-2 h-12 w-12 border-2 border-white bg-white dark:bg-slate-900 sm:h-14 sm:w-14"

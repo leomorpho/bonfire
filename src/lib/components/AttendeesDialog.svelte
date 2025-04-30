@@ -70,13 +70,10 @@
 	<Dialog.Trigger
 		id="see-attendees-dialog"
 		class="flex items-center focus:outline-none focus-visible:ring-0"
-		>{#if allAttendeesGoing.length > showMaxNumPeople}
-			<div class="rounded-xl bg-white text-sm text-gray-500 dark:bg-slate-900 dark:text-gray-100">
-				and {allAttendeesGoing.length - showMaxNumPeople} more
-			</div>
-		{/if}
-		<div class="flex h-12 w-12 items-center justify-center sm:h-14 sm:w-14">
-			<Plus class="ml-1 h-4 w-4 rounded-xl bg-white dark:bg-slate-900 sm:h-5 sm:w-5" />
+	>
+		<div class="flex items-center justify-center rounded-full bg-white p-1 px-2 dark:bg-slate-900">
+			{allAttendeesGoing.length - showMaxNumPeople}
+			<Plus class="ml-1 h-4 w-4 sm:h-5 sm:w-5" />
 		</div></Dialog.Trigger
 	>
 	<Dialog.Content class="h-full sm:h-[90vh]">

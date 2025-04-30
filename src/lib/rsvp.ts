@@ -70,7 +70,7 @@ export const createUserAttendance = async (
 		status: newStatus,
 		guest_count: numExtraGuests
 	});
-	console.log('attendance creatored');
+	console.log('attendance created');
 
 	await client.insert('attendees_changes', {
 		attendee_id: attendance.id,

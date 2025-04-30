@@ -38,7 +38,7 @@
 	let totalRemoved = $derived(allAttendeesRemoved.length);
 </script>
 
-<div class="mx-3 mt-5 items-center text-base">
+<div class="mx-3 my-2 items-center text-base">
 	{#if attendeesLoading}
 		<div class="flex flex-wrap items-center -space-x-3">
 			{#each Array(20).fill(null) as _, index}
@@ -66,20 +66,22 @@
 						/>
 					</div>
 				{/each}
-				<AttendeesDialog
-					{allAttendeesGoing}
-					{allAttendeesMaybeGoing}
-					{allAttendeesNotGoing}
-					{allAttendeesLeft}
-					{allAttendeesRemoved}
-					{showMaxNumPeople}
-					{isCurrenUserEventAdmin}
-					numAttendeesGoing={totalGoing}
-					numAttendeesMaybeGoing={totalMaybe}
-					numAttendeesNotGoing={totalNotGoing}
-					numAttendeesLeft={totalLeft}
-					numAttendeesRemoved={totalRemoved}
-				/>
+				<div class="pl-6">
+					<AttendeesDialog
+						{allAttendeesGoing}
+						{allAttendeesMaybeGoing}
+						{allAttendeesNotGoing}
+						{allAttendeesLeft}
+						{allAttendeesRemoved}
+						{showMaxNumPeople}
+						{isCurrenUserEventAdmin}
+						numAttendeesGoing={totalGoing}
+						numAttendeesMaybeGoing={totalMaybe}
+						numAttendeesNotGoing={totalNotGoing}
+						numAttendeesLeft={totalLeft}
+						numAttendeesRemoved={totalRemoved}
+					/>
+				</div>
 			</div>
 		{:else if allAttendeesGoing.length == 0}
 			<NoAttendeesYet />

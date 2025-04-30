@@ -52,17 +52,17 @@
 		<div class="text-center text-sm">
 			<span class="font-medium">Hey! 👋 Thanks for trying Bonfire!</span> I'm Toby, the sole
 			developer behind this indie app. While we're in Beta, if you encounter any issues or bugs,
-			feel free to email me at {publicEnv.PUBLIC_FROM_EMAIL} with any information. If you're not satisfied
-			for any reason, don't hesitate to ask for free logs! 🪵🪵🪵
+			feel free to email me at {publicEnv.PUBLIC_FROM_EMAIL} with any information!
 			<br /><br />
 			My wife is getting a bit tired of me working countless hours on passion projects that haven't paid
-			a cent yet but cost money to host. If you find Bonfire valuable, please support us by purchasing
-			logs! 🙏 Your support means the world to us and helps keep the platform running.
+			a cent yet but cost money to host. I'm planning to soon have a pro offering...but in the meantime,
+			if you find Bonfire valuable, please support us by sharing it with friends and hosting awesome
+			events! 🙏 Your support means the world to us and helps keep the platform running.
 		</div>
 		<button
 			type="button"
 			class="-mx-1.5 -my-1.5 ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-green-200 p-1.5 text-green-500 hover:bg-green-300 focus:ring-2 focus:ring-green-400 dark:bg-gray-700 dark:text-green-400 dark:hover:bg-gray-700 dark:hover:dark:bg-gray-600"
-			on:click={dismissAlert}
+			onclick={dismissAlert}
 			aria-label="Close"
 		>
 			<span class="sr-only">Close</span>

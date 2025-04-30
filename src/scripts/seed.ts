@@ -13,6 +13,7 @@ import { createNewThread, MAIN_THREAD } from '$lib/im';
 import { uploadBannerImage, uploadProfileImage } from '$lib/server/filestorage';
 import { assignBringItem, createBringItem } from '$lib/bringlist';
 import { createTempAttendance, createUserAttendance } from '$lib/rsvp';
+import { triplitHttpClient } from '$lib/server/triplit';
 
 const profileImagesDir = 'src/scripts/data/profile-pics';
 const bannerImagesDir = 'src/scripts/data/banner';
@@ -125,9 +126,9 @@ for (let i = 0; i < announcementContents.length; i++) {
 	});
 	const announcementId = announcement?.id;
 
-	await createNewAnnouncementNotificationQueueObject(client, user?.id as string, eventCreated?.id, [
-		announcementId
-	]);
+	// await createNewAnnouncementNotificationQueueObject(client, user?.id as string, eventCreated?.id, [
+	// 	announcementId
+	// ]);
 
 	announcements.push(announcementId);
 }
@@ -167,13 +168,16 @@ const createAttendee = async (attendeeData: any, existingAnnouncements: any[]) =
 		await uploadProfileImage(path, attendeeUser?.id as string, false);
 	}
 
-	/**
-	 * Generates a random integer between 0 and n (inclusive).
-	 *
-	 * @param {number} n - The upper bound of the random integer.
-	 * @returns {number} - A random integer between 0 and n.
-	 */
-	function getRandomInt(n: number) {
+	function getBiasedRandomInt(n: number) {
+		// Generate a random number between 0 and 9
+		const bias = Math.random();
+
+		// 90% of the time, return 0
+		if (bias < 0.9) {
+			return 0;
+		}
+
+		// 10% of the time, return a random integer between 0 and n (inclusive)
 		return Math.floor(Math.random() * (n + 1));
 	}
 
@@ -183,15 +187,15 @@ const createAttendee = async (attendeeData: any, existingAnnouncements: any[]) =
 		attendeeUser?.id as string,
 		eventCreated.id,
 		getRandomStatus(),
-		getRandomInt(4)
+		getBiasedRandomInt(4)
 	);
 
-	await createNewAttendanceNotificationQueueObject(
-		client,
-		attendeeUser?.id as string,
-		eventCreated?.id,
-		[newAttendeeResult?.id]
-	);
+	// await createNewAttendanceNotificationQueueObject(
+	// 	client,
+	// 	attendeeUser?.id as string,
+	// 	eventCreated?.id,
+	// 	[newAttendeeResult?.id]
+	// );
 
 	// Randomly mark some users as having seen the announcements
 	existingAnnouncements.forEach(async (announcementId) => {
@@ -206,9 +210,12 @@ const createAttendee = async (attendeeData: any, existingAnnouncements: any[]) =
 		}
 	});
 
-	console.log(`User ${attendeeData.username} with email ${attendeeData.email} created and events/announcements seeded:`, {
-		user: attendeeUser?.email
-	});
+	console.log(
+		`User ${attendeeData.username} with email ${attendeeData.email} created and events/announcements seeded:`,
+		{
+			user: attendeeUser?.email
+		}
+	);
 };
 
 for (const attendeeData of userDataWithProfilePics) {
@@ -226,7 +233,7 @@ const generateAttendeeData = (n: number) => {
 	const baseEmailDomain = '@example.com';
 
 	for (let i = 0; i < n; i++) {
-		const username = `User${i + 1}`;
+		const username = faker.person.firstName() + `User${i + 1}`;
 		const email = `user${i + 1}${baseEmailDomain}`;
 
 		generatedData.push({
@@ -238,7 +245,7 @@ const generateAttendeeData = (n: number) => {
 	return generatedData;
 };
 
-const newAttendeeData = generateAttendeeData(3000);
+const newAttendeeData = generateAttendeeData(200);
 
 for (const attendee of newAttendeeData) {
 	await createAttendee(attendee, announcements);
@@ -481,3 +488,11 @@ async function createAndAssignBringItems(
 
 // Create and assign bring items for Mike's event
 await createAndAssignBringItems(client, eventCreated.id, user?.id as string, attendees);
+
+const notifQueueItems = await triplitHttpClient.fetch(
+	triplitHttpClient.query('notifications_queue').Select(['id'])
+);
+
+for (const n of notifQueueItems) {
+	await triplitHttpClient.delete('notifications_queue', n.id);
+}

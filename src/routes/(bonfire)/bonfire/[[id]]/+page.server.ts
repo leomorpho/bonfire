@@ -61,8 +61,6 @@ export const load = async ({ params, locals, url }) => {
 				.query('events')
 				.Where(and([['id', '=', eventId as string]]))
 				.Include('announcements_list', (rel) => rel('announcements').Select(['id']))
-				.Include('attendees')
-				.Include('temporary_attendees')
 				.Include('files_list', (rel) => rel('files').Select(['id']))
 				.Include('banner_media')
 				.Include('event_admins')
@@ -94,31 +92,6 @@ export const load = async ({ params, locals, url }) => {
 			}
 		}
 
-		if (event.attendees != null) {
-			// Count only attendees with status "GOING" and include guest count
-			numAttendingGoing += event.attendees.reduce(
-				(total, attendee) =>
-					attendee.status === Status.GOING ? total + (attendee.guest_count || 0) + 1 : total,
-				0
-			);
-
-			// Check if the current user is among the attendees
-			isUserAnAttendee = event.attendees.some((attendee) => attendee.user_id === user?.id);
-		}
-		if (event.temporary_attendees != null) {
-			// Count only temporary attendees with status "GOING" and include guest count
-			numAttendingGoing += event.temporary_attendees.reduce(
-				(total, attendee) =>
-					attendee.status === Status.GOING ? total + (attendee.guest_count || 0) + 1 : total,
-				0
-			);
-
-			if (!isUserAnAttendee) {
-				isUserAnAttendee = event.temporary_attendees.some(
-					(attendee) => attendee.user_id === user?.id
-				);
-			}
-		}
 		if (event.announcements_list != null) {
 			numAnnouncements = event.announcements_list.length;
 		}
@@ -150,7 +123,56 @@ export const load = async ({ params, locals, url }) => {
 		// console.log("numFiles", numFiles)
 	}
 
-	if (!isUserAnAttendee) {
+	try {
+		const attendees = await triplitHttpClient.fetch(
+			triplitHttpClient
+				.query('attendees')
+				.Where(
+					and([
+						['event_id', '=', eventId as string],
+						['status', '=', Status.GOING]
+					])
+				)
+				.Select(['status', 'guest_count', 'user_id'])
+		);
+
+		// Count only attendees with status "GOING" and include guest count
+		numAttendingGoing += attendees.reduce(
+			(total, attendee) =>
+				attendee.status === Status.GOING ? total + (attendee.guest_count || 0) + 1 : total,
+			0
+		);
+
+		// Check if the current user is among the attendees
+		isUserAnAttendee = attendees.some((attendee) => attendee.user_id === user?.id);
+	} catch (e) {
+		console.error(`failed to get event attendees for eventId ${eventId}`, e);
+	}
+
+	try {
+		const temporary_attendees = await triplitHttpClient.fetch(
+			triplitHttpClient
+				.query('temporary_attendees')
+				.Where(
+					and([
+						['event_id', '=', eventId as string],
+						['status', '=', Status.GOING]
+					])
+				)
+				.Select(['status', 'guest_count'])
+		);
+
+		// Count only temporary attendees with status "GOING" and include guest count
+		numAttendingGoing += temporary_attendees.reduce(
+			(total, attendee) =>
+				attendee.status === Status.GOING ? total + (attendee.guest_count || 0) + 1 : total,
+			0
+		);
+	} catch (e) {
+		console.error(`failed to get temporary event attendees for eventId ${eventId}`, e);
+	}
+
+	if (!isUserAnAttendee && user) {
 		try {
 			// TODO: probably rate limit the number of new events you can see per minute
 
