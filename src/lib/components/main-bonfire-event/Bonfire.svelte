@@ -679,8 +679,8 @@
 								</div>
 							</div>
 							<HorizRule />
-							<div class="my-10 flex flex-col md:flex-row md:space-x-2">
-								<div class="w-full rounded-xl p-0 md:w-1/2 md:p-2">
+							<div class="my-10 flex flex-col lg:flex-row lg:space-x-2">
+								<div class="w-full rounded-xl p-0 lg:w-1/2 lg:p-2">
 									<div class="flex justify-center rounded-xl bg-white p-5 dark:bg-slate-900">
 										<div class="flex items-center font-semibold">
 											<Megaphone class="mr-2" /> Announcements
@@ -705,7 +705,7 @@
 									{/if}
 								</div>
 								<HorizRule />
-								<div class="w-full rounded-xl p-0 md:w-1/2 md:p-2">
+								<div class="w-full rounded-xl p-0 lg:w-1/2 lg:p-2">
 									<div class="flex justify-center rounded-xl bg-white p-5 dark:bg-slate-900">
 										<div class="flex items-center font-semibold">
 											<ShoppingBasket class="mr-2" /> Bring List
