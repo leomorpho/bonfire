@@ -124,17 +124,3 @@
 		</ScrollArea>
 	</Dialog.Content>
 </Dialog.Root>
-
-<style>
-	/* @keyframes fadeIn {
-		from {
-			opacity: 0;
-		}
-		to {
-			opacity: 1;
-		}
-	}
-	.animate-fadeIn {
-		animation: fadeIn 0.5s ease-out;
-	} */
-</style>
