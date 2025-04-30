@@ -267,7 +267,7 @@
 			<div class="space-y-4">
 				{#each currentAdminAttendees as adminAttendee (adminAttendee.user.id)}
 					<Card.Root
-						class="bg-slate-100/80 dark:bg-slate-900/80 dark:text-white dark:hover:bg-slate-800"
+						class="bg-slate-200/80 dark:bg-slate-900/80 dark:text-white dark:hover:bg-slate-800"
 					>
 						<Card.Header>
 							<Card.Title class="flex items-center">

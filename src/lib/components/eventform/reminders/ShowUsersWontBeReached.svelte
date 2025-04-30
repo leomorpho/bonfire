@@ -58,7 +58,7 @@
 {#if userIdsWontBeReached.length > 0}
 	<div class="mb-3 mt-5">
 		<h2
-			class="my-3 flex w-full justify-center rounded-xl bg-slate-100/50 p-2 text-base font-semibold dark:bg-slate-800/50"
+			class="my-3 flex w-full justify-center rounded-xl bg-yellow-200/80 p-2 text-sm font-semibold dark:bg-yellow-800/80"
 		>
 			{userIdsWontBeReached.length}
 			{userIdsWontBeReached.length > 1 ? 'attendees' : 'attendee'}

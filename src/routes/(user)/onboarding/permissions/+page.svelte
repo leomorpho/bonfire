@@ -20,7 +20,7 @@
 	const overlayStyle = 'background-color: rgba(var(--overlay-color-rgb, 0, 0, 0), 0.4);';
 
 	const permissionClasses =
-		'p-3 sm:p-5 bg-slate-100/80 p-3 dark:bg-slate-800/80 rounded-xl space-y-5 w-full';
+		'p-3 sm:p-5 bg-slate-200/80 p-3 dark:bg-slate-800/80 rounded-xl space-y-5 w-full';
 
 	const completeOnboarding = async () => {
 		await markAsFullyOnboarded(getFeHttpTriplitClient($page.data.jwt), $page.data.user.id);
@@ -39,7 +39,7 @@
 		<div class="flex w-full justify-center">
 			<div class="mt-4 justify-center sm:w-[450px] md:w-[550px]">
 				<div
-					class="my-5 w-full space-y-3 rounded-xl bg-slate-100/80 p-3 dark:bg-slate-800/80 sm:p-8"
+					class="my-5 w-full space-y-3 rounded-xl bg-slate-200/80 p-3 dark:bg-slate-800/80 sm:p-8"
 				>
 					<h1 class="flex w-full justify-center text-2xl font-semibold">Grant Permissions?</h1>
 					<p class="flex w-full justify-center text-center text-base">

@@ -153,7 +153,7 @@
 	<div class="card flex w-full max-w-[470px] flex-col p-5">
 		{#if !email_sent && oneTimePasswordValue.length > 0}
 			<div
-				class="my-4 rounded-lg bg-yellow-50 p-4 text-sm text-yellow-800 dark:bg-gray-800 dark:text-yellow-300"
+				class="my-4 rounded-lg bg-yellow-50 p-4 text-sm text-yellow-800 dark:bg-gray-700 dark:text-yellow-300"
 				role="alert"
 			>
 				<span class="font-medium">Oups!</span> One-time passwords can only be entered on the device you
@@ -202,7 +202,7 @@
 				</div>
 				{#if otpInvalid}
 					<div
-						class="my-4 rounded-lg bg-yellow-50 p-4 text-sm text-yellow-800 dark:bg-gray-800 dark:text-yellow-300"
+						class="my-4 rounded-lg bg-yellow-50 p-4 text-sm text-yellow-800 dark:bg-gray-700 dark:text-yellow-300"
 						role="alert"
 					>
 						<span class="font-medium">Oups!</span> Your code appears to be incorrect.
@@ -270,7 +270,7 @@
 						type="email"
 						name="email"
 						autocomplete="email"
-						class="input my-5 w-full bg-slate-100 dark:bg-slate-800 dark:text-white"
+						class="input my-5 w-full bg-slate-200 dark:bg-slate-800 dark:text-white"
 						class:hidden={!show_email_input}
 					/>
 					{#if $errors.email}

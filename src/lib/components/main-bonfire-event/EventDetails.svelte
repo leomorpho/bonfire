@@ -5,7 +5,7 @@
 	let { eventDescription } = $props();
 </script>
 
-<div class="relative flex flex-col rounded-xl bg-slate-100/70 shadow-lg dark:bg-slate-900/70">
+<div class="relative flex flex-col rounded-xl bg-slate-200/70 shadow-lg dark:bg-slate-900/70">
 	<div class="w-full rounded-b-xl dark:text-white">
 		<div
 			id="event-description-content-collapsed"

@@ -71,7 +71,7 @@
 					>
 						{user.username ? '' : 'Set your username'}
 						<div
-							class="ml-2 flex items-center justify-center rounded-full bg-slate-100 p-2 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600"
+							class="ml-2 flex items-center justify-center rounded-full bg-slate-200 p-2 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600"
 						>
 							<Pencil class="h-4 w-4" />
 						</div></a

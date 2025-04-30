@@ -11,7 +11,7 @@
 	class="focus:outline-none focus-visible:ring-0"
 >
 	<div
-		class="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 p-3 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700"
+		class="flex h-9 w-9 items-center justify-center rounded-full bg-slate-200 p-3 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700"
 	>
 		<Sun
 			class="!h-5 !w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"

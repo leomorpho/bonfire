@@ -237,7 +237,7 @@
 				{#each Object.entries(userIdToNumBroughtWhenDialogOpen).sort(([, aQuantity], [, bQuantity]) => bQuantity - aQuantity) as [userKey, quantity]}
 					{#if quantity > 0}
 						<div
-							class="my-2 rounded-xl bg-slate-100 p-1 dark:bg-slate-900"
+							class="my-2 rounded-xl bg-slate-200 p-1 dark:bg-slate-900"
 							in:fade={{ duration: 300 }}
 							out:fade={{ duration: 100 }}
 						>

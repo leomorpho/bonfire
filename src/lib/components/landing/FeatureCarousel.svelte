@@ -132,7 +132,7 @@
 				<div class="embla__container">
 					<div class="embla__slide">
 						<div
-							class="flex h-80 flex-col items-center justify-center space-y-3 rounded-xl bg-slate-100  dark:bg-slate-800 dark:text-white p-5 text-center"
+							class="flex h-80 flex-col items-center justify-center space-y-3 rounded-xl bg-slate-200  dark:bg-slate-800 dark:text-white p-5 text-center"
 						>
 							<div class="flex items-center font-bold sm:text-xl">
 								<Flame class="mr-1 hidden h-4 w-4 sm:block sm:h-5 sm:w-5" />Create a
@@ -146,7 +146,7 @@
 					</div>
 					<div class="embla__slide">
 						<div
-							class="flex h-80 flex-col items-center justify-center space-y-3 rounded-xl bg-slate-100  dark:bg-slate-800 dark:text-white p-5 text-center"
+							class="flex h-80 flex-col items-center justify-center space-y-3 rounded-xl bg-slate-200  dark:bg-slate-800 dark:text-white p-5 text-center"
 						>
 							<div class="flex items-center font-bold sm:text-xl">
 								<Link class="mr-1 hidden h-4 w-4 sm:block sm:h-6 sm:w-6" />Quick-share URLs
@@ -162,7 +162,7 @@
 					</div>
 					<div class="embla__slide">
 						<div
-							class="flex h-80 flex-col items-center justify-center space-y-3 rounded-xl bg-slate-100  dark:bg-slate-800 dark:text-white p-5 text-center"
+							class="flex h-80 flex-col items-center justify-center space-y-3 rounded-xl bg-slate-200  dark:bg-slate-800 dark:text-white p-5 text-center"
 						>
 							<div class="flex items-center font-bold sm:text-xl">
 								<Users class="mr-1 hidden h-4 w-4 sm:block sm:h-6 sm:w-6" />Track &
@@ -178,7 +178,7 @@
 					</div>
 					<div class="embla__slide">
 						<div
-							class="flex h-80 flex-col items-center justify-center space-y-3 rounded-xl bg-slate-100  dark:bg-slate-800 dark:text-white p-5 text-center"
+							class="flex h-80 flex-col items-center justify-center space-y-3 rounded-xl bg-slate-200  dark:bg-slate-800 dark:text-white p-5 text-center"
 						>
 							<div class="flex items-center font-bold sm:text-xl">
 								<Music class="mr-1 hidden h-4 w-4 sm:block sm:h-6 sm:w-6" />Shared Playlists
@@ -190,7 +190,7 @@
 					</div>
 					<div class="embla__slide">
 						<div
-							class="flex h-80 flex-col items-center justify-center space-y-3 rounded-xl bg-slate-100  dark:bg-slate-800 dark:text-white p-5 text-center"
+							class="flex h-80 flex-col items-center justify-center space-y-3 rounded-xl bg-slate-200  dark:bg-slate-800 dark:text-white p-5 text-center"
 						>
 							<div class="flex items-center font-bold sm:text-xl">
 								<Images class="mr-1 hidden h-4 w-4 sm:block sm:h-6 sm:w-6 " />Log Memories
@@ -203,7 +203,7 @@
 					</div>
 					<div class="embla__slide">
 						<div
-							class="flex h-80 flex-col items-center justify-center space-y-3 rounded-xl bg-slate-100  dark:bg-slate-800 dark:text-white p-5 text-center"
+							class="flex h-80 flex-col items-center justify-center space-y-3 rounded-xl bg-slate-200  dark:bg-slate-800 dark:text-white p-5 text-center"
 						>
 							<div class="flex items-center font-bold sm:text-xl">
 								<BellRing
@@ -218,7 +218,7 @@
 					</div>
 					<div class="embla__slide">
 						<div
-							class="flex h-80 flex-col items-center justify-center space-y-3 rounded-xl bg-slate-100  dark:bg-slate-800 dark:text-white p-5 text-center"
+							class="flex h-80 flex-col items-center justify-center space-y-3 rounded-xl bg-slate-200  dark:bg-slate-800 dark:text-white p-5 text-center"
 						>
 							<div class="flex items-center font-bold sm:text-xl">
 								<Feather

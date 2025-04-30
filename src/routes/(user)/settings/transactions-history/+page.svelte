@@ -58,7 +58,7 @@
 		class="mx-4 mt-4 flex w-full flex-col justify-center px-1 sm:w-[450px] md:w-[550px] lg:w-[650px]"
 	>
 		<div
-			class="my-6 flex items-center justify-between rounded-xl bg-slate-100 p-3 text-2xl font-semibold shadow-md dark:bg-slate-800 dark:text-white"
+			class="my-6 flex items-center justify-between rounded-xl bg-slate-200 p-3 text-2xl font-semibold shadow-md dark:bg-slate-800 dark:text-white"
 		>
 			<BackButton url={'/profile'}/>
 			<h2>Transactions</h2>

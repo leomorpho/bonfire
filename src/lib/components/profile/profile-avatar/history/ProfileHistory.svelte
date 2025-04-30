@@ -49,7 +49,7 @@
 		</h1>
 		{#each attendeeChanges.results as change}
 			<Card.Root
-				class="my-3 bg-slate-100/80 py-1 dark:bg-slate-900/80 dark:text-white dark:hover:bg-slate-800"
+				class="my-3 bg-slate-200/80 py-1 dark:bg-slate-900/80 dark:text-white dark:hover:bg-slate-800"
 			>
 				<Card.Header>
 					<Card.Title class="flex items-center justify-between">

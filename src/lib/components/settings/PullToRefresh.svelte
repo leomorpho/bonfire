@@ -64,7 +64,7 @@
 <!-- Expanding pull-to-refresh area -->
 {#if isMobile}
 	<div
-		class="z-50 flex w-full items-center justify-center bg-slate-100 dark:bg-slate-800 dark:text-white text-sm font-semibold text-gray-600"
+		class="z-50 flex w-full items-center justify-center bg-slate-200 dark:bg-slate-800 dark:text-white text-sm font-semibold text-gray-600"
 		style="height: {$pullHeight}px;"
 	>
 		{#if isRefreshing}

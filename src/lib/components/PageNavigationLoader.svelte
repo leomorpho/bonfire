@@ -25,7 +25,7 @@
 
 {#if isLoading}
 	<div
-		class="fixed left-0 top-0 z-[1000] flex h-screen w-screen items-center justify-center bg-slate-100/30 dark:bg-slate-900/30"
+		class="fixed left-0 top-0 z-[1000] flex h-screen w-screen items-center justify-center bg-slate-200/30 dark:bg-slate-900/30"
 	>
 		<span class="loader"></span>
 	</div>

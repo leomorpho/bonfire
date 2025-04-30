@@ -57,7 +57,7 @@
 {:else if eventChanges.error || tempEventChanges.error}
 	<p>Error: {eventChanges.error?.message ?? tempEventChanges.error?.message}</p>
 {:else if allChanges.length > 0}
-	<div class="my-5 rounded-xl bg-slate-100/80 p-3 dark:bg-slate-800/80 sm:p-8">
+	<div class="my-5 rounded-xl bg-slate-200/80 p-3 dark:bg-slate-800/80 sm:p-8">
 		<h1 class="flex w-full justify-center text-2xl font-semibold">
 			History <AdminOnlySign
 				text={'Only admins can access the event history page'}
@@ -72,7 +72,7 @@
 
 	{#each allChanges as change}
 		<Card.Root
-			class="my-3 bg-slate-100/80 py-1 dark:bg-slate-900/80 dark:text-white dark:hover:bg-slate-800"
+			class="my-3 bg-slate-200/80 py-1 dark:bg-slate-900/80 dark:text-white dark:hover:bg-slate-800"
 		>
 			<Card.Header>
 				<Card.Title class="flex items-center justify-between">

@@ -34,7 +34,7 @@
 {#if showAlert}
 	<div
 		id="success-alert"
-		class="mb-4 flex items-center rounded-lg bg-green-50 p-4 text-sm text-green-800 dark:bg-gray-800 dark:text-green-400"
+		class="mb-4 flex items-center rounded-lg bg-green-50 p-4 text-sm text-green-800 dark:bg-gray-700 dark:text-green-400"
 		role="alert"
 	>
 		<svg

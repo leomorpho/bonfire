@@ -184,7 +184,7 @@
 				>
 					<Button
 						id="delete-bring-item"
-						class="m-1 flex w-full justify-center bg-slate-200 text-red-500 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700"
+						class="m-1 flex w-full justify-center bg-slate-200 text-red-500 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700"
 						><Trash2 class="mr-1" /> Delete
 					</Button>
 				</CustomAlertDialog>

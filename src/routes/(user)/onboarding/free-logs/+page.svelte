@@ -82,7 +82,7 @@
 		<div class="center-screen md:p-10">
 			<FadeIn>
 				<div
-					class="w-90 mx-4 flex flex-col items-center rounded-xl bg-slate-100 p-6 text-center shadow-lg dark:bg-slate-900"
+					class="w-90 mx-4 flex flex-col items-center rounded-xl bg-slate-200 p-6 text-center shadow-lg dark:bg-slate-900"
 				>
 					<h1
 						class="flex items-center gap-2 text-2xl font-semibold text-black dark:text-white sm:text-4xl"

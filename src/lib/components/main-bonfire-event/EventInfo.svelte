@@ -64,7 +64,7 @@
 	</div>
 	<div class="flex w-full text-sm lg:space-x-3 justify-center">
 		<div
-			class={`flex h-fit w-fit items-center rounded-xl bg-slate-100/70 p-2 text-center shadow-lg dark:bg-slate-900/70 ${isMapPresent ? 'flex-col md:flex md:flex-row md:space-x-5 lg:space-x-10' : 'flex-col'}`}
+			class={`flex h-fit w-fit items-center rounded-xl bg-slate-200/70 p-2 text-center shadow-lg dark:bg-slate-900/70 ${isMapPresent ? 'flex-col md:flex md:flex-row md:space-x-5 lg:space-x-10' : 'flex-col'}`}
 		>
 			<div class={`${isMapPresent ? 'w-full md:w-1/2 ' : 'w-full'}`}>
 				<div class="flex w-full items-center justify-center font-medium">
@@ -91,7 +91,7 @@
 									<ShareLocation lat={latitude} lon={longitude}>
 										<div
 											id="share-location"
-											class="mt-2 flex items-center justify-center rounded-xl bg-slate-100 p-2 dark:bg-slate-800"
+											class="mt-2 flex items-center justify-center rounded-xl bg-slate-200 p-2 dark:bg-slate-800"
 										>
 											{#if eventLocation}
 												<!-- {@html DOMPurify.sanitize(eventLocation)} -->

@@ -34,7 +34,7 @@
 </script>
 
 <div class="flex w-full justify-center">
-	<div class="flex rounded-xl bg-slate-100 dark:bg-slate-800">
+	<div class="flex rounded-xl bg-slate-200 dark:bg-slate-800">
 		{#each OPTIONS as option, i}
 			<button
 				type="button"

@@ -109,7 +109,7 @@
 </script>
 
 <Card.Root
-	class={`bg-slate-100/80 dark:bg-slate-900/80 dark:text-white ${dropped ? 'line-through' : ''}`}
+	class={`bg-slate-200/80 dark:bg-slate-900/80 dark:text-white ${dropped ? 'line-through' : ''}`}
 >
 	<Card.Content class="space-y-3 text-base sm:space-y-4">
 		<div class="flex w-full items-center justify-center text-sm">

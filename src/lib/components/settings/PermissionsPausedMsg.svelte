@@ -74,7 +74,7 @@
 
 {#if (hasNoDeliveryPermissionSet && deliveryPermsReturnedByServer) || (hasNoNotificationPermissionSet && notifPermsReturnedByServer)}
 	<div
-		class="mb-4 flex items-center justify-center rounded-lg bg-yellow-50 p-4 text-sm text-yellow-800 dark:bg-gray-800 dark:text-yellow-300"
+		class="mb-4 flex items-center justify-center rounded-lg bg-yellow-50 p-4 text-sm text-yellow-800 dark:bg-gray-700 dark:text-yellow-300"
 		role="alert"
 	>
 		<svg

@@ -19,7 +19,7 @@
 
 <DropdownMenu.Root>
 	<DropdownMenu.Trigger id="item-category-btn"
-		class="w-fit rounded-xl bg-slate-200 p-2 hover:bg-slate-100 dark:bg-slate-800 hover:dark:bg-slate-700"
+		class="w-fit rounded-xl bg-slate-200 p-2 hover:bg-slate-200 dark:bg-slate-800 hover:dark:bg-slate-700"
 	>
 		{#if currentlySelectedType == BringListCountTypes.PER_PERSON}
 			<UserRound class="h-4 w-4 sm:h-5 sm:w-5" />

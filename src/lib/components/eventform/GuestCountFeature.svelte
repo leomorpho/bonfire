@@ -21,7 +21,7 @@
 	});
 </script>
 
-<div class="mt-4 rounded-lg bg-slate-100 bg-opacity-70 p-4 dark:bg-slate-800 dark:bg-opacity-70">
+<div class="mt-4 rounded-lg bg-slate-200 bg-opacity-70 p-4 dark:bg-slate-800 dark:bg-opacity-70">
 	<!-- Checkbox + Label -->
 	<div class="flex items-center space-x-2">
 		<Checkbox id="enbale-attendees-bringing-guests" bind:checked />

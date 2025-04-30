@@ -133,7 +133,7 @@
 	}}
 	class="event-card animate-fadeIn pointer-events-auto w-full cursor-pointer duration-300 animate-in fade-in"
 >
-	<Card.Root class="relative my-4 w-full bg-slate-100 dark:bg-slate-900" {style}>
+	<Card.Root class="relative my-4 w-full bg-slate-200 dark:bg-slate-900" {style}>
 		<!-- Not Published Marker -->
 		{#if !isPublished}
 			<div
@@ -148,7 +148,7 @@
 		<!-- Content -->
 		<div class="relative z-10 p-4">
 			<Card.Header
-				class="rounded-xl bg-slate-100 pb-2 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 sm:mb-4"
+				class="rounded-xl bg-slate-200 pb-2 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 sm:mb-4"
 			>
 				<Card.Title style={font?.style} class="text-lg">{eventTitle}</Card.Title>
 				<Card.Description>{formatHumanReadable(eventStartTime)}</Card.Description>
@@ -190,7 +190,7 @@
 				<EditEventButton
 					url={`/bonfire/${eventId}/update`}
 					eventIsPublished={isPublished}
-					class="rounded-full bg-slate-100 p-2 transition-all duration-200 hover:bg-slate-300 dark:bg-slate-900 dark:hover:bg-slate-700"
+					class="rounded-full bg-slate-200 p-2 transition-all duration-200 hover:bg-slate-300 dark:bg-slate-900 dark:hover:bg-slate-700"
 				/>
 			{/if}
 		</div>

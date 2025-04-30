@@ -181,7 +181,7 @@
 					cls={'w-full z-[60]'}
 				>
 					<Button
-						class="flex w-full justify-between bg-slate-200 text-red-500 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700"
+						class="flex w-full justify-between bg-slate-200 text-red-500 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700"
 						>Delete <Trash2 /></Button
 					>
 				</CustomAlertDialog>
@@ -193,7 +193,7 @@
 				cls={'w-full'}
 			>
 				<Button
-					class="flex w-full justify-between bg-slate-200 text-black hover:bg-slate-100 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
+					class="flex w-full justify-between bg-slate-200 text-black hover:bg-slate-200 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
 					>Report <Flag /></Button
 				>
 			</CustomAlertDialog> -->

@@ -140,7 +140,7 @@
 			</Button>
 		{/snippet}
 	</Popover.Trigger>
-	<Popover.Content class="bg-slate-100 p-0">
+	<Popover.Content class="bg-slate-200 p-0">
 		<Command.Root>
 			<Input
 				type="text"

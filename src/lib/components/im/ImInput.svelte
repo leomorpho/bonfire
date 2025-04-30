@@ -75,7 +75,7 @@
 			oninput={adjustTextareaHeight}
 			placeholder={textInputPlaceholder}
 			rows="1"
-			class="min-h-[40px] w-full resize-none rounded-lg bg-gray-100 px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100"
+			class="min-h-[40px] w-full resize-none rounded-lg bg-gray-100 px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-100"
 		></textarea>
 	</div>
 	<!-- Emoji Picker Popover -->

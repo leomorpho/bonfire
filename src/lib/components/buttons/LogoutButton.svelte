@@ -22,7 +22,7 @@
 		onclick={() => {
 			clearCache(client);
 		}}
-		class="mx-2 flex w-full items-center bg-slate-100 text-red-500 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700"
+		class="mx-2 flex w-full items-center bg-slate-200 text-red-500 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700"
 	>
 		<LogOut class="mr-1" />
 		<span>Log out</span>

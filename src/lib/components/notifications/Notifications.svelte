@@ -146,7 +146,7 @@
 				<Dialog.Description>
 					{#if allUnreadNotifications.length == 0 && allSeenNotifications.length == 0}
 						<div
-							class="my-5 flex items-center justify-center rounded-lg bg-slate-100 p-3 dark:bg-slate-700 dark:text-white"
+							class="my-5 flex items-center justify-center rounded-lg bg-slate-200 p-3 dark:bg-slate-700 dark:text-white"
 						>
 							No notifications... it's quiet here. 😶
 						</div>

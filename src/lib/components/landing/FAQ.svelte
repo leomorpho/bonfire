@@ -47,7 +47,7 @@
 			Still have questions? We've got you covered!
 		</div>
 		<div class="mt-5 md:mt-3 lg:mt-5">
-			<div class="join join-vertical w-full bg-slate-100 dark:bg-black">
+			<div class="join join-vertical w-full bg-slate-200 dark:bg-black">
 				{#each faqs as faq}
 					<div class="collapse join-item collapse-arrow border">
 						<input type="radio" name="accordion" />

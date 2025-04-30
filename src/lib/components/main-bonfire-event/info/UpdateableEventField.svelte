@@ -76,7 +76,7 @@
 
 <div
 	{id}
-	class="relative rounded-xl bg-slate-100/70 p-3 px-5 text-center dark:bg-slate-900/70 sm:px-10"
+	class="relative rounded-xl bg-slate-200/70 p-3 px-5 text-center dark:bg-slate-900/70 sm:px-10"
 >
 	{#if isEditing}
 		{#if inputType === eventInputTypes.textarea}

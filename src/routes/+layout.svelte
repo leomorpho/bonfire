@@ -159,7 +159,7 @@
 		<div
 			class={`m-2 mb-4 rounded-lg p-4 text-sm sm:m-4 md:m-8 ${
 				$flash.type === 'success'
-					? 'bg-green-50 text-green-800 dark:bg-gray-800 dark:text-green-400'
+					? 'bg-green-50 text-green-800 dark:bg-gray-700 dark:text-green-400'
 					: $flash.type === 'error'
 						? 'bg-red-50 text-red-800 dark:text-red-400'
 						: $flash.type === 'warning'

@@ -83,7 +83,7 @@
 		<div class="fixed-menu flex w-full justify-center space-x-2">
 			<ToggleGroup.Root
 				type="multiple"
-				class="flex flex-wrap rounded-lg bg-slate-100/80 p-1 dark:bg-slate-700/80"
+				class="flex flex-wrap rounded-lg bg-slate-200/80 p-1 dark:bg-slate-700/80"
 			>
 				<!-- <ToggleGroup.Item
 					onclick={() => editor.chain().focus().toggleBold().run()}

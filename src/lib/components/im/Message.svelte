@@ -253,15 +253,15 @@
 					class="message-data leading-1.5 flex w-full max-w-[320px] flex-col p-4
 			{isOwnMessage ? 'from-me rounded-s-xl rounded-se-xl bg-blue-100 p-4 dark:bg-blue-600' : ''}
 	{!isOwnMessage && !isUnseen
-						? 'from-them rounded-e-xl rounded-ss-xl bg-gray-100 p-4 dark:bg-gray-800'
+						? 'from-them rounded-e-xl rounded-ss-xl bg-gray-100 p-4 dark:bg-gray-900'
 						: ''}
 				{!isOwnMessage && isUnseen
 						? 'from-them rounded-e-xl rounded-ss-xl bg-green-100 p-4 dark:bg-green-900'
 						: ''}"
 				>
 					<div class="flex items-center space-x-2 rtl:space-x-reverse">
-						<span class="text-sm font-semibold text-gray-900 dark:text-white"
-							>{message.user?.username}</span
+						<span class="text-sm font-bold text-gray-500 dark:text-gray-400"
+							>{message.user?.username},</span
 						>
 						<span class="text-sm font-normal text-gray-500 dark:text-gray-400"
 							>{formatHumanReadableWithContext(message.created_at)}</span

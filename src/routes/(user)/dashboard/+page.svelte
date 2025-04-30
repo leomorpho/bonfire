@@ -144,7 +144,7 @@
 					<Loader />
 				{:else if futureAttendances.length == 0}
 					<div
-						class="mx-auto mt-10 flex w-full max-w-sm flex-col items-center justify-center gap-2 space-y-5 rounded-lg bg-slate-100 p-6 text-center dark:bg-slate-800 dark:text-white sm:mt-16 sm:w-2/3"
+						class="mx-auto mt-10 flex w-full max-w-sm flex-col items-center justify-center gap-2 space-y-5 rounded-lg bg-slate-200 p-6 text-center dark:bg-slate-800 dark:text-white sm:mt-16 sm:w-2/3"
 					>
 						<div class="flex items-center text-sm">
 							<span>You currently have no upcoming events.</span>
@@ -195,7 +195,7 @@
 					<Loader />
 				{:else if pastAttendances.length == 0}
 					<div
-						class="mx-auto mt-10 flex w-full max-w-sm flex-col items-center justify-center gap-2 space-y-5 rounded-lg bg-slate-100 p-6 text-center dark:bg-slate-800 dark:text-white sm:mt-16 sm:w-2/3"
+						class="mx-auto mt-10 flex w-full max-w-sm flex-col items-center justify-center gap-2 space-y-5 rounded-lg bg-slate-200 p-6 text-center dark:bg-slate-800 dark:text-white sm:mt-16 sm:w-2/3"
 					>
 						<div class="flex items-center text-sm">
 							<Frown class="mr-2 !h-5 !w-5" />

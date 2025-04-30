@@ -58,7 +58,7 @@
 	<div class="relative">
 		<!-- Notification Button -->
 		<div
-			class="m-1 flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700"
+			class="m-1 flex h-9 w-9 items-center justify-center rounded-full bg-slate-200 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700"
 		>
 			<Bell class="h-5 w-5" />
 		</div>

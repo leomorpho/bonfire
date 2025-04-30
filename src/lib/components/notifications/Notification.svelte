@@ -197,7 +197,7 @@
 </script>
 
 <div
-	class={`${hideNotification ? 'hidden' : ''} notification-item reltive relative mt-3 rounded-lg bg-slate-100 p-4 dark:bg-slate-900`}
+	class={`${hideNotification ? 'hidden' : ''} notification-item reltive relative mt-3 rounded-lg bg-slate-200 p-4 dark:bg-slate-900`}
 	bind:this={cardRef}
 	in:slide={{ duration: 300 }}
 	out:slide={{ duration: 100 }}
