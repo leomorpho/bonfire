@@ -76,7 +76,7 @@
 		maxNumGuestsAllowedPerAttendee = 0,
 		numGuestsCurrentAttendeeIsBringing = 0,
 		requireGuestBringItem = false,
-		showMaxNumPeople = 50
+		showMaxNumPeople = 30
 	} = $props();
 
 	let client: TriplitClient;

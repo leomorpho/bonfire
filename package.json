@@ -155,6 +155,7 @@
 		"sharp": "^0.34.1",
 		"stripe": "^16.5.0",
 		"svelte-boring-avatars": "^1.2.6",
+		"svelte-virtuallists": "^1.4.2",
 		"sveltekit-rate-limiter": "^0.6.1",
 		"toad-scheduler": "^3.0.1",
 		"twilio": "^5.5.2",

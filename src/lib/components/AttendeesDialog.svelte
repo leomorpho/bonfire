@@ -1,10 +1,11 @@
 <script lang="ts">
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
-	import { Plus } from 'lucide-svelte';
+	import { Plus, Trash2 } from 'lucide-svelte';
 	import { ScrollArea } from './ui/scroll-area';
 	import ProfileAvatar from './profile/profile-avatar/ProfileAvatar.svelte';
-	import { flip } from 'svelte/animate';
-	import { fade } from 'svelte/transition';
+	import * as Tabs from '$lib/components/ui/tabs/index.js';
+	import { ArrowRightFromLine, Frown, Meh, Smile } from '@lucide/svelte';
+	import BonfireNoInfoCard from './BonfireNoInfoCard.svelte';
 
 	let {
 		numAttendeesGoing,
@@ -28,7 +29,7 @@
 		if (isDialogOpen) {
 			setTimeout(() => {
 				shouldLoadContent = true;
-			}, 50);
+			}, 0);
 		} else {
 			shouldLoadContent = false;
 		}
@@ -37,20 +38,18 @@
 
 {#snippet attendees(
 	attendees: any,
-	numAttendees: number,
 	statusName: string,
 	attendeeType: string,
 	showRemoveUser = true
 )}
-	{#if attendees.length > 0}
-		<div class="mb-3 mt-5">
-			<h2 class="my-3 flex w-full justify-center font-semibold">
-				{numAttendees}
-				{statusName}
-			</h2>
-			<div class="mx-5 flex flex-wrap -space-x-4 text-black">
+	<div class="mb-3 mt-5">
+		<h2 class="my-3 flex w-full justify-center font-semibold">
+			{statusName}
+		</h2>
+		{#if attendees.length > 0}
+			<div class="mx-5 flex flex-wrap -space-x-2 space-y-2 text-black">
 				{#each attendees as attendee (attendee.id + attendeeType)}
-					<div animate:flip out:fade={{ duration: 300 }}>
+					<div>
 						<ProfileAvatar
 							userId={attendee.user_id}
 							tempUserName={attendee.name}
@@ -58,12 +57,15 @@
 							attendanceId={attendee.id}
 							numGuests={attendee.guest_count}
 							{showRemoveUser}
+							baseHeightPx={60}
 						/>
 					</div>
 				{/each}
 			</div>
-		</div>
-	{/if}
+		{:else}
+			<BonfireNoInfoCard text="no one yet" />
+		{/if}
+	</div>
 {/snippet}
 
 <Dialog.Root bind:open={isDialogOpen}>
@@ -72,50 +74,67 @@
 		class="flex items-center focus:outline-none focus-visible:ring-0"
 	>
 		<div class="flex items-center justify-center rounded-full bg-white p-1 px-2 dark:bg-slate-900">
+			<Plus class="mr-1 h-4 w-4 sm:h-5 sm:w-5" />
 			{allAttendeesGoing.length - showMaxNumPeople}
-			<Plus class="ml-1 h-4 w-4 sm:h-5 sm:w-5" />
 		</div></Dialog.Trigger
 	>
 	<Dialog.Content class="h-full sm:h-[90vh]">
-		{#if isDialogOpen && shouldLoadContent}
-			<!-- Only load content when dialog is open -->
-			<ScrollArea>
-				<Dialog.Header>
-					<Dialog.Title class="flex w-full justify-center">Attendees</Dialog.Title>
-					<Dialog.Description>
-						{@render attendees(allAttendeesGoing, numAttendeesGoing, 'going', 'going')}
-						{@render attendees(
-							allAttendeesMaybeGoing,
-							numAttendeesMaybeGoing,
-							'maybe',
-							'maybe-going'
-						)}
-						{@render attendees(
-							allAttendeesNotGoing,
-							numAttendeesNotGoing,
-							'not going',
-							'not-going'
-						)}
-						{#if isCurrenUserEventAdmin && numAttendeesLeft + numAttendeesRemoved > 0}
-							<div class="mt-10 rounded-xl bg-slate-200 py-3 dark:bg-slate-900">
-								<div class="my-2 flex w-full justify-center">
-									<div class="rounded-xl bg-yellow-100/50 p-2 dark:bg-yellow-800/50">
-										Only visible to admins
-									</div>
-								</div>
-								{@render attendees(allAttendeesLeft, numAttendeesLeft, 'left', 'left', false)}
-								{@render attendees(
-									allAttendeesRemoved,
-									numAttendeesRemoved,
-									'removed',
-									'removed',
-									false
-								)}
-							</div>
+		<!-- Only load content when dialog is open -->
+		<ScrollArea>
+			<Tabs.Root value="going-attendees-dialog" class="w-full">
+				<div class="sticky top-0 z-[60] flex w-full justify-center">
+					<Tabs.List>
+						<Tabs.Trigger value="going-attendees-dialog"
+							>{numAttendeesGoing} <Smile class="pl-1" /></Tabs.Trigger
+						>
+						<Tabs.Trigger value="maybe-attendees-dialog"
+							>{numAttendeesMaybeGoing} <Meh class="pl-1" /></Tabs.Trigger
+						>
+						<Tabs.Trigger value="not-going-attendees-dialog"
+							>{numAttendeesNotGoing} <Frown class="pl-1" /></Tabs.Trigger
+						>
+						{#if isCurrenUserEventAdmin}
+							<Tabs.Trigger value="admin-attendees-removed-dialog"
+								>{numAttendeesLeft} <Trash2 class="pl-1" /></Tabs.Trigger
+							>
+							<Tabs.Trigger value="admin-attendees-left-dialog"
+								>{numAttendeesRemoved} <ArrowRightFromLine class="pl-1" /></Tabs.Trigger
+							>
 						{/if}
-					</Dialog.Description>
-				</Dialog.Header>
-			</ScrollArea>
-		{/if}
+					</Tabs.List>
+				</div>
+				{#if isDialogOpen && shouldLoadContent}
+					<Tabs.Content value="going-attendees-dialog">
+						{@render attendees(allAttendeesGoing, 'Going', 'going')}
+					</Tabs.Content>
+					<Tabs.Content value="maybe-attendees-dialog">
+						{@render attendees(allAttendeesMaybeGoing, 'Maybe going', 'maybe-going')}
+					</Tabs.Content>
+					<Tabs.Content value="not-going-attendees-dialog">
+						{@render attendees(allAttendeesNotGoing, 'Not going', 'not-going')}
+					</Tabs.Content>
+					<Tabs.Content value="admin-attendees-removed-dialog">
+						{@render attendees(allAttendeesRemoved, 'Removed by admins', 'removed')}
+					</Tabs.Content>
+					<Tabs.Content value="admin-attendees-left-dialog">
+						{@render attendees(allAttendeesLeft, 'Left the event', 'left')}
+					</Tabs.Content>
+				{/if}
+			</Tabs.Root>
+		</ScrollArea>
 	</Dialog.Content>
 </Dialog.Root>
+
+<style>
+	/* @keyframes fadeIn {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
+	}
+	.animate-fadeIn {
+		animation: fadeIn 0.5s ease-out;
+	} */
+</style>

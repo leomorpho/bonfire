@@ -53,7 +53,7 @@
 				numAttendeesNotGoing={totalNotGoing}
 			/>
 
-			<div id="going-attendees" class="flex flex-wrap items-center justify-center -space-x-4">
+			<div id="going-attendees" class="flex flex-wrap items-center justify-center -space-x-4 space-y-2">
 				{#each allAttendeesGoing.slice(0, showMaxNumPeople) as attendee (attendee.id)}
 					<div animate:flip out:fade={{ duration: 300 }}>
 						<ProfileAvatar

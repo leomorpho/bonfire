@@ -5,7 +5,6 @@
 	import Bonfire from '$lib/components/main-bonfire-event/Bonfire.svelte';
 	import { fontStore } from '$lib/styles';
 
-	const showMaxNumPeople = 50;
 	const tempAttendeeId = $page.data.tempAttendeeId;
 	const tempAttendeeSecret = $page.url.searchParams.get(tempAttendeeSecretParam);
 
@@ -56,7 +55,6 @@
 	jwt={$page.data.jwt}
 	{tempAttendeeId}
 	{tempAttendeeSecret}
-	{showMaxNumPeople}
 	{maxNumGuestsAllowedPerAttendee}
 	{requireGuestBringItem}
 />

@@ -43,7 +43,7 @@
 {:else if attendeeChanges.error}
 	<p>Error: {attendeeChanges.error.message}</p>
 {:else if attendeeChanges.results}
-	<ScrollArea class="h-[80vh]">
+	<ScrollArea>
 		<h1 class="flex w-full justify-center text-2xl font-semibold">
 			<AdminOnlySign text={'Only admins can see attendee history'} class={'mx-2'} />
 		</h1>

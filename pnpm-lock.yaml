@@ -212,6 +212,9 @@ importers:
       svelte-boring-avatars:
         specifier: ^1.2.6
         version: 1.2.6
+      svelte-virtuallists:
+        specifier: ^1.4.2
+        version: 1.4.2(svelte@5.28.2)
       sveltekit-rate-limiter:
         specifier: ^0.6.1
         version: 0.6.1(@sveltejs/kit@2.20.7(@sveltejs/vite-plugin-svelte@5.0.3(svelte@5.28.2)(vite@6.3.4(@types/node@22.15.3)(jiti@1.21.7)(tsx@4.19.4)(yaml@2.7.1)))(svelte@5.28.2)(vite@6.3.4(@types/node@22.15.3)(jiti@1.21.7)(tsx@4.19.4)(yaml@2.7.1)))
@@ -4318,7 +4321,6 @@ packages:
 
   libsql@0.5.8:
     resolution: {integrity: sha512-+OopMI1wM/NvAJTHf3O3+beHd1YfKLnSVsOGBl3/7UBDZ4ydVadkbBk5Hjjs9d3ALC5rBaftMY59AvwyC8MzPw==}
-    cpu: [x64, arm64, wasm32]
     os: [darwin, linux, win32]
 
   lie@3.3.0:
@@ -5434,6 +5436,11 @@ packages:
     engines: {node: '>=18', pnpm: '>=8.7.0'}
     peerDependencies:
       svelte: ^5.0.0
+
+  svelte-virtuallists@1.4.2:
+    resolution: {integrity: sha512-ZvBU1BMmt2uY/spjuZn+XOtHVxOpU/Cfiy+dajxrOXe6KysjAY2O0R1cLonEGl+/AMy0or6/dO+KA3/C6R3l2A==}
+    peerDependencies:
+      svelte: ^5.20.5
 
   svelte@5.28.2:
     resolution: {integrity: sha512-FbWBxgWOpQfhKvoGJv/TFwzqb4EhJbwCD17dB0tEpQiw1XyUEKZJtgm4nA4xq3LLsMo7hu5UY/BOFmroAxKTMg==}
@@ -11405,6 +11412,11 @@ snapshots:
       clsx: 2.1.1
       runed: 0.23.4(svelte@5.28.2)
       style-to-object: 1.0.8
+      svelte: 5.28.2
+
+  svelte-virtuallists@1.4.2(svelte@5.28.2):
+    dependencies:
+      '@eslint/js': 9.25.1
       svelte: 5.28.2
 
   svelte@5.28.2:
