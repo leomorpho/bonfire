@@ -79,7 +79,7 @@
 					});
 			} else if (mode === 'update' && announcement?.id) {
 				// Update the existing announcement
-				client
+				client.http
 					.update('announcement', announcement.id, async (entity) => {
 						entity.content = content;
 						entity.event_id = eventId;

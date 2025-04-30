@@ -13,21 +13,28 @@
 	import EditEventButton from './main-bonfire-event/EditEventButton.svelte';
 
 	let {
-		event,
-		userId,
+		eventId,
+		eventTitle,
+		eventDescription,
+		eventStartTime,
+		eventEndTime,
+		eventLocation,
+		eventCreatorId,
+		overlayColor = '#000000',
+		overlayOpacity = 0.5,
+		style = '',
+		fontStr = null,
 		eventCreatorName,
-		rsvpStatus,
+		currUserId = null,
+		rsvpStatus = null,
 		isPublished = true,
 		numGuests = 0,
-		maxNumGuestsAllowedPerAttendee = 0
+		maxNumGuestsAllowedPerAttendee = 0,
+		isDemo = false
 	} = $props();
 
-	const client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
-
-	let rsvpCanBeChanged = new Date(event.start_time) >= new Date();
-	let overlayColor = event.overlay_color ?? '#000000';
-	let overlayOpacity = event.overlay_opacity ?? 0.5;
-	let font: FontSelection | null = event.font ? JSON.parse(event.font) : null;
+	let rsvpCanBeChanged = new Date(eventStartTime) >= new Date();
+	let font: FontSelection | null = fontStr ? JSON.parse(fontStr) : null;
 
 	if (font && font.cdn) {
 		const fontLink = document.createElement('link');
@@ -74,11 +81,12 @@
 	});
 
 	onMount(() => {
+		if (!currUserId) return;
+
+		const client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
+
 		const unsubscribeFromEventAttendees = client.subscribe(
-			client
-				.query('attendees')
-				.Where(['event_id', '=', event.id])
-				.Select(['status', 'guest_count']),
+			client.query('attendees').Where(['event_id', '=', eventId]).Select(['status', 'guest_count']),
 			(results) => {
 				const attendeesStatuses = results;
 				attendeesCount = countStatuses(attendeesStatuses);
@@ -97,7 +105,7 @@
 		const unsubscribeFromEventTemporaryAttendees = client.subscribe(
 			client
 				.query('temporary_attendees')
-				.Where(['event_id', '=', event.id])
+				.Where(['event_id', '=', eventId])
 				.Select(['status', 'guest_count']),
 			(results) => {
 				const temporaryAttendeesStatuses = results;
@@ -120,10 +128,13 @@
 </script>
 
 <button
-	onclick={() => goto(`/bonfire/${event.id}`)}
-	class="event-card animate-fadeIn pointer-events-auto w-full cursor-pointer animate-in fade-in duration-300"
+	onclick={() => {
+		if (isDemo) return;
+		goto(`/bonfire/${eventId}`);
+	}}
+	class="event-card animate-fadeIn pointer-events-auto w-full cursor-pointer duration-300 animate-in fade-in"
 >
-	<Card.Root class="relative my-4 w-full bg-slate-100 dark:bg-slate-900" style={event.style}>
+	<Card.Root class="relative my-4 w-full bg-slate-100 dark:bg-slate-900" {style}>
 		<!-- Not Published Marker -->
 		{#if !isPublished}
 			<div
@@ -140,8 +151,8 @@
 			<Card.Header
 				class="rounded-xl bg-slate-100 pb-2 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 sm:mb-4"
 			>
-				<Card.Title style={font?.style} class="text-lg">{event.title}</Card.Title>
-				<Card.Description>{formatHumanReadable(event.start_time)}</Card.Description>
+				<Card.Title style={font?.style} class="text-lg">{eventTitle}</Card.Title>
+				<Card.Description>{formatHumanReadable(eventStartTime)}</Card.Description>
 				<Card.Description>Hosted by {eventCreatorName}</Card.Description>
 			</Card.Header>
 			<Card.Content>
@@ -160,29 +171,29 @@
 				>
 					<Rsvp
 						{rsvpStatus}
-						{userId}
-						eventId={event.id}
+						userId={currUserId}
+						{eventId}
 						{rsvpCanBeChanged}
 						isAnonymousUser={false}
 						numGuestsCurrentAttendeeIsBringing={numGuests}
 						{maxNumGuestsAllowedPerAttendee}
-						eventOwnerId={event.user_id}
-						eventTitle={event.title}
-						eventStartTime={event.start_time}
-						eventEndTime={event.end_time}
-						eventDescription={event.description}
-						eventLocation={event.location}
+						eventOwnerId={eventCreatorId}
+						{eventTitle}
+						{eventStartTime}
+						{eventEndTime}
+						{eventDescription}
+						{eventLocation}
+						{isDemo}
 					/>
 				</button>
 			</Card.Content>
-			{#if event.user_id == (userId as string)}
+			{#if currUserId && eventCreatorId == (currUserId as string)}
 				<EditEventButton
-					url={`/bonfire/${event.id}/update`}
-					eventIsPublished={event.is_published}
+					url={`/bonfire/${eventId}/update`}
+					eventIsPublished={isPublished}
 					class="rounded-full bg-slate-100 p-2 transition-all duration-200 hover:bg-slate-300 dark:bg-slate-900 dark:hover:bg-slate-700"
 				/>
 			{/if}
 		</div>
 	</Card.Root>
 </button>
-

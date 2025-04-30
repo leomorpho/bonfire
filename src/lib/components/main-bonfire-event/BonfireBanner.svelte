@@ -14,26 +14,33 @@
 
 	const placeholder = blurhashToCssGradientString(blurhash ?? 'LEHV6nWB2yk8pyo0adR*.7kCMdnj');
 
-	let imageLoaded = $state(false);
+	let smImageLoaded = $state(false);
+	let lgImageLoaded = $state(false);
 
-	const handleImageLoad = () => {
-		imageLoaded = true;
+	const handleImageLoad = (size: string) => {
+		if (size == 'small') {
+			smImageLoaded = true;
+		} else if (size == 'large') {
+			lgImageLoaded = true;
+		}
 	};
 </script>
 
 <div class="max-h-[400px]">
 	<div class="image-container inline-block">
 		<div class="image-wrapper hidden rounded-xl sm:block">
-			{#if !imageLoaded}
+			{#if !lgImageLoaded}
 				<img
 					style="display: none;"
 					src={bannerLargeSizeUrl}
 					alt="Preload large image, but there is no actual image"
-					onload={handleImageLoad}
+					onload={() => {
+						handleImageLoad('large');
+					}}
 				/>
 				{@render skeleton()}
 			{/if}
-			{#if imageLoaded}
+			{#if lgImageLoaded}
 				<div in:fade={{ duration: 800 }} class="flex w-full justify-center">
 					<div class="relative">
 						<Image
@@ -52,16 +59,18 @@
 			{/if}
 		</div>
 		<div class="image-wrapper block rounded-xl sm:hidden">
-			{#if !imageLoaded}
+			{#if !smImageLoaded}
 				<img
 					style="display: none;"
 					src={bannerSmallSizeUrl}
 					alt="Preload small image, but there is no actual image"
-					onload={handleImageLoad}
+					onload={() => {
+						handleImageLoad('small');
+					}}
 				/>
 				{@render skeleton()}
 			{/if}
-			{#if imageLoaded}
+			{#if smImageLoaded}
 				<div in:fade={{ duration: 800 }} class="flex w-full justify-center">
 					<div class="relative">
 						<Image

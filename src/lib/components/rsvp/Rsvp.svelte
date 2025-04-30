@@ -30,8 +30,13 @@
 		eventStartTime,
 		eventEndTime = '',
 		eventDescription = '',
-		eventLocation = ''
+		eventLocation = '',
+		isDemo = false
 	} = $props();
+
+	if (isDemo) {
+		rsvpCanBeChanged = false;
+	}
 
 	let isAnonRsvpDialogOpen = $state(false);
 
@@ -68,6 +73,7 @@
 		newValue: string | null,
 		numGuestsCurrentAttendeeIsBringing: number | null = 0
 	) => {
+		if (isDemo) return;
 		if (oldValue == newValue) {
 			return;
 		}
@@ -190,7 +196,7 @@
 			</div>
 		{/if}
 		<DropdownMenu.Root bind:open={dropdownOpen}>
-			<DropdownMenu.Trigger class="w-full" id="rsvp-button">
+			<DropdownMenu.Trigger class="rsvp-button w-full">
 				{@render rsvpButton()}
 			</DropdownMenu.Trigger>
 			<DropdownMenu.Content class="w-full">

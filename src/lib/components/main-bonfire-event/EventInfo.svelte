@@ -51,7 +51,7 @@
 		/>
 	{:else if isCurrenUserEventAdmin}
 		<a class="flex w-full" href="banner/upload">
-			<Button class="fdark:text-white w-full dark:bg-slate-700 dark:hover:bg-slate-600"
+			<Button class="dark:text-white w-full dark:bg-slate-700 dark:hover:bg-slate-600"
 				>Set a banner image</Button
 			>
 		</a>

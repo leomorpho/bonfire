@@ -153,13 +153,13 @@ test('Create bonfire', async ({ page }) => {
 	await page.locator('#rsvp-btn').click();
 	await page.getByRole('menuitem', { name: 'Not going' }).click();
 
-	await expect(page.locator('#rsvp-button')).toHaveText('Not going');
+	await expect(page.locator('.rsvp-button')).toHaveText('Not going');
 
 	await expect(page.locator('#going-attendees').locator('.profile-avatar')).toHaveCount(0);
 	// And set back to "going"
-	await page.locator('#rsvp-button').getByText('Not going').click();
+	await page.locator('.rsvp-button').getByText('Not going').click();
 	await page.getByRole('menuitem', { name: 'Going', exact: true }).click();
-	await expect(page.locator('#rsvp-button').first()).toHaveText('Going');
+	await expect(page.locator('.rsvp-button').first()).toHaveText('Going');
 	await expect(page.locator('#going-attendees').locator('.profile-avatar')).toHaveCount(1);
 
 	await page.locator('#add-to-calendar').click();
@@ -196,7 +196,7 @@ test('Create bonfire', async ({ page }) => {
 	await page.getByLabel('Upload 1 file').click();
 
 	await expect(page.getByRole('img', { name: 'Banner for large screens' })).toBeVisible();
-	await expect(page.getByLabel('Upload a new banner')).toBeVisible();
+	await expect(page.getByLabel('Upload a new banner').first()).toBeVisible();
 
 	// Go to edit page and set background
 	await page.locator('#edit-bonfire').click();
@@ -581,72 +581,75 @@ test('Temp -> new user', async ({ browser }) => {
 	await expect(tempAttendeePage.locator('.event-card')).toHaveCount(1);
 });
 
-test('Temp -> existing user', async ({ browser }) => {
-	const context1 = await browser.newContext();
-	const context2 = await browser.newContext();
-	const context3 = await browser.newContext();
-	const eventCreatorPage = await context1.newPage();
-	const tempAttendeePage = await context2.newPage();
-	const tempAttendeePage2 = await context3.newPage();
+test(
+	'Temp -> existing user',
+	async ({ browser }) => {
+		const context1 = await browser.newContext();
+		const context2 = await browser.newContext();
+		const context3 = await browser.newContext();
+		const eventCreatorPage = await context1.newPage();
+		const tempAttendeePage = await context2.newPage();
+		const tempAttendeePage2 = await context3.newPage();
 
-	// await navigateTo(eventCreatorPage, WEBSITE_URL);
+		// await navigateTo(eventCreatorPage, WEBSITE_URL);
 
-	// Create event from creator POV
-	const email = faker.internet.email();
-	const username = faker.person.firstName();
-	await loginUser(eventCreatorPage, email, username);
+		// Create event from creator POV
+		const email = faker.internet.email();
+		const username = faker.person.firstName();
+		await loginUser(eventCreatorPage, email, username);
 
-	const eventName = `${faker.animal.dog()} birthday party!`;
-	const eventDetails = 'It will be fun';
-	await createBonfire(eventCreatorPage, eventName, eventDetails);
-	await expect(eventCreatorPage.locator('#event-title')).toBeVisible();
+		const eventName = `${faker.animal.dog()} birthday party!`;
+		const eventDetails = 'It will be fun';
+		await createBonfire(eventCreatorPage, eventName, eventDetails);
+		await expect(eventCreatorPage.locator('#event-title')).toBeVisible();
 
-	const eventUrl = eventCreatorPage.url();
+		const eventUrl = eventCreatorPage.url();
 
-	// Create user and then logout
-	const attendeeEmail = faker.internet.email();
-	const attendeeUsername1 = faker.person.firstName();
-	await loginUser(tempAttendeePage2, attendeeEmail, attendeeUsername1);
-	await tempAttendeePage2.close();
+		// Create user and then logout
+		const attendeeEmail = faker.internet.email();
+		const attendeeUsername1 = faker.person.firstName();
+		await loginUser(tempAttendeePage2, attendeeEmail, attendeeUsername1);
+		await tempAttendeePage2.close();
 
-	// Temp attendee
-	const tempAttendeeUsername = faker.person.firstName();
-	await navigateTo(tempAttendeePage, eventUrl);
+		// Temp attendee
+		const tempAttendeeUsername = faker.person.firstName();
+		await navigateTo(tempAttendeePage, eventUrl);
 
-	// Set RSVP status
-	await tempAttendeePage.getByText('RSVP', { exact: true }).click();
-	await tempAttendeePage.getByRole('menuitem', { name: 'Going', exact: true }).click();
-	await expect(tempAttendeePage.getByRole('heading', { name: 'Hey There!' })).toBeVisible();
-	await expect(tempAttendeePage.getByText('There are two ways to set')).toBeVisible();
-	await expect(tempAttendeePage.getByRole('button', { name: 'Register/Login' })).toBeVisible();
-	await expect(tempAttendeePage.locator('div').filter({ hasText: 'or' }).nth(1)).toBeVisible();
-	await expect(tempAttendeePage.getByText('Generate unique URL')).toBeVisible();
-	await expect(tempAttendeePage.getByText('A unique URL that connects')).toBeVisible();
-	await tempAttendeePage.getByPlaceholder('Tony Garfunkel').click();
-	await tempAttendeePage.getByPlaceholder('Tony Garfunkel').fill(tempAttendeeUsername);
-	await tempAttendeePage.getByRole('button', { name: 'Generate URL' }).click();
+		// Set RSVP status
+		await tempAttendeePage.getByText('RSVP', { exact: true }).click();
+		await tempAttendeePage.getByRole('menuitem', { name: 'Going', exact: true }).click();
+		await expect(tempAttendeePage.getByRole('heading', { name: 'Hey There!' })).toBeVisible();
+		await expect(tempAttendeePage.getByText('There are two ways to set')).toBeVisible();
+		await expect(tempAttendeePage.getByRole('button', { name: 'Register/Login' })).toBeVisible();
+		await expect(tempAttendeePage.locator('div').filter({ hasText: 'or' }).nth(1)).toBeVisible();
+		await expect(tempAttendeePage.getByText('Generate unique URL')).toBeVisible();
+		await expect(tempAttendeePage.getByText('A unique URL that connects')).toBeVisible();
+		await tempAttendeePage.getByPlaceholder('Tony Garfunkel').click();
+		await tempAttendeePage.getByPlaceholder('Tony Garfunkel').fill(tempAttendeeUsername);
+		await tempAttendeePage.getByRole('button', { name: 'Generate URL' }).click();
 
-	// Should be redirected to bonfire page
-	await expect(
-		tempAttendeePage.getByText(`Hi ${tempAttendeeUsername}! This is a temporary`)
-	).toBeVisible();
+		// Should be redirected to bonfire page
+		await expect(
+			tempAttendeePage.getByText(`Hi ${tempAttendeeUsername}! This is a temporary`)
+		).toBeVisible();
 
-	await loginUser(tempAttendeePage, attendeeEmail, null, false, false);
+		await loginUser(tempAttendeePage, attendeeEmail, null, false, false);
 
-	await expect(tempAttendeePage.locator('.event-card')).toHaveCount(1);
+		await expect(tempAttendeePage.locator('.event-card')).toHaveCount(1);
 
-	// Going to the URL should now link it to the account
-	await navigateTo(tempAttendeePage, eventUrl);
+		// Going to the URL should now link it to the account
+		await navigateTo(tempAttendeePage, eventUrl);
 
-	await expect(tempAttendeePage.locator('#event-title')).toBeVisible();
-	await tempAttendeePage.locator('#dashboard-header-menu-item').click();
-	await expect(tempAttendeePage.locator('.event-card')).toHaveCount(1);
+		await expect(tempAttendeePage.locator('#event-title')).toBeVisible();
+		await tempAttendeePage.locator('#dashboard-header-menu-item').click();
+		await expect(tempAttendeePage.locator('.event-card')).toHaveCount(1);
 
-	// Check the original user name is still set
-	await tempAttendeePage.locator('#profile-header-menu-item').click();
-	await expect(tempAttendeePage.getByText(attendeeUsername1)).toBeVisible();
-
-}, { timeout: 60000 });
+		// Check the original user name is still set
+		await tempAttendeePage.locator('#profile-header-menu-item').click();
+		await expect(tempAttendeePage.getByText(attendeeUsername1)).toBeVisible();
+	},
+	{ timeout: 60000 }
+);
 
 test('Event admins', async ({ browser }) => {
 	const context1 = await browser.newContext();
@@ -738,7 +741,7 @@ test('Event admins', async ({ browser }) => {
 	await adminPage.getByLabel('Upload 1 file').click();
 
 	await expect(adminPage.getByRole('img', { name: 'Banner for large screens' })).toBeVisible();
-	await expect(adminPage.getByLabel('Upload a new banner')).toBeVisible();
+	await expect(adminPage.getByLabel('Upload a new banner').first()).toBeVisible();
 });
 
 test('Bring list items', async ({ browser }) => {

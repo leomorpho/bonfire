@@ -167,9 +167,19 @@
 							{console.log('attendance.event.is_published', attendance.event.is_published)}
 							<div class="my-7 sm:my-10">
 								<EventCard
-									event={attendance.event}
-									{userId}
-									eventCreatorName={attendance.event.user.username??''}
+									eventId={attendance.event.id}
+									eventTitle={attendance.event.title}
+									eventDescription={attendance.event.description}
+									eventStartTime={attendance.event.start_time}
+									eventEndTime={attendance.event.end_time}
+									eventLocation={attendance.event.location}
+									overlayColor={attendance.event.overlay_color}
+									overlayOpacity={attendance.event.overlay_opacity}
+									style={attendance.event.style}
+									fontStr={attendance.event.font}
+									currUserId={userId}
+									eventCreatorName={attendance.event.user.username ?? ''}
+									eventCreatorId={attendance.event.user_id}
 									rsvpStatus={attendance.status}
 									isPublished={attendance.event.is_published ?? false}
 									numGuests={attendance.guest_count}
@@ -197,9 +207,19 @@
 						{#each pastAttendances as attendance}
 							<div class="my-7 sm:my-10">
 								<EventCard
-									event={attendance.event}
-									{userId}
-									eventCreatorName={attendance.event.user.username}
+									eventId={attendance.event.id}
+									eventTitle={attendance.event.title}
+									eventDescription={attendance.event.description}
+									eventStartTime={attendance.event.start_time}
+									eventEndTime={attendance.event.end_time}
+									eventLocation={attendance.event.location}
+									overlayColor={attendance.event.overlay_color}
+									overlayOpacity={attendance.event.overlay_opacity}
+									style={attendance.event.style}
+									fontStr={attendance.event.font}
+									currUserId={userId}
+									eventCreatorName={attendance.event.user.username ?? ''}
+									eventCreatorId={attendance.event.user_id}
 									rsvpStatus={attendance.status}
 									isPublished={attendance.event.is_published ?? false}
 									numGuests={attendance.guest_count}
