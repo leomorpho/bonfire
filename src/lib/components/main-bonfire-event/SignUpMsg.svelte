@@ -20,7 +20,7 @@
 	}
 </script>
 
-{#if showBanner}
+{#if showBanner && false}
 	<div class="flex w-full justify-center my-3">
 		<div
 			class="relative mb-3 flex h-min w-fit flex-col items-center rounded-xl bg-orange-500/90 p-4 text-center text-white dark:bg-orange-700/90"
