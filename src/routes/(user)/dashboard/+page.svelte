@@ -50,7 +50,7 @@
 	const initEvents = async () => {
 		// let pastAttendanceQuery = createAttendanceQuery(client, userId, true);
 		// console.log('----> ??? ', await client.fetch(pastAttendanceQuery));
-		if (dev) {
+		if (dev && false) {
 			console.log('all events this user can see', await client.fetch(client.query('events')));
 			console.log('all users this user can see', await client.fetch(client.query('user')));
 			console.log(
@@ -178,7 +178,7 @@
 									style={attendance.event.style}
 									fontStr={attendance.event.font}
 									currUserId={userId}
-									eventCreatorName={attendance.event.user.username ?? ''}
+									eventCreatorName={attendance.event.user?.username ?? ''}
 									eventCreatorId={attendance.event.user_id}
 									rsvpStatus={attendance.status}
 									isPublished={attendance.event.is_published ?? false}
@@ -218,7 +218,7 @@
 									style={attendance.event.style}
 									fontStr={attendance.event.font}
 									currUserId={userId}
-									eventCreatorName={attendance.event.user.username ?? ''}
+									eventCreatorName={attendance.event.user?.username ?? ''}
 									eventCreatorId={attendance.event.user_id}
 									rsvpStatus={attendance.status}
 									isPublished={attendance.event.is_published ?? false}

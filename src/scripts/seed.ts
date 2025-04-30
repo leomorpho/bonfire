@@ -132,7 +132,7 @@ for (let i = 0; i < announcementContents.length; i++) {
 	announcements.push(announcementId);
 }
 
-const knownData = [
+const userDataWithProfilePics = [
 	{ email: 'alice.johnson@example.com', username: 'Alice', photo: 'alice.jpg' },
 	{ email: 'bob.smith@example.com', username: 'Bob', photo: 'bob.jpg' },
 	{ email: 'charlie.brown@example.com', username: 'Charlie', photo: 'charlie.jpg' },
@@ -150,9 +150,7 @@ const knownData = [
 	{ email: 'oliver.anderson@example.com', username: 'olivera', photo: 'oliver.jpg' }
 ];
 
-for (let i = 0; i < knownData.length; i++) {
-	const attendeeData = knownData[i];
-
+const createAttendee = async (attendeeData: any, existingAnnouncements: any[]) => {
 	const attendeeUser = await createNewUser({
 		id: generateId(15),
 		email: attendeeData.email,
@@ -196,8 +194,8 @@ for (let i = 0; i < knownData.length; i++) {
 	);
 
 	// Randomly mark some users as having seen the announcements
-	announcements.forEach(async (announcementId) => {
-		const hasSeen = Math.random() < 0.7; // 70% chance a user has seen the announcement
+	existingAnnouncements.forEach(async (announcementId) => {
+		const hasSeen = Math.random() < 0.8; // 80% chance a user has seen the announcement
 		if (hasSeen) {
 			await client.insert('seen_announcements', {
 				id: generateId(15),
@@ -208,9 +206,42 @@ for (let i = 0; i < knownData.length; i++) {
 		}
 	});
 
-	console.log(`User ${i + 1} created and events/announcements seeded:`, {
+	console.log(`User ${attendeeData.username} with email ${attendeeData.email} created and events/announcements seeded:`, {
 		user: attendeeUser?.email
 	});
+};
+
+for (const attendeeData of userDataWithProfilePics) {
+	await createAttendee(attendeeData, announcements);
+}
+
+/**
+ * Generates an array of attendee data without the photo field.
+ *
+ * @param {number} n - The number of entries to generate.
+ * @returns {Array} - An array of attendee data objects.
+ */
+const generateAttendeeData = (n: number) => {
+	const generatedData = [];
+	const baseEmailDomain = '@example.com';
+
+	for (let i = 0; i < n; i++) {
+		const username = `User${i + 1}`;
+		const email = `user${i + 1}${baseEmailDomain}`;
+
+		generatedData.push({
+			email: email,
+			username: username
+		});
+	}
+
+	return generatedData;
+};
+
+const newAttendeeData = generateAttendeeData(3000);
+
+for (const attendee of newAttendeeData) {
+	await createAttendee(attendee, announcements);
 }
 
 await createTempAttendance(
@@ -270,7 +301,53 @@ const messages = [
 	"I'll send out the invitations tomorrow. Please let me know if you have any last-minute additions.",
 	'Thanks, everyone! This is going to be an amazing party for Mike.',
 	"Looking forward to it! Let's make it a night to remember.",
-	'Cheers to that! See you all at the party!'
+	'Cheers to that! See you all at the party!',
+	'Does anyone know a good bakery for the birthday cake?',
+	'I can pick up the cake. Any flavor preferences for Mike?',
+	"Let's get a mix of chocolate and vanilla to please everyone.",
+	'We should also plan a surprise element. Any ideas?',
+	"How about a surprise video message from friends who can't make it?",
+	"That's a wonderful idea! I can collect the video messages.",
+	'We need to decide on the timing. What time should the party start?',
+	'How about 7 PM? That gives everyone time to arrive and settle in.',
+	"Sounds good. I'll update the invitations with the timing.",
+	'Should we have a dress code to match the retro theme?',
+	"A dress code would be fun! Let's suggest 70s or 80s attire.",
+	'I can create a playlist for background music before the DJ arrives.',
+	"That would be great! Make sure to include some of Mike's favorite songs.",
+	'We should also think about transportation. Should we arrange rides?',
+	"Good point. Let's see if we can get a group discount with a ride-sharing service.",
+	'I can coordinate with the venue to set up early. Who can help?',
+	"I'll be there early to help with the setup. Just let me know the time.",
+	"Perfect! Let's aim to be there by 5 PM to get everything ready.",
+	'Does anyone have any last-minute suggestions or concerns?',
+	"I think we've covered everything. This is going to be awesome!",
+	"Can't wait! See you all at Mike's birthday bash!",
+	'Remember to confirm your attendance on the invitation platform.',
+	"I'll bring my camera to capture some candid moments.",
+	"That's a great idea! We can create a shared album afterward.",
+	"Let's also plan a group photo with everyone at the party.",
+	'Definitely! We can take it before the cake-cutting ceremony.',
+	"I'll bring some extra decorations just in case we need them.",
+	"Thanks! That's very thoughtful of you.",
+	"Let's make sure to keep the party area clean throughout the event.",
+	'Absolutely. We can assign a few people to monitor the cleanliness.',
+	"I'll bring some party games to keep the energy up.",
+	'Sounds fun! We can play them between activities.',
+	"Let's also have a designated area for gifts if people bring any.",
+	"Good idea. I'll set up a gift table near the entrance.",
+	"I'll bring some extra chairs in case we need more seating.",
+	'Thanks! That will be helpful.',
+	"Let's make sure to thank everyone for coming at the end of the party.",
+	'Definitely. We can do a short thank-you speech before wrapping up.',
+	"I'll bring some thank-you cards to hand out to the helpers.",
+	"That's a nice touch! I'm sure they'll appreciate it.",
+	"Let's also plan a cleanup crew for after the party.",
+	'I can stay back to help with the cleanup. Who else can join?',
+	"I'll help too. The more hands, the quicker it will be.",
+	'Perfect! Thanks, everyone, for your help and cooperation.',
+	'This is going to be an unforgettable birthday for Mike!',
+	"Can't wait to celebrate with all of you!"
 ];
 
 // Seed messages for Mike's event

@@ -300,4 +300,4 @@
 		{/if}
 	</div>
 </div>
-<LoaderPage show={showPageLoader} text={'Verifying...'} />
+<!-- <LoaderPage show={showPageLoader} text={'Verifying...'} /> -->
