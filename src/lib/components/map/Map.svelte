@@ -42,6 +42,9 @@
 		map.on('click', () => {
 			map.dragPan.enable();
 		});
+
+		// Force the map to resize to fit the container
+		map.resize();
 	};
 </script>
 
