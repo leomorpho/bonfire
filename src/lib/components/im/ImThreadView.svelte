@@ -336,7 +336,6 @@
 	};
 
 	const loadMoreOlderMessages = async () => {
-		console.log('=======> loadMoreOlderMessages called!!!');
 		loadMoreMessagesCalled = true;
 
 		// Save the current scroll position

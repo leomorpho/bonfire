@@ -75,7 +75,9 @@
 	>
 		<div class="flex items-center justify-center rounded-full bg-white p-1 px-2 dark:bg-slate-900">
 			<Plus class="mr-1 h-4 w-4 sm:h-5 sm:w-5" />
-			{allAttendeesGoing.length - showMaxNumPeople}
+			{#if allAttendeesGoing.length > showMaxNumPeople}
+				{allAttendeesGoing.length - showMaxNumPeople}
+			{/if}
 		</div></Dialog.Trigger
 	>
 	<Dialog.Content class="h-full sm:h-[90vh]">
