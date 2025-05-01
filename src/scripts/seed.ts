@@ -245,7 +245,7 @@ const generateAttendeeData = (n: number) => {
 	return generatedData;
 };
 
-const newAttendeeData = generateAttendeeData(200);
+const newAttendeeData = generateAttendeeData(400);
 
 for (const attendee of newAttendeeData) {
 	await createAttendee(attendee, announcements);

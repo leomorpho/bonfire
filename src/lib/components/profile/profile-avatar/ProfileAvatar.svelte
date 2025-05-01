@@ -50,7 +50,7 @@
 	let dialogIsOpen = $state(false);
 
 	let isVisible = $state(false);
-	let avatarElement;
+	let avatarElement: any = $state();
 
 	async function hashImage(imageBlob: Blob): Promise<string> {
 		const buffer = await imageBlob.arrayBuffer();
@@ -157,22 +157,32 @@
 			});
 		}
 
+		return () => {
+			if (unsubscribe) {
+				unsubscribe();
+			}
+		};
+	});
+
+	onMount(() => {
 		const observer = new IntersectionObserver((entries) => {
-			entries.forEach((entry) => {
-				if (entry.isIntersecting) {
-					isVisible = true;
-					observer.unobserve(entry.target);
+			entries.forEach(
+				(entry) => {
+					if (entry.isIntersecting) {
+						isVisible = true;
+						observer.unobserve(entry.target);
+					}
+				},
+				{
+					rootMargin: '500px 0px 0px 0px' // Adjust the top margin to create a buffer region
 				}
-			});
+			);
 		});
 		if (avatarElement) {
 			observer.observe(avatarElement);
 		}
 
 		return () => {
-			if (unsubscribe) {
-				unsubscribe();
-			}
 			if (avatarElement) {
 				observer.unobserve(avatarElement);
 			}
