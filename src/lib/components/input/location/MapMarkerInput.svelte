@@ -11,7 +11,6 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { MapPin, Check, MapPinHouse } from 'lucide-svelte';
 	import { toast } from 'svelte-sonner';
-	import { debounce } from 'lodash-es';
 
 	// import { env as publicEnv } from '$env/dynamic/public';
 
@@ -25,6 +24,7 @@
 	// const MAP_STYLE = `https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png?api_key=${publicEnv.PUBLIC_STADIA_MAPS_TOKEN}`;
 
 	let isDialogOpen = $state(false);
+	let isGeolocating = $state(false);
 
 	// Create a reactive `LngLatLike` state
 	let geolocation: any = $state([
@@ -45,6 +45,7 @@
 		geolocation = [geocodedLocation?.data?.longitude, geocodedLocation?.data?.latitude];
 		longitude = null;
 		latitude = null;
+		geolocationTempStorage = geolocation;
 	};
 
 	function updateMarker(e: any) {
@@ -69,22 +70,32 @@
 		isDialogOpen = false;
 	};
 
-	const locateUser = () => {
-		if ('geolocation' in navigator) {
-			navigator.geolocation.getCurrentPosition(
-				(position) => {
-					const lat = position.coords.latitude;
-					const lng = position.coords.longitude;
-					geolocation = [lng, lat];
-					mapRef.setCenter(geolocation);
-				},
-				(error) => {
-					console.error('Error getting location:', error);
-					alert('Unable to retrieve your location.');
-				}
-			);
-		} else {
-			alert('Geolocation is not supported by your browser.');
+	const locateUser = async () => {
+
+		try {
+			isGeolocating = true;
+			if ('geolocation' in navigator) {
+
+				await navigator.geolocation.getCurrentPosition(
+					(position) => {
+						const lat = position.coords.latitude;
+						const lng = position.coords.longitude;
+						geolocation = [lng, lat];
+						geolocationTempStorage = geolocation;
+					},
+					(error) => {
+						console.error('Error getting location:', error);
+						alert('Unable to retrieve your location.');
+					},
+					{maximumAge:60000, timeout:5000, enableHighAccuracy:true}
+				);
+			} else {
+				alert('Geolocation is not supported by your browser.');
+			}
+		} catch (e) {
+			console.error('failed to geolocate user');
+		} finally {
+			isGeolocating = false;
 		}
 	};
 
@@ -142,6 +153,9 @@
 		<!-- Action Buttons -->
 		<Dialog.Footer class="mt-4 flex justify-between">
 			<Button onclick={locateUser} class="mt-3 flex items-center gap-2 sm:mt-0">
+				{#if isGeolocating}
+					<div class="loading loading-spinner loading-xs mr-2"></div>
+				{/if}
 				<MapPin class="h-4 w-4" />
 				Use my location
 			</Button>
