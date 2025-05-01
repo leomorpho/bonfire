@@ -14,7 +14,6 @@
 	import { NotificationType } from '$lib/enums';
 	import { LoaderState } from './infiniteLoader/loaderState.svelte';
 	import InfiniteLoader from './infiniteLoader/InfiniteLoader.svelte';
-	import { VirtualList } from 'svelte-virtuallists';
 
 	let {
 		eventId,
@@ -430,20 +429,6 @@
 						canInteract={canSendIm}
 					/>
 				{/each}
-				<!-- <VirtualList class="mystyle" style="width:100%;height:600px;" items={messages}>
-					{#snippet vl_slot({ index, item })}
-						<Message
-						id={index}
-							{currUserId}
-							message={item}
-							onMessageSeen={countNumUnseenMessages}
-							ignoreSeenStatusPriorToThisDatetime={datetimeUserJoinedBonfire}
-							{isCurrenUserEventAdmin}
-							{eventId}
-							canInteract={canSendIm}
-						/>
-					{/snippet}
-				</VirtualList> -->
 			</InfiniteLoader>
 		{:else if showMessagesLoading}
 			<div class="flex h-full w-full items-center justify-center">

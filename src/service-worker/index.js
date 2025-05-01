@@ -97,7 +97,8 @@ self.addEventListener('fetch', (event) => {
 
 			// Otherwise, fetch from network and cache
 			try {
-				const response = await fetch(event.request);
+				const response = await fetch(event.request, { mode: 'cors' });
+
 				if (response.ok) {
 					cache.put(fileKey, response.clone());
 					console.debug(`[SW] Cached ${fileKey} from network`);
