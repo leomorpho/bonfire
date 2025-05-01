@@ -18,6 +18,7 @@
 	import { fade } from 'svelte/transition';
 
 	let {
+		id,
 		currUserId,
 		message,
 		eventId,
@@ -222,7 +223,7 @@
 	<ProfileAvatar userId={message.user?.id} baseHeightPx={30} />
 {/snippet}
 
-<div class="animate-fadeIn-slideUp relative py-1">
+<div id={`message-${id}`} class="animate-fadeIn-slideUp relative py-1">
 	<button
 		onclick={() => {
 			if (!isMobile()) return;
@@ -239,7 +240,7 @@
 	>
 		<div class="flex gap-2.5 ${isOwnMessage ? 'items-end' : 'items-start'}">
 			{#if !isOwnMessage}
-				<div class="self-end">{@render avatar()}</div>
+				<div class="self-end w-7">{@render avatar()}</div>
 			{/if}
 			<MessageContextMenu
 				{showContextMenu}
@@ -278,7 +279,7 @@
 				</div>
 			</MessageContextMenu>
 			{#if isOwnMessage}
-				<div class="self-end">
+				<div class="self-end w-7">
 					{@render avatar()}
 				</div>
 			{/if}

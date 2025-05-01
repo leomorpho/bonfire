@@ -12,9 +12,9 @@
 	import { and, TriplitClient } from '@triplit/client';
 	import { scrollElementIntoView, stringRepresentationToArray } from '$lib/utils';
 	import { NotificationType } from '$lib/enums';
-	import { loaderState } from './infiniteLoader/loaderState.svelte';
+	import { LoaderState } from './infiniteLoader/loaderState.svelte';
 	import InfiniteLoader from './infiniteLoader/InfiniteLoader.svelte';
-	// import { InfiniteLoader, loaderState } from 'svelte-infinite';
+	import { VirtualList } from 'svelte-virtuallists';
 
 	let {
 		eventId,
@@ -23,8 +23,7 @@
 		canSendIm = true,
 		maxNumMessages = null,
 		datetimeUserJoinedBonfire = null,
-		isCurrenUserEventAdmin = false,
-		onFocused = null
+		isCurrenUserEventAdmin = false
 	} = $props();
 
 	let chatContainerRef: HTMLDivElement | null = null;
@@ -36,7 +35,8 @@
 	let loadMoreMessages: ((pageSize?: number) => void) | undefined = $state();
 	let loadMoreMessagesCalled = $state(false);
 
-	const maxNumMessagesLoadedPerRequest = 50;
+	const maxNumMessagesLoadedPerRequest = 15;
+	const loaderState = new LoaderState();
 
 	$effect(() => {
 		console.log('loadMoreMessagesCalled', loadMoreMessagesCalled);
@@ -62,9 +62,9 @@
 		// );
 
 		// If user is at the top or within the offset, we handle it here
-		if (isAtTopOrWithinOffset && loadMoreMessages && !loadMoreMessagesCalled) {
-			await loadMoreOlderMessages();
-		}
+		// if (isAtTopOrWithinOffset && loadMoreMessages && !loadMoreMessagesCalled) {
+		// 	await loadMoreOlderMessages();
+		// }
 
 		// Check if the user has scrolled up (not at the bottom)
 		const isAtBottom = chatContainerRef.scrollTop == 0;
@@ -147,6 +147,8 @@
 
 				if (results.length == 0) {
 					loaderState.complete();
+				} else {
+					loaderState.loaded();
 				}
 
 				// Convert messages array to a Map for quick lookup by ID
@@ -308,6 +310,7 @@
 
 		thread = await createNewThread(client, eventId, $page.data.user.id, MAIN_THREAD);
 		return thread.id;
+		3;
 	};
 
 	const handleSendMessage = async (message: string) => {
@@ -334,12 +337,29 @@
 	};
 
 	const loadMoreOlderMessages = async () => {
+		console.log('=======> loadMoreOlderMessages called!!!');
 		loadMoreMessagesCalled = true;
+
+		// Save the current scroll position
+		const currentScrollTop = chatContainerRef?.scrollTop;
+		const currentScrollHeight = chatContainerRef?.scrollHeight;
+
 		try {
 			if (loadMoreMessages && chatContainerRef) {
 				await loadMoreMessages();
 				console.log('data loaded!');
 				loaderState.loaded();
+
+				// Restore the scroll position
+				if (
+					chatContainerRef &&
+					currentScrollTop !== undefined &&
+					currentScrollHeight !== undefined
+				) {
+					const newScrollHeight = chatContainerRef.scrollHeight;
+					const scrollDifference = newScrollHeight - currentScrollHeight;
+					chatContainerRef.scrollTop = currentScrollTop + scrollDifference;
+				}
 			} else {
 				console.log('no more data');
 				loaderState.complete();
@@ -377,19 +397,20 @@
 		bind:this={chatContainerRef}
 		class="{messages.length > 0
 			? 'container-scroll overflow-y-auto'
-			: ''} h-full space-y-2 rounded-t-xl bg-white bg-opacity-20 p-2 dark:bg-black dark:bg-opacity-20 w-full"
+			: ''} h-full w-full space-y-2 rounded-t-xl bg-white bg-opacity-20 p-2 dark:bg-black dark:bg-opacity-20"
 	>
 		<div id="anchor"></div>
 
 		{#if messages && messages.length > 0}
 			<InfiniteLoader
+				{loaderState}
 				triggerLoad={loadMoreOlderMessages}
 				intersectionOptions={{ rootMargin: '0px 0px 1000px 0px' }}
 			>
-				<!-- {#snippet loading()}
+				{#snippet loading()}
 					<p class="text-black">Loading older messages...</p>
 					<div class="flex w-full justify-center"><SvgLoader /></div>
-				{/snippet} -->
+				{/snippet}
 
 				{#snippet error()}
 					<p>Error loading messages. <button onclick={loadMoreOlderMessages}>Retry</button></p>
@@ -409,6 +430,20 @@
 						canInteract={canSendIm}
 					/>
 				{/each}
+				<!-- <VirtualList class="mystyle" style="width:100%;height:600px;" items={messages}>
+					{#snippet vl_slot({ index, item })}
+						<Message
+						id={index}
+							{currUserId}
+							message={item}
+							onMessageSeen={countNumUnseenMessages}
+							ignoreSeenStatusPriorToThisDatetime={datetimeUserJoinedBonfire}
+							{isCurrenUserEventAdmin}
+							{eventId}
+							canInteract={canSendIm}
+						/>
+					{/snippet}
+				</VirtualList> -->
 			</InfiniteLoader>
 		{:else if showMessagesLoading}
 			<div class="flex h-full w-full items-center justify-center">
