@@ -277,7 +277,7 @@ await createTempAttendance(
 );
 await createTempAttendance(client, null, eventCreated?.id as string, getRandomStatus(), 'Abodo', 3);
 
-const messages = [
+let messages = [
 	"Hey everyone! Let's start planning Mike's birthday party. Any ideas for the venue?",
 	'I think a rooftop bar would be great! What do you all think?',
 	'Sounds good! We should also decide on a theme. Maybe something retro?',
@@ -375,9 +375,7 @@ if (!thread) {
 	throw new Error('thread not created');
 }
 
-if (!attendees || attendees.length === 0) {
-	console.error('No attendees found for the event.');
-} else {
+const seedMessages = async () => {
 	const startTime = new Date(); // Start time (current time or any specific time you want)
 	startTime.setDate(startTime.getDate() - 1); // Subtract one day to get yesterday
 	const interval = 5 * 60 * 1000; // 5 minutes in milliseconds
@@ -398,7 +396,48 @@ if (!attendees || attendees.length === 0) {
 	}
 
 	console.log(`Seeded ${messageCount} messages for Mike's event.`);
+};
+
+if (!attendees || attendees.length === 0) {
+	console.error('No attendees found for the event.');
+} else {
+	await seedMessages();
 }
+
+const seedRandomMessages = async (
+	client: HttpClient,
+	messageCount: number,
+	attendees: any,
+	thread: any
+) => {
+	if (!attendees || attendees.length === 0) {
+		console.error('No attendees found for the event.');
+		return;
+	}
+
+	const startTime = new Date(); // Start time (current time or any specific time you want)
+	startTime.setDate(startTime.getDate() - 10); // Subtract 10 days
+	const interval = 5 * 60 * 1000; // 5 minutes in milliseconds
+
+	for (let i = 0; i < messageCount; i++) {
+		const randomAttendee = attendees[Math.floor(Math.random() * attendees.length)]; // Pick random user
+		const messageContent = faker.lorem.sentences(); // Generate random message content using faker
+
+		// Calculate the time for this message (start time + 5 minutes * i)
+		const messageTime = new Date(startTime.getTime() + interval * i).toISOString();
+
+		await client.insert('event_messages', {
+			thread_id: thread?.id,
+			user_id: randomAttendee.user_id,
+			content: messageContent,
+			created_at: messageTime
+		});
+	}
+
+	console.log(`Seeded ${messageCount} messages for the event.`);
+};
+
+await seedRandomMessages(client, 2000, attendees, thread);
 
 // Bring list items
 
