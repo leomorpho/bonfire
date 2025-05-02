@@ -389,7 +389,8 @@
 				.Where([['event_id', '=', eventId]])
 				.Include('user'),
 			(results) => {
-				console.log('attendees', results);
+				// console.log('attendees', results);
+
 				// Separate attendees into different variables by status
 				attendeesGoing = results.filter((attendee) => attendee.status === Status.GOING);
 				attendeesNotGoing = results.filter((attendee) => attendee.status === Status.NOT_GOING);
@@ -398,9 +399,9 @@
 				attendeesRemoved = results.filter((attendee) => attendee.status === Status.REMOVED);
 
 				const userIds = [...new Set(results.map((attendee) => attendee.user_id))];
-				if (dev) {
-					console.log('===> userIds', userIds);
-				}
+				// if (dev) {
+				// 	console.log('===> userIds', userIds);
+				// }
 
 				addUserRequests(userIds);
 				attendeesLoading = false;

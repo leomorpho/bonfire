@@ -79,12 +79,28 @@ export function resetUserRequests() {
 	userIdsStore.set([]);
 }
 
+/**
+ * Process user requests in batches.
+ * @param userRequests - The array of user requests.
+ * @param tempAttendeeId - The temporary attendee ID.
+ * @param batchSize - The size of each batch.
+ */
+async function processUserRequestsInBatches(userRequests, tempAttendeeId, batchSize) {
+	userIdsStore.set([]);
+
+	for (let i = 0; i < userRequests.length; i += batchSize) {
+		const batch = userRequests.slice(i, i + batchSize);
+		await fetchAndCacheUsersInLiveUsersDataStore(batch, tempAttendeeId);
+	}
+}
+
+const BATCH_SIZE = 100;
+
 userIdsStore.subscribe(async (userRequests) => {
 	const tempAttendeeId = tempAttendeeSecretStore.get();
 
 	if (userRequests.length > 0) {
-		userIdsStore.set([]);
-		await fetchAndCacheUsersInLiveUsersDataStore(userRequests, tempAttendeeId);
+		await processUserRequestsInBatches(userRequests, tempAttendeeId, BATCH_SIZE);
 	}
 });
 

@@ -1,10 +1,15 @@
 import { Status, tempAttendeeSecretParam } from '$lib/enums';
 import { generateSignedUrl } from '$lib/server/filestorage.js';
-import { wasUserPreviouslyDeleted } from '$lib/rsvp.js';
+import {
+	normalizeAttendeeCounts,
+	upsertEventsPrivateData,
+	wasUserPreviouslyDeleted
+} from '$lib/rsvp.js';
 import { triplitHttpClient } from '$lib/server/triplit';
 import { createRemindersObjects } from '$lib/triplit.js';
 import { redirect } from '@sveltejs/kit';
 import { and } from '@triplit/client';
+import { Client } from '@googlemaps/google-maps-services-js';
 
 export const trailingSlash = 'always';
 
@@ -60,14 +65,22 @@ export const load = async ({ params, locals, url }) => {
 			triplitHttpClient
 				.query('events')
 				.Where(and([['id', '=', eventId as string]]))
+				.Include('private_data')
 				.Include('announcements_list', (rel) => rel('announcements').Select(['id']))
 				.Include('files_list', (rel) => rel('files').Select(['id']))
 				.Include('banner_media')
 				.Include('event_admins')
 				.Include('bring_items_list', (rel) => rel('bring_items').Select(['id']))
-				.Include('event_reminders')
+				.Include('event_reminders', (rel) => rel('event_reminders').Select(['id']))
 				.SubqueryOne(
 					'organizer',
+					triplitHttpClient
+						.query('user')
+						.Where(['id', '=', '$1.user_id'])
+						.Select(['username', 'id'])
+				)
+				.SubqueryOne(
+					'current_attendee',
 					triplitHttpClient
 						.query('user')
 						.Where(['id', '=', '$1.user_id'])
@@ -119,57 +132,20 @@ export const load = async ({ params, locals, url }) => {
 			);
 		}
 
+		if (event.current_attendee) {
+			isUserAnAttendee = true;
+		}
+
+		if (event.private_data) {
+			numAttendingGoing =
+				event.private_data.num_attendees_going + event.private_data.num_temp_attendees_going;
+		} else {
+			const fullCounts = await normalizeAttendeeCounts(client, eventId);
+			await upsertEventsPrivateData(Client, eventId, fullCounts);
+		}
+
 		// console.log("numAnnouncements", numAnnouncements)
 		// console.log("numFiles", numFiles)
-	}
-
-	try {
-		const attendees = await triplitHttpClient.fetch(
-			triplitHttpClient
-				.query('attendees')
-				.Where(
-					and([
-						['event_id', '=', eventId as string],
-						['status', '=', Status.GOING]
-					])
-				)
-				.Select(['status', 'guest_count', 'user_id'])
-		);
-
-		// Count only attendees with status "GOING" and include guest count
-		numAttendingGoing += attendees.reduce(
-			(total, attendee) =>
-				attendee.status === Status.GOING ? total + (attendee.guest_count || 0) + 1 : total,
-			0
-		);
-
-		// Check if the current user is among the attendees
-		isUserAnAttendee = attendees.some((attendee) => attendee.user_id === user?.id);
-	} catch (e) {
-		console.error(`failed to get event attendees for eventId ${eventId}`, e);
-	}
-
-	try {
-		const temporary_attendees = await triplitHttpClient.fetch(
-			triplitHttpClient
-				.query('temporary_attendees')
-				.Where(
-					and([
-						['event_id', '=', eventId as string],
-						['status', '=', Status.GOING]
-					])
-				)
-				.Select(['status', 'guest_count'])
-		);
-
-		// Count only temporary attendees with status "GOING" and include guest count
-		numAttendingGoing += temporary_attendees.reduce(
-			(total, attendee) =>
-				attendee.status === Status.GOING ? total + (attendee.guest_count || 0) + 1 : total,
-			0
-		);
-	} catch (e) {
-		console.error(`failed to get temporary event attendees for eventId ${eventId}`, e);
 	}
 
 	if (!isUserAnAttendee && user) {

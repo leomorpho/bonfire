@@ -12,6 +12,7 @@ import { Status } from './enums';
 export const createAttendeeId = (eventId: string, userId: string) => {
 	return 'at_' + eventId + '-' + userId;
 };
+
 export const createTempAttendance = async (
 	client: HttpClient,
 	secretId: string | null,
@@ -273,11 +274,13 @@ export const wasUserPreviouslyDeleted = async (
 
 interface AttendeeCounts {
 	num_attendees_going: number;
+	num_attendees_not_going: number;
 	num_attendees_maybe: number;
 	num_attendees_waitlisted: number;
 	num_attendees_left: number;
 	num_attendees_removed: number;
 	num_temp_attendees_going: number;
+	num_temp_attendees_not_going: number;
 	num_temp_attendees_maybe: number;
 	num_temp_attendees_waitlisted: number;
 	num_temp_attendees_left: number;
@@ -286,11 +289,13 @@ interface AttendeeCounts {
 
 interface AttendeeCountDeltas {
 	num_attendees_going?: number;
+	num_attendees_not_going?: number;
 	num_attendees_maybe?: number;
 	num_attendees_waitlisted?: number;
 	num_attendees_left?: number;
 	num_attendees_removed?: number;
 	num_temp_attendees_going?: number;
+	num_temp_attendees_not_going?: number;
 	num_temp_attendees_maybe?: number;
 	num_temp_attendees_waitlisted?: number;
 	num_temp_attendees_left?: number;
@@ -299,8 +304,8 @@ interface AttendeeCountDeltas {
 
 /**
  * Create deltas based on the status, attendee type, and number of attendees.
- * @param status - The new status of the attendees.
  * @param prevStatus - The previous status of the attendees.
+ * @param newStatus - The new status of the attendees.
  * @param isTemp - Whether the attendees are temporary.
  * @param prevNumGuests - The previous number of guests (can be null).
  * @param newNumGuests - The new number of guests (can be null).
@@ -319,98 +324,21 @@ export const createAttendeeCountDeltas = (
 	const safePrevNumGuests = prevNumGuests ?? 0;
 	const safeNewNumGuests = newNumGuests ?? 0;
 
+	// Helper function to update deltas
+	const updateDelta = (status: Status, count: number, isIncrement: boolean) => {
+		const key = isTemp
+			? `num_temp_attendees_${status.toLowerCase()}`
+			: `num_attendees_${status.toLowerCase()}`;
+		deltas[key] = (deltas[key] || 0) + (isIncrement ? count : -count);
+	};
+
 	// Decrement the previous status count
-	if (prevStatus && safePrevNumGuests > 0) {
-		if (isTemp) {
-			switch (prevStatus) {
-				case Status.GOING:
-					deltas.num_temp_attendees_going =
-						(deltas.num_temp_attendees_going || 0) - safePrevNumGuests;
-					break;
-				case Status.MAYBE:
-					deltas.num_temp_attendees_maybe =
-						(deltas.num_temp_attendees_maybe || 0) - safePrevNumGuests;
-					break;
-				case Status.WAITLIST:
-					deltas.num_temp_attendees_waitlisted =
-						(deltas.num_temp_attendees_waitlisted || 0) - safePrevNumGuests;
-					break;
-				case Status.LEFT:
-					deltas.num_temp_attendees_left =
-						(deltas.num_temp_attendees_left || 0) - safePrevNumGuests;
-					break;
-				case Status.REMOVED:
-					deltas.num_temp_attendees_removed =
-						(deltas.num_temp_attendees_removed || 0) - safePrevNumGuests;
-					break;
-			}
-		} else {
-			switch (prevStatus) {
-				case Status.GOING:
-					deltas.num_attendees_going = (deltas.num_attendees_going || 0) - safePrevNumGuests;
-					break;
-				case Status.MAYBE:
-					deltas.num_attendees_maybe = (deltas.num_attendees_maybe || 0) - safePrevNumGuests;
-					break;
-				case Status.WAITLIST:
-					deltas.num_attendees_waitlisted =
-						(deltas.num_attendees_waitlisted || 0) - safePrevNumGuests;
-					break;
-				case Status.LEFT:
-					deltas.num_attendees_left = (deltas.num_attendees_left || 0) - safePrevNumGuests;
-					break;
-				case Status.REMOVED:
-					deltas.num_attendees_removed = (deltas.num_attendees_removed || 0) - safePrevNumGuests;
-					break;
-			}
-		}
+	if (prevStatus) {
+		updateDelta(prevStatus, 1 + safePrevNumGuests, false);
 	}
 
 	// Increment the new status count
-	if (safeNewNumGuests > 0) {
-		if (isTemp) {
-			switch (newStatus) {
-				case Status.GOING:
-					deltas.num_temp_attendees_going =
-						(deltas.num_temp_attendees_going || 0) + safeNewNumGuests;
-					break;
-				case Status.MAYBE:
-					deltas.num_temp_attendees_maybe =
-						(deltas.num_temp_attendees_maybe || 0) + safeNewNumGuests;
-					break;
-				case Status.WAITLIST:
-					deltas.num_temp_attendees_waitlisted =
-						(deltas.num_temp_attendees_waitlisted || 0) + safeNewNumGuests;
-					break;
-				case Status.LEFT:
-					deltas.num_temp_attendees_left = (deltas.num_temp_attendees_left || 0) + safeNewNumGuests;
-					break;
-				case Status.REMOVED:
-					deltas.num_temp_attendees_removed =
-						(deltas.num_temp_attendees_removed || 0) + safeNewNumGuests;
-					break;
-			}
-		} else {
-			switch (newStatus) {
-				case Status.GOING:
-					deltas.num_attendees_going = (deltas.num_attendees_going || 0) + safeNewNumGuests;
-					break;
-				case Status.MAYBE:
-					deltas.num_attendees_maybe = (deltas.num_attendees_maybe || 0) + safeNewNumGuests;
-					break;
-				case Status.WAITLIST:
-					deltas.num_attendees_waitlisted =
-						(deltas.num_attendees_waitlisted || 0) + safeNewNumGuests;
-					break;
-				case Status.LEFT:
-					deltas.num_attendees_left = (deltas.num_attendees_left || 0) + safeNewNumGuests;
-					break;
-				case Status.REMOVED:
-					deltas.num_attendees_removed = (deltas.num_attendees_removed || 0) + safeNewNumGuests;
-					break;
-			}
-		}
-	}
+	updateDelta(newStatus, 1 + safeNewNumGuests, true);
 
 	return deltas;
 };
@@ -430,7 +358,7 @@ export const normalizeAttendeeCounts = async (
 			client
 				.query('attendees')
 				.Where([['event_id', '=', eventId]])
-				.Select(['status'])
+				.Select(['status', 'guest_count'])
 		);
 
 		// Query all temporary attendees for the event
@@ -438,17 +366,19 @@ export const normalizeAttendeeCounts = async (
 			client
 				.query('temporary_attendees')
 				.Where([['event_id', '=', eventId]])
-				.Select(['status'])
+				.Select(['status', 'guest_count'])
 		);
 
 		// Initialize counts
 		const counts = {
 			num_attendees_going: 0,
+			num_attendees_not_going: 0,
 			num_attendees_maybe: 0,
 			num_attendees_waitlisted: 0,
 			num_attendees_left: 0,
 			num_attendees_removed: 0,
 			num_temp_attendees_going: 0,
+			num_temp_attendees_not_going: 0,
 			num_temp_attendees_maybe: 0,
 			num_temp_attendees_waitlisted: 0,
 			num_temp_attendees_left: 0,
@@ -459,19 +389,22 @@ export const normalizeAttendeeCounts = async (
 		permanentAttendees.forEach((attendee) => {
 			switch (attendee.status) {
 				case Status.GOING:
-					counts.num_attendees_going++;
+					counts.num_attendees_going += 1 + attendee.guest_count;
+					break;
+				case Status.NOT_GOING:
+					counts.num_attendees_not_going += 1 + attendee.guest_count;
 					break;
 				case Status.MAYBE:
-					counts.num_attendees_maybe++;
+					counts.num_attendees_maybe += 1 + attendee.guest_count;
 					break;
 				case Status.WAITLIST:
-					counts.num_attendees_waitlisted++;
+					counts.num_attendees_waitlisted += 1 + attendee.guest_count;
 					break;
 				case Status.LEFT:
-					counts.num_attendees_left++;
+					counts.num_attendees_left += 1 + attendee.guest_count;
 					break;
 				case Status.REMOVED:
-					counts.num_attendees_removed++;
+					counts.num_attendees_removed += 1 + attendee.guest_count;
 					break;
 			}
 		});
@@ -480,19 +413,22 @@ export const normalizeAttendeeCounts = async (
 		tempAttendees.forEach((attendee) => {
 			switch (attendee.status) {
 				case Status.GOING:
-					counts.num_temp_attendees_going++;
+					counts.num_temp_attendees_going += 1 + attendee.guest_count;
+					break;
+				case Status.NOT_GOING:
+					counts.num_temp_attendees_not_going += 1 + attendee.guest_count;
 					break;
 				case Status.MAYBE:
-					counts.num_temp_attendees_maybe++;
+					counts.num_temp_attendees_maybe += 1 + attendee.guest_count;
 					break;
 				case Status.WAITLIST:
-					counts.num_temp_attendees_waitlisted++;
+					counts.num_temp_attendees_waitlisted += 1 + attendee.guest_count;
 					break;
 				case Status.LEFT:
-					counts.num_temp_attendees_left++;
+					counts.num_temp_attendees_left += 1 + attendee.guest_count;
 					break;
 				case Status.REMOVED:
-					counts.num_temp_attendees_removed++;
+					counts.num_temp_attendees_removed += 1 + attendee.guest_count;
 					break;
 			}
 		});
@@ -515,6 +451,7 @@ export const upsertEventsPrivateData = async (
 	eventId: string,
 	deltas: AttendeeCountDeltas
 ) => {
+
 	try {
 		// Check if events_private_data exists for the event
 		const existingData = await client.fetchOne(
@@ -557,6 +494,7 @@ export const upsertEventsPrivateData = async (
 
 			// Insert a new record
 			await client.insert('events_private_data', {
+				id: `epd_${eventId}`,
 				event_id: eventId,
 				...fullCounts
 				// We don't care about deltas since we're gonna evaluate for all anyways

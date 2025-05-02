@@ -325,11 +325,13 @@ export const schema = S.Collections({
 			id: S.Id(),
 			event_id: S.String(), // ID of the event this admin is associated with
 			num_attendees_going: S.Number({ default: 0 }),
+			num_attendees_not_going: S.Number({ default: 0 }),
 			num_attendees_maybe: S.Number({ default: 0 }),
 			num_attendees_waitlisted: S.Number({ default: 0 }),
 			num_attendees_left: S.Number({ default: 0 }),
 			num_attendees_removed: S.Number({ default: 0 }),
 			num_temp_attendees_going: S.Number({ default: 0 }),
+			num_temp_attendees_not_going: S.Number({ default: 0 }),
 			num_temp_attendees_maybe: S.Number({ default: 0 }),
 			num_temp_attendees_waitlisted: S.Number({ default: 0 }),
 			num_temp_attendees_left: S.Number({ default: 0 }),

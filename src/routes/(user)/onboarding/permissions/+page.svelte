@@ -37,7 +37,7 @@
 <div class="bg-color min-h-screen w-full" style={styles}>
 	<div class="bg-overlay min-h-screen" style={overlayStyle}>
 		<div class="flex w-full justify-center">
-			<div class="mt-4 justify-center sm:w-[450px] md:w-[550px]">
+			<div class="mt-4 justify-center px-3 sm:w-[450px] md:w-[550px]">
 				<div
 					class="my-5 w-full space-y-3 rounded-xl bg-slate-200/80 p-3 dark:bg-slate-800/80 sm:p-8"
 				>

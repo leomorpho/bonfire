@@ -245,7 +245,7 @@ const generateAttendeeData = (n: number) => {
 	return generatedData;
 };
 
-const newAttendeeData = generateAttendeeData(400);
+const newAttendeeData = generateAttendeeData(3000);
 
 for (const attendee of newAttendeeData) {
 	await createAttendee(attendee, announcements);
@@ -277,7 +277,7 @@ await createTempAttendance(
 );
 await createTempAttendance(client, null, eventCreated?.id as string, getRandomStatus(), 'Abodo', 3);
 
-let messages = [
+const messages = [
 	"Hey everyone! Let's start planning Mike's birthday party. Any ideas for the venue?",
 	'I think a rooftop bar would be great! What do you all think?',
 	'Sounds good! We should also decide on a theme. Maybe something retro?',
