@@ -22,6 +22,7 @@
 	import LoaderPage from '$lib/components/LoaderPage.svelte';
 	import BackButton from '$lib/components/BackButton.svelte';
 	import FadeIn from '$lib/components/containers/FadeIn.svelte';
+	import BonfireNoInfoCard from '$lib/components/BonfireNoInfoCard.svelte';
 
 	let selectedImages: any = $state([]);
 	let selection: any;
@@ -519,8 +520,7 @@
 						['is_linked_file', '=', false]
 					])
 				)
-				.Select(['id'])
-				,
+				.Select(['id']),
 			(results) => {
 				// console.log('A NEW FILE IS AVAILABLE');
 				// handle results
@@ -542,9 +542,8 @@
 			client
 				.query('events')
 				.Where([['id', '=', $page.params.id]])
-				.Select(['user_id'])
+				.Select(['user_id']),
 
-				,
 			(results) => {
 				if (results.length == 1) {
 					eventOwnerUserId = results[0].user_id;
@@ -564,8 +563,7 @@
 			client
 				.query('event_admins')
 				.Where(and([['event_id', '=', $page.params.id]]))
-				.Select(['user_id'])
-				,
+				.Select(['user_id']),
 			(results, info) => {
 				adminUserIds = new Set(results.map((admin: { user_id: string }) => admin.user_id));
 				console.log('adminUserIds', adminUserIds);
@@ -713,11 +711,7 @@
 				</div>
 			{:else}
 				<div class="flex h-full w-full justify-center">
-					<div
-						class="mt-20 flex h-12 w-fit items-center justify-center rounded-xl bg-slate-200 text-sm dark:bg-slate-800 dark:text-white sm:text-base"
-					>
-						<div>No files yet</div>
-					</div>
+					<BonfireNoInfoCard text={'No files yet'} />
 				</div>
 			{/if}
 		</section>

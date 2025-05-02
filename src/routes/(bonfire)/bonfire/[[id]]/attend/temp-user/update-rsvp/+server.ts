@@ -3,11 +3,13 @@ import { triplitHttpClient } from '$lib/server/triplit';
 import {
 	HistoryChangesConstants,
 	NOTIFY_OF_ATTENDING_STATUS_CHANGE,
+	Status,
 	tempAttendeeSecretParam
 } from '$lib/enums';
 import { createNewTemporaryAttendanceNotificationQueueObject } from '$lib/notification_queue';
 import { checkEventIsOpenForNewGoingAttendees } from '$lib/triplit';
 import type { TemporaryAttendeeChange } from '$lib/types';
+import { createAttendeeCountDeltas, upsertEventsPrivateData } from '$lib/rsvp';
 
 export const POST: RequestHandler = async ({ url, request }): Promise<Response> => {
 	try {
@@ -85,6 +87,16 @@ export const POST: RequestHandler = async ({ url, request }): Promise<Response> 
 		}
 		// Create historical entry
 		await triplitHttpClient.insert('temporary_attendees_changes', update);
+
+		// Update the normalized event counts
+		const deltas = createAttendeeCountDeltas(
+			preUpdateTemporaryAttendance?.status as Status,
+			rsvpStatus as Status,
+			preUpdateTemporaryAttendance?.guest_count,
+			numGuestsCurrentAttendeeIsBringing,
+			true
+		);
+		await upsertEventsPrivateData(triplitHttpClient, bonfireId, deltas);
 
 		// await triplitHttpClient.insert('temporary_attendees_changes', {
 		// 	temporary_attendee_id: temporaryAttendee.id,

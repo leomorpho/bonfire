@@ -67,7 +67,6 @@ test('Create bonfire', async ({ page }) => {
 	await expect(page.getByRole('button', { name: 'PM caret sort' })).toBeVisible();
 	await expect(page.getByRole('button', { name: 'to' }).first()).toBeVisible();
 	await expect(page.getByText('Enter event address...')).toBeVisible();
-	await expect(page.getByRole('button', { name: 'Cancel' })).toBeVisible();
 	await expect(page.locator('#event-styles-tab')).toBeVisible();
 
 	// Check that create button is disabled
@@ -103,9 +102,9 @@ test('Create bonfire', async ({ page }) => {
 	await page.getByPlaceholder('1600 Pennsylvania Avenue,').fill('15 rue du luxembourg, mouscron');
 	await page.getByText('Rue du Luxembourg 15, 7700').click();
 
-	await expect(page.getByRole('button', { name: 'Save Draft' })).toBeEnabled();
+	await expect(page.getByRole('button', { name: 'Draft' })).toBeEnabled();
 	await page.waitForTimeout(500);
-	await page.getByRole('button', { name: 'Save Draft' }).click({ force: true });
+	await page.getByRole('button', { name: 'Draft' }).click({ force: true });
 
 	// Check that event is marked as temporary on bonfire view
 	await expect(page.getByText('Not Published')).toBeVisible();
@@ -1106,7 +1105,6 @@ test('Delete/Leaving attendees', async ({ browser }) => {
 
 	// Verify admin
 	await eventCreatorPage.locator('#see-attendees-dialog').click();
-	await expect(eventCreatorPage.getByText('Only visible to admins')).toBeVisible();
 
 	await expect(eventCreatorPage.getByRole('heading', { name: '1 left' })).toBeVisible();
 

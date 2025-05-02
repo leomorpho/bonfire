@@ -1,12 +1,13 @@
-import { and, HttpClient, type TriplitClient } from '@triplit/client';
+import { and, HttpClient } from '@triplit/client';
 import {
 	HistoryChangesConstants,
 	NOTIFY_OF_ATTENDING_STATUS_CHANGE,
-	Status,
 	tempAttendeeSecretParam
 } from './enums';
 import { createNewAttendanceNotificationQueueObject } from './notification_queue';
 import { generatePassphraseId } from './utils';
+import { TriplitClient } from '@triplit/client';
+import { Status } from './enums';
 
 export const createAttendeeId = (eventId: string, userId: string) => {
 	return 'at_' + eventId + '-' + userId;
@@ -22,8 +23,6 @@ export const createTempAttendance = async (
 	if (!secretId) {
 		secretId = await generatePassphraseId('', 25);
 	}
-
-	// TODO: Check if IP was previously deleted from event
 
 	const tempAttendance = await client.insert('temporary_attendees', {
 		id: await generatePassphraseId('ta_'),
@@ -48,6 +47,11 @@ export const createTempAttendance = async (
 		field_name: HistoryChangesConstants.field_name_status,
 		new_value: newStatus
 	});
+
+	// Update the normalized event counts
+	const deltas = createAttendeeCountDeltas(null, newStatus as Status, null, numExtraGuests, true);
+	await upsertEventsPrivateData(client, eventId, deltas);
+
 	console.log('Created temporary_attendees_changes');
 };
 
@@ -80,9 +84,14 @@ export const createUserAttendance = async (
 		new_value: newStatus
 	});
 
+	// Update the normalized event counts
+	const deltas = createAttendeeCountDeltas(null, newStatus as Status, null, numExtraGuests, false);
+	await upsertEventsPrivateData(client, eventId, deltas);
+
 	return attendance;
 };
 
+// upsertUserAttendance calls the server to enforce BE rules
 export async function upsertUserAttendance(
 	eventId: string,
 	status: Status,
@@ -109,6 +118,8 @@ export async function upsertUserAttendance(
 	}
 }
 
+// updateRSVPForLoggedInUser calls upsertUserAttendance which calls the server behind the scenes.
+// Offloads some work to the FE.
 export const updateRSVPForLoggedInUser = async (
 	client: TriplitClient,
 	userId: string,
@@ -257,5 +268,301 @@ export const wasUserPreviouslyDeleted = async (
 	} catch (error) {
 		console.error('Error checking if user was previously deleted:', error);
 		return false;
+	}
+};
+
+interface AttendeeCounts {
+	num_attendees_going: number;
+	num_attendees_maybe: number;
+	num_attendees_waitlisted: number;
+	num_attendees_left: number;
+	num_attendees_removed: number;
+	num_temp_attendees_going: number;
+	num_temp_attendees_maybe: number;
+	num_temp_attendees_waitlisted: number;
+	num_temp_attendees_left: number;
+	num_temp_attendees_removed: number;
+}
+
+interface AttendeeCountDeltas {
+	num_attendees_going?: number;
+	num_attendees_maybe?: number;
+	num_attendees_waitlisted?: number;
+	num_attendees_left?: number;
+	num_attendees_removed?: number;
+	num_temp_attendees_going?: number;
+	num_temp_attendees_maybe?: number;
+	num_temp_attendees_waitlisted?: number;
+	num_temp_attendees_left?: number;
+	num_temp_attendees_removed?: number;
+}
+
+/**
+ * Create deltas based on the status, attendee type, and number of attendees.
+ * @param status - The new status of the attendees.
+ * @param prevStatus - The previous status of the attendees.
+ * @param isTemp - Whether the attendees are temporary.
+ * @param prevNumGuests - The previous number of guests (can be null).
+ * @param newNumGuests - The new number of guests (can be null).
+ * @returns The deltas for the attendee counts.
+ */
+export const createAttendeeCountDeltas = (
+	prevStatus: Status | null,
+	newStatus: Status,
+	prevNumGuests: number | null | undefined,
+	newNumGuests: number | null,
+	isTemp: boolean
+): AttendeeCountDeltas => {
+	const deltas: AttendeeCountDeltas = {};
+
+	// Handle null values for prevNumGuests and newNumGuests
+	const safePrevNumGuests = prevNumGuests ?? 0;
+	const safeNewNumGuests = newNumGuests ?? 0;
+
+	// Decrement the previous status count
+	if (prevStatus && safePrevNumGuests > 0) {
+		if (isTemp) {
+			switch (prevStatus) {
+				case Status.GOING:
+					deltas.num_temp_attendees_going =
+						(deltas.num_temp_attendees_going || 0) - safePrevNumGuests;
+					break;
+				case Status.MAYBE:
+					deltas.num_temp_attendees_maybe =
+						(deltas.num_temp_attendees_maybe || 0) - safePrevNumGuests;
+					break;
+				case Status.WAITLIST:
+					deltas.num_temp_attendees_waitlisted =
+						(deltas.num_temp_attendees_waitlisted || 0) - safePrevNumGuests;
+					break;
+				case Status.LEFT:
+					deltas.num_temp_attendees_left =
+						(deltas.num_temp_attendees_left || 0) - safePrevNumGuests;
+					break;
+				case Status.REMOVED:
+					deltas.num_temp_attendees_removed =
+						(deltas.num_temp_attendees_removed || 0) - safePrevNumGuests;
+					break;
+			}
+		} else {
+			switch (prevStatus) {
+				case Status.GOING:
+					deltas.num_attendees_going = (deltas.num_attendees_going || 0) - safePrevNumGuests;
+					break;
+				case Status.MAYBE:
+					deltas.num_attendees_maybe = (deltas.num_attendees_maybe || 0) - safePrevNumGuests;
+					break;
+				case Status.WAITLIST:
+					deltas.num_attendees_waitlisted =
+						(deltas.num_attendees_waitlisted || 0) - safePrevNumGuests;
+					break;
+				case Status.LEFT:
+					deltas.num_attendees_left = (deltas.num_attendees_left || 0) - safePrevNumGuests;
+					break;
+				case Status.REMOVED:
+					deltas.num_attendees_removed = (deltas.num_attendees_removed || 0) - safePrevNumGuests;
+					break;
+			}
+		}
+	}
+
+	// Increment the new status count
+	if (safeNewNumGuests > 0) {
+		if (isTemp) {
+			switch (newStatus) {
+				case Status.GOING:
+					deltas.num_temp_attendees_going =
+						(deltas.num_temp_attendees_going || 0) + safeNewNumGuests;
+					break;
+				case Status.MAYBE:
+					deltas.num_temp_attendees_maybe =
+						(deltas.num_temp_attendees_maybe || 0) + safeNewNumGuests;
+					break;
+				case Status.WAITLIST:
+					deltas.num_temp_attendees_waitlisted =
+						(deltas.num_temp_attendees_waitlisted || 0) + safeNewNumGuests;
+					break;
+				case Status.LEFT:
+					deltas.num_temp_attendees_left = (deltas.num_temp_attendees_left || 0) + safeNewNumGuests;
+					break;
+				case Status.REMOVED:
+					deltas.num_temp_attendees_removed =
+						(deltas.num_temp_attendees_removed || 0) + safeNewNumGuests;
+					break;
+			}
+		} else {
+			switch (newStatus) {
+				case Status.GOING:
+					deltas.num_attendees_going = (deltas.num_attendees_going || 0) + safeNewNumGuests;
+					break;
+				case Status.MAYBE:
+					deltas.num_attendees_maybe = (deltas.num_attendees_maybe || 0) + safeNewNumGuests;
+					break;
+				case Status.WAITLIST:
+					deltas.num_attendees_waitlisted =
+						(deltas.num_attendees_waitlisted || 0) + safeNewNumGuests;
+					break;
+				case Status.LEFT:
+					deltas.num_attendees_left = (deltas.num_attendees_left || 0) + safeNewNumGuests;
+					break;
+				case Status.REMOVED:
+					deltas.num_attendees_removed = (deltas.num_attendees_removed || 0) + safeNewNumGuests;
+					break;
+			}
+		}
+	}
+
+	return deltas;
+};
+
+/**
+ * Normalize the count by status for events_private_data per event.
+ * @param client - The TriplitClient to interact with the database.
+ * @param eventId - The ID of the event to normalize counts for.
+ */
+export const normalizeAttendeeCounts = async (
+	client: TriplitClient,
+	eventId: string
+): Promise<AttendeeCounts> => {
+	try {
+		// Query all permanent attendees for the event
+		const permanentAttendees = await client.fetch(
+			client
+				.query('attendees')
+				.Where([['event_id', '=', eventId]])
+				.Select(['status'])
+		);
+
+		// Query all temporary attendees for the event
+		const tempAttendees = await client.fetch(
+			client
+				.query('temporary_attendees')
+				.Where([['event_id', '=', eventId]])
+				.Select(['status'])
+		);
+
+		// Initialize counts
+		const counts = {
+			num_attendees_going: 0,
+			num_attendees_maybe: 0,
+			num_attendees_waitlisted: 0,
+			num_attendees_left: 0,
+			num_attendees_removed: 0,
+			num_temp_attendees_going: 0,
+			num_temp_attendees_maybe: 0,
+			num_temp_attendees_waitlisted: 0,
+			num_temp_attendees_left: 0,
+			num_temp_attendees_removed: 0
+		};
+
+		// Count permanent attendees by status
+		permanentAttendees.forEach((attendee) => {
+			switch (attendee.status) {
+				case Status.GOING:
+					counts.num_attendees_going++;
+					break;
+				case Status.MAYBE:
+					counts.num_attendees_maybe++;
+					break;
+				case Status.WAITLIST:
+					counts.num_attendees_waitlisted++;
+					break;
+				case Status.LEFT:
+					counts.num_attendees_left++;
+					break;
+				case Status.REMOVED:
+					counts.num_attendees_removed++;
+					break;
+			}
+		});
+
+		// Count temporary attendees by status
+		tempAttendees.forEach((attendee) => {
+			switch (attendee.status) {
+				case Status.GOING:
+					counts.num_temp_attendees_going++;
+					break;
+				case Status.MAYBE:
+					counts.num_temp_attendees_maybe++;
+					break;
+				case Status.WAITLIST:
+					counts.num_temp_attendees_waitlisted++;
+					break;
+				case Status.LEFT:
+					counts.num_temp_attendees_left++;
+					break;
+				case Status.REMOVED:
+					counts.num_temp_attendees_removed++;
+					break;
+			}
+		});
+
+		return counts;
+	} catch (error) {
+		console.error('Error normalizing attendee counts:', error);
+		throw error;
+	}
+};
+
+/**
+ * Upsert the events_private_data with the normalized counts.
+ * @param client - The TriplitClient to interact with the database.
+ * @param eventId - The ID of the event.
+ * @param counts - The normalized counts of attendees by status.
+ */
+export const upsertEventsPrivateData = async (
+	client: HttpClient,
+	eventId: string,
+	deltas: AttendeeCountDeltas
+) => {
+	try {
+		// Check if events_private_data exists for the event
+		const existingData = await client.fetchOne(
+			client.query('events_private_data').Where([['event_id', '=', eventId]])
+		);
+
+		if (existingData) {
+			// Fetch the current counts
+			const currentCounts = existingData as AttendeeCounts;
+
+			// Update the counts based on the deltas
+			const updatedCounts = {
+				num_attendees_going:
+					(currentCounts.num_attendees_going || 0) + (deltas.num_attendees_going || 0),
+				num_attendees_maybe:
+					(currentCounts.num_attendees_maybe || 0) + (deltas.num_attendees_maybe || 0),
+				num_attendees_waitlisted:
+					(currentCounts.num_attendees_waitlisted || 0) + (deltas.num_attendees_waitlisted || 0),
+				num_attendees_left:
+					(currentCounts.num_attendees_left || 0) + (deltas.num_attendees_left || 0),
+				num_attendees_removed:
+					(currentCounts.num_attendees_removed || 0) + (deltas.num_attendees_removed || 0),
+				num_temp_attendees_going:
+					(currentCounts.num_temp_attendees_going || 0) + (deltas.num_temp_attendees_going || 0),
+				num_temp_attendees_maybe:
+					(currentCounts.num_temp_attendees_maybe || 0) + (deltas.num_temp_attendees_maybe || 0),
+				num_temp_attendees_waitlisted:
+					(currentCounts.num_temp_attendees_waitlisted || 0) +
+					(deltas.num_temp_attendees_waitlisted || 0),
+				num_temp_attendees_left:
+					(currentCounts.num_temp_attendees_left || 0) + (deltas.num_temp_attendees_left || 0),
+				num_temp_attendees_removed:
+					(currentCounts.num_temp_attendees_removed || 0) + (deltas.num_temp_attendees_removed || 0)
+			};
+
+			// Update the existing record with the updated counts
+			await client.update('events_private_data', existingData.id, updatedCounts);
+		} else {
+			const fullCounts = await normalizeAttendeeCounts(client, eventId);
+
+			// Insert a new record
+			await client.insert('events_private_data', {
+				event_id: eventId,
+				...fullCounts
+				// We don't care about deltas since we're gonna evaluate for all anyways
+			});
+		}
+	} catch (error) {
+		console.error('Error upserting events_private_data:', error);
 	}
 };

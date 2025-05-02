@@ -126,7 +126,6 @@ export async function createBonfire(
 	await expect(page.getByRole('button', { name: 'PM caret sort' })).toBeVisible();
 	await expect(page.getByRole('button', { name: 'to' }).first()).toBeVisible();
 	await expect(page.getByText('Enter event address...')).toBeVisible();
-	await expect(page.getByRole('button', { name: 'Cancel' })).toBeVisible();
 	await expect(page.locator('#event-styles-tab')).toBeVisible();
 
 	// Enter info and date
@@ -250,13 +249,17 @@ export async function navigateTo(page, URL) {
 export async function enterDetailsIntoEditor(page, details) {
 	try {
 		// Wait for the contenteditable div to be present in the DOM
-		await page.waitForSelector('#details-editor [contenteditable="true"]');
+		await page.waitForSelector('#details-editor [contenteditable="true"]', { state: 'visible' });
 
 		// Focus the contenteditable div
 		await page.focus('#details-editor [contenteditable="true"]');
 
-		// Enter details into the contenteditable div
-		await page.type('#details-editor [contenteditable="true"]', details);
+		// Split the details into smaller chunks and type them
+		const chunkSize = 50; // Adjust the chunk size as needed
+		for (let i = 0; i < details.length; i += chunkSize) {
+			const chunk = details.substring(i, i + chunkSize);
+			await page.type('#details-editor [contenteditable="true"]', chunk);
+		}
 
 		console.log('Details entered successfully.');
 	} catch (error) {

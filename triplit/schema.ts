@@ -273,7 +273,14 @@ export const schema = S.Collections({
 					])
 				]
 			}),
-			non_profit: S.RelationById('non_profits', '$1.non_profit_id')
+			non_profit: S.RelationById('non_profits', '$1.non_profit_id'),
+			private_data: S.RelationOne('events_private_data', {
+				where: [
+					and([
+						['event_id', '=', '$1.id'],
+					])
+				]
+			}),
 		},
 		permissions: {
 			admin: {
@@ -310,6 +317,31 @@ export const schema = S.Collections({
 					]
 				}
 			},
+			anon: {}
+		}
+	},
+	events_private_data: {
+		schema: S.Schema({
+			id: S.Id(),
+			event_id: S.String(), // ID of the event this admin is associated with
+			num_attendees_going: S.Number({ default: 0 }),
+			num_attendees_maybe: S.Number({ default: 0 }),
+			num_attendees_waitlisted: S.Number({ default: 0 }),
+			num_attendees_left: S.Number({ default: 0 }),
+			num_attendees_removed: S.Number({ default: 0 }),
+			num_temp_attendees_going: S.Number({ default: 0 }),
+			num_temp_attendees_maybe: S.Number({ default: 0 }),
+			num_temp_attendees_waitlisted: S.Number({ default: 0 }),
+			num_temp_attendees_left: S.Number({ default: 0 }),
+			num_temp_attendees_removed: S.Number({ default: 0 })
+		}),
+		relationships: {
+			event: S.RelationById('events', '$event_id') // Relation to the events table
+		},
+		permissions: {
+			admin: {},
+			user: {},
+			temp: {},
 			anon: {}
 		}
 	},
@@ -1459,7 +1491,7 @@ export const schema = S.Collections({
 					TransactionType.PURCHASE,
 					TransactionType.REFUND,
 					TransactionType.BONFIRE_HOSTED,
-					TransactionType.AWARD,
+					TransactionType.AWARD
 					// TransactionType.DONATION // TODO: inter-user donations not yet supported
 				] as const
 			}), // Type of transaction

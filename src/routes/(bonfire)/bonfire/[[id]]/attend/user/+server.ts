@@ -1,10 +1,14 @@
-import { HistoryChangesConstants } from '$lib/enums.js';
+import { HistoryChangesConstants, Status } from '$lib/enums.js';
 import { triplitHttpClient } from '$lib/server/triplit';
 import { error, json } from '@sveltejs/kit';
 import { and } from '@triplit/client';
 import { checkEventIsOpenForNewGoingAttendees } from '$lib/triplit';
 import type { AttendeeChange } from '$lib/types';
-import { createUserAttendance } from '$lib/rsvp.js';
+import {
+	createAttendeeCountDeltas,
+	createUserAttendance,
+	upsertEventsPrivateData
+} from '$lib/rsvp.js';
 
 export const POST = async ({ request, params, locals }) => {
 	// Extract event ID from the URL params
@@ -84,6 +88,16 @@ export const POST = async ({ request, params, locals }) => {
 
 			// Create historical entry
 			await triplitHttpClient.insert('attendees_changes', update);
+
+			// Update the normalized event counts
+			const deltas = createAttendeeCountDeltas(
+				attendance?.status as Status,
+				status as Status,
+				attendance?.guest_count,
+				numGuests,
+				true
+			);
+			await upsertEventsPrivateData(triplitHttpClient, bonfireId, deltas);
 		}
 
 		return json({ success: true, attendance });
