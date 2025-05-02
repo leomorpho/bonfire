@@ -51,18 +51,18 @@
 		/>
 	{:else if isCurrenUserEventAdmin}
 		<a class="flex w-full" href="banner/upload">
-			<Button class="dark:text-white w-full dark:bg-slate-700 dark:hover:bg-slate-600"
+			<Button class="w-full dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600"
 				>Set a banner image</Button
 			>
 		</a>
 	{/if}
 
 	<div class="flex w-full justify-center">
-		<div class="w-fit">
+		<div class="w-full">
 			{@render updateableDescription('lg')}
 		</div>
 	</div>
-	<div class="flex w-full text-sm lg:space-x-3 justify-center">
+	<div class="flex w-full justify-center text-sm lg:space-x-3">
 		<div
 			class={`flex h-fit w-fit items-center rounded-xl bg-slate-200/70 p-2 text-center shadow-lg dark:bg-slate-900/70 ${isMapPresent ? 'flex-col md:flex md:flex-row md:space-x-5 lg:space-x-10' : 'flex-col'}`}
 		>
@@ -130,7 +130,7 @@
 		fieldValue={eventDescription}
 		placeholder={"Emily's birthday party!"}
 		fieldName="description"
-		textClasses="prose prose-sm w-full overflow-hidden 
+		textClasses="break-words prose prose-sm w-full overflow-hidden 
              text-black ease-in-out sm:prose-base focus:outline-none prose-h1:text-black prose-h2:text-black 
             prose-p:text-black prose-blockquote:text-black prose-strong:text-black 
             dark:text-white dark:prose-h1:text-white dark:prose-h2:text-white dark:prose-p:text-white 
