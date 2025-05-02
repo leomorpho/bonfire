@@ -305,8 +305,8 @@ export const notificationTypeMapping: NotificationTypeMapping = {
 
 // TODO: technically 160 but don't wanna deal with counting unicode chars correctly for now, see TexAreaAutoGrow
 export const maxSmsLenInChars = 100;
-export const defaultMaxEventCapacity = 15;
-export const defaultMaxNumGuestsPerAttendee = 5;
+export const defaultMaxEventCapacity = null;
+export const defaultMaxNumGuestsPerAttendee = 2;
 
 export enum eventInputTypes {
 	textarea = 'textarea',

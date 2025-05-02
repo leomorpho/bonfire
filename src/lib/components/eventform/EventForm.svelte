@@ -13,8 +13,7 @@
 		Palette,
 		Shield,
 		BookCheck,
-		Save,
-		Undo2
+		Save
 	} from 'lucide-svelte';
 	import DoubleDigitsPicker from '$lib/components/DoubleDigitsPicker.svelte';
 	import TimezonePicker from '$lib/components/TimezonePicker.svelte';
@@ -83,7 +82,6 @@
 	// ✅ State Variables
 	let client: TriplitClient;
 	let eventId = $state(event?.id);
-	let cancelUrl = $state(event && event.id ? `/bonfire/${event.id}` : '/');
 	let timezone = $state({});
 	let setEndTime = $state(false);
 
@@ -713,20 +711,11 @@
 						bind:checked={requireGuestBringItem}
 					/>
 				</form>
-				<div class="my-10 flex justify-center md:w-full">
-					<div class="grid w-full grid-cols-2 gap-2">
-						<a class="flex w-full" href={cancelUrl}>
-							<Button
-								class="w-full ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-700"
-							>
-								<Undo2 class="ml-1 mr-1 h-4 w-4" /> Cancel
-							</Button>
-						</a>
-
+				<div class="my-10 flex justify-center w-full">
+					<div class="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0 w-1/2 sm:w-full">
 						{#if isEventCreated && !isEventPublished}
 							<Button
 								disabled={submitDisabled}
-								type="submit"
 								class={`w-full ${submitDisabled ? 'bg-slate-400 dark:bg-slate-600' : 'bg-blue-600 hover:bg-blue-500 dark:bg-blue-700 dark:hover:bg-blue-600'} ring-glow dark:text-white`}
 								onclick={() => {
 									updateEvent().then(() => {
@@ -734,14 +723,14 @@
 									});
 								}}
 							>
-								<ArrowDownToLine class="ml-1 mr-1 h-4 w-4" />Save Draft
+								<ArrowDownToLine class="ml-1 mr-1 h-4 w-4" /> Draft
 							</Button>
 						{/if}
+						
 
 						<Button
 							id="upsert-bonfire"
 							disabled={submitDisabled}
-							type="submit"
 							class={`w-full ${submitDisabled ? 'bg-slate-400 dark:bg-slate-600' : 'bg-green-600 hover:bg-green-500 dark:bg-green-700 dark:hover:bg-green-600'} ring-glow dark:text-white`}
 							onclick={(e) => {
 								handleSubmit(e, true);

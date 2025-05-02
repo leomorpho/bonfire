@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ABS_MAX_GUEST_NUM } from './../../enums.ts';
+	import { ABS_MAX_GUEST_NUM } from '$lib/enums';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import Checkbox from '../ui/checkbox/checkbox.svelte';
 	import Input from '../ui/input/input.svelte';
