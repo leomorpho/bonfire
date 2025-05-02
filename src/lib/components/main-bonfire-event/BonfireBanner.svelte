@@ -2,7 +2,7 @@
 	import { BannerMediaSize } from '$lib/enums';
 	import { blurhashToCssGradientString } from '@unpic/placeholder';
 	import { Image } from '@unpic/svelte';
-	import { Pen } from 'lucide-svelte';
+	import { Pencil } from 'lucide-svelte';
 	import { fade } from 'svelte/transition';
 
 	let {
@@ -103,7 +103,7 @@
 			class="absolute right-2 top-2 rounded-full bg-white p-2 shadow-md transition-all duration-200 hover:bg-slate-200 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-600"
 		>
 			<a class="flex w-full" href="banner/upload" aria-label="Upload a new banner">
-				<Pen class="no-shrink h-5 w-5" />
+				<Pencil class="no-shrink h-5 w-5" />
 			</a>
 		</div>
 	{/if}

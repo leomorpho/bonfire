@@ -11,6 +11,7 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { MapPin, Check, MapPinHouse } from 'lucide-svelte';
 	import { toast } from 'svelte-sonner';
+	import { onMount } from 'svelte';
 
 	// import { env as publicEnv } from '$env/dynamic/public';
 
@@ -26,16 +27,25 @@
 	let isDialogOpen = $state(false);
 	let isGeolocating = $state(false);
 
-	// Create a reactive `LngLatLike` state
+	// Create a reactive `LngLatLike` state (really we can't use a $derived() because
+	// latitude/longitude get saved on every change and are bound, which causes performance and UX issues)
 	let geolocation: any = $state([
 		longitude ? longitude : geocodedLocation?.data?.longitude || -122.4194,
 		latitude ? latitude : geocodedLocation?.data?.latitude || 37.7749
 	]);
 
-	let geolocationTempStorage: any = $state([
-		longitude ? longitude : geocodedLocation?.data?.longitude || -122.4194,
-		latitude ? latitude : geocodedLocation?.data?.latitude || 37.7749
-	]);
+	let geolocationTempStorage: any = $state();
+
+	const updateGeolocationTempStorage = () => {
+		geolocationTempStorage = [
+			longitude ? longitude : geocodedLocation?.data?.longitude || -122.4194,
+			latitude ? latitude : geocodedLocation?.data?.latitude || 37.7749
+		];
+	};
+	onMount(() => {
+		updateGeolocationTempStorage();
+	});
+
 
 	let showUseLocationFromAddress = $derived(
 		geocodedLocation?.data?.longitude != longitude || geocodedLocation?.data?.latitude != latitude
@@ -43,8 +53,8 @@
 
 	const useLocationFromAddress = () => {
 		geolocation = [geocodedLocation?.data?.longitude, geocodedLocation?.data?.latitude];
-		longitude = null;
-		latitude = null;
+		longitude = geocodedLocation?.data?.longitude;
+		latitude = geocodedLocation?.data?.latitude;
 		geolocationTempStorage = geolocation;
 	};
 
@@ -71,23 +81,22 @@
 	};
 
 	const locateUser = async () => {
-
 		try {
 			isGeolocating = true;
 			if ('geolocation' in navigator) {
-
 				await navigator.geolocation.getCurrentPosition(
 					(position) => {
-						const lat = position.coords.latitude;
-						const lng = position.coords.longitude;
-						geolocation = [lng, lat];
+						latitude = position.coords.latitude;
+						longitude = position.coords.longitude;
+
+						geolocation = [longitude, latitude];
 						geolocationTempStorage = geolocation;
 					},
 					(error) => {
 						console.error('Error getting location:', error);
 						alert('Unable to retrieve your location.');
 					},
-					{maximumAge:60000, timeout:5000, enableHighAccuracy:true}
+					{ maximumAge: 60000, timeout: 5000, enableHighAccuracy: true }
 				);
 			} else {
 				alert('Geolocation is not supported by your browser.');
@@ -108,6 +117,7 @@
 	<!-- Trigger Button -->
 	<Dialog.Trigger>
 		<Button
+			onclick={updateGeolocationTempStorage}
 			class="flex items-center bg-white text-black ring-glow hover:bg-slate-200 focus:outline-none focus-visible:ring-0 dark:bg-slate-900 dark:text-white dark:hover:bg-slate-700"
 			><MapPin class="!h-5 !w-5" /></Button
 		>
@@ -120,7 +130,10 @@
 				Move the map to set the event location.
 				{#if showUseLocationFromAddress}
 					<div class="mt-2 flex w-full justify-center">
-						<Button onclick={useLocationFromAddress} class="mt-3 flex items-center gap-2 sm:mt-0">
+						<Button
+							onclick={useLocationFromAddress}
+							class="mt-3 flex items-center gap-2 sm:mt-0"
+						>
 							<MapPinHouse class="h-4 w-4" />
 							Reset to location from address
 						</Button>
