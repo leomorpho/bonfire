@@ -16,6 +16,7 @@
 	import { getFeWorkerTriplitClient } from '$lib/triplit';
 	import '@fontsource-variable/montserrat';
 	import Onboarding from '$lib/components/Onboarding.svelte';
+	import HistoryApiPageRefresher from '$lib/components/HistoryApiPageRefresher.svelte';
 
 	let { children } = $props();
 
@@ -180,6 +181,7 @@
 </div>
 
 <Onboarding userId={$page.data.user?.id} />
+<HistoryApiPageRefresher />
 
 <style>
 	#everything-everywhere-all-at-once {
