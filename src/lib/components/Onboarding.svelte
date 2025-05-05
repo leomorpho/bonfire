@@ -13,15 +13,13 @@
 
 			const client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 			const user = await client.fetchById('user', userId);
-			console.log('-----> user', user);
+			// console.log('-----> user', user);
 
 			if (!user?.username) {
-				console.log('--- redirect to username');
 				goto('/profile/username');
 				return;
 			}
 			if (!user?.is_fully_onboarded) {
-				console.log('--- redirect to perms');
 				goto('/onboarding/permissions');
 				return;
 			}

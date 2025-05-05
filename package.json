@@ -148,6 +148,7 @@
 		"lodash-es": "^4.17.21",
 		"lucia": "^3.2.2",
 		"maplibre-gl": "^5.3.1",
+		"node-fetch": "^3.3.2",
 		"node-geocoder": "^4.4.1",
 		"photoswipe": "^5.4.4",
 		"posthog-js": "^1.236.2",
@@ -158,6 +159,7 @@
 		"sveltekit-rate-limiter": "^0.6.1",
 		"toad-scheduler": "^3.0.1",
 		"twilio": "^5.5.2",
+		"unsplash-js": "^7.0.19",
 		"web-push": "^3.6.7"
 	}
 }

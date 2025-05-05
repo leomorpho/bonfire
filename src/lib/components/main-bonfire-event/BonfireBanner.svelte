@@ -102,7 +102,7 @@
 		<div
 			class="absolute right-2 top-2 rounded-full bg-white p-2 shadow-md transition-all duration-200 hover:bg-slate-200 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-600"
 		>
-			<a class="flex w-full" href="banner/upload" aria-label="Upload a new banner">
+			<a class="flex w-full" href="banner/edit" aria-label="Upload a new banner">
 				<Pencil class="no-shrink h-5 w-5" />
 			</a>
 		</div>

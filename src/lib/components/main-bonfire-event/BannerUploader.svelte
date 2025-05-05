@@ -1,6 +1,5 @@
 <script lang="ts">
 	import DashboardPlugin from '@uppy/dashboard';
-
 	import Uppy from '@uppy/core';
 	import Webcam from '@uppy/webcam';
 	import GoldenRetriever from '@uppy/golden-retriever';
@@ -19,7 +18,6 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { detectTailwindTheme } from '$lib/utils';
-	import BackButton from '$lib/components/BackButton.svelte';
 	import { toast } from 'svelte-sonner';
 	import { UploadFileTypes } from '$lib/enums';
 
@@ -134,16 +132,4 @@
 	});
 </script>
 
-<div class="mx-2 flex flex-col items-center justify-center">
-	<section class="mt-8 w-full sm:w-[450px]">
-		<div
-			class="my-6 flex items-center justify-between rounded-lg bg-white p-2 text-2xl font-semibold dark:bg-slate-800 dark:text-white"
-		>
-			<BackButton url={`/bonfire/${$page.params.id}`} />
-			<h2>Set Banner</h2>
-			<span></span>
-		</div>
-
-		<div id="uppy-dashboard"></div>
-	</section>
-</div>
+<div id="uppy-dashboard"></div>
