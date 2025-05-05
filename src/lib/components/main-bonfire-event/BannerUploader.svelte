@@ -21,9 +21,12 @@
 	import { toast } from 'svelte-sonner';
 	import { UploadFileTypes } from '$lib/enums';
 
+	let { imageUrl } = $props();
+
 	let uppy: any;
 
 	const maxMbSize = 5;
+	let isDashboardExpanded = $state(false);
 
 	onMount(() => {
 		const theme = detectTailwindTheme();
@@ -46,7 +49,8 @@
 				autoOpen: 'imageEditor', // Automatically open the editor
 				showProgressDetails: true,
 				note: `Image only. Max size: ${maxMbSize}MB.`,
-				theme: theme as 'light' | 'auto' | 'dark' | undefined
+				theme: theme as 'light' | 'auto' | 'dark' | undefined,
+				height: '400px'
 			})
 			.use(Webcam, {
 				mirror: true // Use mirror mode for webcam
@@ -128,8 +132,42 @@
 					eventId: typeof $page.params.id !== 'undefined' ? $page.params.id : '',
 					uploadFileType: UploadFileTypes.BONFIRE_COVER_PHOTO
 				});
+				isDashboardExpanded = true; // Expand the dashboard when a file is added
 			});
+	});
+
+	$effect(() => {
+		// Add the image from the URL to Uppy
+		if (imageUrl) {
+			const getImage = async () => {
+				uppy.clear();
+				const response = await fetch(imageUrl);
+				const blob = await response.blob();
+				const mimeType = blob.type || 'image/jpeg'; // Default to 'image/jpeg' if type is undefined
+				uppy.addFile({
+					source: imageUrl,
+					name: 'image.jpg', // You can set a default name or extract it from the URL
+					type: mimeType, // Set the appropriate MIME type
+					data: blob
+				});
+			};
+			getImage();
+		}
 	});
 </script>
 
-<div id="uppy-dashboard"></div>
+<div id="uppy-dashboard" class={isDashboardExpanded ? 'expanded' : ''}></div>
+
+<style>
+	#uppy-dashboard {
+		width: 300px; /* Initial width */
+		transition:
+			width 0.3s ease,
+			height 0.3s ease;
+		overflow: hidden; /* Ensure content doesn't overflow */
+	}
+
+	#uppy-dashboard.expanded {
+		width: 100%; /* Expanded width */
+	}
+</style>
