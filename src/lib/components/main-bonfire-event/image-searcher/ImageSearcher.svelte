@@ -26,6 +26,31 @@
 			showHideAnimationType: 'zoom' // Optional animation
 		});
 
+		lightbox.on('uiRegister', function () {
+			lightbox.pswp.ui.registerElement({
+				name: 'select-button',
+				order: 9,
+				isButton: true,
+				tagName: 'button',
+				html: {
+					isCustomSVG: false,
+					inner: `
+      <button class="select-button">
+        Select
+      </button>
+    `,
+					outlineID: 'pswp__icn-select'
+				},
+				onClick: (event, el, pswp) => {
+					const currentSlide = pswp.currSlide.data;
+					console.log('Selected image:', currentSlide.src);
+					// Add your logic to handle the selected image here
+					// For example, you can set the selected image to a state variable
+					// selectedImage = currentSlide.src;
+				}
+			});
+		});
+
 		// Handle itemData for video and images
 		lightbox.on('itemData', (e) => {
 			const element = e.itemData.element;
@@ -152,3 +177,19 @@
 		/>
 	</div>
 {/snippet}
+
+<style>
+	.select-button {
+		background-color: green;
+		color: white;
+		border: none;
+		padding: 10px 20px;
+		border-radius: 5px;
+		cursor: pointer;
+		transition: background-color 0.3s ease;
+	}
+
+	.select-button:hover {
+		background-color: darkgreen;
+	}
+</style>
