@@ -64,8 +64,6 @@
 				},
 				actions: {
 					revert: true,
-					rotate: true,
-					granularRotate: true,
 					flip: true,
 					zoomIn: true,
 					zoomOut: true,

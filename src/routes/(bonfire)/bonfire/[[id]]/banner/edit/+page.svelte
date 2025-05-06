@@ -57,7 +57,7 @@
 				</Sheet.Content>
 			</Sheet.Root>
 		</div>
-		<div class="justify-center md:flex">
+		<div class="flex justify-center w-full">
 			<BannerUploader {imageUrl} {unsplashImageDownloadCounterCallback} {unsplashAuthorInfo} />
 		</div>
 	</section>

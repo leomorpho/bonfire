@@ -47,13 +47,15 @@
 />
 
 <div class="mb-10 w-full justify-center px-1">
-	<div class="sticky top-0 z-[1000] flex w-full items-center space-x-1">
+	<div
+		class="sticky top-0 z-[1000] my-5 flex w-full flex-col items-center space-x-1 space-y-1 sm:flex-row sm:space-y-0 text-xs"
+	>
 		<Input
 			bind:value={query}
 			placeholder="Search Unsplash..."
-			class="my-5 w-full dark:bg-slate-700 sm:w-3/4 "
+			class="w-full dark:bg-slate-700 sm:w-3/4 text-xs"
 		/>
-		<Button id="search-now" disabled={query.length == 0} onclick={searchImages}>Search</Button>
+		<Button id="search-now" class="text-xs" disabled={query.length == 0} onclick={searchImages}>Search</Button>
 	</div>
 
 	{#if isSearching}
