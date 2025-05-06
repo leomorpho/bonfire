@@ -1,4 +1,5 @@
 import JSZip from 'jszip';
+import { tempAttendeeSecretParam } from './enums';
 
 export async function downloadAsZip(selectedImages: []) {
 	if (selectedImages.length === 0) {
@@ -102,3 +103,47 @@ export async function shareImages(selectedImages: []) {
 }
 
 
+
+/**
+	 * Fetches banner information for a given Bonfire (event) ID.
+	 *
+	 * @param {string} bonfireId - The ID of the bonfire (event).
+	 * @param {string | null} tempAttendeeSecret - (Optional) Temporary attendee secret.
+	 * @returns {Promise<BannerInfo | null>} - The banner information or null if not found.
+	 */
+export async function fetchBannerInfo(bonfireId: string, tempAttendeeSecret: string | null = null) {
+	try {
+		// Construct the URL with optional temp attendee authentication
+		let url = `/bonfire/${bonfireId}/media/get-banner`;
+		if (tempAttendeeSecret) {
+			url += `?${tempAttendeeSecretParam}=${encodeURIComponent(tempAttendeeSecret)}`;
+		}
+
+		// Fetch the banner data
+		const response = await fetch(url, {
+			method: 'GET',
+			credentials: 'include', // Ensure cookies and auth tokens are sent
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		});
+
+		// Handle non-OK responses (403, 404, etc.)
+		if (!response.ok) {
+			if (response.status === 403) {
+				console.warn('User is not an attendee of this event.');
+				return null;
+			}
+			if (response.status === 404) {
+				console.warn('No banner found for this event.');
+				return null;
+			}
+			throw new Error(`Failed to fetch banner: ${response.statusText}`);
+		}
+		// Parse the response JSON
+		return await response.json();
+	} catch (error) {
+		console.error('Error fetching banner info:', error);
+		return null;
+	}
+}

@@ -1,9 +1,10 @@
 import { Status } from '$lib/enums.js';
 import { createAttendeeId } from '$lib/rsvp';
+import { generateSignedUrl } from '$lib/server/filestorage.js';
 import { triplitHttpClient } from '$lib/server/triplit.js';
+import type { StringColorFormat } from '@faker-js/faker';
 import { redirect } from '@sveltejs/kit';
 
-// Step 2: Implement the form load function
 export const load = async (event) => {
 	// Get the user from locals
 	const user = event.locals.user;
@@ -39,7 +40,59 @@ export const load = async (event) => {
 		})
 	);
 
+	const banners = await fetchBannersForEvents(user.id);
+
 	return {
-		user: user
+		user: user,
+		banners: banners
 	};
 };
+
+// Fetch banner information for a list of events
+async function fetchBannersForEvents(userId: string) {
+	try {
+		// Fetch all banners in a single query using the IN operator
+		const banners = await triplitHttpClient.fetch(
+			triplitHttpClient
+				.query('banner_media')
+				.Where(['event.attendees.user_id', '=', userId])
+				.Select([
+					'event_id',
+					// 'full_image_key',
+					'small_image_key',
+					// 'blurr_hash',
+					// 'unsplash_author_name',
+					// 'unsplash_author_username'
+				])
+		);
+
+		// Process each banner to generate signed URLs
+		const bannerPromises = banners.map(async (banner) => {
+			try {
+				// const bannerLargeSizeUrl = await generateSignedUrl(banner.full_image_key);
+				const bannerSmallSizeUrl = await generateSignedUrl(banner.small_image_key);
+
+				return {
+					eventId: banner.event_id,
+					// bannerIsSet: true,
+					bannerSmallSizeUrl,
+					// bannerLargeSizeUrl,
+					// bannerBlurHash: banner.blurr_hash,
+					// unsplashAuthorName: banner.unsplash_author_name,
+					// unsplashAuthorUsername: banner.unsplash_author_username
+				};
+			} catch (e) {
+				console.error(`Failed to generate signed URLs for event ${banner.event_id}:`, e);
+				return {
+					eventId: banner.event_id,
+					bannerIsSet: false,
+					error: 'Failed to generate signed URLs'
+				};
+			}
+		});
+
+		return await Promise.all(bannerPromises);
+	} catch (e) {
+		console.error('Failed to fetch banners for events:', e);
+	}
+}

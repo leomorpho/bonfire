@@ -599,7 +599,7 @@
 		>
 			<BackButton url={`/bonfire/${$page.params.id}`} />
 
-			<div class="ml-4 flex py-1 sm:space-x-2">
+			<div class="ml-4 flex py-1 sm:space-x-2 items-center">
 				<a href="add">
 					<Toggle id="upload-new-images" aria-label="toggle bold">
 						<ImagePlus class="!h-5 !w-5 sm:!h-4 sm:!w-4" /><span
@@ -710,7 +710,7 @@
 					{/each}
 				</div>
 			{:else}
-				<div class="flex h-full w-full justify-center">
+				<div class="flex w-full justify-center items-center h-[60vh]">
 					<BonfireNoInfoCard text={'No files yet'} />
 				</div>
 			{/if}

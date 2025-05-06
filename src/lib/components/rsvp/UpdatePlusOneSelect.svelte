@@ -29,7 +29,7 @@
 	{#if numGuests}
 		{numGuests}
 	{:else}
-		Guests
+		<span class="hidden md:block">Guests</span>
 	{/if}
 </Button>
 

@@ -23,6 +23,17 @@
 
 	let activeTab = $state('about');
 
+	// Create a map from the banners array
+	const bannerUrlsMap = new Map(
+		$page.data.banners.map((banner) => [banner.eventId, banner.bannerSmallSizeUrl])
+	);
+
+	// Function to get banner information by eventId
+	function getBannerUrlByEventId(eventId: string) {
+		const banner = bannerUrlsMap.get(eventId);
+		return banner ? banner : '';
+	}
+
 	$effect(() => {
 		console.log('futureAttendances', futureAttendances);
 	});
@@ -184,6 +195,7 @@
 									isPublished={attendance.event.is_published ?? false}
 									numGuests={attendance.guest_count}
 									maxNumGuestsAllowedPerAttendee={attendance.event.max_num_guests_per_attendee}
+									bannerImageUrl={getBannerUrlByEventId(attendance.event.id)}
 								/>
 							</div>
 						{/each}
@@ -224,6 +236,7 @@
 									isPublished={attendance.event.is_published ?? false}
 									numGuests={attendance.guest_count}
 									maxNumGuestsAllowedPerAttendee={attendance.event.max_num_guests_per_attendee}
+									bannerImageUrl={getBannerUrlByEventId(attendance.event.id)}
 								/>
 							</div>
 						{/each}

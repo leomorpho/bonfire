@@ -12,6 +12,7 @@
 	import type { FontSelection } from '$lib/types';
 	import EditEventButton from './main-bonfire-event/EditEventButton.svelte';
 	import { browser } from '$app/environment';
+	import { fetchBannerInfo } from '$lib/gallery';
 
 	let {
 		eventId,
@@ -31,11 +32,13 @@
 		isPublished = true,
 		numGuests = 0,
 		maxNumGuestsAllowedPerAttendee = 0,
-		isDemo = false
+		isDemo = false,
+		bannerImageUrl = ''
 	} = $props();
 
 	let rsvpCanBeChanged = new Date(eventStartTime) >= new Date();
 	let font: FontSelection | null = fontStr ? JSON.parse(fontStr) : null;
+	let bannerInfo = $state();
 
 	if (browser && font && font.cdn) {
 		const fontLink = document.createElement('link');
@@ -118,6 +121,9 @@
 				onRemoteFulfilled: () => {}
 			}
 		);
+
+		bannerInfo = fetchBannerInfo(eventId, null);
+
 		return () => {
 			// Cleanup
 			unsubscribeFromEventAttendees();
@@ -148,11 +154,31 @@
 		<!-- Content -->
 		<div class="relative z-10 p-4">
 			<Card.Header
-				class="rounded-xl bg-slate-200 pb-2 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 sm:mb-4"
+				class="min-h-32 rounded-xl bg-slate-200 bg-cover bg-center pb-2 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 sm:mb-4"
+				style={`background-image: url('${bannerImageUrl}');`}
 			>
-				<Card.Title style={font?.style} class="text-lg">{eventTitle}</Card.Title>
-				<Card.Description>{formatHumanReadable(eventStartTime)}</Card.Description>
-				<Card.Description>Hosted by {eventCreatorName}</Card.Description>
+				<div class="flex w-full justify-center">
+					<Card.Title
+						style={font?.style}
+						class="w-fit rounded-lg bg-slate-200/80 px-2 py-1 text-2xl dark:bg-slate-800/80 md:text-3xl "
+					>
+						{eventTitle}
+					</Card.Title>
+				</div>
+				<div class="flex w-full justify-center">
+					<Card.Description
+						class="w-fit rounded-lg bg-slate-200/80 px-1 text-sm dark:bg-slate-800/80"
+					>
+						{formatHumanReadable(eventStartTime)}
+					</Card.Description>
+				</div>
+				<div class="flex w-full justify-center">
+					<Card.Description
+						class="w-fit rounded-lg bg-slate-200/80 px-1 text-sm dark:bg-slate-800/80"
+					>
+						Hosted by {eventCreatorName}
+					</Card.Description>
+				</div>
 			</Card.Header>
 			<Card.Content>
 				{#if totalGoing || totalMaybe || totalNotGoing}
