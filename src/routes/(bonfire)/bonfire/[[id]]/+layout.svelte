@@ -230,7 +230,7 @@
 	}
 </script>
 
-<div class="bg-color min-h-screen w-full" style={styles}>
+<div class="bg-color min-h-screen" style={styles}>
 	<div class="bg-overlay min-h-screen" style={overlayStyle}>
 		{@render children()}
 	</div>
@@ -242,7 +242,7 @@
 
 <style>
 	.bg-color {
-		width: 100vw;
+		width: 100%;
 		height: 100%;
 		opacity: 0;
 		animation: fadeIn 0.3s ease-in-out 0.3s;
