@@ -588,7 +588,7 @@
 									</Tabs.Trigger>
 									<div
 										id="settings-tab-where-theres-no-tab"
-										class="inline-flex cursor-pointer items-center justify-center whitespace-nowrap rounded-md px-3 py-1 text-sm font-medium text-blue-500 ring-offset-background transition-all hover:bg-slate-200 focus:outline-none focus-visible:outline-none focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:hover:bg-slate-700 duration-250"
+										class="duration-250 inline-flex cursor-pointer items-center justify-center whitespace-nowrap rounded-md px-3 py-1 text-sm font-medium text-blue-500 ring-offset-background transition-all hover:bg-slate-200 focus:outline-none focus-visible:outline-none focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:hover:bg-slate-700"
 									>
 										<div class="flex items-center justify-center">
 											<EditEventButton {eventIsPublished} />

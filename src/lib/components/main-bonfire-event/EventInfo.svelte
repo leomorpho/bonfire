@@ -47,6 +47,8 @@
 			blurhash={bannerInfo.bannerBlurHash}
 			bannerSmallSizeUrl={bannerInfo.bannerSmallSizeUrl}
 			bannerLargeSizeUrl={bannerInfo.bannerLargeSizeUrl}
+			unsplashAuthorName={bannerInfo.unsplashAuthorName}
+			unsplashAuthorUsername={bannerInfo.unsplashAuthorUsername}
 			{isCurrenUserEventAdmin}
 		/>
 	{:else if isCurrenUserEventAdmin}

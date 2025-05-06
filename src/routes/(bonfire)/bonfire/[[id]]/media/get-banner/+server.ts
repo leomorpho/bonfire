@@ -27,7 +27,6 @@ export const GET = async ({ params, locals, url }) => {
 					.query('temporary_attendees')
 					.Where(['secret_mapping.id', '=', tempAttendeeSecretStr])
 					.Select(['id'])
-					
 			);
 			if (existingAttendee) {
 				tempAttendeeId = existingAttendee.id;
@@ -49,8 +48,13 @@ export const GET = async ({ params, locals, url }) => {
 			triplitHttpClient
 				.query('banner_media')
 				.Where(['event_id', '=', eventId])
-				.Select(['full_image_key', 'small_image_key', 'blurr_hash'])
-				
+				.Select([
+					'full_image_key',
+					'small_image_key',
+					'blurr_hash',
+					'unsplash_author_name',
+					'unsplash_author_username'
+				])
 		);
 
 		if (!banner) {
@@ -65,7 +69,9 @@ export const GET = async ({ params, locals, url }) => {
 			bannerIsSet: true,
 			bannerSmallSizeUrl,
 			bannerLargeSizeUrl,
-			bannerBlurHash: banner.blurr_hash
+			bannerBlurHash: banner.blurr_hash,
+			unsplashAuthorName: banner.unsplash_author_name,
+			unsplashAuthorUsername: banner.unsplash_author_username
 		});
 	} catch (e) {
 		console.error(`Failed to fetch banner for event ${eventId}:`, e);
@@ -94,7 +100,6 @@ async function checkUserIsAttendee(
 				])
 
 				.Select(['id'])
-				
 		);
 
 		if (attendee) {
@@ -112,7 +117,6 @@ async function checkUserIsAttendee(
 				])
 
 				.Select(['id'])
-				
 		);
 
 		return tempAttendee !== null;

@@ -40,6 +40,9 @@ export const load = async ({ params, locals, url }) => {
 	let bannerSmallSizeUrl = null;
 	let bannerLargeSizeUrl = null;
 	let bannerBlurHash = '';
+	let unsplashAuthorUsername = '';
+	let unsplashAuthorName = '';
+
 	let numBringListItems = 0;
 
 	let tempAttendeeId;
@@ -116,6 +119,8 @@ export const load = async ({ params, locals, url }) => {
 			const image = event.banner_media;
 			bannerLargeSizeUrl = await generateSignedUrl(image.full_image_key);
 			bannerSmallSizeUrl = await generateSignedUrl(image.small_image_key);
+			unsplashAuthorName = event.banner_media.unsplash_author_name ?? '';
+			unsplashAuthorUsername = event.banner_media.unsplash_author_username ?? '';
 			bannerBlurHash = image.blurr_hash;
 		}
 
@@ -168,7 +173,9 @@ export const load = async ({ params, locals, url }) => {
 		bannerIsSet,
 		bannerSmallSizeUrl,
 		bannerLargeSizeUrl,
-		bannerBlurHash
+		bannerBlurHash,
+		unsplashAuthorName,
+		unsplashAuthorUsername
 	};
 	return {
 		user,

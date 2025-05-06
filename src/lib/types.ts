@@ -170,6 +170,8 @@ export type BannerInfo = {
 	bannerSmallSizeUrl: string;
 	bannerLargeSizeUrl: string;
 	bannerBlurHash: string;
+	unsplashAuthorName: string | null;
+	unsplashAuthorUsername: string | null;
 };
 
 export type UserLogToken = {

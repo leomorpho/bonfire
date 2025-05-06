@@ -9,7 +9,9 @@
 		bannerSmallSizeUrl,
 		bannerLargeSizeUrl,
 		isCurrenUserEventAdmin = false,
-		blurhash
+		blurhash,
+		unsplashAuthorName = '',
+		unsplashAuthorUsername = ''
 	} = $props();
 
 	const placeholder = blurhashToCssGradientString(blurhash ?? 'LEHV6nWB2yk8pyo0adR*.7kCMdnj');
@@ -24,6 +26,8 @@
 			lgImageLoaded = true;
 		}
 	};
+
+	const myUnsplashAppName = 'Bonfire';
 </script>
 
 <div class="max-h-[400px]">
@@ -89,6 +93,18 @@
 			{/if}
 		</div>
 	</div>
+	{#if unsplashAuthorUsername && unsplashAuthorName}
+		<div class="flex w-full justify-center text-sm">
+			Photo by <a class="underline mx-1"
+				href={`https://unsplash.com/@${unsplashAuthorUsername}?utm_source=${myUnsplashAppName}&utm_medium=referral`}
+				>{unsplashAuthorName}</a
+			>
+			on
+			<a class="underline mx-1" href={`https://unsplash.com/?utm_source=${myUnsplashAppName}&utm_medium=referral`}
+				>Unsplash</a
+			>
+		</div>
+	{/if}
 </div>
 
 {#snippet skeleton()}
