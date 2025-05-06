@@ -1,4 +1,4 @@
-// import { promises as fs } from 'fs';
+import { promises as fs } from 'fs';
 
 import { unsplash } from '$lib/server/unsplash';
 
@@ -12,9 +12,9 @@ export async function GET({ url }) {
 		return new Response(JSON.stringify({ error: 'Query parameter is required' }), { status: 400 });
 	}
 
-	// const cachedData = await fs.readFile('./cache/plane.json', 'utf-8');
-	// console.log('Returning cached response');
-	// return new Response(cachedData, { status: 200 });
+	const cachedData = await fs.readFile('./cache/plane.json', 'utf-8');
+	console.log('Returning cached response');
+	return new Response(cachedData, { status: 200 });
 
 	// Convert countParam and pageParam to numbers if provided
 	const count = countParam ? parseInt(countParam, 10) : undefined;

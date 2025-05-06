@@ -60,6 +60,7 @@
 						{@render editButton()}
 					</div>
 				</div>
+				{@render attribution()}
 			{/if}
 		</div>
 		<div class="image-wrapper block rounded-xl sm:hidden">
@@ -90,21 +91,10 @@
 						{@render editButton()}
 					</div>
 				</div>
+				{@render attribution()}
 			{/if}
 		</div>
 	</div>
-	{#if unsplashAuthorUsername && unsplashAuthorName}
-		<div class="flex w-full justify-center text-sm">
-			Photo by <a class="underline mx-1"
-				href={`https://unsplash.com/@${unsplashAuthorUsername}?utm_source=${myUnsplashAppName}&utm_medium=referral`}
-				>{unsplashAuthorName}</a
-			>
-			on
-			<a class="underline mx-1" href={`https://unsplash.com/?utm_source=${myUnsplashAppName}&utm_medium=referral`}
-				>Unsplash</a
-			>
-		</div>
-	{/if}
 </div>
 
 {#snippet skeleton()}
@@ -125,12 +115,31 @@
 	{/if}
 {/snippet}
 
+{#snippet attribution()}
+	{#if unsplashAuthorUsername && unsplashAuthorName}
+		<div class="flex w-full justify-center text-sm">
+			Photo by <a
+				class="mx-1 underline"
+				href={`https://unsplash.com/@${unsplashAuthorUsername}?utm_source=${myUnsplashAppName}&utm_medium=referral`}
+				>{unsplashAuthorName}</a
+			>
+			on
+			<a
+				class="mx-1 underline"
+				href={`https://unsplash.com/?utm_source=${myUnsplashAppName}&utm_medium=referral`}
+				>Unsplash</a
+			>
+		</div>
+	{/if}
+{/snippet}
+
 <style>
 	.image-container {
 		position: relative;
 		width: 100%;
 		padding-top: 50%; /* Maintain a 2:1 aspect ratio */
 	}
+
 	.image-wrapper {
 		position: absolute;
 		top: 0;
@@ -138,11 +147,13 @@
 		width: 100%;
 		height: 100%;
 	}
+
 	.image-wrapper img {
 		width: 100%;
 		height: 100%;
 		object-fit: cover;
 	}
+
 	.skeleton-loader {
 		width: 100%;
 		height: 100%;

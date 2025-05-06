@@ -30,6 +30,8 @@
 
 	onMount(() => {
 		const theme = detectTailwindTheme();
+		
+		if (uppy) return;
 
 		// Initialize Uppy instance with Tus for resumable uploads
 		uppy = new Uppy({

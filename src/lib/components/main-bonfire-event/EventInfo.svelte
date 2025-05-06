@@ -59,7 +59,7 @@
 		</a>
 	{/if}
 
-	<div class="flex w-full justify-center">
+	<div class="flex w-full justify-center lg:pt-5">
 		<div class="w-full">
 			{@render updateableDescription('lg')}
 		</div>

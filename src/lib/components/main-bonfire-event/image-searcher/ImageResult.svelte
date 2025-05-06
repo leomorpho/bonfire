@@ -5,12 +5,16 @@
 
 	let buttonElement: HTMLElement;
 	let authorNameElement: HTMLElement;
+	let isLoading = $state(false);
+
+	const selectImageCallback = async () => {
+		isLoading = true; // Show loader
+		await setBannerImage(image);
+	};
 </script>
 
 <button
-	onclick={() => {
-		setBannerImage(image);
-	}}
+	onclick={selectImageCallback}
 	class="relative w-full overflow-hidden rounded-lg bg-gray-200 duration-300 animate-in fade-in zoom-in"
 	onmouseenter={() => {
 		// Add hover class to show overlay and author name
@@ -34,6 +38,14 @@
 	<div class="absolute bottom-1 left-2 hidden text-sm" bind:this={authorNameElement}>
 		{image.user.name}
 	</div>
+	{#if isLoading}
+		<div class="absolute inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75">
+			<div>
+				<div class="loading loading-spinner mr-2 h-10 w-10 sm:h-12 sm:w-12"></div>
+				<div class="pt-2 text-xs">Downloading image...</div>
+			</div>
+		</div>
+	{/if}
 </button>
 
 <style>

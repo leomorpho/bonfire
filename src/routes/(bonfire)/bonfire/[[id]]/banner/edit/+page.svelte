@@ -43,7 +43,7 @@
 		<div class="flex w-full justify-center">
 			<Sheet.Root bind:open={isSearchOpen}>
 				<Sheet.Trigger class="mb-3">
-					<Button class="bg-green-500 text-base text-white hover:bg-green-400 sm:text-lg animate-pulse"
+					<Button class="bg-green-500 text-base text-white hover:bg-green-400 sm:text-lg p-5"
 						><Search class="mr-1 h-5 w-5" /> Search an image on Unsplash</Button
 					>
 				</Sheet.Trigger>
