@@ -14,6 +14,7 @@
 	import TopBanner from './marketing/TopBanner.svelte';
 	import PageNavigationLoader from './PageNavigationLoader.svelte';
 	import { Cog, MessagesSquare } from '@lucide/svelte';
+	import InstallPwaAppBtn from './install-pwa/InstallPwaAppBtn.svelte';
 
 	let isAdmin = false;
 
@@ -103,7 +104,7 @@
 				<Menu class="h-5 w-5 sm:h-5 sm:w-5" />
 			</div>
 		</DropdownMenu.Trigger>
-		<DropdownMenu.Content class="z-[60] m-2 p-4 dark:bg-slate-950 rounded-2xl">
+		<DropdownMenu.Content class="z-[60] m-2 rounded-2xl p-4 dark:bg-slate-950">
 			<DropdownMenu.Group>
 				<!-- <DropdownMenu.Label>My Account</DropdownMenu.Label> -->
 				<!-- <DropdownMenu.Separator /> -->
@@ -162,6 +163,7 @@
 				{:else}
 					<a href="/login" class="hidden sm:flex"> {@render loginButton()}</a>
 				{/if}
+				<InstallPwaAppBtn />
 
 				<div class="hidden sm:mx-2 sm:block"><ToggleTheme /></div>
 				{#if $page.data.user}

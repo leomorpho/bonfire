@@ -317,3 +317,20 @@ export enum eventInputTypes {
 }
 
 export const mainDemoEventId = 'the-coolest-demo-event';
+
+// Define an enum for platform and browser types
+export enum PlatformBrowser {
+	IOS_SAFARI,
+	IOS_OTHER,
+	ANDROID_CHROME,
+	ANDROID_FIREFOX,
+	ANDROID_SAFARI,
+	ANDROID_EDGE,
+	ANDROID_OTHER,
+	DESKTOP_CHROME,
+	DESKTOP_FIREFOX,
+	DESKTOP_SAFARI,
+	DESKTOP_EDGE,
+	DESKTOP_OTHER,
+	UNSUPPORTED
+}

@@ -1,8 +1,6 @@
 <script lang="ts">
 	import '@khmyznikov/pwa-install';
 	import { onMount } from 'svelte';
-	import Button from './ui/button/button.svelte';
-	import { Download } from 'lucide-svelte';
 	import { dev } from '$app/environment';
 	import { checkAppIsInstallable } from '$lib/utils';
 

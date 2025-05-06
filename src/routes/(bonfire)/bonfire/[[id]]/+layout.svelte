@@ -15,9 +15,9 @@
 	import { get } from 'svelte/store';
 	import { setTempAttendeeInfoInLocalstorage } from '$lib/utils';
 	import { addUserRequests } from '$lib/profilestore';
-	import InstallPwaBtn from '$lib/components/InstallPwaBtn.svelte';
 	import type { TriplitClient } from '@triplit/client';
 	import type { FontSelection } from '$lib/types';
+	import InstallPwaDialog from '$lib/components/InstallPwaDialog.svelte';
 
 	let { data, children }: { data: LayoutData; children: Snippet } = $props();
 
@@ -237,7 +237,7 @@
 </div>
 
 {#if tempAttendeeSecret || ($page.data.user && $page.data.user.id)}
-	<InstallPwaBtn />
+	<InstallPwaDialog />
 {/if}
 
 <style>
