@@ -711,8 +711,10 @@
 						bind:checked={requireGuestBringItem}
 					/>
 				</form>
-				<div class="my-10 flex justify-center w-full">
-					<div class="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0 w-1/2 sm:w-full">
+				<div class="my-10 flex w-full justify-center">
+					<div
+						class="flex w-1/2 flex-col justify-center space-y-2 sm:w-full sm:flex-row sm:space-x-2 sm:space-y-0"
+					>
 						{#if isEventCreated && !isEventPublished}
 							<Button
 								disabled={submitDisabled}
@@ -726,7 +728,6 @@
 								<ArrowDownToLine class="ml-1 mr-1 h-4 w-4" /> Draft
 							</Button>
 						{/if}
-						
 
 						<Button
 							id="upsert-bonfire"
