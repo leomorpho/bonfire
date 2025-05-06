@@ -4,30 +4,30 @@
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Image } from '@unpic/svelte';
 
-	let { setImageUrl } = $props();
+	let { onSelectImage } = $props();
 
 	let query = $state('');
 	let images = $state([]);
 
 	async function searchImages() {
 		const response = await fetch(`/unsplash/search?query=${query}`);
-		console.log('response ----> ', response);
+		// console.log('response ----> ', response);
 		const data = await response.json();
 		if (data.error) {
 			console.error(data.error);
 		} else {
 			images = data.results;
 		}
-		// initializeLightbox();
 	}
 
 	async function setBannerImage(image) {
 		const response = await fetch(image.urls.full);
 		const blob = await response.blob();
 		const url = URL.createObjectURL(blob);
-		// Set the banner image URL here
-		console.log('Banner image URL:', url);
-		setImageUrl(url);
+		const downloadCounterUrl = image.links.download_location;
+		const name = image.user.name;
+		const username = image.user.username;
+		onSelectImage(url, downloadCounterUrl, name, username);
 	}
 </script>
 
@@ -37,7 +37,6 @@
 		document.getElementById('search-now')?.click();
 	}}
 />
-
 
 <div class="mb-10 w-full justify-center px-1">
 	<div class="sticky top-0 z-[1000] flex w-full items-center space-x-1">
@@ -49,9 +48,7 @@
 		<Button id="search-now" disabled={query.length == 0} onclick={searchImages}>Search</Button>
 	</div>
 
-	<div
-		class="lightbox-gallery-container-unsplash grid grid-cols-1 gap-y-2 "
-	>
+	<div class="lightbox-gallery-container-unsplash grid grid-cols-1 gap-y-2">
 		{#each images as image}
 			{@render imageRendered(image)}
 		{/each}
@@ -59,7 +56,7 @@
 </div>
 
 {#snippet imageRendered(image)}
-{console.log("image.urls", image.urls)}
+	{console.log('image.urls', image.urls)}
 	<button
 		onclick={() => {
 			setBannerImage(image);

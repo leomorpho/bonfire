@@ -51,7 +51,7 @@ const s3 = new S3Client({
 	credentials: {
 		accessKeyId: s3AccessKey,
 		secretAccessKey: s3SecretKey
-	},
+	}
 });
 
 const bucketName = dev ? privateEnv.DEV_S3_BUCKET_NAME : privateEnv.S3_BUCKET_NAME;
@@ -318,7 +318,9 @@ export async function uploadBannerImage(
 	filePath: string,
 	userId: string | null,
 	eventId: string | null,
-	overwrite: boolean = true
+	overwrite: boolean = true,
+	unsplashAuthorName: string | null = '',
+	unsplashUsername: string | null = ''
 ) {
 	if (!userId) {
 		throw new Error('userId should be set in call to uploadBannerImage');
@@ -423,6 +425,8 @@ export async function uploadBannerImage(
 			e.w_pixel_sm = BannerMediaSize.SMALL_WIDTH;
 			e.blurr_hash = blurhash;
 			e.size_in_bytes = filesize;
+			e.unsplash_author_name = unsplashAuthorName;
+			e.unsplash_author_username = unsplashUsername;
 			e.uploader_id = userId;
 			e.event_id = eventId;
 		});
@@ -441,6 +445,8 @@ export async function uploadBannerImage(
 			w_pixel_sm: BannerMediaSize.SMALL_WIDTH,
 			blurr_hash: blurhash,
 			size_in_bytes: filesize,
+			unsplash_author_name: unsplashAuthorName,
+			unsplash_author_username: unsplashUsername,
 			uploader_id: userId,
 			event_id: eventId
 		});

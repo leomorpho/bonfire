@@ -21,7 +21,7 @@
 	import { toast } from 'svelte-sonner';
 	import { UploadFileTypes } from '$lib/enums';
 
-	let { imageUrl } = $props();
+	let { imageUrl, unsplashImageDownloadCounterCallback, unsplashAuthorInfo } = $props();
 
 	let uppy: any;
 
@@ -130,7 +130,10 @@
 					uploadStartTime: new Date().toISOString(),
 					userId: $page.data.user?.id,
 					eventId: typeof $page.params.id !== 'undefined' ? $page.params.id : '',
-					uploadFileType: UploadFileTypes.BONFIRE_COVER_PHOTO
+					uploadFileType: UploadFileTypes.BONFIRE_COVER_PHOTO,
+					unsplashImageDownloadCounterCallback: unsplashImageDownloadCounterCallback,
+					unsplashAuthorName: unsplashAuthorInfo.name,
+					unsplashUsername: unsplashAuthorInfo.username
 				});
 				isDashboardExpanded = true; // Expand the dashboard when a file is added
 			});

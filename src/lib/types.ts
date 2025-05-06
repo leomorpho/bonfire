@@ -226,3 +226,8 @@ export type NotifierPermission = {
 };
 
 export type PermissionsArray = NotifierPermission[];
+
+export type UnsplashAuthorInfo = {
+	name: string;
+	username: string;
+};

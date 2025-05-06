@@ -10,7 +10,7 @@ import { tempAttendeeSecretParam, UploadFileTypes } from '$lib/enums';
 import { triplitHttpClient } from '$lib/server/triplit';
 import { Readable } from 'stream';
 import { EventEmitter } from 'events';
-
+import fetch from 'node-fetch';
 /**
  * Setup the TUS server
  */
@@ -53,6 +53,12 @@ tusServer.on(EVENTS.POST_FINISH, async (req, res, upload) => {
 		const tempAttendeeSecret = upload.metadata.tempAttendeeSecret || null;
 		const eventId = upload.metadata.eventId;
 		const uploadFileType = upload.metadata.uploadFileType;
+		const unsplashImageDownloadCounterCallback =
+			upload.metadata.unsplashImageDownloadCounterCallback;
+		const unsplashAuthorName = upload.metadata.unsplashAuthorName;
+		const unsplashUsername = upload.metadata.unsplashUsername;
+
+		callUnsplashDownloadCounter(unsplashImageDownloadCounterCallback);
 
 		console.log('📝 Processing with metadata:', {
 			userId,
@@ -77,7 +83,6 @@ tusServer.on(EVENTS.POST_FINISH, async (req, res, upload) => {
 						triplitHttpClient
 							.query('temporary_attendees')
 							.Where(['secret_mapping.id', '=', tempAttendeeSecret])
-							
 					);
 					if (existingTempAttendee) {
 						tempAttendeeId = existingTempAttendee.id;
@@ -97,7 +102,7 @@ tusServer.on(EVENTS.POST_FINISH, async (req, res, upload) => {
 				console.log('📸 Gallery file processed successfully');
 				break;
 			case UploadFileTypes.BONFIRE_COVER_PHOTO:
-				await uploadBannerImage(filePath, userId, eventId)
+				await uploadBannerImage(filePath, userId, eventId, true, unsplashAuthorName, unsplashUsername);
 				break;
 			case UploadFileTypes.PROFILE_PHOTO:
 				await uploadProfileImage(filePath, userId);
@@ -217,7 +222,6 @@ export const tusHandler: Handle = async ({ event, resolve }) => {
 					triplitHttpClient
 						.query('temporary_attendees')
 						.Where(['secret_mapping.id', '=', tempAttendeeSecret])
-						
 				);
 				if (tempAttendee) {
 					validUser = true;
@@ -280,3 +284,28 @@ export const tusHandler: Handle = async ({ event, resolve }) => {
 
 	return resolve(event);
 };
+
+async function callUnsplashDownloadCounter(url: string | undefined | null) {
+	if (!url) {
+		console.error('URL is undefined or null');
+		return;
+	}
+
+	try {
+		const response = await fetch(url, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({}) // Add any necessary payload here
+		});
+
+		if (response.ok) {
+			console.log('Download counter updated successfully');
+		} else {
+			console.error('Failed to update download counter', response.statusText);
+		}
+	} catch (error) {
+		console.error('Error updating download counter:', error);
+	}
+}

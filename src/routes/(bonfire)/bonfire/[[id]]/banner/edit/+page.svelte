@@ -1,22 +1,32 @@
 <script lang="ts">
-	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import { page } from '$app/stores';
 	import BackButton from '$lib/components/BackButton.svelte';
 	import BannerUploader from '$lib/components/main-bonfire-event/BannerUploader.svelte';
 	import ImageSearcher from '$lib/components/main-bonfire-event/image-searcher/ImageSearcher.svelte';
 	import * as Sheet from '$lib/components/ui/sheet/index.js';
 	import { Button } from '$lib/components/ui/button';
-	import { ScrollArea } from '$lib/components/ui/scroll-area';
 	import { Search } from 'lucide-svelte';
+	import type { UnsplashAuthorInfo } from '$lib/types';
 
 	let isSearchOpen = $state(false);
 	let imageUrl = $state('');
+	let unsplashImageDownloadCounterCallback = $state('');
+	let unsplashAuthorInfo: UnsplashAuthorInfo | undefined | null = $state();
 
-	const setImageUrl = (url: string) => {
-		console.log('FUCK YEAH');
+	const onSelectImage = (
+		url: string,
+		counterUrl: string,
+		authorName: string,
+		authorUsername: string
+	) => {
 		imageUrl = url;
+		unsplashImageDownloadCounterCallback = counterUrl;
+		const authorInfo: UnsplashAuthorInfo = {
+			name: authorName,
+			username: authorUsername
+		};
+		unsplashAuthorInfo = authorInfo;
 		isSearchOpen = false;
-		console.log('imageUrl', imageUrl);
 	};
 </script>
 
@@ -41,15 +51,15 @@
 					<!-- <Sheet.Title>Search on Unsplash</Sheet.Title> -->
 					<Sheet.Description class="h-screen overflow-scroll">
 						<div class="flex w-full justify-center">
-							<ImageSearcher {setImageUrl} />
+							<ImageSearcher {onSelectImage} />
 						</div>
 					</Sheet.Description>
 				</Sheet.Header>
 			</Sheet.Content>
 		</Sheet.Root>
 
-		<div class="md:flex justify-center">
-			<BannerUploader {imageUrl} />
+		<div class="justify-center md:flex">
+			<BannerUploader {imageUrl} {unsplashImageDownloadCounterCallback} {unsplashAuthorInfo} />
 		</div>
 	</section>
 </div>

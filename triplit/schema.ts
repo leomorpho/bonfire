@@ -820,9 +820,11 @@ export const schema = S.Collections({
 			w_pixel_sm: S.Number({ nullable: true }),
 			blurr_hash: S.String({ nullable: true, default: null, optional: true }),
 			size_in_bytes: S.Number(),
+			unsplash_author_name: S.Optional(S.String()),
+			unsplash_author_username: S.Optional(S.String()),
 			uploaded_at: S.Date({ default: S.Default.now() }),
 			uploader_id: S.String({ nullable: true, default: null, optional: true }), // ID of the attendee
-			event_id: S.String() // ID of the event
+			event_id: S.String(), // ID of the event
 		}),
 		relationships: {
 			uploader: S.RelationById('user', '$user_id'), // Link to the user
