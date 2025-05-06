@@ -45,7 +45,7 @@
 				<Sheet.Trigger class="mb-3">
 					<Button><Search class="mr-1 h-5 w-5" /> Search an image on Unsplash</Button>
 				</Sheet.Trigger>
-				<Sheet.Content>
+				<Sheet.Content class="p-2 pt-5">
 					<Sheet.Header>
 						<!-- <Sheet.Title>Search on Unsplash</Sheet.Title> -->
 						<Sheet.Description class="h-screen overflow-scroll">
