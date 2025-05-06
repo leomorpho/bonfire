@@ -2,7 +2,7 @@
 	import KeyBoardShortcut from '$lib/components/KeyBoardShortcut.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { Input } from '$lib/components/ui/input/index.js';
-	import { Image } from '@unpic/svelte';
+	import ImageResult from './ImageResult.svelte';
 
 	let { onSelectImage } = $props();
 
@@ -58,31 +58,13 @@
 
 	{#if isSearching}
 		<div class="flex h-[70vh] w-full items-center justify-center">
-			<div class="loading loading-spinner  mr-2 w-12 h-12"></div>
+			<div class="loading loading-spinner mr-2 h-12 w-12"></div>
 		</div>
 	{:else}
 		<div class="grid grid-cols-1 gap-y-2">
 			{#each images as image}
-				{@render imageRendered(image)}
+				<ImageResult {image} {setBannerImage} />
 			{/each}
 		</div>
 	{/if}
 </div>
-
-{#snippet imageRendered(image)}
-	{console.log('image.urls', image.urls)}
-	<button
-		onclick={() => {
-			setBannerImage(image);
-		}}
-		class="relative w-full overflow-hidden rounded-lg bg-gray-200 duration-300 animate-in fade-in zoom-in"
-	>
-		<Image
-			src={image.urls.small_s3}
-			aspectRatio={image.width / image.height}
-			class="h-full w-full object-cover"
-			layout="constrained"
-			alt={image.alt_description}
-		/>
-	</button>
-{/snippet}

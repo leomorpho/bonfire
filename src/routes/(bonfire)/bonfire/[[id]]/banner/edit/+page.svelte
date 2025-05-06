@@ -40,24 +40,23 @@
 			<span></span>
 		</div>
 
-		<Sheet.Root bind:open={isSearchOpen}>
-			<Sheet.Trigger class="mb-3 w-full">
-				<div class="flex w-full justify-center">
+		<div class="flex w-full justify-center">
+			<Sheet.Root bind:open={isSearchOpen}>
+				<Sheet.Trigger class="mb-3">
 					<Button><Search class="mr-1 h-5 w-5" /> Search an image on Unsplash</Button>
-				</div>
-			</Sheet.Trigger>
-			<Sheet.Content>
-				<Sheet.Header>
-					<!-- <Sheet.Title>Search on Unsplash</Sheet.Title> -->
-					<Sheet.Description class="h-screen overflow-scroll">
-						<div class="flex w-full justify-center">
-							<ImageSearcher {onSelectImage} />
-						</div>
-					</Sheet.Description>
-				</Sheet.Header>
-			</Sheet.Content>
-		</Sheet.Root>
-
+				</Sheet.Trigger>
+				<Sheet.Content>
+					<Sheet.Header>
+						<!-- <Sheet.Title>Search on Unsplash</Sheet.Title> -->
+						<Sheet.Description class="h-screen overflow-scroll">
+							<div class="flex w-full justify-center">
+								<ImageSearcher {onSelectImage} />
+							</div>
+						</Sheet.Description>
+					</Sheet.Header>
+				</Sheet.Content>
+			</Sheet.Root>
+		</div>
 		<div class="justify-center md:flex">
 			<BannerUploader {imageUrl} {unsplashImageDownloadCounterCallback} {unsplashAuthorInfo} />
 		</div>
