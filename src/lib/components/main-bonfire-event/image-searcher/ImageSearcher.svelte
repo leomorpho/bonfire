@@ -8,15 +8,23 @@
 
 	let query = $state('');
 	let images = $state([]);
+	let isSearching = $state(false);
 
 	async function searchImages() {
-		const response = await fetch(`/unsplash/search?query=${query}`);
-		// console.log('response ----> ', response);
-		const data = await response.json();
-		if (data.error) {
-			console.error(data.error);
-		} else {
-			images = data.results;
+		try {
+			isSearching = true;
+			const response = await fetch(`/unsplash/search?query=${query}`);
+			// console.log('response ----> ', response);
+			const data = await response.json();
+			if (data.error) {
+				console.error(data.error);
+			} else {
+				images = data.results;
+			}
+		} catch (e) {
+			console.log('failed to search unsplash images', e);
+		} finally {
+			isSearching = false;
 		}
 	}
 
@@ -48,11 +56,17 @@
 		<Button id="search-now" disabled={query.length == 0} onclick={searchImages}>Search</Button>
 	</div>
 
-	<div class="lightbox-gallery-container-unsplash grid grid-cols-1 gap-y-2">
-		{#each images as image}
-			{@render imageRendered(image)}
-		{/each}
-	</div>
+	{#if isSearching}
+		<div class="flex h-[70vh] w-full items-center justify-center">
+			<div class="loading loading-spinner  mr-2 w-12 h-12"></div>
+		</div>
+	{:else}
+		<div class="grid grid-cols-1 gap-y-2">
+			{#each images as image}
+				{@render imageRendered(image)}
+			{/each}
+		</div>
+	{/if}
 </div>
 
 {#snippet imageRendered(image)}
