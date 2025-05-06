@@ -25,7 +25,7 @@
 
 	let uppy: any;
 
-	const maxMbSize = 5;
+	const maxMbSize = 10;
 	let isDashboardExpanded = $state(false);
 
 	onMount(() => {
@@ -161,7 +161,7 @@
 
 <style>
 	#uppy-dashboard {
-		width: 300px; /* Initial width */
+		width: 100%; /* Initial width */
 		transition:
 			width 0.3s ease,
 			height 0.3s ease;

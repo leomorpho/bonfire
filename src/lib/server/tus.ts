@@ -11,6 +11,9 @@ import { triplitHttpClient } from '$lib/server/triplit';
 import { Readable } from 'stream';
 import { EventEmitter } from 'events';
 import fetch from 'node-fetch';
+import { env as privateEnv } from '$env/dynamic/private';
+import { unsplash } from '$lib/server/unsplash';
+
 /**
  * Setup the TUS server
  */
@@ -102,7 +105,14 @@ tusServer.on(EVENTS.POST_FINISH, async (req, res, upload) => {
 				console.log('📸 Gallery file processed successfully');
 				break;
 			case UploadFileTypes.BONFIRE_COVER_PHOTO:
-				await uploadBannerImage(filePath, userId, eventId, true, unsplashAuthorName, unsplashUsername);
+				await uploadBannerImage(
+					filePath,
+					userId,
+					eventId,
+					true,
+					unsplashAuthorName,
+					unsplashUsername
+				);
 				break;
 			case UploadFileTypes.PROFILE_PHOTO:
 				await uploadProfileImage(filePath, userId);
@@ -292,20 +302,8 @@ async function callUnsplashDownloadCounter(url: string | undefined | null) {
 	}
 
 	try {
-		const response = await fetch(url, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({}) // Add any necessary payload here
-		});
-
-		if (response.ok) {
-			console.log('Download counter updated successfully');
-		} else {
-			console.error('Failed to update download counter', response.statusText);
-		}
+		unsplash.photos.trackDownload({ downloadLocation: url });
 	} catch (error) {
-		console.error('Error updating download counter:', error);
+		console.error('Error updating unsplash download counter:', error);
 	}
 }

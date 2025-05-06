@@ -43,7 +43,9 @@
 		<div class="flex w-full justify-center">
 			<Sheet.Root bind:open={isSearchOpen}>
 				<Sheet.Trigger class="mb-3">
-					<Button><Search class="mr-1 h-5 w-5" /> Search an image on Unsplash</Button>
+					<Button class="bg-green-500 text-base text-white hover:bg-green-400 sm:text-lg animate-pulse"
+						><Search class="mr-1 h-5 w-5" /> Search an image on Unsplash</Button
+					>
 				</Sheet.Trigger>
 				<Sheet.Content class="p-2 pt-5">
 					<Sheet.Header>
@@ -57,7 +59,7 @@
 				</Sheet.Content>
 			</Sheet.Root>
 		</div>
-		<div class="flex justify-center w-full">
+		<div class="flex w-full justify-center">
 			<BannerUploader {imageUrl} {unsplashImageDownloadCounterCallback} {unsplashAuthorInfo} />
 		</div>
 	</section>
