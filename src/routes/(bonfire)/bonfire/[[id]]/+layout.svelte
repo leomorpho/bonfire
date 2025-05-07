@@ -17,7 +17,7 @@
 	import { addUserRequests } from '$lib/profilestore';
 	import type { TriplitClient } from '@triplit/client';
 	import type { FontSelection } from '$lib/types';
-	import InstallPwaDialog from '$lib/components/InstallPwaDialog.svelte';
+	import InstallPwaDialog from '$lib/components/install-pwa/InstallPwaDialog.svelte';
 
 	let { data, children }: { data: LayoutData; children: Snippet } = $props();
 

@@ -75,10 +75,13 @@
 				</div>
 				<div class="my-2 flex items-center justify-center font-light">
 					{#if eventOrganizerId}
-						<UserRound class="mr-2 !h-4 !w-4 shrink-0" />Hosted by
-						<span class="ml-1 font-bold">{eventOrganizerUsername}</span>
+						<UserRound class="mr-2 !h-4 !w-4 shrink-0" />
+						<div class="mr-2 flex flex-wrap items-center">
+							<span class="flex-shrink-0">Hosted by</span>
+							<span class="ml-1 flex-shrink-0 font-bold">{eventOrganizerUsername}</span>
+						</div>
 						{#if rsvpStatus}
-							<div class="ml-2">
+							<div class="ml-2 inline-flex">
 								<ProfileAvatar userId={eventOrganizerId} />
 							</div>
 						{/if}
