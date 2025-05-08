@@ -58,23 +58,22 @@ export const GET = async ({ params, locals, url }) => {
 		);
 
 		if (!banner) {
-			throw error(404, 'No banner found for this event');
+			// throw error(404, 'No banner found for this event');
+			return json({}); // NOTE: I don't think it's a great idea to throw an error like I used to...
 		}
 
 		// Generate signed URLs for the images
 		const bannerLargeSizeUrl = await generateSignedUrl(banner.full_image_key);
 		const bannerSmallSizeUrl = await generateSignedUrl(banner.small_image_key);
 
-		const aaaa = {
+		return json({
 			bannerIsSet: true,
 			bannerSmallSizeUrl,
 			bannerLargeSizeUrl,
 			bannerBlurHash: banner.blurr_hash,
 			unsplashAuthorName: banner.unsplash_author_name ?? null,
 			unsplashAuthorUsername: banner.unsplash_author_username ?? null
-		};
-		console.log('======> aaaa', aaaa);
-		return json(aaaa);
+		});
 	} catch (e) {
 		console.error(`Failed to fetch banner for event ${eventId}:`, e);
 		throw error(500, 'Internal server error');
