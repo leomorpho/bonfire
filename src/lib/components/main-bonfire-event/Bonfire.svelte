@@ -637,11 +637,10 @@
 									</Button>
 								</div>
 							</div>
-							<HorizRule />
-							<div class="my-10 flex flex-col lg:flex-row lg:space-x-2">
-								<div
-									class={`w-full rounded-xl p-0  lg:p-2 ${isBringListEnabled ? 'lg:w-1/2' : ''}`}
-								>
+							<!-- <HorizRule /> -->
+
+							<div class="my-10 flex flex-wrap justify-center gap-5">
+								<div class="w-full rounded-xl lg:w-[calc(50%-0.9rem)] py-5">
 									<div class="flex justify-center rounded-xl bg-white p-5 dark:bg-slate-900">
 										<div class="flex items-center font-semibold">
 											<Megaphone class="mr-2" /> Announcements
@@ -665,9 +664,8 @@
 										</div>
 									{/if}
 								</div>
-								<HorizRule />
 								{#if isBringListEnabled}
-									<div class="w-full rounded-xl p-0 lg:w-1/2 lg:p-2">
+									<div class="w-full rounded-xl lg:w-[calc(50%-0.9rem)] py-5">
 										<div class="flex justify-center rounded-xl bg-white p-5 dark:bg-slate-900">
 											<div class="flex items-center font-semibold">
 												<ShoppingBasket class="mr-2" /> Bring List
@@ -697,26 +695,27 @@
 										{/if}
 									</div>
 								{/if}
-							</div>
-							<HorizRule />
 
-							<div>
-								<div class="flex justify-center rounded-xl bg-white p-5 dark:bg-slate-900">
-									<div class="flex items-center font-semibold"><Images class="mr-2" /> Gallery</div>
+								<div class="w-full rounded-xl lg:w-[calc(50%-0.9rem)] py-5">
+									<div class="flex justify-center rounded-xl bg-white p-5 dark:bg-slate-900">
+										<div class="flex items-center font-semibold">
+											<Images class="mr-2" /> Gallery
+										</div>
+									</div>
+									{#if rsvpStatus}
+										<div class="mb-10">
+											{#if eventFiles}
+												<MiniGallery fileCount={fileCount - eventFiles.length} {eventFiles} />
+											{:else if loadEventFiles}
+												<Loader />
+											{/if}
+										</div>
+									{:else}
+										<div class="my-2">
+											<BonfireNoInfoCard text={eventNumFiles + ' file(s)'} />
+										</div>
+									{/if}
 								</div>
-								{#if rsvpStatus}
-									<div class="mb-10">
-										{#if eventFiles}
-											<MiniGallery fileCount={fileCount - eventFiles.length} {eventFiles} />
-										{:else if loadEventFiles}
-											<Loader />
-										{/if}
-									</div>
-								{:else}
-									<div class="my-2">
-										<BonfireNoInfoCard text={eventNumFiles + ' file(s)'} />
-									</div>
-								{/if}
 							</div>
 						</div>
 					</Tabs.Content>
@@ -761,7 +760,7 @@
 	{/if}
 	<div class="mx-4 flex flex-col items-center justify-center pb-5">
 		<section
-			class="mt-10 flex w-full justify-center sm:w-[450px] md:w-[550px] lg:w-[800px] xl:w-[950px]"
+			class="flex w-full justify-center sm:w-[450px] md:w-[550px] lg:w-[800px] xl:w-[950px]"
 		>
 			<HorizRule />
 

@@ -52,15 +52,15 @@
 			{isCurrenUserEventAdmin}
 		/>
 	{:else if isCurrenUserEventAdmin}
-		<a class="flex w-full" href="banner/edit">
-			<Button class="w-full dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600"
+		<a class="flex w-full justify-center" href="banner/edit">
+			<Button class="w-2/3 dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600"
 				>Set a banner image</Button
 			>
 		</a>
 	{/if}
 
 	<div class="flex w-full justify-center lg:pt-5">
-		<div class="w-full">
+		<div class="w-fit">
 			{@render updateableDescription('lg')}
 		</div>
 	</div>
