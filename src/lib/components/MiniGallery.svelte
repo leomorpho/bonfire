@@ -98,7 +98,7 @@
 
 {#if eventFiles}
 	{#if eventFiles.length > 0}
-		<div class="lightbox-gallery-container my-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
+		<div class="lightbox-gallery-container my-5 grid grid-cols-2 gap-2">
 			{#each eventFiles as file}
 				<GalleryItem
 					url={file.URL}
