@@ -26,11 +26,10 @@
 	let uppy: any;
 
 	const maxMbSize = 10;
-	let isDashboardExpanded = $state(false);
 
 	onMount(() => {
 		const theme = detectTailwindTheme();
-		
+
 		if (uppy) return;
 
 		// Initialize Uppy instance with Tus for resumable uploads
@@ -135,7 +134,6 @@
 					unsplashAuthorName: unsplashAuthorInfo.name,
 					unsplashUsername: unsplashAuthorInfo.username
 				});
-				isDashboardExpanded = true; // Expand the dashboard when a file is added
 			});
 	});
 
@@ -159,18 +157,10 @@
 	});
 </script>
 
-<div id="uppy-dashboard" class={isDashboardExpanded ? 'expanded' : ''}></div>
+<div id="uppy-dashboard"></div>
 
 <style>
 	#uppy-dashboard {
-		width: 100%; /* Initial width */
-		transition:
-			width 0.3s ease,
-			height 0.3s ease;
 		overflow: hidden; /* Ensure content doesn't overflow */
-	}
-
-	#uppy-dashboard.expanded {
-		width: 100%; /* Expanded width */
 	}
 </style>

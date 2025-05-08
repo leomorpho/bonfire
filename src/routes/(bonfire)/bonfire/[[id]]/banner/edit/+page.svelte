@@ -28,6 +28,8 @@
 		unsplashAuthorInfo = authorInfo;
 		isSearchOpen = false;
 	};
+
+	let isUnsplashEnabled = false;
 </script>
 
 <div class="flex flex-col items-center justify-center px-4">
@@ -40,25 +42,27 @@
 			<span></span>
 		</div>
 
-		<div class="flex w-full justify-center">
-			<Sheet.Root bind:open={isSearchOpen}>
-				<Sheet.Trigger class="mb-3">
-					<Button class="bg-green-500 text-base text-white hover:bg-green-400 sm:text-lg p-5"
-						><Search class="mr-1 h-5 w-5" /> Search an image on Unsplash</Button
-					>
-				</Sheet.Trigger>
-				<Sheet.Content class="p-2 pt-5">
-					<Sheet.Header>
-						<!-- <Sheet.Title>Search on Unsplash</Sheet.Title> -->
-						<Sheet.Description class="h-screen overflow-scroll">
-							<div class="flex w-full justify-center">
-								<ImageSearcher {onSelectImage} />
-							</div>
-						</Sheet.Description>
-					</Sheet.Header>
-				</Sheet.Content>
-			</Sheet.Root>
-		</div>
+		{#if isUnsplashEnabled}
+			<div class="flex w-full justify-center">
+				<Sheet.Root bind:open={isSearchOpen}>
+					<Sheet.Trigger class="mb-3">
+						<Button class="bg-green-500 p-5 text-base text-white hover:bg-green-400 sm:text-lg"
+							><Search class="mr-1 h-5 w-5" /> Search an image on Unsplash</Button
+						>
+					</Sheet.Trigger>
+					<Sheet.Content class="p-2 pt-5">
+						<Sheet.Header>
+							<!-- <Sheet.Title>Search on Unsplash</Sheet.Title> -->
+							<Sheet.Description class="h-screen overflow-scroll">
+								<div class="flex w-full justify-center">
+									<ImageSearcher {onSelectImage} />
+								</div>
+							</Sheet.Description>
+						</Sheet.Header>
+					</Sheet.Content>
+				</Sheet.Root>
+			</div>
+		{/if}
 		<div class="flex w-full justify-center">
 			<BannerUploader {imageUrl} {unsplashImageDownloadCounterCallback} {unsplashAuthorInfo} />
 		</div>
