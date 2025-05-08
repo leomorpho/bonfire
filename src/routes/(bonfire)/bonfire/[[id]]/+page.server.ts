@@ -1,4 +1,4 @@
-import { Status, tempAttendeeSecretParam } from '$lib/enums';
+import { tempAttendeeSecretParam } from '$lib/enums';
 import { generateSignedUrl } from '$lib/server/filestorage.js';
 import {
 	normalizeAttendeeCounts,
@@ -145,8 +145,8 @@ export const load = async ({ params, locals, url }) => {
 			numAttendingGoing =
 				event.private_data.num_attendees_going + event.private_data.num_temp_attendees_going;
 		} else {
-			const fullCounts = await normalizeAttendeeCounts(client, eventId);
-			await upsertEventsPrivateData(Client, eventId, fullCounts);
+			const fullCounts = await normalizeAttendeeCounts(triplitHttpClient, eventId);
+			await upsertEventsPrivateData(triplitHttpClient, eventId, fullCounts);
 		}
 
 		// console.log("numAnnouncements", numAnnouncements)
