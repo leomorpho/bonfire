@@ -10,8 +10,8 @@
 		bannerLargeSizeUrl,
 		isCurrenUserEventAdmin = false,
 		blurhash,
-		unsplashAuthorName = '',
-		unsplashAuthorUsername = ''
+		unsplashAuthorName = null,
+		unsplashAuthorUsername = null
 	} = $props();
 
 	const placeholder = blurhashToCssGradientString(blurhash ?? 'LEHV6nWB2yk8pyo0adR*.7kCMdnj');
@@ -117,6 +117,12 @@
 
 {#snippet attribution()}
 	{#if unsplashAuthorUsername && unsplashAuthorName}
+		{console.log(
+			'unsplashAuthorUsername',
+			unsplashAuthorUsername,
+			'unsplashAuthorName',
+			unsplashAuthorName
+		)}
 		<div class="flex w-full justify-center text-sm">
 			Photo by <a
 				class="mx-1 underline"

@@ -199,6 +199,8 @@
 	) as boolean;
 
 	const convertGeocodedLocationToLatLon = (eventGeocodedLocation: any) => {
+		if (!eventGeocodedLocation) return;
+
 		// console.log('###### eventGeocodedLocation -->', eventGeocodedLocation);
 		if (eventGeocodedLocation.latitude && eventGeocodedLocation.longitude) {
 			latitude = eventGeocodedLocation.latitude;
@@ -269,6 +271,7 @@
 		}
 
 		eventLoading = true;
+
 		// Update event data based on the current page id
 		const unsubscribeFromEventQuery = client.subscribe(
 			client
@@ -313,7 +316,10 @@
 							event.banner_media?.blurr_hash &&
 							event.banner_media.blurr_hash != bannerInfo.bannerBlurHash
 						) {
-							bannerInfo = fetchBannerInfo(eventId, tempAttendeeSecret);
+							const fetchNewBanner = async () => {
+								bannerInfo = await fetchBannerInfo(eventId, tempAttendeeSecret);
+							};
+							fetchNewBanner();
 						}
 						eventLoading = false;
 					}
@@ -640,7 +646,7 @@
 							<!-- <HorizRule /> -->
 
 							<div class="my-10 flex flex-wrap justify-center gap-5">
-								<div class="w-full rounded-xl lg:w-[calc(50%-0.9rem)] py-5">
+								<div class="w-full rounded-xl py-5 lg:w-[calc(50%-0.9rem)]">
 									<div class="flex justify-center rounded-xl bg-white p-5 dark:bg-slate-900">
 										<div class="flex items-center font-semibold">
 											<Megaphone class="mr-2" /> Announcements
@@ -665,7 +671,7 @@
 									{/if}
 								</div>
 								{#if isBringListEnabled}
-									<div class="w-full rounded-xl lg:w-[calc(50%-0.9rem)] py-5">
+									<div class="w-full rounded-xl py-5 lg:w-[calc(50%-0.9rem)]">
 										<div class="flex justify-center rounded-xl bg-white p-5 dark:bg-slate-900">
 											<div class="flex items-center font-semibold">
 												<ShoppingBasket class="mr-2" /> Bring List
@@ -696,7 +702,7 @@
 									</div>
 								{/if}
 
-								<div class="w-full rounded-xl lg:w-[calc(50%-0.9rem)] py-5">
+								<div class="w-full rounded-xl py-5 lg:w-[calc(50%-0.9rem)]">
 									<div class="flex justify-center rounded-xl bg-white p-5 dark:bg-slate-900">
 										<div class="flex items-center font-semibold">
 											<Images class="mr-2" /> Gallery
@@ -759,9 +765,7 @@
 		</div>
 	{/if}
 	<div class="mx-4 flex flex-col items-center justify-center pb-5">
-		<section
-			class="flex w-full justify-center sm:w-[450px] md:w-[550px] lg:w-[800px] xl:w-[950px]"
-		>
+		<section class="flex w-full justify-center sm:w-[450px] md:w-[550px] lg:w-[800px] xl:w-[950px]">
 			<HorizRule />
 
 			<a class="flex w-full justify-center" href="/bonfire/create">

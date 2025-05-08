@@ -177,7 +177,7 @@ export const load = async ({ params, locals, url }) => {
 		unsplashAuthorName,
 		unsplashAuthorUsername
 	};
-	console.log('--->bannerInfo', bannerInfo);
+
 	return {
 		user,
 		event,

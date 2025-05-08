@@ -34,7 +34,7 @@
 
 		// Calculate the desired height based on screen height
 		const screenHeight = window.innerHeight;
-		const calculatedDashboardHeight = Math.min(screenHeight * 0.8, 800); // Use 80% of screen height, but not more than 800px
+		const calculatedDashboardHeight = Math.min(screenHeight * 0.7, 800); // Use 80% of screen height, but not more than 800px
 		const dashboardHeight = calculatedDashboardHeight > 400 ? calculatedDashboardHeight : 400;
 
 		// Initialize Uppy instance with Tus for resumable uploads
@@ -133,7 +133,7 @@
 				console.log('📄 File added:', file.name);
 
 				try {
-					uppy.setFileMeta(file.id, {
+					let fileMeta = {
 						originalName: file.name,
 						mimeType: file.type,
 						size: file.size,
@@ -142,9 +142,13 @@
 						eventId: typeof $page.params.id !== 'undefined' ? $page.params.id : '',
 						uploadFileType: UploadFileTypes.BONFIRE_COVER_PHOTO,
 						unsplashImageDownloadCounterCallback: unsplashImageDownloadCounterCallback,
-						unsplashAuthorName: unsplashAuthorInfo?.name,
-						unsplashUsername: unsplashAuthorInfo?.username
-					});
+					};
+
+					if (unsplashAuthorInfo?.name && unsplashAuthorInfo?.username) {
+						fileMeta.unsplashAuthorName = unsplashAuthorInfo?.name;
+						fileMeta.unsplashUsername = unsplashAuthorInfo?.username;
+					}
+					uppy.setFileMeta(file.id, fileMeta);
 				} catch (error) {
 					console.error('Error setting file meta:', error);
 				}

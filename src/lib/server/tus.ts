@@ -51,16 +51,16 @@ tusServer.on(EVENTS.POST_FINISH, async (req, res, upload) => {
 
 		// Extract metadata directly from the upload object
 		const filePath = `./uploads/${upload.id}`;
-		const filename = upload.metadata.filename || upload.metadata.originalName || upload.id;
-		const filetype = upload.metadata.filetype || upload.metadata.mimeType || 'unknown';
-		const userId = upload.metadata.userId || null;
-		const tempAttendeeSecret = upload.metadata.tempAttendeeSecret || null;
-		const eventId = upload.metadata.eventId;
-		const uploadFileType = upload.metadata.uploadFileType;
+		const filename = upload?.metadata?.filename || upload?.metadata?.originalName || upload.id;
+		const filetype = upload?.metadata?.filetype || upload?.metadata?.mimeType || 'unknown';
+		const userId = upload?.metadata?.userId || null;
+		const tempAttendeeSecret = upload?.metadata?.tempAttendeeSecret || null;
+		const eventId = upload?.metadata?.eventId;
+		const uploadFileType = upload?.metadata?.uploadFileType;
 		const unsplashImageDownloadCounterCallback =
-			upload.metadata.unsplashImageDownloadCounterCallback;
-		const unsplashAuthorName = upload.metadata.unsplashAuthorName;
-		const unsplashUsername = upload.metadata.unsplashUsername;
+			upload?.metadata?.unsplashImageDownloadCounterCallback;
+		const unsplashAuthorName = upload?.metadata?.unsplashAuthorName ?? null;
+		const unsplashUsername = upload?.metadata?.unsplashUsername ?? null;
 
 		callUnsplashDownloadCounter(unsplashImageDownloadCounterCallback);
 

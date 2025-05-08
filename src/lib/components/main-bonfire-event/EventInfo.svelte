@@ -25,7 +25,8 @@
 		rsvpStatus = null,
 		eventLocation = null,
 		latitude = null,
-		longitude = null
+		longitude = null,
+		tempAttendeeSecret = null
 	} = $props();
 
 	let isMapPresent = $derived(latitude && longitude);
@@ -59,7 +60,7 @@
 		</a>
 	{/if}
 
-	<div class="flex w-full justify-center lg:pt-5">
+	<div class="flex w-full justify-center pt-2 lg:pt-5">
 		<div class="w-fit">
 			{@render updateableDescription('lg')}
 		</div>

@@ -65,14 +65,16 @@ export const GET = async ({ params, locals, url }) => {
 		const bannerLargeSizeUrl = await generateSignedUrl(banner.full_image_key);
 		const bannerSmallSizeUrl = await generateSignedUrl(banner.small_image_key);
 
-		return json({
+		const aaaa = {
 			bannerIsSet: true,
 			bannerSmallSizeUrl,
 			bannerLargeSizeUrl,
 			bannerBlurHash: banner.blurr_hash,
-			unsplashAuthorName: banner.unsplash_author_name,
-			unsplashAuthorUsername: banner.unsplash_author_username
-		});
+			unsplashAuthorName: banner.unsplash_author_name ?? null,
+			unsplashAuthorUsername: banner.unsplash_author_username ?? null
+		};
+		console.log('======> aaaa', aaaa);
+		return json(aaaa);
 	} catch (e) {
 		console.error(`Failed to fetch banner for event ${eventId}:`, e);
 		throw error(500, 'Internal server error');

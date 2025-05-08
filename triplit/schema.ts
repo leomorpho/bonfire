@@ -226,7 +226,7 @@ export const schema = S.Collections({
 			font: S.Optional(S.String({ nullable: true })),
 			created_at: S.Optional(S.Date({ default: S.Default.now() })),
 			max_capacity: S.Optional(S.Number({ default: null, nullable: true })),
-			is_bring_list_enabled: S.Optional(S.Boolean({default:true})),
+			is_bring_list_enabled: S.Optional(S.Boolean({ default: true })),
 			is_published: S.Optional(S.Boolean({ default: false }))
 		}),
 		relationships: {
@@ -276,12 +276,8 @@ export const schema = S.Collections({
 			}),
 			non_profit: S.RelationById('non_profits', '$1.non_profit_id'),
 			private_data: S.RelationOne('events_private_data', {
-				where: [
-					and([
-						['event_id', '=', '$1.id'],
-					])
-				]
-			}),
+				where: [and([['event_id', '=', '$1.id']])]
+			})
 		},
 		permissions: {
 			admin: {
@@ -821,11 +817,11 @@ export const schema = S.Collections({
 			w_pixel_sm: S.Number({ nullable: true }),
 			blurr_hash: S.String({ nullable: true, default: null, optional: true }),
 			size_in_bytes: S.Number(),
-			unsplash_author_name: S.Optional(S.String()),
-			unsplash_author_username: S.Optional(S.String()),
+			unsplash_author_name: S.Optional(S.String({ default: null })),
+			unsplash_author_username: S.Optional(S.String({ default: null })),
 			uploaded_at: S.Date({ default: S.Default.now() }),
 			uploader_id: S.String({ nullable: true, default: null, optional: true }), // ID of the attendee
-			event_id: S.String(), // ID of the event
+			event_id: S.String() // ID of the event
 		}),
 		relationships: {
 			uploader: S.RelationById('user', '$user_id'), // Link to the user
