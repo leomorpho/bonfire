@@ -82,6 +82,11 @@
 			<Dialog.Header>
 				<Dialog.Title class="mb-5 flex w-full justify-center">Install the App</Dialog.Title>
 				<Dialog.Description>
+					<p class="my-5">
+						Note that the app can be used without installation. However, if you want to receive
+						event notifications, the app must be installed.
+					</p>
+
 					{#if platformBrowser === PlatformBrowser.IOS_SAFARI}
 						<p>Use Safari: Tap the "Share" icon and select "Add to Home Screen".</p>
 					{:else if platformBrowser === PlatformBrowser.IOS_OTHER}
