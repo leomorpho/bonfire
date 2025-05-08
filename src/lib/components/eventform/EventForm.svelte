@@ -45,15 +45,17 @@
 	import UnpublishEventBtn from './buttons/UnpublishEventBtn.svelte';
 	import DeleteEventBtn from './buttons/DeleteEventBtn.svelte';
 	import TipTapTextEditor from '../input/tiptap/TipTapTextEditor.svelte';
-	import MaxCapacity from './MaxCapacity.svelte';
-	import GuestCountFeature from './GuestCountFeature.svelte';
+	import MaxCapacity from './feature-enablers/MaxCapacity.svelte';
+	import GuestCountFeature from './feature-enablers/GuestCountFeature.svelte';
 	import { upsertUserAttendance } from '$lib/rsvp';
 	import type { FontSelection } from '$lib/types';
 	import { BellRing, Info, PaintBucket, RefreshCw, TypeOutline } from '@lucide/svelte';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import EventReminders from './reminders/EventReminders.svelte';
-	import RequiredBringItemForAttendance from './RequiredBringItemForAttendance.svelte';
+	import RequiredBringItemForAttendance from './feature-enablers/RequiredBringItemForAttendance.svelte';
 	import BetaDevAlert from '../BetaDevAlert.svelte';
+	import ToggleBringList from './feature-enablers/ToggleBringList.svelte';
+	import { slide } from 'svelte/transition';
 
 	let { mode, event = null, currUserId = null } = $props();
 
@@ -75,6 +77,7 @@
 	let maxNumGuest: number | null = $state(
 		event?.max_num_guests_per_attendee ?? defaultMaxNumGuestsPerAttendee
 	);
+	let isBringListEnabled: boolean = $state(event?.is_bring_list_enabled ?? false);
 	let requireGuestBringItem: boolean = $state(event?.require_guest_bring_item ?? false);
 	let latitude: number | null = $state(event?.latitude);
 	let longitude: number | null = $state(event?.longitude);
@@ -304,6 +307,7 @@
 				font: JSON.stringify(font) || null,
 				max_capacity: maxCapacity || null,
 				max_num_guests_per_attendee: maxNumGuest || 0,
+				is_bring_list_enabled: isBringListEnabled || false,
 				require_guest_bring_item: requireGuestBringItem,
 				// non_profit_id: userFavoriteNonProfitId || null,
 				latitude: latitude,
@@ -336,23 +340,24 @@
 
 	const updateEvent = async (createTransaction = false, publishEventNow = false) => {
 		try {
-			await client.http.update('events', event.id, async (entity) => {
-				entity.title = eventName;
-				entity.description = details || null;
-				entity.location = location;
-				entity.geocoded_location = JSON.stringify(geocodedLocation) || null;
-				entity.start_time = eventStartDatetime?.toISOString();
-				entity.end_time = eventEndDatetime?.toISOString();
-				entity.style = finalStyleCss;
-				entity.overlay_color = overlayColor;
-				entity.overlay_opacity = overlayOpacity;
-				entity.font = JSON.stringify(font) || null;
-				entity.max_capacity = maxCapacity;
-				entity.max_num_guests_per_attendee = maxNumGuest || 0;
-				entity.require_guest_bring_item = requireGuestBringItem;
-				entity.latitude = latitude;
-				entity.longitude = longitude;
-				entity.is_published = isEventPublished || publishEventNow;
+			await client.http.update('events', event.id, async (e) => {
+				e.title = eventName;
+				e.description = details || null;
+				e.location = location;
+				e.geocoded_location = JSON.stringify(geocodedLocation) || null;
+				e.start_time = eventStartDatetime?.toISOString();
+				e.end_time = eventEndDatetime?.toISOString();
+				e.style = finalStyleCss;
+				e.overlay_color = overlayColor;
+				e.overlay_opacity = overlayOpacity;
+				e.font = JSON.stringify(font) || null;
+				e.max_capacity = maxCapacity;
+				e.max_num_guests_per_attendee = maxNumGuest || 0;
+				e.is_bring_list_enabled = isBringListEnabled || false;
+				e.require_guest_bring_item = requireGuestBringItem;
+				e.latitude = latitude;
+				e.longitude = longitude;
+				e.is_published = isEventPublished || publishEventNow;
 			});
 
 			// if (checkCanCreateTransaction(userIsOutOfLogs, createTransaction, isEventPublished)) {
@@ -706,10 +711,15 @@
 					/>
 					<MaxCapacity oninput={debouncedUpdateEvent} bind:value={maxCapacity} />
 					<GuestCountFeature oninput={debouncedUpdateEvent} bind:value={maxNumGuest} />
-					<RequiredBringItemForAttendance
-						oninput={debouncedUpdateEvent}
-						bind:checked={requireGuestBringItem}
-					/>
+					<ToggleBringList oninput={debouncedUpdateEvent} bind:checked={isBringListEnabled} />
+					{#if isBringListEnabled}
+						<div transition:slide={{ duration: 150 }}>
+							<RequiredBringItemForAttendance
+								oninput={debouncedUpdateEvent}
+								bind:checked={requireGuestBringItem}
+							/>
+						</div>
+					{/if}
 				</form>
 				<div class="my-10 flex w-full justify-center">
 					<div

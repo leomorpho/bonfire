@@ -226,6 +226,7 @@ export const schema = S.Collections({
 			font: S.Optional(S.String({ nullable: true })),
 			created_at: S.Optional(S.Date({ default: S.Default.now() })),
 			max_capacity: S.Optional(S.Number({ default: null, nullable: true })),
+			is_bring_list_enabled: S.Optional(S.Boolean({default:true})),
 			is_published: S.Optional(S.Boolean({ default: false }))
 		}),
 		relationships: {

@@ -22,6 +22,7 @@
 	let eventNumAttendeesGoing = $derived($page.data.numAttendingGoing);
 	let bannerInfo: BannerInfo = $state($page.data.bannerInfo);
 	let maxNumGuestsAllowedPerAttendee: number = $state(event?.max_num_guests_per_attendee ?? 0);
+	let isBringListEnabled: boolean = $state(event?.is_bring_list_enabled ?? false);
 	let requireGuestBringItem: boolean = $state(event?.require_guest_bring_item ?? false);
 
 	if (tempAttendeeId) {
@@ -56,5 +57,6 @@
 	{tempAttendeeId}
 	{tempAttendeeSecret}
 	{maxNumGuestsAllowedPerAttendee}
+	{isBringListEnabled}
 	{requireGuestBringItem}
 />

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Label from '$lib/components/ui/label/label.svelte';
-	import Checkbox from '../ui/checkbox/checkbox.svelte';
+	import Checkbox from '../../ui/checkbox/checkbox.svelte';
 	import { slide } from 'svelte/transition';
 
 	let { oninput, checked = $bindable<boolean>(false) } = $props();

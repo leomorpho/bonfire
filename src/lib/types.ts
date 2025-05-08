@@ -98,6 +98,10 @@ export type EventTypescriptType = {
 	overlay_color?: string | null; // Nullable and optional
 	overlay_opacity?: number | null; // Nullable and optional
 	max_capacity?: number | null;
+	is_published: boolean;
+	max_num_guests_per_attendee?: number | null;
+	is_bring_list_enabled?: boolean;
+	require_guest_bring_item?: boolean;
 };
 
 export interface EventThread {

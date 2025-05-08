@@ -76,6 +76,7 @@
 		fileCount = 0,
 		maxNumGuestsAllowedPerAttendee = 0,
 		numGuestsCurrentAttendeeIsBringing = 0,
+		isBringListEnabled = false,
 		requireGuestBringItem = false,
 		showMaxNumPeople = 30
 	} = $props();
@@ -638,7 +639,9 @@
 							</div>
 							<HorizRule />
 							<div class="my-10 flex flex-col lg:flex-row lg:space-x-2">
-								<div class="w-full rounded-xl p-0 lg:w-1/2 lg:p-2">
+								<div
+									class={`w-full rounded-xl p-0  lg:p-2 ${isBringListEnabled ? 'lg:w-1/2' : ''}`}
+								>
 									<div class="flex justify-center rounded-xl bg-white p-5 dark:bg-slate-900">
 										<div class="flex items-center font-semibold">
 											<Megaphone class="mr-2" /> Announcements
@@ -663,35 +666,37 @@
 									{/if}
 								</div>
 								<HorizRule />
-								<div class="w-full rounded-xl p-0 lg:w-1/2 lg:p-2">
-									<div class="flex justify-center rounded-xl bg-white p-5 dark:bg-slate-900">
-										<div class="flex items-center font-semibold">
-											<ShoppingBasket class="mr-2" /> Bring List
+								{#if isBringListEnabled}
+									<div class="w-full rounded-xl p-0 lg:w-1/2 lg:p-2">
+										<div class="flex justify-center rounded-xl bg-white p-5 dark:bg-slate-900">
+											<div class="flex items-center font-semibold">
+												<ShoppingBasket class="mr-2" /> Bring List
+											</div>
 										</div>
-									</div>
 
-									{#if currUserId || tempAttendeeId}
-										<BringList
-											{eventId}
-											isAdmin={isCurrenUserEventAdmin}
-											numAttendeesGoing={allAttendeesGoing.length}
-											{currUserId}
-											{tempAttendeeId}
-											{changeToDiscussionsTab}
-											{requireGuestBringItem}
-											{isCurrenUserEventAdmin}
-											isCurrUserAttending={!!rsvpStatus}
-										/>
-									{:else}
-										<div class="my-2">
-											{#if eventNumBringListItems}
-												<BonfireNoInfoCard text={`${eventNumBringListItems} items to bring`} />
-											{:else}
-												<BonfireNoInfoCard text={'No items to bring yet'} />
-											{/if}
-										</div>
-									{/if}
-								</div>
+										{#if currUserId || tempAttendeeId}
+											<BringList
+												{eventId}
+												isAdmin={isCurrenUserEventAdmin}
+												numAttendeesGoing={allAttendeesGoing.length}
+												{currUserId}
+												{tempAttendeeId}
+												{changeToDiscussionsTab}
+												{requireGuestBringItem}
+												{isCurrenUserEventAdmin}
+												isCurrUserAttending={!!rsvpStatus}
+											/>
+										{:else}
+											<div class="my-2">
+												{#if eventNumBringListItems}
+													<BonfireNoInfoCard text={`${eventNumBringListItems} items to bring`} />
+												{:else}
+													<BonfireNoInfoCard text={'No items to bring yet'} />
+												{/if}
+											</div>
+										{/if}
+									</div>
+								{/if}
 							</div>
 							<HorizRule />
 

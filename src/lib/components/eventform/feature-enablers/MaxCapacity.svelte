@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Label from '$lib/components/ui/label/label.svelte';
-	import Checkbox from '../ui/checkbox/checkbox.svelte';
-	import Input from '../ui/input/input.svelte';
+	import Checkbox from '../../ui/checkbox/checkbox.svelte';
+	import Input from '../../ui/input/input.svelte';
 	import { slide } from 'svelte/transition';
 
 	let { oninput, value = $bindable<number | undefined | null>() } = $props();
