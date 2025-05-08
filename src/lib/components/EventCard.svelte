@@ -48,7 +48,7 @@
 	}
 
 	let overlayStyle = $derived(
-		`background-color: rgba(var(--overlay-color-rgb, ${parseColor(overlayColor)}), ${overlayOpacity});`
+		`background-color: rgba(var(--overlay-color-rgb, ${parseColor(overlayColor)}), ${overlayOpacity}); z-index: 10;`
 	);
 
 	function countStatuses(statusesArray: any) {
@@ -154,28 +154,28 @@
 		<!-- Content -->
 		<div class="relative z-10 p-4">
 			<Card.Header
-				class="min-h-32 rounded-xl bg-slate-200 bg-cover bg-center pb-2 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 sm:mb-4"
-				style={`background-image: url('${bannerImageUrl}');`}
+				class="relative banner min-h-32 rounded-xl bg-cover bg-center pb-2 sm:mb-4"
+				style={`background-image: url('${bannerImageUrl}'); ${overlayStyle};`}
 			>
+				<div
+					class="pointer-events-none absolute inset-0 z-10 rounded-xl bg-slate-200/70 dark:bg-slate-800/70"
+				></div>
+
 				<div class="flex w-full justify-center">
 					<Card.Title
 						style={font?.style}
-						class="w-fit rounded-lg bg-slate-200/80 px-2 py-1 text-2xl dark:bg-slate-800/80 md:text-3xl "
+						class="z-20 w-fit rounded-lg px-2 py-1 text-2xl sm:text-3xl lg:text-4xl text-black dark:text-white"
 					>
 						{eventTitle}
 					</Card.Title>
 				</div>
 				<div class="flex w-full justify-center">
-					<Card.Description
-						class="w-fit rounded-lg bg-slate-200/80 px-1 text-sm dark:bg-slate-800/80"
-					>
+					<Card.Description class="z-20 w-fit rounded-lg px-1 text-sm text-black dark:text-white">
 						{formatHumanReadable(eventStartTime)}
 					</Card.Description>
 				</div>
 				<div class="flex w-full justify-center">
-					<Card.Description
-						class="w-fit rounded-lg bg-slate-200/80 px-1 text-sm dark:bg-slate-800/80"
-					>
+					<Card.Description class="z-20 w-fit rounded-lg px-1 text-sm text-black dark:text-white">
 						Hosted by {eventCreatorName}
 					</Card.Description>
 				</div>
