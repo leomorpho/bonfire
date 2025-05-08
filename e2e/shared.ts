@@ -10,7 +10,7 @@ export async function loginUser(
 	email: string = faker.internet.email(),
 	username: string | null = faker.person.firstName(),
 	isOnboarding: boolean = true,
-	isFirstLogin:boolean=true
+	isFirstLogin: boolean = true
 ) {
 	// Enter email
 	await navigateTo(page, WEBSITE_URL);
@@ -112,7 +112,8 @@ export async function createBonfire(
 	page,
 	eventName = `${faker.animal.dog()} birthday party!`,
 	details = `Join us for ${eventName} It will be a fun evening filled with dog treats!`,
-	maxGuestsPerAttendee = 0
+	maxGuestsPerAttendee = 0,
+	enableBringList = false
 ) {
 	await navigateTo(page, WEBSITE_URL);
 
@@ -152,6 +153,10 @@ export async function createBonfire(
 	} else {
 		await page.locator('#maxNumberOfGuestsPerAttendeeInput').click();
 		await page.locator('#maxNumberOfGuestsPerAttendeeInput').fill('05');
+	}
+
+	if (enableBringList) {
+		await page.getByRole('checkbox', { name: 'Enable bring list' }).click();
 	}
 
 	await expect(page.getByRole('button', { name: 'Publish' })).toBeEnabled();

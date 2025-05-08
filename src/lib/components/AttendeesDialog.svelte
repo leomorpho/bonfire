@@ -97,10 +97,10 @@
 						>
 						{#if isCurrenUserEventAdmin}
 							<Tabs.Trigger value="admin-attendees-removed-dialog"
-								>{numAttendeesLeft} <Trash2 class="pl-1" /></Tabs.Trigger
+								>{numAttendeesRemoved} <Trash2 class="pl-1" /></Tabs.Trigger
 							>
-							<Tabs.Trigger value="admin-attendees-left-dialog"
-								>{numAttendeesRemoved} <ArrowRightFromLine class="pl-1" /></Tabs.Trigger
+							<Tabs.Trigger value="admin-attendees-left-dialog" id="num-attendees-left-tab"
+								>{numAttendeesLeft} <ArrowRightFromLine class="pl-1" /></Tabs.Trigger
 							>
 						{/if}
 					</Tabs.List>

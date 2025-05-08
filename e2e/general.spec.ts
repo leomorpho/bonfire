@@ -758,7 +758,7 @@ test('Bring list items', async ({ browser }) => {
 
 	const eventName = `${faker.animal.dog()} birthday party!`;
 	const eventDetails = 'It will be fun';
-	await createBonfire(eventCreatorPage, eventName, eventDetails);
+	await createBonfire(eventCreatorPage, eventName, eventDetails, 0, true);
 	await expect(eventCreatorPage.locator('#event-title')).toBeVisible();
 
 	const eventUrl = eventCreatorPage.url();
@@ -1106,7 +1106,7 @@ test('Delete/Leaving attendees', async ({ browser }) => {
 	// Verify admin
 	await eventCreatorPage.locator('#see-attendees-dialog').click();
 
-	await expect(eventCreatorPage.getByRole('heading', { name: '1 left' })).toBeVisible();
+	await expect(eventCreatorPage.locator('#num-attendees-left-tab')).toContainText('1');
 
 	// Reset user as going
 	await attendeePage.goto(eventUrl);
