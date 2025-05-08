@@ -251,23 +251,73 @@ export async function navigateTo(page, URL) {
 	await page.goto(URL, { waitUntil: 'load' });
 }
 
-export async function enterDetailsIntoEditor(page, details) {
-	try {
-		// Wait for the contenteditable div to be present in the DOM
-		await page.waitForSelector('#details-editor [contenteditable="true"]', { state: 'visible' });
+export async function enterDetailsIntoEditor(page, details, maxRetries = 3) {
+	let retries = 0;
 
-		// Focus the contenteditable div
-		await page.focus('#details-editor [contenteditable="true"]');
+	// Function to clean content by removing HTML tags
+	const cleanContent = (content) => {
+		return content
+			.replace(/<[^>]*>/g, '') // Remove HTML tags
+			.trim(); // Trim leading and trailing spaces
+	};
 
-		// Split the details into smaller chunks and type them
-		const chunkSize = 50; // Adjust the chunk size as needed
-		for (let i = 0; i < details.length; i += chunkSize) {
-			const chunk = details.substring(i, i + chunkSize);
-			await page.type('#details-editor [contenteditable="true"]', chunk);
+	const cleanedDetails = cleanContent(details);
+
+	while (retries < maxRetries) {
+		try {
+			// Wait for the contenteditable div to be present in the DOM with an increased timeout
+			await page.waitForSelector('#details-editor [contenteditable="true"]', {
+				state: 'visible',
+				timeout: 20000
+			});
+
+			// Focus the contenteditable div
+			await page.focus('#details-editor [contenteditable="true"]');
+
+			// Clear existing content with a check for null
+			await page.evaluate(() => {
+				const element = document.querySelector('#details-editor [contenteditable="true"]');
+				if (element) {
+					element.innerHTML = '';
+				} else {
+					throw new Error('Contenteditable element not found.');
+				}
+			});
+
+			// Split the details into smaller chunks and type them
+			const chunkSize = 50; // Adjust the chunk size as needed
+			for (let i = 0; i < details.length; i += chunkSize) {
+				const chunk = details.substring(i, i + chunkSize);
+				await page.type('#details-editor [contenteditable="true"]', chunk, { delay: 50 }); // Add delay between keystrokes
+			}
+
+			// Verify the entered content with a check for null
+			const enteredContent = await page.evaluate(() => {
+				const element = document.querySelector('#details-editor [contenteditable="true"]');
+				if (element) {
+					return element.innerHTML;
+				} else {
+					throw new Error('Contenteditable element not found.');
+				}
+			});
+
+			const cleanedEnteredContent = cleanContent(enteredContent);
+
+			if (cleanedEnteredContent === cleanedDetails) {
+				console.log('Details entered successfully.');
+				return; // Exit the function if details match
+			} else {
+				throw new Error(
+					`Entered content does not match the intended details. Entered: "${cleanedEnteredContent}", Expected: "${cleanedDetails}"`
+				);
+			}
+		} catch (error) {
+			console.error('Error entering details:', error);
+			retries++;
+			if (retries >= maxRetries) {
+				throw new Error('Max retries reached. Details could not be entered correctly.');
+			}
+			console.log(`Retrying... Attempt ${retries} of ${maxRetries}`);
 		}
-
-		console.log('Details entered successfully.');
-	} catch (error) {
-		console.error('Error entering details:', error);
 	}
 }

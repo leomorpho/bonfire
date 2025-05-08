@@ -36,6 +36,10 @@
 
 	let totalLeft = $derived(allAttendeesLeft.length);
 	let totalRemoved = $derived(allAttendeesRemoved.length);
+
+	$effect(() => {
+		console.log('totalGoing', totalGoing, 'totalMaybe', totalMaybe, 'totalNotGoing', totalNotGoing);
+	});
 </script>
 
 <div class="mx-3 my-2 items-center text-base">
@@ -53,7 +57,10 @@
 				numAttendeesNotGoing={totalNotGoing}
 			/>
 
-			<div id="going-attendees" class="flex flex-wrap items-center justify-center -space-x-4 space-y-2">
+			<div
+				id="going-attendees"
+				class="flex flex-wrap items-center justify-center -space-x-4 space-y-2"
+			>
 				{#each allAttendeesGoing.slice(0, showMaxNumPeople) as attendee (attendee.id)}
 					<div animate:flip out:fade={{ duration: 300 }}>
 						<ProfileAvatar
