@@ -13,6 +13,7 @@ import { EventEmitter } from 'events';
 import fetch from 'node-fetch';
 import { env as privateEnv } from '$env/dynamic/private';
 import { unsplash } from '$lib/server/unsplash';
+import { isAttendee, isOwnerOrAdmin } from '$lib/auth';
 
 /**
  * Setup the TUS server
@@ -101,10 +102,16 @@ tusServer.on(EVENTS.POST_FINISH, async (req, res, upload) => {
 
 		switch (uploadFileType) {
 			case UploadFileTypes.GALLERY:
+				if (
+					!(userId || tempAttendeeId || eventId) ||
+					!isAttendee(userId, tempAttendeeId, eventId as string)
+				)
+					return;
 				await processGalleryFile(filePath, filename, filetype, userId, tempAttendeeId, eventId);
 				console.log('📸 Gallery file processed successfully');
 				break;
 			case UploadFileTypes.BONFIRE_COVER_PHOTO:
+				if (!userId || !eventId || !isOwnerOrAdmin(userId, eventId)) return;
 				await uploadBannerImage(
 					filePath,
 					userId,

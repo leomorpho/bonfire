@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import { tempAttendeeSecretParam } from '$lib/enums';
-import { ANON_ROLE, generateJWT, USER_ROLE, TEMP_ROLE } from '$lib/jwt';
+import { ANON_ROLE, generateJWT, USER_ROLE, TEMP_ROLE } from '$lib/auth';
 import { convertTempToPermanentUser, triplitHttpClient } from '$lib/server/triplit.js';
 import type { RequestHandler } from './$types';
 

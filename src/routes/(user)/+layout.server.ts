@@ -1,4 +1,4 @@
-import { generateJWT, USER_ROLE } from '$lib/jwt';
+import { generateJWT, USER_ROLE } from '$lib/auth';
 import { triplitHttpClient } from '$lib/server/triplit';
 import { redirect } from '@sveltejs/kit';
 

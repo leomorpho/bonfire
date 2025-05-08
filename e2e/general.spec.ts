@@ -187,7 +187,7 @@ test('Create bonfire', async ({ page }) => {
 	await expect(page.getByRole('heading', { name: 'Set Banner' })).toBeVisible();
 	await expect(page.getByRole('tab', { name: 'My Device' })).toBeVisible();
 	await expect(page.getByRole('tab', { name: 'Camera' })).toBeVisible();
-	await expect(page.getByText('Image only. Max size: 5MB.')).toBeVisible();
+	await expect(page.getByText('Image only. Max size: 10MB.')).toBeVisible();
 
 	const fileInput = await page.locator('input[type="file"]').first();
 	await fileInput.setInputFiles(imagePath);
@@ -731,7 +731,7 @@ test('Event admins', async ({ browser }) => {
 	await expect(adminPage.getByRole('heading', { name: 'Set Banner' })).toBeVisible();
 	await expect(adminPage.getByRole('tab', { name: 'My Device' })).toBeVisible();
 	await expect(adminPage.getByRole('tab', { name: 'Camera' })).toBeVisible();
-	await expect(adminPage.getByText('Image only. Max size: 5MB.')).toBeVisible();
+	await expect(adminPage.getByText('Image only. Max size: 10MB.')).toBeVisible();
 
 	const fileInput = await adminPage.locator('input[type="file"]').first();
 	const imagePath = path.resolve(process.cwd(), 'e2e/test-images', 'banner.jpeg');

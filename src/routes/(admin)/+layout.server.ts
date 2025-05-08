@@ -1,4 +1,4 @@
-import { generateJWT, ADMIN_ROLE } from '$lib/jwt';
+import { generateJWT, ADMIN_ROLE } from '$lib/auth';
 import { redirect } from '@sveltejs/kit';
 
 export const load = async (event) => {

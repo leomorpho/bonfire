@@ -1,4 +1,4 @@
-import { generateJWT, ANON_ROLE } from '$lib/jwt';
+import { generateJWT, ANON_ROLE } from '$lib/auth';
 
 import { loadFlash } from 'sveltekit-flash-message/server';
 
