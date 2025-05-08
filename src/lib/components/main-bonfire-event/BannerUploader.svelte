@@ -32,6 +32,11 @@
 
 		if (uppy) return;
 
+		// Calculate the desired height based on screen height
+		const screenHeight = window.innerHeight;
+		const calculatedDashboardHeight = Math.min(screenHeight * 0.8, 800); // Use 80% of screen height, but not more than 800px
+		const dashboardHeight = calculatedDashboardHeight > 400 ? calculatedDashboardHeight : 400;
+		
 		// Initialize Uppy instance with Tus for resumable uploads
 		uppy = new Uppy({
 			allowMultipleUploads: false,
@@ -44,20 +49,6 @@
 				allowedFileTypes: ['image/*'] // Allowed file types
 			}
 		})
-			.use(DashboardPlugin, {
-				inline: true,
-				target: '#uppy-dashboard',
-				autoOpen: 'imageEditor', // Automatically open the editor
-				showProgressDetails: true,
-				note: `Image only. Max size: ${maxMbSize}MB.`,
-				theme: theme as 'light' | 'auto' | 'dark' | undefined,
-				height: '400px'
-			})
-			.use(Webcam, {
-				mirror: true // Use mirror mode for webcam
-				// countdown: true // Add a countdown before capturing
-			})
-			.use(GoldenRetriever)
 			.use(ImageEditor, {
 				cropperOptions: {
 					initialAspectRatio: 2.5,
@@ -73,6 +64,23 @@
 					cropWidescreenVertical: false
 				}
 			})
+			.use(DashboardPlugin, {
+				inline: true,
+				target: '#uppy-dashboard',
+				autoOpen: 'imageEditor', // Automatically open the editor
+				showProgressDetails: true,
+				proudlyDisplayPoweredByUppy: true,
+				note: `Image only. Max size: ${maxMbSize}MB.`,
+				theme: theme as 'light' | 'auto' | 'dark' | undefined,
+				height: `${dashboardHeight}px`
+			})
+
+			.use(Webcam, {
+				mirror: true // Use mirror mode for webcam
+				// countdown: true // Add a countdown before capturing
+			})
+			.use(GoldenRetriever)
+
 			.use(Compressor)
 			.use(Tus, {
 				endpoint: `/api/tus/files?eventId=${$page.params.id}`, // Remove trailing slashes
@@ -88,6 +96,7 @@
 					return false; // 🚀 Stop retries for failed uploads
 				}
 			})
+
 			.on('upload-retry', (file) => {
 				console.warn(`🔄 Retrying upload: ${file.name}`);
 			})
@@ -122,18 +131,22 @@
 			.on('file-added', (file) => {
 				console.log('📄 File added:', file.name);
 
-				uppy.setFileMeta(file.id, {
-					originalName: file.name,
-					mimeType: file.type,
-					size: file.size,
-					uploadStartTime: new Date().toISOString(),
-					userId: $page.data.user?.id,
-					eventId: typeof $page.params.id !== 'undefined' ? $page.params.id : '',
-					uploadFileType: UploadFileTypes.BONFIRE_COVER_PHOTO,
-					unsplashImageDownloadCounterCallback: unsplashImageDownloadCounterCallback,
-					unsplashAuthorName: unsplashAuthorInfo.name,
-					unsplashUsername: unsplashAuthorInfo.username
-				});
+				try {
+					uppy.setFileMeta(file.id, {
+						originalName: file.name,
+						mimeType: file.type,
+						size: file.size,
+						uploadStartTime: new Date().toISOString(),
+						userId: $page.data.user?.id,
+						eventId: typeof $page.params.id !== 'undefined' ? $page.params.id : '',
+						uploadFileType: UploadFileTypes.BONFIRE_COVER_PHOTO,
+						unsplashImageDownloadCounterCallback: unsplashImageDownloadCounterCallback,
+						unsplashAuthorName: unsplashAuthorInfo?.name,
+						unsplashUsername: unsplashAuthorInfo?.username
+					});
+				} catch (error) {
+					console.error('Error setting file meta:', error);
+				}
 			});
 	});
 
