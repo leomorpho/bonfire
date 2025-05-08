@@ -29,7 +29,7 @@
 		isSearchOpen = false;
 	};
 
-	let isUnsplashEnabled = false;
+	let isUnsplashEnabled = true;
 </script>
 
 <div class="flex flex-col items-center justify-center px-4">
@@ -46,7 +46,7 @@
 			<div class="flex w-full justify-center">
 				<Sheet.Root bind:open={isSearchOpen}>
 					<Sheet.Trigger class="mb-3">
-						<Button class="bg-green-500 p-5 text-base text-white hover:bg-green-400 sm:text-lg"
+						<Button class="bg-green-600 p-5 text-base text-white hover:bg-green-500 sm:text-lg"
 							><Search class="mr-1 h-5 w-5" /> Search an image on Unsplash</Button
 						>
 					</Sheet.Trigger>
