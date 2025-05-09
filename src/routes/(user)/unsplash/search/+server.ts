@@ -1,4 +1,4 @@
-import { promises as fs } from 'fs';
+// import { promises as fs } from 'fs';
 
 import { unsplash } from '$lib/server/unsplash';
 
@@ -7,7 +7,14 @@ export async function GET({ url }) {
 	const countParam = url.searchParams.get('count');
 	const pageParam = url.searchParams.get('page');
 
-	// console.log('============> query', query, 'countParam', countParam, 'pageParam', pageParam);
+	// console.log(
+	// 	'============> query',
+	// 	query,
+	// 	'countParam',
+	// 	countParam,
+	// 	'pageParam',
+	// 	pageParam,
+	// );
 	if (!query) {
 		return new Response(JSON.stringify({ error: 'Query parameter is required' }), { status: 400 });
 	}

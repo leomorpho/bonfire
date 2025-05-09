@@ -19,6 +19,7 @@
 	// Handle navigation
 	function handleNavigation() {
 		isLoading = true;
+		navBack(); 
 		if (url) {
 			goto(url); // Redirect to provided URL
 		} else {

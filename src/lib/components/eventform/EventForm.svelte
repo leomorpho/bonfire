@@ -506,7 +506,7 @@
 				<div
 					class="mb-2 flex w-full items-center justify-between rounded-xl bg-white p-2 text-lg font-semibold shadow-2xl dark:bg-slate-900"
 				>
-					<BackButton url={eventId ? `/bonfire/${eventId}` : '/dashboard'} />
+					<BackButton />
 
 					<Tabs.List class="w-min animate-in fade-in zoom-in dark:bg-slate-700 dark:text-white">
 						<Tabs.Trigger
