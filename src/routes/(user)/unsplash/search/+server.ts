@@ -2,14 +2,19 @@
 
 import { unsplash } from '$lib/server/unsplash';
 
-// import { unsplash } from '$lib/server/unsplash';
-
 export async function GET({ url }) {
 	const query = url.searchParams.get('query');
 	const countParam = url.searchParams.get('count');
 	const pageParam = url.searchParams.get('page');
 
-	// console.log('============> query', query, 'countParam', countParam, 'pageParam', pageParam);
+	// console.log(
+	// 	'============> query',
+	// 	query,
+	// 	'countParam',
+	// 	countParam,
+	// 	'pageParam',
+	// 	pageParam,
+	// );
 	if (!query) {
 		return new Response(JSON.stringify({ error: 'Query parameter is required' }), { status: 400 });
 	}

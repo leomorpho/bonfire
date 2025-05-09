@@ -54,8 +54,9 @@
 		/>
 	{:else if isCurrenUserEventAdmin}
 		<a class="flex w-full justify-center" href="banner/edit">
-			<Button class="w-2/3 dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600"
-				>Set a banner image</Button
+			<Button
+				class="w-2/3 bg-blue-600 hover:bg-blue-500 dark:bg-blue-700 dark:text-white dark:hover:bg-blue-600"
+				>📷 Set a banner image</Button
 			>
 		</a>
 	{/if}
