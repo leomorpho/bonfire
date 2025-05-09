@@ -676,7 +676,7 @@
 						</div>
 					</Tabs.Content>
 					<Tabs.Content value="discussions" class="mb-2 h-[calc(100vh-4rem)] w-full">
-						<div class="animate-fadeIn mb-2 h-[calc(100vh-4rem)] w-full">
+						<div class="animate-fadeIn mb-2 h-[calc(95vh-4rem)] w-full">
 							{#if rsvpStatus}
 								<ImThreadView
 									{currUserId}

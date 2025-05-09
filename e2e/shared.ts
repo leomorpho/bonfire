@@ -216,7 +216,7 @@ export async function addAnnouncementAsEventCreator(page, eventUrl) {
 	await navigateTo(page, eventUrl);
 
 	// Click the button to create a new announcement
-	await page.getByRole('button', { name: 'New announcement' }).click();
+	await page.locator('#create-announcement-btn').click();
 
 	// Fill out the announcement details
 	const announcementText = faker.lorem.sentence();
@@ -234,7 +234,7 @@ export async function uploadGalleryImage(page, eventUrl, expectedTotalImageCount
 	await navigateTo(page, eventUrl);
 
 	// Click the button to add to the gallery
-	await page.getByRole('button', { name: 'Upload' }).click();
+	await page.locator('#upload-new-media-btn').click();
 
 	// Select an image to upload
 	const fileInput = await page.locator('input[type="file"]').first();
