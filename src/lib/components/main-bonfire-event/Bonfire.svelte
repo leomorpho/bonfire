@@ -704,24 +704,13 @@
 								{/if}
 
 								<div class="w-full rounded-xl py-5 lg:w-[calc(50%-0.9rem)]">
-									<div class="flex justify-center rounded-xl bg-white p-5 dark:bg-slate-900">
-										<div class="flex items-center font-semibold">
-											<Images class="mr-2" /> Gallery
-										</div>
-									</div>
-									{#if rsvpStatus}
-										<div class="mb-10">
-											{#if eventFiles}
-												<MiniGallery fileCount={fileCount - eventFiles.length} {eventFiles} />
-											{:else if loadEventFiles}
-												<Loader />
-											{/if}
-										</div>
-									{:else}
-										<div class="my-2">
-											<BonfireNoInfoCard text={eventNumFiles + ' file(s)'} />
-										</div>
-									{/if}
+									<MiniGallery
+										{eventNumFiles}
+										fileCount={fileCount - eventFiles.length}
+										{eventFiles}
+										{loadEventFiles}
+										{rsvpStatus}
+									/>
 								</div>
 							</div>
 						</div>

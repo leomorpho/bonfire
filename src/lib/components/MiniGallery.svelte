@@ -5,9 +5,10 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import BonfireNoInfoCard from './BonfireNoInfoCard.svelte';
 	import GalleryItem from './GalleryItem.svelte';
-	import { Plus } from 'lucide-svelte';
+	import { Images, Plus } from 'lucide-svelte';
+	import Loader from '$lib/components/Loader.svelte';
 
-	let { fileCount, eventFiles } = $props();
+	let { eventNumFiles, fileCount, eventFiles, loadEventFiles, rsvpStatus } = $props();
 	let lightbox: PhotoSwipeLightbox | null = $state(null);
 	let lightboxInitialized = false;
 	let previousEventFiles: any[] = $state([]); // Track the previous `eventFiles`
@@ -94,56 +95,86 @@
 			initializeLightbox();
 		}
 	});
+
+	const numFilesAnonView = `${eventNumFiles} ${eventNumFiles == 1 ? 'file' : 'files'}`;
 </script>
 
-{#if eventFiles}
-	{#if eventFiles.length > 0}
-		<div class="lightbox-gallery-container my-5 grid grid-cols-2 gap-2">
-			{#each eventFiles as file}
-				<GalleryItem
-					url={file.URL}
-					wPixel={file.w_pixel}
-					hPixel={file.h_pixel}
-					fileName={file.file_name}
-					blurhash={file.blurr_hash}
-					fileType={file.file_type}
-					preview={file.linked_file || null}
-				/>
-			{/each}
-			{#if eventFiles.length > 2 && fileCount}
-				<!-- "See All" Image -->
-				<a href="media/gallery" class="see-all-link block">
-					<div
-						class="flex items-center justify-center rounded-lg bg-gray-200 text-center font-semibold dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800 sm:text-lg"
-						style="aspect-ratio: 5 / 3; width: 100%;"
-					>
-						See {fileCount} more
-					</div>
-				</a>
-			{:else}
-				<a href="media/gallery" class="see-all-link block">
-					<div
-						class="flex items-center justify-center rounded-lg bg-gray-200 text-center font-semibold dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800 sm:text-lg"
-						style="aspect-ratio: 5 / 3; width: 100%;"
-					>
-						See Gallery
-					</div>
-				</a>
-			{/if}
+<div class="flex w-full flex-row space-x-1">
+	<div class="flex w-full justify-center rounded-xl bg-white p-5 dark:bg-slate-900">
+		<div class="flex items-center font-semibold">
+			<Images class="mr-2" /> Gallery
 		</div>
-	{:else}
-		<div class="my-2">
-			<BonfireNoInfoCard text={'No photos/videos yet'} />
+	</div>
+	{#if rsvpStatus && eventFiles.length == 0}
+		<div class="flex items-center">
+			{@render uploadButton('p-5')}
 		</div>
 	{/if}
+</div>
+{#if rsvpStatus}
+	<div class="mb-10">
+		{#if eventFiles}
+			{@render miniGallery(fileCount, eventFiles)}
+		{:else if loadEventFiles}
+			<Loader />
+		{/if}
+	</div>
+{:else}
+	<div class="my-2">
+		<BonfireNoInfoCard text={numFilesAnonView} />
+	</div>
 {/if}
-<a href="media/add">
-	<Button
-		class="flex w-full items-center justify-center ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
-	>
-		<Plus class="mr-1" />Upload
-	</Button>
-</a>
+
+{#snippet miniGallery(fileCount: number, eventFiles: any)}
+	{#if eventFiles}
+		{#if eventFiles.length > 0}
+			<div class="lightbox-gallery-container my-5 grid grid-cols-2 gap-2">
+				{#each eventFiles as file}
+					<GalleryItem
+						url={file.URL}
+						wPixel={file.w_pixel}
+						hPixel={file.h_pixel}
+						fileName={file.file_name}
+						blurhash={file.blurr_hash}
+						fileType={file.file_type}
+						preview={file.linked_file || null}
+					/>
+				{/each}
+				{#if eventFiles.length > 2 && fileCount}
+					<!-- "See All" Image -->
+					<a href="media/gallery" class="see-all-link block">
+						<div
+							class="flex items-center justify-center rounded-lg bg-gray-200 text-center font-semibold dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800 sm:text-lg"
+							style="aspect-ratio: 5 / 3; width: 100%;"
+						>
+							See {fileCount} more
+						</div>
+					</a>
+				{:else}
+					<a href="media/gallery" class="see-all-link block">
+						<div
+							class="flex items-center justify-center rounded-lg bg-gray-200 text-center font-semibold dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800 sm:text-lg"
+							style="aspect-ratio: 5 / 3; width: 100%;"
+						>
+							See Gallery
+						</div>
+					</a>
+				{/if}
+			</div>
+			{@render uploadButton()}
+		{/if}
+	{/if}
+{/snippet}
+
+{#snippet uploadButton(styleClass: string | null = null)}
+	<a href="media/add">
+		<Button
+			class={`flex h-full w-full items-center justify-center rounded-xl ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800 ${styleClass}`}
+		>
+			<Plus class="mr-1" />Upload
+		</Button>
+	</a>
+{/snippet}
 
 <style>
 	/* There is a warning for these classes being unused, but that's because they're used indirectly by Photoswipe */

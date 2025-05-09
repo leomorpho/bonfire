@@ -11,6 +11,7 @@
 	import UpdateableEventField from './info/UpdateableEventField.svelte';
 	import { eventInputTypes } from '$lib/enums';
 	import { fade } from 'svelte/transition';
+	import { MapPin } from '@lucide/svelte';
 
 	let {
 		eventId,
@@ -116,7 +117,7 @@
 								{/if}
 							</div>
 						{:else}
-							<div>No address set</div>
+							<div class="flex"><MapPin class="mr-2 !h-4 !w-4 shrink-0" /> No address set</div>
 						{/if}
 					{:else}
 						Set RSVP status to see location
