@@ -1,18 +1,10 @@
 // import { promises as fs } from 'fs';
 
-import { createApi } from 'unsplash-js';
-import { env as privateEnv } from '$env/dynamic/private';
-import nodeFetch from 'node-fetch';
+import { unsplash } from '$lib/server/unsplash';
 
 // import { unsplash } from '$lib/server/unsplash';
 
 export async function GET({ url }) {
-	const unsplash = createApi({
-		accessKey: privateEnv.UNSPLASH_ACCESS_KEY,
-		fetch: nodeFetch
-	});
-	console.log('-----------> privateEnv.UNSPLASH_ACCESS_KEY', privateEnv.UNSPLASH_ACCESS_KEY);
-
 	const query = url.searchParams.get('query');
 	const countParam = url.searchParams.get('count');
 	const pageParam = url.searchParams.get('page');
