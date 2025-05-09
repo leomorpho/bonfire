@@ -197,6 +197,7 @@
 {#snippet createAnnouncementButton()}
 	<a href="announcement/create">
 		<Button
+			id="create-announcement-btn"
 			class="flex w-full items-center justify-center ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
 		>
 			<Plus />

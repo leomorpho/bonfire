@@ -122,8 +122,8 @@
 {/if}
 
 {#snippet miniGallery(fileCount: number, eventFiles: any)}
-	{#if eventFiles.length == 0 && numFilesAnonView == 0}
-		<BonfireNoInfoCard text={'No media files yet'} class="my-2" />
+	{#if rsvpStatus && eventFiles.length == 0 && eventNumFiles == 0}
+		<BonfireNoInfoCard text={'No photos/videos yet'} class="my-2" />
 	{/if}
 	<div class="lightbox-gallery-container">
 		{#if eventFiles && rsvpStatus}
@@ -154,7 +154,7 @@
 					{:else if eventFiles.length > 0}
 						<a href="media/gallery" class="see-all-link block">
 							<div
-								class="flex items-center justify-center rounded-lg bg-gray-200/50 hover:bg-gray-300/50 text-center font-semibold dark:bg-slate-900/50 dark:text-white dark:hover:bg-slate-800/50 sm:text-lg"
+								class="flex items-center justify-center rounded-lg bg-gray-200/50 text-center font-semibold hover:bg-gray-300/50 dark:bg-slate-900/50 dark:text-white dark:hover:bg-slate-800/50 sm:text-lg"
 								style="aspect-ratio: 5 / 3; width: 100%;"
 							>
 								See Gallery
@@ -170,6 +170,7 @@
 {#snippet uploadButton()}
 	<a href="media/add">
 		<Button
+			id="upload-new-media-btn"
 			class="flex w-full items-center justify-center ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
 		>
 			<Plus />

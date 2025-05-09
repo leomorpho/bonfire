@@ -175,10 +175,10 @@ test('Create bonfire', async ({ page }) => {
 	// Check general stuff
 	await expect(page.getByText('Announcements', { exact: true })).toBeVisible();
 	await expect(page.getByText('No announcements yet')).toBeVisible();
-	await expect(page.getByRole('button', { name: 'New announcement' })).toBeVisible();
+	await expect(page.locator('#create-announcement-btn')).toBeVisible();
 	await expect(page.getByText('Gallery', { exact: true })).toBeVisible();
 	await expect(page.getByText('No photos/videos yet')).toBeVisible();
-	await expect(page.getByRole('button', { name: 'Upload' })).toBeVisible();
+	await expect(page.locator('#upload-new-media-btn')).toBeVisible();
 
 	// Upload a banner image
 	const imagePath = path.resolve(process.cwd(), 'e2e/test-images', 'banner.jpeg');
@@ -230,7 +230,7 @@ test('CRUD announcements', async ({ page }) => {
 
 	// Create
 	await expect(page.getByText('No announcements yet')).toBeVisible();
-	await page.getByRole('button', { name: 'New announcement' }).click();
+	await page.locator('#create-announcement-btn').click();
 	await expect(page.getByRole('heading', { name: 'Create announcement' })).toBeVisible();
 	await page.getByPlaceholder('Type your announcement here').click();
 	await page.getByPlaceholder('Type your announcement here').fill('An announcement!');
@@ -276,7 +276,7 @@ test('CRUD gallery', async ({ page }) => {
 	await createBonfire(page, eventName);
 	await expect(page.locator('#event-title')).toBeVisible();
 
-	await page.getByRole('button', { name: 'Upload' }).click();
+	await page.locator('#upload-new-media-btn').click();
 
 	const fileInput = await page.locator('input[type="file"]').first();
 	const imagePath = path.resolve(process.cwd(), 'e2e/test-images', 'gallery-image.jpg');
@@ -374,8 +374,8 @@ test('User attendee view', async ({ browser }) => {
 
 	await expect(userAttendeePage.getByText(eventDetails).first()).toBeVisible();
 	await expect(userAttendeePage.getByText('1 going')).toBeVisible();
-	await expect(userAttendeePage.getByText('1 announcement(s)')).toBeVisible();
-	await expect(userAttendeePage.getByText('1 file(s)')).toBeVisible();
+	await expect(userAttendeePage.getByText('1 announcement')).toBeVisible();
+	await expect(userAttendeePage.getByText('1 file')).toBeVisible();
 
 	await userAttendeePage.getByText('RSVP', { exact: true }).click();
 	await userAttendeePage.getByRole('menuitem', { name: 'Going', exact: true }).click();
@@ -433,8 +433,8 @@ test('Temp attendee view', async ({ browser }) => {
 	await expect(tempAttendeePage.getByText('Set RSVP status to see location')).toBeVisible();
 	await expect(tempAttendeePage.getByText(eventDetails).first()).toBeVisible();
 	await expect(tempAttendeePage.getByText('1 going')).toBeVisible();
-	await expect(tempAttendeePage.getByText('1 announcement(s)')).toBeVisible();
-	await expect(tempAttendeePage.getByText('1 file(s)')).toBeVisible();
+	await expect(tempAttendeePage.getByText('1 announcement')).toBeVisible();
+	await expect(tempAttendeePage.getByText('1 file')).toBeVisible();
 
 	// Set RSVP status
 	await tempAttendeePage.getByText('RSVP', { exact: true }).click();
@@ -720,7 +720,7 @@ test('Event admins', async ({ browser }) => {
 
 	// Add an announcement
 	const announcementText = faker.lorem.paragraph();
-	await adminPage.getByRole('button', { name: 'New announcement' }).click();
+	await adminPage.locator('#create-announcement-btn').click();
 	await adminPage.getByPlaceholder('Type your announcement here').click();
 	await adminPage.getByPlaceholder('Type your announcement here').fill(announcementText);
 	await adminPage.getByRole('button', { name: 'Create' }).click();

@@ -22,7 +22,6 @@
 		<ImThreadView
 			{eventId}
 			{currUserId}
-			{profileImageMap}
 			{threadId}
 			{canSendIm}
 			{datetimeUserJoinedBonfire}
@@ -35,7 +34,6 @@
 			<ImThreadView
 				{eventId}
 				{currUserId}
-				{profileImageMap}
 				{threadId}
 				{canSendIm}
 				{datetimeUserJoinedBonfire}

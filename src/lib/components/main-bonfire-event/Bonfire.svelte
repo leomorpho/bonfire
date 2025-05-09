@@ -438,7 +438,7 @@
 		// Prepare shareable data
 		const shareData = {
 			title: `Hey! You're invited to ${eventTitle}!`, // Use the event title
-			text: `Hey! You're invited to ${eventTitle}! Please RSVP via the link—if we don’t hear from you, we’ll assume you can't make it.`,
+			text: `Please RSVP via the link so we can plan accordingly. If we don’t hear from you, we’ll assume you can't make it.`,
 			url: `${publicEnv.PUBLIC_ORIGIN}/bonfire/${eventId}` // Use the event's unique ID in the URL
 		};
 
@@ -676,7 +676,7 @@
 						</div>
 					</Tabs.Content>
 					<Tabs.Content value="discussions" class="mb-2 h-[calc(100vh-4rem)] w-full">
-						<div class="animate-fadeIn mb-2 h-[calc(100vh-4rem)] w-full">
+						<div class="animate-fadeIn mb-2 h-[calc(95vh-4rem)] w-full">
 							{#if rsvpStatus}
 								<ImThreadView
 									{currUserId}
