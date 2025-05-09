@@ -2,14 +2,13 @@
 	import { tempAttendeeSecretParam } from '$lib/enums';
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
-	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
 	import SelectionArea from '@viselect/vanilla';
 	import { Download, Trash2 } from 'lucide-svelte';
 	import { Toggle } from '$lib/components/ui/toggle/index.js';
 	import PhotoSwipeLightbox from 'photoswipe/lightbox';
 	import 'photoswipe/style.css';
 	import { Button } from '$lib/components/ui/button/index.js';
-	import { ImagePlus, ImageMinus, ImageDown } from 'lucide-svelte';
+	import { ImagePlus, ImageDown } from 'lucide-svelte';
 	import * as ContextMenu from '$lib/components/ui/context-menu/index.js';
 	import CustomAlertDialogue from '$lib/components/CustomAlertDialog.svelte';
 	import { toast } from 'svelte-sonner';
@@ -27,7 +26,7 @@
 	let selectedImages: any = $state([]);
 	let selection: any;
 	let selectionActive = $state(false);
-	let imageLinksNotClickable = $state(true);
+	let isLightboxInitialized = $state(false);
 	let lightbox: PhotoSwipeLightbox | null = $state(null);
 	let showPageActionLoading = $state(false);
 	let showPageActionLoadingText = $state('Loading...');
@@ -450,7 +449,7 @@
 		});
 
 		lightbox.init();
-		imageLinksNotClickable = false;
+		isLightboxInitialized = true;
 
 		return lightbox;
 	}
@@ -599,7 +598,7 @@
 		>
 			<BackButton url={`/bonfire/${$page.params.id}`} />
 
-			<div class="ml-4 flex py-1 sm:space-x-2 items-center">
+			<div class="ml-4 flex items-center py-1 sm:space-x-2">
 				<a href="add">
 					<Toggle id="upload-new-images" aria-label="toggle bold">
 						<ImagePlus class="!h-5 !w-5 sm:!h-4 sm:!w-4" /><span
@@ -619,7 +618,7 @@
 						class="data-[state=on]:bg-slate-300"
 						disabled={!deleteButtonEnabled}
 					>
-						<ImageMinus class="!h-5 !w-5 sm:!h-4 sm:!w-4" /><span
+						<Trash2 class="!h-5 !w-5 sm:!h-4 sm:!w-4" /><span
 							class="hidden text-xs sm:block sm:text-sm">Delete</span
 						>
 					</Toggle>
@@ -675,7 +674,7 @@
 									<ContextMenu.Trigger>
 										<GalleryItem
 											url={file.URL}
-											urlActive={selectionActive || imageLinksNotClickable}
+											urlActive={!selectionActive && isLightboxInitialized}
 											wPixel={file.w_pixel}
 											hPixel={file.h_pixel}
 											fileName={file.file_name}
@@ -710,7 +709,7 @@
 					{/each}
 				</div>
 			{:else}
-				<div class="flex w-full justify-center items-center h-[60vh]">
+				<div class="flex h-[60vh] w-full items-center justify-center">
 					<BonfireNoInfoCard text={'No files yet'} />
 				</div>
 			{/if}

@@ -10,7 +10,7 @@
 	import BringItemProgressBar from './BringItemProgressBar.svelte';
 	import { Button } from '../ui/button';
 	import BonfireNoInfoCard from '../BonfireNoInfoCard.svelte';
-	import { Plus } from 'lucide-svelte';
+	import { Plus, ShoppingBasket } from 'lucide-svelte';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import BringListItemsSortedByUsers from './BringListItemsSortedByUsers.svelte';
 	import RequireUserBringSomething from './RequireUserBringSomething.svelte';
@@ -25,12 +25,9 @@
 		changeToDiscussionsTab = null,
 		requireGuestBringItem = false,
 		isCurrenUserEventAdmin = false,
-		isCurrUserAttending = false
+		isCurrUserAttending = false,
+		eventNumBringListItems = 0
 	} = $props();
-
-	if (!tempAttendeeId && !currUserId) {
-		throw new Error('either temp or user id must be set for bring list');
-	}
 
 	let isLoading = $state(true);
 	let bringItems: Array<BringItem> = $state([]);
@@ -173,6 +170,121 @@
 	});
 </script>
 
+<div class="flex w-full justify-between rounded-xl bg-white p-2 dark:bg-slate-900">
+	<div></div>
+	<div class="flex items-center font-semibold">
+		<ShoppingBasket class="mr-2 !h-5 !w-5 shrink-0" /> Bring List
+	</div>
+
+	<div class="flex items-center">
+		{@render addBringItem()}
+	</div>
+</div>
+
+{#if bringItems.length > 0 && (currUserId || tempAttendeeId)}
+	{@render tabsMenu()}
+{:else}
+	<div class="my-2">
+		{#if eventNumBringListItems}
+			<BonfireNoInfoCard text={`${eventNumBringListItems} items to bring`} />
+		{:else}
+			<BonfireNoInfoCard text={'No items to bring yet'} />
+		{/if}
+	</div>
+{/if}
+
+{#snippet tabsMenu()}
+	<Tabs.Root value="all-bring-list-items" class="mt-2 w-full">
+		<div class="flex w-full justify-center">
+			<Tabs.List>
+				<Tabs.Trigger value="all-bring-list-items">Items</Tabs.Trigger>
+				<Tabs.Trigger value="your-bring-list-items">Yours</Tabs.Trigger>
+				<Tabs.Trigger value="all-sorted-by-attendee-bring-list-items">Everyone's</Tabs.Trigger>
+				{#if isCurrenUserEventAdmin}{/if}
+			</Tabs.List>
+		</div>
+
+		<Tabs.Content value="all-bring-list-items">
+			{#if isLoading}
+				<div class="flex w-full items-center justify-center"><SvgLoader /></div>
+			{:else if bringItems.length > 0}
+				<div class="my-2">
+					{#each bringItems as item (item.id)}
+						<BringItemProgressBar
+							{eventId}
+							{item}
+							{numAttendeesGoing}
+							currUserId={currUserId ? currUserId : tempAttendeeId}
+							isTempUser={!currUserId}
+							{isAdmin}
+						/>
+					{/each}
+				</div>
+			{:else}
+				<BonfireNoInfoCard text={'No items to bring yet'} />
+			{/if}
+		</Tabs.Content>
+		<Tabs.Content value="your-bring-list-items">
+			{#if isLoading}
+				<div class="flex w-full items-center justify-center"><SvgLoader /></div>
+			{:else if yourItems.length > 0}
+				<div class="my-2">
+					{#each yourItems as item (item.id)}
+						<BringItemProgressBar
+							{eventId}
+							{item}
+							{numAttendeesGoing}
+							currUserId={currUserId ? currUserId : tempAttendeeId}
+							isTempUser={!currUserId}
+							{isAdmin}
+						>
+							<IndividualBringListItem
+								itemName={item.name}
+								itemUnit={item.unit}
+								numBrought={item.bring_assignments?.[0]?.quantity ?? 0}
+							/>
+						</BringItemProgressBar>
+					{/each}
+				</div>
+			{:else}
+				<BonfireNoInfoCard class="text-xs" text={'You are not bringing any items yet'} />
+			{/if}
+		</Tabs.Content>
+		<Tabs.Content value="all-sorted-by-attendee-bring-list-items">
+			<BringListItemsSortedByUsers
+				{userItemsMap}
+				{tempAttendeeItemsMap}
+				{eventId}
+				{numAttendeesGoing}
+				currUserId={currUserId ? currUserId : tempAttendeeId}
+				isTempUser={!currUserId}
+				{isAdmin}
+			/>
+		</Tabs.Content>
+	</Tabs.Root>
+{/snippet}
+<!-- <div class="mt-2 flex w-full justify-center">
+	<button
+		onclick={changeToDiscussionsTab}
+		class="mb-2 w-fit rounded-xl bg-blue-400/80 p-2 text-sm hover:bg-blue-300/80 hover:bg-opacity-40 dark:bg-blue-700/50 dark:hover:bg-blue-600/50"
+	>
+		Have a suggestion? Click here to share it in the bonfire's discussion!
+	</button>
+</div> -->
+
+{#snippet addBringItem()}
+	{#if currUserId && isCurrUserAttending}
+		<CrudItem {eventId} {numAttendeesGoing} class={'w-full'} {isAdmin}>
+			<Button
+				id="add-bring-list-item-btn"
+				class=" flex w-full items-center justify-center ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
+			>
+				<Plus />
+			</Button>
+		</CrudItem>
+	{/if}
+{/snippet}
+
 <RequireUserBringSomething
 	isDialogOpen={showBringListFullScreen}
 	{eventId}
@@ -183,96 +295,3 @@
 	{isAdmin}
 	{isUserBringingSomething}
 />
-<Tabs.Root value="all-bring-list-items" class="mt-2 w-full">
-	<div class="flex w-full justify-center">
-		<Tabs.List>
-			<Tabs.Trigger value="all-bring-list-items">Items</Tabs.Trigger>
-			<Tabs.Trigger value="your-bring-list-items">Yours</Tabs.Trigger>
-			<Tabs.Trigger value="all-sorted-by-attendee-bring-list-items">Everyone's</Tabs.Trigger>
-			{#if isCurrenUserEventAdmin}{/if}
-		</Tabs.List>
-	</div>
-
-	<Tabs.Content value="all-bring-list-items">
-		{#if isLoading}
-			<div class="flex w-full items-center justify-center"><SvgLoader /></div>
-		{:else if bringItems.length > 0}
-			<div class="my-2">
-				{#each bringItems as item (item.id)}
-					<BringItemProgressBar
-						{eventId}
-						{item}
-						{numAttendeesGoing}
-						currUserId={currUserId ? currUserId : tempAttendeeId}
-						isTempUser={!currUserId}
-						{isAdmin}
-					/>
-				{/each}
-			</div>
-		{:else}
-			<BonfireNoInfoCard text={'No items to bring yet'} />
-		{/if}
-	</Tabs.Content>
-	<Tabs.Content value="your-bring-list-items">
-		{#if isLoading}
-			<div class="flex w-full items-center justify-center"><SvgLoader /></div>
-		{:else if yourItems.length > 0}
-			<div class="my-2">
-				{#each yourItems as item (item.id)}
-					<BringItemProgressBar
-						{eventId}
-						{item}
-						{numAttendeesGoing}
-						currUserId={currUserId ? currUserId : tempAttendeeId}
-						isTempUser={!currUserId}
-						{isAdmin}
-					>
-						<IndividualBringListItem
-							itemName={item.name}
-							itemUnit={item.unit}
-							numBrought={item.bring_assignments?.[0]?.quantity ?? 0}
-						/>
-					</BringItemProgressBar>
-				{/each}
-			</div>
-		{:else}
-			<BonfireNoInfoCard class="text-xs" text={'You are not bringing any items yet'} />
-		{/if}
-	</Tabs.Content>
-	<Tabs.Content value="all-sorted-by-attendee-bring-list-items">
-		<BringListItemsSortedByUsers
-			{userItemsMap}
-			{tempAttendeeItemsMap}
-			{eventId}
-			{numAttendeesGoing}
-			currUserId={currUserId ? currUserId : tempAttendeeId}
-			isTempUser={!currUserId}
-			{isAdmin}
-		/>
-	</Tabs.Content>
-</Tabs.Root>
-
-<div class="mt-2 flex w-full justify-center">
-	<button
-		onclick={changeToDiscussionsTab}
-		class="mb-2 w-fit rounded-xl bg-blue-400/80 p-2 text-sm hover:bg-blue-300/80 hover:bg-opacity-40 dark:bg-blue-700/50 dark:hover:bg-blue-600/50"
-	>
-		Have a suggestion? Click here to share it in the bonfire's discussion!
-	</button>
-</div>
-
-{#if currUserId && isCurrUserAttending}
-	<CrudItem {eventId} {numAttendeesGoing} class={'w-full'} {isAdmin}>
-		<Button
-			id="add-bring-list-item-btn"
-			class=" flex w-full items-center justify-center ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
-		>
-			<Plus class="mr-1" />
-			{#if isAdmin}
-				New item
-			{:else if currUserId || tempAttendeeId}
-				Bring something
-			{/if}
-		</Button>
-	</CrudItem>
-{/if}

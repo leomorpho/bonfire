@@ -9,8 +9,15 @@
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
 	import BonfireNoInfoCard from '../BonfireNoInfoCard.svelte';
+	import { Megaphone, Plus } from 'lucide-svelte';
 
-	let { maxCount = null, isUnverifiedUser = false, isCurrenUserEventAdmin = false } = $props();
+	let {
+		rsvpStatus,
+		maxCount = null,
+		isUnverifiedUser = false,
+		isCurrenUserEventAdmin = false,
+		eventNumAnnouncements = 0
+	} = $props();
 
 	const eventId = $page.params.id;
 	let announcementsSubset = $state([]);
@@ -100,59 +107,99 @@
 			unsubscribe;
 		};
 	});
+
+	const numAnnouncementsAnonView = `${eventNumAnnouncements} ${eventNumAnnouncements == 1 ? 'announcement' : 'announcements'}`;
 </script>
 
-{#if notificationsLoading}
-	<div class="flex w-full items-center justify-center">
-		<SvgLoader />
+<div class="flex w-full justify-between rounded-xl bg-white p-2 dark:bg-slate-900">
+	<div></div>
+	<div class="flex items-center font-semibold">
+		<Megaphone class="mr-2 !h-5 !w-5 shrink-0" />
+		Announcements
+	</div>
+	{#if isCurrenUserEventAdmin}
+		<div class="flex items-center">
+			{@render createAnnouncementButton()}
+		</div>
+	{:else}
+		<div></div>
+	{/if}
+</div>
+
+{#if rsvpStatus}
+	<!--Only show always for admins, but for non-admins, if there are no announcements, hide entirely?-->
+	<div class="my-2">
+		{@render announcements()}
 	</div>
 {:else}
-	<div class="space-y-2">
-		{#if totalCount > 0}
-			{#each announcementsSubset as announcement}
-				<Announcement
-					{eventId}
-					currUserId={userId}
-					{announcement}
-					{currentUserAttendeeId}
-					{isUnverifiedUser}
-					{isCurrenUserEventAdmin}
-				/>
-			{/each}
-			{#if totalCount > maxCount}
-				<Button
-					class="mt-3 w-full ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
-					onclick={getAllAnnouncements}>See {totalCount - maxCount} more annoucements</Button
-				>
-				<Dialog.Root bind:open={isDialogOpen}>
-					<Dialog.Content class="h-full sm:h-[90vh]">
-						<ScrollArea>
-							<Dialog.Header class="mx-4">
-								<Dialog.Title>All Announcements</Dialog.Title>
-
-								<Dialog.Description>
-									{#each allUnreadNotifications as announcement}
-										<div class="my-3">
-											<Announcement
-												{eventId}
-												currUserId={userId}
-												{announcement}
-												{currentUserAttendeeId}
-												{isUnverifiedUser}
-												{isCurrenUserEventAdmin}
-											/>
-										</div>
-									{/each}
-								</Dialog.Description>
-							</Dialog.Header>
-						</ScrollArea>
-					</Dialog.Content>
-				</Dialog.Root>
-			{/if}
-		{:else}
-			<BonfireNoInfoCard
-				text={'No announcements yet. These allow event organizers to let attendees know of important updates. Turn on your notifications to receive them.'}
-			/>
-		{/if}
+	<div class="my-2">
+		<BonfireNoInfoCard text={numAnnouncementsAnonView} />
 	</div>
 {/if}
+
+{#snippet announcements()}
+	{#if notificationsLoading}
+		<div class="flex w-full items-center justify-center">
+			<SvgLoader />
+		</div>
+	{:else}
+		<div class="space-y-2">
+			{#if totalCount > 0}
+				{#each announcementsSubset as announcement}
+					<Announcement
+						{eventId}
+						currUserId={userId}
+						{announcement}
+						{currentUserAttendeeId}
+						{isUnverifiedUser}
+						{isCurrenUserEventAdmin}
+					/>
+				{/each}
+				{#if totalCount > maxCount}
+					<Button
+						class="mt-3 w-full ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
+						onclick={getAllAnnouncements}>See {totalCount - maxCount} more annoucements</Button
+					>
+					<Dialog.Root bind:open={isDialogOpen}>
+						<Dialog.Content class="h-full sm:h-[90vh]">
+							<ScrollArea>
+								<Dialog.Header class="mx-4">
+									<Dialog.Title>All Announcements</Dialog.Title>
+
+									<Dialog.Description>
+										{#each allUnreadNotifications as announcement}
+											<div class="my-3">
+												<Announcement
+													{eventId}
+													currUserId={userId}
+													{announcement}
+													{currentUserAttendeeId}
+													{isUnverifiedUser}
+													{isCurrenUserEventAdmin}
+												/>
+											</div>
+										{/each}
+									</Dialog.Description>
+								</Dialog.Header>
+							</ScrollArea>
+						</Dialog.Content>
+					</Dialog.Root>
+				{/if}
+			{:else}
+				<BonfireNoInfoCard
+					text={'No announcements yet. Turn on your notifications to receive them.'}
+				/>
+			{/if}
+		</div>
+	{/if}
+{/snippet}
+
+{#snippet createAnnouncementButton()}
+	<a href="announcement/create">
+		<Button
+			class="flex w-full items-center justify-center ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
+		>
+			<Plus />
+		</Button>
+	</a>
+{/snippet}

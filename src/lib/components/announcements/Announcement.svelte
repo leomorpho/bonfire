@@ -69,16 +69,16 @@
 </script>
 
 <Card.Root
-	class="announcement relative border-0 bg-opacity-90 pb-2 dark:bg-opacity-90 {announcement.seen_by
+	class="announcement relative border-0 pb-2 {announcement.seen_by
 		.length == 0 && !isUnverifiedUser
-		? 'bg-yellow-200 dark:bg-yellow-700'
-		: 'bg-slate-200 dark:bg-slate-800'} dark:text-white"
+		? 'bg-yellow-200/70 dark:bg-yellow-700/70'
+		: 'bg-slate-200/70 dark:bg-slate-800/70'} dark:text-white"
 >
 	<!-- Edit Button Positioned Absolutely -->
 	{#if currUserId == announcement.user_id || isCurrenUserEventAdmin}
 		<div class="absolute -right-1 -top-1">
 			<div class="flex space-x-1">
-				<Button class="rounded-xl p-2" variant="outline">
+				<Button class="rounded-full p-2" variant="outline">
 					<AnnouncementHistory announcementId={announcement.id} event_id={announcement.event_id}>
 						<Eye class="!h-4 !w-4" />
 					</AnnouncementHistory>
@@ -87,7 +87,7 @@
 					href={`/bonfire/${eventId}/announcement/${announcement.id}/update`}
 					class="update-announcement"
 				>
-					<Button class="rounded-xl p-2" variant="outline">
+					<Button class="rounded-full p-2" variant="outline">
 						<Pencil class="!h-4 !w-4" />
 					</Button>
 				</a>
@@ -106,7 +106,7 @@
 				</div>
 			</div>
 		</Card.Title>
-		<Card.Description class="pb-2 text-base">
+		<Card.Description class="pb-2 text-black dark:text-white">
 			{announcement.content}
 		</Card.Description>
 	</Card.Header>

@@ -5,16 +5,7 @@
 	import Loader from '$lib/components/Loader.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
-	import {
-		Share,
-		Images,
-		Megaphone,
-		Plus,
-		ShoppingBasket,
-		History,
-		MessageCircle,
-		Info
-	} from 'lucide-svelte';
+	import { Share, ShoppingBasket, History, MessageCircle, Info } from 'lucide-svelte';
 	import Rsvp from '$lib/components/rsvp/Rsvp.svelte';
 	import { onMount, tick } from 'svelte';
 	import { Status, tempAttendeeSecretStore, tempAttendeeSecretParam } from '$lib/enums';
@@ -647,59 +638,28 @@
 
 							<div class="my-10 flex flex-wrap justify-center gap-5">
 								<div class="w-full rounded-xl py-5 lg:w-[calc(50%-0.9rem)]">
-									<div class="flex justify-center rounded-xl bg-white p-5 dark:bg-slate-900">
-										<div class="flex items-center font-semibold">
-											<Megaphone class="mr-2" /> Announcements
-										</div>
-									</div>
-									{#if rsvpStatus}
-										<!--Only show always for admins, but for non-admins, if there are no announcements, hide entirely?-->
-										<div class="my-2">
-											<Annoucements maxCount={3} {isUnverifiedUser} {isCurrenUserEventAdmin} />
-										</div>
-										{#if isCurrenUserEventAdmin}
-											<a href="announcement/create">
-												<Button
-													class="mt-1 w-full ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
-													><Plus class="mr-1" /> New announcement</Button
-												>
-											</a>
-										{/if}
-									{:else}
-										<div class="my-2">
-											<BonfireNoInfoCard text={eventNumAnnouncements + ' announcement(s)'} />
-										</div>
-									{/if}
+									<Annoucements
+										{rsvpStatus}
+										maxCount={3}
+										{isUnverifiedUser}
+										{isCurrenUserEventAdmin}
+										{eventNumAnnouncements}
+									/>
 								</div>
 								{#if isBringListEnabled}
 									<div class="w-full rounded-xl py-5 lg:w-[calc(50%-0.9rem)]">
-										<div class="flex justify-center rounded-xl bg-white p-5 dark:bg-slate-900">
-											<div class="flex items-center font-semibold">
-												<ShoppingBasket class="mr-2" /> Bring List
-											</div>
-										</div>
-
-										{#if currUserId || tempAttendeeId}
-											<BringList
-												{eventId}
-												isAdmin={isCurrenUserEventAdmin}
-												numAttendeesGoing={allAttendeesGoing.length}
-												{currUserId}
-												{tempAttendeeId}
-												{changeToDiscussionsTab}
-												{requireGuestBringItem}
-												{isCurrenUserEventAdmin}
-												isCurrUserAttending={!!rsvpStatus}
-											/>
-										{:else}
-											<div class="my-2">
-												{#if eventNumBringListItems}
-													<BonfireNoInfoCard text={`${eventNumBringListItems} items to bring`} />
-												{:else}
-													<BonfireNoInfoCard text={'No items to bring yet'} />
-												{/if}
-											</div>
-										{/if}
+										<BringList
+											{eventId}
+											isAdmin={isCurrenUserEventAdmin}
+											numAttendeesGoing={allAttendeesGoing.length}
+											{currUserId}
+											{tempAttendeeId}
+											{changeToDiscussionsTab}
+											{requireGuestBringItem}
+											{isCurrenUserEventAdmin}
+											isCurrUserAttending={!!rsvpStatus}
+											{eventNumBringListItems}
+										/>
 									</div>
 								{/if}
 

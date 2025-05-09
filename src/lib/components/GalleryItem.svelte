@@ -8,7 +8,7 @@
 		wPixel,
 		hPixel,
 		fileName,
-		urlActive = false,
+		urlActive = false, // TODO: this is a fucking terribly named param. It seems to be on its head. Look into it and rename if necessary.
 		blurhash,
 		fileType,
 		preview = null
@@ -62,10 +62,27 @@
 			posterUrl = preview?.URL ?? URL.createObjectURL(dataURItoBlob(placeholder.dataUri));
 		}
 	});
+	$effect(() => {
+		console.log('urlActive', urlActive);
+	});
 </script>
 
-{#snippet image()}
-	<div class="relative aspect-[5/3] w-full overflow-hidden rounded-lg bg-gray-200 animate-in fade-in zoom-in duration-300">
+<a
+	href={url}
+	target="_blank"
+	rel="noreferrer"
+	class={`gallery-item ${urlActive ? '' : 'disabled-link'}`}
+	data-pswp-width={wPixel}
+	data-pswp-height={hPixel}
+	data-pswp-is-video={isVideo}
+>
+	{@render mediaFile()}
+</a>
+
+{#snippet mediaFile()}
+	<div
+		class="relative aspect-[5/3] w-full overflow-hidden rounded-lg bg-gray-200 duration-300 animate-in fade-in zoom-in"
+	>
 		{#if fileType.startsWith('image/')}
 			<Image
 				width={wPixel}
@@ -117,20 +134,6 @@
 		{/if}
 	</div>
 {/snippet}
-
-{#if !urlActive}
-	<a
-		href={url}
-		class={`gallery-item ${urlActive ? 'disabled-link' : ''}`}
-		data-pswp-width={wPixel}
-		data-pswp-height={hPixel}
-		data-pswp-is-video={isVideo}
-	>
-		{@render image()}
-	</a>
-{:else}
-	{@render image()}
-{/if}
 
 <style>
 	.disabled-link {
