@@ -630,7 +630,7 @@
 									<Button
 										disabled={!eventIsPublished}
 										onclick={() => handleShare(eventTitle, eventLocation, eventId)}
-										class="mt-4 flex w-full items-center justify-center ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
+										class="mt-4 flex w-full items-center justify-center bg-orange-600 ring-glow hover:bg-orange-500 dark:bg-orange-700 dark:text-white dark:hover:bg-orange-600"
 									>
 										<Share class="h-5 w-5" />
 										<span class="">Share Bonfire</span>
@@ -653,6 +653,7 @@
 										</div>
 									</div>
 									{#if rsvpStatus}
+										<!--Only show always for admins, but for non-admins, if there are no announcements, hide entirely?-->
 										<div class="my-2">
 											<Annoucements maxCount={3} {isUnverifiedUser} {isCurrenUserEventAdmin} />
 										</div>

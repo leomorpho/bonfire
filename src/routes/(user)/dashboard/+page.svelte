@@ -41,7 +41,7 @@
 	function createAttendanceQuery(client: TriplitClient, currUserID: string, future: boolean) {
 		// NOTE: we add 24h so that currently happening events are still shown in the main window until 24h later
 		const currentDate = new Date();
-		const futureDate = new Date(currentDate.getTime() - 24 * 60 * 60 * 1000); // Add 24 hours in milliseconds
+		const futureDate = new Date(currentDate.getTime() - 6 * 60 * 60 * 1000); // Add 6 hours in milliseconds
 
 		return client
 			.query('attendees')
