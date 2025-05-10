@@ -59,6 +59,7 @@ env:
     - BODY_SIZE_LIMIT
     - UNSPLASH_ACCESS_KEY
     - UNSPLASH_SECRET_KEY
+    - MISTRAL_SECRET_KEY
 
 proxy:
   app_port: 3000

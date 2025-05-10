@@ -96,6 +96,7 @@
 		"@khmyznikov/pwa-install": "^0.5.4",
 		"@libsql/client": "^0.15.4",
 		"@lucia-auth/adapter-drizzle": "^1.1.0",
+		"@mistralai/mistralai": "^1.6.0",
 		"@sentry/sveltekit": "^9.13.0",
 		"@sveltejs/adapter-node": "^5.2.12",
 		"@sveltejs/kit": "^2.20.7",
