@@ -73,6 +73,8 @@
 		maxNumGuestsAllowedPerAttendee = 0,
 		numGuestsCurrentAttendeeIsBringing = 0,
 		isBringListEnabled = false,
+		isGalleryEnabled = false,
+		isMessagingEnabled = false,
 		requireGuestBringItem = false,
 		showMaxNumPeople = 30
 	} = $props();
@@ -555,19 +557,21 @@
 								>
 									<Info class="h-6 w-6" />
 								</Tabs.Trigger>
-								<Tabs.Trigger
-									id="discussions-tab"
-									value={BonfireTabs.Discussions}
-									class="focus:outline-none focus-visible:ring-0 data-[state=active]:bg-orange-500 data-[state=active]:text-white dark:data-[state=active]:bg-orange-600"
-									onclick={() => {
-										scrollElementIntoView('messenger');
-										updateURL(BonfireTabs.Discussions);
-									}}
-								>
-									<NumNewMessageIndicator>
-										<MessageCircle class="h-6 w-6" />
-									</NumNewMessageIndicator>
-								</Tabs.Trigger>
+								{#if isMessagingEnabled}
+									<Tabs.Trigger
+										id="discussions-tab"
+										value={BonfireTabs.Discussions}
+										class="focus:outline-none focus-visible:ring-0 data-[state=active]:bg-orange-500 data-[state=active]:text-white dark:data-[state=active]:bg-orange-600"
+										onclick={() => {
+											scrollElementIntoView('messenger');
+											updateURL(BonfireTabs.Discussions);
+										}}
+									>
+										<NumNewMessageIndicator>
+											<MessageCircle class="h-6 w-6" />
+										</NumNewMessageIndicator>
+									</Tabs.Trigger>
+								{/if}
 								{#if currUserId}
 									<Tabs.Trigger
 										id="settings-tab"
@@ -717,15 +721,17 @@
 									</div>
 								{/if}
 
-								<div class="w-full rounded-xl py-5 lg:w-[calc(50%-0.9rem)]">
-									<MiniGallery
-										{eventNumFiles}
-										fileCount={fileCount - eventFiles.length}
-										{eventFiles}
-										{loadEventFiles}
-										{rsvpStatus}
-									/>
-								</div>
+								{#if isGalleryEnabled}
+									<div class="w-full rounded-xl py-5 lg:w-[calc(50%-0.9rem)]">
+										<MiniGallery
+											{eventNumFiles}
+											fileCount={fileCount - eventFiles.length}
+											{eventFiles}
+											{loadEventFiles}
+											{rsvpStatus}
+										/>
+									</div>
+								{/if}
 							</div>
 						</div>
 					</Tabs.Content>

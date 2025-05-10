@@ -74,7 +74,9 @@
 		class="flex items-center focus:outline-none focus-visible:ring-0"
 	>
 		<div class="flex items-center justify-center rounded-full bg-white p-1 px-2 dark:bg-slate-900">
-			<Plus class="mr-1 h-4 w-4 sm:h-5 sm:w-5" />
+			<Plus
+				class={`h-4 w-4 sm:h-5 sm:w-5 ${allAttendeesGoing.length > showMaxNumPeople ? 'mr-1 ' : ''}`}
+			/>
 			{#if allAttendeesGoing.length > showMaxNumPeople}
 				{allAttendeesGoing.length - showMaxNumPeople}
 			{/if}

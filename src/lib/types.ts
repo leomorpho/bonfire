@@ -102,6 +102,8 @@ export type EventTypescriptType = {
 	max_num_guests_per_attendee?: number | null;
 	is_bring_list_enabled?: boolean;
 	require_guest_bring_item?: boolean;
+	is_gallery_enabled?: boolean;
+	is_messaging_enabled?: boolean;
 };
 
 export interface EventThread {

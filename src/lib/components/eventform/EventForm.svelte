@@ -54,6 +54,8 @@
 	import BetaDevAlert from '../BetaDevAlert.svelte';
 	import ToggleBringList from './feature-enablers/ToggleBringList.svelte';
 	import { fade, slide } from 'svelte/transition';
+	import ToggleGallery from './feature-enablers/ToggleGallery.svelte';
+	import ToggleMessaging from './feature-enablers/ToggleMessaging.svelte';
 
 	let { mode, event = null, currUserId = null } = $props();
 
@@ -76,6 +78,8 @@
 		event?.max_num_guests_per_attendee ?? defaultMaxNumGuestsPerAttendee
 	);
 	let isBringListEnabled: boolean = $state(event?.is_bring_list_enabled ?? false);
+	let isGalleryEnabled: boolean = $state(event?.is_gallery_enabled ?? true);
+	let isMessagingEnabled: boolean = $state(event?.is_messaging_enabled ?? true);
 	let requireGuestBringItem: boolean = $state(event?.require_guest_bring_item ?? false);
 	let latitude: number | null = $state(event?.latitude);
 	let longitude: number | null = $state(event?.longitude);
@@ -306,6 +310,8 @@
 				max_capacity: maxCapacity || null,
 				max_num_guests_per_attendee: maxNumGuest || 0,
 				is_bring_list_enabled: isBringListEnabled || false,
+				is_gallery_enabled: isGalleryEnabled,
+				is_messaging_enabled: isMessagingEnabled,
 				require_guest_bring_item: requireGuestBringItem,
 				// non_profit_id: userFavoriteNonProfitId || null,
 				latitude: latitude,
@@ -352,6 +358,8 @@
 				e.max_capacity = maxCapacity;
 				e.max_num_guests_per_attendee = maxNumGuest || 0;
 				e.is_bring_list_enabled = isBringListEnabled || false;
+				e.is_gallery_enabled = isGalleryEnabled;
+				e.is_messaging_enabled = isMessagingEnabled;
 				e.require_guest_bring_item = requireGuestBringItem;
 				e.latitude = latitude;
 				e.longitude = longitude;
@@ -741,6 +749,7 @@
 					<MaxCapacity oninput={debouncedUpdateEvent} bind:value={maxCapacity} />
 					<GuestCountFeature oninput={debouncedUpdateEvent} bind:value={maxNumGuest} />
 					<ToggleBringList oninput={debouncedUpdateEvent} bind:checked={isBringListEnabled} />
+
 					{#if isBringListEnabled}
 						<div transition:slide={{ duration: 150 }}>
 							<RequiredBringItemForAttendance
@@ -749,6 +758,9 @@
 							/>
 						</div>
 					{/if}
+
+					<ToggleGallery oninput={debouncedUpdateEvent} bind:checked={isGalleryEnabled} />
+					<ToggleMessaging oninput={debouncedUpdateEvent} bind:checked={isMessagingEnabled} />
 				</form>
 				<div class="my-10 flex w-full justify-center">
 					<div

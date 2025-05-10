@@ -24,6 +24,8 @@
 	let maxNumGuestsAllowedPerAttendee: number = $state(event?.max_num_guests_per_attendee ?? 0);
 	let isBringListEnabled: boolean = $state(event?.is_bring_list_enabled ?? false);
 	let requireGuestBringItem: boolean = $state(event?.require_guest_bring_item ?? false);
+	let isGalleryEnabled: boolean = $state(event?.is_gallery_enabled ?? false);
+	let isMessagingEnabled: boolean = $state(event?.is_messaging_enabled ?? false);
 
 	if (tempAttendeeId) {
 		tempAttendeeSecretStore.set(tempAttendeeId);
@@ -59,4 +61,6 @@
 	{maxNumGuestsAllowedPerAttendee}
 	{isBringListEnabled}
 	{requireGuestBringItem}
+	{isGalleryEnabled}
+	{isMessagingEnabled}
 />
