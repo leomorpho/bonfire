@@ -275,6 +275,53 @@ export const createRemindersObjects = async (
 	});
 };
 
+export const updateRemindersObjects = async (client: HttpClient, eventId: string) => {
+	// Fetch the specific event and include its reminders
+	const event = await client.fetchOne(
+		client
+			.query('events')
+			.Select(['id', 'start_time'])
+			.Where(['id', '=', eventId])
+			.Include('event_reminders')
+	);
+
+	if (!event) {
+		console.error('Event not found');
+		return;
+	}
+
+	const eventStartDatetime = event.start_time;
+
+	console.log('===> event', event, 'eventStartDatetime', eventStartDatetime);
+
+	// Iterate over each reminder and update it
+	for (const reminder of event.event_reminders) {
+		const leadTimeInHours = reminder.lead_time_in_hours_before_event_starts;
+		const newSendAt = new Date(eventStartDatetime.getTime() - leadTimeInHours * 60 * 60 * 1000);
+
+		// Update the send_at time for the reminder
+		await client.update('event_reminders', reminder.id, {
+			send_at: newSendAt,
+			updated_at: new Date() // Update the updated_at timestamp
+		});
+
+		// Check if the reminder was sent or dropped and if the new send_at is in the future
+		if ((reminder.sent_at || reminder.dropped) && newSendAt > new Date()) {
+			const text = generateReminderMessage(Math.round(leadTimeInHours / 24), event.event_name);
+
+			// Create a new reminder with the same lead time
+			await client.insert('event_reminders', {
+				id: 'er_' + (await createHash(`${text}_${reminder.id}`)),
+				event_id: eventId,
+				lead_time_in_hours_before_event_starts: leadTimeInHours,
+				target_attendee_statuses: reminder.target_attendee_statuses,
+				send_at: newSendAt,
+				text: text // Assuming eventName is available
+			});
+		}
+	}
+};
+
 export const markAsFullyOnboarded = async (client: HttpClient, userId: string) => {
 	await client.update('user', userId, async (entity: any) => {
 		entity.is_fully_onboarded = true;

@@ -108,6 +108,7 @@
 	let overlayOpacity: number = $state(event?.overlay_opacity ?? 0.4);
 	let font: FontSelection | null = $state(event?.font ? JSON.parse(event?.font) : defaultFont);
 
+	let needToUpdateReminderDates: boolean = $state(false);
 	let eventStartDatetime: Date | null = $state(null);
 	let eventEndDatetime: Date | null = $state(null);
 
@@ -366,6 +367,12 @@
 				e.is_published = isEventPublished || publishEventNow;
 			});
 
+			if (needToUpdateReminderDates) {
+				// No need to await for this, leave it in background change
+				triggerUpdateReminders(event.id);
+				needToUpdateReminderDates = false;
+			}
+
 			// if (checkCanCreateTransaction(userIsOutOfLogs, createTransaction, isEventPublished)) {
 			// 	event = await createBonfireTransaction(eventId);
 			// }
@@ -374,6 +381,29 @@
 			console.error('❌ Error updating event:', error);
 		}
 	};
+
+	// Function to trigger the updateRemindersObjects endpoint
+	export async function triggerUpdateReminders(eventId: string) {
+		try {
+			const response = await fetch(`/bonfire/${eventId}/update/reminders`, {
+				method: 'GET',
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			});
+
+			if (!response.ok) {
+				throw new Error('Failed to trigger update');
+			}
+
+			const data = await response.json();
+			console.log('Update triggered successfully:', data);
+			return data;
+		} catch (error) {
+			console.error('Error triggering update:', error);
+			throw error;
+		}
+	}
 
 	const checkCanCreateTransaction = (
 		userIsOutOfLogs: boolean,
@@ -621,7 +651,10 @@
 					<Datepicker
 						disabled={!isEventEdittable}
 						bind:value={dateValue}
-						oninput={debouncedUpdateEvent}
+						oninput={() => {
+							debouncedUpdateEvent();
+							needToUpdateReminderDates = true;
+						}}
 					/>
 
 					<div class="flex flex-row items-center justify-between space-x-4">

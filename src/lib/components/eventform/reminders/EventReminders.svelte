@@ -5,23 +5,38 @@
 	import { onMount } from 'svelte';
 	import Reminder from './Reminder.svelte';
 	import ShowUsersWontBeReached from './ShowUsersWontBeReached.svelte';
+	import { formatHumanReadable } from '$lib/utils';
 
 	let { eventId, eventName } = $props();
 	let client: TriplitClient;
 	let remindersLoading = $state(true);
 	let reminders: any = $state([]);
+	let eventStartTime = $state();
 
 	onMount(() => {
 		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
 		const unsubscribeFromEventRemindersQuery = client.subscribe(
 			client
-				.query('event_reminders')
-				.Where(['event_id', '=', eventId])
-				.Include('event')
-				.Order('send_at', 'ASC'),
+				.query('events')
+				.Where(['id', '=', eventId])
+				.Select(['start_time'])
+				.Include('event_reminders'),
+
 			(results) => {
-				reminders = results;
+				console.log('-------!!!!!!!!', results);
+				if (results.length == 0) return;
+
+				const event = results[0];
+
+				// Sort the reminders by send_at in ascending order
+				reminders = event.event_reminders.sort((a, b) => {
+					const dateA = new Date(a.send_at);
+					const dateB = new Date(b.send_at);
+					return dateA.getTime() - dateB.getTime();
+				});
+				eventStartTime = event.start_time;
+				console.log('-----.> reminders', reminders);
 				remindersLoading = false;
 			},
 			(error) => {
@@ -51,9 +66,16 @@
 		</h1>
 		<ShowUsersWontBeReached {eventId} />
 
+		{#if eventStartTime}
+			<div
+				class="my-4 flex w-full justify-center rounded-xl bg-slate-200/80 py-2 dark:bg-slate-800/80"
+			>
+				Your event is happening on {formatHumanReadable(eventStartTime)}
+			</div>
+		{/if}
 		<div class="space-y-4">
 			{#if reminders.length > 0}
-				{#each reminders as reminder (reminder.id)}
+				{#each reminders as reminder (reminder.send_at)}
 					<Reminder
 						id={reminder.id}
 						text={reminder.text}
@@ -61,13 +83,13 @@
 						targetAttendeeStatuses={reminder.target_attendee_statuses}
 						sentAt={reminder.sent_at}
 						dropped={reminder.dropped}
-						eventStartDatetime={reminder.event.start_time}
+						eventStartDatetime={eventStartTime}
 						{eventName}
 					/>
 				{/each}
 			{:else}
 				<div class="flex w-full justify-center">
-					<div class="rounded-xl bg-slate-800/80 p-2 text-sm text-center">
+					<div class="rounded-xl bg-slate-800/80 p-2 text-center text-sm">
 						Reminders only get created once the event is itself created.
 					</div>
 				</div>
