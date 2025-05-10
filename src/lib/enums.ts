@@ -334,3 +334,18 @@ export enum PlatformBrowser {
 	DESKTOP_OTHER,
 	UNSUPPORTED
 }
+
+export enum EventCreationStep {
+	EventDate = 1,
+	DateAndTime = 2,
+	FindDate = 3,
+	EventName = 4,
+	Address = 5,
+	LimitCapacity = 6,
+	CapacityLimit = 7,
+	BringList = 8,
+	ForceBringSomething = 9,
+	AllowGuests = 10,
+	GuestsPerAttendee = 11,
+	Completion = 12
+}

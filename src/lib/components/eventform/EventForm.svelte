@@ -55,7 +55,7 @@
 	import RequiredBringItemForAttendance from './feature-enablers/RequiredBringItemForAttendance.svelte';
 	import BetaDevAlert from '../BetaDevAlert.svelte';
 	import ToggleBringList from './feature-enablers/ToggleBringList.svelte';
-	import { slide } from 'svelte/transition';
+	import { fade, slide } from 'svelte/transition';
 
 	let { mode, event = null, currUserId = null } = $props();
 
@@ -653,39 +653,45 @@
 					</div>
 
 					{#if setEndTime}
-						<div class="flex flex-row items-center justify-between space-x-4">
-							<!-- End Time Inputs -->
-							<div class="grid grid-cols-4 items-center gap-2">
-								<Clock8
-									class="ml-4 mr-1 h-4 w-4 rounded-xl bg-white text-slate-500 ring-glow dark:bg-slate-900"
-								/>
+						<div in:fade={{ duration: 300 }} out:fade={{ duration: 100 }}>
+							<div
+								class="flex flex-row items-center justify-between space-x-4"
+								in:slide={{ duration: 300 }}
+								out:slide={{ duration: 100 }}
+							>
+								<!-- End Time Inputs -->
+								<div class="grid grid-cols-4 items-center gap-2">
+									<Clock8
+										class="ml-4 mr-1 h-4 w-4 rounded-xl bg-white text-slate-500 ring-glow dark:bg-slate-900"
+									/>
 
-								<div class="font-mono">
-									<DoubleDigitsPicker
-										maxValue={12}
-										bind:value={endHour}
-										placeholder="HH"
-										oninput={debouncedUpdateEvent}
-									/>
+									<div class="font-mono">
+										<DoubleDigitsPicker
+											maxValue={12}
+											bind:value={endHour}
+											placeholder="HH"
+											oninput={debouncedUpdateEvent}
+										/>
+									</div>
+									<div class="font-mono">
+										<DoubleDigitsPicker
+											bind:value={endMinute}
+											placeholder="mm"
+											oninput={debouncedUpdateEvent}
+										/>
+									</div>
+									<div class="w-18">
+										<AmPmPicker
+											onValueChange={(newValue: any) => (ampmEnd = newValue)}
+											oninput={debouncedUpdateEvent}
+										/>
+									</div>
 								</div>
-								<div class="font-mono">
-									<DoubleDigitsPicker
-										bind:value={endMinute}
-										placeholder="mm"
-										oninput={debouncedUpdateEvent}
-									/>
-								</div>
-								<div class="w-18">
-									<AmPmPicker
-										onValueChange={(newValue: any) => (ampmEnd = newValue)}
-										oninput={debouncedUpdateEvent}
-									/>
-								</div>
+
+								<!-- Toggle Button -->
+
+								<Button class="hidden text-xs ring-glow"></Button>
 							</div>
-
-							<!-- Toggle Button -->
-
-							<Button class="hidden text-xs ring-glow"></Button>
 						</div>
 					{/if}
 

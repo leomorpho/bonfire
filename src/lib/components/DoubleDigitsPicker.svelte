@@ -3,7 +3,7 @@
 
 	// Bindable properties
 	let {
-		oninput,
+		oninput = null,
 		value = $bindable<string>(),
 		styleClass = 'bg-white',
 		maxValue = 59,

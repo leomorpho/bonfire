@@ -9,9 +9,10 @@
 	let {
 		value = $bindable<DateValue | undefined>(),
 		disabled = false,
-		oninput,
+		oninput = null,
 		minValue = today(getLocalTimeZone()),
-		maxValue = null
+		maxValue = null,
+		class:cls=null
 	} = $props();
 
 	const df = new DateFormatter('en-US', {
@@ -40,7 +41,8 @@
 				variant: 'outline',
 				class: 'w-full justify-between text-left font-normal dark:bg-slate-900'
 			}),
-			!value && 'text-muted-foreground'
+			!value && 'text-muted-foreground',
+			cls
 		)}
 	>
 		<CalendarIcon class="mr-2 size-4" />

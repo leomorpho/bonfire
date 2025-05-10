@@ -1,7 +1,7 @@
 <script lang="ts">
 	import * as Select from '$lib/components/ui/select/index.js';
 	let {
-		oninput,
+		oninput = null,
 		onValueChange = $bindable(() => {}),
 		styleClass = 'bg-white dark:bg-slate-900',
 		disabled = false
@@ -23,13 +23,15 @@
 </script>
 
 <Select.Root type="single" name="am/pm" bind:value {disabled}>
-	<Select.Trigger class={`w-full  ${styleClass}`} >
+	<Select.Trigger class={`w-full  ${styleClass}`}>
 		{triggerContent}
 	</Select.Trigger>
 	<Select.Content class={styleClass}>
 		<Select.Group>
 			{#each ampmOptions as option}
-				<Select.Item value={option.value} label={option.label} onclick={oninput}>{option.label}</Select.Item>
+				<Select.Item value={option.value} label={option.label} onclick={oninput}
+					>{option.label}</Select.Item
+				>
 			{/each}
 		</Select.Group>
 	</Select.Content>
