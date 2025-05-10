@@ -6,6 +6,7 @@
 	import Reminder from './Reminder.svelte';
 	import ShowUsersWontBeReached from './ShowUsersWontBeReached.svelte';
 	import { formatHumanReadable } from '$lib/utils';
+	import Loader from '$lib/components/Loader.svelte';
 
 	let { eventId, eventName } = $props();
 	let client: TriplitClient;
@@ -24,7 +25,6 @@
 				.Include('event_reminders'),
 
 			(results) => {
-				console.log('-------!!!!!!!!', results);
 				if (results.length == 0) return;
 
 				const event = results[0];
@@ -68,7 +68,7 @@
 
 		{#if eventStartTime}
 			<div
-				class="my-4 flex w-full justify-center rounded-xl bg-slate-200/80 py-2 dark:bg-slate-800/80"
+				class="my-4 flex w-full justify-center rounded-xl bg-slate-200/80 py-2 text-base dark:bg-slate-800/80"
 			>
 				Your event is happening on {formatHumanReadable(eventStartTime)}
 			</div>
@@ -87,6 +87,8 @@
 						{eventName}
 					/>
 				{/each}
+			{:else if remindersLoading}
+				<Loader />
 			{:else}
 				<div class="flex w-full justify-center">
 					<div class="rounded-xl bg-slate-800/80 p-2 text-center text-sm">

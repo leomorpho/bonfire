@@ -541,6 +541,7 @@
 		const url = new URL(window.location.href);
 		url.searchParams.set('tab', tabName);
 		window.history.pushState({}, '', url);
+		activeTab = tabName;
 	}
 
 	function loadStepFromURL(): void {
@@ -600,7 +601,7 @@
 			</div>
 			<BetaDevAlert />
 
-			<Tabs.Content value="info">
+			<Tabs.Content value={BonfireEditingTabs.Info}>
 				<h1
 					class="mb-2 flex w-full justify-center rounded-xl bg-white p-2 text-lg font-semibold dark:bg-slate-900 dark:text-white"
 				>
@@ -846,14 +847,21 @@
 					</div>
 				</div>
 			</Tabs.Content>
-			<Tabs.Content value="styles">
+			<Tabs.Content value={BonfireEditingTabs.Styles}>
 				<EventStyler {eventId} bind:finalStyleCss bind:overlayColor bind:overlayOpacity bind:font />
 			</Tabs.Content>
-			<Tabs.Content value="admins">
-				<EventAdminEditor eventId={event?.id} {currUserId} eventCreatorId={event?.user_id} />
+			<Tabs.Content value={BonfireEditingTabs.Admins}>
+				<EventAdminEditor
+					eventId={event?.id}
+					{currUserId}
+					eventCreatorId={event?.user_id}
+				/>
 			</Tabs.Content>
-			<Tabs.Content value="reminders">
-				<EventReminders {eventId} {eventName} />
+			<Tabs.Content value={BonfireEditingTabs.Reminders}>
+				<EventReminders
+					{eventId}
+					{eventName}
+				/>
 			</Tabs.Content>
 		</Tabs.Root>
 	</section>

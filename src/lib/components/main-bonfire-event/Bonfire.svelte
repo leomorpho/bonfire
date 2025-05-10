@@ -360,12 +360,13 @@
 				attendeesLeft = results.filter((attendee) => attendee.status === Status.LEFT);
 				attendeesRemoved = results.filter((attendee) => attendee.status === Status.REMOVED);
 
-				const userIds = [...new Set(results.map((attendee) => attendee.user_id))];
-				// if (dev) {
-				// 	console.log('===> userIds', userIds);
-				// }
+				// TODO: the below used to trigger the query of profile images immediately. Seems unecessary if users don't ever open the attendees dialog?
+				// const userIds = [...new Set(results.map((attendee) => attendee.user_id))];
+				// // if (dev) {
+				// // 	console.log('===> userIds', userIds);
+				// // }
 
-				addUserRequests(userIds);
+				// addUserRequests(userIds);
 				attendeesLoading = false;
 				// console.log('results', results);
 			},
