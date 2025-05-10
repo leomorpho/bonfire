@@ -42,14 +42,21 @@
 	);
 
 	const updateEvent = async () => {
+		const hour = eventStartDatetime.getHours();
+
 		try {
 			const updatedReminder = {
 				text: text,
 				dropped: !isEnabled,
-				send_at: new Date(sendAtDateValue.year, sendAtDateValue.month - 1, sendAtDateValue.day),
+				send_at: new Date(
+					sendAtDateValue.year,
+					sendAtDateValue.month - 1,
+					sendAtDateValue.day,
+					hour
+				),
 				lead_time_in_hours_before_event_starts: calculateLeadTimeInHours(
 					eventStartDatetime,
-					sendAtDateValue
+					sendAt
 				),
 				target_attendee_statuses: new Set(selectedStatuses)
 			};
@@ -66,22 +73,18 @@
 		await updateEvent();
 	}, 800); // Debounce delay: 800ms
 
-	const calculateLeadTimeInHours = (eventStartDatetime: Date, sendAtDateValue: CalendarDate) => {
+	const calculateLeadTimeInHours = (eventStartDatetime: Date, sendAtDatetime: Date) => {
 		const eventStartDate = new Date(eventStartDatetime);
-		const sendAtDate = new Date(
-			sendAtDateValue.year,
-			sendAtDateValue.month - 1,
-			sendAtDateValue.day
-		);
+		const sendAtDate = new Date(sendAtDatetime);
 		const diffInMs = eventStartDate.getTime() - sendAtDate.getTime();
 		return Math.abs(Math.round(diffInMs / (1000 * 60 * 60))); // Convert milliseconds to hours
 	};
 
-	const calculateLeadTimeInDays = (eventStartDatetime: Date, sendAtDateValue: CalendarDate) => {
-		return Math.round(calculateLeadTimeInHours(eventStartDatetime, sendAtDateValue) / 24);
+	const calculateLeadTimeInDays = (eventStartDatetime: Date, sendAtDatetime: Date) => {
+		return Math.round(calculateLeadTimeInHours(eventStartDatetime, sendAtDatetime) / 24);
 	};
 
-	let leadTimeInDays = $derived(calculateLeadTimeInDays(eventStartDatetime, sendAtDateValue));
+	let leadTimeInDays = $derived(calculateLeadTimeInDays(eventStartDatetime, sendAt));
 
 	let selectedStatuses = $state([
 		...(targetAttendeeStatuses.has(Status.GOING) ? [Status.GOING] : []),
@@ -90,7 +93,7 @@
 
 	$effect(() => {
 		if (sendAtDateValue) {
-			const leadTimeInDays = calculateLeadTimeInDays(eventStartDatetime, sendAtDateValue);
+			const leadTimeInDays = calculateLeadTimeInDays(eventStartDatetime, sendAt);
 			text = generateReminderMessage(leadTimeInDays, eventName);
 		}
 	});
