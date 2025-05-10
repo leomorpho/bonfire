@@ -28,6 +28,8 @@
 				currentStep = lastStep;
 				updateURL();
 			}
+		} else {
+			currentStep = currentStep - 1;
 		}
 	};
 
@@ -44,6 +46,7 @@
 			const step = parseInt(stepParam, 10);
 			if (!isNaN(step) && step in EventCreationStep) {
 				currentStep = step;
+				return;
 			}
 		}
 	}
@@ -66,10 +69,11 @@
 	let geocodedLocation = $state();
 	let latitude = $state();
 	let longitude = $state();
+	let maxCapacity = $state();
 </script>
 
-<div class="flex w-full justify-center">
-	<div class="mx-auto flex h-[70vh] max-w-md items-center p-4">
+<div class="relative w-full">
+	<div class="mx-auto flex h-[70vh] w-full items-center p-4 sm:w-2/3 md:w-1/2 xl:w-2/5">
 		<!-- Step 1: Event Date -->
 		{#if currentStep === EventCreationStep.EventDate}
 			<FlowEffectContainer>
@@ -206,7 +210,7 @@
 			<!-- Step 5: Address -->
 			<FlowEffectContainer>
 				{@render title('Do you have an address?')}
-				<div class="flex flex-row items-center">
+				<div class="flex w-full flex-row items-center">
 					<LocationInput
 						bind:location
 						bind:geocodedLocation
@@ -244,7 +248,17 @@
 			<!-- Step 7: Capacity Limit -->
 			<FlowEffectContainer>
 				{@render title('What is the capacity limit?')}
-				<input type="number" class="mb-4 w-full rounded border p-2" />
+				<div class="mb-4 flex w-full justify-center">
+					<Input
+						type="number"
+						bind:value={maxCapacity}
+						min="0"
+						pattern="[0-9]*"
+						inputmode="numeric"
+						class="w-24 bg-slate-200 text-center dark:bg-slate-900 sm:w-20 md:w-24"
+						{oninput}
+					/>
+				</div>
 				<div class="flex w-full justify-center space-x-4">
 					{@render prevBtn()}
 					<Button
@@ -322,6 +336,13 @@
 			</FlowEffectContainer>
 		{/if}
 	</div>
+	<a href="/bonfire/create" class="absolute bottom-0 flex w-full justify-center">
+		<div
+			class="mb-4 text-sm italic text-blue-300 hover:text-blue-200 dark:text-blue-800 dark:hover:text-blue-700"
+		>
+			Use event creation form instead
+		</div>
+	</a>
 </div>
 
 {#snippet title(text: string)}

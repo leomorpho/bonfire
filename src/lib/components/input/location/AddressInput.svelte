@@ -10,7 +10,7 @@
 	import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
 
 	let {
-		onSave=null,
+		onSave = null,
 		location = $bindable<string | undefined>(),
 		geocodedLocation = $bindable<any>(),
 		latitude = $bindable<number | null>(),
@@ -140,8 +140,8 @@
 			</Button>
 		{/snippet}
 	</Popover.Trigger>
-	<Popover.Content class="bg-slate-200 p-0">
-		<Command.Root>
+	<Popover.Content class="w-full p-0">
+		<Command.Root class="w-full">
 			<Input
 				type="text"
 				placeholder="1600 Pennsylvania Avenue, Washington DC"
@@ -156,7 +156,7 @@
 				<Command.Group>
 					{#if locationQueryStr.length > 0}
 						<Command.Item
-							class="flex justify-center text-wrap font-semibold text-blue-800"
+							class="flex w-full justify-center text-wrap font-semibold text-blue-800"
 							onSelect={() => {
 								selectedResult = { formattedAddress: locationQueryStr }; // Save custom address
 								location = locationQueryStr;
@@ -203,8 +203,10 @@
 							<Button
 								class="w-full"
 								disabled={locationQueryStr.length == 0}
-								onclick={() => fetchSuggestions(locationQueryStr)}>Search</Button
+								onclick={() => fetchSuggestions(locationQueryStr)}
 							>
+								Search
+							</Button>
 						</div>
 					{/if}
 				</Command.Group>
