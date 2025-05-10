@@ -253,7 +253,7 @@
 >
 	<a
 		id="create-bonfire-button"
-		href="/bonfire/create/flow"
+		href="/bonfire/create"
 		role="button"
 		aria-label="Create a Bonfire"
 		class="rounded-full bg-blue-500 p-4 text-white shadow-lg transition-all duration-200 ease-in-out hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-300 active:bg-blue-700"
