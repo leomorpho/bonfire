@@ -349,3 +349,17 @@ export enum EventCreationStep {
 	GuestsPerAttendee = 11,
 	Completion = 12
 }
+
+export enum BonfireTabs {
+	About = 'about',
+	Discussions = 'discussions',
+	UserSettings = 'user-settings',
+	History = 'history'
+}
+
+export enum BonfireEditingTabs {
+	Info = 'info',
+	Styles = 'styles',
+	Admins = 'admins',
+	Reminders = 'reminders'
+}

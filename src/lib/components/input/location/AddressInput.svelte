@@ -10,7 +10,7 @@
 	import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
 
 	let {
-		onSave,
+		onSave=null,
 		location = $bindable<string | undefined>(),
 		geocodedLocation = $bindable<any>(),
 		latitude = $bindable<number | null>(),
@@ -145,7 +145,7 @@
 			<Input
 				type="text"
 				placeholder="1600 Pennsylvania Avenue, Washington DC"
-				class="h-[var(--trigger-height)]"
+				class="h-[var(--trigger-height)] w-full"
 				bind:value={locationQueryStr}
 				bind:ref={inputRef}
 				oninput={debounce(async () => {

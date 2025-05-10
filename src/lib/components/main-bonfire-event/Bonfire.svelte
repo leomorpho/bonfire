@@ -8,7 +8,12 @@
 	import { Share, ShoppingBasket, History, MessageCircle, Info } from 'lucide-svelte';
 	import Rsvp from '$lib/components/rsvp/Rsvp.svelte';
 	import { onMount, tick } from 'svelte';
-	import { Status, tempAttendeeSecretStore, tempAttendeeSecretParam } from '$lib/enums';
+	import {
+		Status,
+		tempAttendeeSecretStore,
+		tempAttendeeSecretParam,
+		BonfireTabs
+	} from '$lib/enums';
 	import MiniGallery from '$lib/components/MiniGallery.svelte';
 	import { toast } from 'svelte-sonner';
 	import Annoucements from '$lib/components/announcements/Annoucements.svelte';
@@ -112,15 +117,15 @@
 		tempAttendeeSecretStore.set(tempAttendeeId);
 	}
 
-	$inspect(
-		'isAnonymousUser',
-		isAnonymousUser,
-		'isUnverifiedUser',
-		isUnverifiedUser,
-		'tempAttendeeId',
-		tempAttendeeId,
-		!!tempAttendeeId
-	);
+	// $inspect(
+	// 	'isAnonymousUser',
+	// 	isAnonymousUser,
+	// 	'isUnverifiedUser',
+	// 	isUnverifiedUser,
+	// 	'tempAttendeeId',
+	// 	tempAttendeeId,
+	// 	!!tempAttendeeId
+	// );
 
 	$effect(() => {
 		if (
@@ -422,6 +427,8 @@
 			observer.observe(document.body, { childList: true, subtree: true });
 		}
 
+		loadScrollParamFromURL();
+
 		return () => {
 			// Cleanup
 			unsubscribeAttendeesQuery();
@@ -432,6 +439,25 @@
 			}
 			unsubscribeFromFilesQuery();
 		};
+
+		function scrollToElement(elementId: string) {
+			const element = document.getElementById(elementId);
+			console.log('SCROLLING TO EL', element);
+
+			if (element) {
+				element.scrollIntoView({ behavior: 'smooth' });
+			}
+		}
+
+		// Load the scroll parameter from the URL
+		function loadScrollParamFromURL() {
+			const urlParams = new URLSearchParams(window.location.search);
+			const scrollToId = urlParams.get('scrollTo');
+			console.log('SCROLLING TO', scrollToId);
+			if (scrollToId) {
+				scrollToElement(scrollToId);
+			}
+		}
 	});
 
 	const handleShare = async (eventTitle: string, eventLocation: string, eventId: string) => {
@@ -474,6 +500,24 @@
 		await tick(); // Ensure the DOM is updated
 		await scrollElementIntoView('messenger');
 	};
+
+	function updateURL(tabName: string): void {
+		const url = new URL(window.location.href);
+		url.searchParams.set('tab', tabName);
+		window.history.pushState({}, '', url);
+	}
+
+	function loadStepFromURL(): void {
+		const urlParams = new URLSearchParams(window.location.search);
+		const tabParam = urlParams.get('tab');
+		if (tabParam) {
+			activeTab = tabParam;
+		}
+	}
+
+	onMount(() => {
+		loadStepFromURL();
+	});
 </script>
 
 {#if !isAnonymousUser && !isUnverifiedUser && eventLoading}
@@ -503,17 +547,21 @@
 							<div class="flex items-center rounded-lg bg-white p-2 shadow-2xl dark:bg-black">
 								<Tabs.Trigger
 									id="about-tab"
-									value="about"
+									value={BonfireTabs.About}
 									class="focus:outline-none focus-visible:ring-0 data-[state=active]:bg-emerald-500 data-[state=active]:text-white dark:data-[state=active]:bg-emerald-600"
+									onclick={() => {
+										updateURL(BonfireTabs.About);
+									}}
 								>
 									<Info class="h-6 w-6" />
 								</Tabs.Trigger>
 								<Tabs.Trigger
 									id="discussions-tab"
-									value="discussions"
+									value={BonfireTabs.Discussions}
 									class="focus:outline-none focus-visible:ring-0 data-[state=active]:bg-orange-500 data-[state=active]:text-white dark:data-[state=active]:bg-orange-600"
 									onclick={() => {
 										scrollElementIntoView('messenger');
+										updateURL(BonfireTabs.Discussions);
 									}}
 								>
 									<NumNewMessageIndicator>
@@ -523,8 +571,11 @@
 								{#if currUserId}
 									<Tabs.Trigger
 										id="settings-tab"
-										value="user-settings"
+										value={BonfireTabs.UserSettings}
 										class="focus:outline-none focus-visible:ring-0 data-[state=active]:bg-blue-500 data-[state=active]:text-white dark:data-[state=active]:bg-blue-600"
+										onclick={() => {
+											updateURL(BonfireTabs.UserSettings);
+										}}
 									>
 										<div class="flex items-center justify-center">
 											<SlidersHorizontal class="h-6 w-6" />
@@ -534,8 +585,11 @@
 								{#if isCurrenUserEventAdmin}
 									<Tabs.Trigger
 										id="history-tab"
-										value="history"
+										value={BonfireTabs.History}
 										class="focus:outline-none focus-visible:ring-0 data-[state=active]:bg-purple-500 data-[state=active]:text-white dark:data-[state=active]:bg-purple-600"
+										onclick={() => {
+											updateURL(BonfireTabs.History);
+										}}
 									>
 										<div class="flex items-center justify-center">
 											<History class="h-6 w-6" />
@@ -637,7 +691,7 @@
 							<!-- <HorizRule /> -->
 
 							<div class="my-10 flex flex-wrap justify-center gap-5">
-								<div class="w-full rounded-xl py-5 lg:w-[calc(50%-0.9rem)]">
+								<div id="announcements" class="w-full rounded-xl py-5 lg:w-[calc(50%-0.9rem)]">
 									<Annoucements
 										{rsvpStatus}
 										maxCount={3}

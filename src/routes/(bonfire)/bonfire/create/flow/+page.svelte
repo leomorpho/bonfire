@@ -8,6 +8,8 @@
 	import DoubleDigitsPicker from '$lib/components/DoubleDigitsPicker.svelte';
 	import AmPmPicker from '$lib/components/AmPmPicker.svelte';
 	import { fade, slide } from 'svelte/transition';
+	import LocationInput from '$lib/components/input/location/LocationInput.svelte';
+	import { onMount } from 'svelte';
 
 	let previousSteps: number[] = $state([]);
 	let currentStep: number = $state(1);
@@ -15,6 +17,7 @@
 	function nextStep(next: number): void {
 		previousSteps.push(currentStep);
 		currentStep = next;
+		updateURL();
 	}
 
 	const prevStep = (): void => {
@@ -23,9 +26,31 @@
 			const lastStep = previousSteps.pop();
 			if (lastStep !== undefined) {
 				currentStep = lastStep;
+				updateURL();
 			}
 		}
 	};
+
+	function updateURL(): void {
+		const url = new URL(window.location.href);
+		url.searchParams.set('step', currentStep.toString());
+		window.history.pushState({}, '', url);
+	}
+
+	function loadStepFromURL(): void {
+		const urlParams = new URLSearchParams(window.location.search);
+		const stepParam = urlParams.get('step');
+		if (stepParam) {
+			const step = parseInt(stepParam, 10);
+			if (!isNaN(step) && step in EventCreationStep) {
+				currentStep = step;
+			}
+		}
+	}
+
+	onMount(() => {
+		loadStepFromURL();
+	});
 
 	let setEndTime = $state(false);
 
@@ -37,6 +62,10 @@
 	let endHour = $state('');
 	let endMinute = $state('');
 	let ampmEnd = $state('PM');
+	let location = $state();
+	let geocodedLocation = $state();
+	let latitude = $state();
+	let longitude = $state();
 </script>
 
 <div class="flex w-full justify-center">
@@ -177,7 +206,15 @@
 			<!-- Step 5: Address -->
 			<FlowEffectContainer>
 				{@render title('Do you have an address?')}
-				<input type="text" class="mb-4 w-full rounded border p-2" />
+				<div class="flex flex-row items-center">
+					<LocationInput
+						bind:location
+						bind:geocodedLocation
+						bind:latitude
+						bind:longitude
+						class="mb-4"
+					/>
+				</div>
 				<div class="flex w-full justify-center space-x-4">
 					{@render prevBtn()}
 					<Button

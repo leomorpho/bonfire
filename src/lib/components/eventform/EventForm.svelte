@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { defaultMaxNumGuestsPerAttendee } from '$lib/enums';
+	import { BonfireEditingTabs, defaultMaxNumGuestsPerAttendee } from '$lib/enums';
 	import EventStyler from '../event-styles/EventStyler.svelte';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { CalendarDate, type DateValue } from '@internationalized/date';
@@ -39,9 +39,7 @@
 	import EventAdminEditor from '../EventAdminEditor.svelte';
 	import { debounce } from 'lodash-es';
 	import BackButton from '../BackButton.svelte';
-	import OutOfLogs from '../payments/OutOfLogs.svelte';
 	import { toast } from 'svelte-sonner';
-	import LoadingSpinner from '../LoadingSpinner.svelte';
 	import UnpublishEventBtn from './buttons/UnpublishEventBtn.svelte';
 	import DeleteEventBtn from './buttons/DeleteEventBtn.svelte';
 	import TipTapTextEditor from '../input/tiptap/TipTapTextEditor.svelte';
@@ -497,11 +495,32 @@
 			document.head.appendChild(link);
 		}
 	});
+
+	let activeTab: string | BonfireEditingTabs = $state(BonfireEditingTabs.Info);
+
+	// Manage URLs for tabs
+	function updateURL(tabName: string): void {
+		const url = new URL(window.location.href);
+		url.searchParams.set('tab', tabName);
+		window.history.pushState({}, '', url);
+	}
+
+	function loadStepFromURL(): void {
+		const urlParams = new URLSearchParams(window.location.search);
+		const tabParam = urlParams.get('tab');
+		if (tabParam) {
+			activeTab = tabParam;
+		}
+	}
+
+	onMount(() => {
+		loadStepFromURL();
+	});
 </script>
 
 <div class="mx-4 flex flex-col items-center justify-center">
 	<section class="w-full px-3 sm:w-[450px] sm:px-0 lg:w-[600px]">
-		<Tabs.Root value="info" class="w-full">
+		<Tabs.Root value={activeTab} class="w-full">
 			<div class="sticky top-2 z-50 mt-3 flex w-full justify-center">
 				<div
 					class="mb-2 flex w-full items-center justify-between rounded-xl bg-white p-2 text-lg font-semibold shadow-2xl dark:bg-slate-900"
@@ -511,26 +530,30 @@
 					<Tabs.List class="w-min animate-in fade-in zoom-in dark:bg-slate-700 dark:text-white">
 						<Tabs.Trigger
 							id="event-info-tab"
-							value="info"
+							value={BonfireEditingTabs.Info}
 							class="focus:outline-none focus-visible:ring-0 data-[state=active]:bg-cyan-500 data-[state=active]:text-white dark:data-[state=active]:bg-cyan-600"
+							onclick={() => updateURL(BonfireEditingTabs.Info)}
 							><Info class="h-5 w-5 sm:h-6 sm:w-6" /></Tabs.Trigger
 						>
 						<Tabs.Trigger
 							id="event-styles-tab"
-							value="styles"
+							value={BonfireEditingTabs.Styles}
 							class="focus:outline-none focus-visible:ring-0 data-[state=active]:bg-cyan-500 data-[state=active]:text-white dark:data-[state=active]:bg-cyan-600"
+							onclick={() => updateURL(BonfireEditingTabs.Styles)}
 							><Palette class="h-5 w-5 sm:h-6 sm:w-6" /></Tabs.Trigger
 						>
 						<Tabs.Trigger
 							id="event-admins-tab"
-							value="admins"
+							value={BonfireEditingTabs.Admins}
 							class="focus:outline-none focus-visible:ring-0 data-[state=active]:bg-cyan-500 data-[state=active]:text-white dark:data-[state=active]:bg-cyan-600"
+							onclick={() => updateURL(BonfireEditingTabs.Admins)}
 							><Shield class="h-5 w-5 sm:h-6 sm:w-6" /></Tabs.Trigger
 						>
 						<Tabs.Trigger
 							id="event-reminders-tab"
-							value="reminders"
+							value={BonfireEditingTabs.Reminders}
 							class="focus:outline-none focus-visible:ring-0 data-[state=active]:bg-cyan-500 data-[state=active]:text-white dark:data-[state=active]:bg-cyan-600"
+							onclick={() => updateURL(BonfireEditingTabs.Reminders)}
 							><BellRing class="h-5 w-5 sm:h-6 sm:w-6" /></Tabs.Trigger
 						>
 					</Tabs.List>

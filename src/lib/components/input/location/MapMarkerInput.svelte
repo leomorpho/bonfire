@@ -19,7 +19,7 @@
 		geocodedLocation,
 		latitude = $bindable<number | null>(),
 		longitude = $bindable<number | null>(),
-		onSave
+		onSave = null
 	} = $props();
 
 	// const MAP_STYLE = `https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png?api_key=${publicEnv.PUBLIC_STADIA_MAPS_TOKEN}`;
@@ -45,7 +45,6 @@
 	onMount(() => {
 		updateGeolocationTempStorage();
 	});
-
 
 	let showUseLocationFromAddress = $derived(
 		geocodedLocation?.data?.longitude != longitude || geocodedLocation?.data?.latitude != latitude
@@ -130,10 +129,7 @@
 				Move the map to set the event location.
 				{#if showUseLocationFromAddress}
 					<div class="mt-2 flex w-full justify-center">
-						<Button
-							onclick={useLocationFromAddress}
-							class="mt-3 flex items-center gap-2 sm:mt-0"
-						>
+						<Button onclick={useLocationFromAddress} class="mt-3 flex items-center gap-2 sm:mt-0">
 							<MapPinHouse class="h-4 w-4" />
 							Reset to location from address
 						</Button>
