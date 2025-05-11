@@ -15,6 +15,7 @@ import { assignBringItem, createBringItem } from '$lib/bringlist';
 import { createTempAttendance, createUserAttendance } from '$lib/rsvp';
 import { triplitHttpClient } from '$lib/server/triplit';
 
+const numAttendeesToGenerate = 300;
 const profileImagesDir = 'src/scripts/data/profile-pics';
 const bannerImagesDir = 'src/scripts/data/banner';
 
@@ -245,7 +246,7 @@ const generateAttendeeData = (n: number) => {
 	return generatedData;
 };
 
-const newAttendeeData = generateAttendeeData(3000);
+const newAttendeeData = generateAttendeeData(numAttendeesToGenerate);
 
 for (const attendee of newAttendeeData) {
 	await createAttendee(attendee, announcements);

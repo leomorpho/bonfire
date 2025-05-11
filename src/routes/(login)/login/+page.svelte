@@ -210,11 +210,11 @@
 				{/if}
 				<!-- OTP Verification Form -->
 				<div>
-					<button
+					<Button
 						class="text-md btn mt-5 w-full font-semibold dark:bg-slate-800 dark:text-white sm:text-lg"
 					>
 						Submit
-					</button>
+					</Button>
 				</div>
 			</div>
 		{:else}
@@ -239,23 +239,25 @@
 				</div>
 			</div>
 			{#if data.user}
-				<a href="/" class="text-md btn btn-primary mt-4 w-full font-semibold md:text-lg"
+				<Button href="/" class="text-md btn btn-primary mt-4 w-full font-semibold md:text-lg"
 					>Continue with current account
-				</a>
+				</Button>
 				<p class="my-3 text-center text-sm opacity-70">
 					Signed in as {data.user.email}
 				</p>
 			{:else}
-				<a href="/login/google" class="text-md btn btn-primary mt-4 w-full font-semibold md:text-lg"
+				<Button
+					href="/login/google"
+					class="text-md mt-4 w-full bg-blue-500 font-semibold  text-white hover:bg-blue-400 dark:bg-blue-600 dark:hover:bg-blue-500 md:text-lg"
 					><Google class="mr-3 w-4" />Continue with Google
-				</a>
+				</Button>
 			{/if}
 
 			{#if data.user}
 				<form method="post" action="/login?/signout">
-					<button type="submit" class="text-md btn btn-ghost mt-2 w-full font-semibold sm:text-lg"
+					<Button type="submit" class="text-md btn btn-ghost mt-2 w-full font-semibold sm:text-lg"
 						>Sign in with a different account
-					</button>
+					</Button>
 				</form>
 			{:else}
 				<form method="post" action="/login?/login_with_email" use:enhance>
@@ -278,7 +280,7 @@
 					{/if}
 
 					{#if show_email_input}
-						<button
+						<Button
 							type="submit"
 							disabled={$submitting}
 							class="text-md btn w-full font-semibold sm:text-lg"
@@ -287,14 +289,14 @@
 								<span class="loading loading-spinner loading-xs mr-2"></span>
 							{/if}
 							<span>Continue</span>
-						</button>
+						</Button>
 					{:else}
-						<button
+						<Button
 							onclick={handleEmail}
 							type="button"
 							class="text-md btn mt-4 w-full font-semibold sm:text-lg"
 							>Continue with email
-						</button>{/if}
+						</Button>{/if}
 				</form>
 			{/if}
 		{/if}
