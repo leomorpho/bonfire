@@ -80,9 +80,9 @@
 <div class="mt-4 rounded-lg bg-slate-200 bg-opacity-70 p-4 dark:bg-slate-800 dark:bg-opacity-70">
 	<!-- Checkbox + Label -->
 	<div class="flex items-center space-x-2">
-		<Checkbox id="enable-instant-messaging" bind:checked onclick={update} />
+		<Checkbox id="enable-cuttoff-date" bind:checked onclick={update} />
 		<Label
-			for="enable-instant-messaging"
+			for="enable-cuttoff-date"
 			class="flex items-center text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
 		>
 			<Hourglass class="mx-1 h-5 w-5" /> Set cuttof RSVP date

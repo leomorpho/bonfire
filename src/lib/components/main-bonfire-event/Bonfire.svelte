@@ -38,8 +38,9 @@
 	import { CircleAlert, SlidersHorizontal } from '@lucide/svelte';
 	import EventSettings from '../settings/event-settings/EventSettings.svelte';
 	import PermissionsPausedMsg from '../settings/PermissionsPausedMsg.svelte';
-	import { scrollElementIntoView } from '$lib/utils';
+	import { formatHumanReadable, scrollElementIntoView } from '$lib/utils';
 	import { fetchBannerInfo } from '$lib/gallery';
+	import { isStartDateBeforeCutoff } from '$lib/rsvp';
 	// import EventStylerBottomSheet from '../event-styles/EventStylerBottomSheet.svelte';
 
 	let {
@@ -112,8 +113,8 @@
 	let latitude = $state(null);
 	let longitude = $state(null);
 
-	let isStartDateBeforeCutoff = $derived(
-		isCuttoffDateEnabled && cuttoffDate && eventStartTime < cuttoffDate
+	let isStartDateBeforeCutoffBoolean = $state(
+		isStartDateBeforeCutoff(isCuttoffDateEnabled, cuttoffDate)
 	);
 
 	if (tempAttendeeId) {
@@ -142,8 +143,21 @@
 	$effect(() => {
 		if (eventId && eventStartTime) {
 			rsvpCanBeChanged =
-				new Date(eventStartTime) >= new Date() && rsvpEnabledForCapacity && isStartDateBeforeCutoff;
+				new Date(eventStartTime) >= new Date() &&
+				rsvpEnabledForCapacity &&
+				isStartDateBeforeCutoffBoolean;
 		}
+	});
+
+	$effect(() => {
+		console.log(
+			'new Date(eventStartTime) >= new Date()',
+			new Date(eventStartTime) >= new Date(),
+			'rsvpEnabledForCapacity',
+			rsvpEnabledForCapacity,
+			'isStartDateBeforeCutoffBoolean',
+			isStartDateBeforeCutoffBoolean
+		);
 	});
 
 	$effect(() => {
@@ -661,11 +675,18 @@
 									rsvpEnabled={rsvpEnabledForCapacity}
 								/>
 							{/if}
-							<div class="flex w-full justify-center">
+							<!-- <div class="flex w-full justify-center">
 								<Button href={`/bonfire/${eventId}/invite`}>Invite friends</Button>
-							</div>
+							</div> -->
 							<div class="flex w-full justify-center">
 								<div class="flex w-full flex-col md:max-w-96">
+									{#if isCuttoffDateEnabled}
+										<div class="flex w-full justify-center">
+											<div class="mx-2 mt-2 rounded-full bg-yellow-400/70 px-2 py-1 text-sm italic">
+												RSVP cuttoff on {formatHumanReadable(cuttoffDate)}
+											</div>
+										</div>
+									{/if}
 									<Rsvp
 										{rsvpStatus}
 										userId={currUserId}

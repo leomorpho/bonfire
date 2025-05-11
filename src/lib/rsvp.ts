@@ -451,7 +451,6 @@ export const upsertEventsPrivateData = async (
 	eventId: string,
 	deltas: AttendeeCountDeltas
 ) => {
-
 	try {
 		// Check if events_private_data exists for the event
 		const existingData = await client.fetchOne(
@@ -503,4 +502,11 @@ export const upsertEventsPrivateData = async (
 	} catch (error) {
 		console.error('Error upserting events_private_data:', error);
 	}
+};
+
+export const isStartDateBeforeCutoff = (
+	isCuttoffDateEnabled: boolean = false,
+	cuttoffDate: Date | null = null
+) => {
+	return !isCuttoffDateEnabled || (isCuttoffDateEnabled && cuttoffDate && new Date() < cuttoffDate);
 };

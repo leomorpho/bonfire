@@ -13,6 +13,7 @@
 	import EditEventButton from './main-bonfire-event/EditEventButton.svelte';
 	import { browser } from '$app/environment';
 	import { fetchBannerInfo } from '$lib/gallery';
+	import { isStartDateBeforeCutoff } from '$lib/rsvp';
 
 	let {
 		eventId,
@@ -40,8 +41,8 @@
 		cuttoffDate = null
 	} = $props();
 
-	let isCurrentDateBeforeCutoff = $derived(
-		isCuttoffDateEnabled && cuttoffDate && new Date() < cuttoffDate
+	let isCurrentDateBeforeCutoff = $state(
+		isStartDateBeforeCutoff(isCuttoffDateEnabled, cuttoffDate)
 	);
 
 	// $effect(() => {
@@ -66,8 +67,10 @@
 			: false
 	);
 
+	let eventIsInFuture = $state(new Date(eventStartTime) >= new Date());
+
 	let rsvpCanBeChanged = $derived(
-		new Date(eventStartTime) >= new Date() && isCurrentDateBeforeCutoff && rsvpEnabledForCapacity
+		eventIsInFuture && isCurrentDateBeforeCutoff && rsvpEnabledForCapacity
 	);
 	let font: FontSelection | null = fontStr ? JSON.parse(fontStr) : null;
 	let bannerInfo = $state();
@@ -220,6 +223,19 @@
 						numAttendeesNotGoing={totalNotGoing}
 					/>
 				{/if}
+				{#if !isCurrentDateBeforeCutoff || eventIsInFuture || rsvpEnabledForCapacity}
+					<div class="flex w-full flex-wrap justify-center">
+						{#if !isCurrentDateBeforeCutoff}
+							{@render warning('cutoff passed')}
+						{/if}
+						{#if !eventIsInFuture}
+							{@render warning('event over')}
+						{/if}
+						{#if !rsvpEnabledForCapacity}
+							{@render warning('full capacity')}
+						{/if}
+					</div>
+				{/if}
 				<button
 					class="interactive w-full md:max-w-96"
 					onclick={(e) => {
@@ -254,3 +270,7 @@
 		</div>
 	</Card.Root>
 </button>
+
+{#snippet warning(text: string)}
+	<div class="mx-2 my-1 rounded-full bg-red-400/70 px-2 text-sm">{text}</div>
+{/snippet}
