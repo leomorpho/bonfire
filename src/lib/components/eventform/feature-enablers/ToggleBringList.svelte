@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Label from '$lib/components/ui/label/label.svelte';
+	import { Pizza } from 'lucide-svelte';
 	import Checkbox from '../../ui/checkbox/checkbox.svelte';
 	import { slide } from 'svelte/transition';
 
@@ -12,9 +13,9 @@
 		<Checkbox id="prevent-free-loaders" bind:checked onclick={oninput} />
 		<Label
 			for="prevent-free-loaders"
-			class="flex w-full justify-start text-sm font-medium  leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+			class="flex items-center text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
 		>
-			Enable bring list
+			<Pizza class="mx-1 h-5 w-5" /> Enable bring list
 		</Label>
 	</div>
 

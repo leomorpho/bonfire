@@ -56,6 +56,7 @@
 	import { fade, slide } from 'svelte/transition';
 	import ToggleGallery from './feature-enablers/ToggleGallery.svelte';
 	import ToggleMessaging from './feature-enablers/ToggleMessaging.svelte';
+	import ToggleCuttoffRsvpDate from './feature-enablers/ToggleCuttoffRsvpDate.svelte';
 
 	let { mode, event = null, currUserId = null } = $props();
 
@@ -80,7 +81,9 @@
 	let isBringListEnabled: boolean = $state(event?.is_bring_list_enabled ?? false);
 	let isGalleryEnabled: boolean = $state(event?.is_gallery_enabled ?? true);
 	let isMessagingEnabled: boolean = $state(event?.is_messaging_enabled ?? true);
+	let isCuttoffDateEnabled: boolean = $state(event?.is_cut_off_date_enabled ?? true);
 	let requireGuestBringItem: boolean = $state(event?.require_guest_bring_item ?? false);
+	let cuttoffDate = $state();
 	let latitude: number | null = $state(event?.latitude);
 	let longitude: number | null = $state(event?.longitude);
 
@@ -795,6 +798,7 @@
 
 					<ToggleGallery oninput={debouncedUpdateEvent} bind:checked={isGalleryEnabled} />
 					<ToggleMessaging oninput={debouncedUpdateEvent} bind:checked={isMessagingEnabled} />
+					<ToggleCuttoffRsvpDate oninput={debouncedUpdateEvent} bind:checked={isCuttoffDateEnabled} bind:cuttoffDate={cuttoffDate} />
 				</form>
 				<div class="my-10 flex w-full justify-center">
 					<div
@@ -851,17 +855,10 @@
 				<EventStyler {eventId} bind:finalStyleCss bind:overlayColor bind:overlayOpacity bind:font />
 			</Tabs.Content>
 			<Tabs.Content value={BonfireEditingTabs.Admins}>
-				<EventAdminEditor
-					eventId={event?.id}
-					{currUserId}
-					eventCreatorId={event?.user_id}
-				/>
+				<EventAdminEditor eventId={event?.id} {currUserId} eventCreatorId={event?.user_id} />
 			</Tabs.Content>
 			<Tabs.Content value={BonfireEditingTabs.Reminders}>
-				<EventReminders
-					{eventId}
-					{eventName}
-				/>
+				<EventReminders {eventId} {eventName} />
 			</Tabs.Content>
 		</Tabs.Root>
 	</section>

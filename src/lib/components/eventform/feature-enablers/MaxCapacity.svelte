@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Label from '$lib/components/ui/label/label.svelte';
+	import { Shrink } from 'lucide-svelte';
 	import Checkbox from '../../ui/checkbox/checkbox.svelte';
 	import Input from '../../ui/input/input.svelte';
 	import { slide } from 'svelte/transition';
@@ -26,9 +27,9 @@
 		<Checkbox id="capacity-toggle" bind:checked />
 		<Label
 			for="capacity-toggle"
-			class="flex w-full justify-start text-sm font-medium  leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+			class="flex items-center text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
 		>
-			Limit event capacity
+			<Shrink class="mx-1 h-5 w-5" /> Limit event capacity
 		</Label>
 	</div>
 

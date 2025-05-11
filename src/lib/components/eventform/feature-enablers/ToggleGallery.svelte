@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Label from '$lib/components/ui/label/label.svelte';
+	import { Images } from 'lucide-svelte';
 	import Checkbox from '../../ui/checkbox/checkbox.svelte';
 	import { slide } from 'svelte/transition';
 
@@ -12,9 +13,9 @@
 		<Checkbox id="enable-gallery" bind:checked onclick={oninput} />
 		<Label
 			for="enable-gallery"
-			class="flex w-full justify-start text-sm font-medium  leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+			class="flex items-center text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
 		>
-			Enable gallery
+			<Images class="mx-1 h-5 w-5" /> Enable gallery
 		</Label>
 	</div>
 

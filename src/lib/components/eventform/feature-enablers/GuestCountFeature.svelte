@@ -4,6 +4,7 @@
 	import Checkbox from '../../ui/checkbox/checkbox.svelte';
 	import Input from '../../ui/input/input.svelte';
 	import { slide } from 'svelte/transition';
+	import { UsersRound } from 'lucide-svelte';
 
 	let { oninput, value = $bindable<number | undefined | null>() } = $props();
 	let checked = $state(value !== null && value !== undefined && value !== 0);
@@ -27,9 +28,9 @@
 		<Checkbox id="enbale-attendees-bringing-guests" bind:checked />
 		<Label
 			for="enbale-attendees-bringing-guests"
-			class="flex w-full justify-start text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+			class="flex items-center text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
 		>
-			Let attendees bring guests
+			<UsersRound class="mx-1 h-5 w-5" /> Let attendees bring guests
 		</Label>
 	</div>
 

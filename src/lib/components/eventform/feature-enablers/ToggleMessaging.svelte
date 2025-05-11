@@ -2,6 +2,7 @@
 	import Label from '$lib/components/ui/label/label.svelte';
 	import Checkbox from '../../ui/checkbox/checkbox.svelte';
 	import { slide } from 'svelte/transition';
+	import { MessagesSquare } from '@lucide/svelte';
 
 	let { oninput, checked = $bindable<boolean>(false) } = $props();
 </script>
@@ -12,11 +13,12 @@
 		<Checkbox id="enable-instant-messaging" bind:checked onclick={oninput} />
 		<Label
 			for="enable-instant-messaging"
-			class="flex w-full justify-start text-sm font-medium  leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+			class="flex items-center text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
 		>
-			Enable instant messaging
+			<MessagesSquare class="mx-1 h-5 w-5" /> Enable instant messaging
 		</Label>
 	</div>
+	
 
 	{#if checked}
 		<!-- Description + Input with Svelte Slide Transition -->
