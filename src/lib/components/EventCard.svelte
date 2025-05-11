@@ -33,10 +33,42 @@
 		numGuests = 0,
 		maxNumGuestsAllowedPerAttendee = 0,
 		isDemo = false,
-		bannerImageUrl = ''
+		bannerImageUrl = '',
+		numGoingAttendees = null,
+		maxCapacity = null,
+		isCuttoffDateEnabled = false,
+		cuttoffDate = null
 	} = $props();
 
-	let rsvpCanBeChanged = new Date(eventStartTime) >= new Date();
+	let isCurrentDateBeforeCutoff = $derived(
+		isCuttoffDateEnabled && cuttoffDate && new Date() < cuttoffDate
+	);
+
+	// $effect(() => {
+	// 	console.log(
+	// 		'isCurrentDateBeforeCutoff',
+	// 		isCurrentDateBeforeCutoff,
+	// 		'new Date(eventStartTime) >= new Date()',
+	// 		new Date(eventStartTime) >= new Date(),
+	// 		'rsvpEnabledForCapacity',
+	// 		rsvpEnabledForCapacity,
+	// 		'eventStartTime',
+	// 		eventStartTime,
+	// 		'cuttoffDate',
+	// 		cuttoffDate
+	// 	);
+	// });
+
+	let rsvpEnabledForCapacity = $derived(
+		!(numGoingAttendees && maxCapacity) ||
+			(numGoingAttendees && maxCapacity && numGoingAttendees < maxCapacity)
+			? true
+			: false
+	);
+
+	let rsvpCanBeChanged = $derived(
+		new Date(eventStartTime) >= new Date() && isCurrentDateBeforeCutoff && rsvpEnabledForCapacity
+	);
 	let font: FontSelection | null = fontStr ? JSON.parse(fontStr) : null;
 	let bannerInfo = $state();
 
@@ -154,7 +186,7 @@
 		<!-- Content -->
 		<div class="relative z-10 p-4">
 			<Card.Header
-				class="relative banner min-h-32 rounded-xl bg-cover bg-center pb-2 sm:mb-4"
+				class="banner relative min-h-32 rounded-xl bg-cover bg-center pb-2 sm:mb-4"
 				style={`background-image: url('${bannerImageUrl}'); ${overlayStyle};`}
 			>
 				<div
@@ -164,7 +196,7 @@
 				<div class="flex w-full justify-center">
 					<Card.Title
 						style={font?.style}
-						class="z-20 w-fit rounded-lg px-2 py-1 text-2xl sm:text-3xl lg:text-4xl text-black dark:text-white"
+						class="z-20 w-fit rounded-lg px-2 py-1 text-2xl text-black dark:text-white sm:text-3xl lg:text-4xl"
 					>
 						{eventTitle}
 					</Card.Title>

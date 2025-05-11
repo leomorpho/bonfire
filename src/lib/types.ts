@@ -104,6 +104,8 @@ export type EventTypescriptType = {
 	require_guest_bring_item?: boolean;
 	is_gallery_enabled?: boolean;
 	is_messaging_enabled?: boolean;
+	is_cut_off_date_enabled?: boolean;
+	cut_off_date?: Date | null;
 };
 
 export interface EventThread {

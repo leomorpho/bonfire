@@ -53,7 +53,11 @@
 			)
 			.Where('event.start_time', future ? '>=' : '<', futureDate.toISOString())
 			.Include('event', (rel) =>
-				rel('event').Include('user', (rel) => rel('user').Select(['username']))
+				rel('event')
+					.Include('private_data', (rel) =>
+						rel('private_data').Select(['num_attendees_going', 'num_temp_attendees_going'])
+					)
+					.Include('user', (rel) => rel('user').Select(['username']))
 			)
 			.Order('event.start_time', 'ASC');
 	}
@@ -196,6 +200,11 @@
 									numGuests={attendance.guest_count}
 									maxNumGuestsAllowedPerAttendee={attendance.event.max_num_guests_per_attendee}
 									bannerImageUrl={getBannerUrlByEventId(attendance.event.id)}
+									numGoingAttendees={attendance.event?.private_data?.num_attendees_going +
+										attendance.event?.private_data?.num_temp_attendees_going}
+									maxCapacity={attendance.event?.max_capacity}
+									isCuttoffDateEnabled={attendance.event?.is_cut_off_date_enabled}
+									cuttoffDate={attendance.event?.cut_off_date}
 								/>
 							</div>
 						{/each}
@@ -237,6 +246,11 @@
 									numGuests={attendance.guest_count}
 									maxNumGuestsAllowedPerAttendee={attendance.event.max_num_guests_per_attendee}
 									bannerImageUrl={getBannerUrlByEventId(attendance.event.id)}
+									numGoingAttendees={attendance.event?.private_data?.num_attendees_going +
+										attendance.event?.private_data?.num_temp_attendees_going}
+									maxCapacity={attendance.event?.max_capacity}
+									isCuttoffDateEnabled={attendance.event?.is_cut_off_date_enabled}
+									cuttoffDate={attendance.event?.cut_off_date}
 								/>
 							</div>
 						{/each}

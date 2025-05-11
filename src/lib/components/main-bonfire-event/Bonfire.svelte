@@ -5,7 +5,7 @@
 	import Loader from '$lib/components/Loader.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
-	import { Share, ShoppingBasket, History, MessageCircle, Info } from 'lucide-svelte';
+	import { Share, History, MessageCircle, Info } from 'lucide-svelte';
 	import Rsvp from '$lib/components/rsvp/Rsvp.svelte';
 	import { onMount, tick } from 'svelte';
 	import {
@@ -20,17 +20,12 @@
 	import HorizRule from '$lib/components/HorizRule.svelte';
 	import EventDoesNotExist from '$lib/components/EventDoesNotExist.svelte';
 	import CenterScreenMessage from '$lib/components/CenterScreenMessage.svelte';
-	import BonfireNoInfoCard from '$lib/components/BonfireNoInfoCard.svelte';
 	import { overlayColorStore, overlayOpacityStore, styleStore } from '$lib/styles';
 	import type { EventTypescriptType } from '$lib/types';
 	import { env as publicEnv } from '$env/dynamic/public';
 	import ImThreadView from '$lib/components/im/ImThreadView.svelte';
 	import NumNewMessageIndicator from '$lib/components/im/NumNewMessageIndicator.svelte';
-	import {
-		addUserRequests,
-		type TempUserData,
-		updateTempUsersLiveDataStoreEntry
-	} from '$lib/profilestore';
+	import { type TempUserData, updateTempUsersLiveDataStoreEntry } from '$lib/profilestore';
 	import BringList from '$lib/components/bringlist/BringList.svelte';
 	import MaxCapacityInfo from '$lib/components/attendance/MaxCapacityInfo.svelte';
 	import EditEventButton from '$lib/components/main-bonfire-event/EditEventButton.svelte';
@@ -76,7 +71,9 @@
 		isGalleryEnabled = false,
 		isMessagingEnabled = false,
 		requireGuestBringItem = false,
-		showMaxNumPeople = 30
+		showMaxNumPeople = 30,
+		isCuttoffDateEnabled = false,
+		cuttoffDate = null
 	} = $props();
 
 	let client: TriplitClient;
@@ -115,6 +112,10 @@
 	let latitude = $state(null);
 	let longitude = $state(null);
 
+	let isStartDateBeforeCutoff = $derived(
+		isCuttoffDateEnabled && cuttoffDate && eventStartTime < cuttoffDate
+	);
+
 	if (tempAttendeeId) {
 		tempAttendeeSecretStore.set(tempAttendeeId);
 	}
@@ -140,7 +141,8 @@
 
 	$effect(() => {
 		if (eventId && eventStartTime) {
-			rsvpCanBeChanged = new Date(eventStartTime) >= new Date() && rsvpEnabledForCapacity;
+			rsvpCanBeChanged =
+				new Date(eventStartTime) >= new Date() && rsvpEnabledForCapacity && isStartDateBeforeCutoff;
 		}
 	});
 

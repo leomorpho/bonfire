@@ -82,7 +82,7 @@
 	let isGalleryEnabled: boolean = $state(event?.is_gallery_enabled ?? true);
 	let isMessagingEnabled: boolean = $state(event?.is_messaging_enabled ?? true);
 	let requireGuestBringItem: boolean = $state(event?.require_guest_bring_item ?? false);
-	let isCuttoffDateEnabled: boolean = $state(event?.is_cut_off_date_enabled ?? true);
+	let isCuttoffDateEnabled: boolean = $state(event?.is_cut_off_date_enabled ?? false);
 	let cuttoffDate = $state(event?.cut_off_date);
 	let latitude: number | null = $state(event?.latitude);
 	let longitude: number | null = $state(event?.longitude);
