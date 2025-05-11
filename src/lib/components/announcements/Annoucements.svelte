@@ -187,7 +187,7 @@
 				{/if}
 			{:else}
 				<BonfireNoInfoCard
-					text={'No announcements yet. Turn on your notifications to receive them.'}
+					text={'No announcements yet.'}
 				/>
 			{/if}
 		</div>
