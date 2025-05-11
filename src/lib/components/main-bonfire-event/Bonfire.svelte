@@ -660,6 +660,9 @@
 								/>
 							{/if}
 							<div class="flex w-full justify-center">
+								<Button href={`/bonfire/${eventId}/invite`}>Invite friends</Button>
+							</div>
+							<div class="flex w-full justify-center">
 								<div class="flex w-full flex-col md:max-w-96">
 									<Rsvp
 										{rsvpStatus}
