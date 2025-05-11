@@ -248,7 +248,7 @@
 		);
 
 		if (chatContainerRef) {
-			console.log('chatContainerRef', chatContainerRef);
+			// console.log('chatContainerRef', chatContainerRef);
 			chatContainerRef.addEventListener('scroll', handleScroll);
 		}
 

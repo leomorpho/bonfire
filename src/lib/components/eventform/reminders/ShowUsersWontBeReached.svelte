@@ -50,7 +50,7 @@
 			createQuery(client),
 			(results) => {
 				userIdsWontBeReached = getUserIdsFromRes(results);
-				console.log('userIdsWontBeReached', userIdsWontBeReached);
+				// console.log('userIdsWontBeReached', userIdsWontBeReached);
 			},
 			(error) => {
 				// handle error
