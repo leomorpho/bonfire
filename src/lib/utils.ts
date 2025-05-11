@@ -382,3 +382,14 @@ export function scrollElementIntoView(elementId: string, margin = 10) {
         console.error('Element not found:', elementId);
     }
 }
+
+export const calculateLeadTimeInHours = (eventStartDatetime: Date, sendAtDatetime: Date) => {
+	const eventStartDate = new Date(eventStartDatetime);
+	const sendAtDate = new Date(sendAtDatetime);
+	const diffInMs = eventStartDate.getTime() - sendAtDate.getTime();
+	return Math.abs(Math.round(diffInMs / (1000 * 60 * 60))); // Convert milliseconds to hours
+};
+
+export const calculateLeadTimeInDays = (eventStartDatetime: Date, sendAtDatetime: Date) => {
+	return Math.round(calculateLeadTimeInHours(eventStartDatetime, sendAtDatetime) / 24);
+};

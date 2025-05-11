@@ -36,7 +36,6 @@
 					return dateA.getTime() - dateB.getTime();
 				});
 				eventStartTime = event.start_time;
-				console.log('-----.> reminders', reminders);
 				remindersLoading = false;
 			},
 			(error) => {

@@ -229,6 +229,8 @@ export const schema = S.Collections({
 			is_bring_list_enabled: S.Optional(S.Boolean({ default: true })),
 			is_gallery_enabled: S.Optional(S.Boolean({ default: true })),
 			is_messaging_enabled: S.Optional(S.Boolean({ default: true })),
+			is_cut_off_date_enabled: S.Optional(S.Boolean({ default: false })),
+			cut_off_date: S.Optional(S.Date({ nullable: true })),
 			is_published: S.Optional(S.Boolean({ default: false }))
 		}),
 		relationships: {

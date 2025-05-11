@@ -13,7 +13,11 @@
 	import { Check } from 'lucide-svelte';
 	import { toast } from 'svelte-sonner';
 	import * as Switch from '$lib/components/ui/switch/index.js';
-	import { generateReminderMessage } from '$lib/utils';
+	import {
+		calculateLeadTimeInDays,
+		calculateLeadTimeInHours,
+		generateReminderMessage
+	} from '$lib/utils';
 
 	// Destructure individual fields from props
 	let { id, text, sendAt, targetAttendeeStatuses, sentAt, dropped, eventStartDatetime, eventName } =
@@ -72,17 +76,6 @@
 	const debouncedUpdate = debounce(async () => {
 		await updateEvent();
 	}, 800); // Debounce delay: 800ms
-
-	const calculateLeadTimeInHours = (eventStartDatetime: Date, sendAtDatetime: Date) => {
-		const eventStartDate = new Date(eventStartDatetime);
-		const sendAtDate = new Date(sendAtDatetime);
-		const diffInMs = eventStartDate.getTime() - sendAtDate.getTime();
-		return Math.abs(Math.round(diffInMs / (1000 * 60 * 60))); // Convert milliseconds to hours
-	};
-
-	const calculateLeadTimeInDays = (eventStartDatetime: Date, sendAtDatetime: Date) => {
-		return Math.round(calculateLeadTimeInHours(eventStartDatetime, sendAtDatetime) / 24);
-	};
 
 	let leadTimeInDays = $derived(calculateLeadTimeInDays(eventStartDatetime, sendAt));
 

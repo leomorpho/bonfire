@@ -81,9 +81,9 @@
 	let isBringListEnabled: boolean = $state(event?.is_bring_list_enabled ?? false);
 	let isGalleryEnabled: boolean = $state(event?.is_gallery_enabled ?? true);
 	let isMessagingEnabled: boolean = $state(event?.is_messaging_enabled ?? true);
-	let isCuttoffDateEnabled: boolean = $state(event?.is_cut_off_date_enabled ?? true);
 	let requireGuestBringItem: boolean = $state(event?.require_guest_bring_item ?? false);
-	let cuttoffDate = $state();
+	let isCuttoffDateEnabled: boolean = $state(event?.is_cut_off_date_enabled ?? true);
+	let cuttoffDate = $state(event?.cut_off_date);
 	let latitude: number | null = $state(event?.latitude);
 	let longitude: number | null = $state(event?.longitude);
 
@@ -317,6 +317,8 @@
 				is_gallery_enabled: isGalleryEnabled,
 				is_messaging_enabled: isMessagingEnabled,
 				require_guest_bring_item: requireGuestBringItem,
+				is_cut_off_date_enabled: isCuttoffDateEnabled,
+				cut_off_date: cuttoffDate,
 				// non_profit_id: userFavoriteNonProfitId || null,
 				latitude: latitude,
 				longitude: longitude
@@ -365,6 +367,8 @@
 				e.is_gallery_enabled = isGalleryEnabled;
 				e.is_messaging_enabled = isMessagingEnabled;
 				e.require_guest_bring_item = requireGuestBringItem;
+				e.is_cut_off_date_enabled = isCuttoffDateEnabled;
+				e.cut_off_date = cuttoffDate;
 				e.latitude = latitude;
 				e.longitude = longitude;
 				e.is_published = isEventPublished || publishEventNow;
@@ -558,6 +562,10 @@
 	onMount(() => {
 		loadStepFromURL();
 	});
+
+	// $effect(() => {
+	// 	console.log('timezone =============', timezone);
+	// });
 </script>
 
 <div class="mx-4 flex flex-col items-center justify-center">
@@ -764,7 +772,9 @@
 					{/if}
 
 					<TimezonePicker
-						onValueChange={(newValue: any) => (timezone = newValue)}
+						onValueChange={(newValue: any) => {
+							timezone = newValue;
+						}}
 						oninput={debouncedUpdateEvent}
 					/>
 
@@ -798,7 +808,14 @@
 
 					<ToggleGallery oninput={debouncedUpdateEvent} bind:checked={isGalleryEnabled} />
 					<ToggleMessaging oninput={debouncedUpdateEvent} bind:checked={isMessagingEnabled} />
-					<ToggleCuttoffRsvpDate oninput={debouncedUpdateEvent} bind:checked={isCuttoffDateEnabled} bind:cuttoffDate={cuttoffDate} />
+					<ToggleCuttoffRsvpDate
+						oninput={debouncedUpdateEvent}
+						bind:checked={isCuttoffDateEnabled}
+						bind:cuttoffDate
+						maxCutoffDate={dateValue}
+						eventStartDatetime={event.start_time}
+						{timezone}
+					/>
 				</form>
 				<div class="my-10 flex w-full justify-center">
 					<div
