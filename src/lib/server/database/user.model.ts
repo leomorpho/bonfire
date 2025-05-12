@@ -85,5 +85,5 @@ export const createNewUser = async (user: NewUser) => {
 		console.error(`failed to toggle notification permissions for user id ${user?.id}`, e);
 	}
 
-	return user?.id;
+	return user;
 };
