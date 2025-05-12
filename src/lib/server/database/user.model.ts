@@ -47,25 +47,42 @@ export const createNewUser = async (user: NewUser) => {
 	if (result.length === 0) {
 		return null;
 	}
-	await triplitHttpClient.insert('user', { id: user?.id, username: '' });
-	await triplitHttpClient.insert('user_personal_data', {
-		user_id: user?.id,
-		email: user.email
-	});
+	try {
+		await triplitHttpClient.insert('user', { id: user?.id, username: '' });
+	} catch (e) {
+		console.error('failed to create triplit user', e);
+	}
 
-	await triplitHttpClient.insert('user_log_tokens', {
-		user_id: user?.id,
-		num_logs: user.num_logs ?? NUM_DEFAULT_LOGS_NEW_SIGNUP
-	});
+	try {
+		await triplitHttpClient.insert('user_personal_data', {
+			user_id: user?.id,
+			email: user.email
+		});
+	} catch (e) {
+		console.error(`failed to create user_personal_data for user id ${user?.id}`, e);
+	}
 
-	// Grant revokable notification permissions
-	for (const permissionType of Object.values(NotificationPermissions)) {
-		await toggleNotificationPermission(
-			triplitHttpClient as HttpClient,
-			user?.id,
-			permissionType as keyof typeof NotificationPermissions,
-			true
-		);
+	try {
+		await triplitHttpClient.insert('user_log_tokens', {
+			user_id: user?.id,
+			num_logs: user.num_logs ?? NUM_DEFAULT_LOGS_NEW_SIGNUP
+		});
+	} catch (e) {
+		console.error(`failed to create user_log_tokens for user id ${user?.id}`, e);
+	}
+
+	try {
+		// Grant revokable notification permissions
+		for (const permissionType of Object.values(NotificationPermissions)) {
+			await toggleNotificationPermission(
+				triplitHttpClient as HttpClient,
+				user?.id,
+				permissionType as keyof typeof NotificationPermissions,
+				true
+			);
+		}
+	} catch (e) {
+		console.error(`failed to toggle notification permissions for user id ${user?.id}`, e);
 	}
 
 	return user?.id;

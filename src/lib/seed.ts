@@ -8,6 +8,11 @@ import { assignBringItem, createBringItem } from './bringlist';
 import type { HttpClient } from '@triplit/client';
 import { createNewThread, MAIN_THREAD } from './im';
 import { and } from '@triplit/client';
+import fetch from 'node-fetch';
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
+import { uploadProfileImage } from './server/filestorage';
 
 export const getRandomStatus = () => {
 	const statuses = [
@@ -21,7 +26,19 @@ export const getRandomStatus = () => {
 	return statuses[Math.floor(Math.random() * statuses.length)];
 };
 
-export const seedEvent = async () => {
+export const seedEvent = async (
+	eventId = mainDemoEventId,
+	eventCreatorEmail = 'mike@test.com',
+	eventCreatorName = 'Mike',
+	eventName = "Mike's birthay party",
+	eventDescription = 'Come celebrate my birthday with good vibes, great company, and plenty of food & drinks. Let me know if you can make it—see you there! 🥳',
+	eventLocation = '345 Cordova St, Vancouver',
+	eventStartTime = new Date(2050, 0, 1),
+	isCutoffDateEnabled = true,
+	cutoffDate = new Date(2025, 0, 1),
+	numFullAttendees = 152,
+	numTempAttendees = 56
+) => {
 	const eventPossiblyExisting = await triplitHttpClient.fetchById('events', mainDemoEventId);
 	if (eventPossiblyExisting) {
 		console.log('event already exists, not seeding again');
@@ -29,34 +46,49 @@ export const seedEvent = async () => {
 	}
 
 	const userId = generateId(15);
-	const user = await createNewUser({
+	await createNewUser({
 		id: userId,
-		email: 'mike@test.com',
+		email: eventCreatorEmail,
 		email_verified: true,
 		num_logs: 3,
 		is_event_styles_admin: true
 	});
 
-	await triplitHttpClient.insert('user', { id: userId, username: 'Mike' });
+	await triplitHttpClient.insert('user', { id: userId, username: eventCreatorName, isReal: false });
 
 	const eventCreated = await triplitHttpClient.insert('events', {
-		id: mainDemoEventId,
-		title: "Mike's birthay party",
-		description:
-			'Come celebrate my birthday with good vibes, great company, and plenty of food & drinks. Let me know if you can make it—see you there! 🥳',
-		location: '345 Cordova St, Vancouver',
-		start_time: new Date(2050, 0, 1), // January 1, 2050,
+		id: eventId,
+		title: eventName,
+		description: eventDescription,
+		location: eventLocation,
+		start_time: eventStartTime,
 		end_time: null,
 		user_id: userId,
 		style: `
-      background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/subway-lines.jpg'); /* Replace with the URL of your tileable image */
-      background-repeat: repeat; /* Tiles the image in both directions */
-      background-size: auto; /* Ensures the image retains its original size */
-      background-color: #ffffff; /* Fallback background color */
-      width: 100%;
-      height: 100%;   
+      .bg-color-selector {
+				font-family: 'Finger Paint', cursive;
+				
+  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/guglieri-speciale.jpg'); /* Replace with the URL of your tileable image */
+  background-repeat: repeat; /* Tiles the image in both directions */
+  background-size: auto; /* Ensures the image retains its original size */
+  background-color: #ffffff; /* Fallback background color */
+  width: 100%;
+  height: 100%;   
+    
+			}
+
+			.bg-overlay-selector {
+					background-color: rgba(var(--overlay-color-rgb, 0, 0, 0), 0.526);
+				}
         `,
-		overlay_opacity: 0.526
+		overlay_opacity: 0.526,
+		is_published: true,
+		is_bring_list_enabled: true,
+		is_gallery_enabled: true,
+		is_messaging_enabled: true,
+		is_cut_off_date_enabled: isCutoffDateEnabled,
+		cut_off_date: cutoffDate,
+		isReal: false
 	});
 
 	// Define plausible announcements for the birthday BBQ
@@ -93,10 +125,11 @@ export const seedEvent = async () => {
 
 	const createAttendee = async (triplitHttpClient: HttpClient, existingAnnouncements: any[]) => {
 		const name = faker.person.firstName();
-		const email = faker.internet.email();
+		const email = `${name}@gmail.com`;
 
 		const attendeeUserId = generateId(15);
-		const attendeeUser = await createNewUser({
+
+		await createNewUser({
 			id: attendeeUserId,
 			email: email,
 			email_verified: true,
@@ -104,13 +137,12 @@ export const seedEvent = async () => {
 			is_event_styles_admin: false
 		});
 
-		await triplitHttpClient.insert('user', { id: attendeeUserId, username: name });
+		await triplitHttpClient.insert('user', { id: attendeeUserId, username: name, isReal: false });
 
-		// if (attendeeData.photo) {
-		//     const path = profileImagesDir + '/' + attendeeData.photo;
-		//     // TODO: could probably check if image exists in S3 first
-		//     await uploadProfileImage(path, attendeeUser?.id as string, false);
-		// }
+		const imageUrl = faker.image.personPortrait({ size: 512 });
+		const imagePath = await downloadImage(imageUrl);
+		await uploadProfileImage(imagePath, attendeeUserId as string, false);
+		await deleteFile(imagePath);
 
 		function getBiasedRandomInt(n: number) {
 			// Generate a random number between 0 and 9
@@ -150,13 +182,9 @@ export const seedEvent = async () => {
 		console.log(`User ${name} with email ${email} created and events/announcements seeded:`);
 	};
 
-	const numAttendees = 5;
-
-	for (let i = 0; i < numAttendees; i++) {
+	for (let i = 0; i < numFullAttendees; i++) {
 		await createAttendee(triplitHttpClient, announcements);
 	}
-
-	const numTempAttendees = 2;
 
 	for (let i = 0; i < numTempAttendees; i++) {
 		await createTempAttendance(
@@ -385,12 +413,7 @@ export const seedEvent = async () => {
 	}
 
 	// Create and assign bring items for Mike's event
-	await createAndAssignBringItems(
-		triplitHttpClient,
-		eventCreated.id,
-		userId as string,
-		attendees
-	);
+	await createAndAssignBringItems(triplitHttpClient, eventCreated.id, userId as string, attendees);
 
 	const notifQueueItems = await triplitHttpClient.fetch(
 		triplitHttpClient
@@ -403,3 +426,48 @@ export const seedEvent = async () => {
 		await triplitHttpClient.delete('notifications_queue', n.id);
 	}
 };
+
+async function downloadImage(url) {
+	try {
+		// Create a temporary directory path
+		const tempDir = os.tmpdir();
+		const imageName = path.basename(url);
+		const imagePath = path.join(tempDir, imageName);
+
+		// Fetch the image
+		const response = await fetch(url);
+
+		if (!response.ok) {
+			throw new Error(`HTTP error! status: ${response.status}`);
+		}
+
+		// Create a write stream to save the image
+		const fileStream = fs.createWriteStream(imagePath);
+
+		// Pipe the response body to the file
+		await new Promise((resolve, reject) => {
+			response.body.pipe(fileStream);
+			response.body.on('error', reject);
+			fileStream.on('finish', resolve);
+		});
+
+		return imagePath;
+	} catch (error) {
+		console.error('Error downloading the image:', error);
+		throw error;
+	}
+}
+
+function deleteFile(filePath) {
+	return new Promise((resolve, reject) => {
+		fs.unlink(filePath, (err) => {
+			if (err) {
+				console.error('Error deleting the file:', err);
+				reject(err);
+			} else {
+				console.log('File deleted successfully');
+				resolve();
+			}
+		});
+	});
+}

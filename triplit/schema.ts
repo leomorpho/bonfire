@@ -38,7 +38,8 @@ export const schema = S.Collections({
 			favourite_non_profit_id: S.Optional(S.String()), // Non-profit the user currently contributes to by default
 			created_at: S.Optional(S.Date({ default: S.Default.now() })),
 			updated_at: S.Optional(S.Date({ default: null, nullable: true })),
-			deleted_at: S.Optional(S.Date({ default: null, nullable: true }))
+			deleted_at: S.Optional(S.Date({ default: null, nullable: true })),
+			isReal: S.Optional(S.Boolean({ default: true }))
 		}),
 		relationships: {
 			profile_image: S.RelationOne('profile_images', {
@@ -61,6 +62,9 @@ export const schema = S.Collections({
 				where: [['user_id', '=', '$id']]
 			}),
 			notification_permissions: S.RelationMany('notification_permissions', {
+				where: [['user_id', '=', '$id']]
+			}),
+			user_personal_data: S.RelationOne('user_personal_data', {
 				where: [['user_id', '=', '$id']]
 			})
 		},
@@ -231,7 +235,8 @@ export const schema = S.Collections({
 			is_messaging_enabled: S.Optional(S.Boolean({ default: true })),
 			is_cut_off_date_enabled: S.Optional(S.Boolean({ default: false })),
 			cut_off_date: S.Optional(S.Date({ nullable: true })),
-			is_published: S.Optional(S.Boolean({ default: false }))
+			is_published: S.Optional(S.Boolean({ default: false })),
+			isReal: S.Optional(S.Boolean({ default: true }))
 		}),
 		relationships: {
 			user: S.RelationById('user', '$user_id'),
