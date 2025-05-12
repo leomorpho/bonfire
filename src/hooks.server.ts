@@ -7,6 +7,7 @@ import { dev } from '$app/environment';
 import { env as publicEnv } from '$env/dynamic/public';
 import type { ServerInit } from '@sveltejs/kit';
 import { tusHandler } from '$lib/server/tus';
+import { seedEvent } from '$lib/seed';
 // import { initializeDatabaseSchemas } from '$lib/server/migrations';
 
 export const init: ServerInit = async () => {
@@ -75,6 +76,8 @@ export const handle: Handle = sequence(
 	authHandler, // ✅ Ensure authentication & session management
 	tusHandler // ✅ Handle TUS uploads before SvelteKit
 );
+
+await seedEvent();
 
 // Start the scheduler when the server starts
 taskRunner();

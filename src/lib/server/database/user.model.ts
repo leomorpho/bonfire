@@ -47,14 +47,14 @@ export const createNewUser = async (user: NewUser) => {
 	if (result.length === 0) {
 		return null;
 	}
-	await triplitHttpClient.insert('user', { id: result[0].id, username: '' });
+	await triplitHttpClient.insert('user', { id: user?.id, username: '' });
 	await triplitHttpClient.insert('user_personal_data', {
-		user_id: result[0].id,
+		user_id: user?.id,
 		email: user.email
 	});
 
 	await triplitHttpClient.insert('user_log_tokens', {
-		user_id: result[0].id,
+		user_id: user?.id,
 		num_logs: user.num_logs ?? NUM_DEFAULT_LOGS_NEW_SIGNUP
 	});
 
@@ -62,11 +62,11 @@ export const createNewUser = async (user: NewUser) => {
 	for (const permissionType of Object.values(NotificationPermissions)) {
 		await toggleNotificationPermission(
 			triplitHttpClient as HttpClient,
-			result[0].id,
+			user?.id,
 			permissionType as keyof typeof NotificationPermissions,
 			true
 		);
 	}
 
-	return result[0];
+	return user?.id;
 };

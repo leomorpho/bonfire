@@ -14,6 +14,7 @@ import { uploadBannerImage, uploadProfileImage } from '$lib/server/filestorage';
 import { assignBringItem, createBringItem } from '$lib/bringlist';
 import { createTempAttendance, createUserAttendance } from '$lib/rsvp';
 import { triplitHttpClient } from '$lib/server/triplit';
+import { getRandomStatus } from '$lib/seed';
 
 const numAttendeesToGenerate = 300;
 const profileImagesDir = 'src/scripts/data/profile-pics';
@@ -89,18 +90,6 @@ await client.insert('events', {
 	overlay_opacity: null,
 	is_published: true
 });
-
-function getRandomStatus() {
-	const statuses = [
-		Status.GOING,
-		Status.GOING,
-		Status.GOING,
-		Status.GOING, // 4 out of 5 chances for GOING
-		Status.NOT_GOING,
-		Status.MAYBE
-	];
-	return statuses[Math.floor(Math.random() * statuses.length)];
-}
 
 // Define plausible announcements for the birthday BBQ
 const announcementContents = [
