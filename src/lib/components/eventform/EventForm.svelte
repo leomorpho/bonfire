@@ -813,7 +813,7 @@
 						bind:checked={isCuttoffDateEnabled}
 						bind:cuttoffDate
 						maxCutoffDate={dateValue}
-						eventStartDatetime={event.start_time}
+						eventStartDatetime={event?.start_time ?? null}
 						{timezone}
 					/>
 				</form>
