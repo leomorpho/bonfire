@@ -43,7 +43,8 @@ export const getRandomStatus = () => {
 	return statuses[Math.floor(Math.random() * statuses.length)];
 };
 
-let allFiles;
+let allMenPics;
+let allWomenPics;
 
 // Global set to store used image keys
 const usedImageKeys = new Set();
@@ -58,16 +59,16 @@ export const seedEvent = async (
 	eventStartTime = new Date(2050, 0, 1),
 	isCutoffDateEnabled = true,
 	cutoffDate = new Date(2025, 0, 1),
-	numFullAttendees = 8,
-	numTempAttendees = 1
+	numFullAttendees = 268,
+	numTempAttendees = 35
 ) => {
-	// const eventPossiblyExisting = await triplitHttpClient.fetchById('events', mainDemoEventId);
-	// if (eventPossiblyExisting) {
-	// 	console.log('event already exists, not seeding again');
-	// 	return;
-	// }
+	const eventPossiblyExisting = await triplitHttpClient.fetchById('events', mainDemoEventId);
+	if (eventPossiblyExisting) {
+		console.log('event already exists, not seeding again');
+		return;
+	}
 
-	const userId = generateIdFromEmail(eventCreatorEmail);
+	const userId = generateIdFromString(eventCreatorEmail);
 	await createNewUser({
 		id: userId,
 		email: eventCreatorEmail,
@@ -147,32 +148,44 @@ export const seedEvent = async (
 
 	const createAttendee = async (triplitHttpClient: HttpClient, existingAnnouncements: any[]) => {
 		const gender = Math.random() < 0.5 ? 'men' : 'women';
-		const prefix = `profile-photos-seeder/${gender}/`;
 
-		// List objects in the selected gender directory
-		const listCommand = new ListObjectsV2Command({
-			Bucket: privateEnv.S3_BUCKET_NAME,
-			Prefix: prefix
-		});
+		if (!allMenPics) {
+			// return;
+			const prefix = `profile-photos-seeder/men/`;
 
-		if (!allFiles) {
+			// List objects in the selected gender directory
+			const listCommand = new ListObjectsV2Command({
+				Bucket: privateEnv.S3_BUCKET_NAME,
+				Prefix: prefix
+			});
+
 			const { Contents } = await s3.send(listCommand);
-			allFiles = Contents;
+
+			allMenPics = Contents;
 		}
 
-		if (!allFiles || allFiles.length === 0) {
-			throw new Error(`No images found in ${prefix}`);
+		if (!allWomenPics) {
+			// return;
+			const prefix = `profile-photos-seeder/women/`;
+
+			// List objects in the selected gender directory
+			const listCommand = new ListObjectsV2Command({
+				Bucket: privateEnv.S3_BUCKET_NAME,
+				Prefix: prefix
+			});
+
+			const { Contents } = await s3.send(listCommand);
+
+			allWomenPics = Contents;
 		}
 
-		if (!allFiles || allFiles.length === 0) {
-			throw new Error(`No images found in ${prefix}`);
-		}
+		const currentFileTypes = gender == 'men' ? allMenPics : allWomenPics;
 
 		// Filter out already used images
-		const availableFiles = allFiles.filter((file) => !usedImageKeys.has(file.Key));
+		const availableFiles = currentFileTypes.filter((file) => !usedImageKeys.has(file.Key));
 
 		if (availableFiles.length === 0) {
-			throw new Error(`No unused images found in ${prefix}`);
+			throw new Error(`No unused images found`);
 		}
 
 		// Randomly select an image from the available files
@@ -188,7 +201,7 @@ export const seedEvent = async (
 		const name = imageName;
 		const email = `${name}@gmail.com`;
 
-		const attendeeUserId = generateIdFromEmail(email);
+		const attendeeUserId = generateIdFromString(email);
 
 		await createNewUser({
 			id: attendeeUserId,
@@ -218,12 +231,18 @@ export const seedEvent = async (
 		}
 
 		console.log('attendeeUser.id', attendeeUserId, 'eventCreated.id', eventCreated.id);
+		const status = getRandomStatus();
+
+		let numGuests = 0;
+		if (status == Status.GOING) {
+			numGuests = getBiasedRandomInt(4);
+		}
 		await createUserAttendance(
 			triplitHttpClient,
 			attendeeUserId as string,
 			eventCreated.id,
-			getRandomStatus(),
-			getBiasedRandomInt(4)
+			status,
+			numGuests
 		);
 
 		// Randomly mark some users as having seen the announcements
@@ -239,7 +258,7 @@ export const seedEvent = async (
 			}
 		});
 
-		console.log(`User ${name} with email ${email} created and events/announcements seeded:`);
+		console.log(`User ${name} with email ${email} created`);
 	};
 
 	for (let i = 0; i < numFullAttendees; i++) {
@@ -532,14 +551,14 @@ async function downloadImageFromS3(bucketName, imageKey, dirPath) {
 	}
 }
 
-function generateIdFromEmail(email) {
+function generateIdFromString(text:string) {
 	// Create a SHA-256 hash of the email
 	const hash = crypto.createHash('sha256');
-	hash.update(email);
-	const hashedEmail = hash.digest('hex');
+	hash.update(text);
+	const hashedText = hash.digest('hex');
 
 	// Optionally, you can truncate the hash to a desired length
-	const truncatedHash = hashedEmail.substring(0, 15);
+	const truncatedHash = hashedText.substring(0, 15);
 
 	return truncatedHash;
 }
