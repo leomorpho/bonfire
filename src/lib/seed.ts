@@ -8,11 +8,27 @@ import { assignBringItem, createBringItem } from './bringlist';
 import type { HttpClient } from '@triplit/client';
 import { createNewThread, MAIN_THREAD } from './im';
 import { and } from '@triplit/client';
-import fetch from 'node-fetch';
-import fs from 'fs';
+import { deleteFile, uploadProfileImage } from './server/filestorage';
+import { ListObjectsV2Command, S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
+import { env as privateEnv } from '$env/dynamic/private';
 import path from 'path';
+import fs from 'fs';
 import os from 'os';
-import { uploadProfileImage } from './server/filestorage';
+
+const s3Region = privateEnv.S3_REGION;
+const s3Endpoint = privateEnv.S3_ENDPOINT;
+const s3AccessKey = privateEnv.S3_ACCESS_KEY_ID;
+const s3SecretKey = privateEnv.S3_SECRET_ACCESS_KEY;
+
+// Create an S3 client
+export const s3 = new S3Client({
+	region: s3Region, // Your Backblaze region
+	endpoint: s3Endpoint,
+	credentials: {
+		accessKeyId: s3AccessKey,
+		secretAccessKey: s3SecretKey
+	}
+});
 
 export const getRandomStatus = () => {
 	const statuses = [
@@ -26,6 +42,8 @@ export const getRandomStatus = () => {
 	return statuses[Math.floor(Math.random() * statuses.length)];
 };
 
+let allFiles;
+
 export const seedEvent = async (
 	eventId = mainDemoEventId,
 	eventCreatorEmail = 'mike@test.com',
@@ -36,8 +54,8 @@ export const seedEvent = async (
 	eventStartTime = new Date(2050, 0, 1),
 	isCutoffDateEnabled = true,
 	cutoffDate = new Date(2025, 0, 1),
-	numFullAttendees = 152,
-	numTempAttendees = 56
+	numFullAttendees = 3,
+	numTempAttendees = 2
 ) => {
 	const eventPossiblyExisting = await triplitHttpClient.fetchById('events', mainDemoEventId);
 	if (eventPossiblyExisting) {
@@ -124,7 +142,35 @@ export const seedEvent = async (
 	}
 
 	const createAttendee = async (triplitHttpClient: HttpClient, existingAnnouncements: any[]) => {
-		const name = faker.person.firstName();
+		const gender = Math.random() < 0.5 ? 'men' : 'women';
+		const prefix = `profile-photos-seeder/${gender}/`;
+
+		// List objects in the selected gender directory
+		const listCommand = new ListObjectsV2Command({
+			Bucket: privateEnv.S3_BUCKET_NAME,
+			Prefix: prefix
+		});
+
+		if (!allFiles) {
+			const { Contents } = await s3.send(listCommand);
+			allFiles = Contents;
+		}
+
+		if (!allFiles || allFiles.length === 0) {
+			throw new Error(`No images found in ${prefix}`);
+		}
+
+		// Randomly select an image
+		const randomImage = allFiles[Math.floor(Math.random() * allFiles.length)];
+
+		const imageKey = randomImage.Key;
+		if (!imageKey) {
+			throw new Error('imageKey is not set', imageKey);
+		}
+
+		const imageName = path.basename(imageKey, path.extname(imageKey));
+
+		const name = imageName;
 		const email = `${name}@gmail.com`;
 
 		const attendeeUserId = generateId(15);
@@ -139,8 +185,11 @@ export const seedEvent = async (
 
 		await triplitHttpClient.insert('user', { id: attendeeUserId, username: name, isReal: false });
 
-		const imageUrl = faker.image.personPortrait({ size: 512 });
-		const imagePath = await downloadImage(imageUrl);
+		const imagePath = await downloadImageFromS3(
+			privateEnv.S3_BUCKET_NAME,
+			imageKey,
+			os.tmpdir()
+		);
 		await uploadProfileImage(imagePath, attendeeUserId as string, false);
 		await deleteFile(imagePath);
 
@@ -427,47 +476,47 @@ export const seedEvent = async (
 	}
 };
 
-async function downloadImage(url) {
+async function downloadImageFromS3(bucketName, imageKey, dirPath) {
 	try {
-		// Create a temporary directory path
-		const tempDir = os.tmpdir();
-		const imageName = path.basename(url);
-		const imagePath = path.join(tempDir, imageName);
+		const getObjectCommand = new GetObjectCommand({
+			Bucket: bucketName,
+			Key: imageKey
+		});
 
-		// Fetch the image
-		const response = await fetch(url);
+		const response = await s3.send(getObjectCommand);
 
-		if (!response.ok) {
-			throw new Error(`HTTP error! status: ${response.status}`);
+		// Ensure the directory exists
+		if (!fs.existsSync(dirPath)) {
+			fs.mkdirSync(dirPath, { recursive: true });
 		}
 
-		// Create a write stream to save the image
-		const fileStream = fs.createWriteStream(imagePath);
+		// Extract the original file name from the S3 object key
+		const originalFileName = path.basename(imageKey);
+		const downloadPath = path.join(dirPath, originalFileName);
 
-		// Pipe the response body to the file
+		// Ensure the downloadPath is treated as a file path
+		if (path.extname(downloadPath) === '') {
+			throw new Error('The constructed download path does not have a file extension.');
+		}
+
+		// Save the image to a file
+		const fileStream = fs.createWriteStream(downloadPath);
 		await new Promise((resolve, reject) => {
-			response.body.pipe(fileStream);
-			response.body.on('error', reject);
-			fileStream.on('finish', resolve);
-		});
-
-		return imagePath;
-	} catch (error) {
-		console.error('Error downloading the image:', error);
-		throw error;
-	}
-}
-
-function deleteFile(filePath) {
-	return new Promise((resolve, reject) => {
-		fs.unlink(filePath, (err) => {
-			if (err) {
-				console.error('Error deleting the file:', err);
-				reject(err);
-			} else {
-				console.log('File deleted successfully');
+			response.Body.pipe(fileStream);
+			response.Body.on('error', (error) => {
+				console.error('Stream error:', error);
+				reject(error);
+			});
+			fileStream.on('finish', () => {
+				console.log(`Image downloaded successfully to ${downloadPath}`);
 				resolve();
-			}
+			});
 		});
-	});
+
+		// Return the download path
+		return downloadPath;
+	} catch (error) {
+		console.error('Error downloading image from S3:', error);
+		throw error; // Re-throw the error to handle it further up the chain if needed
+	}
 }

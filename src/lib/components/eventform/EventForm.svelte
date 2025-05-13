@@ -547,7 +547,7 @@
 	function updateURL(tabName: string): void {
 		const url = new URL(window.location.href);
 		url.searchParams.set('tab', tabName);
-		window.history.pushState({}, '', url);
+		// window.history.pushState({}, '', url);
 		activeTab = tabName;
 	}
 
@@ -562,10 +562,6 @@
 	onMount(() => {
 		loadStepFromURL();
 	});
-
-	// $effect(() => {
-	// 	console.log('timezone =============', timezone);
-	// });
 </script>
 
 <div class="mx-4 flex flex-col items-center justify-center">
