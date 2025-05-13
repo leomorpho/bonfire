@@ -3,15 +3,12 @@
 	import FlowEffectContainer from '$lib/components/eventform/flow/FlowEffectContainer.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { StepBack } from 'lucide-svelte';
-	import { Input } from '$lib/components/ui/input/index.js';
-	import Datepicker from '$lib/components/Datepicker.svelte';
 	import { onMount } from 'svelte';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import LikertScaleButton from '$lib/components/LikertScaleButton.svelte';
 	import { Progress } from '$lib/components/ui/progress/index.js';
 	import AddressInput from '$lib/components/input/location/AddressInput.svelte';
-	import { CalendarDate, getLocalTimeZone, today, type DateValue } from '@internationalized/date';
-	import { NLPDateInput } from '$lib/jsrepo/ui/nlp-date-input';
+	import { getLocalTimeZone, today } from '@internationalized/date';
 
 	let previousSteps: QuestionnaireStep[] = $state([]);
 	let currentStep: QuestionnaireStep = $state(QuestionnaireStep.Gender);
@@ -31,6 +28,7 @@
 			}
 		} else {
 			currentStep = currentStep - 1;
+			updateURL();
 		}
 	};
 
@@ -100,6 +98,16 @@
 		}
 	});
 
+	function formatListWithCommas(items: string[]): string {
+		if (items.length === 0) {
+			return '';
+		} else if (items.length === 1) {
+			return items[0];
+		} else {
+			return items.join(', ');
+		}
+	}
+
 	// Calculate total number of steps
 	const totalSteps = Object.keys(QuestionnaireStep).length / 2;
 	let progressValue = $derived((currentStep / totalSteps) * 100);
@@ -135,6 +143,7 @@
 				</Select.Root>
 				<div class="flex w-full justify-center space-x-4">
 					<Button
+						disabled={!formData.demographicInformation.gender}
 						onclick={() => nextStep(QuestionnaireStep.Location)}
 						class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600">Next</Button
 					>
@@ -156,6 +165,7 @@
 				<div class="flex w-full justify-center space-x-4">
 					{@render prevBtn()}
 					<Button
+						disabled={!formData.demographicInformation.location}
 						onclick={() => nextStep(QuestionnaireStep.HighestLevelOfEducation)}
 						class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600">Next</Button
 					>
@@ -188,6 +198,7 @@
 				<div class="flex w-full justify-center space-x-4">
 					{@render prevBtn()}
 					<Button
+						disabled={!formData.demographicInformation.highestLevelOfEducation}
 						onclick={() => nextStep(QuestionnaireStep.Industry)}
 						class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600">Next</Button
 					>
@@ -234,6 +245,7 @@
 				<div class="flex w-full justify-center space-x-4">
 					{@render prevBtn()}
 					<Button
+						disabled={!formData.demographicInformation.industry}
 						onclick={() => nextStep(QuestionnaireStep.Birthday)}
 						class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600">Next</Button
 					>
@@ -262,6 +274,7 @@
 				<div class="flex w-full justify-center space-x-4">
 					{@render prevBtn()}
 					<Button
+						disabled={!formData.demographicInformation.birthdayYear}
 						onclick={() => nextStep(QuestionnaireStep.RelationshipStatus)}
 						class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600">Next</Button
 					>
@@ -294,6 +307,7 @@
 				<div class="flex w-full justify-center space-x-4">
 					{@render prevBtn()}
 					<Button
+						disabled={!formData.demographicInformation.relationshipStatus}
 						onclick={() => nextStep(QuestionnaireStep.HasChildren)}
 						class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600">Next</Button
 					>
@@ -331,16 +345,16 @@
 					name="relationshipStatus"
 					bind:value={formData.preferencesAndInterests.primaryReasonForUsingApp}
 				>
-					<Select.Trigger class="mb-4 w-full bg-white dark:bg-slate-900">
-						{formData.preferencesAndInterests.primaryReasonForUsingApp ||
-							'Select Relationship Status'}
-					</Select.Trigger>
+					<Select.Trigger class="mb-4 w-full bg-white dark:bg-slate-900 min-h-[40px] h-auto whitespace-normal">
+    {formatListWithCommas(formData.preferencesAndInterests.primaryReasonForUsingApp) ||
+      'Select Relationship Status'}
+  </Select.Trigger>
 					<Select.Content>
 						<Select.Group>
 							<Select.GroupHeading>Primary Reason</Select.GroupHeading>
 							<Select.Item value="Dating">Dating</Select.Item>
 							<Select.Item value="Making Friends">Making Friends</Select.Item>
-							<Select.Item value="Professional Networking">Professional Networking</Select.Item>
+							<Select.Item value="Professional Networking">Networking</Select.Item>
 							<Select.Item value="Other">Other</Select.Item>
 						</Select.Group>
 					</Select.Content>
@@ -349,6 +363,7 @@
 				<div class="flex w-full justify-center space-x-4">
 					{@render prevBtn()}
 					<Button
+						disabled={!formData.preferencesAndInterests.primaryReasonForUsingApp}
 						onclick={() => nextStep(QuestionnaireStep.IntroversionLevel)}
 						class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600">Next</Button
 					>
@@ -363,6 +378,7 @@
 				<div class="flex w-full justify-center space-x-4">
 					{@render prevBtn()}
 					<Button
+						disabled={!formData.personalityTraits.introversionLevel}
 						onclick={() => nextStep(QuestionnaireStep.CreativityLevel)}
 						class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600">Next</Button
 					>
@@ -377,6 +393,7 @@
 				<div class="flex w-full justify-center space-x-4">
 					{@render prevBtn()}
 					<Button
+						disabled={!formData.personalityTraits.creativityLevel}
 						onclick={() => nextStep(QuestionnaireStep.ImportanceOfEducation)}
 						class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600">Next</Button
 					>
@@ -391,6 +408,7 @@
 				<div class="flex w-full justify-center space-x-4">
 					{@render prevBtn()}
 					<Button
+						disabled={!formData.personalityTraits.importanceOfEducation}
 						onclick={() => nextStep(QuestionnaireStep.AdventurousLevel)}
 						class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600">Next</Button
 					>
@@ -405,6 +423,7 @@
 				<div class="flex w-full justify-center space-x-4">
 					{@render prevBtn()}
 					<Button
+						disabled={!formData.personalityTraits.adventurousLevel}
 						onclick={() => nextStep(QuestionnaireStep.ReceiveNotifications)}
 						class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600">Next</Button
 					>
@@ -469,7 +488,10 @@
 					<Select.Content>
 						<Select.Group>
 							<Select.GroupHeading>How Did You Hear About Us</Select.GroupHeading>
-							<Select.Item value="Social Media">Social Media</Select.Item>
+							<Select.Item value="Social Media">Social Media - Facebook</Select.Item>
+							<Select.Item value="Social Media">Social Media - TikTok</Select.Item>
+							<Select.Item value="Social Media">Social Media - Instagram</Select.Item>
+							<Select.Item value="Social Media">Social Media - Other</Select.Item>
 							<Select.Item value="Friend">Friend</Select.Item>
 							<Select.Item value="Online Ad">Online Ad</Select.Item>
 							<Select.Item value="Other">Other</Select.Item>
