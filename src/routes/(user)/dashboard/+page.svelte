@@ -139,6 +139,9 @@
 
 <div class="mx-4 mb-48 flex flex-col items-center justify-center sm:mb-20">
 	<section class="mt-8 w-full sm:w-2/3 md:w-[700px]">
+		<div class="w-full flex justify-center my-4">
+		<Button href="/meet/questionnaire">Join Bonfire Meet! Curated events in your local area</Button>
+		</div>
 		<!-- <PermissionsPausedMsg {userId} /> -->
 		<Tabs.Root value={activeTab} class="w-full">
 			<div class="flex w-full justify-center">

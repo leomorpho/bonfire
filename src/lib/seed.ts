@@ -8,11 +8,28 @@ import { assignBringItem, createBringItem } from './bringlist';
 import type { HttpClient } from '@triplit/client';
 import { createNewThread, MAIN_THREAD } from './im';
 import { and } from '@triplit/client';
-import fetch from 'node-fetch';
-import fs from 'fs';
+import { deleteFile, uploadProfileImage } from './server/filestorage';
+import { ListObjectsV2Command, S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
+import { env as privateEnv } from '$env/dynamic/private';
 import path from 'path';
+import fs from 'fs';
 import os from 'os';
-import { uploadProfileImage } from './server/filestorage';
+import crypto from 'crypto';
+
+const s3Region = privateEnv.S3_REGION;
+const s3Endpoint = privateEnv.S3_ENDPOINT;
+const s3AccessKey = privateEnv.S3_ACCESS_KEY_ID;
+const s3SecretKey = privateEnv.S3_SECRET_ACCESS_KEY;
+
+// Create an S3 client
+export const s3 = new S3Client({
+	region: s3Region, // Your Backblaze region
+	endpoint: s3Endpoint,
+	credentials: {
+		accessKeyId: s3AccessKey,
+		secretAccessKey: s3SecretKey
+	}
+});
 
 export const getRandomStatus = () => {
 	const statuses = [
@@ -26,6 +43,12 @@ export const getRandomStatus = () => {
 	return statuses[Math.floor(Math.random() * statuses.length)];
 };
 
+let allMenPics;
+let allWomenPics;
+
+// Global set to store used image keys
+const usedImageKeys = new Set();
+
 export const seedEvent = async (
 	eventId = mainDemoEventId,
 	eventCreatorEmail = 'mike@test.com',
@@ -36,8 +59,8 @@ export const seedEvent = async (
 	eventStartTime = new Date(2050, 0, 1),
 	isCutoffDateEnabled = true,
 	cutoffDate = new Date(2025, 0, 1),
-	numFullAttendees = 152,
-	numTempAttendees = 56
+	numFullAttendees = 268,
+	numTempAttendees = 35
 ) => {
 	const eventPossiblyExisting = await triplitHttpClient.fetchById('events', mainDemoEventId);
 	if (eventPossiblyExisting) {
@@ -45,7 +68,7 @@ export const seedEvent = async (
 		return;
 	}
 
-	const userId = generateId(15);
+	const userId = generateIdFromString(eventCreatorEmail);
 	await createNewUser({
 		id: userId,
 		email: eventCreatorEmail,
@@ -124,10 +147,61 @@ export const seedEvent = async (
 	}
 
 	const createAttendee = async (triplitHttpClient: HttpClient, existingAnnouncements: any[]) => {
-		const name = faker.person.firstName();
+		const gender = Math.random() < 0.5 ? 'men' : 'women';
+
+		if (!allMenPics) {
+			// return;
+			const prefix = `profile-photos-seeder/men/`;
+
+			// List objects in the selected gender directory
+			const listCommand = new ListObjectsV2Command({
+				Bucket: privateEnv.S3_BUCKET_NAME,
+				Prefix: prefix
+			});
+
+			const { Contents } = await s3.send(listCommand);
+
+			allMenPics = Contents;
+		}
+
+		if (!allWomenPics) {
+			// return;
+			const prefix = `profile-photos-seeder/women/`;
+
+			// List objects in the selected gender directory
+			const listCommand = new ListObjectsV2Command({
+				Bucket: privateEnv.S3_BUCKET_NAME,
+				Prefix: prefix
+			});
+
+			const { Contents } = await s3.send(listCommand);
+
+			allWomenPics = Contents;
+		}
+
+		const currentFileTypes = gender == 'men' ? allMenPics : allWomenPics;
+
+		// Filter out already used images
+		const availableFiles = currentFileTypes.filter((file) => !usedImageKeys.has(file.Key));
+
+		if (availableFiles.length === 0) {
+			throw new Error(`No unused images found`);
+		}
+
+		// Randomly select an image from the available files
+		const randomImage = availableFiles[Math.floor(Math.random() * availableFiles.length)];
+
+		const imageKey = randomImage.Key;
+		if (!imageKey) {
+			throw new Error('imageKey is not set', imageKey);
+		}
+
+		const imageName = path.basename(imageKey, path.extname(imageKey));
+
+		const name = imageName;
 		const email = `${name}@gmail.com`;
 
-		const attendeeUserId = generateId(15);
+		const attendeeUserId = generateIdFromString(email);
 
 		await createNewUser({
 			id: attendeeUserId,
@@ -139,8 +213,7 @@ export const seedEvent = async (
 
 		await triplitHttpClient.insert('user', { id: attendeeUserId, username: name, isReal: false });
 
-		const imageUrl = faker.image.personPortrait({ size: 512 });
-		const imagePath = await downloadImage(imageUrl);
+		const imagePath = await downloadImageFromS3(privateEnv.S3_BUCKET_NAME, imageKey, os.tmpdir());
 		await uploadProfileImage(imagePath, attendeeUserId as string, false);
 		await deleteFile(imagePath);
 
@@ -158,12 +231,18 @@ export const seedEvent = async (
 		}
 
 		console.log('attendeeUser.id', attendeeUserId, 'eventCreated.id', eventCreated.id);
+		const status = getRandomStatus();
+
+		let numGuests = 0;
+		if (status == Status.GOING) {
+			numGuests = getBiasedRandomInt(4);
+		}
 		await createUserAttendance(
 			triplitHttpClient,
 			attendeeUserId as string,
 			eventCreated.id,
-			getRandomStatus(),
-			getBiasedRandomInt(4)
+			status,
+			numGuests
 		);
 
 		// Randomly mark some users as having seen the announcements
@@ -179,7 +258,7 @@ export const seedEvent = async (
 			}
 		});
 
-		console.log(`User ${name} with email ${email} created and events/announcements seeded:`);
+		console.log(`User ${name} with email ${email} created`);
 	};
 
 	for (let i = 0; i < numFullAttendees; i++) {
@@ -427,47 +506,59 @@ export const seedEvent = async (
 	}
 };
 
-async function downloadImage(url) {
+async function downloadImageFromS3(bucketName, imageKey, dirPath) {
 	try {
-		// Create a temporary directory path
-		const tempDir = os.tmpdir();
-		const imageName = path.basename(url);
-		const imagePath = path.join(tempDir, imageName);
-
-		// Fetch the image
-		const response = await fetch(url);
-
-		if (!response.ok) {
-			throw new Error(`HTTP error! status: ${response.status}`);
-		}
-
-		// Create a write stream to save the image
-		const fileStream = fs.createWriteStream(imagePath);
-
-		// Pipe the response body to the file
-		await new Promise((resolve, reject) => {
-			response.body.pipe(fileStream);
-			response.body.on('error', reject);
-			fileStream.on('finish', resolve);
+		const getObjectCommand = new GetObjectCommand({
+			Bucket: bucketName,
+			Key: imageKey
 		});
 
-		return imagePath;
+		const response = await s3.send(getObjectCommand);
+
+		// Ensure the directory exists
+		if (!fs.existsSync(dirPath)) {
+			fs.mkdirSync(dirPath, { recursive: true });
+		}
+
+		// Extract the original file name from the S3 object key
+		const originalFileName = path.basename(imageKey);
+		const downloadPath = path.join(dirPath, originalFileName);
+
+		// Ensure the downloadPath is treated as a file path
+		if (path.extname(downloadPath) === '') {
+			throw new Error('The constructed download path does not have a file extension.');
+		}
+
+		// Save the image to a file
+		const fileStream = fs.createWriteStream(downloadPath);
+		await new Promise((resolve, reject) => {
+			response.Body.pipe(fileStream);
+			response.Body.on('error', (error) => {
+				console.error('Stream error:', error);
+				reject(error);
+			});
+			fileStream.on('finish', () => {
+				console.log(`Image downloaded successfully to ${downloadPath}`);
+				resolve();
+			});
+		});
+
+		// Return the download path
+		return downloadPath;
 	} catch (error) {
-		console.error('Error downloading the image:', error);
-		throw error;
+		console.error('Error downloading image from S3:', error);
+		throw error; // Re-throw the error to handle it further up the chain if needed
 	}
 }
 
-function deleteFile(filePath) {
-	return new Promise((resolve, reject) => {
-		fs.unlink(filePath, (err) => {
-			if (err) {
-				console.error('Error deleting the file:', err);
-				reject(err);
-			} else {
-				console.log('File deleted successfully');
-				resolve();
-			}
-		});
-	});
+function generateIdFromString(text:string) {
+	// Create a SHA-256 hash of the email
+	const hash = crypto.createHash('sha256');
+	hash.update(text);
+	const hashedText = hash.digest('hex');
+
+	// Optionally, you can truncate the hash to a desired length
+	const truncatedHash = hashedText.substring(0, 15);
+
+	return truncatedHash;
 }

@@ -20,12 +20,15 @@ import ffmpegInstaller from '@ffmpeg-installer/ffmpeg';
 import ffmpeg from 'fluent-ffmpeg';
 import { encode } from 'blurhash';
 import fs from 'fs/promises';
+import fsModule from 'fs';
 import path from 'path';
 import { getPixels } from '@unpic/pixels';
 import { BannerMediaSize } from '../enums';
 import { createReadStream } from 'fs';
 import { createNewFileNotificationQueueObject } from '../notification_queue';
 import { generateId } from 'lucia';
+import fetch from 'node-fetch';
+import os from 'os';
 
 ffmpeg.setFfmpegPath(ffmpegInstaller.path);
 
@@ -45,7 +48,7 @@ if (!s3Region || !s3Endpoint || !s3AccessKey || !s3SecretKey) {
 }
 
 // Create an S3 client
-const s3 = new S3Client({
+export const s3 = new S3Client({
 	region: s3Region, // Your Backblaze region
 	endpoint: s3Endpoint,
 	credentials: {
@@ -455,10 +458,14 @@ export async function uploadBannerImage(
 	return { largeImageKey, smallImageKey };
 }
 
-export async function generateSignedUrl(key: string, expiresIn = 3600 * 24) {
+export async function generateSignedUrl(
+	key: string,
+	expiresIn = 3600 * 24,
+	bucket = bucketName
+) {
 	try {
 		const command = new GetObjectCommand({
-			Bucket: bucketName,
+			Bucket: bucket,
 			Key: key
 		});
 
@@ -903,5 +910,113 @@ async function fileExistsInS3(bucketName: string, key: string): Promise<boolean>
 			return false; // File does not exist
 		}
 		throw error; // Rethrow other errors
+	}
+}
+
+export async function downloadImage(
+	url: string,
+	tempDir = os.tmpdir(),
+	filename: null | string = null
+) {
+	try {
+		// Create a temporary directory path
+		const imageName = path.basename(url);
+		const imagePath = path.join(tempDir, filename ? filename : imageName);
+
+		// Fetch the image
+		const response = await fetch(url);
+
+		if (!response.ok) {
+			throw new Error(`HTTP error! status: ${response.status}`);
+		}
+
+		// Create a write stream to save the image
+		const fileStream = fsModule.createWriteStream(imagePath);
+
+		// Pipe the response body to the file
+		await new Promise((resolve, reject) => {
+			response.body.pipe(fileStream);
+			response.body.on('error', reject);
+			fileStream.on('finish', resolve);
+		});
+
+		return imagePath;
+	} catch (error) {
+		console.error('Error downloading the image:', error);
+		throw error;
+	}
+}
+export function deleteFile(filePath: string) {
+	return new Promise((resolve, reject) => {
+		fsModule.unlink(filePath, (err) => {
+			if (err) {
+				console.error('Error deleting the file:', err);
+				reject(err);
+			} else {
+				console.log('File deleted successfully');
+				resolve();
+			}
+		});
+	});
+}
+
+/**
+ * Copies each file in a directory to a specific directory in an S3 bucket one at a time,
+ * uploading only if the file does not already exist in the S3 bucket.
+ * @param {string} localDirPath - The local directory path to copy files from.
+ * @param {string} s3DirPath - The target S3 directory path.
+ */
+export async function copyFilesToS3OneByOne(localDirPath: string, s3DirPath: string) {
+	try {
+		// Read all files in the local directory
+		const files = fsModule.readdirSync(localDirPath);
+
+		for (const file of files) {
+			const localFilePath = path.join(localDirPath, file);
+			const stat = fsModule.statSync(localFilePath);
+
+			if (stat.isDirectory()) {
+				// If it's a directory, recursively copy files from the subdirectory
+				await copyFilesToS3OneByOne(localFilePath, `${s3DirPath}/${file}`);
+			} else {
+				// Construct the S3 key
+				const s3Key = `${s3DirPath}/${file}`;
+
+				// Check if the file already exists in S3
+				try {
+					await s3.send(
+						new HeadObjectCommand({
+							Bucket: bucketName,
+							Key: s3Key
+						})
+					);
+					console.log(`File ${s3Key} already exists in S3. Skipping upload.`);
+					continue; // Skip uploading if the file already exists
+				} catch (error) {
+					// If the file does not exist, proceed with the upload
+					if (error.name === 'NotFound') {
+						// Read the file content
+						const fileContent = fsModule.readFileSync(localFilePath);
+
+						// Upload the file to S3
+						const uploadParams = {
+							Bucket: bucketName,
+							Key: s3Key,
+							Body: fileContent
+						};
+
+						await s3.send(new PutObjectCommand(uploadParams));
+						console.log(`Copied ${localFilePath} to ${s3Key}`);
+					} else {
+						// Handle other errors
+						console.error(`Error checking file existence in S3: ${error}`);
+						throw error;
+					}
+				}
+			}
+		}
+	} catch (error) {
+		console.error('Error copying files to S3:', error);
+		throw error;
 	}
 }

@@ -11,6 +11,7 @@
 	import type { FontSelection } from '$lib/types';
 	import { getFeHttpTriplitClient } from '$lib/triplit';
 	import { page } from '$app/stores';
+	import { toast } from 'svelte-sonner';
 
 	let {
 		eventId = null,
@@ -43,7 +44,7 @@
 	 */
 	function applyStyle(
 		setNewStyle = false,
-		style: { id: number; name: string; cssTemplate: string } | null = null,
+		style: { id: number; name: string; cssTemplate: string } | null = null
 	) {
 		const fontStyle = font ? font.style : '';
 		finalStyleCss = style?.cssTemplate ?? finalStyleCss;
@@ -102,6 +103,13 @@
 			fontStore.set(font);
 		}
 	}
+
+	const notifyStyleChangesApplied = () => {
+		// Dismiss all existing toasts
+		toast.dismiss();
+
+		toast.success('Style changes saved!', { duration: 1500 });
+	};
 
 	// DOM references for button-specific styles
 	let buttonStyleElements: Record<number, HTMLStyleElement> = {};
@@ -203,6 +211,7 @@
 								class="mt-1 block h-10 w-10 rounded-md border border-gray-300"
 								oninput={() => {
 									applyStyle(true);
+									notifyStyleChangesApplied();
 								}}
 							/>
 						</div>
@@ -214,22 +223,26 @@
 								>Opacity: {Math.round(overlayOpacity * 100)}%</label
 							>
 
-							<Slider
-								bind:value={overlayForShadnSlider}
-								min={0}
-								max={1}
-								step={0.001}
-								oninput={() => {
-									applyStyle(true);
-								}}
-							/>
+							<Slider bind:value={overlayForShadnSlider} min={0} max={1} step={0.001} />
 						</div>
 					</div>
-					<Button class="mt-3 w-full" onclick={clearOverlay}>Clear</Button>
+					<Button
+						class="mt-3 w-full"
+						onclick={() => {
+							clearOverlay();
+							notifyStyleChangesApplied();
+						}}>Clear</Button
+					>
 				</Popover.Content>
 			</Popover.Root>
 
-			<FontsDialog bind:font onSelect={() => applyStyle(true)} />
+			<FontsDialog
+				bind:font
+				onSelect={() => {
+					applyStyle(true);
+					notifyStyleChangesApplied();
+				}}
+			/>
 		</div>
 	</div>
 </div>
@@ -239,7 +252,10 @@
 		class="h-full w-full max-w-full rounded-lg style-button-{style.id} select-bordered flex items-center justify-center border-4"
 		class:selected={selectedStyle?.id === style.id}
 		style={style.cssTemplate}
-		onclick={() => applyStyle(true, style)}
+		onclick={() => {
+			applyStyle(true, style);
+			notifyStyleChangesApplied();
+		}}
 	>
 		<div
 			class="rounded-lg bg-white p-1 text-xs dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800 sm:text-sm"
@@ -251,7 +267,7 @@
 
 <div class="gallery my-5 h-full">
 	<div
-		class={`${horizontalScroll ? 'flex h-full' : 'grid grid-cols-1 gap-6 md:gap-4 md:grid-cols-2 lg:grid-cols-3'}`}
+		class={`${horizontalScroll ? 'flex h-full' : 'grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-4 lg:grid-cols-3'}`}
 	>
 		{#if horizontalScroll}
 			<ScrollArea
