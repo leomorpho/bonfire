@@ -368,8 +368,6 @@ export enum QuestionnaireStep {
 	Gender = 1,
 	Location,
 	HighestLevelOfEducation,
-	FieldOfStudy,
-	Occupation,
 	Industry,
 	Birthday,
 	RelationshipStatus,

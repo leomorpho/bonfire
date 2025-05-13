@@ -10,6 +10,8 @@
 	import LikertScaleButton from '$lib/components/LikertScaleButton.svelte';
 	import { Progress } from '$lib/components/ui/progress/index.js';
 	import AddressInput from '$lib/components/input/location/AddressInput.svelte';
+	import { CalendarDate, getLocalTimeZone, today, type DateValue } from '@internationalized/date';
+	import { NLPDateInput } from '$lib/jsrepo/ui/nlp-date-input';
 
 	let previousSteps: QuestionnaireStep[] = $state([]);
 	let currentStep: QuestionnaireStep = $state(QuestionnaireStep.Gender);
@@ -54,6 +56,18 @@
 		loadStepFromURL();
 	});
 
+	// Get the current date
+	const currentDate = today(getLocalTimeZone());
+
+	// Calculate the start and end years
+	const startYear = currentDate.year - 100;
+	const endYear = currentDate.year - 18;
+
+	// Generate the list of years as strings
+	const years = Array.from({ length: endYear - startYear + 1 }, (_, i) =>
+		(startYear + i).toString()
+	);
+
 	// State for storing form data
 	let formData = $state({
 		demographicInformation: {
@@ -63,10 +77,8 @@
 			latitude: '',
 			longitude: '',
 			highestLevelOfEducation: '',
-			fieldOfStudy: '',
-			occupation: '',
 			industry: '',
-			birthday: '',
+			birthdayYear: '2000',
 			relationshipStatus: '',
 			hasChildren: ''
 		},
@@ -132,14 +144,14 @@
 			<!-- Step 2: Location -->
 			<FlowEffectContainer>
 				{@render title('Where are you located?')}
-				
+
 				<AddressInput
-                class="mb-4 w-full bg-white dark:bg-slate-900"
+					class="mb-4 w-full bg-white dark:bg-slate-900"
 					bind:location={formData.demographicInformation.location}
 					bind:geocodedLocation={formData.demographicInformation.geocodedLocation}
 					bind:latitude={formData.demographicInformation.latitude}
 					bind:longitude={formData.demographicInformation.longitude}
-                    enterEventLocationText = 'Enter city...'
+					enterEventLocationText="Enter city..."
 				/>
 				<div class="flex w-full justify-center space-x-4">
 					{@render prevBtn()}
@@ -176,42 +188,6 @@
 				<div class="flex w-full justify-center space-x-4">
 					{@render prevBtn()}
 					<Button
-						onclick={() => nextStep(QuestionnaireStep.FieldOfStudy)}
-						class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600">Next</Button
-					>
-				</div>
-			</FlowEffectContainer>
-		{:else if currentStep === QuestionnaireStep.FieldOfStudy}
-			<!-- Step 4: Field of Study -->
-			<FlowEffectContainer>
-				{@render title('What is your field of study?')}
-				<Input
-					type="text"
-					bind:value={formData.demographicInformation.fieldOfStudy}
-					placeholder="Field of Study"
-					class="mb-4 w-full bg-white dark:bg-slate-900"
-				/>
-				<div class="flex w-full justify-center space-x-4">
-					{@render prevBtn()}
-					<Button
-						onclick={() => nextStep(QuestionnaireStep.Occupation)}
-						class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600">Next</Button
-					>
-				</div>
-			</FlowEffectContainer>
-		{:else if currentStep === QuestionnaireStep.Occupation}
-			<!-- Step 5: Occupation -->
-			<FlowEffectContainer>
-				{@render title('What is your occupation?')}
-				<Input
-					type="text"
-					bind:value={formData.demographicInformation.occupation}
-					placeholder="Occupation"
-					class="mb-4 w-full bg-white dark:bg-slate-900"
-				/>
-				<div class="flex w-full justify-center space-x-4">
-					{@render prevBtn()}
-					<Button
 						onclick={() => nextStep(QuestionnaireStep.Industry)}
 						class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600">Next</Button
 					>
@@ -221,12 +197,40 @@
 			<!-- Step 6: Industry -->
 			<FlowEffectContainer>
 				{@render title('What industry do you work in?')}
-				<Input
-					type="text"
+				<Select.Root
+					type="single"
+					name="industry"
 					bind:value={formData.demographicInformation.industry}
-					placeholder="Industry"
-					class="mb-4 w-full bg-white dark:bg-slate-900"
-				/>
+				>
+					<Select.Trigger class="mb-4 w-full bg-white dark:bg-slate-900">
+						{formData.demographicInformation.industry || 'Select Industry'}
+					</Select.Trigger>
+					<Select.Content>
+						<Select.Group>
+							<Select.GroupHeading>Industry</Select.GroupHeading>
+							<Select.Item value="Agriculture">Agriculture</Select.Item>
+							<Select.Item value="Construction">Construction</Select.Item>
+							<Select.Item value="Consulting">Consulting</Select.Item>
+							<Select.Item value="Education">Education</Select.Item>
+							<Select.Item value="Energy">Energy</Select.Item>
+							<Select.Item value="Entertainment">Entertainment</Select.Item>
+							<Select.Item value="Finance">Finance</Select.Item>
+							<Select.Item value="Government">Government</Select.Item>
+							<Select.Item value="Healthcare">Healthcare</Select.Item>
+							<Select.Item value="Hospitality">Hospitality</Select.Item>
+							<Select.Item value="Legal">Legal</Select.Item>
+							<Select.Item value="Manufacturing">Manufacturing</Select.Item>
+							<Select.Item value="Media">Media</Select.Item>
+							<Select.Item value="Non-Profit">Non-Profit</Select.Item>
+							<Select.Item value="Real Estate">Real Estate</Select.Item>
+							<Select.Item value="Retail">Retail</Select.Item>
+							<Select.Item value="Technology">Technology</Select.Item>
+							<Select.Item value="Telecommunications">Telecommunications</Select.Item>
+							<Select.Item value="Transportation">Transportation</Select.Item>
+							<Select.Item value="Other">Other</Select.Item>
+						</Select.Group>
+					</Select.Content>
+				</Select.Root>
 				<div class="flex w-full justify-center space-x-4">
 					{@render prevBtn()}
 					<Button
@@ -236,13 +240,25 @@
 				</div>
 			</FlowEffectContainer>
 		{:else if currentStep === QuestionnaireStep.Birthday}
-			<!-- Step 7: Birthday -->
 			<FlowEffectContainer>
-				{@render title('What is your birthday?')}
-				<Datepicker
-					bind:value={formData.demographicInformation.birthday}
-					class="mb-4 w-full bg-white dark:bg-slate-900"
-				/>
+				{@render title('What is your birth year?')}
+				<Select.Root
+					type="single"
+					name="birthYear"
+					bind:value={formData.demographicInformation.birthdayYear}
+				>
+					<Select.Trigger class="mb-4 w-full bg-white dark:bg-slate-900">
+						{formData.demographicInformation.birthdayYear || 'Select Birth Year'}
+					</Select.Trigger>
+					<Select.Content>
+						<Select.Group>
+							<Select.GroupHeading>Birth Year</Select.GroupHeading>
+							{#each years as year}
+								<Select.Item value={year}>{year}</Select.Item>
+							{/each}
+						</Select.Group>
+					</Select.Content>
+				</Select.Root>
 				<div class="flex w-full justify-center space-x-4">
 					{@render prevBtn()}
 					<Button
