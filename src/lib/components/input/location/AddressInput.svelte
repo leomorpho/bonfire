@@ -10,11 +10,14 @@
 	import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
 
 	let {
+		class: cls = null,
 		onSave = null,
 		location = $bindable<string | undefined>(),
 		geocodedLocation = $bindable<any>(),
 		latitude = $bindable<number | null>(),
-		longitude = $bindable<number | null>()
+		longitude = $bindable<number | null>(),
+		enterEventLocationText = 'Enter event address...',
+		placeholder = 'Vancouver, BC, Canada'
 	} = $props();
 
 	let open = $state(false);
@@ -37,8 +40,6 @@
 			inputRef.style.width = `${triggerWidth}px`;
 		}
 	};
-
-	const enterEventLocationText = 'Enter event address...';
 
 	let selectedValue = $state(location);
 
@@ -129,7 +130,7 @@
 		{#snippet child({ props })}
 			<Button
 				variant="outline"
-				class="h-fit w-full flex-wrap justify-between whitespace-normal break-words dark:bg-slate-900"
+				class={`h-fit w-full flex-wrap justify-between whitespace-normal break-words dark:bg-slate-900 ${cls}`}
 				{...props}
 				role="combobox"
 				aria-expanded={open}
@@ -144,8 +145,8 @@
 		<Command.Root class="w-full">
 			<Input
 				type="text"
-				placeholder="1600 Pennsylvania Avenue, Washington DC"
-				class="h-[var(--trigger-height)] w-full"
+				{placeholder}
+				class="h-[var(--trigger-height)] w-full bg-slate-100 dark:bg-slate-700 focus:outline-none focus-visible:outline-none focus-visible:ring-0"
 				bind:value={locationQueryStr}
 				bind:ref={inputRef}
 				oninput={debounce(async () => {
@@ -153,7 +154,7 @@
 				}, 800)}
 			/>
 			<Command.List>
-				<Command.Group>
+				<Command.Group class="dark:bg-slate-900 bg-slate-300">
 					{#if locationQueryStr.length > 0}
 						<Command.Item
 							class="flex w-full justify-center text-wrap font-semibold text-blue-800"

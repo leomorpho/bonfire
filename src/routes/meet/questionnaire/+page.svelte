@@ -8,6 +8,8 @@
 	import { onMount } from 'svelte';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import LikertScaleButton from '$lib/components/LikertScaleButton.svelte';
+	import { Progress } from '$lib/components/ui/progress/index.js';
+	import AddressInput from '$lib/components/input/location/AddressInput.svelte';
 
 	let previousSteps: QuestionnaireStep[] = $state([]);
 	let currentStep: QuestionnaireStep = $state(QuestionnaireStep.Gender);
@@ -57,6 +59,9 @@
 		demographicInformation: {
 			gender: '',
 			location: '',
+			geocodedLocation: '',
+			latitude: '',
+			longitude: '',
 			highestLevelOfEducation: '',
 			fieldOfStudy: '',
 			occupation: '',
@@ -82,8 +87,15 @@
 			howDidYouHearAboutUs: ''
 		}
 	});
+
+	// Calculate total number of steps
+	const totalSteps = Object.keys(QuestionnaireStep).length / 2;
+	let progressValue = $derived((currentStep / totalSteps) * 100);
 </script>
 
+<div class="mt-20 flex w-full justify-center">
+	<div class="flex w-3/4 justify-center sm:w-1/2 lg:w-1/3"><Progress value={progressValue} /></div>
+</div>
 <div class="relative w-full">
 	<div class="mx-auto flex h-[70vh] w-full items-center p-4 sm:w-2/3 md:w-1/2 xl:w-2/5">
 		<!-- Step 1: Gender -->
@@ -110,7 +122,6 @@
 					</Select.Content>
 				</Select.Root>
 				<div class="flex w-full justify-center space-x-4">
-					{@render prevBtn()}
 					<Button
 						onclick={() => nextStep(QuestionnaireStep.Location)}
 						class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600">Next</Button
@@ -121,11 +132,14 @@
 			<!-- Step 2: Location -->
 			<FlowEffectContainer>
 				{@render title('Where are you located?')}
-				<Input
-					type="text"
-					bind:value={formData.demographicInformation.location}
-					placeholder="City, State/Province, Country"
-					class="mb-4 w-full bg-white dark:bg-slate-900"
+				
+				<AddressInput
+                class="mb-4 w-full bg-white dark:bg-slate-900"
+					bind:location={formData.demographicInformation.location}
+					bind:geocodedLocation={formData.demographicInformation.geocodedLocation}
+					bind:latitude={formData.demographicInformation.latitude}
+					bind:longitude={formData.demographicInformation.longitude}
+                    enterEventLocationText = 'Enter city...'
 				/>
 				<div class="flex w-full justify-center space-x-4">
 					{@render prevBtn()}
