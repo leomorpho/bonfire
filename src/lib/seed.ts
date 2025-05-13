@@ -44,6 +44,9 @@ export const getRandomStatus = () => {
 
 let allFiles;
 
+// Global set to store used image keys
+const usedImageKeys = new Set();
+
 export const seedEvent = async (
 	eventId = mainDemoEventId,
 	eventCreatorEmail = 'mike@test.com',
@@ -54,8 +57,8 @@ export const seedEvent = async (
 	eventStartTime = new Date(2050, 0, 1),
 	isCutoffDateEnabled = true,
 	cutoffDate = new Date(2025, 0, 1),
-	numFullAttendees = 3,
-	numTempAttendees = 2
+	numFullAttendees = 30,
+	numTempAttendees = 20
 ) => {
 	const eventPossiblyExisting = await triplitHttpClient.fetchById('events', mainDemoEventId);
 	if (eventPossiblyExisting) {
@@ -160,8 +163,19 @@ export const seedEvent = async (
 			throw new Error(`No images found in ${prefix}`);
 		}
 
-		// Randomly select an image
-		const randomImage = allFiles[Math.floor(Math.random() * allFiles.length)];
+		if (!allFiles || allFiles.length === 0) {
+			throw new Error(`No images found in ${prefix}`);
+		}
+
+		// Filter out already used images
+		const availableFiles = allFiles.filter((file) => !usedImageKeys.has(file.Key));
+
+		if (availableFiles.length === 0) {
+			throw new Error(`No unused images found in ${prefix}`);
+		}
+
+		// Randomly select an image from the available files
+		const randomImage = availableFiles[Math.floor(Math.random() * availableFiles.length)];
 
 		const imageKey = randomImage.Key;
 		if (!imageKey) {
@@ -185,11 +199,7 @@ export const seedEvent = async (
 
 		await triplitHttpClient.insert('user', { id: attendeeUserId, username: name, isReal: false });
 
-		const imagePath = await downloadImageFromS3(
-			privateEnv.S3_BUCKET_NAME,
-			imageKey,
-			os.tmpdir()
-		);
+		const imagePath = await downloadImageFromS3(privateEnv.S3_BUCKET_NAME, imageKey, os.tmpdir());
 		await uploadProfileImage(imagePath, attendeeUserId as string, false);
 		await deleteFile(imagePath);
 
