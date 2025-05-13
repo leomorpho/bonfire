@@ -363,3 +363,25 @@ export enum BonfireEditingTabs {
 	Admins = 'admins',
 	Reminders = 'reminders'
 }
+
+export enum QuestionnaireStep {
+	Gender = 1,
+	Location,
+	HighestLevelOfEducation,
+	FieldOfStudy,
+	Occupation,
+	Industry,
+	Birthday,
+	RelationshipStatus,
+	HasChildren,
+	InterestedInMeeting,
+	PrimaryReasonForUsingApp,
+	IntroversionLevel,
+	CreativityLevel,
+	ImportanceOfEducation,
+	AdventurousLevel,
+	ReceiveNotifications,
+	AgreeToTerms,
+	HowDidYouHearAboutUs,
+	Completion
+}

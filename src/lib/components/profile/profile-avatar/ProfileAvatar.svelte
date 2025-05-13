@@ -337,7 +337,7 @@
 	</div>
 	{#if numGuests > 0}
 		<div class="mt-2 flex w-full justify-center">
-			<div class="rounded-xl bg-red-500/70 p-2 text-sm text-white dark:bg-red-700/70">
+			<div class="rounded-xl bg-red-500/70 p-2 text-sm text-center text-white dark:bg-red-700/70">
 				Bringing {numGuests} extra guest{numGuests > 1 ? 's' : ''} ({numGuests + 1} total including
 				{username})
 			</div>
