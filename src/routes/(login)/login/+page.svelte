@@ -210,7 +210,7 @@
 				{/if}
 				<!-- OTP Verification Form -->
 				<div>
-					<Button class="text-md btn mt-5 w-full  dark:bg-slate-800 dark:text-white sm:text-lg">
+					<Button class="text-md mt-5 w-full  dark:bg-slate-800 dark:text-white sm:text-lg">
 						Submit
 					</Button>
 				</div>
@@ -237,7 +237,7 @@
 				</div>
 			</div>
 			{#if data.user}
-				<Button href="/" class="text-md btn btn-primary mt-4 w-full  md:text-lg"
+				<Button href="/" class="mt-4 w-full  md:text-lg"
 					>Continue with current account
 				</Button>
 				<p class="my-3 text-center text-sm opacity-70">
@@ -246,14 +246,14 @@
 			{:else}
 				<Button
 					href="/login/google"
-					class="text-md mt-4 w-full bg-blue-500  text-white hover:bg-blue-400 dark:bg-blue-600 dark:hover:bg-blue-500 md:text-lg"
+					class="mt-4 w-full bg-blue-500  text-white hover:bg-blue-400 dark:bg-blue-600 dark:hover:bg-blue-500 md:text-lg"
 					><Google class="mr-3 w-4" />Continue with Google
 				</Button>
 			{/if}
 
 			{#if data.user}
 				<form method="post" action="/login?/signout">
-					<Button type="submit" class="text-md btn btn-ghost mt-2 w-full  sm:text-lg"
+					<Button type="submit" class="btn-ghost mt-2 w-full  sm:text-lg"
 						>Sign in with a different account
 					</Button>
 				</form>
@@ -278,14 +278,14 @@
 					{/if}
 
 					{#if show_email_input}
-						<Button type="submit" disabled={$submitting} class="text-md btn w-full  sm:text-lg">
+						<Button type="submit" disabled={$submitting} class="w-full  sm:text-lg">
 							{#if $submitting}
 								<span class="loading loading-spinner loading-xs mr-2"></span>
 							{/if}
 							<span>Continue</span>
 						</Button>
 					{:else}
-						<Button onclick={handleEmail} type="button" class="text-md btn mt-4 w-full  sm:text-lg"
+						<Button onclick={handleEmail} type="button" class="mt-4 w-full  sm:text-lg"
 							>Continue with email
 						</Button>{/if}
 				</form>

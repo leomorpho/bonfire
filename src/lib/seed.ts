@@ -14,6 +14,7 @@ import { env as privateEnv } from '$env/dynamic/private';
 import path from 'path';
 import fs from 'fs';
 import os from 'os';
+import crypto from 'crypto';
 
 const s3Region = privateEnv.S3_REGION;
 const s3Endpoint = privateEnv.S3_ENDPOINT;
@@ -57,16 +58,16 @@ export const seedEvent = async (
 	eventStartTime = new Date(2050, 0, 1),
 	isCutoffDateEnabled = true,
 	cutoffDate = new Date(2025, 0, 1),
-	numFullAttendees = 30,
-	numTempAttendees = 20
+	numFullAttendees = 8,
+	numTempAttendees = 1
 ) => {
-	const eventPossiblyExisting = await triplitHttpClient.fetchById('events', mainDemoEventId);
-	if (eventPossiblyExisting) {
-		console.log('event already exists, not seeding again');
-		return;
-	}
+	// const eventPossiblyExisting = await triplitHttpClient.fetchById('events', mainDemoEventId);
+	// if (eventPossiblyExisting) {
+	// 	console.log('event already exists, not seeding again');
+	// 	return;
+	// }
 
-	const userId = generateId(15);
+	const userId = generateIdFromEmail(eventCreatorEmail);
 	await createNewUser({
 		id: userId,
 		email: eventCreatorEmail,
@@ -187,7 +188,7 @@ export const seedEvent = async (
 		const name = imageName;
 		const email = `${name}@gmail.com`;
 
-		const attendeeUserId = generateId(15);
+		const attendeeUserId = generateIdFromEmail(email);
 
 		await createNewUser({
 			id: attendeeUserId,
@@ -529,4 +530,16 @@ async function downloadImageFromS3(bucketName, imageKey, dirPath) {
 		console.error('Error downloading image from S3:', error);
 		throw error; // Re-throw the error to handle it further up the chain if needed
 	}
+}
+
+function generateIdFromEmail(email) {
+	// Create a SHA-256 hash of the email
+	const hash = crypto.createHash('sha256');
+	hash.update(email);
+	const hashedEmail = hash.digest('hex');
+
+	// Optionally, you can truncate the hash to a desired length
+	const truncatedHash = hashedEmail.substring(0, 15);
+
+	return truncatedHash;
 }

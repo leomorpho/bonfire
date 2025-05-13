@@ -547,7 +547,7 @@
 	function updateURL(tabName: string): void {
 		const url = new URL(window.location.href);
 		url.searchParams.set('tab', tabName);
-		// window.history.pushState({}, '', url);
+		window.history.pushState({}, '', url);
 		activeTab = tabName;
 	}
 
@@ -571,7 +571,7 @@
 				<div
 					class="mb-2 flex w-full items-center justify-between rounded-xl bg-white p-2 text-lg font-semibold shadow-2xl dark:bg-slate-900"
 				>
-					<BackButton />
+					<BackButton url={`/bonfire/${event.id}`}/>
 
 					<Tabs.List class="w-min animate-in fade-in zoom-in dark:bg-slate-700 dark:text-white">
 						<Tabs.Trigger
