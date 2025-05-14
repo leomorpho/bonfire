@@ -3,7 +3,7 @@
 
 	let {
 		question = null,
-		scale = 6,
+		scale = 5,
 		value = $bindable<number>(3),
 		min = 'Not at all',
 		max = 'Very'
