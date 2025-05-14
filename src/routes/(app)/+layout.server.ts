@@ -1,11 +1,12 @@
-import { redirect } from '@sveltejs/kit';
+import { generateJWT, USER_ROLE } from '$lib/auth';
 import type { LayoutServerLoad } from './$types';
 
 export const load: LayoutServerLoad = async (e) => {
 	const user = e.locals.user;
 	if (user) {
-		redirect(302, `/dashboard`);
+		const jwt = generateJWT(user.id, USER_ROLE);
+		return { user: e.locals.user, jwt };
 	}
 
-	return { user: e.locals.user };
+	return {};
 };

@@ -110,7 +110,8 @@ export const schema = S.Collections({
 			user_id: S.String(),
 			email: S.Optional(S.String()),
 			phone_country_code: S.Optional(S.String()),
-			phone_number: S.Optional(S.String())
+			phone_number: S.Optional(S.String()),
+			// meetQuestionnaire: S.JSON(),
 		}),
 		relationships: {
 			user: S.RelationById('user', '$user_id') // Relation to the user table

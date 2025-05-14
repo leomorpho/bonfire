@@ -13,7 +13,6 @@
 
 			const client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 			const user = await client.fetchById('user', userId);
-			// console.log('-----> user', user);
 
 			if (!user?.username) {
 				goto('/profile/username');

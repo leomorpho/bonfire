@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { browser } from '$app/environment';
 	import { Button } from '$lib/jsrepo/ui/button';
 	import Container from '../Container.svelte';
 	import AnimatedShinyText from '../effects/animated-shiny-text/AnimatedShinyText.svelte';
@@ -12,7 +11,7 @@
 
 {#snippet startBonfireBtn()}
 	<div class="flex items-center justify-center sm:justify-start">
-		<a href="/login">
+		<a href="/bonfire/create">
 			<Button>
 				✨
 				<AnimatedShinyText

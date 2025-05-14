@@ -40,6 +40,7 @@ type NewUser = {
 	email_verified: boolean;
 	num_logs: number;
 	is_event_styles_admin: boolean;
+	// TODO: add isReal and username fields
 };
 
 export const createNewUser = async (user: NewUser) => {
@@ -48,7 +49,7 @@ export const createNewUser = async (user: NewUser) => {
 		return null;
 	}
 	try {
-		await triplitHttpClient.insert('user', { id: user?.id, username: '' });
+		await triplitHttpClient.insert('user', { id: user?.id, username: '', isReal: true });
 	} catch (e) {
 		console.error('failed to create triplit user', e);
 	}
