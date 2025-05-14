@@ -372,7 +372,6 @@ export enum QuestionnaireStep {
 	Birthday,
 	RelationshipStatus,
 	HasChildren,
-	InterestedInMeeting,
 	PrimaryReasonForUsingApp,
 	IntroversionLevel,
 	CreativityLevel,

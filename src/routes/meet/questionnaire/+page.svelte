@@ -13,6 +13,61 @@
 	import { fade } from 'svelte/transition';
 	import { flip } from 'svelte/animate';
 
+	// Define types for survey configuration
+	type SurveyOption = string;
+
+	interface SurveyConfig {
+		question: string;
+		extraInfo?: string;
+		placeholder?: string;
+		type: 'select' | 'address' | 'boolean' | 'likert' | 'multiple' | 'completion';
+		options?: SurveyOption[];
+		field?: string;
+		nextStep?: QuestionnaireStep;
+	}
+
+	// Define types for form data
+	interface DemographicInformation {
+		gender: string;
+		location: string;
+		geocodedLocation: string;
+		latitude: string;
+		longitude: string;
+		highestLevelOfEducation: string;
+		industry: string;
+		birthdayYear: string;
+		relationshipStatus: string;
+		hasChildren: string;
+	}
+
+	interface PreferencesAndInterests {
+		primaryReasonForUsingApp: string[];
+	}
+
+	interface PersonalityTraits {
+		introversionLevel: number;
+		creativityLevel: number;
+		importanceOfEducation: number;
+		adventurousLevel: number;
+	}
+
+	interface ConsentAndPreferences {
+		receiveNotifications: boolean;
+		agreeToTerms: boolean;
+	}
+
+	interface Feedback {
+		howDidYouHearAboutUs: string;
+	}
+
+	interface FormData {
+		demographicInformation: DemographicInformation;
+		preferencesAndInterests: PreferencesAndInterests;
+		personalityTraits: PersonalityTraits;
+		consentAndPreferences: ConsentAndPreferences;
+		feedback: Feedback;
+	}
+
 	// Get the current date
 	const currentDate = today(getLocalTimeZone());
 
@@ -20,29 +75,61 @@
 	const startYear = currentDate.year - 100;
 	const endYear = currentDate.year - 18;
 
-	// Generate the list of years as strings
-	const years = Array.from({ length: endYear - startYear + 1 }, (_, i) =>
-		(startYear + i).toString()
-	);
-
 	// Define the survey configuration
-	const surveyConfig = {
-		[QuestionnaireStep.Gender]: {
+	const surveyConfigList: SurveyConfig[] = [
+		{
+			question: 'What are the primary reasons you are using this app?',
+			type: 'multiple',
+			placeholder: 'Select reason(s)',
+			options: ['Dating', 'Making Friends', 'Professional Networking', 'Other'],
+			field: 'preferencesAndInterests.primaryReasonForUsingApp',
+			nextStep: QuestionnaireStep.IntroversionLevel
+		},
+		{
+			question: 'How introverted are you?',
+			type: 'likert',
+			field: 'personalityTraits.introversionLevel',
+			nextStep: QuestionnaireStep.CreativityLevel
+		},
+		{
+			question: 'How creative are you?',
+			type: 'likert',
+			field: 'personalityTraits.creativityLevel',
+			nextStep: QuestionnaireStep.ImportanceOfEducation
+		},
+		{
+			question: 'How important is education to you?',
+			type: 'likert',
+			field: 'personalityTraits.importanceOfEducation',
+			nextStep: QuestionnaireStep.AdventurousLevel
+		},
+		{
+			question: 'How adventurous are you?',
+			type: 'likert',
+			field: 'personalityTraits.adventurousLevel',
+			nextStep: QuestionnaireStep.ReceiveNotifications
+		},
+		{
 			question: 'What is your gender?',
+			extraInfo:
+				"While you can use our services to find a romantic partner, we're primarily an app for meeting new people and making friends.",
 			type: 'select',
+			placeholder: 'Select gender',
 			options: ['Male', 'Female', 'Non-binary', 'Other', 'Prefer not to say'],
 			field: 'demographicInformation.gender',
 			nextStep: QuestionnaireStep.Location
 		},
-		[QuestionnaireStep.Location]: {
+		{
 			question: 'Where are you located?',
+			extraInfo: 'You can update this at any time in your profile.',
 			type: 'address',
 			field: 'demographicInformation.location',
 			nextStep: QuestionnaireStep.HighestLevelOfEducation
 		},
-		[QuestionnaireStep.HighestLevelOfEducation]: {
+		{
 			question: 'What is your highest level of education?',
 			type: 'select',
+			placeholder: 'Select education',
 			options: [
 				'High School',
 				'Associate Degree',
@@ -54,9 +141,10 @@
 			field: 'demographicInformation.highestLevelOfEducation',
 			nextStep: QuestionnaireStep.Industry
 		},
-		[QuestionnaireStep.Industry]: {
+		{
 			question: 'What industry do you work in?',
 			type: 'select',
+			placeholder: 'Select industry',
 			options: [
 				'Agriculture',
 				'Construction',
@@ -82,18 +170,20 @@
 			field: 'demographicInformation.industry',
 			nextStep: QuestionnaireStep.Birthday
 		},
-		[QuestionnaireStep.Birthday]: {
+		{
 			question: 'What is your birth year?',
 			type: 'select',
+			placeholder: 'Select birth year',
 			options: Array.from({ length: endYear - startYear + 1 }, (_, i) =>
 				(startYear + i).toString()
 			),
 			field: 'demographicInformation.birthdayYear',
 			nextStep: QuestionnaireStep.RelationshipStatus
 		},
-		[QuestionnaireStep.RelationshipStatus]: {
+		{
 			question: 'What is your relationship status?',
 			type: 'select',
+			placeholder: 'Select status',
 			options: [
 				'Single',
 				'In a Relationship',
@@ -105,58 +195,28 @@
 			field: 'demographicInformation.relationshipStatus',
 			nextStep: QuestionnaireStep.HasChildren
 		},
-		[QuestionnaireStep.HasChildren]: {
+		{
 			question: 'Do you have children?',
 			type: 'boolean',
 			field: 'demographicInformation.hasChildren',
 			nextStep: QuestionnaireStep.PrimaryReasonForUsingApp
 		},
-		[QuestionnaireStep.PrimaryReasonForUsingApp]: {
-			question: 'What are the primary reasons you are using this app?',
-			type: 'multiple',
-			options: ['Dating', 'Making Friends', 'Professional Networking', 'Other'],
-			field: 'preferencesAndInterests.primaryReasonForUsingApp',
-			nextStep: QuestionnaireStep.IntroversionLevel
-		},
-		[QuestionnaireStep.IntroversionLevel]: {
-			question: 'How introverted are you?',
-			type: 'likert',
-			field: 'personalityTraits.introversionLevel',
-			nextStep: QuestionnaireStep.CreativityLevel
-		},
-		[QuestionnaireStep.CreativityLevel]: {
-			question: 'How creative are you?',
-			type: 'likert',
-			field: 'personalityTraits.creativityLevel',
-			nextStep: QuestionnaireStep.ImportanceOfEducation
-		},
-		[QuestionnaireStep.ImportanceOfEducation]: {
-			question: 'How important is education to you?',
-			type: 'likert',
-			field: 'personalityTraits.importanceOfEducation',
-			nextStep: QuestionnaireStep.AdventurousLevel
-		},
-		[QuestionnaireStep.AdventurousLevel]: {
-			question: 'How adventurous are you?',
-			type: 'likert',
-			field: 'personalityTraits.adventurousLevel',
-			nextStep: QuestionnaireStep.ReceiveNotifications
-		},
-		[QuestionnaireStep.ReceiveNotifications]: {
-			question: 'Would you like to receive notifications about upcoming events?',
+		{
+			question: 'Would you like to receive notifications about upcoming events relevant to you?',
 			type: 'boolean',
 			field: 'consentAndPreferences.receiveNotifications',
 			nextStep: QuestionnaireStep.AgreeToTerms
 		},
-		[QuestionnaireStep.AgreeToTerms]: {
+		{
 			question: 'Do you agree to our terms of service and privacy policy?',
 			type: 'boolean',
 			field: 'consentAndPreferences.agreeToTerms',
 			nextStep: QuestionnaireStep.HowDidYouHearAboutUs
 		},
-		[QuestionnaireStep.HowDidYouHearAboutUs]: {
+		{
 			question: 'How did you hear about us?',
 			type: 'select',
+			placeholder: 'Select',
 			options: [
 				'Social Media - Facebook',
 				'Social Media - TikTok',
@@ -169,39 +229,36 @@
 			field: 'feedback.howDidYouHearAboutUs',
 			nextStep: QuestionnaireStep.Completion
 		},
-		[QuestionnaireStep.Completion]: {
+		{
 			question: 'Questionnaire complete!',
 			type: 'completion'
 		}
-	};
+	];
 
 	let previousSteps: QuestionnaireStep[] = $state([]);
-	let currentStep: QuestionnaireStep = $state(QuestionnaireStep.Gender);
+	let currentStepIndex: number = $state(0);
 	let slideDirection: 'up' | 'down' = $state('up');
 
-	function nextStep(next: QuestionnaireStep): void {
-		slideDirection = 'up';
-		previousSteps.push(currentStep);
-		currentStep = next;
-		updateURL();
+	function nextStep(): void {
+		if (currentStepIndex < surveyConfigList.length - 1) {
+			slideDirection = 'up';
+			previousSteps.push(currentStepIndex);
+			currentStepIndex++;
+			updateURL();
+		}
 	}
 
 	const prevStep = (): void => {
 		if (previousSteps.length > 0) {
-			const lastStep = previousSteps.pop();
-			if (lastStep !== undefined) {
-				currentStep = lastStep;
-				updateURL();
-			}
-		} else {
-			currentStep = currentStep - 1;
+			slideDirection = 'down';
+			currentStepIndex = previousSteps.pop()!;
 			updateURL();
 		}
 	};
 
 	function updateURL(): void {
 		const url = new URL(window.location.href);
-		url.searchParams.set('step', currentStep.toString());
+		url.searchParams.set('step', currentStepIndex.toString());
 		window.history.pushState({}, '', url);
 	}
 
@@ -210,8 +267,8 @@
 		const stepParam = urlParams.get('step');
 		if (stepParam) {
 			const step = parseInt(stepParam, 10);
-			if (!isNaN(step) && step in QuestionnaireStep) {
-				currentStep = step;
+			if (!isNaN(step) && step < surveyConfigList.length) {
+				currentStepIndex = step;
 				return;
 			}
 		}
@@ -222,7 +279,7 @@
 	});
 
 	// State for storing form data
-	let formData = $state({
+	let formData: FormData = $state({
 		demographicInformation: {
 			gender: '',
 			location: '',
@@ -263,9 +320,14 @@
 		}
 	}
 
+	// Helper function to safely access nested properties
+	function getNestedProperty<T>(obj: T, path: string): any {
+		return path.split('.').reduce((o, p) => (o as any)[p], obj);
+	}
+
 	// Calculate total number of steps
 	const totalSteps = Object.keys(QuestionnaireStep).length / 2;
-	let progressValue = $derived((currentStep / totalSteps) * 100);
+	let progressValue = $derived((currentStepIndex / totalSteps) * 100);
 </script>
 
 <div class="mt-20 flex w-full justify-center">
@@ -274,15 +336,19 @@
 <div class="relative w-full">
 	<div class="mx-auto flex h-[70vh] w-full items-center p-4 sm:w-2/3 md:w-1/2 xl:w-2/5">
 		<div class="flex w-full flex-col justify-center">
-			{#each Object.entries(surveyConfig) as [step, config] (step)}
+			{#each surveyConfigList as config, index (index)}
 				<div animate:flip>
-					{#if currentStep === parseInt(step)}
+					{#if currentStepIndex === index}
 						<div
 							class="w-full"
-							transition:slide={{ y: slideDirection === 'up' ? -500 : 500, duration: 300 }}
+							in:slide={{ y: slideDirection === 'up' ? -500 : 500, duration: 300 }}
+							out:slide={{ y: slideDirection === 'up' ? -500 : 500, duration: 100 }}
 						>
 							<div transition:fade={{ duration: 300 }}>
 								{@render title(config.question)}
+								{#if config.extraInfo}
+									<div class="my-3 text-center text-base">{config.extraInfo}</div>
+								{/if}
 								{#if config.type === 'select'}
 									<Select.Root
 										type="single"
@@ -290,8 +356,31 @@
 										bind:value={formData[config.field.split('.')[0]][config.field.split('.')[1]]}
 									>
 										<Select.Trigger class="mb-4 w-full bg-white dark:bg-slate-900">
-											{formData[config.field.split('.')[0]][config.field.split('.')[1]] ||
-												`Select ${config.question}`}
+											{getNestedProperty(formData, config.field) ||
+												`${config.placeholder}` ||
+												'Select'}
+										</Select.Trigger>
+										<Select.Content>
+											<Select.Group>
+												<Select.GroupHeading>{config.question}</Select.GroupHeading>
+												{#each config.options as option}
+													<Select.Item value={option}>{option}</Select.Item>
+												{/each}
+											</Select.Group>
+										</Select.Content>
+									</Select.Root>
+								{:else if config.type === 'multiple'}
+									<Select.Root
+										type="multiple"
+										name={config.field.split('.')[1]}
+										bind:value={formData[config.field.split('.')[0]][config.field.split('.')[1]]}
+									>
+										<Select.Trigger
+											class="mb-4 h-auto min-h-[40px] w-full whitespace-normal bg-white dark:bg-slate-900"
+										>
+											{formatListWithCommas(getNestedProperty(formData, config.field)) ||
+												`${config.placeholder}` ||
+												'Select'}
 										</Select.Trigger>
 										<Select.Content>
 											<Select.Group>
@@ -311,62 +400,44 @@
 										bind:longitude={formData.demographicInformation.longitude}
 										enterEventLocationText="Enter city..."
 									/>
-								{:else if config.type === 'boolean'}
-									<div class="flex justify-center space-x-4">
-										<Button
-											onclick={() => {
-												formData[config.field.split('.')[0]][config.field.split('.')[1]] = 'No';
-												nextStep(config.nextStep);
-											}}
-											class="rounded bg-purple-800 px-4 py-2 text-white hover:bg-purple-700"
-											>No</Button
-										>
-										<Button
-											onclick={() => {
-												formData[config.field.split('.')[0]][config.field.split('.')[1]] = 'Yes';
-												nextStep(config.nextStep);
-											}}
-											class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600">Yes</Button
-										>
-									</div>
 								{:else if config.type === 'likert'}
 									<LikertScaleButton
 										bind:value={formData[config.field.split('.')[0]][config.field.split('.')[1]]}
 									/>
-								{:else if config.type === 'multiple'}
-									<Select.Root
-										type="multiple"
-										name={config.field.split('.')[1]}
-										bind:value={formData[config.field.split('.')[0]][config.field.split('.')[1]]}
-									>
-										<Select.Trigger
-											class="mb-4 h-auto min-h-[40px] w-full whitespace-normal bg-white dark:bg-slate-900"
-										>
-											{formatListWithCommas(
-												formData[config.field.split('.')[0]][config.field.split('.')[1]]
-											) || `Select ${config.question}`}
-										</Select.Trigger>
-										<Select.Content>
-											<Select.Group>
-												<Select.GroupHeading>{config.question}</Select.GroupHeading>
-												{#each config.options as option}
-													<Select.Item value={option}>{option}</Select.Item>
-												{/each}
-											</Select.Group>
-										</Select.Content>
-									</Select.Root>
 								{:else if config.type === 'completion'}
 									<pre>{JSON.stringify(formData, null, 2)}</pre>
 								{/if}
-								{#if config.type !== 'boolean' && config.type !== 'completion'}
+
+								{#if config.type !== 'completion'}
 									<div class="flex w-full justify-center space-x-4">
-										{@render prevBtn()}
-										<Button
-											disabled={!formData[config.field.split('.')[0]][config.field.split('.')[1]]}
-											onclick={() => nextStep(config.nextStep)}
-											class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-											>Next</Button
-										>
+										{#if index != 0}
+											{@render prevBtn()}
+										{/if}
+										{#if config.type !== 'boolean'}
+											<Button
+												disabled={!getNestedProperty(formData, config.field)}
+												onclick={() => nextStep()}
+												class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+												>Next</Button
+											>
+										{:else}
+											<Button
+												onclick={() => {
+													formData[config.field.split('.')[0]][config.field.split('.')[1]] = 'No';
+													nextStep();
+												}}
+												class="rounded bg-purple-800 px-4 py-2 text-white hover:bg-purple-700"
+												>No</Button
+											>
+											<Button
+												onclick={() => {
+													formData[config.field.split('.')[0]][config.field.split('.')[1]] = 'Yes';
+													nextStep();
+												}}
+												class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+												>Yes</Button
+											>
+										{/if}
 									</div>
 								{/if}
 							</div>
