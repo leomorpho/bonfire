@@ -3,16 +3,14 @@
 	import Container from '../Container.svelte';
 	import AnimatedShinyText from '../effects/animated-shiny-text/AnimatedShinyText.svelte';
 
-	const titleFont = JSON.parse("{}")
-	const subtitleFont = JSON.parse("{}")
-
-
+	const titleFont = JSON.parse('{}');
+	const subtitleFont = JSON.parse('{}');
 </script>
 
 {#snippet startBonfireBtn()}
 	<div class="flex items-center justify-center sm:justify-start">
 		<a href="/bonfire/create">
-			<Button>
+			<Button id="create-bonfire-button">
 				✨
 				<AnimatedShinyText
 					cls="inline-flex items-center justify-center px-2 sm:px-4 sm:py-1 transition text-sm sm:text-base ease-out hover:text-neutral-600 hover:duration-300 hover:dark:text-neutral-400 text-white dark:text-black"
@@ -43,12 +41,16 @@
 <Container>
 	<div class="relative flex w-full flex-col items-center justify-center md:flex-row">
 		<div class="flex w-fit flex-col justify-center">
-			<div style={titleFont?.style}
+			<div
+				style={titleFont?.style}
 				class="pointer-events-none z-10 whitespace-pre-wrap bg-gradient-to-b from-[#ffd319] via-[#ff2975] to-[#8c1eff] bg-clip-text p-1 text-center text-6xl font-bold leading-none tracking-tighter text-transparent sm:mt-8 sm:text-left sm:text-7xl"
 			>
 				Effortless <br />Gatherings
 			</div>
-			<p style={subtitleFont?.style} class="text-md mb-6 mt-5 text-center sm:mb-8 sm:mt-7 sm:text-left sm:text-lg">
+			<p
+				style={subtitleFont?.style}
+				class="text-md mb-6 mt-5 text-center sm:mb-8 sm:mt-7 sm:text-left sm:text-lg"
+			>
 				The simplest way to keep your guests up to date.
 			</p>
 			{@render startBonfireBtn()}

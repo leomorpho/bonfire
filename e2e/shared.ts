@@ -145,7 +145,7 @@ export async function createBonfire(
 
 	// Enter address
 	await page.getByText('Enter event address...').click();
-	await page.getByPlaceholder('1600 Pennsylvania Avenue,').fill('15 rue du luxembourg, mouscron');
+	await page.getByPlaceholder('Vancouver, BC, Canada').fill('15 rue du luxembourg, mouscron');
 	await page.getByText('Rue du Luxembourg 15, 7700').click();
 
 	if (maxGuestsPerAttendee == 0) {

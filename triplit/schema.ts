@@ -111,7 +111,7 @@ export const schema = S.Collections({
 			email: S.Optional(S.String()),
 			phone_country_code: S.Optional(S.String()),
 			phone_number: S.Optional(S.String()),
-			// meetQuestionnaire: S.JSON(),
+			// meetQuestionnaire: S.Optional(S.Json({default:{}}))
 		}),
 		relationships: {
 			user: S.RelationById('user', '$user_id') // Relation to the user table
