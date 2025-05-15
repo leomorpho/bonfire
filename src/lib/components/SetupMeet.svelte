@@ -10,7 +10,7 @@
 
 	let { userId = null } = $props();
 
-	let userPersonalData = $state();
+	let userDataPersonalData = $state();
 	let isLoading = $state(true);
 
 	let show = $state(false);
@@ -21,11 +21,11 @@
 			const currentDate = new Date();
 
 			const client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
-			userPersonalData = await client.fetchOne(
+			userDataPersonalData = await client.fetchOne(
 				client.query('user_personal_data').Where(['user_id', '=', userId])
 			);
 
-			const dismissedTimestamp = userPersonalData?.lastDismissedMeetOnboarding;
+			const dismissedTimestamp = userDataPersonalData?.lastDismissedMeetOnboarding;
 
 			if (!dismissedTimestamp) {
 				show = true;
@@ -49,8 +49,8 @@
 
 		const client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
-        if (userPersonalData) {
-			await client.http.update('user_personal_data', userPersonalData?.id, async (e) => {
+        if (userDataPersonalData) {
+			await client.http.update('user_personal_data', userDataPersonalData?.id, async (e) => {
 				e.lastDismissedMeetOnboarding = new Date();
 			});
 		} else {

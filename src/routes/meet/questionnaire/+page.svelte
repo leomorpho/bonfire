@@ -14,6 +14,7 @@
 	import { getFeWorkerTriplitClient } from '$lib/triplit';
 	import { page } from '$app/stores';
 	import type { TriplitClient } from '@triplit/client';
+	import type { Metadata } from 'sharp';
 
 	const userId = $page.data.user?.id;
 	// Define types for survey configuration
@@ -30,6 +31,10 @@
 	}
 
 	// Define types for form data
+	interface Metadata {
+		lastUpdatedAt: Date;
+	}
+
 	interface DemographicInformation {
 		gender: string;
 		location: string;
@@ -64,6 +69,7 @@
 	}
 
 	interface FormData {
+		metaData: Metadata;
 		demographicInformation: DemographicInformation;
 		preferencesAndInterests: PreferencesAndInterests;
 		personalityTraits: PersonalityTraits;
@@ -248,6 +254,7 @@
 			previousSteps.push(currentStepIndex);
 			currentStepIndex++;
 			updateURL();
+			updateQuestionnaireLastUpdate();
 			updateMeetQuestionnaire();
 		}
 	}
@@ -257,6 +264,8 @@
 			slideDirection = 'down';
 			currentStepIndex = previousSteps.pop()!;
 			updateURL();
+			updateQuestionnaireLastUpdate();
+
 			updateMeetQuestionnaire();
 		} else if (currentStepIndex != 0) {
 			currentStepIndex = currentStepIndex - 1;
@@ -281,12 +290,22 @@
 		}
 	}
 
+	const updateQuestionnaireLastUpdate = () => {
+		if (!formData.metaData) {
+			formData.metaData = {};
+		}
+		formData.metaData.lastUpdatedAt = new Date();
+	};
+
 	onMount(() => {
 		loadStepFromURL();
 	});
 
 	// State for storing form data
 	let formData: FormData = $state({
+		metaData: {
+			lastUpdatedAt: new Date()
+		},
 		demographicInformation: {
 			gender: '',
 			location: '',
@@ -318,7 +337,7 @@
 	});
 
 	let client: TriplitClient;
-	let userPersonalData;
+	let userPersonalData = $state();
 	let isLoadingBeData = $state(true);
 
 	onMount(() => {
