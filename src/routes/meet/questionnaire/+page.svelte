@@ -2,7 +2,6 @@
 	import { onMount } from 'svelte';
 	import { getLocalTimeZone, today } from '@internationalized/date';
 	import { QuestionnaireStep } from '$lib/enums';
-	import FlowEffectContainer from '$lib/components/eventform/flow/FlowEffectContainer.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { StepBack } from 'lucide-svelte';
 	import * as Select from '$lib/components/ui/select/index.js';
@@ -12,7 +11,11 @@
 	import { slide } from 'svelte/transition';
 	import { fade } from 'svelte/transition';
 	import { flip } from 'svelte/animate';
+	import { getFeWorkerTriplitClient } from '$lib/triplit';
+	import { page } from '$app/stores';
+	import type { TriplitClient } from '@triplit/client';
 
+	const userId = $page.data.user?.id;
 	// Define types for survey configuration
 	type SurveyOption = string;
 
@@ -245,6 +248,7 @@
 			previousSteps.push(currentStepIndex);
 			currentStepIndex++;
 			updateURL();
+			updateMeetQuestionnaire();
 		}
 	}
 
@@ -253,6 +257,9 @@
 			slideDirection = 'down';
 			currentStepIndex = previousSteps.pop()!;
 			updateURL();
+			updateMeetQuestionnaire();
+		} else if (currentStepIndex != 0) {
+			currentStepIndex = currentStepIndex - 1;
 		}
 	};
 
@@ -310,6 +317,33 @@
 		}
 	});
 
+	let client: TriplitClient;
+	let userPersonalData;
+	let isLoadingBeData = $state(true);
+
+	onMount(() => {
+		const init = async () => {
+			if (!userId) return;
+
+			client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
+			userPersonalData = await client.fetchOne(
+				client.query('user_personal_data').Where(['user_id', '=', userId])
+			);
+			if (userPersonalData?.meetQuestionnaire) {
+				formData = userPersonalData?.meetQuestionnaire;
+			}
+			isLoadingBeData = false;
+		};
+
+		init();
+	});
+
+	const updateMeetQuestionnaire = async () => {
+		await client.http.update('user_personal_data', userPersonalData?.id, async (e) => {
+			e.meetQuestionnaire = formData;
+		});
+	};
+
 	function formatListWithCommas(items: string[]): string {
 		if (items.length === 0) {
 			return '';
@@ -353,6 +387,12 @@
 		<div class="relative w-full">
 			<div class="mx-auto flex h-[70vh] w-full items-center p-4 sm:w-2/3 md:w-1/2 xl:w-2/5">
 				<div class="flex w-full flex-col justify-center">
+					{#if isLoadingBeData}
+						<div class="mb-4 flex w-full justify-center">
+							<div class="loading loading-spinner mr-2 h-6 w-6"></div>
+							Loading your data...
+						</div>
+					{/if}
 					{#each surveyConfigList as config, index (index)}
 						<div animate:flip>
 							{#if currentStepIndex === index}
