@@ -14,6 +14,7 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import * as InputOTP from '$lib/components/ui/input-otp/index.js';
 	import { REGEXP_ONLY_DIGITS } from 'bits-ui';
+	import { getNextTheme } from '$lib/styles.js';
 
 	const { data } = $props();
 
@@ -139,6 +140,14 @@
 	const tempAttendeeId =
 		$page.url.searchParams.get(tempAttendeeSecretParam) || tempAttendeeSecretStore.get();
 	console.log('tempAttendeeId', tempAttendeeId);
+
+	let styles = $state('');
+
+	const getRandomTheme = () => {
+		styles = getNextTheme();
+	};
+	getRandomTheme();
+	const overlayStyle = 'background-color: rgba(var(--overlay-color-rgb, 0, 0, 0), 0.8);';
 </script>
 
 <svelte:head>
@@ -149,148 +158,151 @@
 	/>
 </svelte:head>
 
-<div class="flex h-screen items-center justify-center p-5">
-	<div class="card flex w-full max-w-[470px] flex-col p-5">
-		{#if !email_sent && oneTimePasswordValue.length > 0}
-			<div
-				class="my-4 rounded-lg bg-yellow-50 p-4 text-sm text-yellow-800 dark:bg-gray-700 dark:text-yellow-300"
-				role="alert"
-			>
-				<span class="font-medium">Oups!</span> One-time passwords can only be entered on the device you
-				are currently logging into. This means the device where you entered your email, not the one you're
-				currently on...
-			</div>
-		{/if}
-		{#if email_sent}
-			<div class="text-center">
-				<Mail size="40" class="mx-auto my-4" />
-				<div class="text-3xl font-bold leading-none tracking-tight">Check your inbox</div>
-				<div class="text-muted-primary mx-auto mt-4 max-w-[32ch] text-lg opacity-80">
-					We've sent you a one-time password to enter below. Please be sure to check your spam
-					folder too.
-				</div>
-				<Button onclick={handlePasteFromClipboard} class="mt-5 bg-green-500 hover:bg-green-400">
-					<ClipboardPaste class="mr-1" />
-					Paste from clipboard</Button
+<div style={styles}>
+	<div class="flex h-[50vw] items-center justify-center p-5" style={overlayStyle}>
+		<div class="card flex w-full max-w-[470px] flex-col p-5">
+			{#if !email_sent && oneTimePasswordValue.length > 0}
+				<div
+					class="my-4 rounded-lg bg-yellow-50 p-4 text-sm text-yellow-800 dark:bg-gray-700 dark:text-yellow-300"
+					role="alert"
 				>
-				<div class="mb-5 mt-8 flex w-full justify-center sm:text-2xl" id="otp-entry">
-					<InputOTP.Root
-						maxlength={6}
-						bind:value={oneTimePasswordValue}
-						pattern={REGEXP_ONLY_DIGITS}
-					>
-						{#snippet children({ cells })}
-							<InputOTP.Group>
-								{#each cells.slice(0, 3) as cell}
-									<InputOTP.Slot
-										{cell}
-										class="md:h-18 relative flex h-12 w-8 items-center justify-center border-y border-r border-input transition-all first:rounded-l-md first:border-l last:rounded-r-md sm:h-14 sm:w-10 sm:text-xl md:w-14 md:text-2xl"
-									/>
-								{/each}
-							</InputOTP.Group>
-							<InputOTP.Separator />
-							<InputOTP.Group>
-								{#each cells.slice(3, 6) as cell}
-									<InputOTP.Slot
-										{cell}
-										class="md:h-18 relative flex h-12 w-8 items-center justify-center border-y border-r border-input transition-all first:rounded-l-md first:border-l last:rounded-r-md sm:h-14 sm:w-10 sm:text-xl md:w-14 md:text-2xl"
-									/>
-								{/each}
-							</InputOTP.Group>
-						{/snippet}
-					</InputOTP.Root>
+					<span class="font-medium">Oups!</span> One-time passwords can only be entered on the device
+					you are currently logging into. This means the device where you entered your email, not the
+					one you're currently on...
 				</div>
-				{#if otpInvalid}
-					<div
-						class="my-4 rounded-lg bg-yellow-50 p-4 text-sm text-yellow-800 dark:bg-gray-700 dark:text-yellow-300"
-						role="alert"
-					>
-						<span class="font-medium">Oups!</span> Your code appears to be incorrect.
+			{/if}
+			{#if email_sent}
+				<div class="text-center">
+					<Mail size="40" class="mx-auto my-4" />
+					<div class="text-3xl font-bold leading-none tracking-tight">Check your inbox</div>
+					<div class="text-muted-primary mx-auto mt-4 max-w-[32ch] text-lg opacity-80">
+						We've sent you a one-time password to enter below. Please be sure to check your spam
+						folder too.
 					</div>
-				{/if}
-				<!-- OTP Verification Form -->
-				<div>
-					<Button class="text-md mt-5 w-full  dark:bg-slate-800 dark:text-white sm:text-lg">
-						Submit
-					</Button>
-				</div>
-			</div>
-		{:else}
-			<div class="my-4 flex w-full flex-col space-y-1.5 text-center">
-				<div class="mx-auto w-fit max-w-64">
-					<Image
-						class="hidden max-w-64 rounded-lg sm:block"
-						height={209}
-						width={250}
-						src="https://f002.backblazeb2.com/file/bonfire-public/logo/logo_Bonfire_logo_vert_color_250.png"
-						layout="constrained"
-						alt="Bonfire logo with name"
-					/>
-					<Image
-						class="block max-w-64 rounded-lg sm:hidden"
-						height={125}
-						width={150}
-						src="https://f002.backblazeb2.com/file/bonfire-public/logo/logo_Bonfire_logo_vert_color_150px.png"
-						layout="constrained"
-						alt="Bonfire logo with name"
-					/>
-				</div>
-			</div>
-			{#if data.user}
-				<Button href="/" class="mt-4 w-full  md:text-lg"
-					>Continue with current account
-				</Button>
-				<p class="my-3 text-center text-sm opacity-70">
-					Signed in as {data.user.email}
-				</p>
-			{:else}
-				<Button
-					href="/login/google"
-					class="mt-4 w-full bg-blue-500  text-white hover:bg-blue-400 dark:bg-blue-600 dark:hover:bg-blue-500 md:text-lg"
-					><Google class="mr-3 w-4" />Continue with Google
-				</Button>
-			{/if}
-
-			{#if data.user}
-				<form method="post" action="/login?/signout">
-					<Button type="submit" class="btn-ghost mt-2 w-full  sm:text-lg"
-						>Sign in with a different account
-					</Button>
-				</form>
-			{:else}
-				<form method="post" action="/login?/login_with_email" use:enhance>
-					<!-- Add tempAttendeeId as a hidden input -->
-					{#if tempAttendeeId}
-						<input type="hidden" name={tempAttendeeIdInForm} value={tempAttendeeId} />
+					<Button onclick={handlePasteFromClipboard} class="mt-5 bg-green-500 hover:bg-green-400">
+						<ClipboardPaste class="mr-1" />
+						Paste from clipboard</Button
+					>
+					<div class="mb-5 mt-8 flex w-full justify-center sm:text-2xl" id="otp-entry">
+						<InputOTP.Root
+							maxlength={6}
+							bind:value={oneTimePasswordValue}
+							pattern={REGEXP_ONLY_DIGITS}
+						>
+							{#snippet children({ cells })}
+								<InputOTP.Group>
+									{#each cells.slice(0, 3) as cell}
+										<InputOTP.Slot
+											{cell}
+											class="md:h-18 relative flex h-12 w-8 items-center justify-center border-y border-r border-input transition-all first:rounded-l-md first:border-l last:rounded-r-md sm:h-14 sm:w-10 sm:text-xl md:w-14 md:text-2xl"
+										/>
+									{/each}
+								</InputOTP.Group>
+								<InputOTP.Separator />
+								<InputOTP.Group>
+									{#each cells.slice(3, 6) as cell}
+										<InputOTP.Slot
+											{cell}
+											class="md:h-18 relative flex h-12 w-8 items-center justify-center border-y border-r border-input transition-all first:rounded-l-md first:border-l last:rounded-r-md sm:h-14 sm:w-10 sm:text-xl md:w-14 md:text-2xl"
+										/>
+									{/each}
+								</InputOTP.Group>
+							{/snippet}
+						</InputOTP.Root>
+					</div>
+					{#if otpInvalid}
+						<div
+							class="my-4 rounded-lg bg-yellow-50 p-4 text-sm text-yellow-800 dark:bg-gray-700 dark:text-yellow-300"
+							role="alert"
+						>
+							<span class="font-medium">Oups!</span> Your code appears to be incorrect.
+						</div>
 					{/if}
-
-					<input
-						bind:this={email_input}
-						placeholder="Email"
-						type="email"
-						name="email"
-						autocomplete="email"
-						class="input my-5 w-full bg-slate-200 dark:bg-slate-800 dark:text-white"
-						class:hidden={!show_email_input}
-					/>
-					{#if $errors.email}
-						<span class="ml-1 mt-2 text-xs text-red-500">{$errors.email}</span>
-					{/if}
-
-					{#if show_email_input}
-						<Button type="submit" disabled={$submitting} class="w-full  sm:text-lg">
-							{#if $submitting}
-								<span class="loading loading-spinner loading-xs mr-2"></span>
-							{/if}
-							<span>Continue</span>
+					<!-- OTP Verification Form -->
+					<div>
+						<Button class="text-md mt-5 w-full  dark:bg-slate-800 dark:text-white sm:text-lg">
+							Submit
 						</Button>
-					{:else}
-						<Button onclick={handleEmail} type="button" class="mt-4 w-full  sm:text-lg"
-							>Continue with email
-						</Button>{/if}
-				</form>
+					</div>
+				</div>
+			{:else}
+				<div class="my-4 flex w-full flex-col space-y-1.5 text-center">
+					<div class="mx-auto w-fit max-w-64">
+						<Image
+							class="hidden max-w-64 rounded-lg sm:block"
+							height={209}
+							width={250}
+							src="https://f002.backblazeb2.com/file/bonfire-public/logo/logo_Bonfire_logo_vert_color_250.png"
+							layout="constrained"
+							alt="Bonfire logo with name"
+						/>
+						<Image
+							class="block max-w-64 rounded-lg sm:hidden"
+							height={125}
+							width={150}
+							src="https://f002.backblazeb2.com/file/bonfire-public/logo/logo_Bonfire_logo_vert_color_150px.png"
+							layout="constrained"
+							alt="Bonfire logo with name"
+						/>
+					</div>
+				</div>
+				{#if data.user}
+					<Button href="/" class="mt-4 w-full  md:text-lg">Continue with current account</Button>
+					<p class="my-3 text-center text-sm opacity-70">
+						Signed in as {data.user.email}
+					</p>
+				{:else}
+					<Button
+						href="/login/google"
+						class="mt-4 w-full bg-blue-500  text-white hover:bg-blue-400 dark:bg-blue-600 dark:hover:bg-blue-500 md:text-lg"
+						><Google class="mr-3 w-4" />Continue with Google
+					</Button>
+				{/if}
+
+				{#if data.user}
+					<form method="post" action="/login?/signout">
+						<Button type="submit" class="btn-ghost mt-2 w-full  sm:text-lg"
+							>Sign in with a different account
+						</Button>
+					</form>
+				{:else}
+					<form method="post" action="/login?/login_with_email" use:enhance>
+						<!-- Add tempAttendeeId as a hidden input -->
+						{#if tempAttendeeId}
+							<input type="hidden" name={tempAttendeeIdInForm} value={tempAttendeeId} />
+						{/if}
+
+						<input
+							bind:this={email_input}
+							placeholder="Email"
+							type="email"
+							name="email"
+							autocomplete="email"
+							class="input my-5 w-full bg-slate-200 dark:bg-slate-800 dark:text-white"
+							class:hidden={!show_email_input}
+						/>
+						{#if $errors.email}
+							<span class="ml-1 mt-2 text-xs text-red-500">{$errors.email}</span>
+						{/if}
+
+						{#if show_email_input}
+							<Button type="submit" disabled={$submitting} class="w-full  sm:text-lg">
+								{#if $submitting}
+									<span class="loading loading-spinner loading-xs mr-2"></span>
+								{/if}
+								<span>Continue</span>
+							</Button>
+						{:else}
+							<Button onclick={handleEmail} type="button" class="mt-4 w-full  sm:text-lg"
+								>Continue with email
+							</Button>{/if}
+					</form>
+				{/if}
 			{/if}
-		{/if}
+			<p class="mt-5 flex text-center text-sm">
+				Personalize your events by updating the background and font to match your style!
+			</p>
+		</div>
 	</div>
 </div>
 <!-- <LoaderPage show={showPageLoader} text={'Verifying...'} /> -->
