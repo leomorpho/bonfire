@@ -328,123 +328,152 @@
 	// Calculate total number of steps
 	const totalSteps = Object.keys(QuestionnaireStep).length / 2;
 	let progressValue = $derived((currentStepIndex / totalSteps) * 100);
+
+	const styles = `
+		font-family: 'Montserrat', sans-serif;
+		background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/ocean.jpg'); /* Replace with the URL of your tileable image */
+		background-repeat: repeat; /* Tiles the image in both directions */
+		background-size: auto; /* Ensures the image retains its original size */
+		background-color: #ffffff; /* Fallback background color */
+		width: 100%;
+		height: 100%;   	
+  `;
+	const overlayStyle = 'background-color: rgba(var(--overlay-color-rgb, 0, 0, 0), 0.4);';
 </script>
 
-<div class="mt-20 flex w-full justify-center">
-	<div class="flex w-3/4 justify-center sm:w-1/2 lg:w-1/3"><Progress value={progressValue} /></div>
-</div>
-<div class="relative w-full">
-	<div class="mx-auto flex h-[70vh] w-full items-center p-4 sm:w-2/3 md:w-1/2 xl:w-2/5">
-		<div class="flex w-full flex-col justify-center">
-			{#each surveyConfigList as config, index (index)}
-				<div animate:flip>
-					{#if currentStepIndex === index}
-						<div
-							class="w-full"
-							in:slide={{ y: slideDirection === 'up' ? -500 : 500, duration: 300 }}
-							out:slide={{ y: slideDirection === 'up' ? -500 : 500, duration: 100 }}
-						>
-							<div transition:fade={{ duration: 300 }}>
-								{@render title(config.question)}
-								{#if config.extraInfo}
-									<div class="my-3 text-center text-base">{config.extraInfo}</div>
-								{/if}
-								{#if config.type === 'select'}
-									<Select.Root
-										type="single"
-										name={config.field.split('.')[1]}
-										bind:value={formData[config.field.split('.')[0]][config.field.split('.')[1]]}
-									>
-										<Select.Trigger class="mb-4 w-full bg-white dark:bg-slate-900">
-											{getNestedProperty(formData, config.field) ||
-												`${config.placeholder}` ||
-												'Select'}
-										</Select.Trigger>
-										<Select.Content>
-											<Select.Group>
-												<Select.GroupHeading>{config.question}</Select.GroupHeading>
-												{#each config.options as option}
-													<Select.Item value={option}>{option}</Select.Item>
-												{/each}
-											</Select.Group>
-										</Select.Content>
-									</Select.Root>
-								{:else if config.type === 'multiple'}
-									<Select.Root
-										type="multiple"
-										name={config.field.split('.')[1]}
-										bind:value={formData[config.field.split('.')[0]][config.field.split('.')[1]]}
-									>
-										<Select.Trigger
-											class="mb-4 h-auto min-h-[40px] w-full whitespace-normal bg-white dark:bg-slate-900"
-										>
-											{formatListWithCommas(getNestedProperty(formData, config.field)) ||
-												`${config.placeholder}` ||
-												'Select'}
-										</Select.Trigger>
-										<Select.Content>
-											<Select.Group>
-												<Select.GroupHeading>{config.question}</Select.GroupHeading>
-												{#each config.options as option}
-													<Select.Item value={option}>{option}</Select.Item>
-												{/each}
-											</Select.Group>
-										</Select.Content>
-									</Select.Root>
-								{:else if config.type === 'address'}
-									<AddressInput
-										class="mb-4 w-full bg-white dark:bg-slate-900"
-										bind:location={formData[config.field.split('.')[0]][config.field.split('.')[1]]}
-										bind:geocodedLocation={formData.demographicInformation.geocodedLocation}
-										bind:latitude={formData.demographicInformation.latitude}
-										bind:longitude={formData.demographicInformation.longitude}
-										enterEventLocationText="Enter city..."
-									/>
-								{:else if config.type === 'likert'}
-									<LikertScaleButton
-										bind:value={formData[config.field.split('.')[0]][config.field.split('.')[1]]}
-									/>
-								{:else if config.type === 'completion'}
-									<pre>{JSON.stringify(formData, null, 2)}</pre>
-								{/if}
-
-								{#if config.type !== 'completion'}
-									<div class="flex w-full justify-center space-x-4">
-										{#if index != 0}
-											{@render prevBtn()}
+<div class="bg-color min-h-screen w-full" style={styles}>
+	<div class="bg-overlay min-h-screen" style={overlayStyle}>
+		<div class="relative pt-4 md:pt-10">
+			<div class="flex w-full justify-center">
+				<div class="flex w-3/4 justify-center sm:w-1/2 lg:w-1/3">
+					<Progress value={progressValue} />
+				</div>
+			</div>
+		</div>
+		<div class="relative w-full">
+			<div class="mx-auto flex h-[70vh] w-full items-center p-4 sm:w-2/3 md:w-1/2 xl:w-2/5">
+				<div class="flex w-full flex-col justify-center">
+					{#each surveyConfigList as config, index (index)}
+						<div animate:flip>
+							{#if currentStepIndex === index}
+								<div
+									class="w-full"
+									in:slide={{ y: slideDirection === 'up' ? -500 : 500, duration: 300 }}
+									out:slide={{ y: slideDirection === 'up' ? -500 : 500, duration: 100 }}
+								>
+									<div transition:fade={{ duration: 300 }}>
+										{@render title(config.question)}
+										{#if config.extraInfo}
+											<div class="my-3 text-center text-base">{config.extraInfo}</div>
 										{/if}
-										{#if config.type !== 'boolean'}
-											<Button
-												disabled={!getNestedProperty(formData, config.field)}
-												onclick={() => nextStep()}
-												class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-												>Next</Button
+										{#if config.type === 'select'}
+											<Select.Root
+												type="single"
+												name={config.field.split('.')[1]}
+												bind:value={
+													formData[config.field.split('.')[0]][config.field.split('.')[1]]
+												}
 											>
-										{:else}
-											<Button
-												onclick={() => {
-													formData[config.field.split('.')[0]][config.field.split('.')[1]] = 'No';
-													nextStep();
-												}}
-												class="rounded bg-purple-800 px-4 py-2 text-white hover:bg-purple-700"
-												>No</Button
+												<Select.Trigger class="mb-4 w-full bg-white dark:bg-slate-900">
+													{getNestedProperty(formData, config.field) ||
+														`${config.placeholder}` ||
+														'Select'}
+												</Select.Trigger>
+												<Select.Content>
+													<Select.Group>
+														<Select.GroupHeading>{config.question}</Select.GroupHeading>
+														{#each config.options as option}
+															<Select.Item value={option}>{option}</Select.Item>
+														{/each}
+													</Select.Group>
+												</Select.Content>
+											</Select.Root>
+										{:else if config.type === 'multiple'}
+											<Select.Root
+												type="multiple"
+												name={config.field.split('.')[1]}
+												bind:value={
+													formData[config.field.split('.')[0]][config.field.split('.')[1]]
+												}
 											>
-											<Button
-												onclick={() => {
-													formData[config.field.split('.')[0]][config.field.split('.')[1]] = 'Yes';
-													nextStep();
-												}}
-												class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-												>Yes</Button
-											>
+												<Select.Trigger
+													class="mb-4 h-auto min-h-[40px] w-full whitespace-normal bg-white dark:bg-slate-900"
+												>
+													{formatListWithCommas(getNestedProperty(formData, config.field)) ||
+														`${config.placeholder}` ||
+														'Select'}
+												</Select.Trigger>
+												<Select.Content>
+													<Select.Group>
+														<Select.GroupHeading>{config.question}</Select.GroupHeading>
+														{#each config.options as option}
+															<Select.Item value={option}>{option}</Select.Item>
+														{/each}
+													</Select.Group>
+												</Select.Content>
+											</Select.Root>
+										{:else if config.type === 'address'}
+											<AddressInput
+												class="mb-4 w-full bg-white dark:bg-slate-900"
+												bind:location={
+													formData[config.field.split('.')[0]][config.field.split('.')[1]]
+												}
+												bind:geocodedLocation={formData.demographicInformation.geocodedLocation}
+												bind:latitude={formData.demographicInformation.latitude}
+												bind:longitude={formData.demographicInformation.longitude}
+												enterEventLocationText="Enter city..."
+											/>
+										{:else if config.type === 'likert'}
+											<LikertScaleButton
+												bind:value={
+													formData[config.field.split('.')[0]][config.field.split('.')[1]]
+												}
+											/>
+										{:else if config.type === 'completion'}
+											<pre>{JSON.stringify(formData, null, 2)}</pre>
+										{/if}
+
+										{#if config.type !== 'completion'}
+											<div class="flex w-full justify-center space-x-4">
+												{#if index != 0}
+													{@render prevBtn()}
+												{/if}
+												{#if config.type !== 'boolean'}
+													<Button
+														disabled={!getNestedProperty(formData, config.field)}
+														onclick={() => nextStep()}
+														class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+														>Next</Button
+													>
+												{:else}
+													<Button
+														onclick={() => {
+															formData[config.field.split('.')[0]][config.field.split('.')[1]] =
+																'No';
+															nextStep();
+														}}
+														class="rounded bg-purple-800 px-4 py-2 text-white hover:bg-purple-700"
+														>No</Button
+													>
+													<Button
+														onclick={() => {
+															formData[config.field.split('.')[0]][config.field.split('.')[1]] =
+																'Yes';
+															nextStep();
+														}}
+														class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+														>Yes</Button
+													>
+												{/if}
+											</div>
 										{/if}
 									</div>
-								{/if}
-							</div>
+								</div>
+							{/if}
 						</div>
-					{/if}
+					{/each}
 				</div>
-			{/each}
+			</div>
 		</div>
 	</div>
 </div>

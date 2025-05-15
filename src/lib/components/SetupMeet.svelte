@@ -1,8 +1,6 @@
 <script lang="ts">
 	import { addDays } from 'date-fns';
 	import { onMount } from 'svelte';
-	import { X } from 'lucide-svelte';
-	import { env as publicEnv } from '$env/dynamic/public';
 	import { getFeWorkerTriplitClient } from '$lib/triplit';
 	import { page } from '$app/stores';
 	import type { TriplitClient } from '@triplit/client';
@@ -50,13 +48,13 @@
 		if (isLoading) return;
 
 		const client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
-		console.log('--->');
-		if (userDataPersonalData) {
-			await client.update('user_personal_data', userDataPersonalData?.id, async (e) => {
+
+        if (userDataPersonalData) {
+			await client.http.update('user_personal_data', userDataPersonalData?.id, async (e) => {
 				e.lastDismissedMeetOnboarding = new Date();
 			});
 		} else {
-			await client.insert('user_personal_data', {
+			await client.http.insert('user_personal_data', {
 				user_id: userId,
 				lastDismissedMeetOnboarding: new Date()
 			});
@@ -74,7 +72,7 @@
 	>
 		<div class="mb-2 flex w-full items-center justify-between">
 			<svg
-				class="me-3 inline h-4 w-4 shrink-0 text-black"
+				class="me-3 inline h-4 w-4 shrink-0 text-black dark:text-white"
 				aria-hidden="true"
 				xmlns="http://www.w3.org/2000/svg"
 				fill="currentColor"
@@ -86,7 +84,7 @@
 			</svg>
 			<button
 				type="button"
-				class="-mx-1.5 -my-1.5 ms-auto inline-flex h-8 w-8 items-center justify-center rounded-full bg-slate-300 p-1 text-red-500 hover:bg-red-200 focus:ring-2 focus:ring-green-400 dark:bg-gray-700 dark:text-green-400 dark:hover:bg-gray-700 dark:hover:dark:bg-gray-600"
+				class="-mx-1.5 -my-1.5 ms-auto inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-300 p-1 text-red-500 hover:bg-red-200 focus:ring-2 focus:ring-green-400 dark:bg-gray-600 dark:text-green-400 dark:hover:bg-gray-700 dark:hover:dark:bg-gray-500"
 				onclick={dismissAlert}
 				aria-label="Close"
 			>
@@ -112,21 +110,27 @@
 				class="flex flex-col space-y-4 text-black dark:text-white md:flex-row md:space-x-2 md:space-y-0"
 			>
 				<!-- Step 1 Card -->
-				<div class="step-card bg-bonfireGreen-200 dark:bg-bonfireGreen-600/90 rounded-xl p-4 shadow-md">
+				<div
+					class="step-card rounded-xl bg-bonfireGreen-200 p-4 shadow-md dark:bg-bonfireGreen-600/90"
+				>
 					<h3 class="text-lg font-bold">1. Take our quick personality test 📝</h3>
 					<p>Complete our personality and self questionnaire to help us understand you better.</p>
 				</div>
 				<!-- Step 2 Card -->
-				<div class="step-card bg-bonfirePurple-200 dark:bg-bonfirePurple-600/90 rounded-xl p-4 shadow-md">
+				<div
+					class="step-card rounded-xl bg-bonfirePurple-200 p-4 shadow-md dark:bg-bonfirePurple-600/90"
+				>
 					<h3 class="text-lg font-bold">2. We match you 🕯</h3>
 					<p>Our AI algorithm matches you with like-minded individuals for a great experience.</p>
 				</div>
 				<!-- Step 3 Card -->
-				<div class="step-card bg-bonfireOrange-300 dark:bg-bonfireOrange-700/90 rounded-xl p-4 shadow-md">
+				<div
+					class="step-card rounded-xl bg-bonfireOrange-300 p-4 shadow-md dark:bg-bonfireOrange-700/90"
+				>
 					<h3 class="text-lg font-bold">3. Meet new friends 👥</h3>
 					<p>Join events and meet strangers who could become your new best friends.</p>
 				</div>
-				<div class="step-card bg-bonfireRed-300 dark:bg-bonfireRed-600/90 rounded-xl p-4 shadow-md">
+				<div class="step-card rounded-xl bg-bonfireRed-300 p-4 shadow-md dark:bg-bonfireRed-600/90">
 					<h3 class="text-lg font-bold">4. Give feedback 👍</h3>
 					<p>Give us feedback and share a picture of your event to earn free credits!</p>
 				</div>
