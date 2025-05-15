@@ -14,11 +14,15 @@
 	import { getFeWorkerTriplitClient } from '$lib/triplit';
 	import { page } from '$app/stores';
 	import type { TriplitClient } from '@triplit/client';
-	import type { Metadata } from 'sharp';
 
 	const userId = $page.data.user?.id;
 	// Define types for survey configuration
 	type SurveyOption = string;
+
+	interface Link {
+		url: string;
+		name: string;
+	}
 
 	interface SurveyConfig {
 		question: string;
@@ -28,6 +32,7 @@
 		options?: SurveyOption[];
 		field?: string;
 		nextStep?: QuestionnaireStep;
+		links?: [Link];
 	}
 
 	// Define types for form data
@@ -220,7 +225,11 @@
 			question: 'Do you agree to our terms of service and privacy policy?',
 			type: 'boolean',
 			field: 'consentAndPreferences.agreeToTerms',
-			nextStep: QuestionnaireStep.HowDidYouHearAboutUs
+			nextStep: QuestionnaireStep.HowDidYouHearAboutUs,
+			links: [
+				{ url: '/privacy-policy', name: 'Privacy Policy' },
+				{ url: '/terms-of-use', name: 'Terms of Service' }
+			]
 		},
 		{
 			question: 'How did you hear about us?',
@@ -424,6 +433,17 @@
 										{@render title(config.question)}
 										{#if config.extraInfo}
 											<div class="my-3 text-center text-base">{config.extraInfo}</div>
+										{/if}
+										{#if config.links}
+										<div class="mb-8 mt-5 "> 
+										{#each config.links as link}
+											<div class="my-2 flex w-full justify-center">
+												<Button href={link.url} target="blank"
+													>{link.name ? link.name : 'See link'}</Button
+												>
+											</div>
+										{/each}
+											</div>
 										{/if}
 										{#if config.type === 'select'}
 											<Select.Root
