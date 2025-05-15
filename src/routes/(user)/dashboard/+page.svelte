@@ -12,6 +12,7 @@
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import { Status } from '$lib/enums';
 	import PermissionsPausedMsg from '$lib/components/settings/PermissionsPausedMsg.svelte';
+	import SetupMeet from '$lib/components/SetupMeet.svelte';
 
 	let client: TriplitClient;
 
@@ -139,8 +140,8 @@
 
 <div class="mx-4 mb-48 flex flex-col items-center justify-center sm:mb-20">
 	<section class="mt-8 w-full sm:w-2/3 md:w-[700px]">
-		<div class="w-full flex justify-center my-4">
-		<Button href="/meet/questionnaire">Join Bonfire Meet! Curated events in your local area</Button>
+		<div class="my-4 flex w-full flex-col justify-center space-y-2">
+			<SetupMeet userId={$page.data.user.id} />
 		</div>
 		<!-- <PermissionsPausedMsg {userId} /> -->
 		<Tabs.Root value={activeTab} class="w-full">
