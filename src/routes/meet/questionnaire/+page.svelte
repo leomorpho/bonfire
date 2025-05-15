@@ -198,14 +198,7 @@
 			question: 'What is your relationship status?',
 			type: 'select',
 			placeholder: 'Select status',
-			options: [
-				'Single',
-				'In a Relationship',
-				'Married',
-				'Divorced',
-				'Widowed',
-				'Prefer not to say'
-			],
+			options: ['Single', 'In a Relationship', 'Married', 'Prefer not to say'],
 			field: 'demographicInformation.relationshipStatus',
 			nextStep: QuestionnaireStep.HasChildren
 		},
@@ -217,12 +210,16 @@
 		},
 		{
 			question: 'Would you like to receive notifications about upcoming events relevant to you?',
+			extraInfo:
+				"Install the web app and enable push notifications to stay informed. You can adjust these settings anytime. We value your preferences and will only suggest events we believe you'll truly enjoy.",
 			type: 'boolean',
 			field: 'consentAndPreferences.receiveNotifications',
 			nextStep: QuestionnaireStep.AgreeToTerms
 		},
 		{
 			question: 'Do you agree to our terms of service and privacy policy?',
+			extraInfo:
+				"We're a privacy-focused startup and will never sell your data. We value your trust and believe in fair business. For full policies, see the links below.",
 			type: 'boolean',
 			field: 'consentAndPreferences.agreeToTerms',
 			nextStep: QuestionnaireStep.HowDidYouHearAboutUs,
@@ -248,7 +245,8 @@
 			nextStep: QuestionnaireStep.Completion
 		},
 		{
-			question: 'Questionnaire complete!',
+			question: 'All done!',
+			extraInfo: 'Hang tight, we will notify you when we have an event for you!',
 			type: 'completion'
 		}
 	];
@@ -357,8 +355,8 @@
 			userPersonalData = await client.fetchOne(
 				client.query('user_personal_data').Where(['user_id', '=', userId])
 			);
-			if (userPersonalData?.meetQuestionnaire) {
-				formData = userPersonalData?.meetQuestionnaire;
+			if (userPersonalData?.meet_questionnaire) {
+				formData = userPersonalData?.meet_questionnaire;
 			}
 			isLoadingBeData = false;
 		};
@@ -368,7 +366,7 @@
 
 	const updateMeetQuestionnaire = async () => {
 		await client.http.update('user_personal_data', userPersonalData?.id, async (e) => {
-			e.meetQuestionnaire = formData;
+			e.meet_questionnaire = formData;
 		});
 	};
 
@@ -432,17 +430,17 @@
 									<div transition:fade={{ duration: 300 }}>
 										{@render title(config.question)}
 										{#if config.extraInfo}
-											<div class="my-3 text-center text-base">{config.extraInfo}</div>
+											<div class="my-5 text-center text-base">{config.extraInfo}</div>
 										{/if}
 										{#if config.links}
-										<div class="mb-8 mt-5 "> 
-										{#each config.links as link}
-											<div class="my-2 flex w-full justify-center">
-												<Button href={link.url} target="blank"
-													>{link.name ? link.name : 'See link'}</Button
-												>
-											</div>
-										{/each}
+											<div class="mb-8 mt-5">
+												{#each config.links as link}
+													<div class="my-2 flex w-full justify-center">
+														<Button href={link.url} target="blank"
+															>{link.name ? link.name : 'See link'}</Button
+														>
+													</div>
+												{/each}
 											</div>
 										{/if}
 										{#if config.type === 'select'}
@@ -504,12 +502,15 @@
 											/>
 										{:else if config.type === 'likert'}
 											<LikertScaleButton
+												scale={5}
 												bind:value={
 													formData[config.field.split('.')[0]][config.field.split('.')[1]]
 												}
 											/>
 										{:else if config.type === 'completion'}
-											<pre>{JSON.stringify(formData, null, 2)}</pre>
+											<div class="flex w-full justify-center">
+												<Button href="/dashboard">Return to dashboard</Button>
+											</div>
 										{/if}
 
 										{#if config.type !== 'completion'}

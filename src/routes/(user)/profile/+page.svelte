@@ -86,7 +86,7 @@
 				/>
 
 				<div
-					class="mt-5 space-y-3 flex flex-col justify-center rounded-xl bg-gradient-to-r from-blue-100 to-blue-300 p-5 text-base dark:bg-gradient-to-r dark:from-blue-600 dark:to-blue-800"
+					class="mt-5 flex flex-col justify-center space-y-3 rounded-xl bg-gradient-to-r from-blue-100 to-blue-300 p-5 text-base dark:bg-gradient-to-r dark:from-blue-600 dark:to-blue-800"
 				>
 					<div class="flex w-full justify-center text-lg">Bonfire Meet Questionnaire</div>
 					<div class="text-center text-sm">
@@ -97,9 +97,14 @@
 					{#if isUserDataLoading}
 						<div class="flex w-full justify-center"><SvgLoader /></div>
 					{:else}
-						<Button href="/meet/questionnaire" class={`my-2 flex w-full justify-between ${user.user_personal_data?.meetQuestionnaire?'':'bg-purple-500 hover:bg-purple-400 text-white'}`}>
+						<Button
+							href={user.user_personal_data?.meet_questionnaire
+								? '/meet/questionnaire'
+								: '/meet/welcome'}
+							class={`my-2 flex w-full justify-between ${user.user_personal_data?.meet_questionnaire ? '' : 'bg-purple-500 text-white hover:bg-purple-400'}`}
+						>
 							<UsersRound />
-							{#if user.user_personal_data?.meetQuestionnaire}
+							{#if user.user_personal_data?.meet_questionnaire}
 								Update preferences
 							{:else}
 								Setup

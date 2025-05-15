@@ -25,7 +25,7 @@
 		{#each Array.from({ length: scale }, (_, i) => i + 1) as num}
 			<Button
 				onclick={() => handleClick(num)}
-				class={`rounded px-3 py-2 sm:px-4 ${normalizedValue === num ? 'bg-blue-500 text-white hover:bg-blue-600' : 'bg-gray-200 text-black hover:bg-blue-400'}`}
+				class={`rounded px-3 py-2 sm:px-4 text-xs sm:text-sm md:text-base ${normalizedValue === num ? 'bg-blue-500 text-white hover:bg-blue-600' : 'bg-gray-200 text-black hover:bg-blue-400'}`}
 			>
 				{num}
 			</Button>

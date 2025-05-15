@@ -24,19 +24,24 @@
 			userDataPersonalData = await client.fetchOne(
 				client.query('user_personal_data').Where(['user_id', '=', userId])
 			);
+			const meetQuestionnaire = userDataPersonalData?.meet_questionnaire;
+			const dismissedTimestamp = userDataPersonalData?.last_dismissed_meet_onboarding;
 
-			const dismissedTimestamp = userDataPersonalData?.lastDismissedMeetOnboarding;
-
-			if (!dismissedTimestamp) {
-				show = true;
-			} else {
-				const dismissedDate = new Date(dismissedTimestamp);
-				if (currentDate.getTime() < addDays(dismissedDate, numHideDaysAfterDismissed).getTime()) {
-					show = false;
-				} else {
+			if (!meetQuestionnaire) {
+				if (!dismissedTimestamp) {
 					show = true;
+				} else {
+					const dismissedDate = new Date(dismissedTimestamp);
+					if (currentDate.getTime() < addDays(dismissedDate, numHideDaysAfterDismissed).getTime()) {
+						show = false;
+					} else {
+						show = true;
+					}
 				}
+			} else {
+				show = false;
 			}
+
 			isLoading = false;
 		};
 		console.log('initting');
@@ -49,14 +54,14 @@
 
 		const client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
-        if (userDataPersonalData) {
+		if (userDataPersonalData) {
 			await client.http.update('user_personal_data', userDataPersonalData?.id, async (e) => {
-				e.lastDismissedMeetOnboarding = new Date();
+				e.last_dismissed_meet_onboarding = new Date();
 			});
 		} else {
 			await client.http.insert('user_personal_data', {
 				user_id: userId,
-				lastDismissedMeetOnboarding: new Date()
+				last_dismissed_meet_onboarding: new Date()
 			});
 		}
 
@@ -130,13 +135,13 @@
 					<h3 class="text-lg font-bold">3. Meet new friends 👥</h3>
 					<p>Join events and meet strangers who could become your new best friends.</p>
 				</div>
-				<div class="step-card rounded-xl bg-bonfireRed-300 p-4 shadow-md dark:bg-bonfireRed-600/90">
+				<!-- <div class="step-card rounded-xl bg-bonfireRed-300 p-4 shadow-md dark:bg-bonfireRed-600/90">
 					<h3 class="text-lg font-bold">4. Give feedback 👍</h3>
 					<p>Give us feedback and share a picture of your event to earn free credits!</p>
-				</div>
+				</div> -->
 			</div>
 			<Button
-				href="/meet/questionnaire"
+				href="/meet/welcome"
 				class="mt-4 rounded-xl bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
 			>
 				Book a seat!
