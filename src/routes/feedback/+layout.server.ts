@@ -1,0 +1,29 @@
+import { generateJWT, USER_ROLE } from '$lib/auth';
+import { triplitHttpClient } from '$lib/server/triplit';
+import { redirect } from '@sveltejs/kit';
+
+export const load = async (event) => {
+	// Get the user from locals
+	const user = event.locals.user;
+	if (!user) {
+		throw redirect(302, '/login'); // Redirect to login if not authenticated
+	}
+
+	const jwt = generateJWT(user?.id, USER_ROLE);
+
+	const client = triplitHttpClient;
+
+	const query = client.query('user').Where('id', '=', user.id);
+	let result = await client.fetch(query);
+
+	if (result.length == 0) {
+		await client.insert('user', { id: user.id, username: '' });
+		result = await client.fetch(query);
+		throw redirect(302, '/profile/username');
+	}
+
+	return {
+		user: user,
+		jwt: jwt
+	};
+};

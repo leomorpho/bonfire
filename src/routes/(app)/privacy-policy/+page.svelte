@@ -5,7 +5,15 @@
 </script>
 
 <Container>
-	<!-- Warning Box -->
+	
+	<div id="privacy-policy" class="py-16">
+		<div class="mx-auto max-w-2xl px-6 lg:px-8">
+			
+			<div class="space-y-8">
+				<h1 class="text-center text-4xl font-bold">Privacy Policy</h1>
+				<p class="text-lg text-gray-600">Effective Date: Jan 15, 2025</p>
+				<div class="space-y-6">
+					<!-- Warning Box -->
 	<div
 		class="mb-4 rounded-lg bg-yellow-50 p-4 text-sm text-yellow-800 dark:bg-gray-700 dark:text-yellow-300"
 		role="alert"
@@ -13,12 +21,6 @@
 		<span class="font-medium">Important Notice:</span> We do not buy, sell, or share any of the data
 		you store on Bonfire. Your privacy is our priority.
 	</div>
-	<div id="privacy-policy" class="py-16">
-		<div class="mx-auto max-w-2xl px-6 lg:px-8">
-			<div class="space-y-8">
-				<h1 class="text-center text-4xl font-bold">Privacy Policy</h1>
-				<p class="text-lg text-gray-600">Effective Date: Jan 15, 2025</p>
-				<div class="space-y-6">
 					<h2 class="text-2xl font-semibold">1. Information We Collect</h2>
 					<p>When you create an account, we collect the following information:</p>
 					<ul class="list-disc space-y-3 pl-6">

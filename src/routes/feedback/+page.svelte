@@ -2,7 +2,6 @@
 	import { env as publicEnv } from '$env/dynamic/public';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { House } from 'lucide-svelte';
-	import { Image } from '@unpic/svelte';
 	import Container from '$lib/components/Container.svelte';
 	import AboutUs from '$lib/components/landing/AboutUs.svelte';
 </script>
@@ -12,7 +11,7 @@
 		<div class="mx-auto max-w-2xl px-6 lg:px-8">
 			<h2 class="mb-5 text-center text-3xl font-bold md:text-4xl">Share Your Feedback</h2>
 			<div class="my-5 flex flex-col text-base">
-				<div class="space-y-7 text-center">
+				<div class="space-y-3 text-center">
 					<p>
 						Your feedback is incredibly valuable as I work to improve and build a better product.
 						Please share your thoughts, suggestions, or any issues you encounter.
@@ -25,7 +24,7 @@
 							>{publicEnv.PUBLIC_FROM_EMAIL}</a
 						>
 					</p>
-					<p class="text-sm italic">
+					<p>
 						Thank you for taking the time to help me make this product better!
 					</p>
 				</div>
