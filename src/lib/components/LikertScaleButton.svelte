@@ -4,13 +4,16 @@
 	let {
 		question = null,
 		scale = 5,
-		value = $bindable<number>(3),
+		value = $bindable<number>(50), // Default value set to 50
 		min = 'Not at all',
 		max = 'Very'
 	} = $props();
 
+	let normalizedValue = $derived(Math.round((value / 100) * (scale - 1)) + 1);
+
 	const handleClick = (selectedValue: number) => {
-		value = selectedValue;
+		// Convert the selected scale value back to the 0-100 range
+		value = Math.round(((selectedValue - 1) / (scale - 1)) * 100);
 	};
 </script>
 
@@ -22,7 +25,7 @@
 		{#each Array.from({ length: scale }, (_, i) => i + 1) as num}
 			<Button
 				onclick={() => handleClick(num)}
-				class={`rounded px-3 py-2 sm:px-4 ${value === num ? 'bg-blue-500 text-white hover:bg-blue-600' : 'bg-gray-200 text-black hover:bg-blue-400'}`}
+				class={`rounded px-3 py-2 sm:px-4 ${normalizedValue === num ? 'bg-blue-500 text-white hover:bg-blue-600' : 'bg-gray-200 text-black hover:bg-blue-400'}`}
 			>
 				{num}
 			</Button>

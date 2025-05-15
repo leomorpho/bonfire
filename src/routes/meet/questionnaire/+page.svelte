@@ -92,7 +92,7 @@
 	// Define the survey configuration
 	const surveyConfigList: SurveyConfig[] = [
 		{
-			question: 'What are the primary reasons you are using this app?',
+			question: 'What are the primary reasons you want to use Bonfire Meet for?',
 			type: 'multiple',
 			placeholder: 'Select reason(s)',
 			options: ['Dating', 'Making Friends', 'Professional Networking', 'Other'],
