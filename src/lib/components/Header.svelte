@@ -165,7 +165,7 @@
 				{/if}
 				<InstallPwaAppBtn />
 
-				<div class="hidden sm:mx-2 sm:block"><ToggleTheme /></div>
+				<ToggleTheme />
 				{#if $page.data.user}
 					<NotificationsIndicator />
 				{/if}
