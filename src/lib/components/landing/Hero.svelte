@@ -4,11 +4,52 @@
 	import { PaintBucket, RefreshCw, TypeOutline } from 'lucide-svelte';
 	import Container from '../Container.svelte';
 	import AnimatedShinyText from '../effects/animated-shiny-text/AnimatedShinyText.svelte';
+	import { onMount } from 'svelte';
 
 	const titleFont = JSON.parse('{}');
 	const subtitleFont = JSON.parse('{}');
 
 	const fontElementId = 'dynamic-preview-font';
+
+	// Buffer for fonts and backgrounds
+	let fontBuffer: any[] = [];
+	let backgroundBuffer: string[] = [];
+
+	// Initialize buffers
+	const initializeBuffers = () => {
+		// Preload initial fonts
+		for (let i = 0; i < 5; i++) {
+			const font = getNextFont();
+			preloadFont(font);
+			fontBuffer.push(font);
+		}
+
+		// Preload initial backgrounds
+		for (let i = 0; i < 5; i++) {
+			const background = getNextTheme();
+			preloadBackground(background);
+			backgroundBuffer.push(background);
+		}
+	};
+	// Preload font by adding the stylesheet
+	const preloadFont = (font: any) => {
+		if (font && font.cdn) {
+			const fontLink = document.createElement('link');
+			fontLink.href = font.cdn;
+			fontLink.rel = 'stylesheet';
+			document.head.appendChild(fontLink);
+			console.log('Added font');
+		}
+	};
+
+	// Preload background image
+	const preloadBackground = (background: string) => {
+		const match = background.match(/url\('([^']+)'\)/);
+		if (match && match[1]) {
+			const img = new Image();
+			img.src = match[1];
+		}
+	};
 
 	let backgroundStyle = $state(`
       	background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/naranjas.png');
@@ -21,27 +62,27 @@
 
 	let font = $state();
 
+	// Get a random theme and ensure the buffer is replenished
 	const getRandomTheme = () => {
-		backgroundStyle = getNextTheme();
+		if (backgroundBuffer.length === 0) {
+			initializeBuffers();
+		}
+
+		const background = backgroundBuffer.shift();
+		backgroundStyle = background;
+		preloadBackground(getNextTheme());
+		backgroundBuffer.push(getNextTheme());
 	};
 
+	// Get a random font and ensure the buffer is replenished
 	const getRandomFont = () => {
-		font = getNextFont();
-
-		// Remove any existing style element with the same ID if it is a child of the head
-		const existingFontElement = document.getElementById(fontElementId);
-		if (existingFontElement && document.head.contains(existingFontElement)) {
-			document.head.removeChild(existingFontElement);
+		if (fontBuffer.length === 0) {
+			initializeBuffers();
 		}
 
-		// Add the font CDN link to the document head if a font is selected
-		if (font && font.cdn) {
-			const fontLink = document.createElement('link');
-			fontLink.id = fontElementId;
-			fontLink.href = font.cdn;
-			fontLink.rel = 'stylesheet';
-			document.head.appendChild(fontLink);
-		}
+		font = fontBuffer.shift();
+		preloadFont(getNextFont());
+		fontBuffer.push(getNextFont());
 	};
 
 	let styles = $derived(`
@@ -66,15 +107,20 @@
 		-webkit-mask-position: top, bottom; 	
   `);
 
-	$effect(() => {
-		console.log('styles', styles);
+	// $effect(() => {
+	// 	console.log('styles', styles);
+	// });
+
+	onMount(() => {
+		// Initialize buffers on first load
+		initializeBuffers();
 	});
 </script>
 
 {#snippet startBonfireBtn()}
 	<div class="flex items-center justify-center sm:justify-start">
 		<a href="/bonfire/create">
-			<Button id="create-bonfire-button">
+			<Button id="create-bonfire-button" class="shadow-xl">
 				✨
 				<AnimatedShinyText
 					cls="inline-flex items-center justify-center px-2 sm:px-4 sm:py-1 transition text-sm sm:text-base ease-out hover:text-neutral-600 hover:duration-300 hover:dark:text-neutral-400 text-white dark:text-black"
@@ -106,14 +152,14 @@
 		<Container>
 			<div class="flex w-full justify-center space-x-2">
 				<Button
-					class="justify-centerp-4 flex items-center bg-violet-600 hover:bg-violet-500 dark:bg-violet-700 dark:text-white dark:hover:bg-violet-500"
+					class="shadow-xl justify-centerp-4 flex items-center bg-violet-600 hover:bg-violet-500 dark:bg-violet-700 dark:text-white dark:hover:bg-violet-500"
 					onclick={getRandomTheme}
 				>
 					<PaintBucket class="mr-1" />
 					<RefreshCw class="mr-1" />
 				</Button>
 				<Button
-					class="flex items-center justify-center bg-violet-600 p-4 hover:bg-violet-500 dark:bg-violet-700 dark:text-white dark:hover:bg-violet-500"
+					class="shadow-xl flex items-center justify-center bg-violet-600 p-4 hover:bg-violet-500 dark:bg-violet-700 dark:text-white dark:hover:bg-violet-500"
 					onclick={getRandomFont}
 				>
 					<TypeOutline class="mr-1" />

@@ -35,10 +35,10 @@
 			<!-- Basic package -->
 			<div class="card max-w-80 rounded-3xl bg-blue-100 p-8 shadow-xl dark:bg-blue-900">
 				<h3 class="mb-2 text-xl font-extrabold text-slate-800 dark:text-slate-200">
-					Free Events (Beta)
+					Create your event
 				</h3>
 				<div class="text-5xl font-extrabold leading-snug">
-					$0 <span class="text-base font-bold">usd</span>
+					$0 <span class="text-base font-bold"></span>
 					<span class="text-2xl font-medium">/ Bonfire</span>
 				</div>
 				<ul class="mb-10 mt-3 space-y-5 sm:mb-20">
@@ -57,10 +57,10 @@
 
 			<div class="card max-w-80 rounded-3xl bg-blue-100 p-8 shadow-xl dark:bg-blue-900">
 				<h3 class="mb-2 text-xl font-extrabold text-slate-800 dark:text-slate-200">
-					Curated Events
+					Curated events
 				</h3>
 				<div class="text-5xl font-extrabold leading-snug">
-					$10 <span class="text-base font-bold">usd</span>
+					$10 <span class="text-base font-bold"></span>
 					<span class="text-2xl font-medium">/ Bonfire</span>
 				</div>
 				<ul class="mb-10 mt-3 space-y-5 sm:mb-20">

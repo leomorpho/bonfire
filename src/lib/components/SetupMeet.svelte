@@ -97,7 +97,7 @@
 				</svg>
 				<button
 					type="button"
-					class="shadow-lg -mx-1.5 -my-1.5 ms-auto inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-300 p-1 text-red-500 hover:bg-red-200 focus:ring-2 focus:ring-slate-400 dark:bg-gray-600/70 dark:text-red-400  dark:hover:bg-gray-700 dark:hover:dark:bg-gray-500"
+					class="shadow-lg -mx-1.5 -my-1.5 ms-auto inline-flex h-6 w-6 items-center justify-center rounded-full dark:bg-slate-300 p-1 text-red-500 hover:bg-red-200 focus:ring-2 focus:ring-slate-400 bg-gray-400/70 dark:text-red-400  dark:hover:bg-red-700"
 					onclick={dismissAlert}
 					aria-label="Close"
 				>

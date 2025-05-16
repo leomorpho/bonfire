@@ -33,7 +33,7 @@
 {#snippet feature()}{/snippet}
 
 <div style={styles}>
-	<div class="bg-slate-100/30 py-16 dark:bg-slate-900/50">
+	<div class="bg-slate-100/30 py-16 dark:bg-slate-900/5">
 		<Container>
 			<div class="py-5 md:py-7"></div>
 			<h2 class="mb-10 text-center text-3xl font-bold md:text-4xl">App Features</h2>
