@@ -31,11 +31,10 @@
     -webkit-mask-repeat: no-repeat;
     -webkit-mask-position: top, bottom; 	
   `;
-	const overlayStyle = 'background-color: rgba(var(--overlay-color-rgb, 0, 0, 0), 0.8);';
 </script>
 
 <div style={styles}>
-	<div style={overlayStyle} class="py-20">
+	<div class="bg-slate-100/70 py-20 dark:bg-slate-900/70">
 		<Container>
 			<div id="about-us" class={`sm:mb-15 ${cls}`}>
 				<div class="mx-auto max-w-2xl px-6 lg:px-8">

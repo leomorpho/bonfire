@@ -69,7 +69,6 @@
 	$effect(() => {
 		console.log('styles', styles);
 	});
-	const overlayStyle = 'background-color: rgba(var(--overlay-color-rgb, 0, 0, 0), 0.8);';
 </script>
 
 {#snippet startBonfireBtn()}
@@ -103,7 +102,7 @@
 	</div>
 {/snippet}
 <div style={styles}>
-	<div id="dynamic-preview-font" style={overlayStyle} class="py-20">
+	<div id="dynamic-preview-font" class="bg-slate-100/70 py-20 dark:bg-slate-900/70">
 		<Container>
 			<div class="flex w-full justify-center space-x-2">
 				<Button

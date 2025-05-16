@@ -46,7 +46,7 @@
 </script>
 
 <div
-	class="embla invisible mt-3 h-[270px] overflow-hidden"
+	class="embla invisible mt-3 h-[330px] overflow-hidden"
 	use:emblaCarouselSvelte={{ options, plugins }}
 	onemblaInit={onInit}
 >
