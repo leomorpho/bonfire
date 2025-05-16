@@ -18,12 +18,12 @@
 		}
 	};
 	const styles = `				
-         background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/kiwis.png'); /* Replace with the URL of your tileable image */
-  background-repeat: repeat; /* Tiles the image in both directions */
-  background-size: auto; /* Ensures the image retains its original size */
-  background-color: #ffffff; /* Fallback background color */
-  width: 100%;
-  height: 100%;   	
+        background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/cuadros.png'); /* Replace with the URL of your tileable image */
+		background-repeat: repeat; /* Tiles the image in both directions */
+		background-size: auto; /* Ensures the image retains its original size */
+		background-color: #ffffff; /* Fallback background color */
+		width: 100%;
+		height: 100%;   	
   `;
 	const overlayStyle = 'background-color: rgba(var(--overlay-color-rgb, 0, 0, 0), 0.4);';
 </script>

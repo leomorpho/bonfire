@@ -3,7 +3,7 @@
 	This loader shows on every page change
 	*/
 	import { onMount } from 'svelte';
-	import { beforeNavigate, afterNavigate } from '\$app/navigation';
+	import { beforeNavigate, afterNavigate } from '$app/navigation';
 
 	let isLoading: boolean = $state(false);
 
@@ -15,13 +15,25 @@
 		isLoading = false;
 	}
 
+	function handleAnchorClick(event: MouseEvent) {
+		const anchor = event.target as HTMLAnchorElement;
+		if (anchor.tagName === 'A' && anchor.href) {
+			handleBeforeNavigate();
+		}
+	}
+
 	onMount(() => {
 		beforeNavigate(handleBeforeNavigate);
 		afterNavigate(handleAfterNavigate);
 
+		// Add event listener for anchor clicks
+		document.addEventListener('click', handleAnchorClick);
+
 		return () => {
 			beforeNavigate(() => {});
 			afterNavigate(() => {});
+			// Remove event listener on unmount
+			document.removeEventListener('click', handleAnchorClick);
 		};
 	});
 </script>
