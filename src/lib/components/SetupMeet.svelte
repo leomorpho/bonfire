@@ -67,85 +67,97 @@
 
 		show = false;
 	};
+
+	const styles = `
+      background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/naranjas.png');
+    background-repeat: repeat;
+    background-size: auto;
+    background-color: #ffffff; /* Fallback background color */
+    width: 100%;
+    height: 100%;
+  `;
 </script>
 
 {#if show}
-	<div
-		id="success-alert"
-		class="mb-4 flex flex-col items-center rounded-2xl bg-slate-200 p-4 text-sm text-green-800 dark:bg-gray-700 dark:text-green-400"
-		role="alert"
-	>
-		<div class="mb-2 flex w-full items-center justify-between">
-			<svg
-				class="me-3 inline h-4 w-4 shrink-0 text-black dark:text-white"
-				aria-hidden="true"
-				xmlns="http://www.w3.org/2000/svg"
-				fill="currentColor"
-				viewBox="0 0 20 20"
-			>
-				<path
-					d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"
-				/>
-			</svg>
-			<button
-				type="button"
-				class="-mx-1.5 -my-1.5 ms-auto inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-300 p-1 text-red-500 hover:bg-red-200 focus:ring-2 focus:ring-green-400 dark:bg-gray-600 dark:text-green-400 dark:hover:bg-gray-700 dark:hover:dark:bg-gray-500"
-				onclick={dismissAlert}
-				aria-label="Close"
-			>
-				<span class="sr-only">Close</span>
+	<div style={styles} id="success-alert" class="rounded-2xl mb-5" role="alert">
+		<div
+			class="flex flex-col items-center rounded-2xl h-max bg-slate-200/70 p-4 text-sm text-black dark:bg-gray-700/65 dark:text-white"
+		>
+			<div class="mb-2 flex w-full items-center justify-between">
 				<svg
-					class="h-4 w-4"
-					fill="none"
-					stroke="currentColor"
-					viewBox="0 0 24 24"
+					class="me-3 inline h-4 w-4 shrink-0 text-black dark:text-white"
+					aria-hidden="true"
 					xmlns="http://www.w3.org/2000/svg"
+					fill="currentColor"
+					viewBox="0 0 20 20"
 				>
 					<path
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						stroke-width="2"
-						d="M6 18L18 6M6 6l12 12"
-					></path>
+						d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"
+					/>
 				</svg>
-			</button>
-		</div>
-		<div class="w-full text-center text-sm">
-			<div
-				class="flex flex-col space-y-4 text-black dark:text-white md:flex-row md:space-x-2 md:space-y-0"
-			>
-				<!-- Step 1 Card -->
-				<div
-					class="step-card rounded-xl bg-bonfireGreen-200 p-4 shadow-md dark:bg-bonfireGreen-600/90"
+				<button
+					type="button"
+					class="shadow-lg -mx-1.5 -my-1.5 ms-auto inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-300 p-1 text-red-500 hover:bg-red-200 focus:ring-2 focus:ring-slate-400 dark:bg-gray-600/70 dark:text-red-400  dark:hover:bg-gray-700 dark:hover:dark:bg-gray-500"
+					onclick={dismissAlert}
+					aria-label="Close"
 				>
-					<h3 class="text-lg font-bold">1. Take our quick personality test 📝</h3>
-					<p>Complete our personality and self questionnaire to help us understand you better.</p>
+					<span class="sr-only">Close</span>
+					<svg
+						class="h-4 w-4"
+						fill="none"
+						stroke="currentColor"
+						viewBox="0 0 24 24"
+						xmlns="http://www.w3.org/2000/svg"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="2"
+							d="M6 18L18 6M6 6l12 12"
+						></path>
+					</svg>
+				</button>
+			</div>
+			<div class="w-full text-center text-sm">
+				<div class="mb-5 mt-3 text-center text-2xl font-semibold md:text-2xl">
+					👋 Sign up for Bonfire Meet and join events curated by us!
 				</div>
-				<!-- Step 2 Card -->
 				<div
-					class="step-card rounded-xl bg-bonfirePurple-200 p-4 shadow-md dark:bg-bonfirePurple-600/90"
+					class="flex flex-col space-y-4 text-black dark:text-white md:flex-row md:space-x-2 md:space-y-0"
 				>
-					<h3 class="text-lg font-bold">2. We match you 🕯</h3>
-					<p>Our AI algorithm matches you with like-minded individuals for a great experience.</p>
-				</div>
-				<!-- Step 3 Card -->
-				<div
-					class="step-card rounded-xl bg-bonfireOrange-300 p-4 shadow-md dark:bg-bonfireOrange-700/90"
-				>
-					<h3 class="text-lg font-bold">3. Meet new friends 👥</h3>
-					<p>Join events and meet strangers who could become your new best friends.</p>
-				</div>
-				<!-- <div class="step-card rounded-xl bg-bonfireRed-300 p-4 shadow-md dark:bg-bonfireRed-600/90">
+					<!-- Step 1 Card -->
+					<div
+						class="step-card rounded-xl bg-bonfireGreen-200/70 p-4 shadow-md dark:bg-bonfireGreen-600/70"
+					>
+						<h3 class="text-lg font-bold">1. Take our quick personality test 📝</h3>
+						<p>Complete our personality and self questionnaire to help us understand you better.</p>
+					</div>
+					<!-- Step 2 Card -->
+					<div
+						class="step-card rounded-xl bg-bonfirePurple-200/70 p-4 shadow-md dark:bg-bonfirePurple-600/70"
+					>
+						<h3 class="text-lg font-bold">2. We match you 🕯</h3>
+						<p>Our AI algorithm matches you with like-minded individuals for a great experience.</p>
+					</div>
+					<!-- Step 3 Card -->
+					<div
+						class="step-card rounded-xl bg-bonfireOrange-300/70 p-4 shadow-md dark:bg-bonfireOrange-700/70"
+					>
+						<h3 class="text-lg font-bold">3. Meet new friends 👥</h3>
+						<p>Join events and meet strangers who could become your new best friends.</p>
+					</div>
+					<!-- <div class="step-card rounded-xl bg-bonfireRed-300 p-4 shadow-md dark:bg-bonfireRed-600/90">
 					<h3 class="text-lg font-bold">4. Give feedback 👍</h3>
 					<p>Give us feedback and share a picture of your event to earn free credits!</p>
 				</div> -->
+				</div>
+				<Button
+					href="/meet/welcome"
+					class="mt-4 rounded-xl bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+				>
+					Book a seat!
+				</Button>
 			</div>
-			<Button
-				href="/meet/welcome"
-				class="mt-4 rounded-xl bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-			>
-				Book a seat!
-			</Button>
 		</div>
 	</div>
 {/if}
