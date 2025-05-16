@@ -176,13 +176,13 @@
 >
 	<Card.Root class="relative my-4 w-full bg-slate-200 dark:bg-slate-900" {style}>
 		<!-- Not Published Marker -->
-		{#if !isPublished}
+		<!-- {#if !isPublished}
 			<div
 				class="absolute right-2 top-2 z-20 rounded bg-red-600 px-3 py-1 text-xs font-semibold text-white shadow-md dark:bg-red-500"
 			>
 				Not Published
 			</div>
-		{/if}
+		{/if} -->
 		<!-- Overlay -->
 		<div style={overlayStyle} class="pointer-events-none absolute inset-0 rounded-xl"></div>
 

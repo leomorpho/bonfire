@@ -159,7 +159,7 @@
 </svelte:head>
 
 <div style={styles} class="h-[90vh]">
-	<div class="flex h-[90vh] items-center justify-center p-5 bg-slate-100/80 dark:bg-slate-900/90" >
+	<div class="flex h-[90vh] items-center justify-center bg-slate-100/80 p-5 dark:bg-slate-900/90">
 		<div class="card flex w-full max-w-[470px] flex-col p-5">
 			{#if !email_sent && oneTimePasswordValue.length > 0}
 				<div
@@ -194,7 +194,7 @@
 									{#each cells.slice(0, 3) as cell}
 										<InputOTP.Slot
 											{cell}
-											class="md:h-18 relative flex h-12 w-8 items-center justify-center border-y border-r border-input transition-all first:rounded-l-md first:border-l last:rounded-r-md sm:h-14 sm:w-10 sm:text-xl md:w-14 md:text-2xl"
+											class="md:h-18 relative flex h-12 w-8 items-center justify-center border-y border-r border-input bg-slate-100 transition-all first:rounded-l-md first:border-l last:rounded-r-md dark:bg-slate-900 sm:h-14 sm:w-10 sm:text-xl md:w-14 md:text-2xl"
 										/>
 									{/each}
 								</InputOTP.Group>
@@ -203,7 +203,7 @@
 									{#each cells.slice(3, 6) as cell}
 										<InputOTP.Slot
 											{cell}
-											class="md:h-18 relative flex h-12 w-8 items-center justify-center border-y border-r border-input transition-all first:rounded-l-md first:border-l last:rounded-r-md sm:h-14 sm:w-10 sm:text-xl md:w-14 md:text-2xl"
+											class="md:h-18 relative  flex h-12 w-8 items-center justify-center border-y border-r border-input bg-slate-100 transition-all first:rounded-l-md first:border-l last:rounded-r-md dark:bg-slate-900 sm:h-14 sm:w-10 sm:text-xl md:w-14 md:text-2xl"
 										/>
 									{/each}
 								</InputOTP.Group>
@@ -220,7 +220,9 @@
 					{/if}
 					<!-- OTP Verification Form -->
 					<div>
-						<Button class="text-md mt-5 w-full  dark:bg-slate-800 dark:text-white sm:text-lg">
+						<Button
+							class="text-md mt-5 w-full  dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800 sm:text-lg"
+						>
 							Submit
 						</Button>
 					</div>

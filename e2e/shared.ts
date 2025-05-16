@@ -48,6 +48,7 @@ export async function loginUser(
 		// Finish onboarding
 		// await page.locator('#agree-to-free-logs-btn').click();
 		await page.locator('#finish-permission-onboarding-btn').click();
+		await page.getByRole('link', { name: 'Maybe later' }).click(); // Skip Meet setup
 	}
 
 	await page.getByRole('tab', { name: 'Upcoming' }).click();
