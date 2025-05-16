@@ -30,8 +30,6 @@
   `;
 </script>
 
-{#snippet feature()}{/snippet}
-
 <div style={styles}>
 	<div class="bg-slate-100/30 py-16 dark:bg-slate-900/5">
 		<Container>

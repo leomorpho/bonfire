@@ -10,6 +10,7 @@
 	import { addUserRequest } from '$lib/profilestore';
 	import FadeIn from '$lib/components/containers/FadeIn.svelte';
 	import Alert from '$lib/components/Alert.svelte';
+	import MeetSettingsCard from '$lib/components/meet/MeetSettingsCard.svelte';
 
 	let user = $state();
 	let isUserDataLoading = $state(true);
@@ -85,34 +86,7 @@
 					message={'Your profile is private, visible only to those sharing an event with you.'}
 				/>
 
-				<div
-					class="mt-5 flex flex-col justify-center space-y-3 rounded-xl bg-gradient-to-r from-blue-100 to-blue-300 p-5 text-base dark:bg-gradient-to-r dark:from-blue-600 dark:to-blue-800"
-				>
-					<div class="flex w-full justify-center text-lg">Bonfire Meet Questionnaire</div>
-					<div class="text-center text-sm">
-						Discover curated events tailored just for you! Our AI matcher connects you with
-						like-minded individuals in your city. Dive into new experiences and turn strangers into
-						lifelong friends.
-					</div>
-					{#if isUserDataLoading}
-						<div class="flex w-full justify-center"><SvgLoader /></div>
-					{:else}
-						<Button
-							href={user.user_personal_data?.meet_questionnaire
-								? '/meet/questionnaire'
-								: '/meet/welcome'}
-							class={`my-2 flex w-full justify-between ${user.user_personal_data?.meet_questionnaire ? '' : 'bg-purple-500 text-white hover:bg-purple-400'}`}
-						>
-							<UsersRound />
-							{#if user.user_personal_data?.meet_questionnaire}
-								Update preferences
-							{:else}
-								Setup
-							{/if}
-							<span></span>
-						</Button>
-					{/if}
-				</div>
+				<MeetSettingsCard isUserDataLoading={isUserDataLoading} userPersonalData={user.user_personal_data}/>
 
 				<!-- <div
 					class="text-base mt-5 flex flex-col justify-center rounded-xl bg-gradient-to-r from-blue-100 to-blue-300 p-5 dark:bg-gradient-to-r dark:from-blue-600 dark:to-blue-800"

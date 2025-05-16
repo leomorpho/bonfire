@@ -12,7 +12,7 @@
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import { Status } from '$lib/enums';
 	import PermissionsPausedMsg from '$lib/components/settings/PermissionsPausedMsg.svelte';
-	import SetupMeet from '$lib/components/SetupMeet.svelte';
+	import SetupMeet from '$lib/components/meet/SetupMeet.svelte';
 
 	let client: TriplitClient;
 
