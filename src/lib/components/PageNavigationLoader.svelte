@@ -1,4 +1,7 @@
 <script lang="ts">
+	/*
+	This loader shows on every page change
+	*/
 	import { onMount } from 'svelte';
 	import { beforeNavigate, afterNavigate } from '\$app/navigation';
 

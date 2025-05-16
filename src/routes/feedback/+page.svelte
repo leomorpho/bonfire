@@ -24,20 +24,18 @@
 							>{publicEnv.PUBLIC_FROM_EMAIL}</a
 						>
 					</p>
-					<p>
-						Thank you for taking the time to help me make this product better!
-					</p>
-				</div>
-
-				<AboutUs class="mt-5" />
-
-				<div class="flex w-full justify-center">
-					<a href="/"><Button class="mt-10"><House /> Go back home</Button></a>
+					<p>Thank you for taking the time to help me make this product better!</p>
 				</div>
 			</div>
 		</div>
 	</div>
 </Container>
+
+<AboutUs class="mt-5" />
+
+<div class="flex w-full justify-center mb-20">
+	<a href="/"><Button class="mt-10"><House /> Go back home</Button></a>
+</div>
 
 <style>
 	/* Add any additional styles specific to this component here */
