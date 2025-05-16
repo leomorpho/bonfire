@@ -9,7 +9,7 @@ export const GET = async (event) => {
     const eventId = event.params.id; // Get the event ID from the route parameters
 
     if (!eventId) {
-        throw redirect(302, '/');
+        throw redirect(302, '/dashboard');
     }
 
     // Get the user from locals

@@ -246,7 +246,8 @@
 		},
 		{
 			question: 'All done!',
-			extraInfo: 'Hang tight, we will notify you when we have an event for you!',
+			extraInfo:
+				'Hang tight, we will notify you when we have an event for you! If at any time you want to edit your answers to this questionnaire, head to your profile page!',
 			type: 'completion'
 		}
 	];

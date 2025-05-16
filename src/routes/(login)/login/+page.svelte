@@ -146,8 +146,8 @@
 	const getRandomTheme = () => {
 		styles = getNextTheme();
 	};
+
 	getRandomTheme();
-	const overlayStyle = 'background-color: rgba(var(--overlay-color-rgb, 0, 0, 0), 0.8);';
 </script>
 
 <svelte:head>
@@ -158,8 +158,8 @@
 	/>
 </svelte:head>
 
-<div style={styles}>
-	<div class="flex h-[50vw] items-center justify-center p-5" style={overlayStyle}>
+<div style={styles} class="h-[90vh]">
+	<div class="flex h-[90vh] items-center justify-center p-5 bg-slate-100/80 dark:bg-slate-900/90" >
 		<div class="card flex w-full max-w-[470px] flex-col p-5">
 			{#if !email_sent && oneTimePasswordValue.length > 0}
 				<div

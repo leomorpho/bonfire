@@ -14,13 +14,13 @@ export async function GET(event: RequestEvent): Promise<Response> {
 	]);
 	event.cookies.set('code_verifier', codeVerifier, {
 		secure: !dev, // set to false in localhost
-		path: '/',
+		path: '/dashboard',
 		httpOnly: true,
 		maxAge: 60 * 10 // 10 min
 	});
 
 	event.cookies.set('google_oauth_state', state, {
-		path: '/',
+		path: '/dashboard',
 		secure: !dev,
 		httpOnly: true,
 		maxAge: 60 * 10,

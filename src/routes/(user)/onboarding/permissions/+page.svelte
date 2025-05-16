@@ -53,7 +53,7 @@
 					<DeliveryPermissions userId={$page.data.user.id} class={permissionClasses} />
 				</div>
 
-				<a href="/dashboard">
+				<a href="/meet/intro">
 					<Button
 						id="finish-permission-onboarding-btn"
 						class="mt-6 flex w-full items-center justify-center gap-2"

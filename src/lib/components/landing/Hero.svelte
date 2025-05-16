@@ -150,22 +150,7 @@
 <div style={styles}>
 	<div id="dynamic-preview-font" class="bg-slate-100/70 py-20 dark:bg-slate-900/70">
 		<Container>
-			<div class="flex w-full justify-center space-x-2">
-				<Button
-					class="shadow-xl justify-centerp-4 flex items-center bg-violet-600 hover:bg-violet-500 dark:bg-violet-700 dark:text-white dark:hover:bg-violet-500"
-					onclick={getRandomTheme}
-				>
-					<PaintBucket class="mr-1" />
-					<RefreshCw class="mr-1" />
-				</Button>
-				<Button
-					class="shadow-xl flex items-center justify-center bg-violet-600 p-4 hover:bg-violet-500 dark:bg-violet-700 dark:text-white dark:hover:bg-violet-500"
-					onclick={getRandomFont}
-				>
-					<TypeOutline class="mr-1" />
-					<RefreshCw class="mr-1" />
-				</Button>
-			</div>
+			
 
 			<div class="relative flex w-full flex-col items-center justify-center md:flex-row">
 				<div class="my-5 flex w-fit flex-col justify-center md:flex-row md:space-x-3">
@@ -186,6 +171,29 @@
 							individuals in your city!
 						</p>
 						{@render startBonfireBtn()}
+					</div>
+				</div>
+			</div>
+			<div class="flex w-full flex-col justify-center space-y-1 mt-7">
+				<div class="flex w-full justify-center space-x-2">
+					<Button
+						class="justify-centerp-4 flex items-center bg-violet-600 shadow-xl hover:bg-violet-500 dark:bg-violet-500 dark:text-white dark:hover:bg-violet-400"
+						onclick={getRandomTheme}
+					>
+						<PaintBucket class="mr-1" />
+						<RefreshCw class="mr-1" />
+					</Button>
+					<Button
+						class="flex items-center justify-center bg-violet-600 p-4 shadow-xl hover:bg-violet-500 dark:bg-violet-500 dark:text-white dark:hover:bg-violet-400"
+						onclick={getRandomFont}
+					>
+						<TypeOutline class="mr-1" />
+						<RefreshCw class="mr-1" />
+					</Button>
+				</div>
+				<div class="flex w-full justify-center">
+					<div class="text-xs italic text-slate-500 dark:text-slate-200">
+						Events are fully customizable!
 					</div>
 				</div>
 			</div>
