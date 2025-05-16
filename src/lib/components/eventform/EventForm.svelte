@@ -487,10 +487,6 @@
 		);
 	};
 
-	function capitalize(str: string) {
-		return str.charAt(0).toUpperCase() + str.slice(1);
-	}
-
 	onMount(() => {
 		styleStore.set(finalStyleCss);
 		overlayColorStore.set(overlayColor);

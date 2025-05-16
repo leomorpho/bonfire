@@ -39,15 +39,37 @@
 				</h3>
 				<div class="text-5xl font-extrabold leading-snug">
 					$0 <span class="text-base font-bold">usd</span>
-					<span class="text-3xl font-medium">/ Bonfire</span>
+					<span class="text-2xl font-medium">/ Bonfire</span>
 				</div>
 				<ul class="mb-10 mt-3 space-y-5 sm:mb-20">
-					<div class="relative">
-						<PricingFeature
-							featureText={'Create unlimited free events with no attendee limits. This is a beta offer and can change at any time.'}
-						></PricingFeature>
-					</div>
+					<PricingFeature
+						featureText={'Create unlimited free events with no attendee limits. This is a beta offer and can change at any time.'}
+					></PricingFeature>
 					<PricingFeature featureText={'RSVP to any Bonfire for free'} />
+					<PricingFeature featureText={'Personalize the look and feel of your events: backgrounds, fonts and more!'} />
+				</ul>
+				<a class="mt-auto" href="/login">
+					<Button variant="secondary" class="w-full bg-slate-500 text-white dark:bg-slate-500">
+						<Bird /> Get Started
+					</Button>
+				</a>
+			</div>
+
+			<div class="card max-w-80 rounded-3xl bg-blue-100 p-8 shadow-xl dark:bg-blue-900">
+				<h3 class="mb-2 text-xl font-extrabold text-slate-800 dark:text-slate-200">
+					Curated Events
+				</h3>
+				<div class="text-5xl font-extrabold leading-snug">
+					$10 <span class="text-base font-bold">usd</span>
+					<span class="text-2xl font-medium">/ Bonfire</span>
+				</div>
+				<ul class="mb-10 mt-3 space-y-5 sm:mb-20">
+					<PricingFeature
+						featureText={'Discover curated events tailored just for you! Dinners, drinks, outdoor BBQs and +'}
+					/>
+					<PricingFeature
+						featureText={'Our AI matcher connects you with like-minded individuals in your city based on a short questionnaire.'}
+					/>
 				</ul>
 				<a class="mt-auto" href="/login">
 					<Button variant="secondary" class="w-full bg-slate-500 text-white dark:bg-slate-500">

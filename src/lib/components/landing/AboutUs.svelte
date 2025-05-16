@@ -5,44 +5,75 @@
 	import { env as publicEnv } from '$env/dynamic/public';
 
 	let { class: cls = null } = $props();
+
+	const styles = `
+      background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/naranjas.png');
+    background-repeat: repeat;
+    background-size: auto;
+    background-color: #ffffff; /* Fallback background color */
+    width: 100%;
+    height: 100%;
+
+	/* Define CSS variables for gradient height */
+    --gradient-height: 30%; /* Adjust this value to control the height of the gradient */
+
+    /* Apply a mask to fade the image */
+    mask-image:
+        linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 1) var(--gradient-height), rgba(0, 0, 0, 1) calc(100% - var(--gradient-height)), rgba(0, 0, 0, 0)),
+        linear-gradient(to top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 1) var(--gradient-height), rgba(0, 0, 0, 1) calc(100% - var(--gradient-height)), rgba(0, 0, 0, 0));
+    mask-size: 100% 100%;
+    mask-repeat: no-repeat;
+    mask-position: top, bottom;
+    -webkit-mask-image:
+        linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 1) var(--gradient-height), rgba(0, 0, 0, 1) calc(100% - var(--gradient-height)), rgba(0, 0, 0, 0)),
+        linear-gradient(to top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 1) var(--gradient-height), rgba(0, 0, 0, 1) calc(100% - var(--gradient-height)), rgba(0, 0, 0, 0));
+    -webkit-mask-size: 100% 100%;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: top, bottom; 	
+  `;
+	const overlayStyle = 'background-color: rgba(var(--overlay-color-rgb, 0, 0, 0), 0.8);';
 </script>
 
-<Container>
-	<div id="about-us" class={`sm:mb-15 ${cls}`}>
-		<div class="mx-auto max-w-2xl px-6 lg:px-8">
-			<h2 class="mb-5 text-center text-3xl font-bold md:text-4xl">Who's behind Bonfire?</h2>
-			<div class="my-5 flex flex-col text-base">
-				<div class="mb-5 mr-5 flex w-full justify-center">
-					<Image
-						class="rounded-full"
-						height={302}
-						width={300}
-						aspectRatio={1}
-						src="https://f002.backblazeb2.com/file/bonfire-public/website-public/about-us/IMG_3627.jpeg"
-						layout="constrained"
-						alt="TODO"
-					/>
-				</div>
+<div style={styles}>
+	<div style={overlayStyle} class="py-20">
+		<Container>
+			<div id="about-us" class={`sm:mb-15 ${cls}`}>
+				<div class="mx-auto max-w-2xl px-6 lg:px-8">
+					<h2 class="mb-5 text-center text-3xl font-bold md:text-4xl">Who's behind Bonfire?</h2>
+					<div class="my-5 flex flex-col text-base">
+						<div class="mb-5 mr-5 flex w-full justify-center">
+							<Image
+								class="rounded-full"
+								height={302}
+								width={300}
+								aspectRatio={1}
+								src="https://f002.backblazeb2.com/file/bonfire-public/website-public/about-us/IMG_3627.jpeg"
+								layout="constrained"
+								alt="TODO"
+							/>
+						</div>
 
-				<div class="space-y-7 text-center">
-					<p>
-						Currently, it's just me (hi, I’m Toby!). This is a labor of love—designed to make events
-						more personal, meaningful, and easy to share. I handle everything from coding to
-						support, and I'm incredibly grateful to have had help from multiple friends on key parts
-						of this journey.
-					</p>
+						<div class="space-y-7 text-center">
+							<p>
+								Currently, it's just me (hi, I’m Toby!). This is a labor of love—designed to make
+								events more personal, meaningful, and easy to share. I handle everything from coding
+								to support, and I'm incredibly grateful to have had help from multiple friends on
+								key parts of this journey.
+							</p>
 
-					<p>
-						Bonfire is an indie, self-bootstrapped project, crafted with dedication to enhance your
-						event experiences and support my family. Your feedback, sharing, and donations make a
-						real difference, helping sustain and grow Bonfire. If you believe in our mission, please
-						consider supporting us. Every contribution is deeply appreciated.
-					</p>
-					<p>
-						If you have any feedback, please feel free to reach out to us at {publicEnv.PUBLIC_FROM_EMAIL}
-					</p>
+							<p>
+								Bonfire is an indie, self-bootstrapped project, crafted with dedication to enhance
+								your event experiences and support my family. Your feedback, sharing, and donations
+								make a real difference, helping sustain and grow Bonfire. If you believe in our
+								mission, please consider supporting us. Every contribution is deeply appreciated.
+							</p>
+							<p>
+								If you have any feedback, please feel free to reach out to us at {publicEnv.PUBLIC_FROM_EMAIL}
+							</p>
+						</div>
+					</div>
 				</div>
 			</div>
-		</div>
+		</Container>
 	</div>
-</Container>
+</div>
