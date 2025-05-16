@@ -147,11 +147,10 @@
 		<div class="mx-3 italic">it's free!</div>
 	</div>
 {/snippet}
+
 <div style={styles}>
 	<div id="dynamic-preview-font" class="bg-slate-100/70 py-20 dark:bg-slate-900/70">
 		<Container>
-			
-
 			<div class="relative flex w-full flex-col items-center justify-center md:flex-row">
 				<div class="my-5 flex w-fit flex-col justify-center md:flex-row md:space-x-3">
 					<div class="flex w-full justify-center">
@@ -170,11 +169,13 @@
 							Host your own in-person events or join our curated experiences to meet like-minded
 							individuals in your city!
 						</p>
-						{@render startBonfireBtn()}
+						<div class="flex w-full justify-center">
+							{@render startBonfireBtn()}
+						</div>
 					</div>
 				</div>
 			</div>
-			<div class="flex w-full flex-col justify-center space-y-1 mt-7">
+			<div class="mt-7 flex w-full flex-col justify-center space-y-1">
 				<div class="flex w-full justify-center space-x-2">
 					<Button
 						class="justify-centerp-4 flex items-center bg-violet-600 shadow-xl hover:bg-violet-500 dark:bg-violet-500 dark:text-white dark:hover:bg-violet-400"
@@ -191,7 +192,7 @@
 						<RefreshCw class="mr-1" />
 					</Button>
 				</div>
-				<div class="flex w-full justify-center">
+				<div class="flex w-full justify-center pt-1">
 					<div class="text-xs italic text-slate-500 dark:text-slate-200">
 						Events are fully customizable!
 					</div>

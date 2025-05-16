@@ -15,9 +15,9 @@
   `;
 </script>
 
-<div style={styles} class="rounded-xl">
+<div style={styles} class="rounded-2xl">
 	<div
-		class="flex flex-col justify-center space-y-3 rounded-xl p-5 text-base bg-slate-100/80 dark:bg-slate-900/80"
+		class="flex flex-col justify-center space-y-3 rounded-2xl p-5 text-base bg-slate-100/70 dark:bg-slate-900/80"
 	>
 		<div class="flex w-full justify-center text-lg font-semibold">Bonfire Meet Questionnaire</div>
 		<div class="text-center text-sm">

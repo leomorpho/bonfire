@@ -129,7 +129,7 @@
 				"While you can use our services to find a romantic partner, we're primarily an app for meeting new people and making friends.",
 			type: 'select',
 			placeholder: 'Select gender',
-			options: ['Male', 'Female', 'Non-binary', 'Other', 'Prefer not to say'],
+			options: ['Man', 'Woman', 'Non-binary', 'Other', 'Prefer not to say'],
 			field: 'demographicInformation.gender',
 			nextStep: QuestionnaireStep.Location
 		},
