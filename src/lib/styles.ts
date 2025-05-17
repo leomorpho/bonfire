@@ -2610,10 +2610,6 @@ export const Font = {
 		style: "font-family: 'Open Sans', sans-serif;",
 		cdn: 'https://fonts.googleapis.com/css2?family=Open+Sans&display=swap'
 	},
-	// PlayfairDisplay: {
-	// 	style: "font-family: 'Playfair Display', serif;",
-	// 	cdn: 'https://fonts.googleapis.com/css2?family=Playfair+Display&display=swap'
-	// },
 	Merriweather: {
 		style: "font-family: 'Merriweather', serif;",
 		cdn: 'https://fonts.googleapis.com/css2?family=Merriweather&display=swap'
@@ -2622,10 +2618,6 @@ export const Font = {
 		style: "font-family: 'Raleway', sans-serif;",
 		cdn: 'https://fonts.googleapis.com/css2?family=Raleway&display=swap'
 	},
-	// PTSerif: {
-	// 	style: "font-family: 'PT Serif', serif;",
-	// 	cdn: 'https://fonts.googleapis.com/css2?family=PT+Serif&display=swap'
-	// },
 	FiraSans: {
 		style: "font-family: 'Fira Sans', sans-serif;",
 		cdn: 'https://fonts.googleapis.com/css2?family=Fira+Sans&display=swap'
@@ -2666,10 +2658,6 @@ export const Font = {
 		style: "font-family: 'Lexend', sans-serif;",
 		cdn: 'https://fonts.googleapis.com/css2?family=Lexend&display=swap'
 	},
-	// KronaOne: {
-	// 	style: "font-family: 'Krona One', sans-serif;",
-	// 	cdn: 'https://fonts.googleapis.com/css2?family=Krona+One&display=swap'
-	// },
 	Alice: {
 		style: "font-family: 'Alice', serif;",
 		cdn: 'https://fonts.googleapis.com/css2?family=Alice&display=swap'
@@ -2710,14 +2698,6 @@ export const Font = {
 		style: "font-family: 'Mansalva', cursive; font-size: 1.8em;",
 		cdn: 'https://fonts.googleapis.com/css2?family=Mansalva&display=swap'
 	},
-	// Audiowide: {
-	// 	style: "font-family: 'Audiowide', cursive;",
-	// 	cdn: 'https://fonts.googleapis.com/css2?family=Audiowide&display=swap'
-	// },
-	// Handjet: {
-	// 	style: "font-family: 'Handjet', cursive; font-size: 1.8em;",
-	// 	cdn: 'https://fonts.googleapis.com/css2?family=Handjet&display=swap'
-	// },
 	FingerPaint: {
 		style: "font-family: 'Finger Paint', cursive;",
 		cdn: 'https://fonts.googleapis.com/css2?family=Finger+Paint&display=swap'
@@ -2726,10 +2706,6 @@ export const Font = {
 		style: "font-family: 'Berkshire Swash', cursive;",
 		cdn: 'https://fonts.googleapis.com/css2?family=Berkshire+Swash&display=swap'
 	},
-	// Tourney: {
-	// 	style: "font-family: 'Tourney', cursive;",
-	// 	cdn: 'https://fonts.googleapis.com/css2?family=Tourney&display=swap'
-	// },
 	LobsterTwo: {
 		style: "font-family: 'Lobster Two', cursive; font-size: 1.7em;",
 		cdn: 'https://fonts.googleapis.com/css2?family=Lobster+Two&display=swap'
@@ -2738,10 +2714,6 @@ export const Font = {
 		style: "font-family: 'Fredericka the Great', cursive; font-size: 1.4em;", // Adjusted size
 		cdn: 'https://fonts.googleapis.com/css2?family=Fredericka+the+Great&display=swap'
 	},
-	// Sacramento: {
-	// 	style: "font-family: 'Sacramento', cursive; font-size: 2.5em;",
-	// 	cdn: 'https://fonts.googleapis.com/css2?family=Sacramento&display=swap'
-	// },
 	ShadowsIntoLightTwo: {
 		style: "font-family: 'Shadows Into Light Two', cursive;",
 		cdn: 'https://fonts.googleapis.com/css2?family=Shadows+Into+Light+Two&display=swap'
@@ -2762,14 +2734,7 @@ export const Font = {
 		style: "font-family: 'Josefin Sans', sans-serif; font-size: 1.2em;",
 		cdn: 'https://fonts.googleapis.com/css2?family=Josefin+Sans&display=swap'
 	},
-	// AbrilFatface: {
-	// 	style: "font-family: 'Abril Fatface', cursive; font-size: 1.6em;", // Adjusted size
-	// 	cdn: 'https://fonts.googleapis.com/css2?family=Abril+Fatface&display=swap'
-	// },
-	// BigShouldersStencil: {
-	// 	style: "font-family: 'Big Shoulders Stencil', cursive; font-size: 1.5em;",
-	// 	cdn: 'https://fonts.googleapis.com/css2?family=Big+Shoulders+Stencil&display=swap'
-	// },
+
 	Orbitron: {
 		style: "font-family: 'Orbitron', sans-serif; font-size: 1.2em;",
 		cdn: 'https://fonts.googleapis.com/css2?family=Orbitron&display=swap'
@@ -2778,18 +2743,7 @@ export const Font = {
 		style: "font-family: 'Righteous', cursive; font-size: 1.2em;",
 		cdn: 'https://fonts.googleapis.com/css2?family=Righteous&display=swap'
 	},
-	// AmaticSC: {
-	// 	style: "font-family: 'Amatic SC', cursive; font-size: 1.8em;", // Adjusted size
-	// 	cdn: 'https://fonts.googleapis.com/css2?family=Amatic+SC&display=swap'
-	// },
-	// RubikMonoOne: {
-	// 	style: "font-family: 'Rubik Mono One', monospace; font-size: 1.2em;",
-	// 	cdn: 'https://fonts.googleapis.com/css2?family=Rubik+Mono+One&display=swap'
-	// },
-	// YanoneKaffeesatz: {
-	// 	style: "font-family: 'Yanone Kaffeesatz', sans-serif; font-size: 1.7em;",
-	// 	cdn: 'https://fonts.googleapis.com/css2?family=Yanone+Kaffeesatz&display=swap'
-	// },
+
 	Prata: {
 		style: "font-family: 'Prata', serif; font-size: 1.2em;",
 		cdn: 'https://fonts.googleapis.com/css2?family=Prata&display=swap'
@@ -2802,26 +2756,14 @@ export const Font = {
 		style: "font-family: 'Advent Pro', sans-serif; font-size: 1.4em;",
 		cdn: 'https://fonts.googleapis.com/css2?family=Advent+Pro&display=swap'
 	},
-	// Monoton: {
-	// 	style: "font-family: 'Monoton', cursive; font-size: 1.6em;", // Adjusted size
-	// 	cdn: 'https://fonts.googleapis.com/css2?family=Monoton&display=swap'
-	// },
 	Creepster: {
 		style: "font-family: 'Creepster', cursive; font-size: 1.2em;",
 		cdn: 'https://fonts.googleapis.com/css2?family=Creepster&display=swap'
 	},
-	// RubikBubbles: {
-	// 	style: "font-family: 'Rubik Bubbles', cursive; font-size: 1.2em;",
-	// 	cdn: 'https://fonts.googleapis.com/css2?family=Rubik+Bubbles&display=swap'
-	// },
-	// Ultra: {
-	// 	style: "font-family: 'Ultra', serif; font-size: 1.2em;",
-	// 	cdn: 'https://fonts.googleapis.com/css2?family=Ultra&display=swap'
-	// },
-	// Fascinate: {
-	// 	style: "font-family: 'Fascinate', cursive; font-size: 1.2em;",
-	// 	cdn: 'https://fonts.googleapis.com/css2?family=Fascinate&display=swap'
-	// },
+	RubikBubbles: {
+		style: "font-family: 'Rubik Bubbles', cursive; font-size: 1.2em;",
+		cdn: 'https://fonts.googleapis.com/css2?family=Rubik+Bubbles&display=swap'
+	},
 	Metamorphous: {
 		style: "font-family: 'Metamorphous', cursive; font-size: 1.2em;",
 		cdn: 'https://fonts.googleapis.com/css2?family=Metamorphous&display=swap'

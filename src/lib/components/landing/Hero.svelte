@@ -156,7 +156,7 @@
 					<div class="flex w-full justify-center">
 						<div
 							style={titleFont?.style}
-							class="pointer-events-none z-10 whitespace-pre-wrap bg-gradient-to-b from-[#ffd319] via-[#ff2975] to-[#8c1eff] bg-clip-text p-1 text-center text-6xl font-bold leading-none tracking-tighter text-transparent sm:mt-8 sm:text-left sm:text-7xl"
+							class="pointer-events-none z-10 whitespace-pre-wrap bg-gradient-to-b from-[#ffd319] via-[#ff2975] to-[#8c1eff] bg-clip-text p-1 py-5 text-center text-6xl font-bold leading-none tracking-tighter text-transparent sm:mt-8 sm:text-left sm:text-7xl"
 						>
 							Face-to-Face <br />Socializing
 						</div>
@@ -166,7 +166,7 @@
 							style={subtitleFont?.style}
 							class="text-md mb-6 mt-5 text-center sm:mb-8 sm:mt-7 sm:text-lg"
 						>
-							Explore our curated local events — or simply plan your hangouts for free!
+							Explore our curated local events — or plan your own hangouts for free!
 						</p>
 						<div class="flex w-full justify-center">
 							{@render startBonfireBtn()}
