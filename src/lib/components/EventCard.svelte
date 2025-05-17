@@ -193,7 +193,7 @@
 				style={`background-image: url('${bannerImageUrl}'); ${overlayStyle};`}
 			>
 				<div
-					class="pointer-events-none absolute inset-0 z-10 rounded-xl bg-slate-200/70 dark:bg-slate-800/70"
+					class="pointer-events-none absolute inset-0 z-10 rounded-xl bg-white/70 dark:bg-slate-800/70"
 				></div>
 
 				<div class="flex w-full justify-center">
