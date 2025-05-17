@@ -161,13 +161,12 @@
 							Face-to-Face <br />Socializing
 						</div>
 					</div>
-					<div class="flex w-full flex-col justify-center">
+					<div class="flex w-full flex-col items-center justify-center md:mt-8">
 						<p
 							style={subtitleFont?.style}
-							class="text-md mb-6 mt-5 text-center sm:mb-8 sm:mt-7 sm:text-left sm:text-lg"
+							class="text-md mb-6 mt-5 text-center sm:mb-8 sm:mt-7 sm:text-lg"
 						>
-							Host your own in-person events or join our curated experiences to meet like-minded
-							individuals in your city!
+							Explore our curated local events — or simply plan your hangouts for free!
 						</p>
 						<div class="flex w-full justify-center">
 							{@render startBonfireBtn()}
