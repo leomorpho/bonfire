@@ -55,11 +55,11 @@
 
 			// Delete each assignment
 			for (const assignment of assignments) {
-				await client.http.delete('bring_assignments', assignment.id);
+				await client.delete('bring_assignments', assignment.id);
 			}
 			console.log('about to delete bring item with id', item.id);
 			// Delete the bring_item
-			await client.http.delete('bring_items', item.id);
+			await client.delete('bring_items', item.id);
 
 			console.log('Bring item and related assignments deleted successfully.');
 
