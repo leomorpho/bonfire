@@ -49,7 +49,7 @@
 		{itemName}
 	</div>
 	<div class="flex items-center">
-		<span> {`${totalBrought}/${itemQuantityNeeded}`}</span>
+		<span> {`${Math.floor(totalBrought)}/${itemQuantityNeeded}`}</span>
 		{#if itemUnit == BringListCountTypes.PER_PERSON}
 			<UserRound class="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
 		{:else if itemUnit == BringListCountTypes.COUNT}
