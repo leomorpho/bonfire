@@ -25,11 +25,10 @@
   width: 100%;
   height: 100%;   	
   `;
-	const overlayStyle = 'background-color: rgba(var(--overlay-color-rgb, 0, 0, 0), 0.4);';
 </script>
 
 <div class="bg-color h-[90vh] w-full" style={styles}>
-	<div class="bg-overlay h-[90vh]" style={overlayStyle}>
+	<div class="bg-overlay h-[90vh] bg-slate-100/20 dark:bg-slate-800/20">
 		<div
 			class="mx-auto flex h-[90vh] flex-col items-center justify-center p-4 sm:w-2/3 md:w-1/2 xl:w-2/5"
 		>
@@ -38,7 +37,7 @@
 				in:slide={{ y: slideDirection === 'up' ? -500 : 500, duration: 300 }}
 				out:slide={{ y: slideDirection === 'up' ? -500 : 500, duration: 100 }}
 			>
-				<div transition:fade={{ duration: 300 }} class="rounded-xl bg-slate-800/80 p-3 text-base">
+				<div transition:fade={{ duration: 300 }} class="rounded-xl bg-slate-100/80 dark:bg-slate-800/80 p-3 text-base">
 					<h2 class="mb-4 text-center text-xl font-bold">Welcome to Bonfire!</h2>
 					<p class="mb-2 text-center">
 						Bonfire is your go-to platform for connecting with people and organizing events.
@@ -67,7 +66,7 @@
 							href="/meet/welcome"
 							class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
 						>
-							Let's get started! 🥳
+							Continue
 						</Button>
 					</div>
 				</div>

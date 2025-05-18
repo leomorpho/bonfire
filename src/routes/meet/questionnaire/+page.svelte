@@ -399,11 +399,10 @@
 		width: 100%;
 		height: 100%;   	
   `;
-	const overlayStyle = 'background-color: rgba(var(--overlay-color-rgb, 0, 0, 0), 0.4);';
 </script>
 
 <div class="bg-color min-h-screen w-full" style={styles}>
-	<div class="bg-overlay min-h-screen" style={overlayStyle}>
+	<div class="bg-overlay min-h-screen bg-slate-100/30 dark:bg-slate-800/40">
 		<div class="relative pt-4 md:pt-10">
 			<div class="flex w-full justify-center">
 				<div class="flex w-3/4 justify-center sm:w-1/2 lg:w-1/3">

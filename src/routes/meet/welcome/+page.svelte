@@ -29,7 +29,7 @@
 </script>
 
 <div class="bg-color h-[90vh] w-full" style={styles}>
-	<div class="bg-overlay h-[90vh]" style={overlayStyle}>
+	<div class="bg-overlay h-[90vh] bg-slate-100/20 dark:bg-slate-800/20">
 		<div
 			class="mx-auto flex h-[90vh] flex-col items-center justify-center p-4 sm:w-2/3 md:w-1/2 xl:w-2/5"
 		>
@@ -40,7 +40,7 @@
 					in:slide={{ y: slideDirection === 'up' ? -500 : 500, duration: 300 }}
 					out:slide={{ y: slideDirection === 'up' ? -500 : 500, duration: 100 }}
 				>
-					<div transition:fade={{ duration: 300 }} class="rounded-xl bg-slate-800/80 p-3">
+					<div transition:fade={{ duration: 300 }} class="rounded-xl bg-slate-100/80 dark:bg-slate-800/80 p-3">
 						<h2 class="mb-4 text-center text-xl font-bold">Welcome to Bonfire Meet!</h2>
 						<p class="text-center">
 							Bonfire Meet is designed to bring people together in real life, turning local
@@ -63,7 +63,7 @@
 					in:slide={{ y: slideDirection === 'up' ? -500 : 500, duration: 300 }}
 					out:slide={{ y: slideDirection === 'up' ? -500 : 500, duration: 100 }}
 				>
-					<div transition:fade={{ duration: 300 }} class="rounded-xl bg-slate-800/80 p-3">
+					<div transition:fade={{ duration: 300 }} class="rounded-xl bg-slate-100/80 dark:bg-slate-800/80 p-3">
 						<h2 class="mb-4 text-center text-xl font-bold">How it works</h2>
 						<p class="mb-2 text-center">
 							We match you with other people based on a short questionnaire that you will fill next.
