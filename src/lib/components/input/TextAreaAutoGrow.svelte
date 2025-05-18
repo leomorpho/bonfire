@@ -66,7 +66,8 @@
 	let remainingCharacters = $derived(maxLength !== null ? maxLength - value.length : null);
 </script>
 
-<div class="relative">
+<div class="relative ">
+	AAAA
 	<Textarea
 		class={`resize-none ${cls}`}
 		{placeholder}
