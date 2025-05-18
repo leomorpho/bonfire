@@ -46,7 +46,7 @@
 </script>
 
 <div
-	class="embla invisible mt-3 h-[330px] overflow-hidden"
+	class="embla invisible mt-3 h-[290px] overflow-hidden"
 	use:emblaCarouselSvelte={{ options, plugins }}
 	onemblaInit={onInit}
 >
@@ -55,7 +55,7 @@
 			<div class="w-96 flex-shrink-0 px-2">
 				<EventCard
 					eventId="wedding-1"
-					eventTitle="John & Jane's Wedding"
+					eventTitle="J&J's Wedding"
 					eventDescription="Join us for a beautiful wedding ceremony."
 					eventStartTime={futureDate1}
 					eventEndTime={new Date(futureDate1.getTime() + 4 * 60 * 60 * 1000)}
@@ -82,7 +82,7 @@
 			<div class="w-96 flex-shrink-0 px-2">
 				<EventCard
 					eventId="birthday-1"
-					eventTitle="Emily's 30th Birthday"
+					eventTitle="Emily's 30th"
 					eventDescription="Celebrate Emily's 30th birthday with music and games."
 					eventStartTime={futureDate2}
 					eventEndTime={new Date(futureDate2.getTime() + 4 * 60 * 60 * 1000)}
