@@ -143,6 +143,7 @@
 				// Check if the current user is bringing something
 				isUserBringingSomething = yourItems.some((item) => item.bring_assignments?.length > 0);
 
+				isLoading = false;
 				if (dev) {
 					console.log('bringItems', bringItems);
 					console.log('userItemsMap', userItemsMap);

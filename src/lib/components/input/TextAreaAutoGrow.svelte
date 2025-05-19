@@ -67,7 +67,6 @@
 </script>
 
 <div class="relative ">
-	AAAA
 	<Textarea
 		class={`resize-none ${cls}`}
 		{placeholder}
