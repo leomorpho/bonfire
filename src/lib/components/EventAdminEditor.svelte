@@ -53,6 +53,7 @@
 				currentNonAdminAttendees.sort((a, b) => {
 					return a.user.username.localeCompare(b.user.username);
 				});
+				attendeesLoading = false;
 
 				// console.log('currentNonAdminAttendees', currentNonAdminAttendees);
 				// console.log('currentAdminAttendees', currentAdminAttendees);

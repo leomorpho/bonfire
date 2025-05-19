@@ -28,6 +28,7 @@
 					results,
 					userId
 				);
+				deliveryPermsReturnedByServer = true;
 			},
 			(error) => {
 				console.error('Error fetching delivery permissions', error);
@@ -52,6 +53,7 @@
 					results,
 					userId
 				);
+				notifPermsReturnedByServer = true;
 			},
 			(error) => {
 				console.error('Error fetching notifications permissions', error);

@@ -17,30 +17,26 @@
 	}
 
 	// Handle navigation
-	function handleNavigation() {
-		// isLoading = true;
-		if (url) {
-			goto(url); // Redirect to provided URL
-		} else {
-			navBack(); // Fallback to history
-			return false;
-		}
+	function handleBackNavigation() {
+		navBack(); // Fallback to history
+		return false;
 	}
 </script>
 
 {#if isClient}
 	<Button
-	id="back-page-navigation"
+		id="back-page-navigation"
 		type="button"
-		onclick={handleNavigation}
-		class="back-button my-1 bg-slate-200 text-black shadow-lg hover:bg-slate-200 dark:bg-slate-700 dark:text-white dark:hover:bg-slate-500 rounded-full"
+		href={url ? url : ''}
+		onclick={url ? () => {} : handleBackNavigation}
+		class="back-button my-1 rounded-full bg-slate-200 text-black shadow-lg hover:bg-slate-200 dark:bg-slate-700 dark:text-white dark:hover:bg-slate-500"
 	>
 		{#if isLoading}
 			<div class="flex items-center">
 				<LoadingSpinner cls={'!h-4 !w-4'} />
 			</div>
 		{:else}
-			<ChevronLeft class="h-4 w-4 sm:h-5 sm:w-5"/>
+			<ChevronLeft class="h-4 w-4 sm:h-5 sm:w-5" />
 		{/if}
 	</Button>
 {/if}

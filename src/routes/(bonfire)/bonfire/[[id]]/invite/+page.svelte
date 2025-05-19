@@ -42,6 +42,7 @@
 			(results) => {
 				currentNonInvitedUsers = results;
 				console.log('currentNonInvitedUsers ->', currentNonInvitedUsers);
+				attendeesLoading = false;
 			},
 			(error) => {
 				console.error('Error fetching event:', error);
@@ -137,7 +138,9 @@
 										closeAndFocusTrigger();
 									}}
 								>
-									<Check class={cn(selectedAttendee !== nonInvitedUser.user_id && 'text-transparent')} />
+									<Check
+										class={cn(selectedAttendee !== nonInvitedUser.user_id && 'text-transparent')}
+									/>
 									{nonInvitedUser?.username || 'Unknown User'}
 								</Command.Item>
 							{/each}

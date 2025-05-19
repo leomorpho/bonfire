@@ -265,9 +265,7 @@
 				// Optional
 				{
 					localOnly: false,
-					onRemoteFulfilled: () => {
-						eventLoading = false;
-					}
+					onRemoteFulfilled: () => {}
 				}
 			);
 		}
