@@ -51,14 +51,7 @@
 		{ icon: CircleUser, name: 'Profile', href: '/profile', id: 'profile' },
 		{ icon: Cog, name: 'Settings', href: '/settings', id: 'settings' },
 		{ icon: MessagesSquare, name: 'Feedback', href: '/feedback', id: 'feedback' },
-		...(isAdmin ? [{ icon: Shield, name: 'Admin Panel', href: '/admin', id: 'admin-panel' }] : []),
-		{
-			icon: BookOpenText,
-			name: 'Blog',
-			href: 'https://tobyluxembourg.com/tags/bonfire',
-			id: 'blog',
-			blank: true
-		}
+		...(isAdmin ? [{ icon: Shield, name: 'Admin Panel', href: '/admin', id: 'admin-panel' }] : [])
 	];
 
 	const unauthLinks: Array<Link> = [
@@ -181,7 +174,7 @@
 							>
 								<div class="flex flex-col justify-center">
 									{#if link.icon}
-										<div class="w-full flex justify-center items-center">
+										<div class="flex w-full items-center justify-center">
 											<link.icon class="h-5 w-5" />
 										</div>
 									{/if}
