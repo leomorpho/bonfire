@@ -21,7 +21,7 @@
 		<div>E</div>
 	</div> -->
 
-	<div id="about" class="">
+	<div id="about-us" class="">
 		<div class="mx-auto px-1 md:px-4 lg:px-8">
 			<div
 				class="my-5 flex flex-col items-center justify-center rounded-[30px] bg-blue-100/30 px-2 py-5 dark:bg-blue-900/30 sm:flex-row sm:px-4 md:justify-around md:rounded-[50px]"

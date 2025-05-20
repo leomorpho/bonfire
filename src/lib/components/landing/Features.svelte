@@ -30,7 +30,7 @@
   `;
 </script>
 
-<div style={styles}>
+<div style={styles} id="features">
 	<div class="bg-slate-100/30 py-16 dark:bg-slate-900/5">
 		<Container>
 			<div class="py-5 md:py-7"></div>

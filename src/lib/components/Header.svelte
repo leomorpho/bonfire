@@ -3,7 +3,16 @@
 	import Logo from './Logo.svelte';
 	import type { Link } from '$lib/types';
 	import Container from './Container.svelte';
-	import { Menu, CircleUser, House, Shield, KeyRound } from 'lucide-svelte';
+	import {
+		Menu,
+		CircleUser,
+		House,
+		Shield,
+		KeyRound,
+		Info,
+		DollarSign,
+		CircleHelp
+	} from 'lucide-svelte';
 	import { page } from '$app/stores';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
@@ -13,7 +22,7 @@
 	import { tick } from 'svelte';
 	import TopBanner from './marketing/TopBanner.svelte';
 	import PageNavigationLoader from './PageNavigationLoader.svelte';
-	import { Cog, MessagesSquare } from '@lucide/svelte';
+	import { BookOpenText, BrickWall, CircleUserRound, Cog, MessagesSquare } from '@lucide/svelte';
 	import InstallPwaAppBtn from './install-pwa/InstallPwaAppBtn.svelte';
 
 	let isAdmin = false;
@@ -42,13 +51,28 @@
 		{ icon: CircleUser, name: 'Profile', href: '/profile', id: 'profile' },
 		{ icon: Cog, name: 'Settings', href: '/settings', id: 'settings' },
 		{ icon: MessagesSquare, name: 'Feedback', href: '/feedback', id: 'feedback' },
-		...(isAdmin ? [{ icon: Shield, name: 'Admin Panel', href: '/admin', id: 'admin-panel' }] : [])
+		...(isAdmin ? [{ icon: Shield, name: 'Admin Panel', href: '/admin', id: 'admin-panel' }] : []),
+		{
+			icon: BookOpenText,
+			name: 'Blog',
+			href: 'https://tobyluxembourg.com/tags/bonfire',
+			id: 'blog',
+			blank: true
+		}
 	];
 
 	const unauthLinks: Array<Link> = [
-		// { icon: BookOpen, name: 'About', href: '/#about' },
-		// { icon: DollarSign, name: 'Pricing', href: '/#pricing' },
-		// { icon: CircleHelp, name: 'FAQ', href: '/#faq' }
+		{ icon: BrickWall, name: 'Features', href: '/#features', id: 'features' },
+		{ icon: DollarSign, name: 'Pricing', href: '/#pricing', id: 'pricing' },
+		{ icon: CircleUserRound, name: 'About', href: '/#about-us', id: 'about' },
+		{ icon: CircleHelp, name: 'FAQ', href: '/#faq', id: 'faq' },
+		{
+			icon: BookOpenText,
+			name: 'Blog',
+			href: 'https://tobyluxembourg.com/tags/bonfire',
+			id: 'blog',
+			blank: true
+		}
 	];
 
 	let links = $state(unauthLinks);
@@ -110,7 +134,11 @@
 				<!-- <DropdownMenu.Separator /> -->
 
 				{#each links as link}
-					<a href={link.href} id={`${link.id}-header-menu-item`}>
+					<a
+						href={link.href}
+						id={`${link.id}-header-menu-item`}
+						target={link.blank ? '_blank' : ''}
+					>
 						<DropdownMenu.Item class="cursor-pointer p-2 px-4 text-xl sm:text-lg">
 							{#if link.icon}
 								<link.icon class="mr-1 !h-6 !w-6 sm:!h-5 sm:!w-5" />
@@ -146,7 +174,11 @@
 				<ul class="menu menu-horizontal px-1">
 					{#each links as link}
 						<li class="flex items-center">
-							<a href={link.href} id={`${link.id}-header-menu-item`}>
+							<a
+								href={link.href}
+								id={`${link.id}-header-menu-item`}
+								target={link.blank ? '_blank' : ''}
+							>
 								{#if link.icon}
 									<link.icon class="h-5 w-5 sm:h-6 sm:w-6" />
 								{/if}

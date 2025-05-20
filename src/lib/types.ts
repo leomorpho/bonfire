@@ -7,6 +7,7 @@ export type Link = {
 	name: string;
 	href: string;
 	id: string;
+	blank?: boolean;
 };
 
 export type Faq = {
