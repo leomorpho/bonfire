@@ -179,10 +179,14 @@
 								id={`${link.id}-header-menu-item`}
 								target={link.blank ? '_blank' : ''}
 							>
-								{#if link.icon}
-									<link.icon class="h-5 w-5 sm:h-6 sm:w-6" />
-								{/if}
-								<!-- {link.name} -->
+								<div class="flex flex-col justify-center">
+									{#if link.icon}
+										<div class="w-full flex justify-center items-center">
+											<link.icon class="h-5 w-5" />
+										</div>
+									{/if}
+									<div class="text-xs">{link.name}</div>
+								</div>
 							</a>
 						</li>
 					{/each}

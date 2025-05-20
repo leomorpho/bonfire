@@ -3,7 +3,7 @@ import type { signinTable } from './server/database/schema';
 import type { SvelteComponent } from 'svelte';
 
 export type Link = {
-	icon: typeof SvelteComponent;
+	icon?: typeof SvelteComponent;
 	name: string;
 	href: string;
 	id: string;
