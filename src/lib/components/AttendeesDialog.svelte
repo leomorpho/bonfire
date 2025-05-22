@@ -47,9 +47,15 @@
 		<h2 class="my-3 flex w-full justify-center font-semibold">
 			{statusName}
 		</h2>
-		<div class="flex justify-center mb-2 space-x-2">
-			<button on:click={() => listView = false} class="{!listView ? 'font-semibold text-blue-500' : 'text-gray-500'}">Grid</button>
-			<button on:click={() => listView = true} class="{listView ? 'font-semibold text-blue-500' : 'text-gray-500'}">List</button>
+		<div class="mb-2 flex justify-center space-x-2">
+			<button
+				onclick={() => (listView = false)}
+				class={!listView ? 'font-semibold text-blue-500' : 'text-gray-500'}>Grid</button
+			>
+			<button
+				onclick={() => (listView = true)}
+				class={listView ? 'font-semibold text-blue-500' : 'text-gray-500'}>List</button
+			>
 		</div>
 		{#if attendees.length > 0}
 			{#if !listView}
@@ -80,8 +86,8 @@
 								numGuests={attendee.guest_count}
 								{showRemoveUser}
 								baseHeightPx={60}
+								showNameInline={true}
 							/>
-							<span>{attendee.name}</span>
 						</div>
 					{/each}
 				</div>

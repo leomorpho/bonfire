@@ -33,7 +33,8 @@
 		numGuests = 0,
 		showRemoveUser = true,
 		showHistory = true,
-		onlyShowPhoto = false
+		onlyShowPhoto = false,
+		showNameInline = false
 	} = $props();
 
 	let url = $state();
@@ -224,7 +225,7 @@
 		{:else}
 			<Dialog.Root bind:open={dialogIsOpen}>
 				<Dialog.Trigger
-					class={`profile-avatar ${isTempUser ? 'temp-user' : ''} flex items-center justify-center focus:outline-none focus-visible:ring-0 h-full`}
+					class={`profile-avatar ${isTempUser ? 'temp-user' : ''} flex h-full items-center justify-center focus:outline-none focus-visible:ring-0`}
 				>
 					<TriggerButton
 						{username}
@@ -301,6 +302,11 @@
 		{/if}
 	{/if}
 </div>
+{#if showNameInline}
+	<div class="text-black dark:text-white">
+		{username}
+	</div>
+{/if}
 
 {#snippet content()}
 	{#if lastUpdatedAt}
@@ -337,7 +343,7 @@
 	</div>
 	{#if numGuests > 0}
 		<div class="mt-2 flex w-full justify-center">
-			<div class="rounded-xl bg-red-500/70 p-2 text-sm text-center text-white dark:bg-red-700/70">
+			<div class="rounded-xl bg-red-500/70 p-2 text-center text-sm text-white dark:bg-red-700/70">
 				Bringing {numGuests} extra guest{numGuests > 1 ? 's' : ''} ({numGuests + 1} total including
 				{username})
 			</div>
