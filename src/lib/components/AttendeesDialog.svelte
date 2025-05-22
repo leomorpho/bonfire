@@ -24,6 +24,7 @@
 
 	let isDialogOpen = $state(false);
 	let shouldLoadContent = $state(false);
+	let listView = $state(false);
 
 	$effect(() => {
 		if (isDialogOpen) {
@@ -46,22 +47,45 @@
 		<h2 class="my-3 flex w-full justify-center font-semibold">
 			{statusName}
 		</h2>
+		<div class="flex justify-center mb-2 space-x-2">
+			<button on:click={() => listView = false} class="{!listView ? 'font-semibold text-blue-500' : 'text-gray-500'}">Grid</button>
+			<button on:click={() => listView = true} class="{listView ? 'font-semibold text-blue-500' : 'text-gray-500'}">List</button>
+		</div>
 		{#if attendees.length > 0}
-			<div class="mx-5 flex flex-wrap -space-x-2 space-y-2 text-black">
-				{#each attendees as attendee (attendee.id + attendeeType)}
-					<div>
-						<ProfileAvatar
-							userId={attendee.user_id}
-							tempUserName={attendee.name}
-							viewerIsEventAdmin={isCurrenUserEventAdmin}
-							attendanceId={attendee.id}
-							numGuests={attendee.guest_count}
-							{showRemoveUser}
-							baseHeightPx={60}
-						/>
-					</div>
-				{/each}
-			</div>
+			{#if !listView}
+				<div class="mx-5 flex flex-wrap -space-x-2 space-y-2 text-black">
+					{#each attendees as attendee (attendee.id + attendeeType)}
+						<div>
+							<ProfileAvatar
+								userId={attendee.user_id}
+								tempUserName={attendee.name}
+								viewerIsEventAdmin={isCurrenUserEventAdmin}
+								attendanceId={attendee.id}
+								numGuests={attendee.guest_count}
+								{showRemoveUser}
+								baseHeightPx={60}
+							/>
+						</div>
+					{/each}
+				</div>
+			{:else}
+				<div class="mx-5 flex flex-col space-y-2 text-black">
+					{#each attendees as attendee (attendee.id + attendeeType)}
+						<div class="flex items-center space-x-2">
+							<ProfileAvatar
+								userId={attendee.user_id}
+								tempUserName={attendee.name}
+								viewerIsEventAdmin={isCurrenUserEventAdmin}
+								attendanceId={attendee.id}
+								numGuests={attendee.guest_count}
+								{showRemoveUser}
+								baseHeightPx={60}
+							/>
+							<span>{attendee.name}</span>
+						</div>
+					{/each}
+				</div>
+			{/if}
 		{:else}
 			<BonfireNoInfoCard text="no one yet" />
 		{/if}
