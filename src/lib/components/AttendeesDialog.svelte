@@ -25,7 +25,6 @@
 	let isDialogOpen = $state(false);
 	let shouldLoadContent = $state(false);
 	let listView = $state(true);
-	let searchTerm = $state('');
 
 	$effect(() => {
 		if (isDialogOpen) {
@@ -58,18 +57,10 @@
 				class={listView ? 'font-semibold text-blue-500' : 'text-gray-500'}>List</button
 			>
 		</div>
-		<div class="mb-2 px-5">
-			<input
-				type="text"
-				bind:value={searchTerm}
-				placeholder="Search attendees"
-				class="w-full border rounded px-2 py-1 mb-2"
-			/>
-		</div>
-		{#if attendees.filter(a => a.name.toLowerCase().includes(searchTerm.toLowerCase())).length >  0}
+		{#if attendees.length > 0}
 			{#if !listView}
 				<div class="mx-5 flex flex-wrap -space-x-2 space-y-2 text-black">
-					{#each attendees.filter(a => a.name.toLowerCase().includes(searchTerm.toLowerCase())) as attendee (attendee.id + attendeeType)}
+					{#each attendees as attendee (attendee.id + attendeeType)}
 						<div>
 							<ProfileAvatar
 								userId={attendee.user_id}
@@ -85,7 +76,7 @@
 				</div>
 			{:else}
 				<div class="mx-5 flex flex-col space-y-2 text-black">
-					{#each attendees.filter(a => a.name.toLowerCase().includes(searchTerm.toLowerCase())) as attendee (attendee.id + attendeeType)}
+					{#each attendees as attendee (attendee.id + attendeeType)}
 						<div class="flex items-center space-x-2">
 							<ProfileAvatar
 								userId={attendee.user_id}
