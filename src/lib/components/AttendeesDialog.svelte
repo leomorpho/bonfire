@@ -24,7 +24,7 @@
 
 	let isDialogOpen = $state(false);
 	let shouldLoadContent = $state(false);
-	let listView = $state(false);
+	let listView = $state(true);
 	let searchTerm = $state('');
 
 	$effect(() => {
