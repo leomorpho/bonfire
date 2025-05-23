@@ -35,6 +35,13 @@ export async function GET(event: RequestEvent): Promise<Response> {
 	const stored_state = event.cookies.get('google_oauth_state') ?? null;
 	const code_verifier = event.cookies.get('code_verifier') ?? null;
 	if (!code || !state || !stored_state || state !== stored_state || !code_verifier) {
+		console.error('Failed to get all required fields', {
+			code,
+			state,
+			stored_state,
+			code_verifier,
+			stateMatches: state === stored_state
+		});
 		return new Response(null, {
 			status: 400
 		});
