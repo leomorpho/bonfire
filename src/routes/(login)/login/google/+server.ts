@@ -14,20 +14,19 @@ export async function GET(event: RequestEvent): Promise<Response> {
 	]);
 	event.cookies.set('code_verifier', codeVerifier, {
 		secure: !dev, // set to false in localhost
-		path: '/dashboard',
+		path: '/',
 		httpOnly: true,
 		maxAge: 60 * 10 // 10 min
 	});
 
 	event.cookies.set('google_oauth_state', state, {
-		path: '/dashboard',
+		path: '/',
 		secure: !dev,
 		httpOnly: true,
 		maxAge: 60 * 10,
 		sameSite: 'lax'
 	});
 
-	console.log('url----->', url);
 
 	redirect(302, url.toString());
 }
