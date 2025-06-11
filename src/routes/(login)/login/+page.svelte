@@ -29,12 +29,32 @@
 	let phone_country = $state<CountryCode | null>('CA');
 	let phone_valid = $state(false);
 
+	// Pending RSVP data from URL params
+	let pendingRSVP = $state<{eventId?: string, rsvpStatus?: string, numGuests?: number} | null>(null);
+
 	// Set start oneTimePasswordValue
 	let oneTimePasswordValue = $state('');
 
 	$effect(() => {
 		if (oneTimePasswordValue.length == 6) {
 			handleOtpComplete(oneTimePasswordValue);
+		}
+	});
+
+	// Load pending RSVP data from URL params
+	$effect(() => {
+		const eventId = $page.url.searchParams.get('eventId');
+		const rsvpStatus = $page.url.searchParams.get('rsvpStatus');
+		const numGuests = $page.url.searchParams.get('numGuests');
+		
+		if (eventId && rsvpStatus) {
+			pendingRSVP = {
+				eventId,
+				rsvpStatus,
+				numGuests: numGuests ? parseInt(numGuests, 10) : 0
+			};
+		} else {
+			pendingRSVP = null;
 		}
 	});
 
@@ -112,6 +132,7 @@
 
 			// Check if the response indicates success
 			if (data.success) {
+				// RSVP data will be handled by the server via form submission
 				// Redirect to the location returned in the response
 				window.location.href = data.location;
 			} else {
@@ -300,6 +321,12 @@
 							alt="Bonfire logo with name"
 						/>
 					</div>
+
+					{#if pendingRSVP}
+						<div class="mt-4 rounded-lg bg-blue-50 p-4 text-center text-sm text-blue-800 dark:bg-blue-900/50 dark:text-blue-200">
+							<strong>Almost there!</strong> Sign in to RSVP "{pendingRSVP.rsvpStatus}" for this event.
+						</div>
+					{/if}
 				</div>
 				{#if data.user}
 					<Button href="/" class="mt-4 w-full  md:text-lg">Continue with current account</Button>
@@ -359,6 +386,12 @@
 								{#if tempAttendeeId}
 									<input type="hidden" name={tempAttendeeIdInForm} value={tempAttendeeId} />
 								{/if}
+								<!-- Add pending RSVP data as hidden inputs -->
+								{#if pendingRSVP}
+									<input type="hidden" name="eventId" value={pendingRSVP.eventId} />
+									<input type="hidden" name="rsvpStatus" value={pendingRSVP.rsvpStatus} />
+									<input type="hidden" name="numGuests" value={pendingRSVP.numGuests || 0} />
+								{/if}
 
 								<input
 									bind:this={email_input}
@@ -392,6 +425,12 @@
 								<!-- Add tempAttendeeId as a hidden input -->
 								{#if tempAttendeeId}
 									<input type="hidden" name={tempAttendeeIdInForm} value={tempAttendeeId} />
+								{/if}
+								<!-- Add pending RSVP data as hidden inputs -->
+								{#if pendingRSVP}
+									<input type="hidden" name="eventId" value={pendingRSVP.eventId} />
+									<input type="hidden" name="rsvpStatus" value={pendingRSVP.rsvpStatus} />
+									<input type="hidden" name="numGuests" value={pendingRSVP.numGuests || 0} />
 								{/if}
 
 								<div class="my-5 flex w-full justify-center" class:hidden={!show_input}>

@@ -4,12 +4,14 @@ import { lucia } from '$lib/server/auth';
 import { triplitHttpClient } from '$lib/server/triplit';
 import { isWithinExpirationDate } from '$lib/utils';
 import { deleteEmailOTP, getEmailOTP } from '$lib/server/database/emailtoken.model';
+import { updateRSVPForLoggedInUser } from '$lib/rsvp';
+import { getFeWorkerTriplitClient } from '$lib/triplit';
 
 const otpVerificationSchema = z.object({
 	otp: z.string().length(6) // OTP should be exactly 6 characters
 });
 
-export async function POST({ request }) {
+export async function POST({ request, cookies }) {
 	// Parse the incoming request body
 	const body = await request.json();
 	const parsedData = otpVerificationSchema.safeParse(body);
@@ -28,6 +30,22 @@ export async function POST({ request }) {
 	}
 
 	const { otp } = parsedData.data;
+
+	// Get pending RSVP data from cookies
+	let pendingRSVP = null;
+	try {
+		const rsvpCookie = cookies.get('pending_rsvp');
+		if (rsvpCookie) {
+			pendingRSVP = JSON.parse(rsvpCookie);
+			// Check if data is not too old (30 minutes)
+			if (Date.now() - pendingRSVP.timestamp > 30 * 60 * 1000) {
+				pendingRSVP = null;
+			}
+		}
+	} catch (e) {
+		console.error('Error parsing pending RSVP data:', e);
+		pendingRSVP = null;
+	}
 
 	// Fetch the OTP record from the database
 	const otpRecord = await getEmailOTP(otp);
@@ -81,21 +99,54 @@ export async function POST({ request }) {
 		triplitHttpClient.query('user').Where('id', '=', user.id)
 	);
 
-	// Check if the user has a username for redirection
-	const location = triplitUser?.username ? '/dashboard' : '/profile/username';
+	// Handle pending RSVP if exists
+	let redirectLocation = triplitUser?.username ? '/dashboard' : '/profile/username';
+	
+	if (pendingRSVP && pendingRSVP.eventId && pendingRSVP.rsvpStatus) {
+		try {
+			// Create a client with the new session to perform RSVP
+			const client = getFeWorkerTriplitClient(session.id);
+			
+			// Update RSVP status for the user
+			await updateRSVPForLoggedInUser(
+				client,
+				user.id,
+				pendingRSVP.eventId,
+				'default', // old status (doesn't matter for new users)
+				pendingRSVP.rsvpStatus,
+				pendingRSVP.numGuests || 0
+			);
+			
+			// Redirect to the event page instead
+			redirectLocation = `/bonfire/${pendingRSVP.eventId}`;
+			
+			// Clear the pending RSVP cookie
+			cookies.delete('pending_rsvp', { path: '/' });
+			
+			console.log(`Automatically set RSVP to ${pendingRSVP.rsvpStatus} for user ${user.id} on event ${pendingRSVP.eventId}`);
+		} catch (error) {
+			console.error('Error processing pending RSVP:', error);
+			// Don't fail the login, just log the error and continue
+		}
+	}
+
+	const responseHeaders = new Headers();
+	responseHeaders.set('Set-Cookie', sessionCookie.serialize());
+	
+	// Clear pending RSVP cookie even if no RSVP was processed
+	if (pendingRSVP) {
+		cookies.delete('pending_rsvp', { path: '/' });
+	}
 
 	return new Response(
 		JSON.stringify({
 			success: true,
-			location: location,
+			location: redirectLocation,
 			sessionCookie: sessionCookie.serialize()
 		}),
 		{
 			status: 200,
-			headers: {
-				// location: location,
-				'Set-Cookie': sessionCookie.serialize()
-			}
+			headers: responseHeaders
 		}
 	);
 }

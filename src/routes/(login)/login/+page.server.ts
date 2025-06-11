@@ -22,18 +22,27 @@ import {
 	NUM_DEFAULT_LOGS_NEW_SIGNUP
 } from '$lib/enums';
 import { convertTempToPermanentUser, triplitHttpClient } from '$lib/server/triplit.js';
+import { updateRSVPForLoggedInUser } from '$lib/rsvp';
 
 // Zod validation schema for login_with_email (requires email)
 const loginSchema = z.object({
 	email: z.string().trim().email(),
-	tempAttendeeIdInForm: z.string().optional()
+	tempAttendeeIdInForm: z.string().optional(),
+	// RSVP data for automatic RSVP after login
+	eventId: z.string().optional(),
+	rsvpStatus: z.string().optional(),
+	numGuests: z.coerce.number().optional()
 });
 
 // Zod validation schema for login_with_phone (requires phone)
 const phoneLoginSchema = z.object({
 	phone_number: z.string().min(10, 'Phone number must be at least 10 digits'),
 	phone_country: z.string().optional(),
-	tempAttendeeIdInForm: z.string().optional()
+	tempAttendeeIdInForm: z.string().optional(),
+	// RSVP data for automatic RSVP after login
+	eventId: z.string().optional(),
+	rsvpStatus: z.string().optional(),
+	numGuests: z.coerce.number().optional()
 });
 
 // Common helper functions
@@ -119,6 +128,24 @@ async function createLoginEntry(identifier: string, ip_address: string) {
 	});
 }
 
+async function storeRSVPDataInSession(cookies: any, eventId?: string, rsvpStatus?: string, numGuests?: number) {
+	if (eventId && rsvpStatus) {
+		const rsvpData = {
+			eventId,
+			rsvpStatus,
+			numGuests: numGuests || 0,
+			timestamp: Date.now()
+		};
+		cookies.set('pending_rsvp', JSON.stringify(rsvpData), {
+			path: '/',
+			maxAge: 60 * 30, // 30 minutes
+			httpOnly: true,
+			secure: !dev,
+			sameSite: 'lax'
+		});
+	}
+}
+
 async function generateAndSendOTP(user: any, identifier: string, login_type: string, isPhone: boolean) {
 	await deleteAllEmailOTPsForUser(user.id);
 	const verification_token = await createEmailVerificationOTP(user.id, identifier);
@@ -165,7 +192,7 @@ export const load = async ({ locals }) => {
 };
 
 export const actions = {
-	login_with_email: async ({ request, getClientAddress }) => {
+	login_with_email: async ({ request, getClientAddress, cookies }) => {
 		const form = await superValidate(request, zod(loginSchema));
 
 		if (!form.valid) {
@@ -174,6 +201,9 @@ export const actions = {
 
 		const identifier = form.data.email;
 		const ip_address = getClientAddress();
+		
+		// Store RSVP data in session if provided
+		await storeRSVPDataInSession(cookies, form.data.eventId, form.data.rsvpStatus, form.data.numGuests);
 		
 		// Check for existing temp attendee
 		const existingTempAttendee = await findExistingTempAttendee(form.data.tempAttendeeIdInForm);
@@ -202,7 +232,7 @@ export const actions = {
 		return { form, phoneForm: await superValidate(zod(phoneLoginSchema)) };
 	},
 
-	login_with_phone: async ({ request, getClientAddress }) => {
+	login_with_phone: async ({ request, getClientAddress, cookies }) => {
 		const form = await superValidate(request, zod(phoneLoginSchema));
 
 		if (!form.valid) {
@@ -211,6 +241,9 @@ export const actions = {
 
 		const identifier = form.data.phone_number;
 		const ip_address = getClientAddress();
+		
+		// Store RSVP data in session if provided
+		await storeRSVPDataInSession(cookies, form.data.eventId, form.data.rsvpStatus, form.data.numGuests);
 		
 		// Check for existing temp attendee
 		const existingTempAttendee = await findExistingTempAttendee(form.data.tempAttendeeIdInForm);

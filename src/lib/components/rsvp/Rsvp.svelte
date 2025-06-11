@@ -12,7 +12,6 @@
 	import { toast } from 'svelte-sonner';
 	import { goto } from '$app/navigation';
 	import PlusOneSelect from './PlusOneSelect.svelte';
-	import TempAttendeeDialog from './TempAttendeeDialog.svelte';
 	import UpdatePlusOneSelect from './UpdatePlusOneSelect.svelte';
 	import { updateRSVPForLoggedInUser, updateRSVPForTempUser } from '$lib/rsvp';
 	import RsvpNameWithLoader from './RsvpNameWithLoader.svelte';
@@ -82,14 +81,15 @@
 		}
 		event.preventDefault();
 
-		if (isAnonymousUser) {
-			// Brand new temporary user, still an anonymous user at this point
-			tempUserRsvpStatus = newValue;
-
-			// Show modal to either
-			// (a) log in with magic link and have that event be linked to their account right away
-			// (b) enter a name and generate a unique link to access the event with their temporary identity
-			isAnonRsvpDialogOpen = true;
+		if (isAnonymousUser && newValue) {
+			// Redirect to login page with RSVP data in URL
+			const loginUrl = new URL('/login', window.location.origin);
+			loginUrl.searchParams.set('eventId', eventId);
+			loginUrl.searchParams.set('rsvpStatus', newValue);
+			if (numGuestsCurrentAttendeeIsBringing && numGuestsCurrentAttendeeIsBringing > 0) {
+				loginUrl.searchParams.set('numGuests', numGuestsCurrentAttendeeIsBringing.toString());
+			}
+			goto(loginUrl.pathname + loginUrl.search);
 		} else if ($page.data.user) {
 			if (
 				rsvpStatus == Status.DEFAULT &&
@@ -288,10 +288,3 @@
 		</Button>
 	</Dialog.Content>
 </Dialog.Root>
-
-<TempAttendeeDialog
-	bind:isAnonRsvpDialogOpen
-	{eventId}
-	{tempUserRsvpStatus}
-	{maxNumGuestsAllowedPerAttendee}
-/>
