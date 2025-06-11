@@ -23,9 +23,11 @@
 				.Select(['phone_number', 'phone_country_code']),
 			(results) => {
 				if (results.length == 1) {
-					const pi = results[0];
-					phoneNumber = pi.phone_number;
-					country = pi.phone_country_code;
+					const pi = results.find(result => result.phone_number && result.phone_country_code);
+					if (pi) {
+						phoneNumber = pi.phone_number;
+						country = pi.phone_country_code;
+					}
 				}
 			},
 			(error) => {
@@ -60,9 +62,7 @@
 	{:else}
 		<div class="flex w-full items-center justify-center">
 			<a href="/settings/phone" class="w-full">
-				<Button variant="outline" class="w-full">
-					Add phone number
-				</Button>
+				<Button variant="outline" class="w-full">Add phone number</Button>
 			</a>
 		</div>
 	{/if}

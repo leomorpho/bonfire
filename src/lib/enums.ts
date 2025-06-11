@@ -164,7 +164,7 @@ export const NotificationPermissions = {
 
 export const DeliveryPermissions = {
 	push_notifications: 'push_notifications',
-	// sms_notifications: 'sms_notifications',
+	sms_notifications: 'sms_notifications',
 	email_notifications: 'email_notifications'
 };
 

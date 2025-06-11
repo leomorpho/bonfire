@@ -60,6 +60,7 @@
 			});
 		} else {
 			await client.http.insert('user_personal_data', {
+				id: 'upd_' + userId,
 				user_id: userId,
 				last_dismissed_meet_onboarding: new Date()
 			});

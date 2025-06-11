@@ -13,6 +13,7 @@
 	import * as InputOTP from '$lib/components/ui/input-otp/index.js';
 	import { REGEXP_ONLY_DIGITS } from 'bits-ui';
 	import { onMount } from 'svelte';
+	import KeyBoardShortcut from '$lib/components/KeyBoardShortcut.svelte';
 
 	let { userId } = $props();
 
@@ -182,7 +183,7 @@
 								{#each cells.slice(0, 3) as cell}
 									<InputOTP.Slot
 										{cell}
-										class="md:h-18 relative flex h-12 w-8 items-center justify-center border-y border-r border-input transition-all first:rounded-l-md first:border-l last:rounded-r-md sm:h-14 sm:w-10 sm:text-xl md:w-14 md:text-2xl"
+										class="md:h-18 relative flex h-12 w-8 items-center justify-center border-y border-r border-input bg-slate-100 transition-all first:rounded-l-md first:border-l last:rounded-r-md dark:bg-slate-900 sm:h-14 sm:w-10 sm:text-xl md:w-14 md:text-2xl"
 									/>
 								{/each}
 							</InputOTP.Group>
@@ -191,7 +192,7 @@
 								{#each cells.slice(3, 6) as cell}
 									<InputOTP.Slot
 										{cell}
-										class="md:h-18 relative flex h-12 w-8 items-center justify-center border-y border-r border-input transition-all first:rounded-l-md first:border-l last:rounded-r-md sm:h-14 sm:w-10 sm:text-xl md:w-14 md:text-2xl"
+										class="md:h-18 relative flex h-12 w-8 items-center justify-center border-y border-r border-input bg-slate-100 transition-all first:rounded-l-md first:border-l last:rounded-r-md dark:bg-slate-900 sm:h-14 sm:w-10 sm:text-xl md:w-14 md:text-2xl"
 									/>
 								{/each}
 							</InputOTP.Group>
@@ -209,6 +210,7 @@
 				{/if}
 				<div class="flex w-full justify-center">
 					<Button
+						id="verify-otp"
 						onclick={() => {
 							verifyCode(verificationCodeInput);
 						}}
@@ -220,5 +222,11 @@
 				</div>
 			</div>
 		{/if}
+		<KeyBoardShortcut
+			key="Enter"
+			callback={() => {
+				document.getElementById('verify-otp')?.click();
+			}}
+		/>
 	</div>
 </div>

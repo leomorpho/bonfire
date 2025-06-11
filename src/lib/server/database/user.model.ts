@@ -85,6 +85,7 @@ export const createNewUser = async (user: NewUser) => {
 
 	try {
 		const personalData: Record<string, any> = {
+			id: 'upd_' + user?.id,
 			user_id: user?.id
 		};
 
