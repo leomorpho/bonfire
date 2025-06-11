@@ -551,7 +551,7 @@ async function downloadImageFromS3(bucketName, imageKey, dirPath) {
 	}
 }
 
-function generateIdFromString(text:string) {
+function generateIdFromString(text: string) {
 	// Create a SHA-256 hash of the email
 	const hash = crypto.createHash('sha256');
 	hash.update(text);

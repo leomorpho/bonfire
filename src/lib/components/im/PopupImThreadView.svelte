@@ -31,13 +31,7 @@
 	<Dialog.Content class="flex h-screen flex-col">
 		<Dialog.Description class="flex-1 overflow-hidden px-2">
 			<!-- Ensures full height usage -->
-			<ImThreadView
-				{eventId}
-				{currUserId}
-				{threadId}
-				{canSendIm}
-				{datetimeUserJoinedBonfire}
-			/>
+			<ImThreadView {eventId} {currUserId} {threadId} {canSendIm} {datetimeUserJoinedBonfire} />
 		</Dialog.Description>
 	</Dialog.Content>
 </Dialog.Root>

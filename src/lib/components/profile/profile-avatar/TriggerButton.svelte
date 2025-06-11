@@ -49,11 +49,15 @@
 		<GeneratedAvatar {username} size={baseHeightPx} />
 		{#if isTempUser}
 			<div class="pointer-events-none absolute inset-0 rounded-full border-4 border-yellow-400">
-				<div class="flex h-full w-full items-center justify-center text-base">{fallbackNameShort}</div>
+				<div class="flex h-full w-full items-center justify-center text-base">
+					{fallbackNameShort}
+				</div>
 			</div>
 		{:else}
 			<div class="pointer-events-none absolute inset-0 rounded-full">
-				<div class="flex h-full w-full items-center justify-center text-base">{fallbackNameShort}</div>
+				<div class="flex h-full w-full items-center justify-center text-base">
+					{fallbackNameShort}
+				</div>
 			</div>
 		{/if}
 		{#if numGuests > 0}

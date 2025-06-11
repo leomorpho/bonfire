@@ -33,7 +33,7 @@
 
 <AboutUs class="mt-5" />
 
-<div class="flex w-full justify-center mb-20">
+<div class="mb-20 flex w-full justify-center">
 	<a href="/"><Button class="mt-10"><House /> Go back home</Button></a>
 </div>
 

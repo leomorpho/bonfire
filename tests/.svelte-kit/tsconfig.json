@@ -1,17 +1,10 @@
 {
 	"compilerOptions": {
 		"paths": {},
-		"rootDirs": [
-			"..",
-			"./types"
-		],
+		"rootDirs": ["..", "./types"],
 		"verbatimModuleSyntax": true,
 		"isolatedModules": true,
-		"lib": [
-			"esnext",
-			"DOM",
-			"DOM.Iterable"
-		],
+		"lib": ["esnext", "DOM", "DOM.Iterable"],
 		"moduleResolution": "bundler",
 		"module": "esnext",
 		"noEmit": true,

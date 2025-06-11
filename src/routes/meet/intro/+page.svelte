@@ -37,7 +37,10 @@
 				in:slide={{ y: slideDirection === 'up' ? -500 : 500, duration: 300 }}
 				out:slide={{ y: slideDirection === 'up' ? -500 : 500, duration: 100 }}
 			>
-				<div transition:fade={{ duration: 300 }} class="rounded-xl bg-slate-100/80 dark:bg-slate-800/80 p-3 text-base">
+				<div
+					transition:fade={{ duration: 300 }}
+					class="rounded-xl bg-slate-100/80 p-3 text-base dark:bg-slate-800/80"
+				>
 					<h2 class="mb-4 text-center text-xl font-bold">Welcome to Bonfire!</h2>
 					<p class="mb-2 text-center">
 						Bonfire is your go-to platform for connecting with people and organizing events.

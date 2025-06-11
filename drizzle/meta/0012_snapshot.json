@@ -1,11 +1,11 @@
 {
 	"version": "6",
 	"dialect": "sqlite",
-	"id": "187f0833-ca13-4ed0-ae5b-1c1721316eb3",
-	"prevId": "00000000-0000-0000-0000-000000000000",
+	"id": "5c03ea50-a422-4839-ab90-ca12ff2c8d22",
+	"prevId": "44ad9dc2-d0c9-45c6-aedc-5c549d91f2de",
 	"tables": {
-		"email_verification_token": {
-			"name": "email_verification_token",
+		"email_verification_otp": {
+			"name": "email_verification_otp",
 			"columns": {
 				"id": {
 					"name": "id",
@@ -13,14 +13,6 @@
 					"primaryKey": true,
 					"notNull": true,
 					"autoincrement": false
-				},
-				"timestamp": {
-					"name": "timestamp",
-					"type": "text",
-					"primaryKey": false,
-					"notNull": true,
-					"autoincrement": false,
-					"default": "(current_timestamp)"
 				},
 				"user_id": {
 					"name": "user_id",
@@ -36,29 +28,12 @@
 					"notNull": true,
 					"autoincrement": false
 				},
-				"expires_at": {
-					"name": "expires_at",
-					"type": "integer",
+				"otp": {
+					"name": "otp",
+					"type": "text",
 					"primaryKey": false,
 					"notNull": true,
 					"autoincrement": false
-				}
-			},
-			"indexes": {},
-			"foreignKeys": {},
-			"compositePrimaryKeys": {},
-			"uniqueConstraints": {},
-			"checkConstraints": {}
-		},
-		"eventTransactionLogs": {
-			"name": "eventTransactionLogs",
-			"columns": {
-				"id": {
-					"name": "id",
-					"type": "integer",
-					"primaryKey": true,
-					"notNull": true,
-					"autoincrement": true
 				},
 				"timestamp": {
 					"name": "timestamp",
@@ -68,8 +43,8 @@
 					"autoincrement": false,
 					"default": "(current_timestamp)"
 				},
-				"num_logs_change": {
-					"name": "num_logs_change",
+				"expires_at": {
+					"name": "expires_at",
 					"type": "integer",
 					"primaryKey": false,
 					"notNull": true,
@@ -191,7 +166,7 @@
 					"name": "email",
 					"type": "text",
 					"primaryKey": false,
-					"notNull": true,
+					"notNull": false,
 					"autoincrement": false
 				},
 				"email_verified": {
@@ -208,6 +183,14 @@
 					"notNull": false,
 					"autoincrement": false,
 					"default": 3
+				},
+				"is_event_styles_admin": {
+					"name": "is_event_styles_admin",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": false,
+					"autoincrement": false,
+					"default": false
 				}
 			},
 			"indexes": {

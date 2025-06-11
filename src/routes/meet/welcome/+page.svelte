@@ -40,7 +40,10 @@
 					in:slide={{ y: slideDirection === 'up' ? -500 : 500, duration: 300 }}
 					out:slide={{ y: slideDirection === 'up' ? -500 : 500, duration: 100 }}
 				>
-					<div transition:fade={{ duration: 300 }} class="rounded-xl bg-slate-100/80 dark:bg-slate-800/80 p-3">
+					<div
+						transition:fade={{ duration: 300 }}
+						class="rounded-xl bg-slate-100/80 p-3 dark:bg-slate-800/80"
+					>
 						<h2 class="mb-4 text-center text-xl font-bold">Welcome to Bonfire Meet!</h2>
 						<p class="text-center">
 							Bonfire Meet is designed to bring people together in real life, turning local
@@ -63,7 +66,10 @@
 					in:slide={{ y: slideDirection === 'up' ? -500 : 500, duration: 300 }}
 					out:slide={{ y: slideDirection === 'up' ? -500 : 500, duration: 100 }}
 				>
-					<div transition:fade={{ duration: 300 }} class="rounded-xl bg-slate-100/80 dark:bg-slate-800/80 p-3">
+					<div
+						transition:fade={{ duration: 300 }}
+						class="rounded-xl bg-slate-100/80 p-3 dark:bg-slate-800/80"
+					>
 						<h2 class="mb-4 text-center text-xl font-bold">How it works</h2>
 						<p class="mb-2 text-center">
 							We match you with other people based on a short questionnaire that you will fill next.
@@ -72,9 +78,7 @@
 							Then, we'll organize curated events on Bonfire for you and people we think you'll
 							like. We'll invite you once we got enough people in your area!
 						</p>
-						<p class="mb-2 text-center">
-							Prepare to make new friends!
-						</p>
+						<p class="mb-2 text-center">Prepare to make new friends!</p>
 
 						<div class="mt-8 flex justify-center space-x-4">
 							<Button

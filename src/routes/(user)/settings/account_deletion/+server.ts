@@ -22,7 +22,7 @@ export const DELETE = async (event: RequestEvent) => {
 			// Delete related rows in dependent tables
 			await tx.delete(sessionTable).where(eq(sessionTable.userId, userId));
 			await tx.delete(signinTable).where(eq(signinTable.email, userId)); // Assuming email is used for signin tracking
-			
+
 			// Finally, delete the user
 			await tx.delete(userTable).where(eq(userTable.id, userId));
 		});

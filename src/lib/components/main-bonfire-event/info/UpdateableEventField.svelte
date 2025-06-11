@@ -76,7 +76,7 @@
 
 <div
 	{id}
-	class="w-[90vw] sm:w-full relative rounded-xl bg-slate-200/70 p-3 px-5 text-center dark:bg-slate-900/70 sm:px-10"
+	class="relative w-[90vw] rounded-xl bg-slate-200/70 p-3 px-5 text-center dark:bg-slate-900/70 sm:w-full sm:px-10"
 >
 	{#if isEditing}
 		{#if inputType === eventInputTypes.textarea}
@@ -117,7 +117,7 @@
 		{:else}
 			<button
 				onclick={updateEventAndCloseEditability}
-				class="absolute right-2 top-2 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-green-500 hover:bg-green-300 dark:bg-green-700 dark:hover:bg-green-500 transition-all duration-300"
+				class="absolute right-2 top-2 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-green-500 transition-all duration-300 hover:bg-green-300 dark:bg-green-700 dark:hover:bg-green-500"
 			>
 				<Save class="h-6 w-6" />
 			</button>

@@ -186,9 +186,7 @@
 					</Dialog.Root>
 				{/if}
 			{:else}
-				<BonfireNoInfoCard
-					text={'No announcements yet.'}
-				/>
+				<BonfireNoInfoCard text={'No announcements yet.'} />
 			{/if}
 		</div>
 	{/if}

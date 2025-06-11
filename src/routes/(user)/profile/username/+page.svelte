@@ -109,8 +109,12 @@
 		<div class="text-sm text-yellow-600 dark:text-yellow-200">
 			This is how friends will recognize you. It's required to attend any bonfire.
 		</div>
-		<Button id="submit-username" type="submit" disabled={!submitEnabled} onclick={handleSubmit} class="w-full"
-			>Save</Button
+		<Button
+			id="submit-username"
+			type="submit"
+			disabled={!submitEnabled}
+			onclick={handleSubmit}
+			class="w-full">Save</Button
 		>
 	</div>
 </div>

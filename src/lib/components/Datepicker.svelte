@@ -12,7 +12,7 @@
 		oninput = null,
 		minValue = today(getLocalTimeZone()),
 		maxValue = null,
-		class:cls=null
+		class: cls = null
 	} = $props();
 
 	const df = new DateFormatter('en-US', {

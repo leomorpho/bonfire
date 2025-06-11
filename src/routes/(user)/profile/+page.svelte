@@ -86,7 +86,7 @@
 					message={'Your profile is private, visible only to those sharing an event with you.'}
 				/>
 
-				<MeetSettingsCard isUserDataLoading={isUserDataLoading} userPersonalData={user.user_personal_data}/>
+				<MeetSettingsCard {isUserDataLoading} userPersonalData={user.user_personal_data} />
 
 				<!-- <div
 					class="text-base mt-5 flex flex-col justify-center rounded-xl bg-gradient-to-r from-blue-100 to-blue-300 p-5 dark:bg-gradient-to-r dark:from-blue-600 dark:to-blue-800"

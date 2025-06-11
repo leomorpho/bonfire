@@ -166,9 +166,5 @@
 		</div>
 	{/if}
 
-	<div
-		id="details-editor"
-		bind:this={element}
-		class={className}
-	></div>
+	<div id="details-editor" bind:this={element} class={className}></div>
 </div>

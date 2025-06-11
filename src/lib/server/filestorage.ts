@@ -458,11 +458,7 @@ export async function uploadBannerImage(
 	return { largeImageKey, smallImageKey };
 }
 
-export async function generateSignedUrl(
-	key: string,
-	expiresIn = 3600 * 24,
-	bucket = bucketName
-) {
+export async function generateSignedUrl(key: string, expiresIn = 3600 * 24, bucket = bucketName) {
 	try {
 		const command = new GetObjectCommand({
 			Bucket: bucket,

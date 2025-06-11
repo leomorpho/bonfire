@@ -36,7 +36,7 @@
 
 			<h2 class="my-6 text-2xl font-semibold">App Info</h2>
 			<div class="flex flex-col justify-center space-y-3">
-				<Button href="/terms-of-use" >Terms of use</Button>
+				<Button href="/terms-of-use">Terms of use</Button>
 				<Button href="/privacy-policy">Privacy policy</Button>
 				<Button href="/feedback">Give feedback</Button>
 			</div>

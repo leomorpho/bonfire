@@ -18,7 +18,7 @@ export async function createBringItem(
 	name: string,
 	unit: string,
 	quantityNeeded: number,
-	details: string,
+	details: string
 ): Promise<object> {
 	const output = await client.insert('bring_items', {
 		event_id: eventId,

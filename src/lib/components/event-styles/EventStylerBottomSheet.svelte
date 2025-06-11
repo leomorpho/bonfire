@@ -26,7 +26,6 @@
 		isSheetOpen = !isSheetOpen;
 	};
 
-
 	// Preview or final target
 	let currentTargetSelector = 'bg-color'; // Default to preview
 	let bgOverlaySelector = 'bg-overlay';
@@ -67,9 +66,9 @@
 		class="fixed inset-x-0 bottom-0 z-50 h-1/2 transform rounded-t-lg bg-white shadow-lg transition-transform duration-300 dark:bg-black"
 		transition:fly={{ y: 300, duration: 300 }}
 	>
-		<div class="p-1 px-3 h-full">
+		<div class="h-full p-1 px-3">
 			{#if loading}
-				<div class="flex w-full h-full justify-center"><SvgLoader /></div>
+				<div class="flex h-full w-full justify-center"><SvgLoader /></div>
 			{:else}
 				<div class="relative h-full">
 					<EventStyler
@@ -78,7 +77,7 @@
 						overlayOpacity={eventData?.overlay_opacity}
 						{currentTargetSelector}
 						{bgOverlaySelector}
-                        horizontalScroll={true}
+						horizontalScroll={true}
 					/>
 				</div>
 			{/if}

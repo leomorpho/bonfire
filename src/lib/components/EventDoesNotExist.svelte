@@ -18,7 +18,9 @@
 	// Log the event in Sentry when the component renders
 	onMount(() => {
 		if (!dev) {
-			Sentry.captureException(new Error(`Event not found - User landed on missing event page at ${window.location}`));
+			Sentry.captureException(
+				new Error(`Event not found - User landed on missing event page at ${window.location}`)
+			);
 			console.error(`Event not found - User landed on missing event page at ${window.location}`);
 		}
 	});

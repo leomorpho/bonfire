@@ -32,7 +32,7 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 				existingAttendee.id,
 				existingAttendee.name,
 				existingAttendee.status,
-				existingAttendee.guest_count 
+				existingAttendee.guest_count
 			);
 		}
 

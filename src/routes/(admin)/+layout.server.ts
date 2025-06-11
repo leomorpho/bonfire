@@ -14,7 +14,7 @@ export const load = async (event) => {
 
 	const jwt = generateJWT(user?.id, ADMIN_ROLE);
 	console.log('jwt', jwt);
-	
+
 	return {
 		user: user,
 		jwt: jwt

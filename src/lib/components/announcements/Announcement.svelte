@@ -69,8 +69,7 @@
 </script>
 
 <Card.Root
-	class="announcement relative border-0 pb-2 {announcement.seen_by
-		.length == 0 && !isUnverifiedUser
+	class="announcement relative border-0 pb-2 {announcement.seen_by.length == 0 && !isUnverifiedUser
 		? 'bg-yellow-200/70 dark:bg-yellow-700/70'
 		: 'bg-slate-200/70 dark:bg-slate-800/70'} dark:text-white"
 >

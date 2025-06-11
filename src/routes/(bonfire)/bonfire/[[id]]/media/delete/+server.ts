@@ -19,15 +19,12 @@ export const DELETE = async ({ request, locals, params, url }) => {
 
 	try {
 		existingTempAttendee = await triplitHttpClient.fetchOne(
-			triplitHttpClient
-				.query('temporary_attendees')
-				.Where([
-					and([
-						['secret_mapping.id', '=', tempAttendeeSecret],
-						['event_id', '=', eventId]
-					])
+			triplitHttpClient.query('temporary_attendees').Where([
+				and([
+					['secret_mapping.id', '=', tempAttendeeSecret],
+					['event_id', '=', eventId]
 				])
-				
+			])
 		);
 		if (existingTempAttendee) {
 			tempAttendeeExists = true;
@@ -62,9 +59,8 @@ export const DELETE = async ({ request, locals, params, url }) => {
 		const eventQuery = triplitHttpClient
 			.query('events')
 			.Where(['id', '=', eventId])
-			.Include('event_admins')
-			// .Select(['user_id']) // TODO: select bug in http client
-			;
+			.Include('event_admins');
+		// .Select(['user_id']) // TODO: select bug in http client
 		const event = await triplitHttpClient.fetchOne(eventQuery);
 
 		if (!event) {
@@ -90,33 +86,24 @@ export const DELETE = async ({ request, locals, params, url }) => {
 
 		if (user && isAdmin) {
 			console.log('=> GOD MODE', fileIds);
-			filesQuery = triplitHttpClient
-				.query('files')
-				.Where([['id', 'in', fileIds]])
-				// .Select(['id', 'uploader_id', 'file_key']) // Include the S3 file key // TODO: select bug in http client
-				;
+			filesQuery = triplitHttpClient.query('files').Where([['id', 'in', fileIds]]);
+			// .Select(['id', 'uploader_id', 'file_key']) // Include the S3 file key // TODO: select bug in http client
 		} else if (user && !isAdmin) {
-			filesQuery = triplitHttpClient
-				.query('files')
-				.Where(
-					and([
-						['id', 'in', fileIds],
-						['uploader_id', '=', user?.id]
-					])
-				)
-				// .Select(['id', 'uploader_id', 'file_key']) // Include the S3 file key // TODO: select bug in http client
-				;
+			filesQuery = triplitHttpClient.query('files').Where(
+				and([
+					['id', 'in', fileIds],
+					['uploader_id', '=', user?.id]
+				])
+			);
+			// .Select(['id', 'uploader_id', 'file_key']) // Include the S3 file key // TODO: select bug in http client
 		} else if (tempAttendeeExists) {
-			filesQuery = triplitHttpClient
-				.query('files')
-				.Where(
-					and([
-						['id', 'in', fileIds],
-						['temp_uploader_id', '=', existingTempAttendee?.id]
-					])
-				)
-				// .Select(['id', 'uploader_id', 'file_key']) // Include the S3 file key // TODO: select bug in http client
-				;
+			filesQuery = triplitHttpClient.query('files').Where(
+				and([
+					['id', 'in', fileIds],
+					['temp_uploader_id', '=', existingTempAttendee?.id]
+				])
+			);
+			// .Select(['id', 'uploader_id', 'file_key']) // Include the S3 file key // TODO: select bug in http client
 		} else {
 			return new Response(JSON.stringify({ error: 'Not authorized' }), {
 				status: 403,

@@ -29,7 +29,6 @@ export async function toggleEmojiReaction(
 				['entity_type', '=', entityType]
 			])
 			.Select(['id', 'emoji'])
-			
 	);
 
 	// If single reaction per entity is enforced, remove all previous reactions

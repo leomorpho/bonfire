@@ -19,9 +19,9 @@ env:
     PORT: 4000
     PUBLIC_ORIGIN: 'https://staging.bnfr-events.app'
     PUBLIC_DEFAULT_TITLE: 'Bonfire staging'
-    PUBLIC_1_LOG_PRICE_ID: "price_1QxadCCktR3peisA6ZujDEBj"
-    PUBLIC_3_LOG_PRICE_ID: "price_1QxadnCktR3peisA1BYew1PU"
-    PUBLIC_10_LOG_PRICE_ID: "price_1QxaeKCktR3peisAcjAVp5tD"
+    PUBLIC_1_LOG_PRICE_ID: 'price_1QxadCCktR3peisA6ZujDEBj'
+    PUBLIC_3_LOG_PRICE_ID: 'price_1QxadnCktR3peisA1BYew1PU'
+    PUBLIC_10_LOG_PRICE_ID: 'price_1QxaeKCktR3peisAcjAVp5tD'
   secret:
     - TURSO_DB_AUTH_TOKEN
     - TURSO_DB_URL
@@ -66,11 +66,11 @@ env:
 proxy:
   app_port: 4000
   ssl: true
-  host: staging.bnfr-events.app 
+  host: staging.bnfr-events.app
   forward_headers: true
   buffering:
     requests: false
     responses: false
 
 volumes:
-  - "/mnt/data/uploads-alpha:/app/uploads"
+  - '/mnt/data/uploads-alpha:/app/uploads'

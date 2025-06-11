@@ -3,7 +3,6 @@
 	import { ABS_MAX_GUEST_NUM } from '$lib/enums';
 	import { cn } from '$lib/utils';
 
-
 	let { numGuests = $bindable<number>(), maxGuests = 6 } = $props();
 
 	if (maxGuests > ABS_MAX_GUEST_NUM) {

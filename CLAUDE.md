@@ -5,6 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ### Development
+
 ```bash
 # Start development server (port 5173)
 npm run dev
@@ -31,6 +32,7 @@ npm run format   # Auto-format code
 ```
 
 ### Database
+
 ```bash
 # Generate new migration after schema changes
 npm run generate
@@ -43,6 +45,7 @@ npm run seed
 ```
 
 ### Build & Production
+
 ```bash
 npm run build    # Build for production
 npm run preview  # Preview production build locally
@@ -52,6 +55,7 @@ npm run start    # Start production server
 ## Architecture
 
 ### Tech Stack
+
 - **Frontend**: Svelte 5 + SvelteKit 2 with TypeScript
 - **Styling**: Tailwind CSS + DaisyUI + custom UI components in `src/lib/components/ui`
 - **Database**: SQLite (dev) / Turso (prod) with Drizzle ORM
@@ -59,6 +63,7 @@ npm run start    # Start production server
 - **Auth**: Lucia Auth with Google OAuth and email/OTP
 
 ### Project Structure
+
 - **Routes**: File-based routing in `src/routes/`
   - `/(app)/` - Public pages
   - `/(bonfire)/` - Event management pages
@@ -69,13 +74,16 @@ npm run start    # Start production server
 - **Database**: Schema in `src/lib/server/database/schema.ts`
 
 ### Key Patterns
+
 1. **Server-side forms**: Use `+page.server.ts` for form actions and data loading
 2. **Real-time sync**: Triplit client in `src/lib/triplit.ts` for collaborative features
 3. **File uploads**: TUS protocol implementation for resumable uploads
 4. **Notifications**: Queue-based system supporting email, SMS, and push
 
 ### Database Schema
+
 Core entities:
+
 - `users` - User accounts and profiles
 - `events` - Event information
 - `attendees` - RSVPs and attendance
@@ -84,6 +92,7 @@ Core entities:
 - `notifications` - Notification queue
 
 ### Testing Approach
+
 - Unit tests with Vitest for utilities and components
 - E2E tests with Playwright for user flows
 - Test files co-located with source files (`.test.ts`)

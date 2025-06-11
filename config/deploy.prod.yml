@@ -9,7 +9,7 @@ registry:
   username: leomorpho
   password:
     - KAMAL_REGISTRY_PASSWORD
-    
+
 builder:
   arch: amd64
 
@@ -71,4 +71,4 @@ proxy:
     responses: false
 
 volumes:
-  - "/mnt/data/uploads:/app/uploads"
+  - '/mnt/data/uploads:/app/uploads'

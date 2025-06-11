@@ -57,7 +57,7 @@
 		{#each Array.from({ length: scale }, (_, i) => i + 1) as num}
 			<Button
 				onclick={() => handleClick(num)}
-				class={`h-8 w-8 rounded-lg text-xs transition duration-300 ease-in-out sm:h-10 sm:w-10 sm:text-sm md:text-base ${ normalizedValue == num?'ring-2 ring-white':''}`}
+				class={`h-8 w-8 rounded-lg text-xs transition duration-300 ease-in-out sm:h-10 sm:w-10 sm:text-sm md:text-base ${normalizedValue == num ? 'ring-2 ring-white' : ''}`}
 				style={`background-color: ${interpolateColor(minColor, maxColor, (num - 1) / (scale - 1))}; color: white;`}
 				onmouseover={handleMouseOver}
 				onmouseout={handleMouseOut}

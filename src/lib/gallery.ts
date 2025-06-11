@@ -102,15 +102,13 @@ export async function shareImages(selectedImages: []) {
 	}
 }
 
-
-
 /**
-	 * Fetches banner information for a given Bonfire (event) ID.
-	 *
-	 * @param {string} bonfireId - The ID of the bonfire (event).
-	 * @param {string | null} tempAttendeeSecret - (Optional) Temporary attendee secret.
-	 * @returns {Promise<BannerInfo | null>} - The banner information or null if not found.
-	 */
+ * Fetches banner information for a given Bonfire (event) ID.
+ *
+ * @param {string} bonfireId - The ID of the bonfire (event).
+ * @param {string | null} tempAttendeeSecret - (Optional) Temporary attendee secret.
+ * @returns {Promise<BannerInfo | null>} - The banner information or null if not found.
+ */
 export async function fetchBannerInfo(bonfireId: string, tempAttendeeSecret: string | null = null) {
 	try {
 		// Construct the URL with optional temp attendee authentication

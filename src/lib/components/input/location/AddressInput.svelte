@@ -146,7 +146,7 @@
 			<Input
 				type="text"
 				{placeholder}
-				class="h-[var(--trigger-height)] w-full bg-slate-100 dark:bg-slate-700 focus:outline-none focus-visible:outline-none focus-visible:ring-0"
+				class="h-[var(--trigger-height)] w-full bg-slate-100 focus:outline-none focus-visible:outline-none focus-visible:ring-0 dark:bg-slate-700"
 				bind:value={locationQueryStr}
 				bind:ref={inputRef}
 				oninput={debounce(async () => {
@@ -154,7 +154,7 @@
 				}, 800)}
 			/>
 			<Command.List>
-				<Command.Group class="dark:bg-slate-900 bg-slate-300">
+				<Command.Group class="bg-slate-300 dark:bg-slate-900">
 					{#if locationQueryStr.length > 0}
 						<Command.Item
 							class="flex w-full justify-center text-wrap font-semibold text-blue-800"

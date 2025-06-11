@@ -14,7 +14,7 @@
 #### Local Development
 
 - Run `npm install --legacy-peer-deps` or `pnpm install`
-- Rename the `.env.example` file to `.env` and __populate it with your own values__
+- Rename the `.env.example` file to `.env` and **populate it with your own values**
 - Run `npm run generate && npm run migrate` to create a local database
 - Install mailpit to receive emails locally https://mailpit.axllent.org/docs/install/
 - run `npm run dev`
@@ -59,11 +59,7 @@ https://skippybla.medium.com/streaming-services-in-2023-504be51eebaa
 - [Bunny](https://bunny.net/stream/cdn-player/)
 - [Mux](https://www.mux.com/)
 
-
-
-
 https://animation-svelte.vercel.app/examples/5
-
 
 # Media
 
@@ -95,6 +91,7 @@ ffmpeg -i attendee-view.mp4 \
 ```
 
 Create the master playlist `master.m3u8` file:
+
 ```
 #EXTM3U
 #EXT-X-VERSION:3
@@ -119,12 +116,13 @@ Create the master playlist `master.m3u8` file:
 # Marketing
 
 ## Subreddits
+
 - r/EventProduction: https://www.reddit.com/r/EventProduction/
-- 
+-
 - https://www.reddit.com/r/EventProduction/comments/1c1o2hd/ticketing_platform_alternative_to_eventbrite/
 
 # Domain Names
 
 - bonfire.rsvp
 - bonfireevents.io
-- 
+-

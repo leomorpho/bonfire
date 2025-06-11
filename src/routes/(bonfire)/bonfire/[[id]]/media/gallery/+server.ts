@@ -19,16 +19,13 @@ export const GET = async ({ url, params, locals }) => {
 	const tempAttendeeSecret = url.searchParams.get(tempAttendeeSecretParam);
 	if (tempAttendeeSecret) {
 		try {
-			 existingAttendee = await triplitHttpClient.fetchOne(
-				triplitHttpClient
-					.query('temporary_attendees')
-					.Where([
-						and([
-							['secret_mapping.id', '=', tempAttendeeSecret],
-							['event_id', '=', id]
-						])
+			existingAttendee = await triplitHttpClient.fetchOne(
+				triplitHttpClient.query('temporary_attendees').Where([
+					and([
+						['secret_mapping.id', '=', tempAttendeeSecret],
+						['event_id', '=', id]
 					])
-					
+				])
 			);
 			if (existingAttendee) {
 				tempAttendeeExists = true;

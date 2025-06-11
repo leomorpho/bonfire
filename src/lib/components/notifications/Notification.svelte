@@ -290,7 +290,7 @@
 						</div>
 					{/if}
 				{:else if notification.object_type === NotificationType.ADMIN_ADDED}
-					<div class="mx-5 flex flex-wrap -space-x-1 text-black justify-center">
+					<div class="mx-5 flex flex-wrap justify-center -space-x-1 text-black">
 						{#each linkedObjects as user}
 							<div in:fade={{ duration: 300 }}>
 								<ProfileAvatar userId={user.id} viewerIsEventAdmin={isCurrenUserEventAdmin} />
@@ -315,7 +315,7 @@
 							</div>
 							<!-- Show the rest in the collapsible content -->
 							<Collapsible.Content class="text-black">
-								<div class="mx-5 flex flex-wrap -space-x-1 text-black justify-center">
+								<div class="mx-5 flex flex-wrap justify-center -space-x-1 text-black">
 									{#each linkedObjects as attendee}
 										<ProfileAvatar
 											userId={attendee.user_id}
@@ -326,7 +326,7 @@
 							</Collapsible.Content>
 						</Collapsible.Root>
 					{:else}
-						<div class="mx-5 flex flex-wrap -space-x-1 text-black justify-center">
+						<div class="mx-5 flex flex-wrap justify-center -space-x-1 text-black">
 							{#each linkedObjects as attendee}
 								<ProfileAvatar
 									userId={attendee.user_id}

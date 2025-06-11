@@ -1,5 +1,4 @@
 <script lang="ts">
-
 	let { children, clickCallback, value, ariaLabel, class: className = null } = $props();
 </script>
 
@@ -12,4 +11,4 @@
 	aria-label={ariaLabel}
 >
 	{@render children()}
-    </button>
+</button>

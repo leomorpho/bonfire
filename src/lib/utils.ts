@@ -358,29 +358,29 @@ export async function createHash(input: string, minLength: number = 25) {
 }
 
 export function scrollElementIntoView(elementId: string, margin = 10) {
-    if (typeof window === 'undefined') {
-        return;
-    }
+	if (typeof window === 'undefined') {
+		return;
+	}
 
-    const element = document.getElementById(elementId);
-    if (element) {
-        // Get the element's position and dimensions
-        const elementRect = element.getBoundingClientRect();
-        const absoluteElementTop = elementRect.top + window.pageYOffset;
-        const elementHeight = elementRect.height;
+	const element = document.getElementById(elementId);
+	if (element) {
+		// Get the element's position and dimensions
+		const elementRect = element.getBoundingClientRect();
+		const absoluteElementTop = elementRect.top + window.pageYOffset;
+		const elementHeight = elementRect.height;
 
-        // Calculate the desired scroll position with a margin from the bottom
-        const windowHeight = window.innerHeight;
-        const desiredScrollPosition = absoluteElementTop + elementHeight + margin - windowHeight;
+		// Calculate the desired scroll position with a margin from the bottom
+		const windowHeight = window.innerHeight;
+		const desiredScrollPosition = absoluteElementTop + elementHeight + margin - windowHeight;
 
-        // Scroll to the desired position
-        window.scrollTo({
-            top: desiredScrollPosition,
-            behavior: 'smooth'
-        });
-    } else {
-        console.error('Element not found:', elementId);
-    }
+		// Scroll to the desired position
+		window.scrollTo({
+			top: desiredScrollPosition,
+			behavior: 'smooth'
+		});
+	} else {
+		console.error('Element not found:', elementId);
+	}
 }
 
 export const calculateLeadTimeInHours = (eventStartDatetime: Date, sendAtDatetime: Date) => {

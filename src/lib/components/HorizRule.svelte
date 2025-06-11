@@ -1,1 +1,1 @@
-<hr class="my-5 border-t-4 rounded-full" />
+<hr class="my-5 rounded-full border-t-4" />

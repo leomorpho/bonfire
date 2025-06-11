@@ -95,7 +95,7 @@ export const taskRunner = async () => {
 			console.log('Stopping scheduler...');
 			scheduler.stop(); // Stops the scheduler
 			try {
-				console.log("Unlocking all tasks")
+				console.log('Unlocking all tasks');
 				await unlockAllTasks();
 				console.log('All tasks unlocked successfully.');
 			} catch (error) {

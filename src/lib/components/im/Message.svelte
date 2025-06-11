@@ -240,7 +240,7 @@
 	>
 		<div class="flex gap-2.5 ${isOwnMessage ? 'items-end' : 'items-start'}">
 			{#if !isOwnMessage}
-				<div class="self-end w-7">{@render avatar()}</div>
+				<div class="w-7 self-end">{@render avatar()}</div>
 			{/if}
 			<MessageContextMenu
 				{showContextMenu}
@@ -279,7 +279,7 @@
 				</div>
 			</MessageContextMenu>
 			{#if isOwnMessage}
-				<div class="self-end w-7">
+				<div class="w-7 self-end">
 					{@render avatar()}
 				</div>
 			{/if}

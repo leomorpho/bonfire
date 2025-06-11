@@ -79,9 +79,9 @@
 </script>
 
 {#if show}
-	<div style={styles} id="success-alert" class="rounded-2xl mb-5" role="alert">
+	<div style={styles} id="success-alert" class="mb-5 rounded-2xl" role="alert">
 		<div
-			class="flex flex-col items-center rounded-2xl h-max bg-slate-200/70 p-4 text-sm text-black dark:bg-gray-700/65 dark:text-white"
+			class="flex h-max flex-col items-center rounded-2xl bg-slate-200/70 p-4 text-sm text-black dark:bg-gray-700/65 dark:text-white"
 		>
 			<div class="mb-2 flex w-full items-center justify-between">
 				<svg
@@ -97,7 +97,7 @@
 				</svg>
 				<button
 					type="button"
-					class="shadow-lg -mx-1.5 -my-1.5 ms-auto inline-flex h-6 w-6 items-center justify-center rounded-full dark:bg-slate-300 p-1 text-red-500 hover:bg-red-200 focus:ring-2 focus:ring-slate-400 bg-gray-400/70 dark:text-red-400  dark:hover:bg-red-700"
+					class="-mx-1.5 -my-1.5 ms-auto inline-flex h-6 w-6 items-center justify-center rounded-full bg-gray-400/70 p-1 text-red-500 shadow-lg hover:bg-red-200 focus:ring-2 focus:ring-slate-400 dark:bg-slate-300 dark:text-red-400 dark:hover:bg-red-700"
 					onclick={dismissAlert}
 					aria-label="Close"
 				>

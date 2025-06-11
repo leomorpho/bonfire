@@ -7,7 +7,7 @@
 	import { page } from '$app/stores';
 	import { enhance } from '$app/forms';
 
-    let {cls=null} = $props()
+	let { cls = null } = $props();
 
 	let client: TriplitClient;
 
@@ -16,7 +16,12 @@
 	});
 </script>
 
-<form method="post" class={`${cls} flex w-full justify-center`} action={"/login?/signout"} use:enhance>
+<form
+	method="post"
+	class={`${cls} flex w-full justify-center`}
+	action={'/login?/signout'}
+	use:enhance
+>
 	<Button
 		type="submit"
 		onclick={() => {

@@ -74,15 +74,14 @@
 		<h2
 			class="my-3 flex w-full justify-center rounded-xl bg-yellow-200/80 p-2 text-sm font-semibold dark:bg-yellow-800/80"
 		>
-		{#if userIdsWontBeReached.length >= maxInlineLimit}More than {/if}
+			{#if userIdsWontBeReached.length >= maxInlineLimit}More than
+			{/if}
 			{userIdsWontBeReached.length}
 			{userIdsWontBeReached.length > 1 ? 'attendees' : 'attendee'}
 			can't be reached by the app for reminders or event communications due to disabled permissions.
 			Please contact them through another platform to ask them to enable these settings.
 		</h2>
 		{@render avatars(userIdsWontBeReached)}
-
-		
 	</div>
 {/if}
 

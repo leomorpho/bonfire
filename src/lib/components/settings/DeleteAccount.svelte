@@ -13,7 +13,6 @@
 
 	let isOpen = $state(false);
 
-
 	// TODO: create a triplit table where we upload the progress, or use a websocket or SSE
 	let isDeleting = $state(false);
 	let deletionProgress = $state(0);
@@ -109,7 +108,7 @@
 	<div class="fixed inset-0 z-50 flex items-center justify-center bg-white bg-opacity-80">
 		<div class="w-1/2">
 			<p class="mb-4 text-center text-lg">Deleting account...</p>
-			<Loader/>
+			<Loader />
 			<!-- <div class="h-2 rounded bg-gray-200">
 				<div
 					class="h-full rounded bg-red-500 transition-all duration-300"

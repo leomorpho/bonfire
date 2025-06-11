@@ -20,9 +20,7 @@
 
 <AlertDialog.Root bind:open={isOpen}>
 	<AlertDialog.Trigger class="w-full">
-		<Button class="w-full"
-			>Reset local data</Button
-		>
+		<Button class="w-full">Reset local data</Button>
 	</AlertDialog.Trigger>
 	<AlertDialog.Content>
 		<AlertDialog.Header>

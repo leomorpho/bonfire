@@ -9,7 +9,13 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { NotificationType } from '../src/lib/enums';
 import { getAttendeeUserIdsOfEvent } from '$lib/server/triplit';
 import { getEffectivePermissionSettingForEvent } from '$lib/permissions';
-import { createNewAnnouncement, createNewAttendance, createNewEvent, createNewTestUser, markAllNotificationsAsSeen } from './common';
+import {
+	createNewAnnouncement,
+	createNewAttendance,
+	createNewEvent,
+	createNewTestUser,
+	markAllNotificationsAsSeen
+} from './common';
 
 /**
  * Ensures each object ID in notifications is unique for a notification type, user, and event.

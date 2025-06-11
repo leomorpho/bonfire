@@ -9,8 +9,8 @@
 </script>
 
 <div
-	class="aspect-w-2 aspect-h-3 relative mx-auto w-full max-w-[300px] rounded-[2.5rem] border-[14px] border-gray-800 bg-gray-700 dark:border-gray-800 
-	sm:max-w-[320px] lg:max-w-[350px] shadow-2xl"
+	class="aspect-w-2 aspect-h-3 relative mx-auto w-full max-w-[300px] rounded-[2.5rem] border-[14px] border-gray-800 bg-gray-700 shadow-2xl
+	dark:border-gray-800 sm:max-w-[320px] lg:max-w-[350px]"
 >
 	<div
 		class="absolute -start-[17px] top-[72px] h-[32px] w-[3px] rounded-s-lg bg-gray-700 dark:bg-gray-700"

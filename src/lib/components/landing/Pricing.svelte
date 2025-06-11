@@ -46,7 +46,9 @@
 						featureText={'Create unlimited free events with no attendee limits. This is a beta offer and can change at any time.'}
 					></PricingFeature>
 					<PricingFeature featureText={'RSVP to any Bonfire for free'} />
-					<PricingFeature featureText={'Personalize the look and feel of your events: backgrounds, fonts and more!'} />
+					<PricingFeature
+						featureText={'Personalize the look and feel of your events: backgrounds, fonts and more!'}
+					/>
 				</ul>
 				<a class="mt-auto" href="/login">
 					<Button variant="secondary" class="w-full bg-slate-500 text-white dark:bg-slate-500">

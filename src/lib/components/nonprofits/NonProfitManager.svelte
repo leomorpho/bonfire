@@ -56,7 +56,7 @@
 
 		return () => unsubscribe();
 	});
-	
+
 	const createNonProfit = async () => {
 		try {
 			await feHttpClient.insert('non_profits', {

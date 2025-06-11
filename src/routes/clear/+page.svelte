@@ -16,7 +16,7 @@
 	});
 </script>
 
-<div class="flex h-screen flex-col items-center justify-center text-center text-xl p-5 sm:p-10">
+<div class="flex h-screen flex-col items-center justify-center p-5 text-center text-xl sm:p-10">
 	<p class="mb-4">✅ Your local data has been cleared!</p>
 	<p class="text-lg text-gray-600">
 		The app has been reset to its default settings. You can now log in again to restore your data.

@@ -20,7 +20,6 @@
 	let loadingUserTriplitObject = $state(true);
 	let favouriteNonProfitId = $state<string | null>(null);
 
-
 	onMount(() => {
 		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 
@@ -42,11 +41,7 @@
 
 		// Fetch user's favorite non-profit
 		const unsubscribeUser = client.subscribe(
-			client
-				.query('user')
-				.Include('favourite_non_profit')
-				.Where(['id', '=', $page.data.user.id])
-				,
+			client.query('user').Include('favourite_non_profit').Where(['id', '=', $page.data.user.id]),
 			(result) => {
 				nonProfit = result[0]?.favourite_non_profit || null;
 				console.log('--> result.nonProfit', nonProfit);
@@ -73,7 +68,7 @@
 		<h2>Buy more logs</h2>
 		<span></span>
 	</div>
-	<BetaDevAlert localstorageKey={'dismissed-beta-dev-alert-buy-logs'}/>
+	<BetaDevAlert localstorageKey={'dismissed-beta-dev-alert-buy-logs'} />
 
 	<div class="my-2 mt-5 whitespace-normal break-words text-center">
 		You have

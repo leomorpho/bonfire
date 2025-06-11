@@ -8,7 +8,7 @@
 
 	onMount(() => {
 		addUserRequest(userId);
-		
+
 		const unsubscribe = usersLiveDataStore.subscribe((users) => {
 			const user = users[userId];
 			username = user?.username ?? 'N/A';

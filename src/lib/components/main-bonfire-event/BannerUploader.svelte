@@ -141,7 +141,7 @@
 						userId: $page.data.user?.id,
 						eventId: typeof $page.params.id !== 'undefined' ? $page.params.id : '',
 						uploadFileType: UploadFileTypes.BONFIRE_COVER_PHOTO,
-						unsplashImageDownloadCounterCallback: unsplashImageDownloadCounterCallback,
+						unsplashImageDownloadCounterCallback: unsplashImageDownloadCounterCallback
 					};
 
 					if (unsplashAuthorInfo?.name && unsplashAuthorInfo?.username) {

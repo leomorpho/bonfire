@@ -119,7 +119,6 @@ describe('Permissions Tests', () => {
 	});
 });
 
-
 // describe('getEffectivePermissionSettingForEvent', () => {
 // 	it('should return true if event-specific permission is granted', () => {
 // 		const permissions = [

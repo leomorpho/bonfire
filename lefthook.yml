@@ -11,10 +11,10 @@ pre-commit:
         fi
     lint-js:
       run: yarn eslint {staged_files}
-      glob: "*.{js,ts}"
+      glob: '*.{js,ts}'
     prettier:
       run: yarn prettier --write {staged_files}
-      glob: "*.{js,ts,json,css,md}"
+      glob: '*.{js,ts,json,css,md}'
 
 pre-push:
   parallel: true
@@ -28,7 +28,6 @@ pre-push:
         fi
         echo "Push allowed."
 
-      
 # EXAMPLE USAGE:
 #
 #   Refer for explanation to following link:

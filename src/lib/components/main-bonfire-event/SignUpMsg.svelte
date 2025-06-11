@@ -21,7 +21,7 @@
 </script>
 
 {#if showBanner && false}
-	<div class="flex w-full justify-center my-3">
+	<div class="my-3 flex w-full justify-center">
 		<div
 			class="relative mb-3 flex h-min w-fit flex-col items-center rounded-xl bg-orange-500/90 p-4 text-center text-white dark:bg-orange-700/90"
 		>

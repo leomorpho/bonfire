@@ -20,15 +20,12 @@ export async function POST({ request, params }) {
 
 		// Check if an attendee with the same name already exists for this event
 		const existingAttendee = await triplitHttpClient.fetchOne(
-			triplitHttpClient
-				.query('temporary_attendees')
-				.Where(
-					and([
-						['event_id', '=', eventId],
-						['name', '=', name]
-					])
-				)
-				
+			triplitHttpClient.query('temporary_attendees').Where(
+				and([
+					['event_id', '=', eventId],
+					['name', '=', name]
+				])
+			)
 		);
 
 		// Respond based on the result

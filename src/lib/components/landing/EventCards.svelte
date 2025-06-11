@@ -8,7 +8,7 @@
 
 	let emblaApi;
 	let options = { loop: true };
-	let plugins = [Autoscroll({speed:1}), WheelGesturesPlugin()];
+	let plugins = [Autoscroll({ speed: 1 }), WheelGesturesPlugin()];
 
 	function onInit(event) {
 		if (!browser) return;

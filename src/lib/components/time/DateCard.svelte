@@ -34,7 +34,7 @@
 <HoverCard.Root>
 	<HoverCard.Trigger>
 		<div
-			class="w-20 text--400 flex flex-col items-center justify-center rounded-lg bg-slate-300 p-1 px-3 shadow-sm dark:bg-slate-700 dark:text-slate-200"
+			class="text--400 flex w-20 flex-col items-center justify-center rounded-lg bg-slate-300 p-1 px-3 shadow-sm dark:bg-slate-700 dark:text-slate-200"
 		>
 			<span class="text-xs font-normal">{formattedTime}</span>
 			<span class="text-sm font-semibold">{formattedMonth} {formattedDay}</span>

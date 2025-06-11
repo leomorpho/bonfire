@@ -1,8 +1,15 @@
 <script lang="ts">
 	import { cn } from '$lib/utils';
 
-	let { children, cls, reverse = false, duration = 20, delay = 0, radius = 10, path = true } = $props();
-
+	let {
+		children,
+		cls,
+		reverse = false,
+		duration = 20,
+		delay = 0,
+		radius = 10,
+		path = true
+	} = $props();
 </script>
 
 {#if path}
@@ -12,7 +19,7 @@
 		class="pointer-events-none absolute inset-0 h-full w-full"
 	>
 		<circle
-			class="stroke-1 stroke-white/30"
+			class="stroke-white/30 stroke-1"
 			cx="50%"
 			cy="50%"
 			r={radius}

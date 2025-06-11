@@ -64,65 +64,65 @@
 		</div>
 
 		<!-- on desktop show large icons with text -->
-		<div class="mx-auto hidden w-fit space-x-10 sm:flex flex-wrap justify-center gap-x-4 gap-y-6">
+		<div class="mx-auto hidden w-fit flex-wrap justify-center gap-x-4 gap-y-6 space-x-10 sm:flex">
 			<button
 				class:text-primary={index === 0}
-				class="flex flex-col items-center w-1/3 sm:w-1/4 md:w-1/6"
+				class="flex w-1/3 flex-col items-center sm:w-1/4 md:w-1/6"
 				onclick={() => setIndex(0)}
 			>
 				<Flame class="h-8 w-8" />
-				<div class="mt-2 text-regular font-semibold">Plan</div>
+				<div class="text-regular mt-2 font-semibold">Plan</div>
 			</button>
 			<button
 				class:text-primary={index === 1}
-				class="flex flex-col items-center w-1/3 sm:w-1/4 md:w-1/6"
+				class="flex w-1/3 flex-col items-center sm:w-1/4 md:w-1/6"
 				onclick={() => setIndex(1)}
 			>
 				<Link class="h-8 w-8" />
-				<div class="mt-2 text-regular font-semibold">Share</div>
+				<div class="text-regular mt-2 font-semibold">Share</div>
 			</button>
 			<button
 				class:text-primary={index === 2}
-				class="flex flex-col items-center w-1/3 sm:w-1/4 md:w-1/6"
+				class="flex w-1/3 flex-col items-center sm:w-1/4 md:w-1/6"
 				onclick={() => setIndex(2)}
 			>
 				<Users class="h-8 w-8" />
-				<div class="mt-2 text-regular font-semibold">Attendees</div>
+				<div class="text-regular mt-2 font-semibold">Attendees</div>
 			</button>
 			<button
 				class:text-primary={index === 3}
-				class="flex flex-col items-center w-1/3 sm:w-1/4 md:w-1/6"
+				class="flex w-1/3 flex-col items-center sm:w-1/4 md:w-1/6"
 				onclick={() => setIndex(3)}
 			>
 				<Music class="h-8 w-8" />
-				<div class="mt-2 text-regular font-semibold">Playlists</div>
+				<div class="text-regular mt-2 font-semibold">Playlists</div>
 			</button>
 			<button
 				class:text-primary={index === 4}
-				class="flex flex-col items-center w-1/3 sm:w-1/4 md:w-1/6"
+				class="flex w-1/3 flex-col items-center sm:w-1/4 md:w-1/6"
 				onclick={() => setIndex(4)}
 			>
 				<Images class="h-8 w-8" />
-				<div class="mt-2 text-regular font-bold">Memories</div>
+				<div class="text-regular mt-2 font-bold">Memories</div>
 			</button>
 			<button
 				class:text-primary={index === 5}
-				class="flex flex-col items-center w-1/3 sm:w-1/4 md:w-1/6"
+				class="flex w-1/3 flex-col items-center sm:w-1/4 md:w-1/6"
 				onclick={() => setIndex(5)}
 			>
 				<BellRing class="h-8 w-8" />
-				<div class="mt-2 text-regular font-bold">Auto-reminders</div>
+				<div class="text-regular mt-2 font-bold">Auto-reminders</div>
 			</button>
 			<button
 				class:text-primary={index === 6}
-				class="flex flex-col items-center w-1/3 sm:w-1/4 md:w-1/6"
+				class="flex w-1/3 flex-col items-center sm:w-1/4 md:w-1/6"
 				onclick={() => setIndex(6)}
 			>
 				<Feather class="h-8 w-8" />
-				<div class="mt-2 text-regular font-bold">Ephemeral</div>
+				<div class="text-regular mt-2 font-bold">Ephemeral</div>
 			</button>
 		</div>
-		
+
 		<div class="embla pt-14">
 			<div
 				class="embla__viewport"
@@ -132,11 +132,11 @@
 				<div class="embla__container">
 					<div class="embla__slide">
 						<div
-							class="flex h-80 flex-col items-center justify-center space-y-3 rounded-xl bg-slate-200  dark:bg-slate-800 dark:text-white p-5 text-center"
+							class="flex h-80 flex-col items-center justify-center space-y-3 rounded-xl bg-slate-200 p-5 text-center dark:bg-slate-800 dark:text-white"
 						>
 							<div class="flex items-center font-bold sm:text-xl">
-								<Flame class="mr-1 hidden h-4 w-4 sm:block sm:h-5 sm:w-5" />Create a
-								bonfire in seconds
+								<Flame class="mr-1 hidden h-4 w-4 sm:block sm:h-5 sm:w-5" />Create a bonfire in
+								seconds
 							</div>
 							<p class="text-xs sm:text-sm md:text-base">Creating an event is quick and simple.</p>
 							<p class="text-xs sm:text-sm md:text-base">
@@ -146,7 +146,7 @@
 					</div>
 					<div class="embla__slide">
 						<div
-							class="flex h-80 flex-col items-center justify-center space-y-3 rounded-xl bg-slate-200  dark:bg-slate-800 dark:text-white p-5 text-center"
+							class="flex h-80 flex-col items-center justify-center space-y-3 rounded-xl bg-slate-200 p-5 text-center dark:bg-slate-800 dark:text-white"
 						>
 							<div class="flex items-center font-bold sm:text-xl">
 								<Link class="mr-1 hidden h-4 w-4 sm:block sm:h-6 sm:w-6" />Quick-share URLs
@@ -162,11 +162,10 @@
 					</div>
 					<div class="embla__slide">
 						<div
-							class="flex h-80 flex-col items-center justify-center space-y-3 rounded-xl bg-slate-200  dark:bg-slate-800 dark:text-white p-5 text-center"
+							class="flex h-80 flex-col items-center justify-center space-y-3 rounded-xl bg-slate-200 p-5 text-center dark:bg-slate-800 dark:text-white"
 						>
 							<div class="flex items-center font-bold sm:text-xl">
-								<Users class="mr-1 hidden h-4 w-4 sm:block sm:h-6 sm:w-6" />Track &
-								Notify Attendees
+								<Users class="mr-1 hidden h-4 w-4 sm:block sm:h-6 sm:w-6" />Track & Notify Attendees
 							</div>
 							<p class="text-xs sm:text-sm md:text-base">
 								Track who's coming and keep the hype going by posting updates and content.
@@ -178,7 +177,7 @@
 					</div>
 					<div class="embla__slide">
 						<div
-							class="flex h-80 flex-col items-center justify-center space-y-3 rounded-xl bg-slate-200  dark:bg-slate-800 dark:text-white p-5 text-center"
+							class="flex h-80 flex-col items-center justify-center space-y-3 rounded-xl bg-slate-200 p-5 text-center dark:bg-slate-800 dark:text-white"
 						>
 							<div class="flex items-center font-bold sm:text-xl">
 								<Music class="mr-1 hidden h-4 w-4 sm:block sm:h-6 sm:w-6" />Shared Playlists
@@ -190,7 +189,7 @@
 					</div>
 					<div class="embla__slide">
 						<div
-							class="flex h-80 flex-col items-center justify-center space-y-3 rounded-xl bg-slate-200  dark:bg-slate-800 dark:text-white p-5 text-center"
+							class="flex h-80 flex-col items-center justify-center space-y-3 rounded-xl bg-slate-200 p-5 text-center dark:bg-slate-800 dark:text-white"
 						>
 							<div class="flex items-center font-bold sm:text-xl">
 								<Images class="mr-1 hidden h-4 w-4 sm:block sm:h-6 sm:w-6 " />Log Memories
@@ -203,12 +202,10 @@
 					</div>
 					<div class="embla__slide">
 						<div
-							class="flex h-80 flex-col items-center justify-center space-y-3 rounded-xl bg-slate-200  dark:bg-slate-800 dark:text-white p-5 text-center"
+							class="flex h-80 flex-col items-center justify-center space-y-3 rounded-xl bg-slate-200 p-5 text-center dark:bg-slate-800 dark:text-white"
 						>
 							<div class="flex items-center font-bold sm:text-xl">
-								<BellRing
-									class="mr-1 hidden h-4 w-4 sm:block sm:h-6 sm:w-6"
-								/>Auto-Reminders
+								<BellRing class="mr-1 hidden h-4 w-4 sm:block sm:h-6 sm:w-6" />Auto-Reminders
 							</div>
 							<p class="text-xs sm:text-sm md:text-base">
 								Set automatic reminders for attendees to ensure they don't forget about upcoming
@@ -218,16 +215,14 @@
 					</div>
 					<div class="embla__slide">
 						<div
-							class="flex h-80 flex-col items-center justify-center space-y-3 rounded-xl bg-slate-200  dark:bg-slate-800 dark:text-white p-5 text-center"
+							class="flex h-80 flex-col items-center justify-center space-y-3 rounded-xl bg-slate-200 p-5 text-center dark:bg-slate-800 dark:text-white"
 						>
 							<div class="flex items-center font-bold sm:text-xl">
-								<Feather
-									class="mr-1 hidden h-4 w-4 sm:block sm:h-6 sm:w-6"
-								/>Ephemeral
+								<Feather class="mr-1 hidden h-4 w-4 sm:block sm:h-6 sm:w-6" />Ephemeral
 							</div>
 							<p class="text-xs sm:text-sm md:text-base">
-								All bonfires are deleted 14 days after they start, but don't worry we'll warn you. You can back up the uploaded
-								media with a single click download!
+								All bonfires are deleted 14 days after they start, but don't worry we'll warn you.
+								You can back up the uploaded media with a single click download!
 							</p>
 						</div>
 					</div>

@@ -7,7 +7,9 @@
 
 <Popover.Root>
 	<Popover.Trigger class={className}>
-		<div class="flex h-8 w-8 items-center justify-center rounded-full bg-purple-500 dark:bg-purple-600 text-white">
+		<div
+			class="flex h-8 w-8 items-center justify-center rounded-full bg-purple-500 text-white dark:bg-purple-600"
+		>
 			<ShieldHalf class="h-5 w-4" />
 		</div>
 	</Popover.Trigger>

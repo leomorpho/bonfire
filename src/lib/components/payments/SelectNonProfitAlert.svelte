@@ -15,8 +15,8 @@
 				Choose a Cause & Make an Impact <span class="mx-1">🌍</span>
 			</p>
 			<p class="text-sm text-green-700 dark:text-green-300">
-				We donate <strong>`${percentProfitsToCharity}`% of our profits</strong> to charity. Your choice matters! Select a cause
-				now, and we’ll allocate funds based on what our amazing users support.
+				We donate <strong>`${percentProfitsToCharity}`% of our profits</strong> to charity. Your choice
+				matters! Select a cause now, and we’ll allocate funds based on what our amazing users support.
 			</p>
 		</div>
 	</div>

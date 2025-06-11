@@ -203,7 +203,7 @@
 		if (!buffer) {
 			return '';
 		}
-		
+
 		let binary = '';
 		const bytes = new Uint8Array(buffer);
 		const len = bytes.byteLength;

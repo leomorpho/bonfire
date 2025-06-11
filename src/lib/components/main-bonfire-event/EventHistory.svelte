@@ -71,9 +71,7 @@
 	</div>
 
 	{#each allChanges as change}
-		<Card.Root
-			class="my-3 bg-slate-200/80 py-1 dark:bg-slate-900/80 dark:text-white"
-		>
+		<Card.Root class="my-3 bg-slate-200/80 py-1 dark:bg-slate-900/80 dark:text-white">
 			<Card.Header>
 				<Card.Title class="flex items-center justify-between">
 					<!-- Date Section on the Left -->

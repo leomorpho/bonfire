@@ -2,7 +2,7 @@
 	import * as AlertDialog from '$lib/components/ui/alert-dialog/index';
 
 	let {
-		cls=null,
+		cls = null,
 		children = null,
 		continueCallback,
 		isOpen = $bindable(false),

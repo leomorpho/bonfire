@@ -18,7 +18,6 @@
 			<MessagesSquare class="mx-1 h-5 w-5" /> Enable instant messaging
 		</Label>
 	</div>
-	
 
 	{#if checked}
 		<!-- Description + Input with Svelte Slide Transition -->

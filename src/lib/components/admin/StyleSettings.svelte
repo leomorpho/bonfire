@@ -35,9 +35,7 @@
 	 * Apply a selected style dynamically to the preview area.
 	 * @param style - The selected style object.
 	 */
-	function applyStyle(
-		style: { id: number; name: string; cssTemplate: string } | null = null,
-	) {
+	function applyStyle(style: { id: number; name: string; cssTemplate: string } | null = null) {
 		finalStyleCss = style?.cssTemplate ?? finalStyleCss;
 
 		if (styleElement && cleanup) {
@@ -143,7 +141,9 @@
 				</div>
 
 				<div class="mb-4 flex w-full flex-col items-center">
-					<label for="overlay-opacity" class="my-4 block text-sm font-medium text-gray-700 dark:text-slate-100"
+					<label
+						for="overlay-opacity"
+						class="my-4 block text-sm font-medium text-gray-700 dark:text-slate-100"
 						>Opacity: {Math.round(overlayOpacity * 100)}%</label
 					>
 
@@ -171,8 +171,12 @@
 					style={style.cssTemplate}
 					onclick={() => applyStyle(style)}
 				>
-				<div class="rounded-lg bg-white dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-white p-1 text-xs sm:text-sm">{style.name}</div>
-			</button>
+					<div
+						class="rounded-lg bg-white p-1 text-xs dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800 sm:text-sm"
+					>
+						{style.name}
+					</div>
+				</button>
 			</div>
 		{/each}
 	</div>

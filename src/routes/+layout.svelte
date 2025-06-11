@@ -88,7 +88,6 @@
 		name="viewport"
 		content="width=device-width, initial-scale=1.0, shrink-to-fit=no, user-scalable=no, maximum-scale=1"
 	/>
-	
 
 	<!-- <meta
 		name="viewport"
@@ -104,7 +103,8 @@
 	<meta name="msapplication-starturl" content="https://todo.app" />
 	<meta name="mobile-web-app-capable" content="yes" />
 	<meta name="apple-mobile-web-app-capable" content="yes" />
-	<meta name="apple-mobile-web-app-status-bar-style" content="black" /> <!--black-translucent sets the top bar as transparent-->
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+	<!--black-translucent sets the top bar as transparent-->
 	<meta name="apple-mobile-web-app-title" content="Bonfire" />
 	<link rel="apple-touch-startup-image" href="ios-startup.png" />
 	<meta name="color-scheme" content="light dark" />

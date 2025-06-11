@@ -12,7 +12,7 @@
 		"moduleResolution": "bundler",
 		"types": ["dom-chromium-installation-events", "web-app-manifest"] // For @khmyznikov/pwa-install
 	},
-	"include": ["src/**/*", "src/node_modules", ".svelte-kit/ambient.d.ts"],
+	"include": ["src/**/*", "src/node_modules", ".svelte-kit/ambient.d.ts"]
 	// Path aliases are handled by https://kit.svelte.dev/docs/configuration#alias
 	// except $lib which is handled by https://kit.svelte.dev/docs/configuration#files
 	//

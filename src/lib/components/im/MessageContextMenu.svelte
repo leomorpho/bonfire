@@ -73,7 +73,7 @@
 	};
 
 	const onDelete = async (messageId: string) => {
-		const client = await getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
+		const client = (await getFeWorkerTriplitClient($page.data.jwt)) as TriplitClient;
 		await client.http.update('event_messages', messageId, async (entity: any) => {
 			entity.content = '';
 			entity.deleted_by_user_id = $page.data.user.id;

@@ -14,7 +14,6 @@ export const GET = async ({ locals, url }) => {
 				triplitHttpClient
 					.query('temporary_attendees')
 					.Where(['secret_mapping.id', '=', tempAttendeeSecret])
-					
 			);
 			if (existingTempAttendee) {
 				tempAttendeeExists = true;
@@ -42,9 +41,7 @@ export const GET = async ({ locals, url }) => {
 		const usersQuery = triplitHttpClient
 			.query('user')
 			.Where('id', 'in', userIds)
-			.Include('profile_image') // Ensure the relation exists
-			;
-
+			.Include('profile_image'); // Ensure the relation exists
 		const users = await triplitHttpClient.fetch(usersQuery);
 
 		// Generate signed URLs and construct the map

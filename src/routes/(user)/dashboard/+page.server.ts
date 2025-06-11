@@ -59,7 +59,7 @@ async function fetchBannersForEvents(userId: string) {
 				.Select([
 					'event_id',
 					// 'full_image_key',
-					'small_image_key',
+					'small_image_key'
 					// 'blurr_hash',
 					// 'unsplash_author_name',
 					// 'unsplash_author_username'
@@ -75,7 +75,7 @@ async function fetchBannersForEvents(userId: string) {
 				return {
 					eventId: banner.event_id,
 					// bannerIsSet: true,
-					bannerSmallSizeUrl,
+					bannerSmallSizeUrl
 					// bannerLargeSizeUrl,
 					// bannerBlurHash: banner.blurr_hash,
 					// unsplashAuthorName: banner.unsplash_author_name,

@@ -34,7 +34,7 @@
 </Button>
 
 <Dialog.Root bind:open={isPlusOneSelectDialogOpen}>
-	<Dialog.Content class="sm:max-w-[425px] rounded-2xl">
+	<Dialog.Content class="rounded-2xl sm:max-w-[425px]">
 		<Dialog.Header class="flex w-full flex-col justify-center">
 			<Dialog.Title>Are you bringing any guests?</Dialog.Title>
 			<Dialog.Description>Let us know if you are, don't count yourself.</Dialog.Description>

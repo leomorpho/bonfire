@@ -13,12 +13,11 @@
 	const selectByCount = () => {
 		currentlySelectedType = BringListCountTypes.COUNT;
 	};
-
-	
 </script>
 
 <DropdownMenu.Root>
-	<DropdownMenu.Trigger id="item-category-btn"
+	<DropdownMenu.Trigger
+		id="item-category-btn"
 		class="w-fit rounded-xl bg-slate-200 p-2 hover:bg-slate-200 dark:bg-slate-800 hover:dark:bg-slate-700"
 	>
 		{#if currentlySelectedType == BringListCountTypes.PER_PERSON}

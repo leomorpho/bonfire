@@ -23,8 +23,7 @@
 			client
 				.query('transactions')
 				.Where(['user_id', '=', $page.data.user.id])
-				.Order('created_at', 'DESC')
-				,
+				.Order('created_at', 'DESC'),
 			(results) => {
 				transactions = results;
 
@@ -60,7 +59,7 @@
 		<div
 			class="my-6 flex items-center justify-between rounded-xl bg-slate-200 p-3 text-2xl font-semibold shadow-md dark:bg-slate-800 dark:text-white"
 		>
-			<BackButton url={'/profile'}/>
+			<BackButton url={'/profile'} />
 			<h2>Transactions</h2>
 			<span></span>
 		</div>

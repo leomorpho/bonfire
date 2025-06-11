@@ -1011,9 +1011,7 @@ test('Messaging', async ({ browser }) => {
 	await attendeePage.getByRole('button', { name: 'Send Message' }).click();
 
 	// Ensure the button is visible from both people
-	await expect(
-		attendeePage.getByText('Hey there baby!' )
-	).toBeVisible();
+	await expect(attendeePage.getByText('Hey there baby!')).toBeVisible();
 	// await expect(attendeePage.getByText('No more messages.')).toBeVisible();
 
 	await expect(

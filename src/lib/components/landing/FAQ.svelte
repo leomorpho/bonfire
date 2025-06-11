@@ -14,12 +14,14 @@
 				'By default, Bonfires are private and accessible only via their unique URL. If shared publicly, privacy depends on how you distribute the link. Be mindful of who you share it with.'
 		},
 		{
-			question: 'Can I share my Bonfire with people who don\'t have a Bonfire account?',
-			answer: 'Yes! You can share your Bonfire with anyone, even if they don’t have an account. Just send them the Bonfire URL.'
+			question: "Can I share my Bonfire with people who don't have a Bonfire account?",
+			answer:
+				'Yes! You can share your Bonfire with anyone, even if they don’t have an account. Just send them the Bonfire URL.'
 		},
 		{
 			question: 'What are Logs?',
-			answer: 'A Log lets you host one Bonfire. Each account starts with 3 free Logs, allowing you to create up to 3 Bonfires to try our platform out.'
+			answer:
+				'A Log lets you host one Bonfire. Each account starts with 3 free Logs, allowing you to create up to 3 Bonfires to try our platform out.'
 		},
 		// {
 		// 	question: 'How does the referral program work?',
@@ -35,21 +37,22 @@
 		},
 		{
 			question: 'How can I contact Bonfire if I have a question or issue?',
-			answer: 'Contact me at info@bnfr-events.app - I\'m here to help and will respond as soon as possible.'
-		},
+			answer:
+				"Contact me at info@bnfr-events.app - I'm here to help and will respond as soon as possible."
+		}
 	];
 </script>
 
 <Container>
-	<div id="faq" class="mx-auto max-w-2xl py-5 sm:py-15 mb-10">
+	<div id="faq" class="sm:py-15 mx-auto mb-10 max-w-2xl py-5">
 		<div class="mt-2 text-center text-3xl font-bold tracking-tight sm:text-4xl">FAQ</div>
 		<div class="text-md mt-2 text-center leading-6 sm:mt-4 sm:text-lg sm:leading-8">
 			Still have questions? We've got you covered!
 		</div>
 		<div class="mt-5 md:mt-3 lg:mt-5">
-			<div class="join join-vertical w-full bg-slate-200 dark:bg-black">
+			<div class="w-full bg-slate-200 join join-vertical dark:bg-black">
 				{#each faqs as faq}
-					<div class="collapse join-item collapse-arrow border">
+					<div class="collapse collapse-arrow border join-item">
 						<input type="radio" name="accordion" />
 						<div class="collapse-title text-xl font-medium">
 							{faq.question}

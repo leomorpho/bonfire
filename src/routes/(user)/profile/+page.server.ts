@@ -15,10 +15,8 @@ export const load = async (event) => {
 		.Include('profile_image')
 		.Include('user_log_tokens')
 
-		.Where('id', '=', user.id)
-		// .Select(['full_image_key', 'small_image_key']) // TODO: select bug in http client
-		;
-
+		.Where('id', '=', user.id);
+	// .Select(['full_image_key', 'small_image_key']) // TODO: select bug in http client
 	const userWithProfileImage = await triplitHttpClient.fetchOne(query);
 
 	if (userWithProfileImage && !userWithProfileImage.user_log_tokens) {

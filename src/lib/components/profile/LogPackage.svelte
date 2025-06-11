@@ -14,22 +14,22 @@
 		isLoading = true; // Show loader
 
 		try {
-		    const response = await fetch('/stripe/checkout-session', {
-		        method: 'POST',
-		        headers: { 'Content-Type': 'application/json' },
-		        body: JSON.stringify({ price_id, mode })
-		    });
+			const response = await fetch('/stripe/checkout-session', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ price_id, mode })
+			});
 
-		    const data = await response.json();
-		    if (data.url) {
-		        window.location.href = data.url; // Redirect to Stripe checkout
-		    } else {
-		        console.error('Failed to create checkout session:', data.error);
-		    }
+			const data = await response.json();
+			if (data.url) {
+				window.location.href = data.url; // Redirect to Stripe checkout
+			} else {
+				console.error('Failed to create checkout session:', data.error);
+			}
 		} catch (error) {
-		    console.error('Error:', error);
+			console.error('Error:', error);
 		} finally {
-		    isLoading = false; // Hide loader (though the page will likely redirect)
+			isLoading = false; // Hide loader (though the page will likely redirect)
 		}
 	}
 </script>
