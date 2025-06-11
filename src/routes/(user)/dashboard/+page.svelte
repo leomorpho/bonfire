@@ -60,7 +60,7 @@
 					)
 					.Include('user', (rel) => rel('user').Select(['username']))
 			)
-			.Order('event.start_time', 'ASC');
+			.Order('event.start_time', future ? 'ASC' : 'DESC');
 	}
 
 	const initEvents = async () => {
