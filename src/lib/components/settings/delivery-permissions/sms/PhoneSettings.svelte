@@ -12,12 +12,14 @@
 	import { DeliveryPermissions } from '$lib/enums';
 	import * as InputOTP from '$lib/components/ui/input-otp/index.js';
 	import { REGEXP_ONLY_DIGITS } from 'bits-ui';
+	import { onMount } from 'svelte';
 
 	let { userId } = $props();
 
 	let phoneNumber: string | null = $state(null);
 	let country: CountryCode | null = $state('CA');
 	let isPhoneNumberValid: boolean = $state(false);
+	let existingPhoneNumber: string | null = $state(null);
 
 	let verificationCode: string = $state('');
 	let verificationCodeInput: string = $state('');
@@ -25,6 +27,36 @@
 	let isVerifying = $state(false);
 	let otpInvalid = $state(false);
 	let verificationSent = $state(false);
+
+	onMount(() => {
+		const client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
+
+		const unsubscribeFromUserPersonalData = client.subscribe(
+			client
+				.query('user_personal_data')
+				.Where(['user_id', '=', userId])
+				.Select(['phone_number', 'phone_country_code']),
+			(results) => {
+				if (results.length == 1) {
+					const pi = results[0];
+					existingPhoneNumber = pi.phone_number;
+					phoneNumber = pi.phone_number;
+					country = pi.phone_country_code || 'CA';
+				}
+			},
+			(error) => {
+				console.log('failed to get user_personal_data', error);
+			},
+			{
+				localOnly: false,
+				onRemoteFulfilled: () => {}
+			}
+		);
+
+		return () => {
+			unsubscribeFromUserPersonalData();
+		};
+	});
 
 	$effect(() => {
 		if (verificationCodeInput.length == 6) {
@@ -110,7 +142,9 @@
 <div class="flex h-screen items-center justify-center p-5">
 	<div class="card flex w-full max-w-[470px] flex-col items-center space-y-5 p-5">
 		{#if !verificationSent}
-			<div class="text-3xl font-bold leading-none tracking-tight">Update phone number</div>
+			<div class="text-3xl font-bold leading-none tracking-tight">
+				{existingPhoneNumber ? 'Update phone number' : 'Add phone number'}
+			</div>
 			<div class="text-muted-primary mx-auto mt-4 max-w-[32ch] text-center opacity-80">
 				We'll never send you spam. Receive only essential event notifications via SMS. Manage your
 				preferences in general settings or individually for each bonfire.

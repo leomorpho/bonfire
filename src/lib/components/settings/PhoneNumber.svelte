@@ -43,10 +43,10 @@
 	});
 </script>
 
-{#if phoneNumber}
-	<div class={`w-full space-y-5 ${cls}`}>
-		<h3 class="flex justify-between text-xl font-semibold">Phone</h3>
+<div class={`w-full space-y-5 ${cls}`}>
+	<h3 class="flex justify-between text-xl font-semibold">Phone</h3>
 
+	{#if phoneNumber}
 		<div class="flex w-full items-center justify-center space-x-2">
 			<PhoneInput value={phoneNumber} {country} readonly={true} disabled={true} class="w-full" />
 			<a href="/settings/phone">
@@ -57,5 +57,13 @@
 				</Button>
 			</a>
 		</div>
-	</div>
-{/if}
+	{:else}
+		<div class="flex w-full items-center justify-center">
+			<a href="/settings/phone" class="w-full">
+				<Button variant="outline" class="w-full">
+					Add phone number
+				</Button>
+			</a>
+		</div>
+	{/if}
+</div>
