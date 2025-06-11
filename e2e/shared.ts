@@ -16,6 +16,10 @@ export async function loginUser(
 	await navigateTo(page, WEBSITE_URL);
 
 	await page.getByRole('link', { name: 'login' }).click();
+	
+	// Click the email login button to switch from phone (default) to email
+	await page.getByRole('button', { name: 'Email' }).click();
+	
 	await page.getByPlaceholder('Email').click();
 	await page.getByPlaceholder('Email').fill(email);
 	await page.getByRole('button', { name: 'Continue' }).click();

@@ -38,6 +38,7 @@ test('New login', async ({ page }) => {
 	// await expect(page.getByRole('link', { name: 'FAQ' })).toBeVisible();
 	await expect(page.getByRole('link', { name: 'login' })).toBeVisible();
 	await page.getByRole('link', { name: 'login' }).click();
+	await page.getByRole('button', { name: 'Email' }).click();
 	await expect(page.getByPlaceholder('Email')).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Continue' })).toBeVisible();
 

@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Development
 
+**IMPORTANT: NEVER automatically start dev server, triplit, or seed during development sessions**
+
 ```bash
 # Start development server (port 5173)
 npm run dev
@@ -75,10 +77,22 @@ npm run start    # Start production server
 
 ### Key Patterns
 
+**IMPORTANT: This project uses Svelte 5 - Always use Svelte 5 syntax and patterns**
+
 1. **Server-side forms**: Use `+page.server.ts` for form actions and data loading
 2. **Real-time sync**: Triplit client in `src/lib/triplit.ts` for collaborative features
 3. **File uploads**: TUS protocol implementation for resumable uploads
 4. **Notifications**: Queue-based system supporting email, SMS, and push
+
+### Svelte 5 Specific Guidelines
+
+- **State**: Use `$state()` instead of `let` for reactive variables
+- **Props**: Use `$props()` instead of `export let`
+- **Effects**: Use `$effect()` instead of `$:` reactive statements
+- **Derived**: Use `$derived()` instead of `$:` for computed values
+- **Event Handlers**: Use `onclick` instead of `on:click`
+- **Binding**: Use `bind:value` (same as Svelte 4)
+- **Snippets**: Use `{#snippet}` instead of slots when appropriate
 
 ### Database Schema
 

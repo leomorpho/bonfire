@@ -1,8 +1,7 @@
 <script lang="ts">
 	import { tick } from 'svelte';
 	import Google from '$lib/components/icons/Google.svelte';
-	import { superForm } from 'sveltekit-superforms';
-	import { ClipboardPaste, Mail } from 'lucide-svelte';
+	import { ClipboardPaste, Mail, Phone } from 'lucide-svelte';
 	import { Image } from '@unpic/svelte';
 	import {
 		tempAttendeeIdInForm,
@@ -10,19 +9,25 @@
 		tempAttendeeSecretStore
 	} from '$lib/enums.js';
 	import { page } from '$app/stores';
-	import LoaderPage from '$lib/components/LoaderPage.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import * as InputOTP from '$lib/components/ui/input-otp/index.js';
 	import { REGEXP_ONLY_DIGITS } from 'bits-ui';
 	import { getNextTheme } from '$lib/styles.js';
+	import PhoneInput from '$lib/jsrepo/ui/phone-input/phone-input.svelte';
+	import type { CountryCode } from 'svelte-tel-input/types';
+	import { enhance } from '$app/forms';
 
 	const { data } = $props();
 
-	let email_input: HTMLInputElement | null = $state(null);
-	let show_email_input = $state(true);
-	let email_sent = $state(false);
 	let showPageLoader = $state(false);
+	let email_input: HTMLInputElement | null = $state(null);
+	let show_input = $state(true);
+	let code_sent = $state(false);
 	let otpInvalid = $state(false);
+	let login_method = $state<'email' | 'phone'>('phone');
+	let phone_number = $state('');
+	let phone_country = $state<CountryCode | null>('CA');
+	let phone_valid = $state(false);
 
 	// Set start oneTimePasswordValue
 	let oneTimePasswordValue = $state('');
@@ -35,8 +40,8 @@
 
 	// Handle the paste event to capture pasted digits
 	function handlePaste(event: ClipboardEvent) {
-		// Ensure we only process the event if email_sent is true
-		if (email_sent) {
+		// Ensure we only process the event if code_sent is true
+		if (code_sent) {
 			// Get the pasted content from the clipboard
 			const pastedText = event.clipboardData?.getData('text') || '';
 
@@ -73,20 +78,20 @@
 		}
 	}
 
-	// Setup event listener for paste event when email_sent is true
+	// Setup event listener for paste event when code_sent is true
 	$effect(() => {
-		if (email_sent) {
+		if (code_sent) {
 			console.log('Listening for paste events');
 			document.addEventListener('paste', handlePaste); // Attach listener to the document
 		} else {
 			console.log('Not listening for paste events');
-			document.removeEventListener('paste', handlePaste); // Detach listener if email_sent is false
+			document.removeEventListener('paste', handlePaste); // Detach listener if code_sent is false
 		}
 	});
 
 	// Called when OTP input is complete
 	async function handleOtpComplete(otp: string) {
-		if (!email_sent) {
+		if (!code_sent) {
 			return;
 		}
 		try {
@@ -120,21 +125,59 @@
 		}
 	}
 
-	const { enhance, errors, submitting } = superForm(data.form, {
-		onResult(event) {
-			console.log(event);
-			if (event.result.type === 'success') {
-				email_sent = true;
+	// Manual state management instead of superForm
+	let emailSubmitting = $state(false);
+	let phoneSubmitting = $state(false);
+	let emailErrors = $state<{ email?: string[] }>({});
+	let phoneErrors = $state<{ phone_number?: string[] }>({});
+
+	const handleEmailSubmit = () => {
+		emailSubmitting = true;
+		return async ({ result }: any) => {
+			emailSubmitting = false;
+			console.log('Email result:', result);
+
+			if (result.type === 'success') {
+				code_sent = true;
+				emailErrors = {};
+			} else if (result.type === 'failure') {
+				emailErrors = result.data?.form?.errors || {};
 			}
-		}
-	});
+		};
+	};
+
+	const handlePhoneSubmit = () => {
+		phoneSubmitting = true;
+		return async ({ result }: any) => {
+			phoneSubmitting = false;
+			console.log('Phone result:', result);
+
+			if (result.type === 'success') {
+				code_sent = true;
+				phoneErrors = {};
+			} else if (result.type === 'failure') {
+				phoneErrors = result.data?.form?.errors || {};
+			}
+		};
+	};
 
 	const handleEmail = async () => {
-		if (!show_email_input && email_input) {
-			show_email_input = true;
+		if (!show_input && email_input) {
+			show_input = true;
 			await tick();
 			email_input.focus();
 		}
+	};
+
+	const handlePhone = async () => {
+		if (!show_input) {
+			show_input = true;
+		}
+	};
+
+	const switchLoginMethod = (method: 'email' | 'phone') => {
+		login_method = method;
+		show_input = true;
 	};
 
 	const tempAttendeeId =
@@ -161,24 +204,34 @@
 <div style={styles} class="h-[90vh]">
 	<div class="flex h-[90vh] items-center justify-center bg-slate-100/80 p-5 dark:bg-slate-900/90">
 		<div class="card flex w-full max-w-[470px] flex-col p-5">
-			{#if !email_sent && oneTimePasswordValue.length > 0}
+			{#if !code_sent && oneTimePasswordValue.length > 0}
 				<div
 					class="my-4 rounded-lg bg-yellow-50 p-4 text-sm text-yellow-800 dark:bg-gray-700 dark:text-yellow-300"
 					role="alert"
 				>
-					<span class="font-medium">Oups!</span> One-time passwords can only be entered on the device
-					you are currently logging into. This means the device where you entered your email, not the
-					one you're currently on...
+					<span class="font-medium">Oups!</span> One-time passwords can only be entered on the
+					device you are currently logging into. This means the device where you entered your {login_method ===
+					'email'
+						? 'email'
+						: 'phone number'}, not the one you're currently on...
 				</div>
 			{/if}
-			{#if email_sent}
+			{#if code_sent}
 				<div class="text-center">
-					<Mail size="40" class="mx-auto my-4" />
-					<div class="text-3xl font-bold leading-none tracking-tight">Check your inbox</div>
-					<div class="text-muted-primary mx-auto mt-4 max-w-[32ch] text-lg opacity-80">
-						We've sent you a one-time password to enter below. Please be sure to check your spam
-						folder too.
-					</div>
+					{#if login_method === 'email'}
+						<Mail size="40" class="mx-auto my-4" />
+						<div class="text-3xl font-bold leading-none tracking-tight">Check your inbox</div>
+						<div class="text-muted-primary mx-auto mt-4 max-w-[32ch] text-lg opacity-80">
+							We've sent you a one-time password to enter below. Please be sure to check your spam
+							folder too.
+						</div>
+					{:else}
+						<Phone size="40" class="mx-auto my-4" />
+						<div class="text-3xl font-bold leading-none tracking-tight">Check your phone</div>
+						<div class="text-muted-primary mx-auto mt-4 max-w-[32ch] text-lg opacity-80">
+							We've sent you a one-time password via SMS to enter below.
+						</div>
+					{/if}
 					<Button onclick={handlePasteFromClipboard} class="mt-5 bg-green-500 hover:bg-green-400">
 						<ClipboardPaste class="mr-1" />
 						Paste from clipboard</Button
@@ -268,37 +321,120 @@
 						</Button>
 					</form>
 				{:else}
-					<form method="post" action="/login?/login_with_email" use:enhance>
-						<!-- Add tempAttendeeId as a hidden input -->
-						{#if tempAttendeeId}
-							<input type="hidden" name={tempAttendeeIdInForm} value={tempAttendeeId} />
-						{/if}
+					<!-- Tabs for choosing login method -->
+					<div class="mt-5 w-full">
+						<div
+							class="inline-flex h-9 w-full items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground"
+						>
+							<button
+								id="use-phone-login-btn"
+								type="button"
+								onclick={() => switchLoginMethod('phone')}
+								class="inline-flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-md px-3 py-1 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+								class:bg-background={login_method === 'phone'}
+								class:text-foreground={login_method === 'phone'}
+								class:shadow={login_method === 'phone'}
+							>
+								<Phone size={16} />
+								Phone
+							</button>
+							<button
+								id="use-email-login-btn"
+								type="button"
+								onclick={() => switchLoginMethod('email')}
+								class="inline-flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-md px-3 py-1 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+								class:bg-background={login_method === 'email'}
+								class:text-foreground={login_method === 'email'}
+								class:shadow={login_method === 'email'}
+							>
+								<Mail size={16} />
+								Email
+							</button>
+						</div>
 
-						<input
-							bind:this={email_input}
-							placeholder="Email"
-							type="email"
-							name="email"
-							autocomplete="email"
-							class="input my-5 w-full bg-slate-200 dark:bg-slate-800 dark:text-white"
-							class:hidden={!show_email_input}
-						/>
-						{#if $errors.email}
-							<span class="ml-1 mt-2 text-xs text-red-500">{$errors.email}</span>
-						{/if}
-
-						{#if show_email_input}
-							<Button type="submit" disabled={$submitting} class="w-full  sm:text-lg">
-								{#if $submitting}
-									<span class="loading loading-spinner loading-xs mr-2"></span>
+						<!-- Email Login Form -->
+						{#if login_method === 'email'}
+							<form method="post" action="/login?/login_with_email" use:enhance={handleEmailSubmit}>
+								<!-- Add tempAttendeeId as a hidden input -->
+								{#if tempAttendeeId}
+									<input type="hidden" name={tempAttendeeIdInForm} value={tempAttendeeId} />
 								{/if}
-								<span>Continue</span>
-							</Button>
+
+								<input
+									bind:this={email_input}
+									placeholder="Email"
+									type="email"
+									name="email"
+									autocomplete="email"
+									class="input my-5 w-full bg-slate-200 dark:bg-slate-800 dark:text-white"
+									class:hidden={!show_input}
+								/>
+								{#if emailErrors.email}
+									<span class="ml-1 mt-2 text-xs text-red-500">{emailErrors.email[0]}</span>
+								{/if}
+
+								{#if show_input}
+									<Button type="submit" disabled={emailSubmitting} class="w-full sm:text-lg">
+										{#if emailSubmitting}
+											<span class="loading loading-spinner loading-xs mr-2"></span>
+										{/if}
+										<span>Continue</span>
+									</Button>
+								{:else}
+									<Button onclick={handleEmail} type="button" class="mt-4 w-full sm:text-lg"
+										>Continue with email
+									</Button>
+								{/if}
+							</form>
 						{:else}
-							<Button onclick={handleEmail} type="button" class="mt-4 w-full  sm:text-lg"
-								>Continue with email
-							</Button>{/if}
-					</form>
+							<!-- Phone Login Form -->
+							<form method="post" action="/login?/login_with_phone" use:enhance={handlePhoneSubmit}>
+								<!-- Add tempAttendeeId as a hidden input -->
+								{#if tempAttendeeId}
+									<input type="hidden" name={tempAttendeeIdInForm} value={tempAttendeeId} />
+								{/if}
+
+								<div class="my-5 flex w-full justify-center" class:hidden={!show_input}>
+									<PhoneInput
+										bind:value={phone_number}
+										bind:country={phone_country}
+										bind:valid={phone_valid}
+										defaultCountry="US"
+										name="phone"
+										placeholder="Phone number"
+										class="w-full bg-slate-200 dark:bg-slate-800 dark:text-white"
+										options={{
+											spaces: true,
+											autoPlaceholder: false,
+											format: 'national'
+										}}
+									/>
+									<input type="hidden" name="phone_number" bind:value={phone_number} />
+									<input type="hidden" name="phone_country" bind:value={phone_country} />
+								</div>
+								{#if phoneErrors.phone_number}
+									<span class="ml-1 mt-2 text-xs text-red-500">{phoneErrors.phone_number[0]}</span>
+								{/if}
+
+								{#if show_input}
+									<Button
+										type="submit"
+										disabled={phoneSubmitting || !phone_valid}
+										class="w-full sm:text-lg"
+									>
+										{#if phoneSubmitting}
+											<span class="loading loading-spinner loading-xs mr-2"></span>
+										{/if}
+										<span>Continue</span>
+									</Button>
+								{:else}
+									<Button onclick={handlePhone} type="button" class="mt-4 w-full sm:text-lg"
+										>Continue with phone
+									</Button>
+								{/if}
+							</form>
+						{/if}
+					</div>
 				{/if}
 			{/if}
 			<p class="mt-5 flex text-center text-sm">

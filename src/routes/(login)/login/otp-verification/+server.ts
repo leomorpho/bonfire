@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { getUserByEmail, updateUser } from '$lib/server/database/user.model';
+import { getUserByEmail, getUserByPhone, updateUser } from '$lib/server/database/user.model';
 import { lucia } from '$lib/server/auth';
 import { triplitHttpClient } from '$lib/server/triplit';
 import { isWithinExpirationDate } from '$lib/utils';
@@ -48,13 +48,19 @@ export async function POST({ request }) {
 	await deleteEmailOTP(otpRecord.id);
 
 	// Retrieve the user associated with the OTP
-	const user = await getUserByEmail(otpRecord.email);
+	// The email field in otpRecord could be an email or phone number
+	let user = await getUserByEmail(otpRecord.email);
 
-	if (!user || user.email !== otpRecord.email) {
+	// If not found by email, try by phone number
+	if (!user) {
+		user = await getUserByPhone(otpRecord.email);
+	}
+
+	if (!user) {
 		return new Response(
 			JSON.stringify({
 				success: false,
-				error: 'User not found or email mismatch'
+				error: 'User not found'
 			}),
 			{
 				status: 400,

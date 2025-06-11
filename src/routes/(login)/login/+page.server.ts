@@ -2,13 +2,14 @@ import { z } from 'zod';
 import { superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { error, fail, redirect } from '@sveltejs/kit';
-import { createNewUser, getUserByEmail } from '$lib/server/database/user.model.js';
+import { createNewUser, getUserByEmail, getUserByPhone } from '$lib/server/database/user.model.js';
 import { generateId } from 'lucia';
 import {
 	createEmailVerificationOTP,
 	deleteAllEmailOTPsForUser
 } from '$lib/server/database/emailtoken.model.js';
 import { loginEmailHtmlTemplate, sendEmail } from '$lib/server/email/email.js';
+import { sendSmsMessage } from '$lib/sms.js';
 import { env as privateEnv } from '$env/dynamic/private';
 import { env as publicEnv } from '$env/dynamic/public';
 import { lucia } from '$lib/server/auth';
@@ -28,97 +29,113 @@ const loginSchema = z.object({
 	tempAttendeeIdInForm: z.string().optional()
 });
 
-export const load = async ({ locals }) => {
-	const form = await superValidate(zod(loginSchema));
-	const user = locals.user;
-	if (user) {
-		throw redirect(301, '/dashboard');
+// Zod validation schema for login_with_phone (requires phone)
+const phoneLoginSchema = z.object({
+	phone_number: z.string().min(10, 'Phone number must be at least 10 digits'),
+	phone_country: z.string().optional(),
+	tempAttendeeIdInForm: z.string().optional()
+});
+
+// Common helper functions
+async function findExistingTempAttendee(tempAttendeeId: string | undefined) {
+	if (!tempAttendeeId) return null;
+	
+	return await triplitHttpClient.fetchOne(
+		triplitHttpClient
+			.query('temporary_attendees')
+			.Where(['secret_mapping.id', '=', tempAttendeeId])
+	);
+}
+
+async function createUserIfNotExists(identifier: string, isPhone: boolean, phoneCountry?: string) {
+	const user = isPhone 
+		? await getUserByPhone(identifier)
+		: await getUserByEmail(identifier);
+	
+	let login_type = LOGIN_TYPE_MAGIC_LINK;
+	
+	if (!user) {
+		const userData: any = {
+			id: generateId(15),
+			email_verified: false,
+			num_logs: NUM_DEFAULT_LOGS_NEW_SIGNUP,
+			is_event_styles_admin: false
+		};
+		
+		if (isPhone) {
+			userData.phone_number = identifier;
+			userData.phone_country_code = phoneCountry || 'US';
+		} else {
+			userData.email = identifier;
+		}
+		
+		const newUser = await createNewUser(userData);
+		if (!newUser) {
+			throw error(500, 'Failed to create new user');
+		}
+		login_type = LOGIN_TYPE_ACTIVATION;
+		return { user: newUser, login_type };
+	}
+	
+	return { user, login_type };
+}
+
+async function handleTempAttendeeConversion(user: any, existingTempAttendee: any) {
+	if (!existingTempAttendee) return;
+	
+	await convertTempToPermanentUser(
+		user.id,
+		existingTempAttendee.event_id,
+		existingTempAttendee.id,
+		existingTempAttendee.name,
+		existingTempAttendee.status,
+		existingTempAttendee.guest_count
+	);
+}
+
+async function checkRateLimit(identifier: string, ip_address: string) {
+	const signins = await getSignins({
+		email: identifier, // Using email field for both email and phone tracking
+		ip_address
+	});
+
+	// Development delay
+	if (dev) {
+		await new Promise((resolve) => setTimeout(resolve, 2000));
 	}
 
-	return { form, user: locals.user };
-};
+	const ratelimit = privateEnv.SIGNIN_IP_RATELIMIT
+		? parseInt(privateEnv.SIGNIN_IP_RATELIMIT)
+		: 20;
 
-export const actions = {
-	login_with_email: async ({ request, getClientAddress }) => {
-		const form = await superValidate(request, zod(loginSchema));
+	return signins.length > ratelimit && !dev;
+}
 
-		if (!form.valid) {
-			return fail(400, { form });
-		}
+async function createLoginEntry(identifier: string, ip_address: string) {
+	await createSigninEntry({
+		email: identifier, // Using email field for both email and phone tracking
+		ip_address,
+		logged_in_at: new Date()
+	});
+}
 
-		let user = await getUserByEmail(form.data.email);
-		let login_type = LOGIN_TYPE_MAGIC_LINK;
+async function generateAndSendOTP(user: any, identifier: string, login_type: string, isPhone: boolean) {
+	await deleteAllEmailOTPsForUser(user.id);
+	const verification_token = await createEmailVerificationOTP(user.id, identifier);
 
-		let existingTempAttendee = null;
-		if (form.data.tempAttendeeIdInForm) {
-			existingTempAttendee = await triplitHttpClient.fetchOne(
-				triplitHttpClient
-					.query('temporary_attendees')
-					.Where(['secret_mapping.id', '=', form.data.tempAttendeeIdInForm])
-			);
-		}
-
-		if (!user) {
-			user = await createNewUser({
-				id: generateId(15),
-				email: form.data.email,
-				email_verified: false,
-				num_logs: NUM_DEFAULT_LOGS_NEW_SIGNUP,
-				is_event_styles_admin: false
-			});
-			if (!user) {
-				throw error(500, 'Failed to create new user');
-			}
-			login_type = LOGIN_TYPE_ACTIVATION;
-		}
-
-		if (existingTempAttendee) {
-			await convertTempToPermanentUser(
-				user.id,
-				existingTempAttendee.event_id,
-				existingTempAttendee.id,
-				existingTempAttendee.name,
-				existingTempAttendee.status,
-				existingTempAttendee.guest_count
-			);
-		}
-
-		const ip_address = getClientAddress();
-
-		const signins = await getSignins({
-			email: form.data.email,
-			ip_address
-		});
-
-		// wait for 2 seconds to simulate a slow login
-		if (dev) {
-			await new Promise((resolve) => setTimeout(resolve, 2000));
-		}
-
-		const ratelimit = privateEnv.SIGNIN_IP_RATELIMIT
-			? parseInt(privateEnv.SIGNIN_IP_RATELIMIT)
-			: 20;
-
-		if (signins.length > ratelimit && !dev) {
-			form.errors.email = [
-				'Too many signins from this IP address in the last hour, please try again later'
-			];
-			return fail(429, { form });
-		}
-
-		await createSigninEntry({
-			email: form.data.email,
-			ip_address,
-			logged_in_at: new Date()
-		});
-
-		await deleteAllEmailOTPsForUser(user.id);
-		const verification_token = await createEmailVerificationOTP(user.id, user.email);
-
+	if (isPhone) {
+		const smsMessage = `Your ${login_type} pin for ${publicEnv.PUBLIC_PROJECT_NAME}: ${verification_token}`;
+		await sendSmsMessage(
+			user.id,
+			identifier,
+			smsMessage,
+			NotificationType.OTP_VERIFICATION
+		);
+	} else {
 		await sendEmail(
 			{
 				from: `${publicEnv.PUBLIC_PROJECT_NAME} <${publicEnv.PUBLIC_FROM_EMAIL}>`,
-				to: user.email,
+				to: identifier,
 				subject: `Your ${login_type} pin for ${publicEnv.PUBLIC_PROJECT_NAME}`,
 				html: loginEmailHtmlTemplate({
 					login_type: login_type,
@@ -133,8 +150,93 @@ export const actions = {
 			NotificationType.OTP_VERIFICATION,
 			user.id
 		);
+	}
+}
 
-		return { form };
+export const load = async ({ locals }) => {
+	const form = await superValidate(zod(loginSchema));
+	const phoneForm = await superValidate(zod(phoneLoginSchema));
+	const user = locals.user;
+	if (user) {
+		throw redirect(301, '/dashboard');
+	}
+
+	return { form, phoneForm, user: locals.user };
+};
+
+export const actions = {
+	login_with_email: async ({ request, getClientAddress }) => {
+		const form = await superValidate(request, zod(loginSchema));
+
+		if (!form.valid) {
+			return fail(400, { form, phoneForm: await superValidate(zod(phoneLoginSchema)) });
+		}
+
+		const identifier = form.data.email;
+		const ip_address = getClientAddress();
+		
+		// Check for existing temp attendee
+		const existingTempAttendee = await findExistingTempAttendee(form.data.tempAttendeeIdInForm);
+		
+		// Create user if not exists
+		const { user, login_type } = await createUserIfNotExists(identifier, false);
+		
+		// Handle temp attendee conversion
+		await handleTempAttendeeConversion(user, existingTempAttendee);
+		
+		// Check rate limit
+		const isRateLimited = await checkRateLimit(identifier, ip_address);
+		if (isRateLimited) {
+			form.errors.email = [
+				'Too many signins from this IP address in the last hour, please try again later'
+			];
+			return fail(429, { form, phoneForm: await superValidate(zod(phoneLoginSchema)) });
+		}
+		
+		// Create login entry
+		await createLoginEntry(identifier, ip_address);
+		
+		// Generate and send OTP
+		await generateAndSendOTP(user, identifier, login_type, false);
+
+		return { form, phoneForm: await superValidate(zod(phoneLoginSchema)) };
+	},
+
+	login_with_phone: async ({ request, getClientAddress }) => {
+		const form = await superValidate(request, zod(phoneLoginSchema));
+
+		if (!form.valid) {
+			return fail(400, { form: await superValidate(zod(loginSchema)), phoneForm: form });
+		}
+
+		const identifier = form.data.phone_number;
+		const ip_address = getClientAddress();
+		
+		// Check for existing temp attendee
+		const existingTempAttendee = await findExistingTempAttendee(form.data.tempAttendeeIdInForm);
+		
+		// Create user if not exists (store phone_country for new users)
+		const { user, login_type } = await createUserIfNotExists(identifier, true, form.data.phone_country);
+		
+		// Handle temp attendee conversion
+		await handleTempAttendeeConversion(user, existingTempAttendee);
+		
+		// Check rate limit
+		const isRateLimited = await checkRateLimit(identifier, ip_address);
+		if (isRateLimited) {
+			form.errors.phone_number = [
+				'Too many signins from this IP address in the last hour, please try again later'
+			];
+			return fail(429, { form: await superValidate(zod(loginSchema)), phoneForm: form });
+		}
+		
+		// Create login entry
+		await createLoginEntry(identifier, ip_address);
+		
+		// Generate and send OTP
+		await generateAndSendOTP(user, identifier, login_type, true);
+
+		return { form: await superValidate(zod(loginSchema)), phoneForm: form };
 	},
 
 	signout: async (e) => {

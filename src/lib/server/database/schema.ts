@@ -6,7 +6,7 @@ export const userTable = sqliteTable('user', {
 	created_at: text('timestamp')
 		.notNull()
 		.default(sql`(current_timestamp)`),
-	email: text('email').notNull().unique(),
+	email: text('email').unique(),
 	email_verified: integer('email_verified', { mode: 'boolean' }),
 	num_logs: integer('num_logs').default(3),
 	is_event_styles_admin: integer('is_event_styles_admin', { mode: 'boolean' }).default(false)

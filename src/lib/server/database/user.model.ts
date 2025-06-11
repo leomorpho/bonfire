@@ -15,6 +15,21 @@ export const getUserByEmail = async (email: string) => {
 	}
 };
 
+export const getUserByPhone = async (phoneNumber: string) => {
+	// Get user from triplit user_personal_data table since phone number is stored there
+	const personalData = await triplitHttpClient.fetchOne(
+		triplitHttpClient.query('user_personal_data').Where(['phone_number', '=', phoneNumber])
+	);
+
+	if (!personalData) {
+		return null;
+	}
+
+	// Get the user from the main user table
+	const user = await getUserById(personalData.user_id);
+	return user;
+};
+
 export const getUserById = async (id: string) => {
 	const user = await db.select().from(userTable).where(eq(userTable.id, id));
 	if (user.length === 0) {
@@ -36,7 +51,9 @@ export const updateUser = async (id: string, user: UpdateUser) => {
 
 type NewUser = {
 	id: string;
-	email: string;
+	email?: string;
+	phone_number?: string;
+	phone_country_code?: string;
 	email_verified: boolean;
 	num_logs: number;
 	is_event_styles_admin: boolean;
@@ -44,7 +61,19 @@ type NewUser = {
 };
 
 export const createNewUser = async (user: NewUser) => {
-	const result = await db.insert(userTable).values(user).onConflictDoNothing().returning();
+	// Only include email field if it's provided
+	const userTableData: Record<string, any> = {
+		id: user.id,
+		email_verified: user.email_verified,
+		num_logs: user.num_logs,
+		is_event_styles_admin: user.is_event_styles_admin
+	};
+
+	if (user.email) {
+		userTableData.email = user.email;
+	}
+
+	const result = await db.insert(userTable).values(userTableData).onConflictDoNothing().returning();
 	if (result.length === 0) {
 		return null;
 	}
@@ -55,10 +84,23 @@ export const createNewUser = async (user: NewUser) => {
 	}
 
 	try {
-		await triplitHttpClient.insert('user_personal_data', {
-			user_id: user?.id,
-			email: user.email
-		});
+		const personalData: Record<string, any> = {
+			user_id: user?.id
+		};
+
+		if (user.email) {
+			personalData.email = user.email;
+		}
+
+		if (user.phone_number) {
+			personalData.phone_number = user.phone_number;
+		}
+
+		if (user.phone_country_code) {
+			personalData.phone_country_code = user.phone_country_code;
+		}
+
+		await triplitHttpClient.insert('user_personal_data', personalData);
 	} catch (e) {
 		console.error(`failed to create user_personal_data for user id ${user?.id}`, e);
 	}
@@ -86,5 +128,5 @@ export const createNewUser = async (user: NewUser) => {
 		console.error(`failed to toggle notification permissions for user id ${user?.id}`, e);
 	}
 
-	return user;
+	return { ...user, ...result[0] };
 };
