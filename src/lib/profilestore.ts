@@ -125,8 +125,16 @@ export const usersLiveDataStore = writable<Record<string, UserData>>({});
 
 export function updateUsersLiveDataStoreEntry(user: UserData) {
 	usersLiveDataStore.update((users) => {
-		// ✅ Only update if the user has changed
-		if (!users[user.id] || JSON.stringify(users[user.id]) !== JSON.stringify(user)) {
+		const existingUser = users[user.id];
+		
+		// ✅ Check specific fields that matter for profile avatars
+		if (!existingUser || 
+			existingUser.username !== user.username ||
+			existingUser.profilePicUpdatedAt !== user.profilePicUpdatedAt ||
+			existingUser.userUpdatedAt !== user.userUpdatedAt ||
+			existingUser.smallProfilePic !== user.smallProfilePic ||
+			existingUser.fullProfilePicURL !== user.fullProfilePicURL
+		) {
 			return { ...users, [user.id]: user }; // ✅ Only modifies one user, keeps others unchanged
 		}
 		return users; // ✅ No changes, prevents unnecessary updates
@@ -337,8 +345,15 @@ export async function fetchAndCacheUsersInLiveUsersDataStore(
 			queryString += `&${tempAttendeeSecretParam}=${tempAttendeeSecret}`;
 		}
 
+		console.debug(`Fetching profile data for ${usersToFetch.length} users:`, usersToFetch);
 		const response = await fetch(`/profile/profile-images?${queryString}`);
-		if (!response.ok) throw new Error(`Failed to fetch profile images: ${response.statusText}`);
+		if (!response.ok) {
+			console.error(`Failed to fetch profile images: ${response.status} ${response.statusText}`, {
+				userIds: usersToFetch,
+				queryString
+			});
+			throw new Error(`Failed to fetch profile images: ${response.statusText}`);
+		}
 
 		// Fetch user data
 		const usersData: Record<
@@ -377,18 +392,29 @@ export async function fetchAndCacheUsersInLiveUsersDataStore(
 
 				// Fetch new image if profile image is updated
 				if (userData.small_image_url) {
-					// if (needsImageUpdate && userData.small_image_url) {
 					try {
-						const imgResponse = await fetch(userData.small_image_url);
+						const imgResponse = await fetch(userData.small_image_url, {
+							method: 'GET',
+							cache: 'force-cache' // Use cache when available
+						});
 						if (imgResponse.ok) {
-							smallProfilePic = await imgResponse.blob();
-							// console.log(`🔄 Updated profile image for ${id}`);
+							const blob = await imgResponse.blob();
+							// Validate that we got an actual image
+							if (blob.type.startsWith('image/')) {
+								smallProfilePic = blob;
+								console.debug(`🔄 Updated profile image for ${id}`);
+							} else {
+								console.warn(`⚠️ Invalid image type for ${id}: ${blob.type}`);
+							}
 						} else {
-							console.warn(`⚠️ Failed to fetch profile image for ${id}: ${imgResponse.statusText}`);
+							console.warn(`⚠️ Failed to fetch profile image for ${id}: ${imgResponse.status} ${imgResponse.statusText}`);
 						}
 					} catch (e) {
 						console.error(`❌ Error fetching profile image for ${id}:`, e);
 					}
+				} else {
+					// Clear image if no URL provided
+					smallProfilePic = null;
 				}
 
 				const userUpdatedAtDate = userData.user_updated_at

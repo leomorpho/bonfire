@@ -45,6 +45,7 @@
 	let lastUpdatedAt: Date | null = $state(null);
 	let fallbackNameShort: string | null = $state(null);
 	let previousImageHash: string | null = $state(null); // Store the last known image hash
+	let isDataLoaded = $state(false); // Track if user data has been loaded
 
 	let showRemoveAttendeeModal = $state(false);
 	const eventId = $page.params.id;
@@ -106,35 +107,41 @@
 	let unsubscribe: any; // Store unsubscribe function
 
 	onMount(async () => {
+		// Handle temp users immediately
 		if (tempUserName) {
 			fallbackNameShort = tempUserName?.slice(0, 2) ?? null;
 			fallbackName = tempUserName;
 			username = tempUserName;
 			isTempUser = true;
+			isDataLoaded = true;
 			return;
 		}
 
 		if (!userId && !tempUserId) {
+			isDataLoaded = true; // No data to load
 			return;
 		}
 
 		if (userId) {
+			// Request the user data
 			addUserRequest(userId);
 
+			// Subscribe to user data changes
 			unsubscribe = usersLiveDataStore.subscribe((users) => {
 				const user = users[userId];
 				if (!user) return;
 
-				// // Only update if the user object has changed
-				// if (
-				// 	!user ||
-				// 	(JSON.stringify(user) === JSON.stringify(previousUser) &&
-				// 		previousUser.profilePicUpdatedAt === user.profilePicUpdatedAt)
-				// ) {
-				// 	return;
-				// }
-				previousUser = user; // Update the reference
+				// Check if this is actually new data
+				const hasChanged = !previousUser || 
+					user.username !== previousUser.username ||
+					user.profilePicUpdatedAt !== previousUser.profilePicUpdatedAt ||
+					user.userUpdatedAt !== previousUser.userUpdatedAt;
 
+				if (!hasChanged) return;
+
+				previousUser = { ...user }; // Create a copy to avoid reference issues
+
+				// Update user data
 				fallbackNameShort = user?.username?.slice(0, 2) ?? null;
 				fullsizeUrl = user?.fullProfilePicURL;
 				fallbackName = user?.username;
@@ -142,19 +149,32 @@
 				isTempUser = user?.isTempUser ?? false;
 
 				const lastUpdatedAtDate = user?.userUpdatedAt ? new Date(user?.userUpdatedAt) : null;
-				lastUpdatedAt = lastUpdatedAtDate; // TODO: get latest of that or image updated at
+				lastUpdatedAt = lastUpdatedAtDate;
 
+				// Update profile image if available
 				if (user?.smallProfilePic) {
 					updateProfileImage(user.smallProfilePic);
+				} else {
+					// Clear existing image if no longer available
+					if (url) {
+						URL.revokeObjectURL(url);
+						url = undefined;
+					}
+					previousImageHash = null;
 				}
+
+				isDataLoaded = true;
 			});
-		} else {
+		} else if (tempUserId) {
 			unsubscribe = tempUsersLiveDataStore.subscribe((tempUsers) => {
 				const tempUser = tempUsers.get(tempUserId);
+				if (!tempUser) return;
+
 				fallbackNameShort = tempUser?.username?.slice(0, 2) ?? null;
 				fallbackName = tempUser?.username;
 				username = tempUser?.username;
 				isTempUser = true;
+				isDataLoaded = true;
 			});
 		}
 
@@ -166,40 +186,58 @@
 	});
 
 	onMount(() => {
-		const observer = new IntersectionObserver((entries) => {
-			entries.forEach(
-				(entry) => {
+		const observer = new IntersectionObserver(
+			(entries) => {
+				entries.forEach((entry) => {
 					if (entry.isIntersecting) {
 						isVisible = true;
 						observer.unobserve(entry.target);
 					}
-				},
-				{
-					rootMargin: '500px 0px 0px 0px' // Adjust the top margin to create a buffer region
-				}
-			);
-		});
-		if (avatarElement) {
-			observer.observe(avatarElement);
-		}
+				});
+			},
+			{
+				rootMargin: '200px 0px 200px 0px' // Reduced buffer for better performance
+			}
+		);
+
+		// Use a timeout to ensure the element is mounted
+		setTimeout(() => {
+			if (avatarElement) {
+				observer.observe(avatarElement);
+			}
+		}, 0);
 
 		return () => {
 			if (avatarElement) {
 				observer.unobserve(avatarElement);
 			}
+			observer.disconnect();
 		};
 	});
 
 	const updateProfileImage = async (smallProfilePic: any) => {
-		const newHash = await hashImage(smallProfilePic);
-
-		// Only update if the hash is different
-		if (newHash !== previousImageHash) {
-			if (url) {
-				URL.revokeObjectURL(url); // Free old memory
+		try {
+			if (!smallProfilePic) {
+				if (url) {
+					URL.revokeObjectURL(url);
+					url = undefined;
+				}
+				previousImageHash = null;
+				return;
 			}
-			url = URL.createObjectURL(smallProfilePic);
-			previousImageHash = newHash; // Store the new hash
+
+			const newHash = await hashImage(smallProfilePic);
+
+			// Only update if the hash is different
+			if (newHash !== previousImageHash) {
+				if (url) {
+					URL.revokeObjectURL(url); // Free old memory
+				}
+				url = URL.createObjectURL(smallProfilePic);
+				previousImageHash = newHash; // Store the new hash
+			}
+		} catch (error) {
+			console.error('Error updating profile image:', error);
 		}
 	};
 
@@ -207,11 +245,15 @@
 		if (unsubscribe) {
 			unsubscribe();
 		}
+		// Clean up object URL to prevent memory leaks
+		if (url) {
+			URL.revokeObjectURL(url);
+		}
 	});
 </script>
 
 <div bind:this={avatarElement}>
-	{#if isVisible}
+	{#if isVisible && isDataLoaded}
 		{#if onlyShowPhoto}
 			<TriggerButton
 				{username}
