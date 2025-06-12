@@ -57,6 +57,7 @@
 		eventIsPublished,
 		eventLocation,
 		eventNumAttendeesGoing,
+		eventNumAttendeesInvited,
 		eventMaxCapacity,
 		eventNumAnnouncements,
 		eventNumFiles,
@@ -103,6 +104,9 @@
 
 	let attendeesNotGoing: any = $state([]);
 	let tempAttendeesNotGoing: any = $state([]);
+
+	let attendeesInvited: any = $state([]);
+	let tempAttendeesInvited: any = $state([]);
 
 	let attendeesLeft: any = $state([]);
 	let attendeesRemoved: any = $state([]);
@@ -185,7 +189,8 @@
 	let allAttendees = $derived([
 		...(attendeesGoing || []),
 		...(attendeesNotGoing || []),
-		...(attendeesMaybeGoing || [])
+		...(attendeesMaybeGoing || []),
+		...(attendeesInvited || [])
 	]);
 
 	let allAttendeesGoing = $derived([...(attendeesGoing || []), ...(tempAttendeesGoing || [])]);
@@ -196,6 +201,10 @@
 	let allAttendeesMaybeGoing = $derived([
 		...(attendeesMaybeGoing || []),
 		...(tempAttendeesMaybeGoing || [])
+	]);
+	let allAttendeesInvited = $derived([
+		...(attendeesInvited || []),
+		...(tempAttendeesInvited || [])
 	]);
 	let allAttendeesLeft = $derived([...(attendeesLeft || [])]);
 	let allAttendeesRemoved = $derived([
@@ -372,6 +381,7 @@
 				attendeesGoing = results.filter((attendee) => attendee.status === Status.GOING);
 				attendeesNotGoing = results.filter((attendee) => attendee.status === Status.NOT_GOING);
 				attendeesMaybeGoing = results.filter((attendee) => attendee.status === Status.MAYBE);
+				attendeesInvited = results.filter((attendee) => attendee.status === Status.INVITED);
 				attendeesLeft = results.filter((attendee) => attendee.status === Status.LEFT);
 				attendeesRemoved = results.filter((attendee) => attendee.status === Status.REMOVED);
 
@@ -397,6 +407,7 @@
 				tempAttendeesGoing = results.filter((attendee) => attendee.status === Status.GOING);
 				tempAttendeesNotGoing = results.filter((attendee) => attendee.status === Status.NOT_GOING);
 				tempAttendeesMaybeGoing = results.filter((attendee) => attendee.status === Status.MAYBE);
+				tempAttendeesInvited = results.filter((attendee) => attendee.status === Status.INVITED);
 				tempAttendeesRemoved = results.filter((attendee) => attendee.status === Status.REMOVED);
 
 				for (let attendee of results) {
@@ -665,9 +676,11 @@
 								{allAttendeesGoing}
 								{allAttendeesMaybeGoing}
 								{allAttendeesNotGoing}
+								{allAttendeesInvited}
 								{allAttendeesLeft}
 								{allAttendeesRemoved}
 								{eventNumAttendeesGoing}
+								{eventNumAttendeesInvited}
 								{showMaxNumPeople}
 								{isCurrenUserEventAdmin}
 							/>

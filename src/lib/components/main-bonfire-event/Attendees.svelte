@@ -14,9 +14,11 @@
 		allAttendeesGoing,
 		allAttendeesMaybeGoing,
 		allAttendeesNotGoing,
+		allAttendeesInvited,
 		allAttendeesLeft,
 		allAttendeesRemoved,
 		eventNumAttendeesGoing,
+		eventNumAttendeesInvited,
 		showMaxNumPeople = 10,
 		isCurrenUserEventAdmin = false
 	} = $props();
@@ -32,6 +34,10 @@
 	let totalNotGoing = $derived(
 		allAttendeesNotGoing.length +
 			allAttendeesNotGoing.reduce((sum, a) => sum + (a.guest_count || 0), 0)
+	);
+	let totalInvited = $derived(
+		allAttendeesInvited.length +
+			allAttendeesInvited.reduce((sum, a) => sum + (a.guest_count || 0), 0)
 	);
 
 	let totalLeft = $derived(allAttendeesLeft.length);
@@ -55,6 +61,7 @@
 				numAttendeesGoing={totalGoing}
 				numAttendeesMaybeGoing={totalMaybe}
 				numAttendeesNotGoing={totalNotGoing}
+				numAttendeesInvited={totalInvited}
 			/>
 
 			<div
@@ -78,6 +85,7 @@
 						{allAttendeesGoing}
 						{allAttendeesMaybeGoing}
 						{allAttendeesNotGoing}
+						{allAttendeesInvited}
 						{allAttendeesLeft}
 						{allAttendeesRemoved}
 						{showMaxNumPeople}
@@ -85,6 +93,7 @@
 						numAttendeesGoing={totalGoing}
 						numAttendeesMaybeGoing={totalMaybe}
 						numAttendeesNotGoing={totalNotGoing}
+						numAttendeesInvited={totalInvited}
 						numAttendeesLeft={totalLeft}
 						numAttendeesRemoved={totalRemoved}
 					/>
@@ -94,6 +103,6 @@
 			<NoAttendeesYet />
 		{/if}
 	{:else}
-		<AnonAttendeesView numAttendingGoing={eventNumAttendeesGoing} />
+		<AnonAttendeesView numAttendingGoing={eventNumAttendeesGoing} numAttendeesInvited={eventNumAttendeesInvited} />
 	{/if}
 </div>

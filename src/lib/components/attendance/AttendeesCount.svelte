@@ -1,5 +1,5 @@
 <script lang="ts">
-	let { numAttendeesGoing, numAttendeesMaybeGoing, numAttendeesNotGoing } = $props();
+	let { numAttendeesGoing, numAttendeesMaybeGoing, numAttendeesNotGoing, numAttendeesInvited = 0 } = $props();
 </script>
 
 <div class="mb-3 flex w-full justify-center">
@@ -9,6 +9,9 @@
 		{numAttendeesGoing} going
 		{#if numAttendeesMaybeGoing > 0}
 			, {numAttendeesMaybeGoing} maybe{numAttendeesMaybeGoing > 1 ? 's' : ''}
+		{/if}
+		{#if numAttendeesInvited > 0}
+			, {numAttendeesInvited} invited
 		{/if}
 		{#if numAttendeesNotGoing > 0 && numAttendeesNotGoing < 20}
 			, {numAttendeesNotGoing} not going

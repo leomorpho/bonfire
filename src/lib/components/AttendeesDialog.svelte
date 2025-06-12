@@ -14,6 +14,8 @@
 		allAttendeesMaybeGoing,
 		numAttendeesNotGoing,
 		allAttendeesNotGoing,
+		numAttendeesInvited,
+		allAttendeesInvited,
 		numAttendeesLeft,
 		allAttendeesLeft,
 		numAttendeesRemoved,
@@ -136,6 +138,11 @@
 						<Tabs.Trigger value="not-going-attendees-dialog"
 							>{numAttendeesNotGoing} <Frown class="pl-1" /></Tabs.Trigger
 						>
+						{#if numAttendeesInvited > 0}
+							<Tabs.Trigger value="invited-attendees-dialog"
+								>{numAttendeesInvited} <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-1"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg></Tabs.Trigger
+							>
+						{/if}
 						{#if isCurrenUserEventAdmin}
 							<Tabs.Trigger value="admin-attendees-removed-dialog"
 								>{numAttendeesRemoved} <Trash2 class="pl-1" /></Tabs.Trigger
@@ -155,6 +162,9 @@
 					</Tabs.Content>
 					<Tabs.Content value="not-going-attendees-dialog">
 						{@render attendees(allAttendeesNotGoing, 'Not going', 'not-going')}
+					</Tabs.Content>
+					<Tabs.Content value="invited-attendees-dialog">
+						{@render attendees(allAttendeesInvited, 'Invited', 'invited')}
 					</Tabs.Content>
 					<Tabs.Content value="admin-attendees-removed-dialog">
 						{@render attendees(allAttendeesRemoved, 'Removed by admins', 'removed')}

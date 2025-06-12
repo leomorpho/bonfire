@@ -279,12 +279,14 @@ interface AttendeeCounts {
 	num_attendees_waitlisted: number;
 	num_attendees_left: number;
 	num_attendees_removed: number;
+	num_attendees_invited: number;
 	num_temp_attendees_going: number;
 	num_temp_attendees_not_going: number;
 	num_temp_attendees_maybe: number;
 	num_temp_attendees_waitlisted: number;
 	num_temp_attendees_left: number;
 	num_temp_attendees_removed: number;
+	num_temp_attendees_invited: number;
 }
 
 interface AttendeeCountDeltas {
@@ -294,12 +296,14 @@ interface AttendeeCountDeltas {
 	num_attendees_waitlisted?: number;
 	num_attendees_left?: number;
 	num_attendees_removed?: number;
+	num_attendees_invited?: number;
 	num_temp_attendees_going?: number;
 	num_temp_attendees_not_going?: number;
 	num_temp_attendees_maybe?: number;
 	num_temp_attendees_waitlisted?: number;
 	num_temp_attendees_left?: number;
 	num_temp_attendees_removed?: number;
+	num_temp_attendees_invited?: number;
 }
 
 /**
@@ -377,12 +381,14 @@ export const normalizeAttendeeCounts = async (
 			num_attendees_waitlisted: 0,
 			num_attendees_left: 0,
 			num_attendees_removed: 0,
+			num_attendees_invited: 0,
 			num_temp_attendees_going: 0,
 			num_temp_attendees_not_going: 0,
 			num_temp_attendees_maybe: 0,
 			num_temp_attendees_waitlisted: 0,
 			num_temp_attendees_left: 0,
-			num_temp_attendees_removed: 0
+			num_temp_attendees_removed: 0,
+			num_temp_attendees_invited: 0
 		};
 
 		// Count permanent attendees by status
@@ -405,6 +411,9 @@ export const normalizeAttendeeCounts = async (
 					break;
 				case Status.REMOVED:
 					counts.num_attendees_removed += 1 + attendee.guest_count;
+					break;
+				case Status.INVITED:
+					counts.num_attendees_invited += 1 + attendee.guest_count;
 					break;
 			}
 		});
@@ -429,6 +438,9 @@ export const normalizeAttendeeCounts = async (
 					break;
 				case Status.REMOVED:
 					counts.num_temp_attendees_removed += 1 + attendee.guest_count;
+					break;
+				case Status.INVITED:
+					counts.num_temp_attendees_invited += 1 + attendee.guest_count;
 					break;
 			}
 		});
@@ -465,6 +477,8 @@ export const upsertEventsPrivateData = async (
 			const updatedCounts = {
 				num_attendees_going:
 					(currentCounts.num_attendees_going || 0) + (deltas.num_attendees_going || 0),
+				num_attendees_not_going:
+					(currentCounts.num_attendees_not_going || 0) + (deltas.num_attendees_not_going || 0),
 				num_attendees_maybe:
 					(currentCounts.num_attendees_maybe || 0) + (deltas.num_attendees_maybe || 0),
 				num_attendees_waitlisted:
@@ -473,8 +487,12 @@ export const upsertEventsPrivateData = async (
 					(currentCounts.num_attendees_left || 0) + (deltas.num_attendees_left || 0),
 				num_attendees_removed:
 					(currentCounts.num_attendees_removed || 0) + (deltas.num_attendees_removed || 0),
+				num_attendees_invited:
+					(currentCounts.num_attendees_invited || 0) + (deltas.num_attendees_invited || 0),
 				num_temp_attendees_going:
 					(currentCounts.num_temp_attendees_going || 0) + (deltas.num_temp_attendees_going || 0),
+				num_temp_attendees_not_going:
+					(currentCounts.num_temp_attendees_not_going || 0) + (deltas.num_temp_attendees_not_going || 0),
 				num_temp_attendees_maybe:
 					(currentCounts.num_temp_attendees_maybe || 0) + (deltas.num_temp_attendees_maybe || 0),
 				num_temp_attendees_waitlisted:
@@ -483,7 +501,9 @@ export const upsertEventsPrivateData = async (
 				num_temp_attendees_left:
 					(currentCounts.num_temp_attendees_left || 0) + (deltas.num_temp_attendees_left || 0),
 				num_temp_attendees_removed:
-					(currentCounts.num_temp_attendees_removed || 0) + (deltas.num_temp_attendees_removed || 0)
+					(currentCounts.num_temp_attendees_removed || 0) + (deltas.num_temp_attendees_removed || 0),
+				num_temp_attendees_invited:
+					(currentCounts.num_temp_attendees_invited || 0) + (deltas.num_temp_attendees_invited || 0)
 			};
 
 			// Update the existing record with the updated counts

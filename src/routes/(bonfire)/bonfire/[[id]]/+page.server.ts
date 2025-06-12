@@ -33,6 +33,7 @@ export const load = async ({ params, locals, url }) => {
 	// console.log('logged in user', user);
 	let event = null;
 	let numAttendingGoing = 0;
+	let numAttendeesInvited = 0;
 	let numAnnouncements = 0;
 	let numFiles = 0;
 
@@ -144,9 +145,13 @@ export const load = async ({ params, locals, url }) => {
 		if (event.private_data) {
 			numAttendingGoing =
 				event.private_data.num_attendees_going + event.private_data.num_temp_attendees_going;
+			numAttendeesInvited =
+				event.private_data.num_attendees_invited + event.private_data.num_temp_attendees_invited;
 		} else {
 			const fullCounts = await normalizeAttendeeCounts(triplitHttpClient, eventId);
 			await upsertEventsPrivateData(triplitHttpClient, eventId, fullCounts);
+			numAttendingGoing = fullCounts.num_attendees_going + fullCounts.num_temp_attendees_going;
+			numAttendeesInvited = fullCounts.num_attendees_invited + fullCounts.num_temp_attendees_invited;
 		}
 
 		// console.log("numAnnouncements", numAnnouncements)
@@ -183,6 +188,7 @@ export const load = async ({ params, locals, url }) => {
 		event,
 		numBringListItems,
 		numAttendingGoing,
+		numAttendeesInvited,
 		numAnnouncements,
 		numFiles,
 		tempAttendeeId,

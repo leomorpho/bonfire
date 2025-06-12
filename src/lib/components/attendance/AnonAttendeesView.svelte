@@ -1,7 +1,7 @@
 <script lang="ts">
 	import * as Avatar from '$lib/components/ui/avatar/index.js';
 
-	let { numAttendingGoing } = $props();
+	let { numAttendingGoing, numAttendeesInvited = 0 } = $props();
 </script>
 
 <div class="flex w-full justify-center">
@@ -14,6 +14,6 @@
 			<Avatar.Image src={'/icon-128.png'} alt={''} />
 			<Avatar.Fallback>{'BO'}</Avatar.Fallback>
 		</Avatar.Root>
-		{numAttendingGoing} going
+		{numAttendingGoing} going{numAttendeesInvited > 0 ? `, ${numAttendeesInvited} invited` : ''}
 	</div>
 </div>

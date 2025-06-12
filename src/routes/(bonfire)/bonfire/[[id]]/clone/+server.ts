@@ -275,12 +275,14 @@ export const POST: RequestHandler = async ({ params, locals, request }) => {
 					num_attendees_waitlisted: eventsPrivateData.num_attendees_waitlisted || 0,
 					num_attendees_left: eventsPrivateData.num_attendees_left || 0,
 					num_attendees_removed: eventsPrivateData.num_attendees_removed || 0,
+					num_attendees_invited: eventsPrivateData.num_attendees_invited || 0,
 					num_temp_attendees_going: eventsPrivateData.num_temp_attendees_going || 0,
 					num_temp_attendees_not_going: eventsPrivateData.num_temp_attendees_not_going || 0,
 					num_temp_attendees_maybe: eventsPrivateData.num_temp_attendees_maybe || 0,
 					num_temp_attendees_waitlisted: eventsPrivateData.num_temp_attendees_waitlisted || 0,
 					num_temp_attendees_left: eventsPrivateData.num_temp_attendees_left || 0,
-					num_temp_attendees_removed: eventsPrivateData.num_temp_attendees_removed || 0
+					num_temp_attendees_removed: eventsPrivateData.num_temp_attendees_removed || 0,
+					num_temp_attendees_invited: eventsPrivateData.num_temp_attendees_invited || 0
 				});
 			}
 

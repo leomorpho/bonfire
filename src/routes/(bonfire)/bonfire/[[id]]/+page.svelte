@@ -20,6 +20,7 @@
 	let eventIsPublished = $derived(event?.is_published);
 	let eventLocation = $derived(event?.location);
 	let eventNumAttendeesGoing = $derived($page.data.numAttendingGoing);
+	let eventNumAttendeesInvited = $derived($page.data.numAttendeesInvited);
 	let bannerInfo: BannerInfo = $state($page.data.bannerInfo);
 	let maxNumGuestsAllowedPerAttendee: number = $state(event?.max_num_guests_per_attendee ?? 0);
 	let isBringListEnabled: boolean = $state(event?.is_bring_list_enabled ?? false);
@@ -51,6 +52,7 @@
 	{eventIsPublished}
 	{eventLocation}
 	{eventNumAttendeesGoing}
+	{eventNumAttendeesInvited}
 	eventMaxCapacity={event?.max_capacity}
 	eventNumAnnouncements={$page.data.numAnnouncements}
 	eventNumFiles={$page.data.numFiles}
