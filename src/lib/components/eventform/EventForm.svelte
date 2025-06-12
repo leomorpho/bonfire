@@ -57,6 +57,8 @@
 	import ToggleGallery from './feature-enablers/ToggleGallery.svelte';
 	import ToggleMessaging from './feature-enablers/ToggleMessaging.svelte';
 	import ToggleCuttoffRsvpDate from './feature-enablers/ToggleCuttoffRsvpDate.svelte';
+	import { getUserOrganizations, addOrgAdminsToNewEvent } from '$lib/organizations';
+	import * as Select from '$lib/components/ui/select/index.js';
 
 	let { mode, event = null, currUserId = null } = $props();
 
@@ -86,6 +88,9 @@
 	let cuttoffDate = $state(event?.cut_off_date);
 	let latitude: number | null = $state(event?.latitude);
 	let longitude: number | null = $state(event?.longitude);
+	let selectedOrganizationId: string | null = $state(event?.organization_id ?? null);
+	let userOrganizations: any[] = $state([]);
+	let organizationsLoading = $state(false);
 
 	// ✅ State Variables
 	let client: TriplitClient;
@@ -307,6 +312,7 @@
 				start_time: eventStartDatetime,
 				end_time: eventEndDatetime,
 				user_id: userId,
+				organization_id: selectedOrganizationId || null,
 				style: finalStyleCss || '',
 				overlay_color: overlayColor || '#000000',
 				overlay_opacity: overlayOpacity || 0.4,
@@ -326,6 +332,11 @@
 			console.log('🔍 Event Data being sent to insert:', JSON.stringify(eventData, null, 2));
 
 			event = await client.http.insert('events', eventData);
+
+			// If event is part of an organization, add all org admins as event admins
+			if (selectedOrganizationId) {
+				await addOrgAdminsToNewEvent(client, eventId, selectedOrganizationId, userId);
+			}
 
 			// // Create a transaction if the user has enough logs remaining
 			// if (checkCanCreateTransaction(userIsOutOfLogs, createTransaction, isEventPublished)) {
@@ -357,6 +368,7 @@
 				e.geocoded_location = JSON.stringify(geocodedLocation) || null;
 				e.start_time = eventStartDatetime?.toISOString();
 				e.end_time = eventEndDatetime?.toISOString();
+				e.organization_id = selectedOrganizationId || null;
 				e.style = finalStyleCss;
 				e.overlay_color = overlayColor;
 				e.overlay_opacity = overlayOpacity;
@@ -555,8 +567,27 @@
 		}
 	}
 
-	onMount(() => {
+	// Load user's organizations
+	const loadUserOrganizations = async () => {
+		if (!client) return;
+		
+		organizationsLoading = true;
+		try {
+			const userId = await waitForUserId();
+			if (userId) {
+				userOrganizations = await getUserOrganizations(client, userId as string);
+			}
+		} catch (error) {
+			console.error('Error loading user organizations:', error);
+		} finally {
+			organizationsLoading = false;
+		}
+	};
+
+	onMount(async () => {
 		loadStepFromURL();
+		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
+		await loadUserOrganizations();
 	});
 </script>
 
@@ -652,6 +683,40 @@
 						class="w-full bg-white dark:bg-slate-900"
 						oninput={debouncedUpdateEvent}
 					/>
+					
+					<!-- Organization Selector -->
+					{#if userOrganizations.length > 0}
+						<div class="w-full">
+							<Select.Root bind:value={selectedOrganizationId}>
+								<Select.Trigger class="w-full bg-white dark:bg-slate-900">
+									{#if selectedOrganizationId}
+										{userOrganizations.find(org => org.id === selectedOrganizationId)?.name || 'Select organization'}
+									{:else}
+										Select organization (optional)
+									{/if}
+								</Select.Trigger>
+								<Select.Content class="bg-white dark:bg-slate-900">
+									<Select.Group>
+										<Select.Item value={null} onclick={debouncedUpdateEvent}>
+											<span class="text-gray-500 italic">No organization</span>
+										</Select.Item>
+										{#each userOrganizations as org}
+											<Select.Item value={org.id} onclick={debouncedUpdateEvent}>
+												<div class="flex items-center justify-between w-full">
+													<span>{org.name}</span>
+													{#if org.userRole === 'admin'}
+														<span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded ml-2">Admin</span>
+													{:else if org.userRole}
+														<span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded ml-2">{org.userRole}</span>
+													{/if}
+												</div>
+											</Select.Item>
+										{/each}
+									</Select.Group>
+								</Select.Content>
+							</Select.Root>
+						</div>
+					{/if}
 					<Datepicker
 						disabled={!isEventEdittable}
 						bind:value={dateValue}

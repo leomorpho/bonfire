@@ -222,6 +222,7 @@ export const schema = S.Collections({
 			latitude: S.Optional(S.Number()),
 			longitude: S.Optional(S.Number()),
 			user_id: S.String(),
+			organization_id: S.Optional(S.String({ nullable: true })), // Organization this event belongs to
 			max_num_guests_per_attendee: S.Optional(S.Number({ default: 0 })),
 			require_guest_bring_item: S.Optional(S.Boolean({ default: false })),
 			transaction_id: S.Optional(S.String()),
@@ -242,6 +243,7 @@ export const schema = S.Collections({
 		}),
 		relationships: {
 			user: S.RelationById('user', '$user_id'),
+			organization: S.RelationById('organizations', '$organization_id'),
 			event_reminders: S.RelationMany('event_reminders', {
 				where: [['event_id', '=', '$1.id']]
 			}),
@@ -300,7 +302,9 @@ export const schema = S.Collections({
 						or([
 							['user_id', '=', '$role.userId'], // User can read their own events
 							['attendees.user_id', '=', '$role.userId'], // A user can see events they are attending
-							['viewers.user_id', '=', '$role.userId'] // Event viewers can see event
+							['viewers.user_id', '=', '$role.userId'], // Event viewers can see event
+							['organization.members.user_id', '=', '$role.userId'], // Organization members can see org events
+							['organization.viewers.user_id', '=', '$role.userId'] // Organization viewers can see org events
 						])
 					]
 				},
@@ -309,7 +313,11 @@ export const schema = S.Collections({
 					filter: [
 						or([
 							['user_id', '=', '$role.userId'],
-							['event_admins.user_id', '=', '$role.userId']
+							['event_admins.user_id', '=', '$role.userId'],
+							and([
+								['organization.members.user_id', '=', '$role.userId'],
+								['organization.members.role', '=', 'admin']
+							])
 						])
 					]
 				},
@@ -1528,6 +1536,189 @@ export const schema = S.Collections({
 			},
 			admin: {
 				read: { filter: [true] } // Admins can see all transactions
+			},
+			temp: {},
+			anon: {}
+		}
+	},
+	organizations: {
+		schema: S.Schema({
+			id: S.Id(),
+			name: S.String(),
+			description: S.Optional(S.String({ nullable: true })),
+			website_url: S.Optional(S.String({ nullable: true })),
+			logo_url: S.Optional(S.String({ nullable: true })),
+			created_by_user_id: S.String(),
+			created_at: S.Date({ default: S.Default.now() }),
+			updated_at: S.Date({ default: S.Default.now() }),
+			is_public: S.Boolean({ default: false }) // Whether org is discoverable
+		}),
+		relationships: {
+			creator: S.RelationById('user', '$created_by_user_id'),
+			members: S.RelationMany('organization_members', {
+				where: [['organization_id', '=', '$id']]
+			}),
+			events: S.RelationMany('events', {
+				where: [['organization_id', '=', '$id']]
+			}),
+			viewers: S.RelationMany('organization_viewers', {
+				where: [['organization_id', '=', '$id']]
+			})
+		},
+		permissions: {
+			admin: {
+				read: { filter: [true] },
+				insert: { filter: [true] },
+				update: { filter: [true] }
+			},
+			user: {
+				read: {
+					filter: [
+						or([
+							['is_public', '=', true], // Public orgs can be seen by anyone
+							['created_by_user_id', '=', '$role.userId'], // Creator can see org
+							['members.user_id', '=', '$role.userId'], // Members can see org
+							['viewers.user_id', '=', '$role.userId'] // Viewers can see org
+						])
+					]
+				},
+				insert: { filter: [true] }, // Anyone can create an organization
+				update: {
+					filter: [
+						or([
+							['created_by_user_id', '=', '$role.userId'], // Creator can update
+							['members.user_id', '=', '$role.userId'] // Members can update (we'll refine this based on role later)
+						])
+					]
+				},
+				delete: {
+					filter: [['created_by_user_id', '=', '$role.userId']] // Only creator can delete
+				}
+			},
+			temp: {},
+			anon: {
+				read: {
+					filter: [['is_public', '=', true]] // Anonymous users can only see public orgs
+				}
+			}
+		}
+	},
+	organization_members: {
+		schema: S.Schema({
+			id: S.Id(),
+			organization_id: S.String(),
+			user_id: S.String(),
+			role: S.String({ default: 'member' }), // admin, editor, member
+			added_by_user_id: S.String(),
+			created_at: S.Date({ default: S.Default.now() })
+		}),
+		relationships: {
+			organization: S.RelationById('organizations', '$organization_id'),
+			user: S.RelationById('user', '$user_id'),
+			added_by: S.RelationById('user', '$added_by_user_id')
+		},
+		permissions: {
+			admin: {
+				read: { filter: [true] },
+				insert: { filter: [true] },
+				update: { filter: [true] },
+				delete: { filter: [true] }
+			},
+			user: {
+				read: {
+					filter: [
+						or([
+							['user_id', '=', '$role.userId'], // Users can see their own memberships
+							['organization.created_by_user_id', '=', '$role.userId'], // Org creators can see all members
+							['organization.members.user_id', '=', '$role.userId'], // Org members can see other members
+							['organization.viewers.user_id', '=', '$role.userId'] // Org viewers can see members
+						])
+					]
+				},
+				insert: {
+					filter: [
+						or([
+							['organization.created_by_user_id', '=', '$role.userId'], // Org creator can add members
+							and([
+								['organization.members.user_id', '=', '$role.userId'],
+								['organization.members.role', '=', 'admin'] // Org admins can add members
+							])
+						])
+					]
+				},
+				update: {
+					filter: [
+						or([
+							['organization.created_by_user_id', '=', '$role.userId'], // Org creator can update any member
+							and([
+								['organization.members.user_id', '=', '$role.userId'],
+								['organization.members.role', '=', 'admin'] // Org admins can update members
+							])
+						])
+					]
+				},
+				delete: {
+					filter: [
+						or([
+							['user_id', '=', '$role.userId'], // Users can remove themselves
+							['organization.created_by_user_id', '=', '$role.userId'], // Org creator can remove anyone
+							and([
+								['organization.members.user_id', '=', '$role.userId'],
+								['organization.members.role', '=', 'admin'] // Org admins can remove members
+							])
+						])
+					]
+				}
+			},
+			temp: {},
+			anon: {}
+		}
+	},
+	organization_viewers: {
+		schema: S.Schema({
+			id: S.Id(),
+			organization_id: S.String(),
+			user_id: S.String(),
+			created_at: S.Date({ default: S.Default.now() })
+		}),
+		relationships: {
+			organization: S.RelationById('organizations', '$organization_id'),
+			user: S.RelationById('user', '$user_id')
+		},
+		permissions: {
+			admin: {
+				read: { filter: [true] },
+				insert: { filter: [true] },
+				update: { filter: [true] },
+				delete: { filter: [true] }
+			},
+			user: {
+				read: {
+					filter: [
+						or([
+							['user_id', '=', '$role.userId'], // Users can see their own viewer status
+							['organization.created_by_user_id', '=', '$role.userId'], // Org creators can see all viewers
+							['organization.members.user_id', '=', '$role.userId'] // Org members can see viewers
+						])
+					]
+				},
+				insert: {
+					filter: [
+						or([
+							['organization.created_by_user_id', '=', '$role.userId'], // Org creator can add viewers
+							['organization.members.user_id', '=', '$role.userId'] // Org members can add viewers
+						])
+					]
+				},
+				delete: {
+					filter: [
+						or([
+							['user_id', '=', '$role.userId'], // Users can remove themselves
+							['organization.created_by_user_id', '=', '$role.userId'], // Org creator can remove viewers
+							['organization.members.user_id', '=', '$role.userId'] // Org members can remove viewers
+						])
+					]
+				}
 			},
 			temp: {},
 			anon: {}
