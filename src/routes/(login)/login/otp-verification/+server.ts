@@ -99,16 +99,18 @@ export async function POST({ request, cookies }) {
 
 	// Handle pending RSVP redirect if exists
 	let redirectLocation = triplitUser?.username ? '/dashboard' : '/profile/username';
-	
+
 	if (pendingRSVP && pendingRSVP.eventId) {
 		// RSVP was already created in the login action, just redirect to event page
 		redirectLocation = `/bonfire/${pendingRSVP.eventId}`;
-		console.log(`Redirecting to event ${pendingRSVP.eventId} after successful login for user ${user.id}`);
+		console.log(
+			`Redirecting to event ${pendingRSVP.eventId} after successful login for user ${user.id}`
+		);
 	}
 
 	const responseHeaders = new Headers();
 	responseHeaders.set('Set-Cookie', sessionCookie.serialize());
-	
+
 	// Clear pending RSVP cookie even if no RSVP was processed
 	if (pendingRSVP) {
 		cookies.delete('pending_rsvp', { path: '/' });

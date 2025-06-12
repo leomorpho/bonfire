@@ -3,6 +3,8 @@ import type { RequestHandler } from './$types';
 import { triplitHttpClient } from '$lib/server/triplit';
 import { generateId } from 'lucia';
 import { createUserAttendance } from '$lib/rsvp';
+import { Status } from '$lib/enums';
+import { createNewEventInvitationNotificationQueueObject } from '$lib/notification_queue';
 
 const BATCH_SIZE = 250; // Process max 100 records at a time
 
@@ -10,26 +12,30 @@ const BATCH_SIZE = 250; // Process max 100 records at a time
 async function bulkInsert(data: Record<string, any[]>) {
 	try {
 		console.log(`Attempting bulk insert for collections:`, Object.keys(data));
-		console.log(`Record counts:`, Object.entries(data).map(([key, arr]) => `${key}: ${arr.length}`));
-		
+		console.log(
+			`Record counts:`,
+			Object.entries(data).map(([key, arr]) => `${key}: ${arr.length}`)
+		);
+
 		// Sample the first record of each collection for debugging
 		for (const [collection, records] of Object.entries(data)) {
 			if (records.length > 0) {
 				console.log(`Sample ${collection} record:`, JSON.stringify(records[0], null, 2));
 			}
 		}
-		
+
 		// Use the Triplit client's bulkInsert method
 		const result = await triplitHttpClient.bulkInsert(data);
 		console.log('Bulk insert completed successfully');
 		return result;
-		
 	} catch (error) {
 		console.error('Bulk insert error, falling back to individual inserts:', error);
-		
+
 		// Fallback to individual inserts
 		for (const [collection, records] of Object.entries(data)) {
-			console.log(`Falling back to individual inserts for ${collection} (${records.length} records)`);
+			console.log(
+				`Falling back to individual inserts for ${collection} (${records.length} records)`
+			);
 			for (const record of records) {
 				try {
 					await triplitHttpClient.insert(collection, record);
@@ -39,7 +45,7 @@ async function bulkInsert(data: Record<string, any[]>) {
 				}
 			}
 		}
-		
+
 		console.log('Fallback to individual inserts completed successfully');
 	}
 }
@@ -130,6 +136,9 @@ export const POST: RequestHandler = async ({ params, locals, request }) => {
 		if (copyAttendees) {
 			console.log('Starting attendee cloning process...');
 
+			// Track user IDs for notifications (both regular and temp attendees)
+			const invitedUserIds: string[] = [];
+
 			// Fetch permanent attendees in paginated batches
 			let hasMoreAttendees = true;
 			let lastAttendeeId = '';
@@ -155,18 +164,22 @@ export const POST: RequestHandler = async ({ params, locals, request }) => {
 				// Filter out the creator (already added) and prepare data
 				const attendeesToClone = attendees
 					.filter((attendee) => attendee.user_id !== userId)
-					.map((attendee) => ({
-						id: `at_${newEventId}-${attendee.user_id}`,
-						event_id: newEventId,
-						user_id: attendee.user_id,
-						status: attendee.status,
-						guest_count: attendee.guest_count,
-						updated_at: new Date()
-					}));
+					.map((attendee) => {
+						const newAttendeeId = `at_${newEventId}-${attendee.user_id}`;
+						invitedUserIds.push(attendee.user_id); // Track user ID for notifications
+						return {
+							id: newAttendeeId,
+							event_id: newEventId,
+							user_id: attendee.user_id,
+							status: Status.INVITED,
+							guest_count: attendee.guest_count,
+							updated_at: new Date()
+						};
+					});
 
 				if (attendeesToClone.length > 0) {
 					await bulkInsert({ attendees: attendeesToClone });
-					console.log(`Cloned ${attendeesToClone.length} permanent attendees`);
+					console.log(`Cloned ${attendeesToClone.length} permanent attendees with INVITED status`);
 				}
 
 				// Update cursor for next iteration
@@ -174,7 +187,7 @@ export const POST: RequestHandler = async ({ params, locals, request }) => {
 				hasMoreAttendees = attendees.length === BATCH_SIZE;
 			}
 
-			// Fetch temporary attendees in paginated batches
+			// Fetch temporary attendees in paginated batches (don't track for notifications since they have no user accounts)
 			let hasMoreTempAttendees = true;
 			let lastTempAttendeeId = '';
 
@@ -206,7 +219,7 @@ export const POST: RequestHandler = async ({ params, locals, request }) => {
 					tempAttendeesToClone.push({
 						id: newTempId,
 						event_id: newEventId,
-						status: tempAttendee.status,
+						status: Status.INVITED,
 						name: tempAttendee.name,
 						guest_count: tempAttendee.guest_count,
 						updated_at: new Date()
@@ -239,7 +252,7 @@ export const POST: RequestHandler = async ({ params, locals, request }) => {
 
 				await bulkInsert(bulkData);
 				console.log(
-					`Cloned ${tempAttendeesToClone.length} temporary attendees with ${secretMappingsToClone.length} secret mappings`
+					`Cloned ${tempAttendeesToClone.length} temporary attendees with INVITED status and ${secretMappingsToClone.length} secret mappings`
 				);
 
 				// Update cursor for next iteration
@@ -269,6 +282,17 @@ export const POST: RequestHandler = async ({ params, locals, request }) => {
 					num_temp_attendees_left: eventsPrivateData.num_temp_attendees_left || 0,
 					num_temp_attendees_removed: eventsPrivateData.num_temp_attendees_removed || 0
 				});
+			}
+
+			// Create notification queue for invited users
+			if (invitedUserIds.length > 0) {
+				await createNewEventInvitationNotificationQueueObject(
+					triplitHttpClient,
+					userId,
+					newEventId,
+					invitedUserIds
+				);
+				console.log(`Created invitation notifications for ${invitedUserIds.length} users`);
 			}
 		}
 

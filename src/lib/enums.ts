@@ -55,6 +55,7 @@ export enum Status {
 	LEFT = 'left',
 	REMOVED = 'removed',
 	WAITLIST = 'waitlisted', // TODO: not yet in effect
+	INVITED = 'invited',
 	DEFAULT = 'RSVP'
 }
 
@@ -152,7 +153,8 @@ export enum NotificationType {
 	YOU_WERE_ADDED_AS_ADMIN = 'you_were_added_as_admin',
 	NEW_MESSAGE = 'new_message',
 	REMINDER = 'reminder',
-	ADMIN_UPDATES = 'admin_updates'
+	ADMIN_UPDATES = 'admin_updates',
+	EVENT_INVITATION = 'event_invitation'
 }
 
 export const NotificationPermissions = {
@@ -182,7 +184,8 @@ export const notificationTypeToPermMap: {
 	[NotificationType.NEW_MESSAGE]: NotificationPermissions.event_messages,
 	[NotificationType.REMINDER]: NotificationPermissions.event_activity,
 	[NotificationType.OTP_VERIFICATION]: null,
-	[NotificationType.ADMIN_UPDATES]: NotificationPermissions.event_activity
+	[NotificationType.ADMIN_UPDATES]: NotificationPermissions.event_activity,
+	[NotificationType.EVENT_INVITATION]: NotificationPermissions.event_activity
 };
 
 export const notificationTypesNoRateLimit = new Set([NotificationPermissions.event_reminders]);
@@ -230,6 +233,11 @@ export const notificationTypeToDeliveryMap: {
 	[NotificationType.ADMIN_UPDATES]: [
 		DeliveryPermissions.push_notifications,
 		DeliveryPermissions.email_notifications
+	],
+	[NotificationType.EVENT_INVITATION]: [
+		DeliveryPermissions.push_notifications,
+		DeliveryPermissions.email_notifications,
+		DeliveryPermissions.sms_notifications,
 	]
 };
 
@@ -253,7 +261,8 @@ export const notificationTypeToSubject: { [key in NotificationType]: string } = 
 	[NotificationType.NEW_MESSAGE]: 'New Event Messages!',
 	[NotificationType.REMINDER]: 'Event Reminder!',
 	[NotificationType.OTP_VERIFICATION]: '',
-	[NotificationType.ADMIN_UPDATES]: 'Event Update!'
+	[NotificationType.ADMIN_UPDATES]: 'Event Update!',
+	[NotificationType.EVENT_INVITATION]: "You're Invited to an Event!"
 };
 
 type NotificationTypeMapping = {
@@ -299,6 +308,10 @@ export const notificationTypeMapping: NotificationTypeMapping = {
 	[NotificationType.REMINDER]: {
 		singularObjectName: 'reminder',
 		pluralObjectName: 'reminders'
+	},
+	[NotificationType.EVENT_INVITATION]: {
+		singularObjectName: 'invitation',
+		pluralObjectName: 'invitations'
 	}
 	// Add other notification types as needed
 };

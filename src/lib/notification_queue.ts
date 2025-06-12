@@ -192,3 +192,29 @@ export async function createNewMessageNotificationQueueObject(
 		object_ids_set: messageIds
 	});
 }
+
+/**
+ * Create a new notification queue object for event invitations.
+ * @param client - TriplitClient instance.
+ * @param userId - The ID of the user creating the notification queue object (event creator).
+ * @param eventId - The ID of the event.
+ * @param userIds - List of user IDs who are being invited.
+ */
+export async function createNewEventInvitationNotificationQueueObject(
+	client: TriplitClient | WorkerClient | HttpClient,
+	userId: string,
+	eventId: string,
+	userIds: string[]
+): Promise<void> {
+	if (!isNonEmptyArray(userIds)) {
+		throw new Error('userIds in createNewEventInvitationNotificationQueueObject cannot be empty.');
+	}
+
+	await client.insert('notifications_queue', {
+		user_id: userId,
+		event_id: eventId,
+		object_type: NotificationType.EVENT_INVITATION,
+		object_ids: JSON.stringify(userIds),
+		object_ids_set: userIds
+	});
+}

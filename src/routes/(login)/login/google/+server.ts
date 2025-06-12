@@ -10,7 +10,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
 	const eventId = event.url.searchParams.get('eventId');
 	const rsvpStatus = event.url.searchParams.get('rsvpStatus');
 	const numGuests = event.url.searchParams.get('numGuests');
-	
+
 	// Store RSVP data in cookies if provided
 	if (eventId && rsvpStatus) {
 		const rsvpData = {

@@ -30,7 +30,9 @@
 	let phone_valid = $state(false);
 
 	// Pending RSVP data from URL params
-	let pendingRSVP = $state<{eventId?: string, rsvpStatus?: string, numGuests?: number} | null>(null);
+	let pendingRSVP = $state<{ eventId?: string; rsvpStatus?: string; numGuests?: number } | null>(
+		null
+	);
 
 	// Set start oneTimePasswordValue
 	let oneTimePasswordValue = $state('');
@@ -46,7 +48,7 @@
 		const eventId = $page.url.searchParams.get('eventId');
 		const rsvpStatus = $page.url.searchParams.get('rsvpStatus');
 		const numGuests = $page.url.searchParams.get('numGuests');
-		
+
 		if (eventId && rsvpStatus) {
 			pendingRSVP = {
 				eventId,
@@ -323,8 +325,11 @@
 					</div>
 
 					{#if pendingRSVP}
-						<div class="mt-4 rounded-lg bg-blue-50 p-4 text-center text-sm text-blue-800 dark:bg-blue-900/50 dark:text-blue-200">
-							<strong>Almost there!</strong> Sign in to RSVP "{pendingRSVP.rsvpStatus}" for this event.
+						<div
+							class="mt-4 rounded-lg bg-blue-50 p-4 text-center text-sm text-blue-800 dark:bg-blue-900/50 dark:text-blue-200"
+						>
+							<strong>Almost there!</strong> Sign in to RSVP "{pendingRSVP.rsvpStatus}" for this
+							event.
 						</div>
 					{/if}
 				</div>
@@ -335,7 +340,9 @@
 					</p>
 				{:else}
 					<Button
-						href={pendingRSVP ? `/login/google?eventId=${pendingRSVP.eventId}&rsvpStatus=${pendingRSVP.rsvpStatus}&numGuests=${pendingRSVP.numGuests || 0}` : "/login/google"}
+						href={pendingRSVP
+							? `/login/google?eventId=${pendingRSVP.eventId}&rsvpStatus=${pendingRSVP.rsvpStatus}&numGuests=${pendingRSVP.numGuests || 0}`
+							: '/login/google'}
 						class="mt-4 w-full bg-blue-500  text-white hover:bg-blue-400 dark:bg-blue-600 dark:hover:bg-blue-500 md:text-lg"
 						><Google class="mr-3 w-4" />Continue with Google
 					</Button>

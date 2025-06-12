@@ -43,6 +43,9 @@ export function createNotificationMessage(
 		case NotificationType.ADMIN_ADDED:
 			message = `🔐 A new admin was added`;
 			break;
+		case NotificationType.EVENT_INVITATION:
+			message = `🎉 You've been invited to an event!`;
+			break;
 
 		default:
 			message = 'You have a new notification';
@@ -458,6 +461,50 @@ export async function createNewMessageNotifications(
 				pushNotificationPayload,
 				[NotificationPermissions.event_activity],
 				true // isInAppOnly = true
+			)
+		);
+	}
+
+	return notifications;
+}
+
+export async function createEventInvitationNotifications(
+	userIdTriggeredNotif: string,
+	eventId: string,
+	invitedUserIds: string[]
+): Promise<Notification[]> {
+	if (!invitedUserIds.length) return [];
+
+	// Get event details for the invitation message
+	const eventQuery = triplitHttpClient
+		.query('events')
+		.Select(['title', 'user_id'])
+		.Where([['id', '=', eventId]]);
+	const [event] = await triplitHttpClient.fetch(eventQuery);
+
+	if (!event) return [];
+
+	const message = createNotificationMessage(NotificationType.EVENT_INVITATION, 1);
+	const pushNotificationPayload = {
+		title: `Invitation to ${event.title}`,
+		body: message
+	};
+
+	const notifications: Notification[] = [];
+
+	// Create notifications for each invited user
+	for (const userId of invitedUserIds) {
+		notifications.push(
+			new Notification(
+				eventId,
+				userId,
+				message,
+				NotificationType.EVENT_INVITATION,
+				[eventId], // Use event ID as the object ID
+				new Set([eventId]),
+				pushNotificationPayload,
+				[NotificationPermissions.event_activity],
+				false // isInAppOnly = false (send to all channels)
 			)
 		);
 	}

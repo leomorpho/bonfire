@@ -48,21 +48,17 @@ const phoneLoginSchema = z.object({
 // Common helper functions
 async function findExistingTempAttendee(tempAttendeeId: string | undefined) {
 	if (!tempAttendeeId) return null;
-	
+
 	return await triplitHttpClient.fetchOne(
-		triplitHttpClient
-			.query('temporary_attendees')
-			.Where(['secret_mapping.id', '=', tempAttendeeId])
+		triplitHttpClient.query('temporary_attendees').Where(['secret_mapping.id', '=', tempAttendeeId])
 	);
 }
 
 async function createUserIfNotExists(identifier: string, isPhone: boolean, phoneCountry?: string) {
-	const user = isPhone 
-		? await getUserByPhone(identifier)
-		: await getUserByEmail(identifier);
-	
+	const user = isPhone ? await getUserByPhone(identifier) : await getUserByEmail(identifier);
+
 	let login_type = LOGIN_TYPE_MAGIC_LINK;
-	
+
 	if (!user) {
 		const userData: any = {
 			id: generateId(15),
@@ -70,14 +66,14 @@ async function createUserIfNotExists(identifier: string, isPhone: boolean, phone
 			num_logs: NUM_DEFAULT_LOGS_NEW_SIGNUP,
 			is_event_styles_admin: false
 		};
-		
+
 		if (isPhone) {
 			userData.phone_number = identifier;
 			userData.phone_country_code = phoneCountry || 'US';
 		} else {
 			userData.email = identifier;
 		}
-		
+
 		const newUser = await createNewUser(userData);
 		if (!newUser) {
 			throw error(500, 'Failed to create new user');
@@ -85,13 +81,13 @@ async function createUserIfNotExists(identifier: string, isPhone: boolean, phone
 		login_type = LOGIN_TYPE_ACTIVATION;
 		return { user: newUser, login_type };
 	}
-	
+
 	return { user, login_type };
 }
 
 async function handleTempAttendeeConversion(user: any, existingTempAttendee: any) {
 	if (!existingTempAttendee) return;
-	
+
 	await convertTempToPermanentUser(
 		user.id,
 		existingTempAttendee.event_id,
@@ -113,9 +109,7 @@ async function checkRateLimit(identifier: string, ip_address: string) {
 		await new Promise((resolve) => setTimeout(resolve, 2000));
 	}
 
-	const ratelimit = privateEnv.SIGNIN_IP_RATELIMIT
-		? parseInt(privateEnv.SIGNIN_IP_RATELIMIT)
-		: 20;
+	const ratelimit = privateEnv.SIGNIN_IP_RATELIMIT ? parseInt(privateEnv.SIGNIN_IP_RATELIMIT) : 20;
 
 	return signins.length > ratelimit && !dev;
 }
@@ -128,7 +122,12 @@ async function createLoginEntry(identifier: string, ip_address: string) {
 	});
 }
 
-async function storeRSVPDataInSession(cookies: any, eventId?: string, rsvpStatus?: string, numGuests?: number) {
+async function storeRSVPDataInSession(
+	cookies: any,
+	eventId?: string,
+	rsvpStatus?: string,
+	numGuests?: number
+) {
 	if (eventId && rsvpStatus) {
 		const rsvpData = {
 			eventId,
@@ -146,18 +145,18 @@ async function storeRSVPDataInSession(cookies: any, eventId?: string, rsvpStatus
 	}
 }
 
-async function generateAndSendOTP(user: any, identifier: string, login_type: string, isPhone: boolean) {
+async function generateAndSendOTP(
+	user: any,
+	identifier: string,
+	login_type: string,
+	isPhone: boolean
+) {
 	await deleteAllEmailOTPsForUser(user.id);
 	const verification_token = await createEmailVerificationOTP(user.id, identifier);
 
 	if (isPhone) {
 		const smsMessage = `Your ${login_type} pin for ${publicEnv.PUBLIC_PROJECT_NAME}: ${verification_token}`;
-		await sendSmsMessage(
-			user.id,
-			identifier,
-			smsMessage,
-			NotificationType.OTP_VERIFICATION
-		);
+		await sendSmsMessage(user.id, identifier, smsMessage, NotificationType.OTP_VERIFICATION);
 	} else {
 		await sendEmail(
 			{
@@ -185,14 +184,14 @@ export const load = async ({ locals, url }) => {
 	const eventId = url.searchParams.get('eventId');
 	const rsvpStatus = url.searchParams.get('rsvpStatus');
 	const numGuests = url.searchParams.get('numGuests');
-	
+
 	// Pre-populate forms with URL parameter data if available
 	const initialData = {
 		eventId: eventId || undefined,
 		rsvpStatus: rsvpStatus || undefined,
 		numGuests: numGuests ? parseInt(numGuests, 10) : undefined
 	};
-	
+
 	const form = await superValidate(initialData, zod(loginSchema));
 	const phoneForm = await superValidate(initialData, zod(phoneLoginSchema));
 	const user = locals.user;
@@ -213,19 +212,24 @@ export const actions = {
 
 		const identifier = form.data.email;
 		const ip_address = getClientAddress();
-		
+
 		// Store RSVP data in session if provided
-		await storeRSVPDataInSession(cookies, form.data.eventId, form.data.rsvpStatus, form.data.numGuests);
-		
+		await storeRSVPDataInSession(
+			cookies,
+			form.data.eventId,
+			form.data.rsvpStatus,
+			form.data.numGuests
+		);
+
 		// Check for existing temp attendee
 		const existingTempAttendee = await findExistingTempAttendee(form.data.tempAttendeeIdInForm);
-		
+
 		// Create user if not exists
 		const { user, login_type } = await createUserIfNotExists(identifier, false);
-		
+
 		// Handle temp attendee conversion
 		await handleTempAttendeeConversion(user, existingTempAttendee);
-		
+
 		// Handle RSVP creation if provided
 		if (form.data.eventId && form.data.rsvpStatus) {
 			try {
@@ -237,14 +241,16 @@ export const actions = {
 					form.data.rsvpStatus,
 					form.data.numGuests || 0
 				);
-				
-				console.log(`Created RSVP ${form.data.rsvpStatus} for user ${user.id} on event ${form.data.eventId}`);
+
+				console.log(
+					`Created RSVP ${form.data.rsvpStatus} for user ${user.id} on event ${form.data.eventId}`
+				);
 			} catch (error) {
 				console.error('Error creating RSVP during email login:', error);
 				// Don't fail the login, just log the error
 			}
 		}
-		
+
 		// Check rate limit
 		const isRateLimited = await checkRateLimit(identifier, ip_address);
 		if (isRateLimited) {
@@ -253,10 +259,10 @@ export const actions = {
 			];
 			return fail(429, { form, phoneForm: await superValidate(zod(phoneLoginSchema)) });
 		}
-		
+
 		// Create login entry
 		await createLoginEntry(identifier, ip_address);
-		
+
 		// Generate and send OTP
 		await generateAndSendOTP(user, identifier, login_type, false);
 
@@ -272,19 +278,28 @@ export const actions = {
 
 		const identifier = form.data.phone_number;
 		const ip_address = getClientAddress();
-		
+
 		// Store RSVP data in session if provided
-		await storeRSVPDataInSession(cookies, form.data.eventId, form.data.rsvpStatus, form.data.numGuests);
-		
+		await storeRSVPDataInSession(
+			cookies,
+			form.data.eventId,
+			form.data.rsvpStatus,
+			form.data.numGuests
+		);
+
 		// Check for existing temp attendee
 		const existingTempAttendee = await findExistingTempAttendee(form.data.tempAttendeeIdInForm);
-		
+
 		// Create user if not exists (store phone_country for new users)
-		const { user, login_type } = await createUserIfNotExists(identifier, true, form.data.phone_country);
-		
+		const { user, login_type } = await createUserIfNotExists(
+			identifier,
+			true,
+			form.data.phone_country
+		);
+
 		// Handle temp attendee conversion
 		await handleTempAttendeeConversion(user, existingTempAttendee);
-		
+
 		// Handle RSVP creation if provided
 		if (form.data.eventId && form.data.rsvpStatus) {
 			try {
@@ -296,14 +311,16 @@ export const actions = {
 					form.data.rsvpStatus,
 					form.data.numGuests || 0
 				);
-				
-				console.log(`Created RSVP ${form.data.rsvpStatus} for user ${user.id} on event ${form.data.eventId}`);
+
+				console.log(
+					`Created RSVP ${form.data.rsvpStatus} for user ${user.id} on event ${form.data.eventId}`
+				);
 			} catch (error) {
 				console.error('Error creating RSVP during phone login:', error);
 				// Don't fail the login, just log the error
 			}
 		}
-		
+
 		// Check rate limit
 		const isRateLimited = await checkRateLimit(identifier, ip_address);
 		if (isRateLimited) {
@@ -312,10 +329,10 @@ export const actions = {
 			];
 			return fail(429, { form: await superValidate(zod(loginSchema)), phoneForm: form });
 		}
-		
+
 		// Create login entry
 		await createLoginEntry(identifier, ip_address);
-		
+
 		// Generate and send OTP
 		await generateAndSendOTP(user, identifier, login_type, true);
 

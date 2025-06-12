@@ -27,6 +27,7 @@ import {
 	createAdminAddedNotifications,
 	createAnnouncementNotifications,
 	createAttendeeNotifications,
+	createEventInvitationNotifications,
 	createFileNotifications,
 	createNewMessageNotifications,
 	createNotificationMessage,
@@ -136,6 +137,9 @@ async function processNotificationQueue(notificationQueueEntry: NotificationQueu
 		case NotificationType.NEW_MESSAGE:
 			validObjectIds = await validateMessageIds(objectIds);
 			break;
+		case NotificationType.EVENT_INVITATION:
+			validObjectIds = await validateUserIds(objectIds);
+			break;
 		default:
 			console.error(`Unknown object_type: ${notificationQueueEntry.object_type}`);
 			return;
@@ -220,6 +224,15 @@ async function processNotificationQueue(notificationQueueEntry: NotificationQueu
 					notificationQueueEntry.user_id,
 					notificationQueueEntry.event_id,
 					validObjectIds[0]
+				))
+			);
+			break;
+		case NotificationType.EVENT_INVITATION:
+			notifications.push(
+				...(await createEventInvitationNotifications(
+					notificationQueueEntry.user_id,
+					notificationQueueEntry.event_id,
+					validObjectIds
 				))
 			);
 			break;

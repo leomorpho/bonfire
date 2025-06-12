@@ -93,7 +93,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
 
 		// Handle pending RSVP if exists
 		let redirectLocation = '/';
-		
+
 		// Get pending RSVP data from cookies
 		let pendingRSVP = null;
 		try {
@@ -109,7 +109,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
 			console.error('Error parsing pending RSVP data:', e);
 			pendingRSVP = null;
 		}
-		
+
 		if (pendingRSVP && pendingRSVP.eventId && pendingRSVP.rsvpStatus) {
 			try {
 				// Create attendance directly using server-side client
@@ -120,14 +120,16 @@ export async function GET(event: RequestEvent): Promise<Response> {
 					pendingRSVP.rsvpStatus,
 					pendingRSVP.numGuests || 0
 				);
-				
+
 				// Redirect to the event page instead
 				redirectLocation = `/bonfire/${pendingRSVP.eventId}`;
-				
+
 				// Clear the pending RSVP cookie
 				event.cookies.delete('pending_rsvp', { path: '/' });
-				
-				console.log(`Automatically set RSVP to ${pendingRSVP.rsvpStatus} for user ${user.id} on event ${pendingRSVP.eventId}`);
+
+				console.log(
+					`Automatically set RSVP to ${pendingRSVP.rsvpStatus} for user ${user.id} on event ${pendingRSVP.eventId}`
+				);
 			} catch (error) {
 				console.error('Error processing pending RSVP:', error);
 				// Don't fail the login, just log the error and continue
