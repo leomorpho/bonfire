@@ -29,6 +29,7 @@
 	import BringList from '$lib/components/bringlist/BringList.svelte';
 	import MaxCapacityInfo from '$lib/components/attendance/MaxCapacityInfo.svelte';
 	import EditEventButton from '$lib/components/main-bonfire-event/EditEventButton.svelte';
+	import CloneEventButton from '$lib/components/main-bonfire-event/CloneEventButton.svelte';
 	import UnverifiedUserMsg from '$lib/components/main-bonfire-event/UnverifiedUserMsg.svelte';
 	import EventInfo from '$lib/components/main-bonfire-event/EventInfo.svelte';
 	import Attendees from '$lib/components/main-bonfire-event/Attendees.svelte';
@@ -620,6 +621,13 @@
 									>
 										<div class="flex items-center justify-center">
 											<EditEventButton {eventIsPublished} />
+										</div>
+									</div>
+									<div
+										class="duration-250 inline-flex cursor-pointer items-center justify-center whitespace-nowrap rounded-md px-3 py-1 text-sm font-medium text-blue-500 ring-offset-background transition-all hover:bg-slate-200 focus:outline-none focus-visible:outline-none focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:hover:bg-slate-700"
+									>
+										<div class="flex items-center justify-center">
+											<CloneEventButton {eventId} {eventTitle} />
 										</div>
 									</div>
 								{/if}
