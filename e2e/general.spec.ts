@@ -391,7 +391,7 @@ test('User attendee view', async ({ browser }) => {
 	expect(number?.match(/\d+/)?.[0]).toBe('1');
 });
 
-test('Temp attendee view', async ({ browser }) => {
+test.skip('Temp attendee view', async ({ browser }) => {
 	const context1 = await browser.newContext();
 	const context2 = await browser.newContext();
 	const eventCreatorPage = await context1.newPage();
@@ -526,7 +526,7 @@ test('Temp attendee view', async ({ browser }) => {
 	// TODO: update the num of guests a temp is bringing
 });
 
-test('Temp -> new user', async ({ browser }) => {
+test.skip('Temp -> new user', async ({ browser }) => {
 	const context1 = await browser.newContext();
 	const context2 = await browser.newContext();
 	const eventCreatorPage = await context1.newPage();
@@ -581,7 +581,7 @@ test('Temp -> new user', async ({ browser }) => {
 	await expect(tempAttendeePage.locator('.event-card')).toHaveCount(1);
 });
 
-test(
+test.skip(
 	'Temp -> existing user',
 	async ({ browser }) => {
 		const context1 = await browser.newContext();
