@@ -132,7 +132,8 @@
 				if (!user) return;
 
 				// Check if this is actually new data
-				const hasChanged = !previousUser || 
+				const hasChanged =
+					!previousUser ||
 					user.username !== previousUser.username ||
 					user.profilePicUpdatedAt !== previousUser.profilePicUpdatedAt ||
 					user.userUpdatedAt !== previousUser.userUpdatedAt;

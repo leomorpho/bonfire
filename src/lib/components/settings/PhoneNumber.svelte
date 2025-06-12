@@ -23,7 +23,7 @@
 				.Select(['phone_number', 'phone_country_code']),
 			(results) => {
 				if (results.length == 1) {
-					const pi = results.find(result => result.phone_number && result.phone_country_code);
+					const pi = results.find((result) => result.phone_number && result.phone_country_code);
 					if (pi) {
 						phoneNumber = pi.phone_number;
 						country = pi.phone_country_code;

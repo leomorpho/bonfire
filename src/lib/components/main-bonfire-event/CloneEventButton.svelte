@@ -23,7 +23,7 @@
 		}
 
 		isCloning = true;
-		
+
 		try {
 			const response = await fetch(`/bonfire/${eventId}/clone`, {
 				method: 'POST',
@@ -43,13 +43,12 @@
 			}
 
 			const result = await response.json();
-			
+
 			toast.success('Event cloned successfully!');
 			open = false;
-			
+
 			// Redirect to the cloned event's edit page
 			goto(`/bonfire/${result.clonedEventId}/update`);
-			
 		} catch (error) {
 			console.error('Error cloning event:', error);
 			toast.error(error.message || 'Failed to clone event');
@@ -63,11 +62,7 @@
 	<Dialog.Trigger asChild>
 		{#snippet child({ props })}
 			<div class="flex w-full justify-center">
-				<button 
-					{...props}
-					class="relative {cls}"
-					title="Clone this event"
-				>
+				<button {...props} class="relative {cls}" title="Clone this event">
 					<div class="flex items-center justify-center">
 						<Copy class="h-6 w-6" />
 					</div>
@@ -75,20 +70,21 @@
 			</div>
 		{/snippet}
 	</Dialog.Trigger>
-	
+
 	<Dialog.Content class="sm:max-w-[425px]">
 		<Dialog.Header>
 			<Dialog.Title>Clone Event</Dialog.Title>
 			<Dialog.Description>
-				This will create a copy of the event with a new ID. The clone will be unpublished and you'll be the creator.
+				This will create a copy of the event with a new ID. The clone will be unpublished and you'll
+				be the creator.
 			</Dialog.Description>
 		</Dialog.Header>
-		
+
 		{#if isCloning}
 			<!-- Loading State -->
-			<div class="flex flex-col items-center justify-center py-8 space-y-4">
-				<div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-				<div class="text-center space-y-2">
+			<div class="flex flex-col items-center justify-center space-y-4 py-8">
+				<div class="h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
+				<div class="space-y-2 text-center">
 					<p class="text-sm font-medium">Cloning event...</p>
 					<p class="text-xs text-muted-foreground">
 						This might take a while if there's a lot of data to copy.
@@ -99,9 +95,7 @@
 			<!-- Form State -->
 			<div class="grid gap-4 py-4">
 				<div class="grid grid-cols-4 items-center gap-4">
-					<Label for="clone-name" class="text-right">
-						Name
-					</Label>
+					<Label for="clone-name" class="text-right">Name</Label>
 					<Input
 						id="clone-name"
 						bind:value={cloneName}
@@ -110,30 +104,22 @@
 						disabled={isCloning}
 					/>
 				</div>
-				
+
 				<div class="mt-4 space-y-3">
 					<div class="flex items-center space-x-2">
-						<Checkbox 
-							id="copy-attendees" 
-							bind:checked={copyAttendees}
-							disabled={isCloning}
-						/>
-						<Label 
-							for="copy-attendees" 
+						<Checkbox id="copy-attendees" bind:checked={copyAttendees} disabled={isCloning} />
+						<Label
+							for="copy-attendees"
 							class="cursor-pointer text-sm font-normal {isCloning ? 'opacity-50' : ''}"
 						>
 							Copy attendees (all RSVPs will be copied)
 						</Label>
 					</div>
-					
+
 					<div class="flex items-center space-x-2">
-						<Checkbox 
-							id="copy-bring-list" 
-							bind:checked={copyBringList}
-							disabled={isCloning}
-						/>
-						<Label 
-							for="copy-bring-list" 
+						<Checkbox id="copy-bring-list" bind:checked={copyBringList} disabled={isCloning} />
+						<Label
+							for="copy-bring-list"
 							class="cursor-pointer text-sm font-normal {isCloning ? 'opacity-50' : ''}"
 						>
 							Copy bring list items (without assignments)
@@ -142,19 +128,10 @@
 				</div>
 			</div>
 		{/if}
-		
+
 		<Dialog.Footer>
-			<Button 
-				variant="outline" 
-				onclick={() => open = false}
-				disabled={isCloning}
-			>
-				Cancel
-			</Button>
-			<Button 
-				onclick={handleClone}
-				disabled={isCloning || !cloneName.trim()}
-			>
+			<Button variant="outline" onclick={() => (open = false)} disabled={isCloning}>Cancel</Button>
+			<Button onclick={handleClone} disabled={isCloning || !cloneName.trim()}>
 				{isCloning ? 'Cloning...' : 'Clone Event'}
 			</Button>
 		</Dialog.Footer>

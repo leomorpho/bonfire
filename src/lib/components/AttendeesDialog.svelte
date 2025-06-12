@@ -63,10 +63,10 @@
 				type="text"
 				bind:value={searchTerm}
 				placeholder="Search attendees"
-				class="w-full border rounded px-2 py-1 mb-2"
+				class="mb-2 w-full rounded border px-2 py-1"
 			/>
 		</div>
-		{#if attendees.length >  0}
+		{#if attendees.length > 0}
 			{#if !listView}
 				<div class="mx-5 flex flex-wrap -space-x-2 space-y-2 text-black">
 					{#each attendees as attendee (attendee.id + attendeeType)}

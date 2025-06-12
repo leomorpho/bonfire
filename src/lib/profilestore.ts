@@ -126,9 +126,10 @@ export const usersLiveDataStore = writable<Record<string, UserData>>({});
 export function updateUsersLiveDataStoreEntry(user: UserData) {
 	usersLiveDataStore.update((users) => {
 		const existingUser = users[user.id];
-		
+
 		// ✅ Check specific fields that matter for profile avatars
-		if (!existingUser || 
+		if (
+			!existingUser ||
 			existingUser.username !== user.username ||
 			existingUser.profilePicUpdatedAt !== user.profilePicUpdatedAt ||
 			existingUser.userUpdatedAt !== user.userUpdatedAt ||
@@ -407,7 +408,9 @@ export async function fetchAndCacheUsersInLiveUsersDataStore(
 								console.warn(`⚠️ Invalid image type for ${id}: ${blob.type}`);
 							}
 						} else {
-							console.warn(`⚠️ Failed to fetch profile image for ${id}: ${imgResponse.status} ${imgResponse.statusText}`);
+							console.warn(
+								`⚠️ Failed to fetch profile image for ${id}: ${imgResponse.status} ${imgResponse.statusText}`
+							);
 						}
 					} catch (e) {
 						console.error(`❌ Error fetching profile image for ${id}:`, e);
