@@ -4,6 +4,8 @@ import { generateId } from 'lucia';
 import type { RequestEvent } from '@sveltejs/kit';
 import { createNewUser, getUserByEmail } from '$lib/server/database/user.model';
 import jwt from 'jsonwebtoken';
+import { createUserAttendance } from '$lib/rsvp';
+import { triplitHttpClient } from '$lib/server/triplit';
 
 // Function to parse JWT and extract payload
 function parseJWT(token: string) {
@@ -89,10 +91,59 @@ export async function GET(event: RequestEvent): Promise<Response> {
 			...sessionCookie.attributes
 		});
 
+		// Handle pending RSVP if exists
+		let redirectLocation = '/';
+		
+		// Get pending RSVP data from cookies
+		let pendingRSVP = null;
+		try {
+			const rsvpCookie = event.cookies.get('pending_rsvp');
+			if (rsvpCookie) {
+				pendingRSVP = JSON.parse(rsvpCookie);
+				// Check if data is not too old (30 minutes)
+				if (Date.now() - pendingRSVP.timestamp > 30 * 60 * 1000) {
+					pendingRSVP = null;
+				}
+			}
+		} catch (e) {
+			console.error('Error parsing pending RSVP data:', e);
+			pendingRSVP = null;
+		}
+		
+		if (pendingRSVP && pendingRSVP.eventId && pendingRSVP.rsvpStatus) {
+			try {
+				// Create attendance directly using server-side client
+				await createUserAttendance(
+					triplitHttpClient,
+					user.id,
+					pendingRSVP.eventId,
+					pendingRSVP.rsvpStatus,
+					pendingRSVP.numGuests || 0
+				);
+				
+				// Redirect to the event page instead
+				redirectLocation = `/bonfire/${pendingRSVP.eventId}`;
+				
+				// Clear the pending RSVP cookie
+				event.cookies.delete('pending_rsvp', { path: '/' });
+				
+				console.log(`Automatically set RSVP to ${pendingRSVP.rsvpStatus} for user ${user.id} on event ${pendingRSVP.eventId}`);
+			} catch (error) {
+				console.error('Error processing pending RSVP:', error);
+				// Don't fail the login, just log the error and continue
+			}
+		} else {
+			// Check if user has username to determine redirect
+			const triplitUser = await triplitHttpClient.fetchOne(
+				triplitHttpClient.query('user').Where('id', '=', user.id)
+			);
+			redirectLocation = triplitUser?.username ? '/dashboard' : '/profile/username';
+		}
+
 		return new Response(null, {
 			status: 302,
 			headers: {
-				Location: '/'
+				Location: redirectLocation
 			}
 		});
 	} catch (e) {

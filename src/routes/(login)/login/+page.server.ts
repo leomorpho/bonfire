@@ -22,7 +22,7 @@ import {
 	NUM_DEFAULT_LOGS_NEW_SIGNUP
 } from '$lib/enums';
 import { convertTempToPermanentUser, triplitHttpClient } from '$lib/server/triplit.js';
-import { updateRSVPForLoggedInUser } from '$lib/rsvp';
+import { createUserAttendance } from '$lib/rsvp';
 
 // Zod validation schema for login_with_email (requires email)
 const loginSchema = z.object({
@@ -180,9 +180,21 @@ async function generateAndSendOTP(user: any, identifier: string, login_type: str
 	}
 }
 
-export const load = async ({ locals }) => {
-	const form = await superValidate(zod(loginSchema));
-	const phoneForm = await superValidate(zod(phoneLoginSchema));
+export const load = async ({ locals, url }) => {
+	// Read RSVP data from URL parameters
+	const eventId = url.searchParams.get('eventId');
+	const rsvpStatus = url.searchParams.get('rsvpStatus');
+	const numGuests = url.searchParams.get('numGuests');
+	
+	// Pre-populate forms with URL parameter data if available
+	const initialData = {
+		eventId: eventId || undefined,
+		rsvpStatus: rsvpStatus || undefined,
+		numGuests: numGuests ? parseInt(numGuests, 10) : undefined
+	};
+	
+	const form = await superValidate(initialData, zod(loginSchema));
+	const phoneForm = await superValidate(initialData, zod(phoneLoginSchema));
 	const user = locals.user;
 	if (user) {
 		throw redirect(301, '/dashboard');
@@ -213,6 +225,25 @@ export const actions = {
 		
 		// Handle temp attendee conversion
 		await handleTempAttendeeConversion(user, existingTempAttendee);
+		
+		// Handle RSVP creation if provided
+		if (form.data.eventId && form.data.rsvpStatus) {
+			try {
+				// Create attendance directly using server-side client
+				await createUserAttendance(
+					triplitHttpClient,
+					user.id,
+					form.data.eventId,
+					form.data.rsvpStatus,
+					form.data.numGuests || 0
+				);
+				
+				console.log(`Created RSVP ${form.data.rsvpStatus} for user ${user.id} on event ${form.data.eventId}`);
+			} catch (error) {
+				console.error('Error creating RSVP during email login:', error);
+				// Don't fail the login, just log the error
+			}
+		}
 		
 		// Check rate limit
 		const isRateLimited = await checkRateLimit(identifier, ip_address);
@@ -253,6 +284,25 @@ export const actions = {
 		
 		// Handle temp attendee conversion
 		await handleTempAttendeeConversion(user, existingTempAttendee);
+		
+		// Handle RSVP creation if provided
+		if (form.data.eventId && form.data.rsvpStatus) {
+			try {
+				// Create attendance directly using server-side client
+				await createUserAttendance(
+					triplitHttpClient,
+					user.id,
+					form.data.eventId,
+					form.data.rsvpStatus,
+					form.data.numGuests || 0
+				);
+				
+				console.log(`Created RSVP ${form.data.rsvpStatus} for user ${user.id} on event ${form.data.eventId}`);
+			} catch (error) {
+				console.error('Error creating RSVP during phone login:', error);
+				// Don't fail the login, just log the error
+			}
+		}
 		
 		// Check rate limit
 		const isRateLimited = await checkRateLimit(identifier, ip_address);

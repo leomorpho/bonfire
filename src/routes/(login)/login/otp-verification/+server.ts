@@ -4,8 +4,6 @@ import { lucia } from '$lib/server/auth';
 import { triplitHttpClient } from '$lib/server/triplit';
 import { isWithinExpirationDate } from '$lib/utils';
 import { deleteEmailOTP, getEmailOTP } from '$lib/server/database/emailtoken.model';
-import { updateRSVPForLoggedInUser } from '$lib/rsvp';
-import { getFeWorkerTriplitClient } from '$lib/triplit';
 
 const otpVerificationSchema = z.object({
 	otp: z.string().length(6) // OTP should be exactly 6 characters
@@ -99,35 +97,13 @@ export async function POST({ request, cookies }) {
 		triplitHttpClient.query('user').Where('id', '=', user.id)
 	);
 
-	// Handle pending RSVP if exists
+	// Handle pending RSVP redirect if exists
 	let redirectLocation = triplitUser?.username ? '/dashboard' : '/profile/username';
 	
-	if (pendingRSVP && pendingRSVP.eventId && pendingRSVP.rsvpStatus) {
-		try {
-			// Create a client with the new session to perform RSVP
-			const client = getFeWorkerTriplitClient(session.id);
-			
-			// Update RSVP status for the user
-			await updateRSVPForLoggedInUser(
-				client,
-				user.id,
-				pendingRSVP.eventId,
-				'default', // old status (doesn't matter for new users)
-				pendingRSVP.rsvpStatus,
-				pendingRSVP.numGuests || 0
-			);
-			
-			// Redirect to the event page instead
-			redirectLocation = `/bonfire/${pendingRSVP.eventId}`;
-			
-			// Clear the pending RSVP cookie
-			cookies.delete('pending_rsvp', { path: '/' });
-			
-			console.log(`Automatically set RSVP to ${pendingRSVP.rsvpStatus} for user ${user.id} on event ${pendingRSVP.eventId}`);
-		} catch (error) {
-			console.error('Error processing pending RSVP:', error);
-			// Don't fail the login, just log the error and continue
-		}
+	if (pendingRSVP && pendingRSVP.eventId) {
+		// RSVP was already created in the login action, just redirect to event page
+		redirectLocation = `/bonfire/${pendingRSVP.eventId}`;
+		console.log(`Redirecting to event ${pendingRSVP.eventId} after successful login for user ${user.id}`);
 	}
 
 	const responseHeaders = new Headers();

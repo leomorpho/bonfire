@@ -335,7 +335,7 @@
 					</p>
 				{:else}
 					<Button
-						href="/login/google"
+						href={pendingRSVP ? `/login/google?eventId=${pendingRSVP.eventId}&rsvpStatus=${pendingRSVP.rsvpStatus}&numGuests=${pendingRSVP.numGuests || 0}` : "/login/google"}
 						class="mt-4 w-full bg-blue-500  text-white hover:bg-blue-400 dark:bg-blue-600 dark:hover:bg-blue-500 md:text-lg"
 						><Google class="mr-3 w-4" />Continue with Google
 					</Button>

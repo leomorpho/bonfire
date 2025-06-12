@@ -6,6 +6,28 @@ import type { RequestEvent } from '@sveltejs/kit';
 import { dev } from '$app/environment';
 
 export async function GET(event: RequestEvent): Promise<Response> {
+	// Get RSVP data from query params
+	const eventId = event.url.searchParams.get('eventId');
+	const rsvpStatus = event.url.searchParams.get('rsvpStatus');
+	const numGuests = event.url.searchParams.get('numGuests');
+	
+	// Store RSVP data in cookies if provided
+	if (eventId && rsvpStatus) {
+		const rsvpData = {
+			eventId,
+			rsvpStatus,
+			numGuests: numGuests ? parseInt(numGuests, 10) : 0,
+			timestamp: Date.now()
+		};
+		event.cookies.set('pending_rsvp', JSON.stringify(rsvpData), {
+			path: '/',
+			maxAge: 60 * 30, // 30 minutes
+			httpOnly: true,
+			secure: !dev,
+			sameSite: 'lax'
+		});
+	}
+
 	const state = generateState();
 	const codeVerifier = generateCodeVerifier();
 	const url = await google.createAuthorizationURL(state, codeVerifier, [
