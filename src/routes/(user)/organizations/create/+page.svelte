@@ -3,7 +3,6 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Textarea } from '$lib/components/ui/textarea/index.js';
-	import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card/index.js';
 	import { Label } from '$lib/components/ui/label/index.js';
 	import { Checkbox } from '$lib/components/ui/checkbox/index.js';
 	import { ArrowLeft, Building2, Save } from 'lucide-svelte';
@@ -95,8 +94,8 @@
 	<meta name="description" content="Create a new organization to group your events" />
 </svelte:head>
 
-<div class="min-h-screen bg-gray-50 dark:bg-gray-900">
-	<div class="container mx-auto px-4 py-8 max-w-2xl">
+<div class="mx-4 mb-48 flex flex-col items-center justify-center sm:mb-20">
+	<section class="mt-8 w-full sm:w-2/3 md:w-[700px]">
 		<!-- Header -->
 		<div class="mb-8">
 			<Button 
@@ -117,18 +116,18 @@
 		</div>
 
 		<!-- Form -->
-		<Card>
-			<CardHeader>
-				<CardTitle class="flex items-center gap-2">
+		<div class="rounded-lg bg-slate-200 dark:bg-slate-800 p-8">
+			<div class="mb-6">
+				<h2 class="flex items-center gap-2 text-xl font-semibold text-gray-900 dark:text-white mb-2">
 					<Building2 class="w-5 h-5" />
 					Organization Details
-				</CardTitle>
-				<CardDescription>
+				</h2>
+				<p class="text-gray-600 dark:text-gray-400">
 					Provide basic information about your organization
-				</CardDescription>
-			</CardHeader>
+				</p>
+			</div>
 			
-			<CardContent class="space-y-6">
+			<div class="space-y-6">
 				<!-- Organization Name -->
 				<div class="space-y-2">
 					<Label for="name">Organization Name *</Label>
@@ -205,7 +204,7 @@
 						{/if}
 					</Button>
 				</div>
-			</CardContent>
-		</Card>
-	</div>
+			</div>
+		</div>
+	</section>
 </div>

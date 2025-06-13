@@ -2,7 +2,6 @@
 	import { page } from '$app/stores';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Badge } from '$lib/components/ui/badge/index.js';
-	import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card/index.js';
 	import { Separator } from '$lib/components/ui/separator/index.js';
 	import { Calendar, MapPin, Users, Settings, Plus, ExternalLink, Globe, Clock } from 'lucide-svelte';
 	import { formatDistanceToNow, format } from 'date-fns';
@@ -48,10 +47,10 @@
 	<meta name="description" content={organization.description || `Events and activities by ${organization.name}`} />
 </svelte:head> -->
 
-<div class="min-h-screen bg-gray-50 dark:bg-gray-900">
-	<div class="container mx-auto px-4 py-8 max-w-6xl">
+<div class="mx-4 mb-48 flex flex-col items-center justify-center sm:mb-20">
+	<section class="mt-8 w-full sm:w-2/3 md:w-[700px] lg:w-[900px] xl:w-[1000px]">
 		<!-- Organization Header -->
-		<div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border p-8 mb-8">
+		<div class="rounded-lg bg-slate-200 dark:bg-slate-800 p-8 mb-8">
 			<div class="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
 				<div class="flex-1">
 					<div class="flex items-center gap-3 mb-4">
@@ -155,21 +154,19 @@
 			</div>
 		{/if}
 
-		<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+		<div class="space-y-8">
 			<!-- Events Section -->
-			<div class="lg:col-span-2 space-y-6">
+			<div class="space-y-6">
 				<!-- Future Events -->
 				{#if futureEvents.length > 0}
-					<Card>
-						<CardHeader>
-							<CardTitle class="flex items-center gap-2">
-								<Calendar class="w-5 h-5" />
-								Upcoming Events ({futureEvents.length})
-							</CardTitle>
-						</CardHeader>
-						<CardContent class="space-y-4">
+					<div class="rounded-lg bg-slate-200 dark:bg-slate-800 p-6">
+						<h2 class="flex items-center gap-2 text-xl font-semibold text-gray-900 dark:text-white mb-4">
+							<Calendar class="w-5 h-5" />
+							Upcoming Events ({futureEvents.length})
+						</h2>
+						<div class="space-y-4">
 							{#each futureEvents as event}
-								<div class="border rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+								<div class="border border-slate-300 dark:border-slate-600 rounded-lg p-4 hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors">
 									<div class="flex items-start justify-between">
 										<div class="flex-1">
 											<h3 class="font-semibold text-lg text-gray-900 dark:text-white mb-2">
@@ -197,37 +194,23 @@
 												</p>
 											{/if}
 										</div>
-										
-										<!-- <div class="text-right">
-											{@const timeStatus = getTimeStatus(event.start_time)}
-											<span class="text-sm {timeStatus.isPast ? 'text-gray-500' : 'text-green-600 dark:text-green-400'}">
-												{timeStatus.text}
-											</span>
-											{#if event.private_data}
-												<div class="text-xs text-gray-500 mt-1">
-													{event.private_data.num_attendees_going || 0} going
-												</div>
-											{/if}
-										</div> -->
 									</div>
 								</div>
 							{/each}
-						</CardContent>
-					</Card>
+						</div>
+					</div>
 				{/if}
 
 				<!-- Past Events -->
 				{#if pastEvents.length > 0}
-					<Card>
-						<CardHeader>
-							<CardTitle class="flex items-center gap-2">
-								<Clock class="w-5 h-5" />
-								Past Events ({pastEvents.length})
-							</CardTitle>
-						</CardHeader>
-						<CardContent class="space-y-4">
+					<div class="rounded-lg bg-slate-200 dark:bg-slate-800 p-6">
+						<h2 class="flex items-center gap-2 text-xl font-semibold text-gray-900 dark:text-white mb-4">
+							<Clock class="w-5 h-5" />
+							Past Events ({pastEvents.length})
+						</h2>
+						<div class="space-y-4">
 							{#each pastEvents.slice(0, 5) as event}
-								<div class="border rounded-lg p-4 opacity-75 hover:opacity-100 transition-opacity">
+								<div class="border border-slate-300 dark:border-slate-600 rounded-lg p-4 opacity-75 hover:opacity-100 transition-opacity">
 									<div class="flex items-start justify-between">
 										<div class="flex-1">
 											<h3 class="font-semibold text-gray-900 dark:text-white mb-2">
@@ -266,77 +249,69 @@
 									</Button>
 								</div>
 							{/if}
-						</CardContent>
-					</Card>
+						</div>
+					</div>
 				{/if}
 
 				<!-- No Events State -->
 				{#if futureEvents.length === 0 && pastEvents.length === 0}
-					<Card>
-						<CardContent class="text-center py-12">
-							<Calendar class="w-12 h-12 text-gray-400 mx-auto mb-4" />
-							<h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">No events yet</h3>
-							<p class="text-gray-600 dark:text-gray-400 mb-4">
-								This organization hasn't created any events yet.
-							</p>
-							{#if isMember}
-								<Button onclick={() => goto('/bonfire/create')} class="flex items-center gap-2">
-									<Plus class="w-4 h-4" />
-									Create First Event
-								</Button>
-							{/if}
-						</CardContent>
-					</Card>
+					<div class="mx-auto mt-10 flex w-full max-w-sm flex-col items-center justify-center gap-2 space-y-5 rounded-lg bg-slate-200 p-6 text-center dark:bg-slate-800 dark:text-white sm:mt-16 sm:w-2/3">
+						<Calendar class="w-12 h-12 text-gray-400 mx-auto" />
+						<h3 class="text-lg font-semibold text-gray-900 dark:text-white">No events yet</h3>
+						<p class="text-gray-600 dark:text-gray-400">
+							This organization hasn't created any events yet.
+						</p>
+						{#if isMember}
+							<Button
+								class="w-full text-sm dark:bg-slate-600 dark:text-white dark:hover:bg-slate-500"
+								onclick={() => goto('/bonfire/create')}
+							>
+								<Plus class="w-4 h-4 mr-2" />
+								Create First Event
+							</Button>
+						{/if}
+					</div>
 				{/if}
-			</div>
 
-			<!-- Sidebar -->
-			<div class="space-y-6">
 				<!-- Members Section -->
 				{#if organization.members && organization.members.length > 0}
-					<Card>
-						<CardHeader>
-							<CardTitle class="flex items-center gap-2">
-								<Users class="w-5 h-5" />
-								Members ({organization.members.length})
-							</CardTitle>
-						</CardHeader>
-						<CardContent>
-							<div class="space-y-3">
-								{#each organization.members.slice(0, 10) as member}
-									<div class="flex items-center justify-between">
-										<div class="flex items-center gap-3">
-											<div class="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center text-sm font-medium">
-												{member.user?.username?.charAt(0).toUpperCase() || '?'}
-											</div>
-											<span class="text-sm font-medium text-gray-900 dark:text-white">
-												{member.user?.username || 'Unknown User'}
-											</span>
+					<div class="rounded-lg bg-slate-200 dark:bg-slate-800 p-6">
+						<h2 class="flex items-center gap-2 text-xl font-semibold text-gray-900 dark:text-white mb-4">
+							<Users class="w-5 h-5" />
+							Members ({organization.members.length})
+						</h2>
+						<div class="space-y-3">
+							{#each organization.members.slice(0, 10) as member}
+								<div class="flex items-center justify-between">
+									<div class="flex items-center gap-3">
+										<div class="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center text-sm font-medium">
+											{member.user?.username?.charAt(0).toUpperCase() || '?'}
 										</div>
-										<Badge variant="outline" class={getRoleColor(member.role)} size="sm">
-											{member.role}
-										</Badge>
+										<span class="text-sm font-medium text-gray-900 dark:text-white">
+											{member.user?.username || 'Unknown User'}
+										</span>
 									</div>
-								{/each}
-								
-								{#if organization.members.length > 10}
-									<div class="text-center pt-2">
-										<Button variant="link" size="sm" class="text-xs">
-											Show {organization.members.length - 10} more members
-										</Button>
-									</div>
-								{/if}
-							</div>
-						</CardContent>
-					</Card>
+									<Badge variant="outline" class={getRoleColor(member.role)} size="sm">
+										{member.role}
+									</Badge>
+								</div>
+							{/each}
+							
+							{#if organization.members.length > 10}
+								<div class="text-center pt-2">
+									<Button variant="link" size="sm" class="text-xs">
+										Show {organization.members.length - 10} more members
+									</Button>
+								</div>
+							{/if}
+						</div>
+					</div>
 				{/if}
 
 				<!-- Organization Info -->
-				<Card>
-					<CardHeader>
-						<CardTitle>About</CardTitle>
-					</CardHeader>
-					<CardContent class="space-y-3 text-sm">
+				<div class="rounded-lg bg-slate-200 dark:bg-slate-800 p-6">
+					<h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">About</h2>
+					<div class="space-y-3 text-sm">
 						<div>
 							<span class="font-medium text-gray-900 dark:text-white">Created:</span>
 							<span class="text-gray-600 dark:text-gray-400 ml-2">
@@ -371,11 +346,11 @@
 								{organization.is_public ? 'Public' : 'Private'}
 							</span>
 						</div>
-					</CardContent>
-				</Card>
+					</div>
+				</div>
 			</div>
 		</div>
-	</div>
+	</section>
 </div>
 
 <style>
