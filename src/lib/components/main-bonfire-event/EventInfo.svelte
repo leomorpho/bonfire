@@ -27,7 +27,8 @@
 		eventLocation = null,
 		latitude = null,
 		longitude = null,
-		tempAttendeeSecret = null
+		tempAttendeeSecret = null,
+		organization = null
 	} = $props();
 
 	let isMapPresent = $derived(latitude && longitude);
@@ -90,6 +91,20 @@
 						{/if}
 					{/if}
 				</div>
+
+				{#if organization}
+					<div class="my-2 flex items-center justify-center font-light">
+						<div class="flex flex-wrap items-center">
+							<span class="flex-shrink-0 text-sm text-gray-600 dark:text-gray-400">Event by</span>
+							<a 
+								href="/org/{organization.id}" 
+								class="ml-1 flex-shrink-0 font-semibold text-blue-600 dark:text-blue-400 hover:underline"
+							>
+								{organization.name}
+							</a>
+						</div>
+					</div>
+				{/if}
 
 				<div class="flex items-center justify-center font-light">
 					{#if rsvpStatus}

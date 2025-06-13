@@ -90,6 +90,13 @@ export const load = async ({ params, locals, url }) => {
 						.Where(['id', '=', '$1.user_id'])
 						.Select(['username', 'id'])
 				)
+				.SubqueryOne(
+					'organization',
+					triplitHttpClient
+						.query('organizations')
+						.Where(['id', '=', '$1.organization_id'])
+						.Select(['id', 'name', 'description'])
+				)
 		);
 	} catch (e) {
 		console.debug(`failed to fetch event with id ${eventId}`, e);

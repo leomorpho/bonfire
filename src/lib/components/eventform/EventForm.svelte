@@ -685,8 +685,8 @@
 					/>
 					
 					<!-- Organization Selector -->
-					{#if userOrganizations.length > 0}
-						<div class="w-full">
+					<div class="w-full space-y-2">
+						{#if userOrganizations.length > 0}
 							<Select.Root bind:value={selectedOrganizationId}>
 								<Select.Trigger class="w-full bg-white dark:bg-slate-900">
 									{#if selectedOrganizationId}
@@ -715,8 +715,19 @@
 									</Select.Group>
 								</Select.Content>
 							</Select.Root>
+						{/if}
+						<div class="flex justify-center">
+							<Button
+								type="button"
+								variant="outline"
+								size="sm"
+								class="text-xs"
+								onclick={() => goto('/organizations')}
+							>
+								{userOrganizations.length > 0 ? 'Manage Organizations' : 'Create Organization'}
+							</Button>
 						</div>
-					{/if}
+					</div>
 					<Datepicker
 						disabled={!isEventEdittable}
 						bind:value={dateValue}

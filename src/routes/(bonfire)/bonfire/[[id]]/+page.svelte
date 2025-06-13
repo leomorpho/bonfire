@@ -29,6 +29,7 @@
 	let isMessagingEnabled: boolean = $state(event?.is_messaging_enabled ?? false);
 	let isCuttoffDateEnabled: boolean = $state(event?.is_cut_off_date_enabled ?? false);
 	let cuttoffDate = $state(event?.cut_off_date);
+	let organization = $state(event?.organization);
 
 	if (tempAttendeeId) {
 		tempAttendeeSecretStore.set(tempAttendeeId);
@@ -69,4 +70,5 @@
 	{isMessagingEnabled}
 	{isCuttoffDateEnabled}
 	{cuttoffDate}
+	{organization}
 />

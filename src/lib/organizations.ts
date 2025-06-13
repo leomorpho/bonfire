@@ -68,7 +68,7 @@ export async function addOrganizationViewer(
 	const existingViewer = await client.fetchOne(
 		client
 			.query('organization_viewers')
-			.where([
+			.Where([
 				['organization_id', '=', organizationId],
 				['user_id', '=', userId]
 			])
@@ -115,7 +115,7 @@ export async function updateOrganizationMemberRole(
 	const existingMember = await client.fetchOne(
 		client
 			.query('organization_members')
-			.where([
+			.Where([
 				['organization_id', '=', organizationId],
 				['user_id', '=', userId]
 			])
@@ -153,7 +153,7 @@ async function addAdminToAllOrgEvents(
 ) {
 	// Get all events for this organization
 	const orgEvents = await client.fetch(
-		client.query('events').where([['organization_id', '=', organizationId]])
+		client.query('events').Where([['organization_id', '=', organizationId]])
 	);
 
 	// Add user as admin to each event
@@ -162,7 +162,7 @@ async function addAdminToAllOrgEvents(
 		const existingAdmin = await client.fetchOne(
 			client
 				.query('event_admins')
-				.where([
+				.Where([
 					['event_id', '=', event.id],
 					['user_id', '=', userId]
 				])
@@ -189,7 +189,7 @@ async function removeAdminFromAllOrgEvents(
 ) {
 	// Get all events for this organization
 	const orgEvents = await client.fetch(
-		client.query('events').where([['organization_id', '=', organizationId]])
+		client.query('events').Where([['organization_id', '=', organizationId]])
 	);
 
 	// Remove user as admin from each event
@@ -214,7 +214,7 @@ export async function addOrgAdminsToNewEvent(
 	const orgAdmins = await client.fetch(
 		client
 			.query('organization_members')
-			.where([
+			.Where([
 				['organization_id', '=', organizationId],
 				['role', '=', 'admin']
 			])
@@ -227,7 +227,7 @@ export async function addOrgAdminsToNewEvent(
 			const existingAdmin = await client.fetchOne(
 				client
 					.query('event_admins')
-					.where([
+					.Where([
 						['event_id', '=', eventId],
 						['user_id', '=', orgAdmin.user_id]
 					])
@@ -255,7 +255,7 @@ export async function autoAddEventViewerAsOrgViewer(
 ) {
 	// Get the event to find its organization
 	const event = await client.fetchOne(
-		client.query('events').where([['id', '=', eventId]])
+		client.query('events').Where([['id', '=', eventId]])
 	);
 
 	if (event?.organization_id) {
@@ -274,14 +274,14 @@ export async function getUserOrganizations(
 		client.fetch(
 			client
 				.query('organization_members')
-				.where([['user_id', '=', userId]])
-				.include('organization')
+				.Where([['user_id', '=', userId]])
+				.Include('organization')
 		),
 		client.fetch(
 			client
 				.query('organization_viewers')
-				.where([['user_id', '=', userId]])
-				.include('organization')
+				.Where([['user_id', '=', userId]])
+				.Include('organization')
 		)
 	]);
 

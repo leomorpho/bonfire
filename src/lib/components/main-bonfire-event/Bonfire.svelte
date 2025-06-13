@@ -76,7 +76,8 @@
 		requireGuestBringItem = false,
 		showMaxNumPeople = 30,
 		isCuttoffDateEnabled = false,
-		cuttoffDate = null
+		cuttoffDate = null,
+		organization = null
 	} = $props();
 
 	let client: TriplitClient;
@@ -668,6 +669,7 @@
 								{eventLocation}
 								{latitude}
 								{longitude}
+								{organization}
 							/>
 
 							<Attendees
