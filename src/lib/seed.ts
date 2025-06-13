@@ -80,7 +80,7 @@ export const seedEvent = async (
 	await triplitHttpClient.insert('user', { id: userId, username: eventCreatorName, isReal: false });
 
 	// Create an organization for Mike (not linked to the birthday party)
-	const mikeOrgId = generateId(15);
+	const mikeOrgId = await generatePassphraseId('org_');
 	await triplitHttpClient.insert('organizations', {
 		id: mikeOrgId,
 		name: 'Tech Innovators Vancouver',
@@ -97,6 +97,29 @@ export const seedEvent = async (
 		organization_id: mikeOrgId,
 		user_id: userId,
 		role: 'admin',
+		added_by_user_id: userId, // Mike adds himself
+		joined_at: new Date()
+	});
+
+	// Create a second public organization for variety
+	const communityOrgId = await generatePassphraseId('org_');
+	await triplitHttpClient.insert('organizations', {
+		id: communityOrgId,
+		name: 'Vancouver Community Gardens',
+		description: 'Bringing people together through urban gardening and sustainable living practices.',
+		created_by_user_id: userId,
+		is_public: true,
+		created_at: new Date(),
+		updated_at: new Date()
+	});
+
+	// Add Mike as admin to the community organization too
+	await triplitHttpClient.insert('organization_members', {
+		id: generateId(15),
+		organization_id: communityOrgId,
+		user_id: userId,
+		role: 'admin',
+		added_by_user_id: userId,
 		joined_at: new Date()
 	});
 
