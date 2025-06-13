@@ -16,6 +16,38 @@
 
 	let attendeesSeen: any = $state();
 	let loading = $state(true);
+	let listView = $state(true);
+	let searchTerm = $state('');
+
+	// Fuzzy search function
+	const fuzzyMatch = (searchText: string, targetText: string): boolean => {
+		if (!searchText.trim()) return true;
+		
+		const search = searchText.toLowerCase();
+		const target = targetText.toLowerCase();
+		
+		// Direct substring match gets priority
+		if (target.includes(search)) return true;
+		
+		// Fuzzy character matching
+		let searchIndex = 0;
+		for (let i = 0; i < target.length && searchIndex < search.length; i++) {
+			if (target[i] === search[searchIndex]) {
+				searchIndex++;
+			}
+		}
+		return searchIndex === search.length;
+	};
+
+	// Filter attendees based on search term
+	const filterAttendees = (attendees: any[], searchTerm: string) => {
+		if (!searchTerm.trim()) return attendees;
+		
+		return attendees.filter(attendee => {
+			const name = attendee.user?.username || '';
+			return fuzzyMatch(searchTerm, name);
+		});
+	};
 
 	onMount(() => {
 		const client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
@@ -26,14 +58,19 @@
 				.query('seen_announcements')
 				.Where(['announcement_id', '=', announcementId])
 				.SubqueryOne(
-					'user',
-					client.query('attendees').Where(['id', '=', '$1.attendee_id']).Select(['user_id'])
+					'attendee',
+					client.query('attendees').Where(['id', '=', '$1.attendee_id']).Include('user')
 				),
 			(results) => {
-				// Sort users based on seen status
+				// Sort users based on seen status and include full user data
 				attendeesSeen = results
 					.filter((notification: any) => notification.seen_at != null)
-					.map((notification: any) => notification.user.user_id);
+					.map((notification: any) => ({
+						userId: notification.attendee?.user_id,
+						user: notification.attendee?.user,
+						attendeeId: notification.attendee?.id
+					}))
+					.filter((item: any) => item.userId); // Filter out items without valid user data
 				console.log('attendeesSeen', attendeesSeen, results);
 				loading = false;
 			},
@@ -48,6 +85,7 @@
 </script>
 
 {#snippet attendees(title: string, attendees: any, seen: boolean = false)}
+	{@const filteredAttendees = filterAttendees(attendees, searchTerm)}
 	<div class="mb-3 mt-5">
 		<h2 class="my-3 flex w-full items-center justify-center font-semibold">
 			{title}
@@ -56,15 +94,52 @@
 			{:else}
 				<X class="ml-2 h-4 w-4 text-red-500" />
 			{/if}
+			{#if searchTerm.trim() && filteredAttendees.length !== attendees.length}
+				<span class="ml-2 text-sm text-gray-500">({filteredAttendees.length} of {attendees.length})</span>
+			{/if}
 		</h2>
-		{#if attendees.length > 0}
-			<div class="mx-5 flex flex-wrap -space-x-4 text-black">
-				{#each attendees as attendee (attendee)}
-					<div animate:flip out:fade={{ duration: 300 }}>
-						<ProfileAvatar userId={attendee} />
-					</div>
-				{/each}
-			</div>
+		<div class="mb-2 flex justify-center space-x-2">
+			<button
+				onclick={() => (listView = false)}
+				class={!listView ? 'font-semibold text-blue-500' : 'text-gray-500'}>Grid</button
+			>
+			<button
+				onclick={() => (listView = true)}
+				class={listView ? 'font-semibold text-blue-500' : 'text-gray-500'}>List</button
+			>
+		</div>
+		<div class="mb-2 px-5">
+			<input
+				type="text"
+				bind:value={searchTerm}
+				placeholder="Search attendees"
+				class="mb-2 w-full rounded border px-2 py-1 dark:bg-gray-800 dark:text-white"
+			/>
+		</div>
+		{#if filteredAttendees.length > 0}
+			{#if !listView}
+				<div class="mx-5 flex flex-wrap -space-x-4 text-black">
+					{#each filteredAttendees as attendee (attendee.userId)}
+						<div animate:flip out:fade={{ duration: 300 }}>
+							<ProfileAvatar userId={attendee.userId} />
+						</div>
+					{/each}
+				</div>
+			{:else}
+				<div class="mx-5 flex flex-col space-y-2 text-black">
+					{#each filteredAttendees as attendee (attendee.userId)}
+						<div class="flex items-center space-x-2">
+							<ProfileAvatar 
+								userId={attendee.userId} 
+								baseHeightPx={60}
+								showNameInline={true}
+							/>
+						</div>
+					{/each}
+				</div>
+			{/if}
+		{:else if searchTerm.trim()}
+			<div class="flex w-full justify-center">No attendees found matching "{searchTerm}"</div>
 		{:else if seen}
 			<div class="flex w-full justify-center">No one has seen this notification</div>
 		{:else}
