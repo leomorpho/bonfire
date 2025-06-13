@@ -14,6 +14,7 @@
 	import { browser } from '$app/environment';
 	import { fetchBannerInfo } from '$lib/gallery';
 	import { isStartDateBeforeCutoff } from '$lib/rsvp';
+	import { fontStore } from '$lib/styles';
 
 	let {
 		eventId,
@@ -74,13 +75,88 @@
 	);
 	let font: FontSelection | null = fontStr ? JSON.parse(fontStr) : null;
 	let bannerInfo = $state();
+	let cardStyleElement: HTMLStyleElement | null = null;
 
-	if (browser && font && font.cdn) {
-		const fontLink = document.createElement('link');
-		fontLink.href = font.cdn;
-		fontLink.rel = 'stylesheet';
-		document.head.appendChild(fontLink);
+	// Apply font and font scaling for this specific event card
+	function applyEventCardStyles(font: FontSelection | null) {
+		if (!browser) return;
+
+		const cardId = `event-card-${eventId}`;
+		const styleElementId = `${cardId}-style`;
+
+		// Remove existing styles
+		const existingStyle = document.getElementById(styleElementId);
+		if (existingStyle && document.head.contains(existingStyle)) {
+			document.head.removeChild(existingStyle);
+		}
+
+		if (!font) return;
+
+		// Add font CDN if available
+		if (font.cdn) {
+			const fontLink = document.createElement('link');
+			fontLink.href = font.cdn;
+			fontLink.rel = 'stylesheet';
+			document.head.appendChild(fontLink);
+		}
+
+		// Generate scoped font scaling CSS for this specific card
+		const fontSize = font.fontSize || 1.0;
+		const fontStyle = font.style || '';
+
+		const tailwindTextSizes = {
+			'text-xs': '0.75rem',
+			'text-sm': '0.875rem',
+			'text-base': '1rem',
+			'text-lg': '1.125rem',
+			'text-xl': '1.25rem',
+			'text-2xl': '1.5rem',
+			'text-3xl': '1.875rem',
+			'text-4xl': '2.25rem',
+			'text-5xl': '3rem',
+			'text-6xl': '3.75rem',
+			'text-7xl': '4.5rem',
+			'text-8xl': '6rem',
+			'text-9xl': '8rem'
+		};
+
+		const scaleRules = Object.entries(tailwindTextSizes)
+			.map(([className, size]) => 
+				`.${cardId} .${className} { font-size: calc(${size} * ${fontSize}); }`
+			)
+			.join('\n');
+
+		const baseRule = `.${cardId} { font-size: calc(1rem * ${fontSize}); ${fontStyle} }`;
+
+		const completeCss = `${baseRule}\n${scaleRules}`;
+
+		cardStyleElement = document.createElement('style');
+		cardStyleElement.id = styleElementId;
+		cardStyleElement.type = 'text/css';
+		cardStyleElement.textContent = completeCss;
+		document.head.appendChild(cardStyleElement);
 	}
+
+	// Apply styles when component mounts or fontStore changes
+	onMount(() => {
+		applyEventCardStyles(font);
+
+		// Subscribe to fontStore changes for global font updates
+		const unsubscribe = fontStore.subscribe((globalFont) => {
+			// If this card doesn't have its own font, use the global font
+			if (!font && globalFont) {
+				applyEventCardStyles(globalFont);
+			}
+		});
+
+		return () => {
+			// Cleanup on unmount
+			unsubscribe();
+			if (cardStyleElement && document.head.contains(cardStyleElement)) {
+				document.head.removeChild(cardStyleElement);
+			}
+		};
+	});
 
 	let overlayStyle = $derived(
 		`background-color: rgba(var(--overlay-color-rgb, ${parseColor(overlayColor)}), ${overlayOpacity}); z-index: 10;`
@@ -174,7 +250,7 @@
 	}}
 	class="event-card animate-fadeIn pointer-events-auto w-full cursor-pointer duration-300 animate-in fade-in"
 >
-	<Card.Root class="relative my-4 w-full bg-slate-200 dark:bg-slate-900" {style}>
+	<Card.Root class="relative my-4 w-full bg-slate-200 dark:bg-slate-900 event-card-{eventId}" {style}>
 		<!-- Not Published Marker -->
 		<!-- {#if !isPublished}
 			<div

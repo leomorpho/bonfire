@@ -38,7 +38,23 @@
 			.bonfire-event-content { font-size: calc(1rem * ${fontSize}); }
 		`;
 
-		return `${baseRule}\n${scaleRules}`;
+		// Additional rules for prose content and HTML content within event descriptions
+		const proseRules = `
+			.bonfire-event-content .prose { font-size: calc(1rem * ${fontSize}); }
+			.bonfire-event-content .prose p { font-size: calc(1rem * ${fontSize}); }
+			.bonfire-event-content .prose h1 { font-size: calc(2.25rem * ${fontSize}); }
+			.bonfire-event-content .prose h2 { font-size: calc(1.875rem * ${fontSize}); }
+			.bonfire-event-content .prose h3 { font-size: calc(1.5rem * ${fontSize}); }
+			.bonfire-event-content .prose h4 { font-size: calc(1.25rem * ${fontSize}); }
+			.bonfire-event-content .prose h5 { font-size: calc(1.125rem * ${fontSize}); }
+			.bonfire-event-content .prose h6 { font-size: calc(1rem * ${fontSize}); }
+			.bonfire-event-content .prose blockquote { font-size: calc(1rem * ${fontSize}); }
+			.bonfire-event-content .prose li { font-size: calc(1rem * ${fontSize}); }
+			.bonfire-event-content #pot-pourri { font-size: calc(1rem * ${fontSize}); }
+			.bonfire-event-content #pot-pourri * { font-size: inherit; }
+		`;
+
+		return `${baseRule}\n${scaleRules}\n${proseRules}`;
 	}
 
 	function applyFontStyles(font: any) {
