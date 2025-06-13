@@ -29,6 +29,36 @@
 	let listView = $state(true);
 	let searchTerm = $state('');
 
+	// Fuzzy search function
+	const fuzzyMatch = (searchText: string, targetText: string): boolean => {
+		if (!searchText.trim()) return true;
+		
+		const search = searchText.toLowerCase();
+		const target = targetText.toLowerCase();
+		
+		// Direct substring match gets priority
+		if (target.includes(search)) return true;
+		
+		// Fuzzy character matching
+		let searchIndex = 0;
+		for (let i = 0; i < target.length && searchIndex < search.length; i++) {
+			if (target[i] === search[searchIndex]) {
+				searchIndex++;
+			}
+		}
+		return searchIndex === search.length;
+	};
+
+	// Filter attendees based on search term
+	const filterAttendees = (attendees: any[], searchTerm: string) => {
+		if (!searchTerm.trim()) return attendees;
+		
+		return attendees.filter(attendee => {
+			const name = attendee.user?.username || attendee.name || '';
+			return fuzzyMatch(searchTerm, name);
+		});
+	};
+
 	$effect(() => {
 		if (isDialogOpen) {
 			setTimeout(() => {
@@ -46,9 +76,13 @@
 	attendeeType: string,
 	showRemoveUser = true
 )}
+	{@const filteredAttendees = filterAttendees(attendees, searchTerm)}
 	<div class="mb-3 mt-5">
 		<h2 class="my-3 flex w-full justify-center font-semibold">
 			{statusName}
+			{#if searchTerm.trim() && filteredAttendees.length !== attendees.length}
+				<span class="ml-2 text-sm text-gray-500">({filteredAttendees.length} of {attendees.length})</span>
+			{/if}
 		</h2>
 		<div class="mb-2 flex justify-center space-x-2">
 			<button
@@ -65,13 +99,13 @@
 				type="text"
 				bind:value={searchTerm}
 				placeholder="Search attendees"
-				class="mb-2 w-full rounded border px-2 py-1"
+				class="mb-2 w-full rounded border px-2 py-1 dark:bg-gray-800 dark:text-white"
 			/>
 		</div>
-		{#if attendees.length > 0}
+		{#if filteredAttendees.length > 0}
 			{#if !listView}
 				<div class="mx-5 flex flex-wrap -space-x-2 space-y-2 text-black">
-					{#each attendees as attendee (attendee.id + attendeeType)}
+					{#each filteredAttendees as attendee (attendee.id + attendeeType)}
 						<div>
 							<ProfileAvatar
 								userId={attendee.user_id}
@@ -87,7 +121,7 @@
 				</div>
 			{:else}
 				<div class="mx-5 flex flex-col space-y-2 text-black">
-					{#each attendees as attendee (attendee.id + attendeeType)}
+					{#each filteredAttendees as attendee (attendee.id + attendeeType)}
 						<div class="flex items-center space-x-2">
 							<ProfileAvatar
 								userId={attendee.user_id}
@@ -103,6 +137,8 @@
 					{/each}
 				</div>
 			{/if}
+		{:else if searchTerm.trim()}
+			<BonfireNoInfoCard text={`No attendees found matching "${searchTerm}"`} />
 		{:else}
 			<BonfireNoInfoCard text="no one yet" />
 		{/if}
