@@ -20,7 +20,15 @@
 		eventNumAttendeesGoing,
 		eventNumAttendeesInvited,
 		showMaxNumPeople = 10,
-		isCurrenUserEventAdmin = false
+		isCurrenUserEventAdmin = false,
+		eventTitle = '',
+		eventStartTime = '',
+		eventEndTime = '',
+		eventDescription = '',
+		eventLocation = '',
+		maxNumGuestsAllowedPerAttendee = 0,
+		eventCreatorUserId = '',
+		adminUserIds = new Set()
 	} = $props();
 
 	// Sum up the total number of attendees, including guests
@@ -74,9 +82,18 @@
 							userId={attendee.user_id}
 							tempUserName={attendee.name}
 							viewerIsEventAdmin={isCurrenUserEventAdmin}
+							userIsEventAdmin={attendee.user_id === eventCreatorUserId || adminUserIds.has(attendee.user_id)}
 							attendanceId={attendee.id}
 							baseHeightPx={allAttendeesGoing.length < 10 ? 60 : 50}
 							numGuests={attendee.guest_count}
+							userRsvpStatus={attendee.status}
+							userGuestCount={attendee.guest_count || 0}
+							maxGuestsAllowed={maxNumGuestsAllowedPerAttendee}
+							eventTitle={eventTitle}
+							eventStartTime={eventStartTime}
+							eventEndTime={eventEndTime}
+							eventDescription={eventDescription}
+							eventLocation={eventLocation}
 						/>
 					</div>
 				{/each}

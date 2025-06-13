@@ -346,12 +346,14 @@ export const schema = S.Collections({
 			num_attendees_waitlisted: S.Number({ default: 0 }),
 			num_attendees_left: S.Number({ default: 0 }),
 			num_attendees_removed: S.Number({ default: 0 }),
+			num_attendees_invited: S.Optional(S.Number({ default: 0 })),
 			num_temp_attendees_going: S.Number({ default: 0 }),
 			num_temp_attendees_not_going: S.Number({ default: 0 }),
 			num_temp_attendees_maybe: S.Number({ default: 0 }),
 			num_temp_attendees_waitlisted: S.Number({ default: 0 }),
 			num_temp_attendees_left: S.Number({ default: 0 }),
-			num_temp_attendees_removed: S.Number({ default: 0 })
+			num_temp_attendees_removed: S.Number({ default: 0 }),
+			num_temp_attendees_invited: S.Optional(S.Number({ default: 0 }))
 		}),
 		relationships: {
 			event: S.RelationById('events', '$event_id') // Relation to the events table

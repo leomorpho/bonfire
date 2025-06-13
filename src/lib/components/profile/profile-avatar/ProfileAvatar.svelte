@@ -21,6 +21,7 @@
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import ProfileHistory from './history/ProfileHistory.svelte';
 	import { env as publicEnv } from '$env/dynamic/public';
+	import Rsvp from '$lib/components/rsvp/Rsvp.svelte';
 
 	let {
 		userId = null,
@@ -34,7 +35,15 @@
 		showRemoveUser = true,
 		showHistory = true,
 		onlyShowPhoto = false,
-		showNameInline = false
+		showNameInline = false,
+		userRsvpStatus = null,
+		userGuestCount = 0,
+		maxGuestsAllowed = 0,
+		eventTitle = '',
+		eventStartTime = '',
+		eventEndTime = '',
+		eventDescription = '',
+		eventLocation = ''
 	} = $props();
 
 	let url = $state();
@@ -53,6 +62,13 @@
 
 	let isVisible = $state(false);
 	let avatarElement: any = $state();
+
+	// Show admin RSVP controls if viewer is admin and profile user is not admin/owner
+	let showAdminRsvpControls = $derived(viewerIsEventAdmin && 
+	                                     userId && 
+	                                     userId !== $page.data.user?.id && 
+	                                     !userIsEventAdmin &&
+	                                     userRsvpStatus !== null);
 
 	async function hashImage(imageBlob: Blob): Promise<string> {
 		const buffer = await imageBlob.arrayBuffer();
@@ -101,6 +117,35 @@
 
 	const hideRemoveUserModal = () => {
 		showRemoveAttendeeModal = false;
+	};
+
+	const updateUserRsvpAsAdmin = async (newStatus: string, numGuestsValue: number = 0) => {
+		try {
+			const response = await fetch(`/bonfire/${eventId}/admin/update-user-rsvp`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					targetUserId: userId,
+					targetTempUserId: tempUserId,
+					newStatus,
+					numGuests: numGuestsValue,
+					adminUserId: $page.data.user.id
+				})
+			});
+
+			if (response.ok) {
+				toast.success(`Updated ${username}'s RSVP to ${newStatus}`);
+				// Update local state
+				userRsvpStatus = newStatus;
+				userGuestCount = numGuestsValue;
+			} else {
+				const error = await response.json();
+				throw new Error(error.error || 'Failed to update RSVP');
+			}
+		} catch (error) {
+			toast.error('Failed to update RSVP status');
+			console.error('Admin RSVP update error:', error);
+		}
 	};
 
 	let previousUser: any = null; // Store the last known user state
@@ -392,12 +437,33 @@
 			</div>
 		</div>
 	{/if}
-	<!-- TODO -->
-	<!-- {#if userIsEventAdmin}
-						<div class="mt-2 flex w-full justify-center">
-							<div class="rounded-xl bg-slate-500 p-2 text-white dark:bg-slate-700">Admin</div>
-						</div>
-					{/if} -->
+	
+	{#if showAdminRsvpControls}
+		<div class="mt-4 border-t pt-4">
+			<h4 class="text-sm font-semibold mb-2 text-center">Admin: Manage RSVP</h4>
+			<Rsvp
+				rsvpStatus={userRsvpStatus}
+				userId={userId}
+				eventId={eventId}
+				eventOwnerId={null}
+				isAnonymousUser={false}
+				rsvpCanBeChanged={true}
+				maxNumGuestsAllowedPerAttendee={maxGuestsAllowed}
+				numGuestsCurrentAttendeeIsBringing={userGuestCount}
+				eventTitle={eventTitle}
+				eventStartTime={eventStartTime}
+				eventEndTime={eventEndTime}
+				eventDescription={eventDescription}
+				eventLocation={eventLocation}
+				isDemo={false}
+				isAdminMode={true}
+				adminUpdateCallback={updateUserRsvpAsAdmin}
+				targetUserId={userId}
+				targetTempUserId={tempUserId}
+			/>
+		</div>
+	{/if}
+	
 	{#if viewerIsEventAdmin && $page.data.user && userId != $page.data.user.id && showRemoveUser}
 		<Button
 			onclick={showRemoveUserModal}

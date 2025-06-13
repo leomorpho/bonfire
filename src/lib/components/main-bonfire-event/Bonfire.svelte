@@ -685,6 +685,14 @@
 								{eventNumAttendeesInvited}
 								{showMaxNumPeople}
 								{isCurrenUserEventAdmin}
+								{eventTitle}
+								{eventStartTime}
+								{eventEndTime}
+								{eventDescription}
+								{eventLocation}
+								{maxNumGuestsAllowedPerAttendee}
+								{eventCreatorUserId}
+								{adminUserIds}
 							/>
 							<!-- Show RSVP if:
 				 (a) no max capacity is set

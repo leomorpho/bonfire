@@ -30,7 +30,11 @@
 		eventEndTime = '',
 		eventDescription = '',
 		eventLocation = '',
-		isDemo = false
+		isDemo = false,
+		isAdminMode = false,
+		adminUpdateCallback = null,
+		targetUserId = null,
+		targetTempUserId = null
 	} = $props();
 
 	if (isDemo) {
@@ -80,6 +84,21 @@
 			newValue = rsvpStatus;
 		}
 		event.preventDefault();
+
+		// Handle admin mode
+		if (isAdminMode && adminUpdateCallback) {
+			isProcessingRsvp = true;
+			try {
+				await adminUpdateCallback(newValue, numGuestsCurrentAttendeeIsBringing || 0);
+				rsvpStatus = newValue; // Update local state
+			} catch (error) {
+				console.error('Admin RSVP update failed:', error);
+			} finally {
+				isProcessingRsvp = false;
+				dropdownOpen = false;
+			}
+			return;
+		}
 
 		if (isAnonymousUser && newValue) {
 			// Redirect to login page with RSVP data in URL
