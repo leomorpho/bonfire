@@ -101,7 +101,10 @@
 		const unsubscribeFromFutureEvents = client.subscribe(
 			futureAttendanceQuery,
 			(results) => {
-				futureAttendances = results;
+				// Don't overwrite server data with empty array unless we're sure it's accurate
+				if (results.length > 0 || $page.data.futureEventCount === 0 || triplitSynced) {
+					futureAttendances = results;
+				}
 				futureEventsLoading = false;
 				triplitSynced = true;
 				// console.log('===>, futureAttendances', futureAttendances);
@@ -115,6 +118,7 @@
 				onRemoteFulfilled: () => {
 					// Mark as loading complete when remote data is fetched
 					futureEventsLoading = false;
+					triplitSynced = true;
 				}
 			}
 		);
@@ -122,7 +126,10 @@
 		const unsubscribeFromPastEvents = client.subscribe(
 			pastAttendanceQuery,
 			(results) => {
-				pastAttendances = results;
+				// Don't overwrite server data with empty array unless we're sure it's accurate
+				if (results.length > 0 || $page.data.pastEventCount === 0 || triplitSynced) {
+					pastAttendances = results;
+				}
 				pastEventsLoading = false;
 			},
 			(error) => {
