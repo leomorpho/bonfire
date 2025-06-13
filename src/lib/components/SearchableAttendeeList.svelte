@@ -18,7 +18,7 @@
 		eventCreatorUserId = '',
 		adminUserIds = new Set(),
 		emptyMessage = 'no one yet',
-		showIcon,
+		showIcon = null,
 		searchPlaceholder = 'Search attendees'
 	} = $props();
 

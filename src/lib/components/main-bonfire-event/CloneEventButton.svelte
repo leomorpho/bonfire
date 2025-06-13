@@ -112,7 +112,7 @@
 							for="copy-attendees"
 							class="cursor-pointer text-sm font-normal {isCloning ? 'opacity-50' : ''}"
 						>
-							Copy attendees (all RSVPs will be copied)
+							Invite all current attendees
 						</Label>
 					</div>
 
