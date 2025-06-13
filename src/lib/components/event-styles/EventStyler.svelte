@@ -38,6 +38,47 @@
 		applyStyle(true);
 	});
 
+	// Ensure fontSize is set when font changes
+	$effect(() => {
+		if (font && font.fontSize === undefined) {
+			font.fontSize = 1.0;
+		}
+	});
+
+	/**
+	 * Generate CSS for font size scaling that overrides all Tailwind text size classes
+	 * This allows dynamic scaling of ALL text sizes without hardcoding values
+	 * Uses calc() to multiply original Tailwind rem values by the scaling factor
+	 */
+	function generateFontSizeCSS(fontSize: number) {
+		const tailwindTextSizes = {
+			'text-xs': '0.75rem',
+			'text-sm': '0.875rem',
+			'text-base': '1rem',
+			'text-lg': '1.125rem',
+			'text-xl': '1.25rem',
+			'text-2xl': '1.5rem',
+			'text-3xl': '1.875rem',
+			'text-4xl': '2.25rem',
+			'text-5xl': '3rem',
+			'text-6xl': '3.75rem',
+			'text-7xl': '4.5rem',
+			'text-8xl': '6rem',
+			'text-9xl': '8rem'
+		};
+
+		const scaleRules = Object.entries(tailwindTextSizes)
+			.map(([className, size]) => 
+				`.${currentTargetSelector} .${className} { font-size: calc(${size} * ${fontSize}) !important; }`
+			)
+			.join('\n');
+
+		// Also scale the base font size for elements without explicit text classes
+		const baseRule = `.${currentTargetSelector} { font-size: calc(1rem * ${fontSize}); }`;
+
+		return `${baseRule}\n${scaleRules}`;
+	}
+
 	/**
 	 * Apply a selected style dynamically to the preview area.
 	 * @param style - The selected style object.
@@ -47,6 +88,7 @@
 		style: { id: number; name: string; cssTemplate: string } | null = null
 	) {
 		const fontStyle = font ? font.style : '';
+		const fontSize = font?.fontSize || 1.0;
 		finalStyleCss = style?.cssTemplate ?? finalStyleCss;
 		const styleElementId = 'dynamic-preview-style'; // Specific ID for the style element
 		const fontElementId = 'dynamic-preview-font'; // Specific ID for the font element
@@ -66,6 +108,9 @@
 			document.head.appendChild(fontLink);
 		}
 
+		// Generate font size scaling CSS
+		const fontSizeCSS = generateFontSizeCSS(fontSize);
+
 		// Replace the placeholder selector with the actual target
 		const completeCss = `
 			.${currentTargetSelector} {
@@ -76,6 +121,8 @@
 			.${bgOverlaySelector} {
 					background-color: rgba(var(--overlay-color-rgb, ${parseColor(overlayColor)}), ${overlayOpacity});
 				}
+
+			${fontSizeCSS}
 		`;
 
 		if (dev) {

@@ -22,6 +22,11 @@
 		>
 			<Type class="mr-1" />
 			Font
+			{#if font?.fontSize && font.fontSize !== 1.0}
+				<span class="ml-1 text-xs opacity-75">
+					({Math.round(font.fontSize * 100)}%)
+				</span>
+			{/if}
 		</Button>
 	</Dialog.Trigger>
 	<Dialog.Content>

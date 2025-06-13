@@ -225,6 +225,7 @@ export interface FontSelection {
 	name: string;
 	style: string;
 	cdn: string;
+	fontSize?: number; // Font size multiplier (e.g., 1.0 = 100%, 1.2 = 120%, 0.8 = 80%)
 }
 
 export type NotifierPermission = {

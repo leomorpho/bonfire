@@ -42,6 +42,7 @@
 	import { formatHumanReadable, scrollElementIntoView } from '$lib/utils';
 	import { fetchBannerInfo } from '$lib/gallery';
 	import { isStartDateBeforeCutoff } from '$lib/rsvp';
+	import FontStyleApplicator from '../FontStyleApplicator.svelte';
 	// import EventStylerBottomSheet from '../event-styles/EventStylerBottomSheet.svelte';
 
 	let {
@@ -550,6 +551,9 @@
 	});
 </script>
 
+<!-- Apply global font styles from the fontStore -->
+<FontStyleApplicator />
+
 {#if !isAnonymousUser && !isUnverifiedUser && eventLoading}
 	<Loader />
 {:else if eventFailedLoading}
@@ -560,7 +564,7 @@
 	{#if !eventId}
 		<EventDoesNotExist />
 	{:else}
-		<div class="mx-4 flex flex-col items-center justify-center">
+		<div class="mx-4 flex flex-col items-center justify-center bonfire-event-content">
 			{#if !isUnverifiedUser && !isAnonymousUser}
 				<SetProfilePicAlert {currUserId} />
 			{/if}
