@@ -119,7 +119,8 @@ export const BringListCountTypes = {
 export const UploadFileTypes = {
 	GALLERY: 'gallery',
 	BONFIRE_COVER_PHOTO: 'bonfire_cover_photo',
-	PROFILE_PHOTO: 'profile_photo'
+	PROFILE_PHOTO: 'profile_photo',
+	ORGANIZATION_COVER_PHOTO: 'organization_cover_photo'
 };
 
 export const TransactionType = {

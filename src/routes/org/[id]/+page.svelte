@@ -7,9 +7,10 @@
 	import { Calendar, MapPin, Users, Settings, Plus, ExternalLink, Globe, Clock } from 'lucide-svelte';
 	import { formatDistanceToNow, format } from 'date-fns';
 	import { goto } from '$app/navigation';
+	import OrganizationBanner from '$lib/components/organization/OrganizationBanner.svelte';
 
 	const { data } = $props();
-	const { organization, futureEvents, pastEvents, userRole, isViewer, user } = data;
+	const { organization, futureEvents, pastEvents, userRole, isViewer, user, bannerInfo } = data;
 
 	// User permissions
 	const isAdmin = userRole === 'admin';
@@ -130,6 +131,29 @@
 				</div>
 			</div>
 		</div>
+
+		<!-- Organization Banner -->
+		{#if bannerInfo && bannerInfo.bannerIsSet}
+			<div class="mb-8">
+				<OrganizationBanner
+					bannerSmallSizeUrl={bannerInfo.bannerSmallSizeUrl}
+					bannerLargeSizeUrl={bannerInfo.bannerLargeSizeUrl}
+					blurhash={bannerInfo.bannerBlurHash}
+					unsplashAuthorName={bannerInfo.unsplashAuthorName}
+					unsplashAuthorUsername={bannerInfo.unsplashAuthorUsername}
+					isCurrentUserOrgAdmin={canManage}
+					organizationId={organization.id}
+				/>
+			</div>
+		{:else if canManage}
+			<div class="mb-8 flex w-full justify-center">
+				<a class="flex w-full justify-center" href="/org/{organization.id}/banner/edit">
+					<Button class="w-2/3 bg-blue-600 hover:bg-blue-500 dark:bg-blue-700 dark:text-white dark:hover:bg-blue-600">
+						📷 Set a banner image
+					</Button>
+				</a>
+			</div>
+		{/if}
 
 		<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 			<!-- Events Section -->

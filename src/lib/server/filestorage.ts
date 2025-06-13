@@ -458,6 +458,146 @@ export async function uploadBannerImage(
 	return { largeImageKey, smallImageKey };
 }
 
+export async function uploadOrganizationBannerImage(
+	filePath: string,
+	userId: string | null,
+	organizationId: string | null,
+	overwrite: boolean = true,
+	unsplashAuthorName: string | null = '',
+	unsplashUsername: string | null = ''
+) {
+	if (!userId) {
+		throw new Error('userId should be set in call to uploadOrganizationBannerImage');
+	}
+	if (!organizationId) {
+		throw new Error('organizationId should be set in call to uploadOrganizationBannerImage');
+	}
+
+	verifyFilePathExists(filePath);
+
+	// Generate keys
+	const cacheBusterRandomId = generateId(5);
+	const largeImageKey = `organization-banner/${organizationId}/lg_cb${cacheBusterRandomId}.jpg`;
+	const smallImageKey = `organization-banner/${organizationId}/sm_cb${cacheBusterRandomId}.jpg`;
+
+	if (
+		!overwrite &&
+		(await fileExistsInS3(bucketName, largeImageKey)) &&
+		(await fileExistsInS3(bucketName, smallImageKey))
+	) {
+		return;
+	}
+
+	// Convert File to Buffer
+	const fileBuffer = await sharp(filePath).toFormat('png').toBuffer();
+
+	// Extract file metadata
+	const filetype = 'image/png'; // MIME type, e.g., 'image/jpeg'
+	const filesize = (await fs.stat(filePath)).size; // File size in bytes
+
+	// Resize the image for the full version (400x400)
+	const largeImageBuffer = await sharp(fileBuffer)
+		.resize(BannerMediaSize.LARGE_WIDTH, BannerMediaSize.LARGE_HEIGHT, { fit: 'cover' })
+		.jpeg({ quality: 90 }) // High quality for full version
+		.toBuffer();
+
+	// Resize the image for the small version (128x128)
+	const smallImageBuffer = await sharp(fileBuffer)
+		.resize(BannerMediaSize.SMALL_WIDTH, BannerMediaSize.SMALL_HEIGHT, { fit: 'cover' })
+		.jpeg({ quality: 80 }) // Lower quality for small version
+		.toBuffer();
+
+	// Generate BlurHash for the small image
+	let blurhash: string | null = null;
+	try {
+		const pixelData = await getPixels(smallImageBuffer);
+		const data = Uint8ClampedArray.from(pixelData.data);
+		blurhash = encode(data, pixelData.width, pixelData.height, 4, 4);
+	} catch (error) {
+		console.error('Failed to generate BlurHash:', error);
+	}
+
+	// Upload large version
+	try {
+		await s3.send(
+			new PutObjectCommand({
+				Bucket: bucketName,
+				Key: largeImageKey,
+				Body: largeImageBuffer,
+				ContentType: 'image/jpeg',
+				ACL: 'private'
+			})
+		);
+	} catch (error) {
+		console.error(`Failed to upload ${largeImageKey}:`, error);
+		throw new Error(`Upload failed for ${largeImageKey}`);
+	}
+
+	// Upload small version
+	try {
+		await s3.send(
+			new PutObjectCommand({
+				Bucket: bucketName,
+				Key: smallImageKey,
+				Body: smallImageBuffer,
+				ContentType: 'image/jpeg',
+				ACL: 'private'
+			})
+		);
+	} catch (error) {
+		console.error(`Failed to upload ${smallImageKey}:`, error);
+		throw new Error(`Upload failed for ${smallImageKey}`);
+	}
+
+	// Check if a banner media entry exists for the organization
+	const query = triplitHttpClient.query('banner_media').Where(['organization_id', '=', organizationId]);
+	const existingEntry = await triplitHttpClient.fetchOne(query);
+
+	if (existingEntry) {
+		const oldFullImageKey = existingEntry.full_image_key;
+		const oldSmallImageKey = existingEntry.small_image_key;
+
+		// Update the existing entry
+		await triplitHttpClient.update('banner_media', existingEntry.id, async (e) => {
+			e.full_image_key = largeImageKey;
+			e.small_image_key = smallImageKey;
+			e.file_type = filetype;
+			e.h_pixel_lg = BannerMediaSize.LARGE_HEIGHT;
+			e.w_pixel_lg = BannerMediaSize.LARGE_WIDTH;
+			e.h_pixel_sm = BannerMediaSize.SMALL_HEIGHT;
+			e.w_pixel_sm = BannerMediaSize.SMALL_WIDTH;
+			e.blurr_hash = blurhash;
+			e.size_in_bytes = filesize;
+			e.unsplash_author_name = unsplashAuthorName;
+			e.unsplash_author_username = unsplashUsername;
+			e.uploader_id = userId;
+			e.organization_id = organizationId;
+		});
+
+		// Delete old banner files from S3
+		await deleteFilesFromS3([oldFullImageKey, oldSmallImageKey]);
+	} else {
+		// Insert a new entry
+		const newEntry = await triplitHttpClient.insert('banner_media', {
+			full_image_key: largeImageKey,
+			small_image_key: smallImageKey,
+			file_type: filetype,
+			h_pixel_lg: BannerMediaSize.LARGE_HEIGHT,
+			w_pixel_lg: BannerMediaSize.LARGE_WIDTH,
+			h_pixel_sm: BannerMediaSize.SMALL_HEIGHT,
+			w_pixel_sm: BannerMediaSize.SMALL_WIDTH,
+			blurr_hash: blurhash,
+			size_in_bytes: filesize,
+			unsplash_author_name: unsplashAuthorName,
+			unsplash_author_username: unsplashUsername,
+			uploader_id: userId,
+			organization_id: organizationId
+		});
+	}
+
+	return { largeImageKey, smallImageKey };
+}
+
 export async function generateSignedUrl(key: string, expiresIn = 3600 * 24, bucket = bucketName) {
 	try {
 		const command = new GetObjectCommand({

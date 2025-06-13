@@ -1,5 +1,6 @@
 import { error } from '@sveltejs/kit';
 import { triplitHttpClient } from '$lib/server/triplit';
+import { generateSignedUrl } from '$lib/server/filestorage.js';
 
 export const load = async ({ params, locals }) => {
 	const { id } = params;
@@ -20,8 +21,45 @@ export const load = async ({ params, locals }) => {
 				.Include('members', (rel) => rel('members').Include('user'))
 		);
 
+		// Fetch banner_media separately to avoid Include permission issues
+		let banner_media = null;
+		try {
+			banner_media = await client.fetchOne(
+				client
+					.query('banner_media')
+					.Where([['organization_id', '=', id]])
+			);
+		} catch (error) {
+			console.log('Failed to fetch banner_media:', error);
+		}
+
+		// Manually attach banner_media to organization
+		if (banner_media) {
+			organization.banner_media = banner_media;
+		}
+
 		if (!organization) {
 			throw error(404, 'Organization not found');
+		}
+
+		// Process banner info
+		let bannerInfo = {
+			bannerIsSet: false,
+			bannerSmallSizeUrl: null,
+			bannerLargeSizeUrl: null,
+			bannerBlurHash: '',
+			unsplashAuthorName: '',
+			unsplashAuthorUsername: ''
+		};
+
+		if (organization.banner_media) {
+			bannerInfo.bannerIsSet = true;
+			const image = organization.banner_media;
+			bannerInfo.bannerLargeSizeUrl = await generateSignedUrl(image.full_image_key);
+			bannerInfo.bannerSmallSizeUrl = await generateSignedUrl(image.small_image_key);
+			bannerInfo.unsplashAuthorName = image.unsplash_author_name ?? '';
+			bannerInfo.unsplashAuthorUsername = image.unsplash_author_username ?? '';
+			bannerInfo.bannerBlurHash = image.blurr_hash ?? '';
 		}
 
 		// Fetch organization events (both past and future)
@@ -75,7 +113,8 @@ export const load = async ({ params, locals }) => {
 			pastEvents,
 			userRole,
 			isViewer,
-			user: locals.user
+			user: locals.user,
+			bannerInfo
 		};
 	} catch (err) {
 		console.error('Error loading organization:', err);

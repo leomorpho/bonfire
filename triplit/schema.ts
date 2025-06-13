@@ -840,11 +840,13 @@ export const schema = S.Collections({
 			unsplash_author_username: S.Optional(S.String({ default: null })),
 			uploaded_at: S.Date({ default: S.Default.now() }),
 			uploader_id: S.String({ nullable: true, default: null, optional: true }), // ID of the attendee
-			event_id: S.String() // ID of the event
+			event_id: S.Optional(S.String({ nullable: true })), // ID of the event
+			organization_id: S.Optional(S.String({ nullable: true })) // ID of the organization
 		}),
 		relationships: {
 			uploader: S.RelationById('user', '$user_id'), // Link to the user
-			event: S.RelationById('events', '$event_id') // Link to the event
+			event: S.RelationById('events', '$event_id'), // Link to the event
+			organization: S.RelationById('organizations', '$organization_id') // Link to the organization
 		},
 		permissions: {
 			user: {
@@ -853,7 +855,13 @@ export const schema = S.Collections({
 						or([
 							['uploader_id', '=', '$role.userId'], // User can read their own profile
 							// A user should be able to only query for files of events they are attending:
-							['event.attendees.user_id', '=', '$role.userId']
+							['event.attendees.user_id', '=', '$role.userId'],
+							// A user should be able to read organization banners if they can view the organization:
+							['organization.viewers.user_id', '=', '$role.userId'],
+							['organization.members.user_id', '=', '$role.userId'],
+							['organization.created_by_user_id', '=', '$role.userId'],
+							// Allow reading organization banners for public organizations:
+							['organization.is_public', '=', true]
 						])
 					]
 				},
@@ -872,7 +880,14 @@ export const schema = S.Collections({
 					filter: [['event.temporary_attendees.id', '=', '$role.temporaryAttendeeId']]
 				}
 			},
-			anon: {}
+			anon: {
+				read: {
+					filter: [
+						// Anonymous users can read organization banners for public organizations:
+						['organization.is_public', '=', true]
+					]
+				}
+			}
 		}
 	},
 	announcement: {
@@ -1562,6 +1577,9 @@ export const schema = S.Collections({
 				where: [['organization_id', '=', '$id']]
 			}),
 			viewers: S.RelationMany('organization_viewers', {
+				where: [['organization_id', '=', '$id']]
+			}),
+			banner_media: S.RelationOne('banner_media', {
 				where: [['organization_id', '=', '$id']]
 			})
 		},
