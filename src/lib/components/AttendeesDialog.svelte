@@ -2,10 +2,9 @@
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { Plus, Trash2 } from 'lucide-svelte';
 	import { ScrollArea } from './ui/scroll-area';
-	import ProfileAvatar from './profile/profile-avatar/ProfileAvatar.svelte';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import { ArrowRightFromLine, Frown, Meh, Smile } from '@lucide/svelte';
-	import BonfireNoInfoCard from './BonfireNoInfoCard.svelte';
+	import SearchableAttendeeList from './SearchableAttendeeList.svelte';
 
 	let {
 		numAttendeesGoing,
@@ -21,43 +20,19 @@
 		numAttendeesRemoved,
 		allAttendeesRemoved,
 		showMaxNumPeople = 30,
-		isCurrenUserEventAdmin = false
+		isCurrenUserEventAdmin = false,
+		eventTitle = '',
+		eventStartTime = '',
+		eventEndTime = '',
+		eventDescription = '',
+		eventLocation = '',
+		maxNumGuestsAllowedPerAttendee = 0,
+		eventCreatorUserId = '',
+		adminUserIds = new Set()
 	} = $props();
 
 	let isDialogOpen = $state(false);
 	let shouldLoadContent = $state(false);
-	let listView = $state(true);
-	let searchTerm = $state('');
-
-	// Fuzzy search function
-	const fuzzyMatch = (searchText: string, targetText: string): boolean => {
-		if (!searchText.trim()) return true;
-		
-		const search = searchText.toLowerCase();
-		const target = targetText.toLowerCase();
-		
-		// Direct substring match gets priority
-		if (target.includes(search)) return true;
-		
-		// Fuzzy character matching
-		let searchIndex = 0;
-		for (let i = 0; i < target.length && searchIndex < search.length; i++) {
-			if (target[i] === search[searchIndex]) {
-				searchIndex++;
-			}
-		}
-		return searchIndex === search.length;
-	};
-
-	// Filter attendees based on search term
-	const filterAttendees = (attendees: any[], searchTerm: string) => {
-		if (!searchTerm.trim()) return attendees;
-		
-		return attendees.filter(attendee => {
-			const name = attendee.user?.username || attendee.name || '';
-			return fuzzyMatch(searchTerm, name);
-		});
-	};
 
 	$effect(() => {
 		if (isDialogOpen) {
@@ -70,80 +45,6 @@
 	});
 </script>
 
-{#snippet attendees(
-	attendees: any,
-	statusName: string,
-	attendeeType: string,
-	showRemoveUser = true
-)}
-	{@const filteredAttendees = filterAttendees(attendees, searchTerm)}
-	<div class="mb-3 mt-5">
-		<h2 class="my-3 flex w-full justify-center font-semibold">
-			{statusName}
-			{#if searchTerm.trim() && filteredAttendees.length !== attendees.length}
-				<span class="ml-2 text-sm text-gray-500">({filteredAttendees.length} of {attendees.length})</span>
-			{/if}
-		</h2>
-		<div class="mb-2 flex justify-center space-x-2">
-			<button
-				onclick={() => (listView = false)}
-				class={!listView ? 'font-semibold text-blue-500' : 'text-gray-500'}>Grid</button
-			>
-			<button
-				onclick={() => (listView = true)}
-				class={listView ? 'font-semibold text-blue-500' : 'text-gray-500'}>List</button
-			>
-		</div>
-		<div class="mb-2 px-5">
-			<input
-				type="text"
-				bind:value={searchTerm}
-				placeholder="Search attendees"
-				class="mb-2 w-full rounded border px-2 py-1 dark:bg-gray-800 dark:text-white"
-			/>
-		</div>
-		{#if filteredAttendees.length > 0}
-			{#if !listView}
-				<div class="mx-5 flex flex-wrap -space-x-2 space-y-2 text-black">
-					{#each filteredAttendees as attendee (attendee.id + attendeeType)}
-						<div>
-							<ProfileAvatar
-								userId={attendee.user_id}
-								tempUserName={attendee.name}
-								viewerIsEventAdmin={isCurrenUserEventAdmin}
-								attendanceId={attendee.id}
-								numGuests={attendee.guest_count}
-								{showRemoveUser}
-								baseHeightPx={60}
-							/>
-						</div>
-					{/each}
-				</div>
-			{:else}
-				<div class="mx-5 flex flex-col space-y-2 text-black">
-					{#each filteredAttendees as attendee (attendee.id + attendeeType)}
-						<div class="flex items-center space-x-2">
-							<ProfileAvatar
-								userId={attendee.user_id}
-								tempUserName={attendee.name}
-								viewerIsEventAdmin={isCurrenUserEventAdmin}
-								attendanceId={attendee.id}
-								numGuests={attendee.guest_count}
-								{showRemoveUser}
-								baseHeightPx={60}
-								showNameInline={true}
-							/>
-						</div>
-					{/each}
-				</div>
-			{/if}
-		{:else if searchTerm.trim()}
-			<BonfireNoInfoCard text={`No attendees found matching "${searchTerm}"`} />
-		{:else}
-			<BonfireNoInfoCard text="no one yet" />
-		{/if}
-	</div>
-{/snippet}
 
 <Dialog.Root bind:open={isDialogOpen}>
 	<Dialog.Trigger
@@ -191,22 +92,96 @@
 				</div>
 				{#if isDialogOpen && shouldLoadContent}
 					<Tabs.Content value="going-attendees-dialog">
-						{@render attendees(allAttendeesGoing, 'Going', 'going')}
+						<SearchableAttendeeList
+							attendees={allAttendeesGoing}
+							title="Going"
+							viewerIsEventAdmin={isCurrenUserEventAdmin}
+							maxGuestsAllowed={maxNumGuestsAllowedPerAttendee}
+							{eventTitle}
+							{eventStartTime}
+							{eventEndTime}
+							{eventDescription}
+							{eventLocation}
+							{eventCreatorUserId}
+							{adminUserIds}
+						/>
 					</Tabs.Content>
 					<Tabs.Content value="maybe-attendees-dialog">
-						{@render attendees(allAttendeesMaybeGoing, 'Maybe going', 'maybe-going')}
+						<SearchableAttendeeList
+							attendees={allAttendeesMaybeGoing}
+							title="Maybe going"
+							viewerIsEventAdmin={isCurrenUserEventAdmin}
+							maxGuestsAllowed={maxNumGuestsAllowedPerAttendee}
+							{eventTitle}
+							{eventStartTime}
+							{eventEndTime}
+							{eventDescription}
+							{eventLocation}
+							{eventCreatorUserId}
+							{adminUserIds}
+						/>
 					</Tabs.Content>
 					<Tabs.Content value="not-going-attendees-dialog">
-						{@render attendees(allAttendeesNotGoing, 'Not going', 'not-going')}
+						<SearchableAttendeeList
+							attendees={allAttendeesNotGoing}
+							title="Not going"
+							viewerIsEventAdmin={isCurrenUserEventAdmin}
+							maxGuestsAllowed={maxNumGuestsAllowedPerAttendee}
+							{eventTitle}
+							{eventStartTime}
+							{eventEndTime}
+							{eventDescription}
+							{eventLocation}
+							{eventCreatorUserId}
+							{adminUserIds}
+						/>
 					</Tabs.Content>
 					<Tabs.Content value="invited-attendees-dialog">
-						{@render attendees(allAttendeesInvited, 'Invited', 'invited')}
+						<SearchableAttendeeList
+							attendees={allAttendeesInvited}
+							title="Invited"
+							viewerIsEventAdmin={isCurrenUserEventAdmin}
+							maxGuestsAllowed={maxNumGuestsAllowedPerAttendee}
+							{eventTitle}
+							{eventStartTime}
+							{eventEndTime}
+							{eventDescription}
+							{eventLocation}
+							{eventCreatorUserId}
+							{adminUserIds}
+						/>
 					</Tabs.Content>
 					<Tabs.Content value="admin-attendees-removed-dialog">
-						{@render attendees(allAttendeesRemoved, 'Removed by admins', 'removed')}
+						<SearchableAttendeeList
+							attendees={allAttendeesRemoved}
+							title="Removed by admins"
+							viewerIsEventAdmin={isCurrenUserEventAdmin}
+							showRemoveUser={false}
+							maxGuestsAllowed={maxNumGuestsAllowedPerAttendee}
+							{eventTitle}
+							{eventStartTime}
+							{eventEndTime}
+							{eventDescription}
+							{eventLocation}
+							{eventCreatorUserId}
+							{adminUserIds}
+						/>
 					</Tabs.Content>
 					<Tabs.Content value="admin-attendees-left-dialog">
-						{@render attendees(allAttendeesLeft, 'Left the event', 'left')}
+						<SearchableAttendeeList
+							attendees={allAttendeesLeft}
+							title="Left the event"
+							viewerIsEventAdmin={isCurrenUserEventAdmin}
+							showRemoveUser={false}
+							maxGuestsAllowed={maxNumGuestsAllowedPerAttendee}
+							{eventTitle}
+							{eventStartTime}
+							{eventEndTime}
+							{eventDescription}
+							{eventLocation}
+							{eventCreatorUserId}
+							{adminUserIds}
+						/>
 					</Tabs.Content>
 				{/if}
 			</Tabs.Root>
