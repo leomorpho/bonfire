@@ -309,5 +309,24 @@ export async function getUserOrganizations(
 		}
 	});
 
-	return Array.from(orgMap.values());
+	const organizations = Array.from(orgMap.values());
+
+	// Get member and event counts for each organization
+	for (const org of organizations) {
+		const [memberCount, eventCount] = await Promise.all([
+			// Get member count
+			client.fetch(
+				client.query('organization_members').Where([['organization_id', '=', org.id]])
+			).then(members => members.length),
+			// Get event count
+			client.fetch(
+				client.query('events').Where([['organization_id', '=', org.id]])
+			).then(events => events.length)
+		]);
+
+		org.memberCount = memberCount;
+		org.eventCount = eventCount;
+	}
+
+	return organizations;
 }
