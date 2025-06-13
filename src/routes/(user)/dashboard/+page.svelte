@@ -318,7 +318,7 @@
 	</section>
 </div>
 
-<div
+<!-- <div
 	class="fixed bottom-6 left-1/2 z-50 flex -translate-x-1/2 transform flex-col items-center"
 	id="create-bonfire-container"
 >
@@ -335,4 +335,4 @@
 		class="mt-2 text-sm font-semibold text-black dark:text-white md:text-base"
 		id="create-bonfire-label">Create a Bonfire</span
 	>
-</div>
+</div> -->
