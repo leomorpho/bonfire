@@ -7,9 +7,9 @@
 	let fontLinkElement: HTMLLinkElement | null = null;
 
 	/**
-	 * Generate CSS for font size scaling that overrides all Tailwind text size classes globally
+	 * Generate CSS for font size scaling that overrides Tailwind text size classes ONLY within bonfire event content
 	 */
-	function generateGlobalFontSizeCSS(fontSize: number) {
+	function generateScopedFontSizeCSS(fontSize: number) {
 		const tailwindTextSizes = {
 			'text-xs': '0.75rem',
 			'text-sm': '0.875rem',
@@ -26,16 +26,16 @@
 			'text-9xl': '8rem'
 		};
 
+		// Scope all text size rules to bonfire event content only
 		const scaleRules = Object.entries(tailwindTextSizes)
 			.map(([className, size]) => 
-				`.${className} { font-size: calc(${size} * ${fontSize}) !important; }`
+				`.bonfire-event-content .${className} { font-size: calc(${size} * ${fontSize}); }`
 			)
 			.join('\n');
 
-		// Also scale the base font size for event content (more specific targeting)
+		// Base font size for event content
 		const baseRule = `
 			.bonfire-event-content { font-size: calc(1rem * ${fontSize}); }
-			.bonfire-event-content * { font-size: inherit; }
 		`;
 
 		return `${baseRule}\n${scaleRules}`;
@@ -74,13 +74,13 @@
 		const fontSize = font.fontSize || 1.0;
 		const fontStyle = font.style || '';
 		
-		const fontSizeCSS = generateGlobalFontSizeCSS(fontSize);
+		const fontSizeCSS = generateScopedFontSizeCSS(fontSize);
 		
 		const completeCss = `
-			/* Global font family and size scaling for event content */
+			/* Font family and size scaling scoped to bonfire event content only */
 			${fontStyle ? `.bonfire-event-content { ${fontStyle} }` : ''}
 			
-			/* Font size scaling for all Tailwind text classes */
+			/* Font size scaling for Tailwind text classes within event content */
 			${fontSizeCSS}
 		`;
 
@@ -111,4 +111,4 @@
 	});
 </script>
 
-<!-- This component has no visible output, it only applies global styles -->
+<!-- This component has no visible output, it only applies scoped styles to bonfire event content -->
