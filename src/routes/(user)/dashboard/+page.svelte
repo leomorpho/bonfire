@@ -3,9 +3,10 @@
 	import { onMount } from 'svelte';
 	import { and, type TriplitClient } from '@triplit/client';
 	import Loader from '$lib/components/Loader.svelte';
-	import { DatabaseZap, Frown, Plus } from 'lucide-svelte';
+	import { DatabaseZap, Frown, Plus, Building2 } from 'lucide-svelte';
 	import EventCard from '$lib/components/EventCard.svelte';
 	import { page } from '$app/stores';
+	import { goto } from '$app/navigation';
 	import { dev } from '$app/environment';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import PullToRefresh from '$lib/components/settings/PullToRefresh.svelte';
@@ -143,6 +144,27 @@
 		<div class="my-4 flex w-full flex-col justify-center space-y-2">
 			<SetupMeet userId={$page.data.user.id} />
 		</div>
+		
+		<!-- Quick Actions -->
+		<div class="mb-6 flex w-full justify-center gap-3">
+			<Button
+				variant="outline"
+				class="flex-1 max-w-48"
+				onclick={() => goto('/bonfire/create')}
+			>
+				<Plus class="w-4 h-4 mr-2" />
+				Create Event
+			</Button>
+			<Button
+				variant="outline"
+				class="flex-1 max-w-48"
+				onclick={() => goto('/organizations')}
+			>
+				<Building2 class="w-4 h-4 mr-2" />
+				Organizations
+			</Button>
+		</div>
+		
 		<!-- <PermissionsPausedMsg {userId} /> -->
 		<Tabs.Root value={activeTab} class="w-full">
 			<div class="flex w-full justify-center">
