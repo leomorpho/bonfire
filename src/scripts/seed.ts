@@ -111,15 +111,38 @@ const output = await client.insert('events', {
 	end_time: null,
 	user_id: user?.id,
 	style: `
-  background-image: url('https://f002.backblazeb2.com/file/bonfire-public/seamless-patterns/subway-lines.jpg'); /* Replace with the URL of your tileable image */
-  background-repeat: repeat; /* Tiles the image in both directions */
-  background-size: auto; /* Ensures the image retains its original size */
-  background-color: #ffffff; /* Fallback background color */
-  width: 100%;
-  height: 100%;   
-    `,
+		.bg-color-selector {
+			font-family: 'Twinkle Star', cursive; 
+			font-size: 1.8em;
+			
+			--s: 70px; /* control the size*/
+			--c1: #655643;
+			--c2: #80bca3;
+			
+			--g:,var(--c1) 25%,var(--c2) 0 50%,#0000 0;
+			background:
+				repeating-conic-gradient(var(--c1) 0 30deg,#0000 0 150deg,var(--c2) 0 50%)
+				calc(1.5*var(--s)) calc(.865*var(--s)),
+				conic-gradient(from  30deg at 75% 75%var(--g)),
+				conic-gradient(from -30deg at 75% 25%var(--g)),
+				conic-gradient(from 150deg at 25% 75%var(--g)),
+				conic-gradient(from 210deg at 25% 25%var(--g)),
+				repeating-conic-gradient(var(--c1) 0 30deg,var(--c2) 0 60deg);
+			background-size: calc(3*var(--s)) calc(1.73*var(--s));
+			width: 100%;
+			height: 100%;   
+		}
+
+		.bg-overlay-selector {
+			background-color: rgba(var(--overlay-color-rgb, 0, 0, 0), 0.526);
+		}
+	`,
 	overlay_color: null,
-	overlay_opacity: 0.526
+	overlay_opacity: 0.526,
+	is_published: true,
+	is_bring_list_enabled: true,
+	is_gallery_enabled: true,
+	is_messaging_enabled: true
 });
 const eventCreated = output;
 
