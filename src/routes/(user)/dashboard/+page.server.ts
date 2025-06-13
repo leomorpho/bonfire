@@ -4,6 +4,7 @@ import { generateSignedUrl } from '$lib/server/filestorage.js';
 import { triplitHttpClient } from '$lib/server/triplit.js';
 import type { StringColorFormat } from '@faker-js/faker';
 import { redirect } from '@sveltejs/kit';
+import { and } from '@triplit/client';
 
 export const load = async (event) => {
 	// Get the user from locals
@@ -42,9 +43,44 @@ export const load = async (event) => {
 
 	const banners = await fetchBannersForEvents(user.id);
 
+	// Fetch user's attendances with events
+	const attendances = await triplitHttpClient.fetch(
+		triplitHttpClient
+			.query('attendees')
+			.Where(
+				and([
+					['user_id', '=', user.id],
+					['status', 'nin', [Status.LEFT, Status.REMOVED]]
+				])
+			)
+			.Include('event', (rel) =>
+				rel('event')
+					.Include('private_data', (rel) =>
+						rel('private_data').Select(['num_attendees_going', 'num_temp_attendees_going'])
+					)
+					.Include('user', (rel) => rel('user').Select(['username']))
+			)
+	);
+
+	// Separate future and past events
+	const now = new Date();
+	const futureThreshold = new Date(now.getTime() - 6 * 60 * 60 * 1000); // 6 hours ago
+
+	const futureAttendances = attendances
+		.filter((a) => new Date(a.event.start_time) >= futureThreshold)
+		.sort((a, b) => new Date(a.event.start_time).getTime() - new Date(b.event.start_time).getTime());
+
+	const pastAttendances = attendances
+		.filter((a) => new Date(a.event.start_time) < futureThreshold)
+		.sort((a, b) => new Date(b.event.start_time).getTime() - new Date(a.event.start_time).getTime());
+
 	return {
 		user: user,
-		banners: banners
+		banners: banners,
+		initialFutureAttendances: futureAttendances,
+		initialPastAttendances: pastAttendances,
+		futureEventCount: futureAttendances.length,
+		pastEventCount: pastAttendances.length
 	};
 };
 

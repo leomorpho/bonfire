@@ -5,6 +5,7 @@
 	import Loader from '$lib/components/Loader.svelte';
 	import { DatabaseZap, Frown, Plus, Building2 } from 'lucide-svelte';
 	import EventCard from '$lib/components/EventCard.svelte';
+	import EventCardSkeleton from '$lib/components/EventCardSkeleton.svelte';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import { dev } from '$app/environment';
@@ -17,11 +18,15 @@
 
 	let client: TriplitClient;
 
-	let futureAttendances: any = $state({});
-	let futureEventsLoading = $state(true);
-	let pastAttendances: any = $state({});
-	let pastEventsLoading = $state(true);
+	// Initialize with server data
+	let futureAttendances: any = $state($page.data.initialFutureAttendances || []);
+	let futureEventsLoading = $state($page.data.futureEventCount > 0 || !$page.data.initialFutureAttendances);
+	let pastAttendances: any = $state($page.data.initialPastAttendances || []);
+	let pastEventsLoading = $state($page.data.pastEventCount > 0 || !$page.data.initialPastAttendances);
 	let userId = $state();
+	
+	// Track if Triplit has synced
+	let triplitSynced = $state(false);
 
 	let activeTab = $state('about');
 
@@ -98,14 +103,19 @@
 			(results) => {
 				futureAttendances = results;
 				futureEventsLoading = false;
+				triplitSynced = true;
 				// console.log('===>, futureAttendances', futureAttendances);
 			},
 			(error) => {
 				console.error('Error fetching future attendances:', error);
+				futureEventsLoading = false;
 			},
 			{
 				localOnly: false,
-				onRemoteFulfilled: () => {}
+				onRemoteFulfilled: () => {
+					// Mark as loading complete when remote data is fetched
+					futureEventsLoading = false;
+				}
 			}
 		);
 
@@ -116,11 +126,14 @@
 				pastEventsLoading = false;
 			},
 			(error) => {
-				console.error('Error fetching current temporary attendee:', error);
+				console.error('Error fetching past attendances:', error);
+				pastEventsLoading = false;
 			},
 			{
 				localOnly: false,
-				onRemoteFulfilled: () => {}
+				onRemoteFulfilled: () => {
+					pastEventsLoading = false;
+				}
 			}
 		);
 
@@ -180,20 +193,24 @@
 				</Tabs.List>
 			</div>
 			<Tabs.Content value="about" class="mb-10 h-fit w-full">
-				{#if futureEventsLoading}
-					<!-- We don't want to show if the query is loading as it could be showing cached data that can just be refreshed seamlessy-->
+				{#if futureEventsLoading && $page.data.futureEventCount === 0}
+					<!-- Still determining if there are events -->
 					<Loader />
-				{:else if futureAttendances.length == 0}
+				{:else if futureEventsLoading && $page.data.futureEventCount > 0 && !triplitSynced}
+					<!-- We know there are events from server, show skeletons while loading -->
+					<div class="space-y-7 sm:space-y-10">
+						{#each Array($page.data.futureEventCount) as _, i}
+							<EventCardSkeleton />
+						{/each}
+					</div>
+				{:else if !futureEventsLoading && futureAttendances.length === 0}
+					<!-- Confirmed no events after sync -->
 					<div
 						class="mx-auto mt-10 flex w-full max-w-sm flex-col items-center justify-center gap-2 space-y-5 rounded-lg bg-slate-200 p-6 text-center dark:bg-slate-800 dark:text-white sm:mt-16 sm:w-2/3"
 					>
 						<div class="flex items-center text-sm">
 							<span>You currently have no upcoming events.</span>
 						</div>
-						<!-- <p class="text-xs text-slate-600 dark:text-slate-300">
-						This app uses a <strong>local-first database</strong>, meaning it works offline. If your
-						data seems out of sync, reloading should fix it.
-					</p> -->
 
 						<Button
 							class="w-full text-sm dark:bg-slate-600 dark:text-white dark:hover:bg-slate-500"
@@ -238,9 +255,16 @@
 				{/if}
 			</Tabs.Content>
 			<Tabs.Content value="discussions" class="mb-2 h-fit w-full">
-				{#if pastEventsLoading}
+				{#if pastEventsLoading && $page.data.pastEventCount === 0}
 					<Loader />
-				{:else if pastAttendances.length == 0}
+				{:else if pastEventsLoading && $page.data.pastEventCount > 0 && !triplitSynced}
+					<!-- We know there are past events from server, show skeletons while loading -->
+					<div class="space-y-7 sm:space-y-10">
+						{#each Array(Math.min($page.data.pastEventCount, 3)) as _, i}
+							<EventCardSkeleton />
+						{/each}
+					</div>
+				{:else if !pastEventsLoading && pastAttendances.length === 0}
 					<div
 						class="mx-auto mt-10 flex w-full max-w-sm flex-col items-center justify-center gap-2 space-y-5 rounded-lg bg-slate-200 p-6 text-center dark:bg-slate-800 dark:text-white sm:mt-16 sm:w-2/3"
 					>
