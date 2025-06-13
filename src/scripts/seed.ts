@@ -44,6 +44,56 @@ const user2 = await createNewUser({
 await client.insert('user', { id: user?.id, username: 'Mike' });
 await client.insert('user', { id: user2?.id, username: 'Jo' });
 
+// Create organizations for Mike (not linked to the birthday party)
+console.log('Creating organizations for Mike...');
+
+// Import generatePassphraseId function
+const { generatePassphraseId } = await import('$lib/utils');
+
+// Create first organization
+const mikeOrgId = await generatePassphraseId('org_');
+console.log('Creating organization with ID:', mikeOrgId);
+
+const org1 = await client.insert('organizations', {
+	id: mikeOrgId,
+	name: 'Tech Innovators Vancouver',
+	description: 'A community of tech professionals and enthusiasts in Vancouver focused on innovation, networking, and collaborative learning.',
+	created_by_user_id: user?.id,
+	is_public: true
+});
+console.log('Created organization:', org1);
+
+// Add Mike as an admin member of his organization
+const membership1 = await client.insert('organization_members', {
+	organization_id: mikeOrgId,
+	user_id: user?.id,
+	role: 'admin',
+	added_by_user_id: user?.id // Mike adds himself
+});
+console.log('Created membership:', membership1);
+
+// Create a second public organization for variety
+const communityOrgId = await generatePassphraseId('org_');
+console.log('Creating second organization with ID:', communityOrgId);
+
+const org2 = await client.insert('organizations', {
+	id: communityOrgId,
+	name: 'Vancouver Community Gardens',
+	description: 'Bringing people together through urban gardening and sustainable living practices.',
+	created_by_user_id: user?.id,
+	is_public: true
+});
+console.log('Created second organization:', org2);
+
+// Add Mike as admin to the community organization too
+const membership2 = await client.insert('organization_members', {
+	organization_id: communityOrgId,
+	user_id: user?.id,
+	role: 'admin',
+	added_by_user_id: user?.id
+});
+console.log('Created second membership:', membership2);
+
 const path = profileImagesDir + '/mike.jpg';
 // TODO: could probably check if image exists in S3 first
 await uploadProfileImage(path, user?.id as string, false);

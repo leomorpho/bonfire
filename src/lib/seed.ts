@@ -1,3 +1,4 @@
+// NOTE: this seeder is for prod, src/scripts/seed.ts is for dev in local
 import { generateId } from 'lucia/dist/crypto';
 import { BringListCountTypes, mainDemoEventId, Status } from './enums';
 import { triplitHttpClient } from './server/triplit';
@@ -80,58 +81,51 @@ export const seedEvent = async (
 
 	await triplitHttpClient.insert('user', { id: userId, username: eventCreatorName, isReal: false });
 
-	// Check if organizations already exist
-	const existingOrgs = await triplitHttpClient.fetch(
-		triplitHttpClient.query('organizations').Where([['created_by_user_id', '=', userId]])
-	);
-	
-	if (existingOrgs.length === 0) {
-		// Create an organization for Mike (not linked to the birthday party)
-		const mikeOrgId = await generatePassphraseId('org_');
-		console.log('Creating organization with ID:', mikeOrgId);
-		
-		const org1 = await triplitHttpClient.insert('organizations', {
-			id: mikeOrgId,
-			name: 'Tech Innovators Vancouver',
-			description: 'A community of tech professionals and enthusiasts in Vancouver focused on innovation, networking, and collaborative learning.',
-			created_by_user_id: userId,
-			is_public: true
-		});
-		console.log('Created organization:', org1);
+	// Create an organization for Mike (not linked to the birthday party)
+	const mikeOrgId = await generatePassphraseId('org_');
+	console.log('Creating organization with ID:', mikeOrgId);
 
-		// Add Mike as an admin member of his organization
-		const membership1 = await triplitHttpClient.insert('organization_members', {
-			organization_id: mikeOrgId,
-			user_id: userId,
-			role: 'admin',
-			added_by_user_id: userId // Mike adds himself
-		});
-		console.log('Created membership:', membership1);
+	const org1 = await triplitHttpClient.insert('organizations', {
+		id: mikeOrgId,
+		name: 'Tech Innovators Vancouver',
+		description:
+			'A community of tech professionals and enthusiasts in Vancouver focused on innovation, networking, and collaborative learning.',
+		created_by_user_id: userId,
+		is_public: true
+	});
+	console.log('Created organization:', org1);
 
-		// Create a second public organization for variety
-		const communityOrgId = await generatePassphraseId('org_');
-		console.log('Creating second organization with ID:', communityOrgId);
-		
-		const org2 = await triplitHttpClient.insert('organizations', {
-			id: communityOrgId,
-			name: 'Vancouver Community Gardens',
-			description: 'Bringing people together through urban gardening and sustainable living practices.',
-			created_by_user_id: userId,
-			is_public: true
-		});
-		console.log('Created second organization:', org2);
+	// Add Mike as an admin member of his organization
+	const membership1 = await triplitHttpClient.insert('organization_members', {
+		organization_id: mikeOrgId,
+		user_id: userId,
+		role: 'admin',
+		added_by_user_id: userId // Mike adds himself
+	});
+	console.log('Created membership:', membership1);
 
-		// Add Mike as admin to the community organization too
-		const membership2 = await triplitHttpClient.insert('organization_members', {
-			organization_id: communityOrgId,
-			user_id: userId,
-			role: 'admin',
-			added_by_user_id: userId
-		});
-		console.log('Created second membership:', membership2);
-	} else {
-		console.log('Organizations already exist, skipping creation');
-	}
+	// Create a second public organization for variety
+	const communityOrgId = await generatePassphraseId('org_');
+	console.log('Creating second organization with ID:', communityOrgId);
+
+	const org2 = await triplitHttpClient.insert('organizations', {
+		id: communityOrgId,
+		name: 'Vancouver Community Gardens',
+		description:
+			'Bringing people together through urban gardening and sustainable living practices.',
+		created_by_user_id: userId,
+		is_public: true
+	});
+	console.log('Created second organization:', org2);
+
+	// Add Mike as admin to the community organization too
+	const membership2 = await triplitHttpClient.insert('organization_members', {
+		organization_id: communityOrgId,
+		user_id: userId,
+		role: 'admin',
+		added_by_user_id: userId
+	});
+	console.log('Created second membership:', membership2);
 
 	const eventCreated = await triplitHttpClient.insert('events', {
 		id: eventId,
