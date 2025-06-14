@@ -90,10 +90,7 @@
 		const results = await client.fetch(query);
 
 		if (objectIds.length > 0 && results.length == 0) {
-			hideNotification = true;
-
-			// The associated objects were deleted, delete this notification
-			// await deleteNotification(notification.id);
+			isLoading = false;
 			return;
 		}
 
@@ -236,6 +233,8 @@
 	<!-- Show loading indicator while fetching linked objects -->
 	{#if isLoading}
 		<p class="text-gray-400">Loading details...</p>
+	{:else if linkedObjects.length === 0 && (notification.object_type === NotificationType.ATTENDEES || notification.object_type === NotificationType.TEMP_ATTENDEES)}
+		<p class="text-gray-500 italic">Looks like the associated data was deleted by the author</p>
 	{:else}
 		<!-- Render linked objects -->
 		{#if notification.object_type === NotificationType.FILES}
