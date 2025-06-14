@@ -14,10 +14,6 @@ export const GET = async ({ request, locals }) => {
 	const page = parseInt(url.searchParams.get('page') || '1');
 	const limit = parseInt(url.searchParams.get('limit') || '20');
 
-	if (!eventId) {
-		return json({ error: 'Event ID is required' }, { status: 400 });
-	}
-
 	try {
 		// Get events the current user attended
 		const userEventIds = await triplitHttpClient.fetch(
@@ -30,12 +26,29 @@ export const GET = async ({ request, locals }) => {
 
 		const eventIdsAttended = userEventIds.map((attendance) => attendance.event_id);
 
-		// Get current attendees of the target event to exclude them
-		const currentAttendees = await triplitHttpClient.fetch(
-			triplitHttpClient.query('attendees').Where(['event_id', '=', eventId]).Select(['user_id'])
-		);
+		// Get current attendees of the target event to exclude them (only when eventId is provided)
+		let currentAttendeeIds = [];
+		if (eventId) {
+			const currentAttendees = await triplitHttpClient.fetch(
+				triplitHttpClient.query('attendees').Where(['event_id', '=', eventId]).Select(['user_id'])
+			);
+			currentAttendeeIds = currentAttendees.map((attendee) => attendee.user_id);
+		}
 
-		const currentAttendeeIds = currentAttendees.map((attendee) => attendee.user_id);
+		// Get users blocked by current user
+		const blockedByUser = await triplitHttpClient.fetch(
+			triplitHttpClient.query('user_blocks').Where(['blocker_user_id', '=', user.id]).Select(['blocked_user_id'])
+		);
+		const blockedUserIds = blockedByUser.map((block) => block.blocked_user_id);
+
+		// Get users who blocked current user
+		const blockedCurrentUser = await triplitHttpClient.fetch(
+			triplitHttpClient.query('user_blocks').Where(['blocked_user_id', '=', user.id]).Select(['blocker_user_id'])
+		);
+		const blockerUserIds = blockedCurrentUser.map((block) => block.blocker_user_id);
+
+		// Combine all user IDs to exclude
+		const excludedUserIds = [...currentAttendeeIds, ...blockedUserIds, ...blockerUserIds];
 
 		// Find users who attended shared events
 		const connectedUsersQuery = triplitHttpClient
@@ -44,7 +57,7 @@ export const GET = async ({ request, locals }) => {
 				and([
 					['event_id', 'in', eventIdsAttended],
 					['user_id', '!=', user.id], // Exclude current user
-					['user_id', 'nin', currentAttendeeIds] // Exclude current event attendees
+					['user_id', 'nin', excludedUserIds] // Exclude current event attendees and blocked users
 				])
 			])
 			.SubqueryOne('user', triplitHttpClient.query('user').Where(['id', '=', '$1.user_id']))

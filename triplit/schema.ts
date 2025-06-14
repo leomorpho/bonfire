@@ -1433,6 +1433,36 @@ export const schema = S.Collections({
 			anon: {}
 		}
 	},
+	user_blocks: {
+		schema: S.Schema({
+			id: S.Id(),
+			blocker_user_id: S.String(), // User who is blocking
+			blocked_user_id: S.String(), // User who is being blocked
+			created_at: S.Date({ default: S.Default.now() })
+		}),
+		relationships: {
+			blocker: S.RelationById('user', '$blocker_user_id'),
+			blocked: S.RelationById('user', '$blocked_user_id')
+		},
+		permissions: {
+			admin: {
+				read: { filter: [true] }
+			},
+			user: {
+				read: {
+					filter: [['blocker_user_id', '=', '$role.userId']] // Users can only see their own blocks
+				},
+				insert: {
+					filter: [['blocker_user_id', '=', '$role.userId']] // Users can only create their own blocks
+				},
+				delete: {
+					filter: [['blocker_user_id', '=', '$role.userId']] // Users can only remove their own blocks
+				}
+			},
+			temp: {},
+			anon: {}
+		}
+	},
 	bring_assignments: {
 		schema: S.Schema({
 			id: S.Id(),
