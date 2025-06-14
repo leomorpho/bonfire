@@ -30,15 +30,12 @@
 
 			const client = getFeWorkerTriplitClient($page.data.jwt);
 			
-			// Set up real-time subscription
+			// Set up real-time subscription with simplified query
 			unsubscribe = client.subscribe(
 				client
 					.query('support_conversations')
 					.Include('user')
-					.Include('messages', (rel) => 
-						rel('messages').Include('user').Include('seen_by')
-					)
-					.Order('last_message_at', 'DESC'),
+					.Order('updated_at', 'DESC'),
 				(results) => {
 					conversations = results.filter(conv => 
 						statusFilter === 'all' || conv.status === statusFilter
@@ -61,9 +58,13 @@
 	};
 
 	// Filter conversations when status filter changes
+	let previousStatusFilter = $state('all');
 	$effect(() => {
-		if (!isLoading) {
-			refreshConversations();
+		if (statusFilter !== previousStatusFilter) {
+			previousStatusFilter = statusFilter;
+			if (!isLoading) {
+				refreshConversations();
+			}
 		}
 	});
 

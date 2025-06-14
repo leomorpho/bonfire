@@ -28,6 +28,7 @@
 
 	// Real-time subscription
 	let unsubscribe: (() => void) | null = null;
+	let isSubscribing = $state(false);
 
 	const scrollToBottom = () => {
 		if (messagesContainer) {
@@ -36,8 +37,14 @@
 	};
 
 	const loadConversation = async () => {
+		if (isSubscribing) {
+			console.log('Already subscribing, skipping...');
+			return;
+		}
+
 		try {
 			isLoading = true;
+			isSubscribing = true;
 			error = '';
 
 			console.log('Loading conversation...');
@@ -96,12 +103,14 @@
 			);
 
 			isLoading = false;
+			isSubscribing = false;
 			// Scroll to bottom after initial load
 			requestAnimationFrame(scrollToBottom);
 		} catch (err) {
 			console.error('Error loading support conversation:', err);
 			error = 'Failed to load conversation';
 			isLoading = false;
+			isSubscribing = false;
 		}
 	};
 
@@ -156,6 +165,21 @@
 				unsubscribe();
 			}
 			loadConversation();
+		}
+	});
+
+	// Add error recovery mechanism
+	let retryCount = 0;
+	const maxRetries = 3;
+
+	$effect(() => {
+		if (error && retryCount < maxRetries) {
+			console.log(`Retrying conversation load (${retryCount + 1}/${maxRetries})...`);
+			setTimeout(() => {
+				retryCount++;
+				error = '';
+				loadConversation();
+			}, 2000 * retryCount); // Exponential backoff
 		}
 	});
 

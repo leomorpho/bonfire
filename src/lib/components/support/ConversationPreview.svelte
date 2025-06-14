@@ -13,19 +13,9 @@
 		isSelected?: boolean;
 	}>();
 
-	// Get the last message preview
-	let lastMessage = $derived(
-		conversation.messages && conversation.messages.length > 0
-			? conversation.messages[conversation.messages.length - 1]
-			: null
-	);
-
-	// Count unread messages (simplified - in a real app you'd track this properly)
-	let hasUnread = $derived(
-		conversation.messages && conversation.messages.some((msg: any) => 
-			!msg.seen_by || !msg.seen_by.some((seen: any) => seen.user_id !== conversation.user_id)
-		)
-	);
+	// Simplified message preview (removed dependency on nested messages)
+	let lastMessage = $derived(null); // Will implement separately if needed
+	let hasUnread = $derived(false); // Will implement separately if needed
 </script>
 
 <div
@@ -76,26 +66,9 @@
 			</div>
 
 			<!-- Last Message Preview -->
-			{#if lastMessage}
-				<p class="mt-1 text-sm text-gray-600 dark:text-gray-400 truncate">
-					{#if lastMessage.is_admin_message}
-						<span class="text-green-600 dark:text-green-400">Support:</span>
-					{/if}
-					{lastMessage.content}
-				</p>
-			{:else}
-				<p class="mt-1 text-sm text-gray-500 dark:text-gray-500 italic">
-					No messages yet
-				</p>
-			{/if}
-
-			<!-- Unread Indicator -->
-			{#if hasUnread}
-				<div class="mt-2 flex items-center gap-1">
-					<div class="h-2 w-2 rounded-full bg-blue-500"></div>
-					<span class="text-xs text-blue-600 dark:text-blue-400">New messages</span>
-				</div>
-			{/if}
+			<p class="mt-1 text-sm text-gray-500 dark:text-gray-500 italic">
+				{conversation.last_message_at ? 'Recent activity' : 'No messages yet'}
+			</p>
 		</div>
 	</div>
 </div>
