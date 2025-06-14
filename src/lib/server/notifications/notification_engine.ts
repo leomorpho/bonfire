@@ -332,7 +332,6 @@ async function mergeSimilarNotifications(
 	return true;
 }
 
-
 export async function bulkPersistNotifications(
 	notifications: Notification[]
 ): Promise<Notification[]> {

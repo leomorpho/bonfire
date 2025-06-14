@@ -38,7 +38,9 @@
 <div class="relative mt-5 space-y-3 rounded-xl py-2 sm:mt-0" in:fade={{ duration: 300 }}>
 	{#if eventStatus === EventStatus.CANCELLED}
 		<div class="flex w-full justify-center">
-			<div class="rounded bg-red-600 px-4 py-2 text-lg font-bold text-white shadow-md dark:bg-red-500">
+			<div
+				class="rounded bg-red-600 px-4 py-2 text-lg font-bold text-white shadow-md dark:bg-red-500"
+			>
 				❌ EVENT CANCELLED
 			</div>
 		</div>

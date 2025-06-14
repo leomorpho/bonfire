@@ -54,7 +54,7 @@
 					<p class="font-semibold text-red-600 dark:text-red-400">
 						This will completely and permanently delete the event and ALL associated data including:
 					</p>
-					<ul class="list-disc pl-5 space-y-1 text-sm">
+					<ul class="list-disc space-y-1 pl-5 text-sm">
 						<li>All messages and announcements</li>
 						<li>All uploaded files and images</li>
 						<li>All attendee data and RSVPs</li>
@@ -74,15 +74,13 @@
 			<Button
 				id="confirm-delete-event"
 				disabled={submitDisabled}
-				class="w-full bg-red-600 hover:bg-red-500 text-white"
+				class="w-full bg-red-600 text-white hover:bg-red-500"
 				onclick={deleteEvent}
 			>
 				<Trash2 class="ml-1 mr-1 h-4 w-4" /> Yes, Permanently Delete Event
 			</Button>
 			<Dialog.Close>
-				<Button variant="outline" class="w-full">
-					Cancel
-				</Button>
+				<Button variant="outline" class="w-full">Cancel</Button>
 			</Dialog.Close>
 		</Dialog.Footer>
 	</Dialog.Content>

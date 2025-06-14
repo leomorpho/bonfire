@@ -7,6 +7,9 @@
 	import { fade } from 'svelte/transition';
 	import ProfileAvatar from '../profile/profile-avatar/ProfileAvatar.svelte';
 	import AttendeesDialog from '../AttendeesDialog.svelte';
+	import InviteUsersModal from './InviteUsersModal.svelte';
+	import { Button } from '../ui/button';
+	import { UserPlus } from 'lucide-svelte';
 
 	let {
 		rsvpStatus,
@@ -28,8 +31,11 @@
 		eventLocation = '',
 		maxNumGuestsAllowedPerAttendee = 0,
 		eventCreatorUserId = '',
-		adminUserIds = new Set()
+		adminUserIds = new Set(),
+		eventId = ''
 	} = $props();
+
+	let showInviteModal = $state(false);
 
 	// Sum up the total number of attendees, including guests
 	let totalGoing = $derived(
@@ -65,12 +71,21 @@
 		</div>
 	{:else if rsvpStatus}
 		{#if allAttendeesGoing.length > 0}
-			<AttendeesCount
-				numAttendeesGoing={totalGoing}
-				numAttendeesMaybeGoing={totalMaybe}
-				numAttendeesNotGoing={totalNotGoing}
-				numAttendeesInvited={totalInvited}
-			/>
+			<div class="mb-4 flex items-center justify-between">
+				<AttendeesCount
+					numAttendeesGoing={totalGoing}
+					numAttendeesMaybeGoing={totalMaybe}
+					numAttendeesNotGoing={totalNotGoing}
+					numAttendeesInvited={totalInvited}
+				/>
+
+				{#if isCurrenUserEventAdmin}
+					<Button size="sm" variant="outline" onclick={() => (showInviteModal = true)} class="ml-2">
+						<UserPlus class="mr-1 h-4 w-4" />
+						Invite
+					</Button>
+				{/if}
+			</div>
 
 			<div
 				id="going-attendees"
@@ -127,3 +142,6 @@
 		/>
 	{/if}
 </div>
+
+<!-- Invite Users Modal -->
+<InviteUsersModal isOpen={showInviteModal} {eventId} onClose={() => (showInviteModal = false)} />

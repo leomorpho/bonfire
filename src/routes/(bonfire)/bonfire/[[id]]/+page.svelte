@@ -4,7 +4,7 @@
 	import type { BannerInfo, EventTypescriptType } from '$lib/types';
 	import Bonfire from '$lib/components/main-bonfire-event/Bonfire.svelte';
 	import { fontStore } from '$lib/styles';
-import { EventStatus } from '$lib/enums';
+	import { EventStatus } from '$lib/enums';
 
 	const tempAttendeeId = $page.data.tempAttendeeId;
 	const tempAttendeeSecret = $page.url.searchParams.get(tempAttendeeSecretParam);

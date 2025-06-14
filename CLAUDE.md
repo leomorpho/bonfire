@@ -84,6 +84,11 @@ npm run start    # Start production server
 3. **File uploads**: TUS protocol implementation for resumable uploads
 4. **Notifications**: Queue-based system supporting email, SMS, and push
 
+### Triplit Client Usage
+
+- **Server-side**: Use `triplitHttpClient` from `src/lib/server/triplit.ts`
+- **Frontend**: Use `getFeHttpTriplitClient(jwt)` for HTTP operations from `src/lib/triplit.ts`
+
 ### Svelte 5 Specific Guidelines
 
 - **State**: Use `$state()` instead of `let` for reactive variables

@@ -261,9 +261,7 @@ export async function createNewEventDeletedNotificationQueueObject(
 	attendeeIds: string[]
 ): Promise<void> {
 	if (!isNonEmptyArray(attendeeIds)) {
-		throw new Error(
-			'attendeeIds in createNewEventDeletedNotificationQueueObject cannot be empty.'
-		);
+		throw new Error('attendeeIds in createNewEventDeletedNotificationQueueObject cannot be empty.');
 	}
 
 	await client.insert('notifications_queue', {

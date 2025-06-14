@@ -75,7 +75,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
 		const tempAttendeeIds = tempAttendees.map((attendee) => attendee.id);
 
 		// Filter out the current user from regular attendees for notification purposes
-		const otherRegularAttendeeIds = regularAttendeeIds.filter(id => id !== user.id);
+		const otherRegularAttendeeIds = regularAttendeeIds.filter((id) => id !== user.id);
 
 		// Create notifications for other attendees before deleting the event
 		if (otherRegularAttendeeIds.length > 0) {
@@ -90,85 +90,103 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
 		// Delete all associated data first
 		await Promise.all([
 			// Delete event admins
-			triplitHttpClient.fetch(
-				triplitHttpClient.query('event_admins').Where([['event_id', '=', eventId]])
-			).then(admins => 
-				Promise.all(admins.map(admin => triplitHttpClient.delete('event_admins', admin.id)))
-			),
+			triplitHttpClient
+				.fetch(triplitHttpClient.query('event_admins').Where([['event_id', '=', eventId]]))
+				.then((admins) =>
+					Promise.all(admins.map((admin) => triplitHttpClient.delete('event_admins', admin.id)))
+				),
 			// Delete announcements
-			triplitHttpClient.fetch(
-				triplitHttpClient.query('announcement').Where([['event_id', '=', eventId]])
-			).then(announcements => 
-				Promise.all(announcements.map(ann => triplitHttpClient.delete('announcement', ann.id)))
-			),
+			triplitHttpClient
+				.fetch(triplitHttpClient.query('announcement').Where([['event_id', '=', eventId]]))
+				.then((announcements) =>
+					Promise.all(announcements.map((ann) => triplitHttpClient.delete('announcement', ann.id)))
+				),
 			// Delete bring items and assignments
-			triplitHttpClient.fetch(
-				triplitHttpClient.query('bring_items').Where([['event_id', '=', eventId]])
-			).then(items => 
-				Promise.all(items.map(async item => {
-					// Delete bring assignments first
-					const assignments = await triplitHttpClient.fetch(
-						triplitHttpClient.query('bring_assignments').Where([['bring_item_id', '=', item.id]])
-					);
-					await Promise.all(assignments.map(assignment => 
-						triplitHttpClient.delete('bring_assignments', assignment.id)
-					));
-					// Then delete the bring item
-					await triplitHttpClient.delete('bring_items', item.id);
-				}))
-			),
+			triplitHttpClient
+				.fetch(triplitHttpClient.query('bring_items').Where([['event_id', '=', eventId]]))
+				.then((items) =>
+					Promise.all(
+						items.map(async (item) => {
+							// Delete bring assignments first
+							const assignments = await triplitHttpClient.fetch(
+								triplitHttpClient
+									.query('bring_assignments')
+									.Where([['bring_item_id', '=', item.id]])
+							);
+							await Promise.all(
+								assignments.map((assignment) =>
+									triplitHttpClient.delete('bring_assignments', assignment.id)
+								)
+							);
+							// Then delete the bring item
+							await triplitHttpClient.delete('bring_items', item.id);
+						})
+					)
+				),
 			// Delete event threads and messages
-			triplitHttpClient.fetch(
-				triplitHttpClient.query('event_threads').Where([['event_id', '=', eventId]])
-			).then(threads => 
-				Promise.all(threads.map(async thread => {
-					// Delete messages first
-					const messages = await triplitHttpClient.fetch(
-						triplitHttpClient.query('event_messages').Where([['thread_id', '=', thread.id]])
-					);
-					await Promise.all(messages.map(msg => 
-						triplitHttpClient.delete('event_messages', msg.id)
-					));
-					// Then delete the thread
-					await triplitHttpClient.delete('event_threads', thread.id);
-				}))
-			),
+			triplitHttpClient
+				.fetch(triplitHttpClient.query('event_threads').Where([['event_id', '=', eventId]]))
+				.then((threads) =>
+					Promise.all(
+						threads.map(async (thread) => {
+							// Delete messages first
+							const messages = await triplitHttpClient.fetch(
+								triplitHttpClient.query('event_messages').Where([['thread_id', '=', thread.id]])
+							);
+							await Promise.all(
+								messages.map((msg) => triplitHttpClient.delete('event_messages', msg.id))
+							);
+							// Then delete the thread
+							await triplitHttpClient.delete('event_threads', thread.id);
+						})
+					)
+				),
 			// Delete files
-			triplitHttpClient.fetch(
-				triplitHttpClient.query('files').Where([['event_id', '=', eventId]])
-			).then(files => 
-				Promise.all(files.map(file => triplitHttpClient.delete('files', file.id)))
-			),
+			triplitHttpClient
+				.fetch(triplitHttpClient.query('files').Where([['event_id', '=', eventId]]))
+				.then((files) =>
+					Promise.all(files.map((file) => triplitHttpClient.delete('files', file.id)))
+				),
 			// Delete event reminders
-			triplitHttpClient.fetch(
-				triplitHttpClient.query('event_reminders').Where([['event_id', '=', eventId]])
-			).then(reminders => 
-				Promise.all(reminders.map(reminder => triplitHttpClient.delete('event_reminders', reminder.id)))
-			),
+			triplitHttpClient
+				.fetch(triplitHttpClient.query('event_reminders').Where([['event_id', '=', eventId]]))
+				.then((reminders) =>
+					Promise.all(
+						reminders.map((reminder) => triplitHttpClient.delete('event_reminders', reminder.id))
+					)
+				),
 			// Delete event private data
-			triplitHttpClient.fetch(
-				triplitHttpClient.query('events_private_data').Where([['event_id', '=', eventId]])
-			).then(privateData => 
-				Promise.all(privateData.map(data => triplitHttpClient.delete('events_private_data', data.id)))
-			),
+			triplitHttpClient
+				.fetch(triplitHttpClient.query('events_private_data').Where([['event_id', '=', eventId]]))
+				.then((privateData) =>
+					Promise.all(
+						privateData.map((data) => triplitHttpClient.delete('events_private_data', data.id))
+					)
+				),
 			// Delete banner media
-			triplitHttpClient.fetch(
-				triplitHttpClient.query('banner_media').Where([['event_id', '=', eventId]])
-			).then(banners => 
-				Promise.all(banners.map(banner => triplitHttpClient.delete('banner_media', banner.id)))
-			),
+			triplitHttpClient
+				.fetch(triplitHttpClient.query('banner_media').Where([['event_id', '=', eventId]]))
+				.then((banners) =>
+					Promise.all(banners.map((banner) => triplitHttpClient.delete('banner_media', banner.id)))
+				),
 			// Delete attendees
-			triplitHttpClient.fetch(
-				triplitHttpClient.query('attendees').Where([['event_id', '=', eventId]])
-			).then(attendees => 
-				Promise.all(attendees.map(attendee => triplitHttpClient.delete('attendees', attendee.id)))
-			),
+			triplitHttpClient
+				.fetch(triplitHttpClient.query('attendees').Where([['event_id', '=', eventId]]))
+				.then((attendees) =>
+					Promise.all(
+						attendees.map((attendee) => triplitHttpClient.delete('attendees', attendee.id))
+					)
+				),
 			// Delete temporary attendees
-			triplitHttpClient.fetch(
-				triplitHttpClient.query('temporary_attendees').Where([['event_id', '=', eventId]])
-			).then(tempAttendees => 
-				Promise.all(tempAttendees.map(tempAttendee => triplitHttpClient.delete('temporary_attendees', tempAttendee.id)))
-			)
+			triplitHttpClient
+				.fetch(triplitHttpClient.query('temporary_attendees').Where([['event_id', '=', eventId]]))
+				.then((tempAttendees) =>
+					Promise.all(
+						tempAttendees.map((tempAttendee) =>
+							triplitHttpClient.delete('temporary_attendees', tempAttendee.id)
+						)
+					)
+				)
 		]);
 
 		// Finally delete the event itself

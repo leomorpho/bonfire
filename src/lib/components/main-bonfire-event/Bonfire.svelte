@@ -680,6 +680,7 @@
 							/>
 
 							<Attendees
+								{eventId}
 								{rsvpStatus}
 								{attendeesLoading}
 								{allAttendeesGoing}
