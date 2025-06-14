@@ -25,6 +25,10 @@ clean: ## Clean db and reseed
 dev: ## Start the dev server
 	npm run dev
 
+.PHONY: fresh
+fresh: ## Clean db, seed with data, and start dev server
+	rm -f local.db && pnpm run migrate && pnpm run seed && pnpm run dev
+
 .PHONY: up
 up: ## Start the Docker containers
 	$(DCO_BIN) up -d --remove-orphans
