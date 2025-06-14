@@ -1941,5 +1941,119 @@ export const schema = S.Collections({
 			temp: {},
 			anon: {}
 		}
+	},
+	support_conversations: {
+		schema: S.Schema({
+			id: S.Id(),
+			user_id: S.String(), // The user seeking support
+			status: S.String({ 
+				enum: ['open', 'closed'] as const,
+				default: 'open'
+			}), // Conversation status
+			created_at: S.Date({ default: S.Default.now() }),
+			updated_at: S.Date({ default: S.Default.now() }),
+			last_message_at: S.Optional(S.Date({ nullable: true, default: null }))
+		}),
+		relationships: {
+			user: S.RelationById('user', '$user_id'),
+			messages: S.RelationMany('support_messages', {
+				where: [['conversation_id', '=', '$id']]
+			})
+		},
+		permissions: {
+			admin: {
+				read: { filter: [true] }, // Admins can see all conversations
+				update: { filter: [true] } // Admins can update conversation status
+			},
+			user: {
+				read: { 
+					filter: [['user_id', '=', '$role.userId']] // Users can only see their own conversations
+				},
+				insert: { 
+					filter: [['user_id', '=', '$role.userId']] // Users can create their own conversations
+				},
+				update: { 
+					filter: [['user_id', '=', '$role.userId']] // Users can update their own conversations
+				}
+			},
+			temp: {},
+			anon: {}
+		}
+	},
+	support_messages: {
+		schema: S.Schema({
+			id: S.Id(),
+			conversation_id: S.String(),
+			user_id: S.String(), // Could be user or admin
+			content: S.String(),
+			is_admin_message: S.Boolean({ default: false }), // True if sent by admin
+			created_at: S.Date({ default: S.Default.now() }),
+			updated_at: S.Optional(S.Date({ nullable: true, default: null }))
+		}),
+		relationships: {
+			conversation: S.RelationById('support_conversations', '$conversation_id'),
+			user: S.RelationById('user', '$user_id'),
+			seen_by: S.RelationMany('support_message_seen', { 
+				where: [['message_id', '=', '$id']] 
+			})
+		},
+		permissions: {
+			admin: {
+				read: { filter: [true] }, // Admins can see all messages
+				insert: { filter: [true] }, // Admins can send messages to any conversation
+				update: { filter: [['user_id', '=', '$role.userId']] } // Admins can only edit their own messages
+			},
+			user: {
+				read: { 
+					filter: [['conversation.user_id', '=', '$role.userId']] // Users can only see messages in their conversations
+				},
+				insert: { 
+					filter: [['conversation.user_id', '=', '$role.userId']] // Users can only send messages in their conversations
+				},
+				update: { 
+					filter: [
+						and([
+							['user_id', '=', '$role.userId'], // Users can only edit their own messages
+							['conversation.user_id', '=', '$role.userId'] // In their own conversations
+						])
+					]
+				}
+			},
+			temp: {},
+			anon: {}
+		}
+	},
+	support_message_seen: {
+		schema: S.Schema({
+			id: S.Id(),
+			message_id: S.String(),
+			user_id: S.String(),
+			seen_at: S.Date({ default: S.Default.now() })
+		}),
+		relationships: {
+			message: S.RelationById('support_messages', '$message_id'),
+			user: S.RelationById('user', '$user_id')
+		},
+		permissions: {
+			admin: {
+				read: { filter: [true] }, // Admins can see all read status
+				insert: { filter: [['user_id', '=', '$role.userId']] }, // Admins can mark messages as seen
+				delete: { filter: [['user_id', '=', '$role.userId']] }
+			},
+			user: {
+				read: { 
+					filter: [
+						or([
+							['user_id', '=', '$role.userId'], // Users can see their own read status
+							['message.conversation.user_id', '=', '$role.userId'] // Users can see read status in their conversations
+						])
+					]
+				},
+				insert: { filter: [['user_id', '=', '$role.userId']] }, // Users can mark messages as seen
+				delete: { filter: [['user_id', '=', '$role.userId']] }
+			},
+			temp: {},
+			anon: {}
+		}
 	}
 });

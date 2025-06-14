@@ -22,7 +22,7 @@
 	import { tick } from 'svelte';
 	import TopBanner from './marketing/TopBanner.svelte';
 	import PageNavigationLoader from './PageNavigationLoader.svelte';
-	import { BookOpenText, BrickWall, CircleUserRound, Cog, MessagesSquare } from '@lucide/svelte';
+	import { BookOpenText, BrickWall, CircleUserRound, Cog, MessagesSquare, HelpCircle } from '@lucide/svelte';
 	import InstallPwaAppBtn from './install-pwa/InstallPwaAppBtn.svelte';
 
 	let isAdmin = false;
@@ -50,6 +50,7 @@
 		{ icon: House, name: 'Dashboard', href: '/dashboard', id: 'dashboard' },
 		{ icon: CircleUser, name: 'Profile', href: '/profile', id: 'profile' },
 		{ icon: Cog, name: 'Settings', href: '/settings', id: 'settings' },
+		{ icon: HelpCircle, name: 'Support', href: '/support', id: 'support' },
 		{ icon: MessagesSquare, name: 'Feedback', href: '/feedback', id: 'feedback' },
 		...(isAdmin ? [{ icon: Shield, name: 'Admin Panel', href: '/admin', id: 'admin-panel' }] : [])
 	];
