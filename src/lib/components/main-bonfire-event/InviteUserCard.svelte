@@ -101,16 +101,18 @@
 
 		<!-- 3-dot menu -->
 		<DropdownMenu.Root>
-			<DropdownMenu.Trigger asChild let:builder>
-				<Button
-					variant="ghost"
-					size="sm"
-					class="h-8 w-8 p-0 hover:bg-gray-100 dark:hover:bg-gray-700"
-					{...builder}
-				>
-					<MoreHorizontal class="h-4 w-4" />
-					<span class="sr-only">Open menu</span>
-				</Button>
+			<DropdownMenu.Trigger asChild>
+				{#snippet children({ props })}
+					<Button
+						variant="ghost"
+						size="sm"
+						class="h-8 w-8 p-0 hover:bg-gray-100 dark:hover:bg-gray-700"
+						{...props}
+					>
+						<MoreHorizontal class="h-4 w-4" />
+						<span class="sr-only">Open menu</span>
+					</Button>
+				{/snippet}
 			</DropdownMenu.Trigger>
 			<DropdownMenu.Content align="end">
 				<DropdownMenu.Item
