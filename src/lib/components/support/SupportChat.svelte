@@ -43,24 +43,17 @@
 		}
 
 		try {
-			console.log('Starting loadConversation...', { isAdmin, conversationId, userId });
 			isLoading = true;
 			isSubscribing = true;
 			error = '';
 
-			console.log('Loading conversation...');
-			
 			const client = getFeWorkerTriplitClient($page.data.jwt);
-			console.log('Got Triplit client:', client);
 			
 			userId = (await waitForUserId()) as string;
-			console.log('Got user ID:', userId);
 
 			if (!userId) {
-				console.log('User ID is null, checking if user exists in page data...');
 				if ($page.data.user?.id) {
 					userId = $page.data.user.id;
-					console.log('Using user ID from page data:', userId);
 				} else {
 					throw new Error('User not authenticated');
 				}
@@ -68,7 +61,6 @@
 
 			if (isAdmin && conversationId) {
 				// Admin view: load specific conversation
-				console.log('Loading admin conversation:', conversationId);
 				conversation = await client.fetchOne(
 					client.query('support_conversations').Where([['id', '=', conversationId]])
 				);
@@ -77,15 +69,11 @@
 				}
 			} else {
 				// User view: get or create conversation
-				console.log('Getting or creating user conversation...');
 				conversation = await getOrCreateSupportConversation(client, userId);
-				console.log('Got conversation:', conversation);
 			}
 
 			// Load messages
-			console.log('Loading messages for conversation:', conversation.id);
 			const loadedMessages = await getSupportMessages(client, conversation.id);
-			console.log('Loaded messages:', loadedMessages);
 			messages = loadedMessages;
 
 			// Set up real-time subscription for new messages
@@ -116,13 +104,9 @@
 	};
 
 	const handleSendMessage = async (content: string) => {
-		if (!conversation || !userId) {
-			console.log('Cannot send message - missing conversation or userId:', { conversation: !!conversation, userId });
-			return;
-		}
+		if (!conversation || !userId) return;
 
 		try {
-			console.log('Sending message:', { conversationId: conversation.id, userId, content, isAdmin });
 			const client = getFeWorkerTriplitClient($page.data.jwt);
 			
 			// Verify conversation exists before sending message
@@ -131,13 +115,11 @@
 			);
 			
 			if (!existingConversation) {
-				console.error('Conversation not found, reloading...');
 				await loadConversation();
 				return;
 			}
 			
 			await sendSupportMessage(client, conversation.id, userId, content, isAdmin);
-			console.log('Message sent successfully');
 		} catch (err) {
 			console.error('Error sending support message:', err);
 			error = 'Failed to send message';
@@ -156,7 +138,7 @@
 	};
 
 	// Track previous conversationId to prevent unnecessary reloads
-	let previousConversationId = $state(null);
+	let previousConversationId = $state(undefined);
 
 	// Single effect to handle all loading scenarios
 	$effect(() => {
@@ -165,16 +147,12 @@
 			// Only load if:
 			// 1. We're not already loading/subscribing
 			// 2. ConversationId has actually changed (for admin) or it's the initial load
-			if (isSubscribing) {
-				console.log('Already subscribing, skipping effect...');
-				return;
-			}
+			if (isSubscribing) return;
 
-			const shouldLoad = !isAdmin || 
+			const shouldLoad = (!isAdmin) || 
 				(isAdmin && conversationId && conversationId !== previousConversationId);
 
 			if (shouldLoad) {
-				console.log('Effect triggering loadConversation:', { isAdmin, conversationId, previousConversationId });
 				previousConversationId = conversationId;
 				
 				if (unsubscribe) {
@@ -190,7 +168,6 @@
 	// Simple error recovery without automatic retry to prevent loops
 	$effect(() => {
 		if (error) {
-			console.log('Conversation load failed:', error);
 			// Don't auto-retry to prevent loops
 		}
 	});

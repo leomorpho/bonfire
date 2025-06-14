@@ -13,11 +13,8 @@ export async function getOrCreateSupportConversation(
 	client: WorkerClient | HttpClient | TriplitClient,
 	userId: string
 ): Promise<object> {
-	console.log('getOrCreateSupportConversation called with userId:', userId);
-	
 	try {
 		// First, try to find an existing open conversation
-		console.log('Searching for existing conversation...');
 		const existingConversation = await client.fetchOne(
 			client.query('support_conversations').Where([
 				and([
@@ -28,20 +25,16 @@ export async function getOrCreateSupportConversation(
 		);
 
 		if (existingConversation) {
-			console.log('Found existing conversation:', existingConversation);
 			return existingConversation;
 		}
 
 		// Create a new conversation if none exists
-		console.log('Creating new conversation...');
 		const newConversation = await client.insert('support_conversations', {
 			user_id: userId,
 			status: 'open',
 			created_at: new Date(),
 			updated_at: new Date()
 		});
-
-		console.log('Created new conversation:', newConversation);
 		
 		// Fetch the conversation again to ensure it exists and get the correct format
 		const createdConversation = await client.fetchOne(
@@ -52,7 +45,6 @@ export async function getOrCreateSupportConversation(
 			throw new Error('Failed to create conversation');
 		}
 		
-		console.log('Fetched created conversation:', createdConversation);
 		return createdConversation;
 	} catch (err) {
 		console.error('Error in getOrCreateSupportConversation:', err);
@@ -77,10 +69,7 @@ export async function sendSupportMessage(
 	content: string,
 	isAdminMessage: boolean = false
 ): Promise<object> {
-	console.log('sendSupportMessage called with:', { conversationId, userId, content, isAdminMessage });
-	
 	try {
-		console.log('Inserting message...');
 		const message = await client.insert('support_messages', {
 			conversation_id: conversationId,
 			user_id: userId,
@@ -88,17 +77,14 @@ export async function sendSupportMessage(
 			is_admin_message: isAdminMessage,
 			created_at: new Date()
 		});
-		console.log('Message inserted:', message);
 
 		// Update conversation's last_message_at timestamp
 		// Note: Temporarily disabled to avoid EntityNotFoundError
-		// console.log('Updating conversation timestamp...');
 		// try {
 		// 	await client.update('support_conversations', conversationId, (conversation) => {
 		// 		conversation.last_message_at = new Date();
 		// 		conversation.updated_at = new Date();
 		// 	});
-		// 	console.log('Conversation updated');
 		// } catch (updateError) {
 		// 	console.warn('Failed to update conversation timestamp:', updateError);
 		// 	// Don't fail the whole operation if timestamp update fails
