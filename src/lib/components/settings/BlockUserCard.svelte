@@ -60,7 +60,13 @@
 		</div>
 	</div>
 
-	<Button size="sm" variant="outline" onclick={handleBlock} disabled={isBlocking} class="min-w-16 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950 dark:hover:text-red-300">
+	<Button
+		size="sm"
+		variant="outline"
+		onclick={handleBlock}
+		disabled={isBlocking}
+		class="min-w-16 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950 dark:hover:text-red-300"
+	>
 		{#if isBlocking}
 			<div
 				class="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"

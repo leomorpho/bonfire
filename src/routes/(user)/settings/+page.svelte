@@ -22,9 +22,7 @@
 			<div class="mt-10 space-y-5">
 				<h3 class="text-xl font-semibold">Privacy</h3>
 				<div class="flex flex-col justify-center space-y-3">
-					<Button href="/settings/blocked-users" variant="outline">
-						Block Users
-					</Button>
+					<Button href="/settings/blocked-users" variant="outline">Block Users</Button>
 				</div>
 			</div>
 

@@ -9,7 +9,8 @@ This document outlines the strategy for implementing a dedicated support messagi
 **Separate but Leveraging Existing Infrastructure**
 
 The support messaging system:
-- Uses the same **Triplit real-time infrastructure** 
+
+- Uses the same **Triplit real-time infrastructure**
 - Leverages the existing **notification system**
 - Has its own **database tables** to keep support conversations separate from event messaging
 - Reuses **UI components** but simplified (no reactions, threading, etc.)
@@ -18,29 +19,29 @@ The support messaging system:
 
 ```typescript
 support_conversations: {
-  id: string;
-  user_id: string;           // The user seeking support
-  status: 'open' | 'closed'; // Conversation status
-  created_at: Date;
-  updated_at: Date;
-  last_message_at: Date;
+	id: string;
+	user_id: string; // The user seeking support
+	status: 'open' | 'closed'; // Conversation status
+	created_at: Date;
+	updated_at: Date;
+	last_message_at: Date;
 }
 
 support_messages: {
-  id: string;
-  conversation_id: string;
-  user_id: string;          // Could be user or admin
-  content: string;
-  is_admin_message: boolean; // True if sent by admin
-  created_at: Date;
-  updated_at: Date;
+	id: string;
+	conversation_id: string;
+	user_id: string; // Could be user or admin
+	content: string;
+	is_admin_message: boolean; // True if sent by admin
+	created_at: Date;
+	updated_at: Date;
 }
 
 support_message_seen: {
-  id: string;
-  message_id: string;
-  user_id: string;
-  seen_at: Date;
+	id: string;
+	message_id: string;
+	user_id: string;
+	seen_at: Date;
 }
 ```
 
@@ -54,6 +55,7 @@ support_message_seen: {
 ## UI/UX Design
 
 ### User Interface
+
 - **Support button/link** in main nav or user menu
 - **Simple chat interface** - no reactions, no threading
 - **Conversation list** for admins (like inbox)
@@ -61,6 +63,7 @@ support_message_seen: {
 - **Clear admin/user message distinction** (different styling)
 
 ### Admin Interface
+
 - **Support dashboard** showing all open conversations
 - **Conversation list** with user info and last message preview
 - **Unread indicators** for admin responses needed
@@ -69,18 +72,21 @@ support_message_seen: {
 ## Implementation Plan
 
 ### Phase 1: Core Infrastructure
+
 1. **Database schema** - Add new Triplit collections
 2. **Permissions** - Set up support-specific access rules
 3. **Basic server functions** - Send/receive support messages
 4. **Simple components** - Minimal chat interface
 
-### Phase 2: User Experience  
+### Phase 2: User Experience
+
 5. **User support page** - `/support` route with chat interface
 6. **Message components** - Simplified versions of existing components
 7. **Real-time updates** - Live messaging for both users and admins
 8. **Notifications** - Email/SMS when admins respond
 
 ### Phase 3: Admin Tools
+
 9. **Admin dashboard** - `/admin/support` with conversation list
 10. **Conversation management** - Mark resolved, search, filter
 11. **Admin notifications** - Alert admins to new support requests
@@ -91,7 +97,7 @@ support_message_seen: {
 ```
 src/lib/components/support/
 ├── SupportChat.svelte          # Main chat interface
-├── SupportMessage.svelte       # Individual message component  
+├── SupportMessage.svelte       # Individual message component
 ├── SupportInput.svelte         # Message input (simplified)
 ├── ConversationList.svelte     # Admin conversation list
 └── ConversationPreview.svelte  # Conversation summary card
@@ -117,23 +123,27 @@ src/routes/
 The existing bonfire messaging system uses:
 
 #### Database Schema (Triplit)
+
 - **`event_threads`** - Message threads within events
 - **`event_messages`** - Individual messages with soft deletion
 - **`event_message_seen`** - Message read status tracking
 - **`emoji_reactions`** - Message reactions (not needed for support)
 
 #### Real-time Architecture
+
 - **Frontend**: `TriplitClient` or `WorkerClient` for real-time subscriptions
 - **Server**: `triplitHttpClient` with service token for backend operations
 - **Permissions**: Role-based permissions (admin, user, temp, anon)
 
 #### Key Components
+
 - **`ImThreadView.svelte`** - Main messaging interface
 - **`Message.svelte`** - Individual message component
 - **`ImInput.svelte`** - Message composition
 - **`MessageContextMenu.svelte`** - Message actions
 
 #### Notification System
+
 - Queue-based notifications with multi-channel delivery
 - Smart filtering (excludes sender, respects preferences)
 - Integration with email, SMS, and push notifications

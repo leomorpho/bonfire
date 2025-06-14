@@ -2,19 +2,16 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { page } from '$app/stores';
 	import { getFeWorkerTriplitClient, waitForUserId } from '$lib/triplit';
-	import { 
-		getOrCreateSupportConversation, 
-		sendSupportMessage, 
+	import {
+		getOrCreateSupportConversation,
+		sendSupportMessage,
 		getSupportMessages,
-		markSupportMessageAsSeen 
+		markSupportMessageAsSeen
 	} from '$lib/support';
 	import SupportMessage from './SupportMessage.svelte';
 	import SupportInput from './SupportInput.svelte';
 
-	let { 
-		isAdmin = false, 
-		conversationId = null 
-	} = $props<{
+	let { isAdmin = false, conversationId = null } = $props<{
 		isAdmin?: boolean;
 		conversationId?: string | null;
 	}>();
@@ -48,7 +45,7 @@
 			error = '';
 
 			const client = getFeWorkerTriplitClient($page.data.jwt);
-			
+
 			userId = (await waitForUserId()) as string;
 
 			if (!userId) {
@@ -108,17 +105,17 @@
 
 		try {
 			const client = getFeWorkerTriplitClient($page.data.jwt);
-			
+
 			// Verify conversation exists before sending message
 			const existingConversation = await client.fetchOne(
 				client.query('support_conversations').Where([['id', '=', conversation.id]])
 			);
-			
+
 			if (!existingConversation) {
 				await loadConversation();
 				return;
 			}
-			
+
 			await sendSupportMessage(client, conversation.id, userId, content, isAdmin);
 		} catch (err) {
 			console.error('Error sending support message:', err);
@@ -149,17 +146,17 @@
 			// 2. ConversationId has actually changed (for admin) or it's the initial load
 			if (isSubscribing) return;
 
-			const shouldLoad = (!isAdmin) || 
-				(isAdmin && conversationId && conversationId !== previousConversationId);
+			const shouldLoad =
+				!isAdmin || (isAdmin && conversationId && conversationId !== previousConversationId);
 
 			if (shouldLoad) {
 				previousConversationId = conversationId;
-				
+
 				if (unsubscribe) {
 					unsubscribe();
 					unsubscribe = null;
 				}
-				
+
 				loadConversation();
 			}
 		}, 0);
@@ -186,16 +183,13 @@
 			{isAdmin ? 'Support Chat' : 'Contact Support'}
 		</h2>
 		<p class="text-sm text-gray-600 dark:text-gray-400">
-			{isAdmin 
-				? 'Helping users with their questions and issues'
-				: 'Get help from our support team'
-			}
+			{isAdmin ? 'Helping users with their questions and issues' : 'Get help from our support team'}
 		</p>
 	</div>
 
 	<!-- Error Message -->
 	{#if error}
-		<div class="bg-red-50 border-l-4 border-red-400 p-4 dark:bg-red-900/20">
+		<div class="border-l-4 border-red-400 bg-red-50 p-4 dark:bg-red-900/20">
 			<div class="text-sm text-red-700 dark:text-red-400">{error}</div>
 		</div>
 	{/if}
@@ -204,37 +198,34 @@
 	{#if isLoading}
 		<div class="flex flex-1 items-center justify-center">
 			<div class="text-center">
-				<div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
+				<div
+					class="mx-auto mb-2 h-8 w-8 animate-spin rounded-full border-b-2 border-blue-500"
+				></div>
 				<p class="text-gray-600 dark:text-gray-400">Loading conversation...</p>
 			</div>
 		</div>
 	{:else}
 		<!-- Messages Container -->
-		<div 
-			bind:this={messagesContainer}
-			class="flex-1 overflow-y-auto p-4 space-y-2"
-		>
+		<div bind:this={messagesContainer} class="flex-1 space-y-2 overflow-y-auto p-4">
 			{#if messages.length === 0}
-				<div class="flex flex-1 items-center justify-center text-center py-8">
+				<div class="flex flex-1 items-center justify-center py-8 text-center">
 					<div>
-						<p class="text-gray-600 dark:text-gray-400 mb-2">
-							{isAdmin 
+						<p class="mb-2 text-gray-600 dark:text-gray-400">
+							{isAdmin
 								? 'No messages yet in this conversation.'
-								: 'Start a conversation with our support team!'
-							}
+								: 'Start a conversation with our support team!'}
 						</p>
 						<p class="text-sm text-gray-500 dark:text-gray-500">
-							{isAdmin 
+							{isAdmin
 								? 'Wait for the user to send a message.'
-								: 'Ask any questions or report issues below.'
-							}
+								: 'Ask any questions or report issues below.'}
 						</p>
 					</div>
 				</div>
 			{:else}
 				{#each messages as message (message.id)}
-					<SupportMessage 
-						{message} 
+					<SupportMessage
+						{message}
 						currUserId={userId}
 						onMessageSeen={() => handleMessageSeen(message.id)}
 					/>
@@ -243,13 +234,10 @@
 		</div>
 
 		<!-- Input Area -->
-		<SupportInput 
+		<SupportInput
 			{handleSendMessage}
 			disabled={isLoading}
-			placeholder={isAdmin 
-				? 'Type your response...'
-				: 'Describe your issue or question...'
-			}
+			placeholder={isAdmin ? 'Type your response...' : 'Describe your issue or question...'}
 		/>
 	{/if}
 </div>

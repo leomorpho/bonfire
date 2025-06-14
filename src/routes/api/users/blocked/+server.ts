@@ -13,14 +13,17 @@ export const GET = async ({ locals }) => {
 			triplitHttpClient
 				.query('user_blocks')
 				.Where(['blocker_user_id', '=', user.id])
-				.SubqueryOne('blocked', triplitHttpClient.query('user').Where(['id', '=', '$1.blocked_user_id']))
+				.SubqueryOne(
+					'blocked',
+					triplitHttpClient.query('user').Where(['id', '=', '$1.blocked_user_id'])
+				)
 				.Select(['blocked_user_id', 'created_at'])
 		);
 
 		// Transform the data to include user details
 		const users = blockedUsers
-			.filter(block => block.blocked) // Only include blocks where user still exists
-			.map(block => ({
+			.filter((block) => block.blocked) // Only include blocks where user still exists
+			.map((block) => ({
 				id: block.blocked_user_id,
 				username: block.blocked.username,
 				blocked_at: block.created_at

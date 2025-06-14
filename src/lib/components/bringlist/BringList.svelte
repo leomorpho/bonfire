@@ -10,10 +10,16 @@
 	import BringItemProgressBar from './BringItemProgressBar.svelte';
 	import { Button } from '../ui/button';
 	import BonfireNoInfoCard from '../BonfireNoInfoCard.svelte';
-	import { Plus, ShoppingBasket } from 'lucide-svelte';
+	import { Plus, ShoppingBasket, Sparkles } from 'lucide-svelte';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import BringListItemsSortedByUsers from './BringListItemsSortedByUsers.svelte';
 	import RequireUserBringSomething from './RequireUserBringSomething.svelte';
+	import ProposedBringListBrowser from './ProposedBringListBrowser.svelte';
+	import ProposedBringListPreview from './ProposedBringListPreview.svelte';
+	import { createBringItem } from '$lib/bringlist';
+	import { toast } from 'svelte-sonner';
+	import type { ProposedBringList } from '$lib/proposed-bring-lists';
+	import { BringListCountTypes } from '$lib/enums';
 	import { dev } from '$app/environment';
 
 	let {
@@ -36,6 +42,12 @@
 	let yourItems: Array<BringItem> = $state([]);
 	let isBringListFilled = $state(false);
 	let isUserBringingSomething = $state(false);
+	
+	// Proposed bring lists state
+	let showProposedBrowser = $state(false);
+	let showProposedPreview = $state(false);
+	let selectedProposedList: ProposedBringList | null = $state(null);
+	let isAddingProposedItems = $state(false);
 
 	// Function to calculate total quantity brought for each item
 	function calculateTotalBrought(item: BringItem): number {
@@ -60,6 +72,63 @@
 	$effect(() => {
 		console.log('showBringListFullScreen', showBringListFullScreen);
 	});
+
+	// Handle proposed bring list selection
+	const handleProposedListSelect = (proposedList: ProposedBringList) => {
+		selectedProposedList = proposedList;
+		showProposedBrowser = false;
+		showProposedPreview = true;
+	};
+
+	// Calculate quantity for proposed items based on attendee count
+	const calculateProposedQuantity = (item: any, attendeeCount: number) => {
+		if (item.unit === BringListCountTypes.PER_PERSON) {
+			return Math.max(1, Math.ceil(item.quantity_needed * attendeeCount));
+		}
+		return item.quantity_needed;
+	};
+
+	// Add all items from selected proposed list
+	const handleAddProposedItems = async () => {
+		if (!selectedProposedList || !currUserId) return;
+		
+		isAddingProposedItems = true;
+		
+		try {
+			const client = getFeWorkerTriplitClient($page.data.jwt);
+			let addedCount = 0;
+			
+			for (const item of selectedProposedList.items) {
+				const quantity = calculateProposedQuantity(item, numAttendeesGoing);
+				
+				await createBringItem(
+					client,
+					eventId,
+					currUserId,
+					item.name,
+					item.unit,
+					quantity,
+					item.details || ''
+				);
+				addedCount++;
+			}
+			
+			toast.success(`Added ${addedCount} items from "${selectedProposedList.name}" to your bring list!`);
+			showProposedPreview = false;
+			selectedProposedList = null;
+		} catch (error) {
+			console.error('Error adding proposed items:', error);
+			toast.error('Failed to add some items. Please try again.');
+		} finally {
+			isAddingProposedItems = false;
+		}
+	};
+
+	// Cancel proposed list operations
+	const handleCancelProposed = () => {
+		showProposedPreview = false;
+		selectedProposedList = null;
+	};
 
 	onMount(() => {
 		let client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
@@ -275,14 +344,30 @@
 
 {#snippet addBringItem()}
 	{#if currUserId && isCurrUserAttending}
-		<CrudItem {eventId} {numAttendeesGoing} class={'w-full'} {isAdmin}>
+		<div class="flex gap-2">
+			<!-- Proposed Lists Button -->
 			<Button
-				id="add-bring-list-item-btn"
-				class=" flex w-full items-center justify-center ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
+				onclick={() => showProposedBrowser = true}
+				variant="outline"
+				size="sm"
+				class="flex items-center gap-2"
+				disabled={isAddingProposedItems}
 			>
-				<Plus />
+				<Sparkles class="w-4 h-4" />
+				Templates
 			</Button>
-		</CrudItem>
+			
+			<!-- Add Individual Item -->
+			<CrudItem {eventId} {numAttendeesGoing} class={'w-fit'} {isAdmin}>
+				<Button
+					id="add-bring-list-item-btn"
+					size="sm"
+					class="flex items-center justify-center ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
+				>
+					<Plus class="w-4 h-4" />
+				</Button>
+			</CrudItem>
+		</div>
 	{/if}
 {/snippet}
 
@@ -295,4 +380,19 @@
 	{numAttendeesGoing}
 	{isAdmin}
 	{isUserBringingSomething}
+/>
+
+<!-- Proposed Bring Lists Dialogs -->
+<ProposedBringListBrowser
+	isOpen={showProposedBrowser}
+	onSelect={handleProposedListSelect}
+	onClose={() => showProposedBrowser = false}
+/>
+
+<ProposedBringListPreview
+	isOpen={showProposedPreview}
+	proposedList={selectedProposedList}
+	{numAttendeesGoing}
+	onConfirm={handleAddProposedItems}
+	onCancel={handleCancelProposed}
 />

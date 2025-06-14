@@ -234,7 +234,7 @@
 	{#if isLoading}
 		<p class="text-gray-400">Loading details...</p>
 	{:else if linkedObjects.length === 0 && (notification.object_type === NotificationType.ATTENDEES || notification.object_type === NotificationType.TEMP_ATTENDEES)}
-		<p class="text-gray-500 italic">Looks like the associated data was deleted by the author</p>
+		<p class="italic text-gray-500">Looks like the associated data was deleted by the author</p>
 	{:else}
 		<!-- Render linked objects -->
 		{#if notification.object_type === NotificationType.FILES}

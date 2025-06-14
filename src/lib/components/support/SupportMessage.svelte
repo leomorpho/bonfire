@@ -14,7 +14,7 @@
 
 	// Check if the message was sent by the current user
 	let isOwnMessage = $derived(message.user_id === currUserId);
-	
+
 	// Check if this is an admin message
 	let isAdminMessage = $derived(message.is_admin_message);
 
@@ -56,11 +56,7 @@
 	<div class={`flex max-w-[80%] ${isOwnMessage ? 'flex-row-reverse' : 'flex-row'} items-end gap-2`}>
 		<!-- Avatar -->
 		{#if !isOwnMessage}
-			<ProfileAvatar 
-				userId={message.user?.id} 
-				baseHeightPx={32}
-				class="flex-shrink-0"
-			/>
+			<ProfileAvatar userId={message.user?.id} baseHeightPx={32} class="flex-shrink-0" />
 		{/if}
 
 		<!-- Message Content -->
@@ -69,8 +65,8 @@
 				isOwnMessage
 					? 'bg-blue-500 text-white'
 					: isAdminMessage
-					? 'bg-green-100 text-green-900 border border-green-200 dark:bg-green-900 dark:text-green-100 dark:border-green-800'
-					: 'bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-gray-100'
+						? 'border border-green-200 bg-green-100 text-green-900 dark:border-green-800 dark:bg-green-900 dark:text-green-100'
+						: 'bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-gray-100'
 			} ${isUnseen && !isOwnMessage ? 'ring-2 ring-blue-400' : ''}`}
 		>
 			<!-- Admin Badge -->
@@ -91,8 +87,8 @@
 					isOwnMessage
 						? 'text-blue-100'
 						: isAdminMessage
-						? 'text-green-600 dark:text-green-400'
-						: 'text-gray-500 dark:text-gray-400'
+							? 'text-green-600 dark:text-green-400'
+							: 'text-gray-500 dark:text-gray-400'
 				}`}
 			>
 				{formatHumanReadableWithContext(message.created_at)}
@@ -101,11 +97,7 @@
 
 		<!-- Own message avatar -->
 		{#if isOwnMessage}
-			<ProfileAvatar 
-				userId={message.user?.id} 
-				baseHeightPx={32}
-				class="flex-shrink-0"
-			/>
+			<ProfileAvatar userId={message.user?.id} baseHeightPx={32} class="flex-shrink-0" />
 		{/if}
 	</div>
 </div>

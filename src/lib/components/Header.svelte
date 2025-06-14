@@ -20,9 +20,16 @@
 	import { onDestroy, onMount } from 'svelte';
 	import LogoutButton from './buttons/LogoutButton.svelte';
 	import { tick } from 'svelte';
-	import TopBanner from './marketing/TopBanner.svelte';
+	// import TopBanner from './marketing/TopBanner.svelte';
 	import PageNavigationLoader from './PageNavigationLoader.svelte';
-	import { BookOpenText, BrickWall, CircleUserRound, Cog, MessagesSquare, HelpCircle } from '@lucide/svelte';
+	import {
+		BookOpenText,
+		BrickWall,
+		CircleUserRound,
+		Cog,
+		MessagesSquare,
+		HelpCircle
+	} from '@lucide/svelte';
 	import InstallPwaAppBtn from './install-pwa/InstallPwaAppBtn.svelte';
 
 	let isAdmin = false;
@@ -156,7 +163,7 @@
 {/snippet}
 
 <PageNavigationLoader />
-<TopBanner />
+<!-- <TopBanner /> -->
 
 <div class="w-full">
 	<Container>

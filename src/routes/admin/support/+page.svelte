@@ -67,26 +67,24 @@
 {#if !isAdmin}
 	<div class="flex h-screen items-center justify-center">
 		<div class="text-center">
-			<h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-				Access Denied
-			</h1>
+			<h1 class="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100">Access Denied</h1>
 			<p class="text-gray-600 dark:text-gray-400">
 				You don't have permission to access the support admin dashboard.
 			</p>
 		</div>
 	</div>
 {:else}
-	<div class="h-[calc(100vh-4rem)] flex">
+	<div class="flex h-[calc(100vh-4rem)]">
 		<!-- Conversations Sidebar -->
-		<div class="w-80 border-r border-gray-200 dark:border-gray-700 flex-shrink-0">
-			<ConversationList 
+		<div class="w-80 flex-shrink-0 border-r border-gray-200 dark:border-gray-700">
+			<ConversationList
 				selectedConversationId={selectedConversation?.id}
 				onConversationSelect={handleConversationSelect}
 			/>
 		</div>
 
 		<!-- Main Chat Area -->
-		<div class="flex-1 flex flex-col">
+		<div class="flex flex-1 flex-col">
 			{#if selectedConversation}
 				<!-- Conversation Header -->
 				<div class="border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900">
@@ -99,22 +97,14 @@
 								Status: {selectedConversation.status}
 							</p>
 						</div>
-						
+
 						<div class="flex gap-2">
 							{#if selectedConversation.status === 'open'}
-								<Button
-									variant="outline"
-									size="sm"
-									onclick={handleCloseConversation}
-								>
+								<Button variant="outline" size="sm" onclick={handleCloseConversation}>
 									Close Conversation
 								</Button>
 							{:else}
-								<Button
-									variant="outline"
-									size="sm"
-									onclick={handleReopenConversation}
-								>
+								<Button variant="outline" size="sm" onclick={handleReopenConversation}>
 									Reopen Conversation
 								</Button>
 							{/if}
@@ -123,17 +113,14 @@
 				</div>
 
 				<!-- Chat Component -->
-				<div class="flex-1 min-h-0">
-					<SupportChat 
-						isAdmin={true}
-						conversationId={selectedConversation.id}
-					/>
+				<div class="min-h-0 flex-1">
+					<SupportChat isAdmin={true} conversationId={selectedConversation.id} />
 				</div>
 			{:else}
 				<!-- No Conversation Selected -->
-				<div class="flex-1 flex items-center justify-center">
+				<div class="flex flex-1 items-center justify-center">
 					<div class="text-center">
-						<h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+						<h2 class="mb-2 text-xl font-semibold text-gray-900 dark:text-gray-100">
 							Select a Conversation
 						</h2>
 						<p class="text-gray-600 dark:text-gray-400">

@@ -3,7 +3,14 @@
 	import { Button } from '../ui/button';
 	import { Badge } from '../ui/badge';
 
-	let { user, eventId, onInvite, isInviting = false, buttonText = 'Invite', buttonVariant = 'default' } = $props();
+	let {
+		user,
+		eventId,
+		onInvite,
+		isInviting = false,
+		buttonText = 'Invite',
+		buttonVariant = 'default'
+	} = $props();
 
 	const handleInvite = async () => {
 		if (onInvite) {
@@ -35,7 +42,13 @@
 		</div>
 	</div>
 
-	<Button size="sm" variant={buttonVariant} onclick={handleInvite} disabled={isInviting} class="min-w-16">
+	<Button
+		size="sm"
+		variant={buttonVariant}
+		onclick={handleInvite}
+		disabled={isInviting}
+		class="min-w-16"
+	>
 		{#if isInviting}
 			<div
 				class="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"

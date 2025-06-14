@@ -1946,7 +1946,7 @@ export const schema = S.Collections({
 		schema: S.Schema({
 			id: S.Id(),
 			user_id: S.String(), // The user seeking support
-			status: S.String({ 
+			status: S.String({
 				enum: ['open', 'closed'] as const,
 				default: 'open'
 			}), // Conversation status
@@ -1967,13 +1967,13 @@ export const schema = S.Collections({
 				update: { filter: [true] } // Admins can update conversation status
 			},
 			user: {
-				read: { 
+				read: {
 					filter: [['user_id', '=', '$role.userId']] // Users can only see their own conversations
 				},
-				insert: { 
+				insert: {
 					filter: [['user_id', '=', '$role.userId']] // Users can create their own conversations
 				},
-				update: { 
+				update: {
 					filter: [['user_id', '=', '$role.userId']] // Users can update their own conversations
 				}
 			},
@@ -1994,8 +1994,8 @@ export const schema = S.Collections({
 		relationships: {
 			conversation: S.RelationById('support_conversations', '$conversation_id'),
 			user: S.RelationById('user', '$user_id'),
-			seen_by: S.RelationMany('support_message_seen', { 
-				where: [['message_id', '=', '$id']] 
+			seen_by: S.RelationMany('support_message_seen', {
+				where: [['message_id', '=', '$id']]
 			})
 		},
 		permissions: {
@@ -2005,13 +2005,13 @@ export const schema = S.Collections({
 				update: { filter: [['user_id', '=', '$role.userId']] } // Admins can only edit their own messages
 			},
 			user: {
-				read: { 
+				read: {
 					filter: [['conversation.user_id', '=', '$role.userId']] // Users can only see messages in their conversations
 				},
-				insert: { 
+				insert: {
 					filter: [['conversation.user_id', '=', '$role.userId']] // Users can only send messages in their conversations
 				},
-				update: { 
+				update: {
 					filter: [
 						and([
 							['user_id', '=', '$role.userId'], // Users can only edit their own messages
@@ -2042,7 +2042,7 @@ export const schema = S.Collections({
 				delete: { filter: [['user_id', '=', '$role.userId']] }
 			},
 			user: {
-				read: { 
+				read: {
 					filter: [
 						or([
 							['user_id', '=', '$role.userId'], // Users can see their own read status

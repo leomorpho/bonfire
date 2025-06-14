@@ -3,7 +3,11 @@
 	import { onMount } from 'svelte';
 	import { Button } from '$lib/components/ui/button';
 
-	let { handleSendMessage, disabled = false, placeholder = 'Type your message...' } = $props<{
+	let {
+		handleSendMessage,
+		disabled = false,
+		placeholder = 'Type your message...'
+	} = $props<{
 		handleSendMessage: (message: string) => void;
 		disabled?: boolean;
 		placeholder?: string;
@@ -54,7 +58,9 @@
 	});
 </script>
 
-<div class="flex w-full items-end gap-3 rounded-b-xl bg-white bg-opacity-90 p-4 dark:bg-gray-900 dark:bg-opacity-90">
+<div
+	class="flex w-full items-end gap-3 rounded-b-xl bg-white bg-opacity-90 p-4 dark:bg-gray-900 dark:bg-opacity-90"
+>
 	<!-- Text Input -->
 	<div class="relative flex-grow">
 		<textarea
@@ -65,7 +71,7 @@
 			{placeholder}
 			{disabled}
 			rows="1"
-			class="min-h-[40px] w-full resize-none rounded-lg bg-gray-100 px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-700 dark:text-gray-100"
+			class="min-h-[40px] w-full resize-none rounded-lg bg-gray-100 px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-gray-700 dark:text-gray-100"
 		></textarea>
 	</div>
 

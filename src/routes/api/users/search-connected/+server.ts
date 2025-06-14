@@ -37,13 +37,19 @@ export const GET = async ({ request, locals }) => {
 
 		// Get users blocked by current user
 		const blockedByUser = await triplitHttpClient.fetch(
-			triplitHttpClient.query('user_blocks').Where(['blocker_user_id', '=', user.id]).Select(['blocked_user_id'])
+			triplitHttpClient
+				.query('user_blocks')
+				.Where(['blocker_user_id', '=', user.id])
+				.Select(['blocked_user_id'])
 		);
 		const blockedUserIds = blockedByUser.map((block) => block.blocked_user_id);
 
 		// Get users who blocked current user
 		const blockedCurrentUser = await triplitHttpClient.fetch(
-			triplitHttpClient.query('user_blocks').Where(['blocked_user_id', '=', user.id]).Select(['blocker_user_id'])
+			triplitHttpClient
+				.query('user_blocks')
+				.Where(['blocked_user_id', '=', user.id])
+				.Select(['blocker_user_id'])
 		);
 		const blockerUserIds = blockedCurrentUser.map((block) => block.blocker_user_id);
 

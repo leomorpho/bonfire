@@ -57,7 +57,13 @@
 		</div>
 	</div>
 
-	<Button size="sm" variant="outline" onclick={handleUnblock} disabled={isUnblocking} class="min-w-20">
+	<Button
+		size="sm"
+		variant="outline"
+		onclick={handleUnblock}
+		disabled={isUnblocking}
+		class="min-w-20"
+	>
 		{#if isUnblocking}
 			<div
 				class="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"

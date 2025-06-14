@@ -83,15 +83,15 @@
 
 	const handleBlock = (userId: string) => {
 		// Remove user from available users and add to blocked
-		const blockedUser = availableUsers.find(u => u.id === userId);
+		const blockedUser = availableUsers.find((u) => u.id === userId);
 		if (blockedUser) {
-			availableUsers = availableUsers.filter(u => u.id !== userId);
+			availableUsers = availableUsers.filter((u) => u.id !== userId);
 			blockedUsers = [{ ...blockedUser, blocked_at: new Date() }, ...blockedUsers];
 		}
 	};
 
 	const handleUnblock = (userId: string) => {
-		blockedUsers = blockedUsers.filter(u => u.id !== userId);
+		blockedUsers = blockedUsers.filter((u) => u.id !== userId);
 	};
 
 	const loadNextPage = () => {
@@ -141,7 +141,8 @@
 			<!-- Tabs -->
 			<div class="mb-6 flex rounded-lg bg-gray-100 p-1 dark:bg-gray-800">
 				<button
-					class="flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors {activeTab === 'blocked'
+					class="flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors {activeTab ===
+					'blocked'
 						? 'bg-white text-gray-900 shadow-sm dark:bg-gray-700 dark:text-gray-100'
 						: 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100'}"
 					onclick={() => (activeTab = 'blocked')}
@@ -150,7 +151,8 @@
 					Blocked Users ({blockedUsers.length})
 				</button>
 				<button
-					class="flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors {activeTab === 'search'
+					class="flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors {activeTab ===
+					'search'
 						? 'bg-white text-gray-900 shadow-sm dark:bg-gray-700 dark:text-gray-100'
 						: 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100'}"
 					onclick={() => (activeTab = 'search')}
@@ -241,12 +243,7 @@
 								<span class="px-3 text-sm text-gray-600 dark:text-gray-400">
 									Page {page}
 								</span>
-								<Button
-									variant="outline"
-									size="sm"
-									onclick={loadNextPage}
-									disabled={!hasMore}
-								>
+								<Button variant="outline" size="sm" onclick={loadNextPage} disabled={!hasMore}>
 									Next
 								</Button>
 							</div>
@@ -266,9 +263,7 @@
 					{:else if searchTerm.trim() && !loading}
 						<BonfireNoInfoCard text={`No users found matching "${searchTerm}"`} />
 					{:else if !loading}
-						<BonfireNoInfoCard
-							text="Search for users you've attended events with to block them."
-						/>
+						<BonfireNoInfoCard text="Search for users you've attended events with to block them." />
 					{/if}
 				{/if}
 			</div>
