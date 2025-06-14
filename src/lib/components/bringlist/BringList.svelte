@@ -1,7 +1,7 @@
 <script lang="ts">
 	import IndividualBringListItem from './items/IndividualBringListItem.svelte';
 	import { page } from '$app/stores';
-	import { getFeWorkerTriplitClient } from '$lib/triplit';
+	import { getFeWorkerTriplitClient, getFeHttpTriplitClient } from '$lib/triplit';
 	import type { TriplitClient } from '@triplit/client';
 	import { onMount } from 'svelte';
 	import SvgLoader from '../SvgLoader.svelte';
@@ -95,7 +95,7 @@
 		isAddingProposedItems = true;
 
 		try {
-			const client = getFeWorkerTriplitClient($page.data.jwt);
+			const client = await getFeHttpTriplitClient($page.data.jwt);
 			let addedCount = 0;
 
 			for (const item of selectedProposedList.items) {
