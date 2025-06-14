@@ -42,7 +42,7 @@
 	let yourItems: Array<BringItem> = $state([]);
 	let isBringListFilled = $state(false);
 	let isUserBringingSomething = $state(false);
-	
+
 	// Proposed bring lists state
 	let showProposedBrowser = $state(false);
 	let showProposedPreview = $state(false);
@@ -89,18 +89,18 @@
 	};
 
 	// Add all items from selected proposed list
-	const handleAddProposedItems = async () => {
+	const handleAddProposedItems = async (adjustedAttendeeCount: number) => {
 		if (!selectedProposedList || !currUserId) return;
-		
+
 		isAddingProposedItems = true;
-		
+
 		try {
 			const client = getFeWorkerTriplitClient($page.data.jwt);
 			let addedCount = 0;
-			
+
 			for (const item of selectedProposedList.items) {
-				const quantity = calculateProposedQuantity(item, numAttendeesGoing);
-				
+				const quantity = calculateProposedQuantity(item, adjustedAttendeeCount);
+
 				await createBringItem(
 					client,
 					eventId,
@@ -112,8 +112,10 @@
 				);
 				addedCount++;
 			}
-			
-			toast.success(`Added ${addedCount} items from "${selectedProposedList.name}" to your bring list!`);
+
+			toast.success(
+				`Added ${addedCount} items from "${selectedProposedList.name}" to your bring list!`
+			);
 			showProposedPreview = false;
 			selectedProposedList = null;
 		} catch (error) {
@@ -347,16 +349,16 @@
 		<div class="flex gap-2">
 			<!-- Proposed Lists Button -->
 			<Button
-				onclick={() => showProposedBrowser = true}
+				onclick={() => (showProposedBrowser = true)}
 				variant="outline"
 				size="sm"
 				class="flex items-center gap-2"
 				disabled={isAddingProposedItems}
 			>
-				<Sparkles class="w-4 h-4" />
+				<Sparkles class="h-4 w-4" />
 				Templates
 			</Button>
-			
+
 			<!-- Add Individual Item -->
 			<CrudItem {eventId} {numAttendeesGoing} class={'w-fit'} {isAdmin}>
 				<Button
@@ -364,7 +366,7 @@
 					size="sm"
 					class="flex items-center justify-center ring-glow dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
 				>
-					<Plus class="w-4 h-4" />
+					<Plus class="h-4 w-4" />
 				</Button>
 			</CrudItem>
 		</div>
@@ -386,7 +388,7 @@
 <ProposedBringListBrowser
 	isOpen={showProposedBrowser}
 	onSelect={handleProposedListSelect}
-	onClose={() => showProposedBrowser = false}
+	onClose={() => (showProposedBrowser = false)}
 />
 
 <ProposedBringListPreview

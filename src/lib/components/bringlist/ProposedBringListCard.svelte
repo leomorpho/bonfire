@@ -1,14 +1,20 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
-	import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
+	import {
+		Card,
+		CardContent,
+		CardDescription,
+		CardHeader,
+		CardTitle
+	} from '$lib/components/ui/card';
 	import { Badge } from '$lib/components/ui/badge';
 	import type { ProposedBringList } from '$lib/proposed-bring-lists';
 	import { Check } from 'lucide-svelte';
 
-	let { 
-		proposedList, 
+	let {
+		proposedList,
 		onSelect,
-		class: className = '' 
+		class: className = ''
 	} = $props<{
 		proposedList: ProposedBringList;
 		onSelect: (list: ProposedBringList) => void;
@@ -20,7 +26,7 @@
 	};
 </script>
 
-<Card class={`cursor-pointer transition-all hover:shadow-md hover:border-blue-300 ${className}`}>
+<Card class={`cursor-pointer transition-all hover:border-blue-300 hover:shadow-md ${className}`}>
 	<CardHeader class="pb-3">
 		<div class="flex items-start justify-between">
 			<div class="flex items-center gap-2">
@@ -35,7 +41,7 @@
 			{proposedList.description}
 		</CardDescription>
 	</CardHeader>
-	
+
 	<CardContent class="pt-0">
 		<div class="space-y-2">
 			<div class="text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -43,24 +49,20 @@
 			</div>
 			<div class="flex flex-wrap gap-1">
 				{#each proposedList.items.slice(0, 6) as item}
-					<span class="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
+					<span class="rounded bg-gray-100 px-2 py-1 text-xs dark:bg-gray-700">
 						{item.name}
 					</span>
 				{/each}
 				{#if proposedList.items.length > 6}
-					<span class="text-xs text-gray-500 px-2 py-1">
+					<span class="px-2 py-1 text-xs text-gray-500">
 						+{proposedList.items.length - 6} more
 					</span>
 				{/if}
 			</div>
 		</div>
-		
-		<Button 
-			onclick={handleSelect} 
-			class="w-full mt-4"
-			variant="outline"
-		>
-			<Check class="w-4 h-4 mr-2" />
+
+		<Button onclick={handleSelect} class="mt-4 w-full" variant="outline">
+			<Check class="mr-2 h-4 w-4" />
 			Use This List
 		</Button>
 	</CardContent>
