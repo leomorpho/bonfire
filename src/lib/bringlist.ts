@@ -26,7 +26,7 @@ export async function createBringItem(
 		unit,
 		quantity_needed: quantityNeeded,
 		created_by_user_id: userId,
-		created_at: new Date().toISOString(),
+		created_at: new Date(),
 		details: details
 	});
 
@@ -123,7 +123,7 @@ export async function assignBringItem(
 		assigned_to_temp_attendee_id: assignedToTempUserId,
 		assigned_by_user_id: assignedByUserId,
 		quantity,
-		created_at: new Date().toISOString()
+		created_at: new Date()
 	});
 
 	return output;
