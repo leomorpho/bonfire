@@ -61,6 +61,7 @@
 		</Dialog.Header>
 		<Dialog.Footer
 			><Button
+				id="confirm-cancel-event"
 				disabled={submitDisabled}
 				class="mt-2 w-full bg-red-500 hover:bg-red-400"
 				onclick={cancelEvent}

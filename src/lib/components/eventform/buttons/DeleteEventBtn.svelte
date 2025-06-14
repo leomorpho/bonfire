@@ -72,6 +72,7 @@
 		</Dialog.Header>
 		<Dialog.Footer class="flex flex-col gap-2">
 			<Button
+				id="confirm-delete-event"
 				disabled={submitDisabled}
 				class="w-full bg-red-600 hover:bg-red-500 text-white"
 				onclick={deleteEvent}
