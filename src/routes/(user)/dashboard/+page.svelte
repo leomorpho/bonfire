@@ -20,11 +20,15 @@
 
 	// Initialize with server data
 	let futureAttendances: any = $state($page.data.initialFutureAttendances || []);
-	let futureEventsLoading = $state($page.data.futureEventCount > 0 || !$page.data.initialFutureAttendances);
+	let futureEventsLoading = $state(
+		$page.data.futureEventCount > 0 || !$page.data.initialFutureAttendances
+	);
 	let pastAttendances: any = $state($page.data.initialPastAttendances || []);
-	let pastEventsLoading = $state($page.data.pastEventCount > 0 || !$page.data.initialPastAttendances);
+	let pastEventsLoading = $state(
+		$page.data.pastEventCount > 0 || !$page.data.initialPastAttendances
+	);
 	let userId = $state();
-	
+
 	// Track if Triplit has synced
 	let triplitSynced = $state(false);
 
@@ -164,27 +168,19 @@
 		<div class="my-4 flex w-full flex-col justify-center space-y-2">
 			<SetupMeet userId={$page.data.user.id} />
 		</div>
-		
+
 		<!-- Quick Actions -->
 		<div class="mb-6 flex w-full justify-center gap-3">
-			<Button
-				variant="outline"
-				class="flex-1 max-w-48"
-				onclick={() => goto('/bonfire/create')}
-			>
-				<Plus class="w-4 h-4 mr-2" />
+			<Button variant="outline" class="max-w-48 flex-1" onclick={() => goto('/bonfire/create')}>
+				<Plus class="mr-2 h-4 w-4" />
 				Create Event
 			</Button>
-			<Button
-				variant="outline"
-				class="flex-1 max-w-48"
-				onclick={() => goto('/organizations')}
-			>
-				<Building2 class="w-4 h-4 mr-2" />
+			<Button variant="outline" class="max-w-48 flex-1" onclick={() => goto('/organizations')}>
+				<Building2 class="mr-2 h-4 w-4" />
 				Organizations
 			</Button>
 		</div>
-		
+
 		<!-- <PermissionsPausedMsg {userId} /> -->
 		<Tabs.Root value={activeTab} class="w-full">
 			<div class="flex w-full justify-center">
@@ -255,6 +251,7 @@
 									maxCapacity={attendance.event?.max_capacity}
 									isCuttoffDateEnabled={attendance.event?.is_cut_off_date_enabled}
 									cuttoffDate={attendance.event?.cut_off_date}
+									eventStatus={attendance.event?.status}
 								/>
 							</div>
 						{/each}
@@ -308,6 +305,7 @@
 									maxCapacity={attendance.event?.max_capacity}
 									isCuttoffDateEnabled={attendance.event?.is_cut_off_date_enabled}
 									cuttoffDate={attendance.event?.cut_off_date}
+									eventStatus={attendance.event?.status}
 								/>
 							</div>
 						{/each}

@@ -68,11 +68,15 @@ export const load = async (event) => {
 
 	const futureAttendances = attendances
 		.filter((a) => new Date(a.event.start_time) >= futureThreshold)
-		.sort((a, b) => new Date(a.event.start_time).getTime() - new Date(b.event.start_time).getTime());
+		.sort(
+			(a, b) => new Date(a.event.start_time).getTime() - new Date(b.event.start_time).getTime()
+		);
 
 	const pastAttendances = attendances
 		.filter((a) => new Date(a.event.start_time) < futureThreshold)
-		.sort((a, b) => new Date(b.event.start_time).getTime() - new Date(a.event.start_time).getTime());
+		.sort(
+			(a, b) => new Date(b.event.start_time).getTime() - new Date(a.event.start_time).getTime()
+		);
 
 	return {
 		user: user,

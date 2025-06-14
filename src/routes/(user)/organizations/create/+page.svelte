@@ -14,7 +14,7 @@
 
 	let client: TriplitClient;
 	let isSubmitting = $state(false);
-	
+
 	// Form fields
 	let name = $state('');
 	let description = $state('');
@@ -45,7 +45,7 @@
 
 	async function handleSubmit() {
 		if (!isFormValid || isSubmitting) return;
-		
+
 		isSubmitting = true;
 		try {
 			const userId = await waitForUserId();
@@ -98,35 +98,31 @@
 	<section class="mt-8 w-full sm:w-2/3 md:w-[700px]">
 		<!-- Header -->
 		<div class="mb-8">
-			<Button 
-				variant="ghost" 
-				onclick={() => goto('/organizations')}
-				class="mb-4 -ml-4"
-			>
-				<ArrowLeft class="w-4 h-4 mr-2" />
+			<Button variant="ghost" onclick={() => goto('/organizations')} class="-ml-4 mb-4">
+				<ArrowLeft class="mr-2 h-4 w-4" />
 				Back to Organizations
 			</Button>
-			
-			<h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-				Create Organization
-			</h1>
+
+			<h1 class="mb-2 text-3xl font-bold text-gray-900 dark:text-white">Create Organization</h1>
 			<p class="text-gray-600 dark:text-gray-400">
 				Set up a new organization to group and manage your events
 			</p>
 		</div>
 
 		<!-- Form -->
-		<div class="rounded-lg bg-slate-200 dark:bg-slate-800 p-8">
+		<div class="rounded-lg bg-slate-200 p-8 dark:bg-slate-800">
 			<div class="mb-6">
-				<h2 class="flex items-center gap-2 text-xl font-semibold text-gray-900 dark:text-white mb-2">
-					<Building2 class="w-5 h-5" />
+				<h2
+					class="mb-2 flex items-center gap-2 text-xl font-semibold text-gray-900 dark:text-white"
+				>
+					<Building2 class="h-5 w-5" />
 					Organization Details
 				</h2>
 				<p class="text-gray-600 dark:text-gray-400">
 					Provide basic information about your organization
 				</p>
 			</div>
-			
+
 			<div class="space-y-6">
 				<!-- Organization Name -->
 				<div class="space-y-2">
@@ -170,11 +166,7 @@
 
 				<!-- Public/Private -->
 				<div class="flex items-center space-x-2">
-					<Checkbox 
-						id="public"
-						bind:checked={is_public}
-						disabled={isSubmitting}
-					/>
+					<Checkbox id="public" bind:checked={is_public} disabled={isSubmitting} />
 					<Label for="public" class="text-sm font-normal">
 						Make this organization public (anyone can view it and its events)
 					</Label>
@@ -190,16 +182,14 @@
 					>
 						Cancel
 					</Button>
-					<Button
-						onclick={handleSubmit}
-						disabled={!isFormValid || isSubmitting}
-						class="flex-1"
-					>
+					<Button onclick={handleSubmit} disabled={!isFormValid || isSubmitting} class="flex-1">
 						{#if isSubmitting}
-							<div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+							<div
+								class="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"
+							></div>
 							Creating...
 						{:else}
-							<Save class="w-4 h-4 mr-2" />
+							<Save class="mr-2 h-4 w-4" />
 							Create Organization
 						{/if}
 					</Button>

@@ -65,7 +65,11 @@
 			</div>
 		{/if}
 		<div class="flex w-full justify-center">
-			<OrganizationBannerUploader {imageUrl} {unsplashImageDownloadCounterCallback} {unsplashAuthorInfo} />
+			<OrganizationBannerUploader
+				{imageUrl}
+				{unsplashImageDownloadCounterCallback}
+				{unsplashAuthorInfo}
+			/>
 		</div>
 	</section>
 </div>

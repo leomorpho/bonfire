@@ -27,6 +27,8 @@ import {
 	createAdminAddedNotifications,
 	createAnnouncementNotifications,
 	createAttendeeNotifications,
+	createEventCancelledNotifications,
+	createEventDeletedNotifications,
 	createEventInvitationNotifications,
 	createFileNotifications,
 	createNewMessageNotifications,
@@ -35,39 +37,7 @@ import {
 } from '$lib/server/notifications/notifications';
 import { getTaskLockState, updateTaskLockState } from '../tasks';
 
-export class Notification {
-	eventId: string | null;
-	userId: string;
-	message: string;
-	objectType: NotificationType;
-	objectIds: string[];
-	objectIdsSet: Set<string>;
-	pushNotificationPayload: PushNotificationPayload;
-	requiredPermissions: PermissionValue[];
-	isInAppOnly: boolean;
-
-	constructor(
-		eventId: string | null,
-		userId: string,
-		message: string,
-		objectType: NotificationType,
-		objectIds: string[],
-		objectIdsSet: Set<string>,
-		pushNotificationPayload: PushNotificationPayload,
-		requiredPermissions: PermissionValue[],
-		isInAppOnly: boolean = false
-	) {
-		this.eventId = eventId;
-		this.userId = userId;
-		this.message = message;
-		this.objectType = objectType;
-		this.objectIds = objectIds;
-		this.objectIdsSet = objectIdsSet;
-		this.pushNotificationPayload = pushNotificationPayload;
-		this.requiredPermissions = requiredPermissions;
-		this.isInAppOnly = isInAppOnly;
-	}
-}
+import { Notification, type PermissionValue } from '$lib/server/notifications/notification';
 
 export const runNotificationProcessor = async () => {
 	const taskName = TaskName.PROCESS_NOTIFICATION_QUEUE;
@@ -138,6 +108,12 @@ async function processNotificationQueue(notificationQueueEntry: NotificationQueu
 			validObjectIds = await validateMessageIds(objectIds);
 			break;
 		case NotificationType.EVENT_INVITATION:
+			validObjectIds = await validateUserIds(objectIds);
+			break;
+		case NotificationType.EVENT_CANCELLED:
+			validObjectIds = await validateUserIds(objectIds);
+			break;
+		case NotificationType.EVENT_DELETED:
 			validObjectIds = await validateUserIds(objectIds);
 			break;
 		default:
@@ -230,6 +206,24 @@ async function processNotificationQueue(notificationQueueEntry: NotificationQueu
 		case NotificationType.EVENT_INVITATION:
 			notifications.push(
 				...(await createEventInvitationNotifications(
+					notificationQueueEntry.user_id,
+					notificationQueueEntry.event_id,
+					validObjectIds
+				))
+			);
+			break;
+		case NotificationType.EVENT_CANCELLED:
+			notifications.push(
+				...(await createEventCancelledNotifications(
+					notificationQueueEntry.user_id,
+					notificationQueueEntry.event_id,
+					validObjectIds
+				))
+			);
+			break;
+		case NotificationType.EVENT_DELETED:
+			notifications.push(
+				...(await createEventDeletedNotifications(
 					notificationQueueEntry.user_id,
 					notificationQueueEntry.event_id,
 					validObjectIds
@@ -338,8 +332,6 @@ async function mergeSimilarNotifications(
 	return true;
 }
 
-export type PermissionValue =
-	(typeof NotificationPermissions)[keyof typeof NotificationPermissions];
 
 export async function bulkPersistNotifications(
 	notifications: Notification[]

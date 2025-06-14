@@ -39,6 +39,7 @@
 	import { CircleAlert, SlidersHorizontal } from '@lucide/svelte';
 	import EventSettings from '../settings/event-settings/EventSettings.svelte';
 	import PermissionsPausedMsg from '../settings/PermissionsPausedMsg.svelte';
+	import { EventStatus } from '$lib/enums';
 	import { formatHumanReadable, scrollElementIntoView } from '$lib/utils';
 	import { fetchBannerInfo } from '$lib/gallery';
 	import { isStartDateBeforeCutoff } from '$lib/rsvp';
@@ -78,7 +79,8 @@
 		showMaxNumPeople = 30,
 		isCuttoffDateEnabled = false,
 		cuttoffDate = null,
-		organization = null
+		organization = null,
+		eventStatus = EventStatus.ACTIVE
 	} = $props();
 
 	let client: TriplitClient;
@@ -564,7 +566,7 @@
 	{#if !eventId}
 		<EventDoesNotExist />
 	{:else}
-		<div class="mx-4 flex flex-col items-center justify-center bonfire-event-content">
+		<div class="bonfire-event-content mx-4 flex flex-col items-center justify-center">
 			{#if !isUnverifiedUser && !isAnonymousUser}
 				<SetProfilePicAlert {currUserId} />
 			{/if}
@@ -674,6 +676,7 @@
 								{latitude}
 								{longitude}
 								{organization}
+								{eventStatus}
 							/>
 
 							<Attendees

@@ -1,4 +1,4 @@
-import { BringListCountTypes, HistoryChangesConstants, TransactionType } from '$lib/enums';
+import { BringListCountTypes, HistoryChangesConstants, TransactionType, EventStatus } from '$lib/enums';
 import { MAIN_THREAD } from '$lib/im';
 import { Schema as S, type Roles, or, and } from '@triplit/client';
 
@@ -239,6 +239,10 @@ export const schema = S.Collections({
 			is_cut_off_date_enabled: S.Optional(S.Boolean({ default: false })),
 			cut_off_date: S.Optional(S.Date({ nullable: true })),
 			is_published: S.Optional(S.Boolean({ default: false })),
+			status: S.Optional(S.String({
+				enum: [EventStatus.ACTIVE, EventStatus.CANCELLED] as const,
+				default: EventStatus.ACTIVE
+			})),
 			isReal: S.Optional(S.Boolean({ default: true }))
 		}),
 		relationships: {

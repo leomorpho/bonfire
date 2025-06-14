@@ -1237,6 +1237,113 @@ test('Delete/Leaving attendees', async ({ browser }) => {
 	).toBeVisible();
 });
 
+test('Event cancellation', async ({ browser }) => {
+	const context1 = await browser.newContext();
+	const context2 = await browser.newContext();
+	const eventCreatorPage = await context1.newPage();
+	const attendeePage = await context2.newPage();
+
+	// Create event from creator POV
+	const eventOwnerEmail = faker.internet.email();
+	const eventOwnerUsername = faker.person.firstName();
+	await loginUser(eventCreatorPage, eventOwnerEmail, eventOwnerUsername);
+
+	// Test 1: Event with attendees - should be marked as cancelled
+	const eventName1 = `${faker.animal.dog()} birthday party with attendees!`;
+	const eventDetails1 = 'This event will be cancelled with attendees';
+	await createBonfire(eventCreatorPage, eventName1, eventDetails1, 1);
+	await expect(eventCreatorPage.locator('#event-title')).toBeVisible();
+
+	const eventUrl1 = eventCreatorPage.url();
+
+	// Add an attendee
+	const attendeeEmail = faker.internet.email();
+	const attendeeUsername = faker.person.firstName();
+	await loginUser(attendeePage, attendeeEmail, attendeeUsername);
+
+	await attendeePage.goto(eventUrl1);
+	await attendeePage.getByText('RSVP', { exact: true }).click();
+	await attendeePage.locator('#rsvp-button-going').click();
+	await attendeePage.getByText("Let's go!", { exact: true }).click();
+
+	// Verify 2 attendees (creator + new attendee)
+	await expect(eventCreatorPage.getByText('2 going')).toBeVisible();
+
+	// Cancel the event from the edit page
+	await eventCreatorPage.locator('#edit-bonfire').click();
+	await eventCreatorPage.locator('#cancel-event-btn').click();
+
+	// Should show cancelled status on the event page
+	await expect(eventCreatorPage.getByText('❌ EVENT CANCELLED')).toBeVisible();
+
+	// Check that event card shows CANCELLED badge
+	await eventCreatorPage.locator('#dashboard-header-menu-item').click();
+	await expect(eventCreatorPage.getByText('CANCELLED')).toBeVisible();
+
+	// Attendee should also see the cancelled status
+	await attendeePage.goto(eventUrl1);
+	await expect(attendeePage.getByText('❌ EVENT CANCELLED')).toBeVisible();
+
+	// Test 2: Event with only creator attending - should be completely deleted
+	const eventName2 = `${faker.animal.dog()} birthday party with only creator!`;
+	const eventDetails2 = 'This event will be deleted as only the creator is attending';
+	await createBonfire(eventCreatorPage, eventName2, eventDetails2, 1);
+	await expect(eventCreatorPage.locator('#event-title')).toBeVisible();
+
+	const eventUrl2 = eventCreatorPage.url();
+
+	// Verify only creator is attending (1 going)
+	await expect(eventCreatorPage.getByText('1 going')).toBeVisible();
+
+	// Cancel the event - should be deleted completely since only creator is attending
+	await eventCreatorPage.locator('#edit-bonfire').click();
+	await eventCreatorPage.locator('#cancel-event-btn').click();
+
+	// Should be redirected to dashboard since event no longer exists
+	await expect(eventCreatorPage.url()).toContain('/dashboard');
+
+	// Event should not appear in dashboard
+	await expect(eventCreatorPage.getByText(eventName2)).toHaveCount(0);
+
+	// Trying to access the deleted event URL should show event doesn't exist
+	await eventCreatorPage.goto(eventUrl2);
+	await expect(eventCreatorPage.getByText('Event does not exist')).toBeVisible();
+
+	// Test 3: Force delete with attendees using delete button
+	const eventName3 = `${faker.animal.dog()} birthday party to force delete!`;
+	const eventDetails3 = 'This event will be force deleted even with attendees';
+	await createBonfire(eventCreatorPage, eventName3, eventDetails3, 1);
+	await expect(eventCreatorPage.locator('#event-title')).toBeVisible();
+
+	const eventUrl3 = eventCreatorPage.url();
+
+	// Add an attendee again
+	await attendeePage.goto(eventUrl3);
+	await attendeePage.getByText('RSVP', { exact: true }).click();
+	await attendeePage.locator('#rsvp-button-going').click();
+	await attendeePage.getByText("Let's go!", { exact: true }).click();
+
+	// Verify 2 attendees (creator + new attendee)
+	await expect(eventCreatorPage.getByText('2 going')).toBeVisible();
+
+	// Force delete the event using delete button
+	await eventCreatorPage.locator('#edit-bonfire').click();
+	await eventCreatorPage.locator('#delete-event-btn').click();
+
+	// Should be redirected to dashboard since event is deleted
+	await expect(eventCreatorPage.url()).toContain('/dashboard');
+
+	// Event should not appear in dashboard
+	await expect(eventCreatorPage.getByText(eventName3)).toHaveCount(0);
+
+	// Trying to access the deleted event URL should show event doesn't exist
+	await eventCreatorPage.goto(eventUrl3);
+	await expect(eventCreatorPage.getByText('Event does not exist')).toBeVisible();
+
+	await context1.close();
+	await context2.close();
+});
+
 // TODO: test event vs global permissions
 // TODO: test max capacity of bonfire
 // TODO: only logged in "users" can message, not temp users

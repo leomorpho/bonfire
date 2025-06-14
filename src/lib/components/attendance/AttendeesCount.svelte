@@ -1,5 +1,10 @@
 <script lang="ts">
-	let { numAttendeesGoing, numAttendeesMaybeGoing, numAttendeesNotGoing, numAttendeesInvited = 0 } = $props();
+	let {
+		numAttendeesGoing,
+		numAttendeesMaybeGoing,
+		numAttendeesNotGoing,
+		numAttendeesInvited = 0
+	} = $props();
 </script>
 
 <div class="mb-3 flex w-full justify-center">

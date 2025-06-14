@@ -59,6 +59,11 @@ export enum Status {
 	DEFAULT = 'RSVP'
 }
 
+export enum EventStatus {
+	ACTIVE = 'active',
+	CANCELLED = 'cancelled'
+}
+
 export enum TaskName {
 	PROCESS_NOTIFICATION_QUEUE = 'process_notification_queue',
 	SEND_REMINDER_NOTIFICATIONS = 'send_reminder_notifications',
@@ -155,7 +160,9 @@ export enum NotificationType {
 	NEW_MESSAGE = 'new_message',
 	REMINDER = 'reminder',
 	ADMIN_UPDATES = 'admin_updates',
-	EVENT_INVITATION = 'event_invitation'
+	EVENT_INVITATION = 'event_invitation',
+	EVENT_CANCELLED = 'event_cancelled',
+	EVENT_DELETED = 'event_deleted'
 }
 
 export const NotificationPermissions = {
@@ -186,7 +193,9 @@ export const notificationTypeToPermMap: {
 	[NotificationType.REMINDER]: NotificationPermissions.event_activity,
 	[NotificationType.OTP_VERIFICATION]: null,
 	[NotificationType.ADMIN_UPDATES]: NotificationPermissions.event_activity,
-	[NotificationType.EVENT_INVITATION]: NotificationPermissions.event_activity
+	[NotificationType.EVENT_INVITATION]: NotificationPermissions.event_activity,
+	[NotificationType.EVENT_CANCELLED]: NotificationPermissions.event_activity,
+	[NotificationType.EVENT_DELETED]: NotificationPermissions.event_activity
 };
 
 export const notificationTypesNoRateLimit = new Set([NotificationPermissions.event_reminders]);
@@ -238,7 +247,17 @@ export const notificationTypeToDeliveryMap: {
 	[NotificationType.EVENT_INVITATION]: [
 		DeliveryPermissions.push_notifications,
 		DeliveryPermissions.email_notifications,
-		DeliveryPermissions.sms_notifications,
+		DeliveryPermissions.sms_notifications
+	],
+	[NotificationType.EVENT_CANCELLED]: [
+		DeliveryPermissions.push_notifications,
+		DeliveryPermissions.email_notifications,
+		DeliveryPermissions.sms_notifications
+	],
+	[NotificationType.EVENT_DELETED]: [
+		DeliveryPermissions.push_notifications,
+		DeliveryPermissions.email_notifications,
+		DeliveryPermissions.sms_notifications
 	]
 };
 
@@ -263,7 +282,9 @@ export const notificationTypeToSubject: { [key in NotificationType]: string } = 
 	[NotificationType.REMINDER]: 'Event Reminder!',
 	[NotificationType.OTP_VERIFICATION]: '',
 	[NotificationType.ADMIN_UPDATES]: 'Event Update!',
-	[NotificationType.EVENT_INVITATION]: "You're Invited to an Event!"
+	[NotificationType.EVENT_INVITATION]: "You're Invited to an Event!",
+	[NotificationType.EVENT_CANCELLED]: 'Event Cancelled',
+	[NotificationType.EVENT_DELETED]: 'Event Deleted'
 };
 
 type NotificationTypeMapping = {
@@ -313,6 +334,18 @@ export const notificationTypeMapping: NotificationTypeMapping = {
 	[NotificationType.EVENT_INVITATION]: {
 		singularObjectName: 'invitation',
 		pluralObjectName: 'invitations'
+	},
+	[NotificationType.EVENT_CANCELLED]: {
+		singularObjectName: 'cancellation',
+		pluralObjectName: 'cancellations'
+	},
+	[NotificationType.EVENT_DELETED]: {
+		singularObjectName: 'deletion',
+		pluralObjectName: 'deletions'
+	},
+	[NotificationType.OTP_VERIFICATION]: {
+		singularObjectName: 'verification',
+		pluralObjectName: 'verifications'
 	}
 	// Add other notification types as needed
 };

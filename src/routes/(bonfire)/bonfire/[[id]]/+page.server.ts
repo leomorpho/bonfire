@@ -158,7 +158,8 @@ export const load = async ({ params, locals, url }) => {
 			const fullCounts = await normalizeAttendeeCounts(triplitHttpClient, eventId);
 			await upsertEventsPrivateData(triplitHttpClient, eventId, fullCounts);
 			numAttendingGoing = fullCounts.num_attendees_going + fullCounts.num_temp_attendees_going;
-			numAttendeesInvited = fullCounts.num_attendees_invited + fullCounts.num_temp_attendees_invited;
+			numAttendeesInvited =
+				fullCounts.num_attendees_invited + fullCounts.num_temp_attendees_invited;
 		}
 
 		// console.log("numAnnouncements", numAnnouncements)

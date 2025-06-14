@@ -550,7 +550,9 @@ export async function uploadOrganizationBannerImage(
 	}
 
 	// Check if a banner media entry exists for the organization
-	const query = triplitHttpClient.query('banner_media').Where(['organization_id', '=', organizationId]);
+	const query = triplitHttpClient
+		.query('banner_media')
+		.Where(['organization_id', '=', organizationId]);
 	const existingEntry = await triplitHttpClient.fetchOne(query);
 
 	if (existingEntry) {

@@ -4,6 +4,7 @@
 	import type { BannerInfo, EventTypescriptType } from '$lib/types';
 	import Bonfire from '$lib/components/main-bonfire-event/Bonfire.svelte';
 	import { fontStore } from '$lib/styles';
+import { EventStatus } from '$lib/enums';
 
 	const tempAttendeeId = $page.data.tempAttendeeId;
 	const tempAttendeeSecret = $page.url.searchParams.get(tempAttendeeSecretParam);
@@ -30,6 +31,7 @@
 	let isCuttoffDateEnabled: boolean = $state(event?.is_cut_off_date_enabled ?? false);
 	let cuttoffDate = $state(event?.cut_off_date);
 	let organization = $state(event?.organization);
+	let eventStatus = $derived(event?.status ?? EventStatus.ACTIVE);
 
 	if (tempAttendeeId) {
 		tempAttendeeSecretStore.set(tempAttendeeId);
@@ -71,4 +73,5 @@
 	{isCuttoffDateEnabled}
 	{cuttoffDate}
 	{organization}
+	{eventStatus}
 />

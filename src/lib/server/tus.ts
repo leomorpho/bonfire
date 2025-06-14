@@ -5,7 +5,12 @@ import { Server } from '@tus/server';
 import { FileStore } from '@tus/file-store';
 import { IncomingMessage, ServerResponse } from 'http';
 import { EVENTS } from '@tus/server';
-import { processGalleryFile, uploadBannerImage, uploadProfileImage, uploadOrganizationBannerImage } from '$lib/server/filestorage';
+import {
+	processGalleryFile,
+	uploadBannerImage,
+	uploadProfileImage,
+	uploadOrganizationBannerImage
+} from '$lib/server/filestorage';
 import { tempAttendeeSecretParam, UploadFileTypes } from '$lib/enums';
 import { triplitHttpClient } from '$lib/server/triplit';
 import { Readable } from 'stream';

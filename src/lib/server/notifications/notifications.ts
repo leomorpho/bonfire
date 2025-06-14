@@ -12,7 +12,7 @@ import {
 	getAttendeeUserIdsOfEvent,
 	triplitHttpClient
 } from '$lib/server/triplit';
-import { Notification } from '$lib/server/notifications/notification_engine';
+import { Notification } from '$lib/server/notifications/notification';
 
 export function createNotificationMessage(
 	notificationType: NotificationType,
@@ -45,6 +45,12 @@ export function createNotificationMessage(
 			break;
 		case NotificationType.EVENT_INVITATION:
 			message = `🎉 You've been invited to an event!`;
+			break;
+		case NotificationType.EVENT_CANCELLED:
+			message = `❌ Event has been cancelled`;
+			break;
+		case NotificationType.EVENT_DELETED:
+			message = `🗑️ Event has been deleted`;
 			break;
 
 		default:
@@ -500,6 +506,94 @@ export async function createEventInvitationNotifications(
 				userId,
 				message,
 				NotificationType.EVENT_INVITATION,
+				[eventId], // Use event ID as the object ID
+				new Set([eventId]),
+				pushNotificationPayload,
+				[NotificationPermissions.event_activity],
+				false // isInAppOnly = false (send to all channels)
+			)
+		);
+	}
+
+	return notifications;
+}
+
+export async function createEventCancelledNotifications(
+	userIdTriggeredNotif: string,
+	eventId: string,
+	attendeeIds: string[]
+): Promise<Notification[]> {
+	if (!attendeeIds.length) return [];
+
+	// Get event details for the notification message
+	const eventDetails = await triplitHttpClient.fetch(
+		triplitHttpClient
+			.query('events')
+			.Where([['id', '=', eventId]])
+			.Select(['title'])
+	);
+
+	const eventTitle = eventDetails?.[0]?.title || 'Event';
+	const message = `❌ Event "${eventTitle}" has been cancelled`;
+	const pushNotificationPayload = {
+		title: 'Event Cancelled',
+		body: message
+	};
+
+	const notifications: Notification[] = [];
+
+	// Create notifications for each attendee (they all get the same message)
+	for (const attendeeId of attendeeIds) {
+		notifications.push(
+			new Notification(
+				eventId,
+				attendeeId,
+				message,
+				NotificationType.EVENT_CANCELLED,
+				[eventId], // Use event ID as the object ID
+				new Set([eventId]),
+				pushNotificationPayload,
+				[NotificationPermissions.event_activity],
+				false // isInAppOnly = false (send to all channels)
+			)
+		);
+	}
+
+	return notifications;
+}
+
+export async function createEventDeletedNotifications(
+	userIdTriggeredNotif: string,
+	eventId: string,
+	attendeeIds: string[]
+): Promise<Notification[]> {
+	if (!attendeeIds.length) return [];
+
+	// Get event details for the notification message
+	const eventDetails = await triplitHttpClient.fetch(
+		triplitHttpClient
+			.query('events')
+			.Where([['id', '=', eventId]])
+			.Select(['title'])
+	);
+
+	const eventTitle = eventDetails?.[0]?.title || 'Event';
+	const message = `🗑️ Event "${eventTitle}" has been deleted`;
+	const pushNotificationPayload = {
+		title: 'Event Deleted',
+		body: message
+	};
+
+	const notifications: Notification[] = [];
+
+	// Create notifications for each attendee (they all get the same message)
+	for (const attendeeId of attendeeIds) {
+		notifications.push(
+			new Notification(
+				eventId,
+				attendeeId,
+				message,
+				NotificationType.EVENT_DELETED,
 				[eventId], // Use event ID as the object ID
 				new Set([eventId]),
 				pushNotificationPayload,

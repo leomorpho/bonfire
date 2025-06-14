@@ -57,7 +57,8 @@ console.log('Creating organization with ID:', mikeOrgId);
 const org1 = await client.insert('organizations', {
 	id: mikeOrgId,
 	name: 'Tech Innovators Vancouver',
-	description: 'A community of tech professionals and enthusiasts in Vancouver focused on innovation, networking, and collaborative learning.',
+	description:
+		'A community of tech professionals and enthusiasts in Vancouver focused on innovation, networking, and collaborative learning.',
 	created_by_user_id: user?.id,
 	is_public: true
 });

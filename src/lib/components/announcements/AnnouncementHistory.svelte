@@ -50,7 +50,6 @@
 	});
 </script>
 
-
 <Dialog.Root>
 	<Dialog.Trigger>{@render children()}</Dialog.Trigger>
 	<Dialog.Content>

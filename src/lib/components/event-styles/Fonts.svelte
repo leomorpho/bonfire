@@ -50,10 +50,10 @@
 	// Function to handle font selection
 	const selectFont = (fontName: string, fontStyle: string, fontCdn: string) => {
 		const currentFontSize = selectedFont?.fontSize || 1.0;
-		selectedFont = { 
-			name: fontName, 
-			style: fontStyle, 
-			cdn: fontCdn, 
+		selectedFont = {
+			name: fontName,
+			style: fontStyle,
+			cdn: fontCdn,
 			fontSize: currentFontSize
 		};
 		onSelect();
@@ -82,33 +82,22 @@
 		</div>
 
 		<!-- Font Size Control -->
-		<div class="mt-4 rounded-lg bg-slate-200 dark:bg-slate-800 p-4">
+		<div class="mt-4 rounded-lg bg-slate-200 p-4 dark:bg-slate-800">
 			<div class="mb-3 flex items-center justify-between">
 				<div class="flex items-center gap-2">
-					<Type class="w-4 h-4" />
+					<Type class="h-4 w-4" />
 					<Label class="text-sm font-medium">
 						Font Size: {Math.round((selectedFont.fontSize || 1.0) * 100)}%
 					</Label>
 				</div>
-				<Button 
-					size="sm" 
-					variant="outline"
-					onclick={() => onSelect()}
-					class="h-7 px-2 text-xs"
-				>
-					<Save class="w-3 h-3 mr-1" />
+				<Button size="sm" variant="outline" onclick={() => onSelect()} class="h-7 px-2 text-xs">
+					<Save class="mr-1 h-3 w-3" />
 					Apply
 				</Button>
 			</div>
 			<div class="flex items-center gap-3">
 				<span class="text-xs text-gray-600 dark:text-gray-400">Smaller</span>
-				<Slider 
-					bind:value={fontSizeSlider} 
-					min={0.5} 
-					max={2.0} 
-					step={0.1} 
-					class="flex-1"
-				/>
+				<Slider bind:value={fontSizeSlider} min={0.5} max={2.0} step={0.1} class="flex-1" />
 				<span class="text-xs text-gray-600 dark:text-gray-400">Larger</span>
 			</div>
 		</div>

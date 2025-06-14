@@ -492,7 +492,8 @@ export const upsertEventsPrivateData = async (
 				num_temp_attendees_going:
 					(currentCounts.num_temp_attendees_going || 0) + (deltas.num_temp_attendees_going || 0),
 				num_temp_attendees_not_going:
-					(currentCounts.num_temp_attendees_not_going || 0) + (deltas.num_temp_attendees_not_going || 0),
+					(currentCounts.num_temp_attendees_not_going || 0) +
+					(deltas.num_temp_attendees_not_going || 0),
 				num_temp_attendees_maybe:
 					(currentCounts.num_temp_attendees_maybe || 0) + (deltas.num_temp_attendees_maybe || 0),
 				num_temp_attendees_waitlisted:
@@ -501,7 +502,8 @@ export const upsertEventsPrivateData = async (
 				num_temp_attendees_left:
 					(currentCounts.num_temp_attendees_left || 0) + (deltas.num_temp_attendees_left || 0),
 				num_temp_attendees_removed:
-					(currentCounts.num_temp_attendees_removed || 0) + (deltas.num_temp_attendees_removed || 0),
+					(currentCounts.num_temp_attendees_removed || 0) +
+					(deltas.num_temp_attendees_removed || 0),
 				num_temp_attendees_invited:
 					(currentCounts.num_temp_attendees_invited || 0) + (deltas.num_temp_attendees_invited || 0)
 			};

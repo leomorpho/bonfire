@@ -17,9 +17,7 @@ export const load = async ({ params, locals }) => {
 	try {
 		// Fetch organization data
 		const organization = await client.fetchOne(
-			client
-				.query('organizations')
-				.Where([['id', '=', id]])
+			client.query('organizations').Where([['id', '=', id]])
 		);
 
 		if (!organization) {
@@ -29,7 +27,7 @@ export const load = async ({ params, locals }) => {
 		// Check if current user has permission to edit banner
 		// User must be creator or admin
 		let canEditBanner = false;
-		
+
 		if (organization.created_by_user_id === locals.user.id) {
 			canEditBanner = true;
 		} else {
@@ -41,7 +39,7 @@ export const load = async ({ params, locals }) => {
 					['role', '=', 'admin']
 				])
 			);
-			
+
 			if (membership) {
 				canEditBanner = true;
 			}

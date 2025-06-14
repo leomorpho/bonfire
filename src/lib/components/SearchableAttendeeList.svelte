@@ -28,13 +28,13 @@
 	// Fuzzy search function
 	const fuzzyMatch = (searchText: string, targetText: string): boolean => {
 		if (!searchText.trim()) return true;
-		
+
 		const search = searchText.toLowerCase();
 		const target = targetText.toLowerCase();
-		
+
 		// Direct substring match gets priority
 		if (target.includes(search)) return true;
-		
+
 		// Fuzzy character matching
 		let searchIndex = 0;
 		for (let i = 0; i < target.length && searchIndex < search.length; i++) {
@@ -48,8 +48,8 @@
 	// Filter attendees based on search term
 	const filterAttendees = (attendees: any[], searchTerm: string) => {
 		if (!searchTerm.trim()) return attendees;
-		
-		return attendees.filter(attendee => {
+
+		return attendees.filter((attendee) => {
 			// Handle different data structures
 			const name = attendee.user?.username || attendee.name || '';
 			return fuzzyMatch(searchTerm, name);
@@ -66,7 +66,9 @@
 			{@render showIcon()}
 		{/if}
 		{#if searchTerm.trim() && filteredAttendees.length !== attendees.length}
-			<span class="ml-2 text-sm text-gray-500">({filteredAttendees.length} of {attendees.length})</span>
+			<span class="ml-2 text-sm text-gray-500"
+				>({filteredAttendees.length} of {attendees.length})</span
+			>
 		{/if}
 	</h2>
 	<div class="mb-2 flex justify-center space-x-2">
@@ -96,13 +98,14 @@
 							userId={attendee.user_id || attendee.userId}
 							tempUserName={attendee.name}
 							{viewerIsEventAdmin}
-							userIsEventAdmin={attendee.user_id === eventCreatorUserId || adminUserIds.has(attendee.user_id)}
+							userIsEventAdmin={attendee.user_id === eventCreatorUserId ||
+								adminUserIds.has(attendee.user_id)}
 							attendanceId={attendee.id || attendee.attendeeId}
 							baseHeightPx={60}
 							numGuests={attendee.guest_count}
 							userRsvpStatus={attendee.status}
 							userGuestCount={attendee.guest_count || 0}
-							maxGuestsAllowed={maxGuestsAllowed}
+							{maxGuestsAllowed}
 							{eventTitle}
 							{eventStartTime}
 							{eventEndTime}
@@ -121,13 +124,14 @@
 							userId={attendee.user_id || attendee.userId}
 							tempUserName={attendee.name}
 							{viewerIsEventAdmin}
-							userIsEventAdmin={attendee.user_id === eventCreatorUserId || adminUserIds.has(attendee.user_id)}
+							userIsEventAdmin={attendee.user_id === eventCreatorUserId ||
+								adminUserIds.has(attendee.user_id)}
 							attendanceId={attendee.id || attendee.attendeeId}
 							baseHeightPx={60}
 							numGuests={attendee.guest_count}
 							userRsvpStatus={attendee.status}
 							userGuestCount={attendee.guest_count || 0}
-							maxGuestsAllowed={maxGuestsAllowed}
+							{maxGuestsAllowed}
 							{eventTitle}
 							{eventStartTime}
 							{eventEndTime}

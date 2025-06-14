@@ -218,3 +218,89 @@ export async function createNewEventInvitationNotificationQueueObject(
 		object_ids_set: userIds
 	});
 }
+
+/**
+ * Create a new notification queue object for event cancellation.
+ * @param client - TriplitClient instance.
+ * @param userId - The ID of the user creating the notification queue object (event creator).
+ * @param eventId - The ID of the event.
+ * @param attendeeIds - List of attendee IDs who should be notified.
+ */
+export async function createNewEventCancelledNotificationQueueObject(
+	client: TriplitClient | WorkerClient | HttpClient,
+	userId: string,
+	eventId: string,
+	attendeeIds: string[]
+): Promise<void> {
+	if (!isNonEmptyArray(attendeeIds)) {
+		throw new Error(
+			'attendeeIds in createNewEventCancelledNotificationQueueObject cannot be empty.'
+		);
+	}
+
+	await client.insert('notifications_queue', {
+		user_id: userId,
+		event_id: eventId,
+		object_type: NotificationType.EVENT_CANCELLED,
+		object_ids: JSON.stringify(attendeeIds),
+		object_ids_set: attendeeIds
+	});
+}
+
+/**
+ * Create a new notification queue object for event deletion.
+ * @param client - TriplitClient instance.
+ * @param userId - The ID of the user creating the notification queue object (event creator).
+ * @param eventId - The ID of the event.
+ * @param attendeeIds - List of attendee IDs who should be notified.
+ */
+export async function createNewEventDeletedNotificationQueueObject(
+	client: TriplitClient | WorkerClient | HttpClient,
+	userId: string,
+	eventId: string,
+	attendeeIds: string[]
+): Promise<void> {
+	if (!isNonEmptyArray(attendeeIds)) {
+		throw new Error(
+			'attendeeIds in createNewEventDeletedNotificationQueueObject cannot be empty.'
+		);
+	}
+
+	await client.insert('notifications_queue', {
+		user_id: userId,
+		event_id: eventId,
+		object_type: NotificationType.EVENT_DELETED,
+		object_ids: JSON.stringify(attendeeIds),
+		object_ids_set: attendeeIds
+	});
+}
+
+/**
+ * Create a new notification queue object for temporary attendee event cancellation.
+ * @param client - TriplitClient instance.
+ * @param userId - The ID of the user creating the notification queue object (event creator).
+ * @param eventId - The ID of the event.
+ * @param tempAttendeeIds - List of temporary attendee IDs who should be notified.
+ */
+export async function createNewTempEventCancelledNotificationQueueObject(
+	client: TriplitClient | WorkerClient | HttpClient,
+	userId: string,
+	eventId: string,
+	tempAttendeeIds: string[]
+): Promise<void> {
+	if (!isNonEmptyArray(tempAttendeeIds)) {
+		throw new Error(
+			'tempAttendeeIds in createNewTempEventCancelledNotificationQueueObject cannot be empty.'
+		);
+	}
+
+	// For temporary attendees, we'll use a custom approach since they don't have user accounts
+	// We'll create notification entries that the notification engine can handle
+	await client.insert('notifications_queue', {
+		user_id: userId,
+		event_id: eventId,
+		object_type: NotificationType.EVENT_CANCELLED,
+		object_ids: JSON.stringify(tempAttendeeIds),
+		object_ids_set: tempAttendeeIds
+	});
+}

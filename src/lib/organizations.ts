@@ -14,7 +14,7 @@ export async function createOrganization(
 	isPublic: boolean = false
 ) {
 	const orgId = await generatePassphraseId('org_');
-	
+
 	const organization = await client.insert('organizations', {
 		id: orgId,
 		name,
@@ -66,12 +66,10 @@ export async function addOrganizationViewer(
 ) {
 	// Check if user is already a viewer
 	const existingViewer = await client.fetchOne(
-		client
-			.query('organization_viewers')
-			.Where([
-				['organization_id', '=', organizationId],
-				['user_id', '=', userId]
-			])
+		client.query('organization_viewers').Where([
+			['organization_id', '=', organizationId],
+			['user_id', '=', userId]
+		])
 	);
 
 	if (!existingViewer) {
@@ -113,12 +111,10 @@ export async function updateOrganizationMemberRole(
 	updatedByUserId: string
 ) {
 	const existingMember = await client.fetchOne(
-		client
-			.query('organization_members')
-			.Where([
-				['organization_id', '=', organizationId],
-				['user_id', '=', userId]
-			])
+		client.query('organization_members').Where([
+			['organization_id', '=', organizationId],
+			['user_id', '=', userId]
+		])
 	);
 
 	if (!existingMember) {
@@ -160,12 +156,10 @@ async function addAdminToAllOrgEvents(
 	for (const event of orgEvents) {
 		// Check if user is already an admin of this event
 		const existingAdmin = await client.fetchOne(
-			client
-				.query('event_admins')
-				.Where([
-					['event_id', '=', event.id],
-					['user_id', '=', userId]
-				])
+			client.query('event_admins').Where([
+				['event_id', '=', event.id],
+				['user_id', '=', userId]
+			])
 		);
 
 		if (!existingAdmin) {
@@ -212,12 +206,10 @@ export async function addOrgAdminsToNewEvent(
 ) {
 	// Get all org admins
 	const orgAdmins = await client.fetch(
-		client
-			.query('organization_members')
-			.Where([
-				['organization_id', '=', organizationId],
-				['role', '=', 'admin']
-			])
+		client.query('organization_members').Where([
+			['organization_id', '=', organizationId],
+			['role', '=', 'admin']
+		])
 	);
 
 	// Add each org admin as event admin (except if they're already the event creator)
@@ -225,12 +217,10 @@ export async function addOrgAdminsToNewEvent(
 		if (orgAdmin.user_id !== eventCreatorId) {
 			// Check if they're already an event admin
 			const existingAdmin = await client.fetchOne(
-				client
-					.query('event_admins')
-					.Where([
-						['event_id', '=', eventId],
-						['user_id', '=', orgAdmin.user_id]
-					])
+				client.query('event_admins').Where([
+					['event_id', '=', eventId],
+					['user_id', '=', orgAdmin.user_id]
+				])
 			);
 
 			if (!existingAdmin) {
@@ -254,9 +244,7 @@ export async function autoAddEventViewerAsOrgViewer(
 	eventId: string
 ) {
 	// Get the event to find its organization
-	const event = await client.fetchOne(
-		client.query('events').Where([['id', '=', eventId]])
-	);
+	const event = await client.fetchOne(client.query('events').Where([['id', '=', eventId]]));
 
 	if (event?.organization_id) {
 		await addOrganizationViewer(client, event.organization_id, userId);
@@ -266,10 +254,7 @@ export async function autoAddEventViewerAsOrgViewer(
 /**
  * Gets all organizations a user is a member or viewer of
  */
-export async function getUserOrganizations(
-	client: TriplitClient | HttpClient,
-	userId: string
-) {
+export async function getUserOrganizations(client: TriplitClient | HttpClient, userId: string) {
 	const [memberships, viewerships] = await Promise.all([
 		client.fetch(
 			client
@@ -288,7 +273,7 @@ export async function getUserOrganizations(
 	const orgMap = new Map();
 
 	// Add organizations from memberships
-	memberships.forEach(membership => {
+	memberships.forEach((membership) => {
 		if (membership.organization) {
 			orgMap.set(membership.organization.id, {
 				...membership.organization,
@@ -299,7 +284,7 @@ export async function getUserOrganizations(
 	});
 
 	// Add organizations from viewerships (if not already a member)
-	viewerships.forEach(viewership => {
+	viewerships.forEach((viewership) => {
 		if (viewership.organization && !orgMap.has(viewership.organization.id)) {
 			orgMap.set(viewership.organization.id, {
 				...viewership.organization,
@@ -315,13 +300,13 @@ export async function getUserOrganizations(
 	for (const org of organizations) {
 		const [memberCount, eventCount] = await Promise.all([
 			// Get member count
-			client.fetch(
-				client.query('organization_members').Where([['organization_id', '=', org.id]])
-			).then(members => members.length),
+			client
+				.fetch(client.query('organization_members').Where([['organization_id', '=', org.id]]))
+				.then((members) => members.length),
 			// Get event count
-			client.fetch(
-				client.query('events').Where([['organization_id', '=', org.id]])
-			).then(events => events.length)
+			client
+				.fetch(client.query('events').Where([['organization_id', '=', org.id]]))
+				.then((events) => events.length)
 		]);
 
 		org.memberCount = memberCount;

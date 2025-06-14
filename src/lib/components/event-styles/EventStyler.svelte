@@ -68,8 +68,9 @@
 		};
 
 		const scaleRules = Object.entries(tailwindTextSizes)
-			.map(([className, size]) => 
-				`.${currentTargetSelector} .${className} { font-size: calc(${size} * ${fontSize}) !important; }`
+			.map(
+				([className, size]) =>
+					`.${currentTargetSelector} .${className} { font-size: calc(${size} * ${fontSize}) !important; }`
 			)
 			.join('\n');
 

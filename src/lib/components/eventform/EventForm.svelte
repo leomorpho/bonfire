@@ -41,6 +41,7 @@
 	import BackButton from '../BackButton.svelte';
 	import { toast } from 'svelte-sonner';
 	import UnpublishEventBtn from './buttons/UnpublishEventBtn.svelte';
+	import CancelEventBtn from './buttons/CancelEventBtn.svelte';
 	import DeleteEventBtn from './buttons/DeleteEventBtn.svelte';
 	import TipTapTextEditor from '../input/tiptap/TipTapTextEditor.svelte';
 	import MaxCapacity from './feature-enablers/MaxCapacity.svelte';
@@ -573,7 +574,7 @@
 	// Load user's organizations
 	const loadUserOrganizations = async () => {
 		if (!client) return;
-		
+
 		organizationsLoading = true;
 		try {
 			const userId = await waitForUserId();
@@ -686,14 +687,15 @@
 						class="w-full bg-white dark:bg-slate-900"
 						oninput={debouncedUpdateEvent}
 					/>
-					
+
 					<!-- Organization Selector -->
 					<div class="w-full space-y-2">
 						{#if mode === EventFormType.CREATE && userOrganizations.length > 0}
 							<Select.Root bind:value={selectedOrganizationId}>
 								<Select.Trigger class="w-full bg-white dark:bg-slate-900">
 									{#if selectedOrganizationId}
-										{userOrganizations.find(org => org.id === selectedOrganizationId)?.name || 'Select organization'}
+										{userOrganizations.find((org) => org.id === selectedOrganizationId)?.name ||
+											'Select organization'}
 									{:else}
 										Select organization (optional)
 									{/if}
@@ -701,16 +703,20 @@
 								<Select.Content class="bg-white dark:bg-slate-900">
 									<Select.Group>
 										<Select.Item value={null} onclick={debouncedUpdateEvent}>
-											<span class="text-gray-500 italic">No organization</span>
+											<span class="italic text-gray-500">No organization</span>
 										</Select.Item>
 										{#each userOrganizations as org}
 											<Select.Item value={org.id} onclick={debouncedUpdateEvent}>
-												<div class="flex items-center justify-between w-full">
+												<div class="flex w-full items-center justify-between">
 													<span>{org.name}</span>
 													{#if org.userRole === 'admin'}
-														<span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded ml-2">Admin</span>
+														<span class="ml-2 rounded bg-blue-100 px-2 py-1 text-xs text-blue-800"
+															>Admin</span
+														>
 													{:else if org.userRole}
-														<span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded ml-2">{org.userRole}</span>
+														<span class="ml-2 rounded bg-gray-100 px-2 py-1 text-xs text-gray-600"
+															>{org.userRole}</span
+														>
 													{/if}
 												</div>
 											</Select.Item>
@@ -720,11 +726,14 @@
 							</Select.Root>
 						{:else if mode === EventFormType.UPDATE}
 							{#if selectedOrganizationId}
-								<div class="flex items-center justify-between w-full p-3 bg-gray-50 dark:bg-slate-800 rounded-lg">
+								<div
+									class="flex w-full items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-slate-800"
+								>
 									<div class="flex items-center gap-2">
-										<Building2 class="w-4 h-4 text-gray-500" />
+										<Building2 class="h-4 w-4 text-gray-500" />
 										<span class="font-medium">
-											{userOrganizations.find(org => org.id === selectedOrganizationId)?.name || 'Unknown Organization'}
+											{userOrganizations.find((org) => org.id === selectedOrganizationId)?.name ||
+												'Unknown Organization'}
 										</span>
 									</div>
 									<Button
@@ -732,7 +741,7 @@
 										variant="ghost"
 										size="sm"
 										class="text-xs"
-										onclick={() => organizationModalOpen = true}
+										onclick={() => (organizationModalOpen = true)}
 									>
 										Change
 									</Button>
@@ -744,15 +753,15 @@
 										variant="outline"
 										size="sm"
 										class="text-xs"
-										onclick={() => organizationModalOpen = true}
+										onclick={() => (organizationModalOpen = true)}
 									>
-										<Building2 class="w-4 h-4 mr-1" />
+										<Building2 class="mr-1 h-4 w-4" />
 										Link Organization
 									</Button>
 								</div>
 							{/if}
 						{/if}
-						
+
 						{#if mode === EventFormType.CREATE}
 							<div class="flex justify-center">
 								<Button
@@ -965,6 +974,14 @@
 							<UnpublishEventBtn {submitDisabled} eventId={event.id} />
 						{/if}
 						{#if mode == EventFormType.UPDATE && event && currUserId == event.user_id}
+							{#if isEventPublished}
+								<CancelEventBtn
+									{submitDisabled}
+									{currUserId}
+									eventCreatorUserId={event.user_id}
+									eventId={event.id}
+								/>
+							{/if}
 							<DeleteEventBtn
 								{submitDisabled}
 								{currUserId}
@@ -999,22 +1016,25 @@
 	<Dialog.Content class="sm:max-w-md">
 		<Dialog.Header>
 			<Dialog.Title class="flex items-center gap-2">
-				<Building2 class="w-5 h-5" />
+				<Building2 class="h-5 w-5" />
 				Link Organization
 			</Dialog.Title>
 			<Dialog.Description>
 				Select an organization for this event or create a new one.
 			</Dialog.Description>
 		</Dialog.Header>
-		
+
 		<div class="space-y-4">
 			{#if userOrganizations.length > 0}
 				<div class="space-y-2">
 					<label class="text-sm font-medium">Your Organizations</label>
-					<div class="space-y-2 max-h-48 overflow-y-auto">
+					<div class="max-h-48 space-y-2 overflow-y-auto">
 						<!-- None option -->
 						<button
-							class="w-full text-left p-3 rounded-lg border hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors {selectedOrganizationId === null ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-200 dark:border-gray-700'}"
+							class="w-full rounded-lg border p-3 text-left transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 {selectedOrganizationId ===
+							null
+								? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+								: 'border-gray-200 dark:border-gray-700'}"
 							onclick={() => {
 								selectedOrganizationId = null;
 								debouncedUpdateEvent();
@@ -1022,16 +1042,19 @@
 							}}
 						>
 							<div class="flex items-center justify-between">
-								<span class="text-gray-500 italic">No organization</span>
+								<span class="italic text-gray-500">No organization</span>
 								{#if selectedOrganizationId === null}
-									<div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+									<div class="h-2 w-2 rounded-full bg-blue-500"></div>
 								{/if}
 							</div>
 						</button>
-						
+
 						{#each userOrganizations as org}
 							<button
-								class="w-full text-left p-3 rounded-lg border hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors {selectedOrganizationId === org.id ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-200 dark:border-gray-700'}"
+								class="w-full rounded-lg border p-3 text-left transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 {selectedOrganizationId ===
+								org.id
+									? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+									: 'border-gray-200 dark:border-gray-700'}"
 								onclick={() => {
 									selectedOrganizationId = org.id;
 									debouncedUpdateEvent();
@@ -1041,25 +1064,27 @@
 								<div class="flex items-center justify-between">
 									<div class="flex items-center gap-3">
 										{#if org.logo_url}
-											<img 
-												src={org.logo_url} 
+											<img
+												src={org.logo_url}
 												alt="{org.name} logo"
-												class="w-8 h-8 rounded object-cover"
+												class="h-8 w-8 rounded object-cover"
 											/>
 										{:else}
-											<div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded flex items-center justify-center text-white text-sm font-bold">
+											<div
+												class="flex h-8 w-8 items-center justify-center rounded bg-gradient-to-br from-blue-500 to-purple-600 text-sm font-bold text-white"
+											>
 												{org.name.charAt(0).toUpperCase()}
 											</div>
 										{/if}
 										<div>
 											<div class="font-medium">{org.name}</div>
 											{#if org.userRole}
-												<div class="text-xs text-gray-500 capitalize">{org.userRole}</div>
+												<div class="text-xs capitalize text-gray-500">{org.userRole}</div>
 											{/if}
 										</div>
 									</div>
 									{#if selectedOrganizationId === org.id}
-										<div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+										<div class="h-2 w-2 rounded-full bg-blue-500"></div>
 									{/if}
 								</div>
 							</button>
@@ -1068,13 +1093,16 @@
 				</div>
 				<div class="border-t pt-4">
 					{#if mode === EventFormType.CREATE && !eventCreated}
-						<div class="text-center text-sm text-gray-600 dark:text-gray-400 p-3">
+						<div class="p-3 text-center text-sm text-gray-600 dark:text-gray-400">
 							Save your event first to create organizations
 						</div>
 					{:else}
 						{#if mode === EventFormType.UPDATE}
-							<div class="text-xs text-amber-600 dark:text-amber-400 mb-3 p-2 bg-amber-50 dark:bg-amber-900/20 rounded">
-								⚠️ Creating an organization will navigate away. Make sure to save your changes first.
+							<div
+								class="mb-3 rounded bg-amber-50 p-2 text-xs text-amber-600 dark:bg-amber-900/20 dark:text-amber-400"
+							>
+								⚠️ Creating an organization will navigate away. Make sure to save your changes
+								first.
 							</div>
 						{/if}
 						<Button
@@ -1085,25 +1113,26 @@
 								goto('/organizations/create');
 							}}
 						>
-							<ExternalLink class="w-4 h-4 mr-2" />
+							<ExternalLink class="mr-2 h-4 w-4" />
 							Create New Organization
 						</Button>
 					{/if}
 				</div>
 			{:else}
-				<div class="text-center py-6">
-					<Building2 class="w-12 h-12 text-gray-400 mx-auto mb-3" />
-					<p class="text-gray-600 dark:text-gray-400 mb-4">
-						You don't have any organizations yet.
-					</p>
+				<div class="py-6 text-center">
+					<Building2 class="mx-auto mb-3 h-12 w-12 text-gray-400" />
+					<p class="mb-4 text-gray-600 dark:text-gray-400">You don't have any organizations yet.</p>
 					{#if mode === EventFormType.CREATE && !eventCreated}
-						<div class="text-sm text-gray-600 dark:text-gray-400 p-3">
+						<div class="p-3 text-sm text-gray-600 dark:text-gray-400">
 							Save your event first to create organizations
 						</div>
 					{:else}
 						{#if mode === EventFormType.UPDATE}
-							<div class="text-xs text-amber-600 dark:text-amber-400 mb-3 p-2 bg-amber-50 dark:bg-amber-900/20 rounded">
-								⚠️ Creating an organization will navigate away. Make sure to save your changes first.
+							<div
+								class="mb-3 rounded bg-amber-50 p-2 text-xs text-amber-600 dark:bg-amber-900/20 dark:text-amber-400"
+							>
+								⚠️ Creating an organization will navigate away. Make sure to save your changes
+								first.
 							</div>
 						{/if}
 						<Button
@@ -1114,7 +1143,7 @@
 								goto('/organizations/create');
 							}}
 						>
-							<ExternalLink class="w-4 h-4 mr-2" />
+							<ExternalLink class="mr-2 h-4 w-4" />
 							Create New Organization
 						</Button>
 					{/if}

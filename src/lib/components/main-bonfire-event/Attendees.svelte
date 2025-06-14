@@ -82,18 +82,19 @@
 							userId={attendee.user_id}
 							tempUserName={attendee.name}
 							viewerIsEventAdmin={isCurrenUserEventAdmin}
-							userIsEventAdmin={attendee.user_id === eventCreatorUserId || adminUserIds.has(attendee.user_id)}
+							userIsEventAdmin={attendee.user_id === eventCreatorUserId ||
+								adminUserIds.has(attendee.user_id)}
 							attendanceId={attendee.id}
 							baseHeightPx={allAttendeesGoing.length < 10 ? 60 : 50}
 							numGuests={attendee.guest_count}
 							userRsvpStatus={attendee.status}
 							userGuestCount={attendee.guest_count || 0}
 							maxGuestsAllowed={maxNumGuestsAllowedPerAttendee}
-							eventTitle={eventTitle}
-							eventStartTime={eventStartTime}
-							eventEndTime={eventEndTime}
-							eventDescription={eventDescription}
-							eventLocation={eventLocation}
+							{eventTitle}
+							{eventStartTime}
+							{eventEndTime}
+							{eventDescription}
+							{eventLocation}
 						/>
 					</div>
 				{/each}
@@ -120,6 +121,9 @@
 			<NoAttendeesYet />
 		{/if}
 	{:else}
-		<AnonAttendeesView numAttendingGoing={eventNumAttendeesGoing} numAttendeesInvited={eventNumAttendeesInvited} />
+		<AnonAttendeesView
+			numAttendingGoing={eventNumAttendeesGoing}
+			numAttendeesInvited={eventNumAttendeesInvited}
+		/>
 	{/if}
 </div>

@@ -9,7 +9,7 @@
 	// import DOMPurify from 'dompurify';
 	// import EventDetails from './EventDetails.svelte';
 	import UpdateableEventField from './info/UpdateableEventField.svelte';
-	import { eventInputTypes } from '$lib/enums';
+	import { eventInputTypes, EventStatus } from '$lib/enums';
 	import { fade } from 'svelte/transition';
 	import { MapPin } from '@lucide/svelte';
 
@@ -28,13 +28,21 @@
 		latitude = null,
 		longitude = null,
 		tempAttendeeSecret = null,
-		organization = null
+		organization = null,
+		eventStatus = EventStatus.ACTIVE
 	} = $props();
 
 	let isMapPresent = $derived(latitude && longitude);
 </script>
 
 <div class="relative mt-5 space-y-3 rounded-xl py-2 sm:mt-0" in:fade={{ duration: 300 }}>
+	{#if eventStatus === EventStatus.CANCELLED}
+		<div class="flex w-full justify-center">
+			<div class="rounded bg-red-600 px-4 py-2 text-lg font-bold text-white shadow-md dark:bg-red-500">
+				❌ EVENT CANCELLED
+			</div>
+		</div>
+	{/if}
 	<div id="event-title" class="flex w-full justify-center">
 		<UpdateableEventField
 			fieldValue={eventTitle}
@@ -96,9 +104,9 @@
 					<div class="my-2 flex items-center justify-center font-light">
 						<div class="flex flex-wrap items-center">
 							<span class="flex-shrink-0 text-sm text-gray-600 dark:text-gray-400">Event by</span>
-							<a 
-								href="/org/{organization.id}" 
-								class="ml-1 flex-shrink-0 font-semibold text-blue-600 dark:text-blue-400 hover:underline"
+							<a
+								href="/org/{organization.id}"
+								class="ml-1 flex-shrink-0 font-semibold text-blue-600 hover:underline dark:text-blue-400"
 							>
 								{organization.name}
 							</a>

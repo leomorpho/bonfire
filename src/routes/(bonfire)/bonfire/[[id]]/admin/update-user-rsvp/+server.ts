@@ -4,10 +4,15 @@ import { triplitHttpClient } from '$lib/server/triplit';
 import { and } from '@triplit/client';
 import { HistoryChangesConstants, Status } from '$lib/enums';
 import { checkEventIsOpenForNewGoingAttendees } from '$lib/triplit';
-import { createAttendeeCountDeltas, createUserAttendance, upsertEventsPrivateData } from '$lib/rsvp';
+import {
+	createAttendeeCountDeltas,
+	createUserAttendance,
+	upsertEventsPrivateData
+} from '$lib/rsvp';
 
 export async function POST({ request, params, locals }) {
-	const { targetUserId, targetTempUserId, newStatus, numGuests, adminUserId } = await request.json();
+	const { targetUserId, targetTempUserId, newStatus, numGuests, adminUserId } =
+		await request.json();
 	const eventId = params.id;
 
 	// Verify admin permissions
@@ -36,10 +41,16 @@ export async function POST({ request, params, locals }) {
 
 			// If attendance does not exist, create it
 			if (!attendance) {
-				await createUserAttendance(triplitHttpClient, targetUserId, eventId, newStatus, numGuests || 0);
+				await createUserAttendance(
+					triplitHttpClient,
+					targetUserId,
+					eventId,
+					newStatus,
+					numGuests || 0
+				);
 			} else {
 				const newNumGuests = numGuests || 0;
-				
+
 				// Create historical entry for the update
 				const update = {
 					attendee_id: attendance.id,

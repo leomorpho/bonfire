@@ -28,8 +28,9 @@
 
 		// Scope all text size rules to bonfire event content only
 		const scaleRules = Object.entries(tailwindTextSizes)
-			.map(([className, size]) => 
-				`.bonfire-event-content .${className} { font-size: calc(${size} * ${fontSize}); }`
+			.map(
+				([className, size]) =>
+					`.bonfire-event-content .${className} { font-size: calc(${size} * ${fontSize}); }`
 			)
 			.join('\n');
 
@@ -89,9 +90,9 @@
 		// Apply font styles and size scaling
 		const fontSize = font.fontSize || 1.0;
 		const fontStyle = font.style || '';
-		
+
 		const fontSizeCSS = generateScopedFontSizeCSS(fontSize);
-		
+
 		const completeCss = `
 			/* Font family and size scaling scoped to bonfire event content only */
 			${fontStyle ? `.bonfire-event-content { ${fontStyle} }` : ''}
@@ -115,7 +116,7 @@
 
 		return () => {
 			unsubscribe();
-			
+
 			// Cleanup on unmount
 			if (fontStyleElement && document.head.contains(fontStyleElement)) {
 				document.head.removeChild(fontStyleElement);

@@ -15,6 +15,7 @@
 	import { fetchBannerInfo } from '$lib/gallery';
 	import { isStartDateBeforeCutoff } from '$lib/rsvp';
 	import { fontStore } from '$lib/styles';
+	import { EventStatus } from '$lib/enums';
 
 	let {
 		eventId,
@@ -39,7 +40,8 @@
 		numGoingAttendees = null,
 		maxCapacity = null,
 		isCuttoffDateEnabled = false,
-		cuttoffDate = null
+		cuttoffDate = null,
+		eventStatus = EventStatus.ACTIVE
 	} = $props();
 
 	let isCurrentDateBeforeCutoff = $state(
@@ -121,8 +123,9 @@
 		};
 
 		const scaleRules = Object.entries(tailwindTextSizes)
-			.map(([className, size]) => 
-				`.${cardId} .${className} { font-size: calc(${size} * ${fontSize}); }`
+			.map(
+				([className, size]) =>
+					`.${cardId} .${className} { font-size: calc(${size} * ${fontSize}); }`
 			)
 			.join('\n');
 
@@ -250,15 +253,24 @@
 	}}
 	class="event-card animate-fadeIn pointer-events-auto w-full cursor-pointer duration-300 animate-in fade-in"
 >
-	<Card.Root class="relative my-4 w-full bg-slate-200 dark:bg-slate-900 event-card-{eventId}" {style}>
-		<!-- Not Published Marker -->
-		<!-- {#if !isPublished}
+	<Card.Root
+		class="relative my-4 w-full bg-slate-200 dark:bg-slate-900 event-card-{eventId}"
+		{style}
+	>
+		<!-- Event Status Markers -->
+		{#if eventStatus === EventStatus.CANCELLED}
 			<div
 				class="absolute right-2 top-2 z-20 rounded bg-red-600 px-3 py-1 text-xs font-semibold text-white shadow-md dark:bg-red-500"
 			>
-				Not Published
+				CANCELLED
 			</div>
-		{/if} -->
+		{:else if !isPublished}
+			<div
+				class="absolute right-2 top-2 z-20 rounded bg-orange-600 px-3 py-1 text-xs font-semibold text-white shadow-md dark:bg-orange-500"
+			>
+				DRAFT
+			</div>
+		{/if}
 		<!-- Overlay -->
 		<div style={overlayStyle} class="pointer-events-none absolute inset-0 rounded-xl"></div>
 

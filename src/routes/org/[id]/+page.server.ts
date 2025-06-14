@@ -25,9 +25,7 @@ export const load = async ({ params, locals }) => {
 		let banner_media = null;
 		try {
 			banner_media = await client.fetchOne(
-				client
-					.query('banner_media')
-					.Where([['organization_id', '=', id]])
+				client.query('banner_media').Where([['organization_id', '=', id]])
 			);
 		} catch (error) {
 			console.log('Failed to fetch banner_media:', error);

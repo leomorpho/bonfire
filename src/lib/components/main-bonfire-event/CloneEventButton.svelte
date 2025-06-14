@@ -87,7 +87,7 @@
 				<div class="space-y-2 text-center">
 					<p class="text-sm font-medium">Cloning event...</p>
 					<p class="text-xs text-muted-foreground">
-						This might take a while if there's a lot of data to copy.
+						This might take a while if you're copying over a lot of invites
 					</p>
 				</div>
 			</div>

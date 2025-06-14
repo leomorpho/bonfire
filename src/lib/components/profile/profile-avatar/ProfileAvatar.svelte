@@ -64,11 +64,13 @@
 	let avatarElement: any = $state();
 
 	// Show admin RSVP controls if viewer is admin and profile user is not admin/owner
-	let showAdminRsvpControls = $derived(viewerIsEventAdmin && 
-	                                     userId && 
-	                                     userId !== $page.data.user?.id && 
-	                                     !userIsEventAdmin &&
-	                                     userRsvpStatus !== null);
+	let showAdminRsvpControls = $derived(
+		viewerIsEventAdmin &&
+			userId &&
+			userId !== $page.data.user?.id &&
+			!userIsEventAdmin &&
+			userRsvpStatus !== null
+	);
 
 	async function hashImage(imageBlob: Blob): Promise<string> {
 		const buffer = await imageBlob.arrayBuffer();
@@ -437,24 +439,24 @@
 			</div>
 		</div>
 	{/if}
-	
+
 	{#if showAdminRsvpControls}
 		<div class="mt-4 border-t pt-4">
-			<h4 class="text-sm font-semibold mb-2 text-center">Admin: Manage RSVP</h4>
+			<h4 class="mb-2 text-center text-sm font-semibold">Admin: Manage RSVP</h4>
 			<Rsvp
 				rsvpStatus={userRsvpStatus}
-				userId={userId}
-				eventId={eventId}
+				{userId}
+				{eventId}
 				eventOwnerId={null}
 				isAnonymousUser={false}
 				rsvpCanBeChanged={true}
 				maxNumGuestsAllowedPerAttendee={maxGuestsAllowed}
 				numGuestsCurrentAttendeeIsBringing={userGuestCount}
-				eventTitle={eventTitle}
-				eventStartTime={eventStartTime}
-				eventEndTime={eventEndTime}
-				eventDescription={eventDescription}
-				eventLocation={eventLocation}
+				{eventTitle}
+				{eventStartTime}
+				{eventEndTime}
+				{eventDescription}
+				{eventLocation}
 				isDemo={false}
 				isAdminMode={true}
 				adminUpdateCallback={updateUserRsvpAsAdmin}
@@ -463,7 +465,7 @@
 			/>
 		</div>
 	{/if}
-	
+
 	{#if viewerIsEventAdmin && $page.data.user && userId != $page.data.user.id && showRemoveUser}
 		<Button
 			onclick={showRemoveUserModal}

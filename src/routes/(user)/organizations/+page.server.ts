@@ -10,11 +10,11 @@ export const load = async ({ locals }) => {
 	}
 
 	const client = triplitHttpClient;
-	
+
 	try {
 		// Get user's organizations
 		const userOrganizations = await getUserOrganizations(client, locals.user.id);
-		
+
 		return {
 			userOrganizations,
 			user: locals.user
