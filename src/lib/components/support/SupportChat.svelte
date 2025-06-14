@@ -43,6 +43,7 @@
 		}
 
 		try {
+			console.log('Starting loadConversation...', { isAdmin, conversationId, userId });
 			isLoading = true;
 			isSubscribing = true;
 			error = '';
@@ -154,32 +155,43 @@
 		}
 	};
 
-	onMount(() => {
-		loadConversation();
-	});
+	// Track previous conversationId to prevent unnecessary reloads
+	let previousConversationId = $state(null);
 
-	// Reload conversation when conversationId changes (admin view)
+	// Single effect to handle all loading scenarios
 	$effect(() => {
-		if (isAdmin && conversationId) {
-			if (unsubscribe) {
-				unsubscribe();
+		// Wait a tick to ensure props are stable
+		setTimeout(() => {
+			// Only load if:
+			// 1. We're not already loading/subscribing
+			// 2. ConversationId has actually changed (for admin) or it's the initial load
+			if (isSubscribing) {
+				console.log('Already subscribing, skipping effect...');
+				return;
 			}
-			loadConversation();
-		}
+
+			const shouldLoad = !isAdmin || 
+				(isAdmin && conversationId && conversationId !== previousConversationId);
+
+			if (shouldLoad) {
+				console.log('Effect triggering loadConversation:', { isAdmin, conversationId, previousConversationId });
+				previousConversationId = conversationId;
+				
+				if (unsubscribe) {
+					unsubscribe();
+					unsubscribe = null;
+				}
+				
+				loadConversation();
+			}
+		}, 0);
 	});
 
-	// Add error recovery mechanism
-	let retryCount = 0;
-	const maxRetries = 3;
-
+	// Simple error recovery without automatic retry to prevent loops
 	$effect(() => {
-		if (error && retryCount < maxRetries) {
-			console.log(`Retrying conversation load (${retryCount + 1}/${maxRetries})...`);
-			setTimeout(() => {
-				retryCount++;
-				error = '';
-				loadConversation();
-			}, 2000 * retryCount); // Exponential backoff
+		if (error) {
+			console.log('Conversation load failed:', error);
+			// Don't auto-retry to prevent loops
 		}
 	});
 
