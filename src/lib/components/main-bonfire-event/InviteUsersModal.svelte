@@ -8,6 +8,7 @@
 	import { Button } from '../ui/button';
 	import { Input } from '../ui/input';
 	import { X, UserPlus } from 'lucide-svelte';
+	import { toast } from 'svelte-sonner';
 
 	let { isOpen = false, eventId, onClose } = $props();
 
@@ -107,11 +108,24 @@
 			invitedUsers.add(userId);
 			invitedUsers = invitedUsers;
 
+			// Get username for toast before removing from list
+			const invitedUser = users.find(u => u.id === userId);
+			
 			// Remove user from current results
 			users = users.filter((user) => user.id !== userId);
+			
+			// Show success toast
+			toast.success(`Successfully invited ${invitedUser?.username || 'user'}`);
 		} catch (err) {
 			error = err.message || 'Failed to invite user';
 			console.error('Invite error:', err);
+			
+			// Show error toast for specific errors
+			if (err.message.includes('unpublished')) {
+				toast.error('Cannot invite users to an unpublished event. Please publish the event first.');
+			} else {
+				toast.error(err.message || 'Failed to invite user');
+			}
 		} finally {
 			invitingUsers.delete(userId);
 			invitingUsers = invitingUsers;

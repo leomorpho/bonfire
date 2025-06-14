@@ -21,6 +21,19 @@ export const POST = async ({ request, params, locals }) => {
 		return json({ error: 'Not authorized to invite users to this event' }, { status: 403 });
 	}
 
+	// Check if event is published
+	const event = await triplitHttpClient.fetchOne(
+		triplitHttpClient.query('events').Where(['id', '=', eventId])
+	);
+
+	if (!event) {
+		return json({ error: 'Event not found' }, { status: 404 });
+	}
+
+	if (!event.is_published) {
+		return json({ error: 'Cannot invite users to an unpublished event' }, { status: 400 });
+	}
+
 	let requestBody;
 	try {
 		requestBody = await request.json();
