@@ -132,6 +132,11 @@
 		}
 	};
 
+	const handleUserBlocked = (userId: string) => {
+		// Remove blocked user from current results
+		users = users.filter((user) => user.id !== userId);
+	};
+
 	const handleClose = () => {
 		if (onClose) {
 			onClose();
@@ -233,6 +238,7 @@
 								{eventId}
 								onInvite={handleInvite}
 								isInviting={invitingUsers.has(user.id)}
+								onUserBlocked={handleUserBlocked}
 							/>
 						{/each}
 					</div>
