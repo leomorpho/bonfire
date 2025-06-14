@@ -1963,6 +1963,7 @@ export const schema = S.Collections({
 		permissions: {
 			admin: {
 				read: { filter: [true] }, // Admins can see all conversations
+				insert: { filter: [true] }, // Admins can create conversations
 				update: { filter: [true] } // Admins can update conversation status
 			},
 			user: {
@@ -2005,13 +2006,18 @@ export const schema = S.Collections({
 			},
 			user: {
 				read: { 
-					filter: [true] // Temporarily allow all access for debugging
+					filter: [['conversation.user_id', '=', '$role.userId']] // Users can only see messages in their conversations
 				},
 				insert: { 
-					filter: [true] // Temporarily allow all access for debugging
+					filter: [['conversation.user_id', '=', '$role.userId']] // Users can only send messages in their conversations
 				},
 				update: { 
-					filter: [['user_id', '=', '$role.userId']] // Users can only edit their own messages
+					filter: [
+						and([
+							['user_id', '=', '$role.userId'], // Users can only edit their own messages
+							['conversation.user_id', '=', '$role.userId'] // In their own conversations
+						])
+					]
 				}
 			},
 			temp: {},

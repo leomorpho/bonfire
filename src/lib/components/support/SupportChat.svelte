@@ -49,7 +49,13 @@
 			console.log('Got user ID:', userId);
 
 			if (!userId) {
-				throw new Error('User not authenticated');
+				console.log('User ID is null, checking if user exists in page data...');
+				if ($page.data.user?.id) {
+					userId = $page.data.user.id;
+					console.log('Using user ID from page data:', userId);
+				} else {
+					throw new Error('User not authenticated');
+				}
 			}
 
 			if (isAdmin && conversationId) {

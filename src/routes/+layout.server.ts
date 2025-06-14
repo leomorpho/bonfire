@@ -1,11 +1,13 @@
-import { generateJWT, ANON_ROLE, USER_ROLE } from '$lib/auth';
+import { generateJWT, ANON_ROLE, USER_ROLE, ADMIN_ROLE } from '$lib/auth';
 
 import { loadFlash } from 'sveltekit-flash-message/server';
 
 export const load = loadFlash(async (event) => {
 	const user = event.locals.user;
 	if (user) {
-		const jwt = generateJWT(user.id, USER_ROLE);
+		// Check if user is admin and generate appropriate JWT
+		const role = user.is_event_styles_admin ? ADMIN_ROLE : USER_ROLE;
+		const jwt = generateJWT(user.id, role);
 		return { user: event.locals.user, jwt };
 	}
 
