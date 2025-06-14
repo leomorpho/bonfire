@@ -24,7 +24,8 @@
 		}
 	};
 
-	const handleBlockUser = async () => {
+	const handleBlockUser = async (e) => {
+		e.stopPropagation();
 		if (isBlocking) return;
 		
 		isBlocking = true;
@@ -107,6 +108,7 @@
 						variant="ghost"
 						size="sm"
 						class="h-8 w-8 p-0 hover:bg-gray-100 dark:hover:bg-gray-700"
+						onclick={(e) => e.stopPropagation()}
 						{...props}
 					>
 						<MoreHorizontal class="h-4 w-4" />
@@ -114,7 +116,12 @@
 					</Button>
 				{/snippet}
 			</DropdownMenu.Trigger>
-			<DropdownMenu.Content align="end">
+			<DropdownMenu.Content 
+				align="end" 
+				sideOffset={5}
+				class="z-[60]"
+				avoidCollisions={true}
+			>
 				<DropdownMenu.Item
 					class="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-950"
 					onclick={handleBlockUser}
