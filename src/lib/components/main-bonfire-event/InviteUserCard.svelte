@@ -2,9 +2,9 @@
 	import ProfileAvatar from '../profile/profile-avatar/ProfileAvatar.svelte';
 	import { Button } from '../ui/button';
 	import { Badge } from '../ui/badge';
-	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import { MoreHorizontal, UserX } from 'lucide-svelte';
 	import { toast } from 'svelte-sonner';
+	import { clickOutside } from '$lib/actions/clickOutside';
 
 	let {
 		user,
@@ -17,6 +17,7 @@
 	} = $props();
 
 	let isBlocking = $state(false);
+	let showDropdown = $state(false);
 
 	const handleInvite = async () => {
 		if (onInvite) {
@@ -46,6 +47,7 @@
 			}
 
 			toast.success(`Blocked ${user.username}`);
+			showDropdown = false;
 			
 			// Notify parent component to remove user from list
 			if (onUserBlocked) {
@@ -101,40 +103,39 @@
 		</Button>
 
 		<!-- 3-dot menu -->
-		<DropdownMenu.Root>
-			<DropdownMenu.Trigger asChild>
-				{#snippet children({ props })}
-					<Button
-						variant="ghost"
-						size="sm"
-						class="h-8 w-8 p-0 hover:bg-gray-100 dark:hover:bg-gray-700"
-						onclick={(e) => e.stopPropagation()}
-						{...props}
-					>
-						<MoreHorizontal class="h-4 w-4" />
-						<span class="sr-only">Open menu</span>
-					</Button>
-				{/snippet}
-			</DropdownMenu.Trigger>
-			<DropdownMenu.Content 
-				align="end" 
-				sideOffset={5}
-				class="z-[60]"
-				avoidCollisions={true}
+		<div class="relative" use:clickOutside={() => showDropdown = false}>
+			<Button
+				variant="ghost"
+				size="sm"
+				class="h-8 w-8 p-0 hover:bg-gray-100 dark:hover:bg-gray-700"
+				onclick={(e) => {
+					e.stopPropagation();
+					showDropdown = !showDropdown;
+				}}
 			>
-				<DropdownMenu.Item
-					class="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-950"
-					onclick={handleBlockUser}
-					disabled={isBlocking}
+				<MoreHorizontal class="h-4 w-4" />
+				<span class="sr-only">Open menu</span>
+			</Button>
+
+			{#if showDropdown}
+				<div 
+					class="absolute right-0 top-full mt-1 z-[60] min-w-[140px] rounded-md border bg-white p-1 shadow-md dark:bg-gray-800 dark:border-gray-700"
+					onclick={(e) => e.stopPropagation()}
 				>
-					<UserX class="mr-2 h-4 w-4" />
-					{#if isBlocking}
-						Blocking...
-					{:else}
-						Block User
-					{/if}
-				</DropdownMenu.Item>
-			</DropdownMenu.Content>
-		</DropdownMenu.Root>
+					<button
+						class="flex w-full items-center px-2 py-1.5 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950 rounded-sm transition-colors disabled:opacity-50"
+						onclick={handleBlockUser}
+						disabled={isBlocking}
+					>
+						<UserX class="mr-2 h-4 w-4" />
+						{#if isBlocking}
+							Blocking...
+						{:else}
+							Block User
+						{/if}
+					</button>
+				</div>
+			{/if}
+		</div>
 	</div>
 </div>
