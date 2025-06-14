@@ -52,6 +52,9 @@ export function createNotificationMessage(
 		case NotificationType.EVENT_DELETED:
 			message = `🗑️ Event has been deleted`;
 			break;
+		case NotificationType.SUPPORT_MESSAGE:
+			message = `🆘 New support message from user`;
+			break;
 
 		default:
 			message = 'You have a new notification';
@@ -598,6 +601,61 @@ export async function createEventDeletedNotifications(
 				new Set([eventId]),
 				pushNotificationPayload,
 				[NotificationPermissions.event_activity],
+				false // isInAppOnly = false (send to all channels)
+			)
+		);
+	}
+
+	return notifications;
+}
+
+export async function createSupportMessageNotifications(
+	senderUserId: string,
+	supportMessageId: string
+): Promise<Notification[]> {
+	if (!supportMessageId) return [];
+
+	// Get all users with admin privileges
+	const adminUsers = await triplitHttpClient.fetch(
+		triplitHttpClient
+			.query('user_personal_data')
+			.Where([['is_event_styles_admin', '=', true]])
+			.Select(['user_id', 'username'])
+	);
+
+	if (!adminUsers.length) return [];
+
+	// Get sender details for the notification message
+	const senderQuery = triplitHttpClient
+		.query('user_personal_data')
+		.Select(['username'])
+		.Where([['user_id', '=', senderUserId]]);
+	const [sender] = await triplitHttpClient.fetch(senderQuery);
+
+	const senderName = sender?.username || 'Unknown User';
+	const message = `🆘 New support message from ${senderName}`;
+	const pushNotificationPayload = {
+		title: 'New Support Message',
+		body: message
+	};
+
+	const notifications: Notification[] = [];
+
+	// Create notifications for all admin users
+	for (const adminUser of adminUsers) {
+		// Don't notify the sender if they're also an admin
+		if (adminUser.user_id === senderUserId) continue;
+
+		notifications.push(
+			new Notification(
+				null, // Support messages don't belong to specific events
+				adminUser.user_id,
+				message,
+				NotificationType.SUPPORT_MESSAGE,
+				[supportMessageId],
+				new Set([supportMessageId]),
+				pushNotificationPayload,
+				[], // No special permissions required for support notifications
 				false // isInAppOnly = false (send to all channels)
 			)
 		);

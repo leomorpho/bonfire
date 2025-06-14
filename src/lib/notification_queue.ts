@@ -302,3 +302,30 @@ export async function createNewTempEventCancelledNotificationQueueObject(
 		object_ids_set: tempAttendeeIds
 	});
 }
+
+/**
+ * Create a new notification queue object for support messages.
+ * This will notify all superuser accounts when a non-superuser sends a support message.
+ * @param client - TriplitClient instance.
+ * @param senderId - The ID of the user who sent the support message.
+ * @param supportMessageId - The ID of the support message.
+ */
+export async function createNewSupportMessageNotificationQueueObject(
+	client: TriplitClient | WorkerClient | HttpClient,
+	senderId: string,
+	supportMessageId: string
+): Promise<void> {
+	if (!supportMessageId) {
+		throw new Error(
+			'supportMessageId in createNewSupportMessageNotificationQueueObject cannot be empty.'
+		);
+	}
+
+	await client.insert('notifications_queue', {
+		user_id: senderId,
+		event_id: null, // Support messages don't belong to specific events
+		object_type: NotificationType.SUPPORT_MESSAGE,
+		object_ids: JSON.stringify([supportMessageId]),
+		object_ids_set: [supportMessageId]
+	});
+}

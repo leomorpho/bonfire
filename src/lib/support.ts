@@ -1,10 +1,11 @@
 import { and, HttpClient, TriplitClient } from '@triplit/client';
 import type { WorkerClient } from '@triplit/client/worker-client';
+import { createNewSupportMessageNotificationQueueObject } from './notification_queue';
 
 /**
  * Get or create a support conversation for a user.
  * Each user has one ongoing conversation at a time.
- * 
+ *
  * @param {WorkerClient | HttpClient} client - The Triplit client instance.
  * @param {string} userId - The ID of the user.
  * @returns {Promise<object>} - The conversation object.
@@ -35,16 +36,16 @@ export async function getOrCreateSupportConversation(
 			created_at: new Date(),
 			updated_at: new Date()
 		});
-		
+
 		// Fetch the conversation again to ensure it exists and get the correct format
 		const createdConversation = await client.fetchOne(
 			client.query('support_conversations').Where([['id', '=', newConversation.id]])
 		);
-		
+
 		if (!createdConversation) {
 			throw new Error('Failed to create conversation');
 		}
-		
+
 		return createdConversation;
 	} catch (err) {
 		console.error('Error in getOrCreateSupportConversation:', err);
@@ -54,7 +55,7 @@ export async function getOrCreateSupportConversation(
 
 /**
  * Send a support message.
- * 
+ *
  * @param {WorkerClient | HttpClient} client - The Triplit client instance.
  * @param {string} conversationId - The ID of the conversation.
  * @param {string} userId - The ID of the sender.
@@ -78,6 +79,16 @@ export async function sendSupportMessage(
 			created_at: new Date()
 		});
 
+		// If this is from a non-admin user, create notification for all admin users
+		if (!isAdminMessage) {
+			try {
+				await createNewSupportMessageNotificationQueueObject(client, userId, message.id);
+			} catch (notificationError) {
+				console.warn('Failed to create support message notification:', notificationError);
+				// Don't fail the whole operation if notification creation fails
+			}
+		}
+
 		// Update conversation's last_message_at timestamp
 		// Note: Temporarily disabled to avoid EntityNotFoundError
 		// try {
@@ -99,7 +110,7 @@ export async function sendSupportMessage(
 
 /**
  * Get messages for a support conversation.
- * 
+ *
  * @param {WorkerClient} client - The Triplit client instance.
  * @param {string} conversationId - The ID of the conversation.
  * @param {number} limit - Maximum number of messages to fetch.
@@ -125,14 +136,14 @@ export async function getSupportMessages(
 	}
 
 	const messages = await client.fetch(query);
-	
+
 	// Return messages in chronological order (oldest first)
 	return messages.reverse();
 }
 
 /**
  * Mark a support message as seen.
- * 
+ *
  * @param {WorkerClient | HttpClient} client - The Triplit client instance.
  * @param {string} messageId - The ID of the message.
  * @param {string} userId - The ID of the user marking the message as seen.
@@ -165,7 +176,7 @@ export async function markSupportMessageAsSeen(
 
 /**
  * Close a support conversation.
- * 
+ *
  * @param {WorkerClient | HttpClient} client - The Triplit client instance.
  * @param {string} conversationId - The ID of the conversation.
  * @returns {Promise<object>} - The updated conversation object.
@@ -174,17 +185,21 @@ export async function closeSupportConversation(
 	client: WorkerClient | HttpClient | TriplitClient,
 	conversationId: string
 ): Promise<object> {
-	const updatedConversation = await client.update('support_conversations', conversationId, (conversation) => {
-		conversation.status = 'closed';
-		conversation.updated_at = new Date();
-	});
+	const updatedConversation = await client.update(
+		'support_conversations',
+		conversationId,
+		(conversation) => {
+			conversation.status = 'closed';
+			conversation.updated_at = new Date();
+		}
+	);
 
 	return updatedConversation;
 }
 
 /**
  * Reopen a support conversation.
- * 
+ *
  * @param {WorkerClient | HttpClient} client - The Triplit client instance.
  * @param {string} conversationId - The ID of the conversation.
  * @returns {Promise<object>} - The updated conversation object.
@@ -193,17 +208,21 @@ export async function reopenSupportConversation(
 	client: WorkerClient | HttpClient | TriplitClient,
 	conversationId: string
 ): Promise<object> {
-	const updatedConversation = await client.update('support_conversations', conversationId, (conversation) => {
-		conversation.status = 'open';
-		conversation.updated_at = new Date();
-	});
+	const updatedConversation = await client.update(
+		'support_conversations',
+		conversationId,
+		(conversation) => {
+			conversation.status = 'open';
+			conversation.updated_at = new Date();
+		}
+	);
 
 	return updatedConversation;
 }
 
 /**
  * Get all support conversations (admin function).
- * 
+ *
  * @param {WorkerClient} client - The Triplit client instance.
  * @param {string} status - Filter by conversation status ('open', 'closed', or 'all').
  * @param {number} limit - Maximum number of conversations to fetch.
@@ -231,7 +250,7 @@ export async function getAllSupportConversations(
 
 /**
  * Get unread message count for a support conversation.
- * 
+ *
  * @param {WorkerClient} client - The Triplit client instance.
  * @param {string} conversationId - The ID of the conversation.
  * @param {string} userId - The ID of the user.
@@ -258,8 +277,8 @@ export async function getUnreadSupportMessageCount(
 			.Select(['message_id'])
 	);
 
-	const seenMessageIds = new Set(seenMessages.map(seen => seen.message_id));
-	const unreadCount = allMessages.filter(msg => !seenMessageIds.has(msg.id)).length;
+	const seenMessageIds = new Set(seenMessages.map((seen) => seen.message_id));
+	const unreadCount = allMessages.filter((msg) => !seenMessageIds.has(msg.id)).length;
 
 	return unreadCount;
 }

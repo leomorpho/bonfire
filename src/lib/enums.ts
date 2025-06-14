@@ -162,7 +162,8 @@ export enum NotificationType {
 	ADMIN_UPDATES = 'admin_updates',
 	EVENT_INVITATION = 'event_invitation',
 	EVENT_CANCELLED = 'event_cancelled',
-	EVENT_DELETED = 'event_deleted'
+	EVENT_DELETED = 'event_deleted',
+	SUPPORT_MESSAGE = 'support_message'
 }
 
 export const NotificationPermissions = {
@@ -195,7 +196,8 @@ export const notificationTypeToPermMap: {
 	[NotificationType.ADMIN_UPDATES]: NotificationPermissions.event_activity,
 	[NotificationType.EVENT_INVITATION]: NotificationPermissions.event_activity,
 	[NotificationType.EVENT_CANCELLED]: NotificationPermissions.event_activity,
-	[NotificationType.EVENT_DELETED]: NotificationPermissions.event_activity
+	[NotificationType.EVENT_DELETED]: NotificationPermissions.event_activity,
+	[NotificationType.SUPPORT_MESSAGE]: null // Support messages don't require user permission
 };
 
 export const notificationTypesNoRateLimit = new Set([NotificationPermissions.event_reminders]);
@@ -258,6 +260,10 @@ export const notificationTypeToDeliveryMap: {
 		DeliveryPermissions.push_notifications,
 		DeliveryPermissions.email_notifications,
 		DeliveryPermissions.sms_notifications
+	],
+	[NotificationType.SUPPORT_MESSAGE]: [
+		DeliveryPermissions.push_notifications,
+		DeliveryPermissions.email_notifications
 	]
 };
 
@@ -284,7 +290,8 @@ export const notificationTypeToSubject: { [key in NotificationType]: string } = 
 	[NotificationType.ADMIN_UPDATES]: 'Event Update!',
 	[NotificationType.EVENT_INVITATION]: "You're Invited to an Event!",
 	[NotificationType.EVENT_CANCELLED]: 'Event Cancelled',
-	[NotificationType.EVENT_DELETED]: 'Event Deleted'
+	[NotificationType.EVENT_DELETED]: 'Event Deleted',
+	[NotificationType.SUPPORT_MESSAGE]: 'New Support Message'
 };
 
 type NotificationTypeMapping = {
@@ -346,6 +353,10 @@ export const notificationTypeMapping: NotificationTypeMapping = {
 	[NotificationType.OTP_VERIFICATION]: {
 		singularObjectName: 'verification',
 		pluralObjectName: 'verifications'
+	},
+	[NotificationType.SUPPORT_MESSAGE]: {
+		singularObjectName: 'support message',
+		pluralObjectName: 'support messages'
 	}
 	// Add other notification types as needed
 };

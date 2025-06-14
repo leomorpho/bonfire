@@ -1,14 +1,13 @@
-import { and, or } from '@triplit/client';
+import { and } from '@triplit/client';
 import {
 	NotificationType,
-	NotificationPermissions,
 	TaskName,
 	flattenableNotificationTypes,
 	DeliveryPermissions,
 	notificationTypeToDeliveryMap,
 	notificationTypesNoRateLimit
 } from '$lib/enums';
-import type { NotificationQueueEntry, PushNotificationPayload } from '$lib/types';
+import type { NotificationQueueEntry } from '$lib/types';
 import { arrayToStringRepresentation, stringRepresentationToArray } from '$lib/utils';
 import {
 	triplitHttpClient,
@@ -33,11 +32,12 @@ import {
 	createFileNotifications,
 	createNewMessageNotifications,
 	createNotificationMessage,
+	createSupportMessageNotifications,
 	createTempAttendeeNotifications
 } from '$lib/server/notifications/notifications';
 import { getTaskLockState, updateTaskLockState } from '../tasks';
 
-import { Notification, type PermissionValue } from '$lib/server/notifications/notification';
+import { Notification } from '$lib/server/notifications/notification';
 
 export const runNotificationProcessor = async () => {
 	const taskName = TaskName.PROCESS_NOTIFICATION_QUEUE;
@@ -115,6 +115,13 @@ async function processNotificationQueue(notificationQueueEntry: NotificationQueu
 			break;
 		case NotificationType.EVENT_DELETED:
 			validObjectIds = await validateUserIds(objectIds);
+			break;
+		case NotificationType.SUPPORT_MESSAGE:
+			// For support messages, we validate message IDs exist in support_messages table
+			const supportMessages = await triplitHttpClient.fetch(
+				triplitHttpClient.query('support_messages').Where(['id', 'in', objectIds]).Select(['id'])
+			);
+			validObjectIds = supportMessages.map((msg) => msg.id);
 			break;
 		default:
 			console.error(`Unknown object_type: ${notificationQueueEntry.object_type}`);
@@ -227,6 +234,19 @@ async function processNotificationQueue(notificationQueueEntry: NotificationQueu
 					notificationQueueEntry.user_id,
 					notificationQueueEntry.event_id,
 					validObjectIds
+				))
+			);
+			break;
+		case NotificationType.SUPPORT_MESSAGE:
+			if (validObjectIds.length != 1) {
+				throw new Error(
+					`support message notification created with not exactly 1 message: ${validObjectIds}`
+				);
+			}
+			notifications.push(
+				...(await createSupportMessageNotifications(
+					notificationQueueEntry.user_id,
+					validObjectIds[0]
 				))
 			);
 			break;
