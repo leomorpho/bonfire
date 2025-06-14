@@ -7,9 +7,7 @@
 	<meta name="description" content="Get help from the Bonfire support team" />
 </svelte:head>
 
-<div class="fixed inset-0 flex flex-col">
-	<!-- Main support chat interface -->
-	<div class="flex-1 min-h-0">
-		<SupportChat />
-	</div>
+<!-- Calculate available height accounting for header -->
+<div class="h-[calc(100vh-4rem)] flex flex-col">
+	<SupportChat />
 </div>

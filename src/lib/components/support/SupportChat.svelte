@@ -100,11 +100,26 @@
 	};
 
 	const handleSendMessage = async (content: string) => {
-		if (!conversation || !userId) return;
+		if (!conversation || !userId) {
+			console.log('Cannot send message - missing conversation or userId:', { conversation: !!conversation, userId });
+			return;
+		}
 
 		try {
 			console.log('Sending message:', { conversationId: conversation.id, userId, content, isAdmin });
 			const client = getFeWorkerTriplitClient($page.data.jwt);
+			
+			// Verify conversation exists before sending message
+			const existingConversation = await client.fetchOne(
+				client.query('support_conversations').Where([['id', '=', conversation.id]])
+			);
+			
+			if (!existingConversation) {
+				console.error('Conversation not found, reloading...');
+				await loadConversation();
+				return;
+			}
+			
 			await sendSupportMessage(client, conversation.id, userId, content, isAdmin);
 			console.log('Message sent successfully');
 		} catch (err) {

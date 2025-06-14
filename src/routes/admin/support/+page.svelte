@@ -76,7 +76,7 @@
 		</div>
 	</div>
 {:else}
-	<div class="fixed inset-0 flex">
+	<div class="h-[calc(100vh-4rem)] flex">
 		<!-- Conversations Sidebar -->
 		<div class="w-80 border-r border-gray-200 dark:border-gray-700 flex-shrink-0">
 			<ConversationList 

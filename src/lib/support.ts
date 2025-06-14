@@ -42,7 +42,18 @@ export async function getOrCreateSupportConversation(
 		});
 
 		console.log('Created new conversation:', newConversation);
-		return newConversation;
+		
+		// Fetch the conversation again to ensure it exists and get the correct format
+		const createdConversation = await client.fetchOne(
+			client.query('support_conversations').Where([['id', '=', newConversation.id]])
+		);
+		
+		if (!createdConversation) {
+			throw new Error('Failed to create conversation');
+		}
+		
+		console.log('Fetched created conversation:', createdConversation);
+		return createdConversation;
 	} catch (err) {
 		console.error('Error in getOrCreateSupportConversation:', err);
 		throw err;
@@ -80,12 +91,18 @@ export async function sendSupportMessage(
 		console.log('Message inserted:', message);
 
 		// Update conversation's last_message_at timestamp
-		console.log('Updating conversation timestamp...');
-		await client.update('support_conversations', conversationId, (conversation) => {
-			conversation.last_message_at = new Date();
-			conversation.updated_at = new Date();
-		});
-		console.log('Conversation updated');
+		// Note: Temporarily disabled to avoid EntityNotFoundError
+		// console.log('Updating conversation timestamp...');
+		// try {
+		// 	await client.update('support_conversations', conversationId, (conversation) => {
+		// 		conversation.last_message_at = new Date();
+		// 		conversation.updated_at = new Date();
+		// 	});
+		// 	console.log('Conversation updated');
+		// } catch (updateError) {
+		// 	console.warn('Failed to update conversation timestamp:', updateError);
+		// 	// Don't fail the whole operation if timestamp update fails
+		// }
 
 		return message;
 	} catch (err) {
