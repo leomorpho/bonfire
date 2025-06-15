@@ -33,7 +33,9 @@ import {
 	createNewMessageNotifications,
 	createNotificationMessage,
 	createSupportMessageNotifications,
-	createTempAttendeeNotifications
+	createTempAttendeeNotifications,
+	createUnseenInvitationsNotifications,
+	createUnseenAnnouncementsNotifications
 } from '$lib/server/notifications/notifications';
 import { getTaskLockState, updateTaskLockState } from '../tasks';
 
@@ -116,12 +118,19 @@ async function processNotificationQueue(notificationQueueEntry: NotificationQueu
 		case NotificationType.EVENT_DELETED:
 			validObjectIds = await validateUserIds(objectIds);
 			break;
-		case NotificationType.SUPPORT_MESSAGE:
+		case NotificationType.SUPPORT_MESSAGE: {
 			// For support messages, we validate message IDs exist in support_messages table
 			const supportMessages = await triplitHttpClient.fetch(
 				triplitHttpClient.query('support_messages').Where(['id', 'in', objectIds]).Select(['id'])
 			);
 			validObjectIds = supportMessages.map((msg) => msg.id);
+			break;
+		}
+		case NotificationType.UNSEEN_INVITATIONS:
+			validObjectIds = await validateAttendees(objectIds);
+			break;
+		case NotificationType.UNSEEN_ANNOUNCEMENTS:
+			validObjectIds = await validateAttendees(objectIds);
 			break;
 		default:
 			console.error(`Unknown object_type: ${notificationQueueEntry.object_type}`);
@@ -247,6 +256,24 @@ async function processNotificationQueue(notificationQueueEntry: NotificationQueu
 				...(await createSupportMessageNotifications(
 					notificationQueueEntry.user_id,
 					validObjectIds[0]
+				))
+			);
+			break;
+		case NotificationType.UNSEEN_INVITATIONS:
+			notifications.push(
+				...(await createUnseenInvitationsNotifications(
+					notificationQueueEntry.user_id,
+					notificationQueueEntry.event_id,
+					validObjectIds
+				))
+			);
+			break;
+		case NotificationType.UNSEEN_ANNOUNCEMENTS:
+			notifications.push(
+				...(await createUnseenAnnouncementsNotifications(
+					notificationQueueEntry.user_id,
+					notificationQueueEntry.event_id,
+					validObjectIds
 				))
 			);
 			break;

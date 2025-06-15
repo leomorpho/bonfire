@@ -55,6 +55,12 @@ export function createNotificationMessage(
 		case NotificationType.SUPPORT_MESSAGE:
 			message = `🆘 New support message from user`;
 			break;
+		case NotificationType.UNSEEN_INVITATIONS:
+			message = `👁️ ${numObjects} attendee${numObjects > 1 ? 's' : ''} haven't seen their invitation${numObjects > 1 ? 's' : ''}`;
+			break;
+		case NotificationType.UNSEEN_ANNOUNCEMENTS:
+			message = `👁️ ${numObjects} attendee${numObjects > 1 ? 's' : ''} haven't seen announcement${numObjects > 1 ? 's' : ''}`;
+			break;
 
 		default:
 			message = 'You have a new notification';
@@ -657,6 +663,96 @@ export async function createSupportMessageNotifications(
 				pushNotificationPayload,
 				[], // No special permissions required for support notifications
 				false // isInAppOnly = false (send to all channels)
+			)
+		);
+	}
+
+	return notifications;
+}
+
+export async function createUnseenInvitationsNotifications(
+	adminUserId: string,
+	eventId: string,
+	attendeeIds: string[]
+): Promise<Notification[]> {
+	if (!attendeeIds.length) return [];
+
+	// Only send to admins of the event
+	const { granted } = await getAdminUserIdsOfEvent(
+		eventId,
+		notificationTypeToPermMap[NotificationType.ADMIN_UPDATES] as NotificationType,
+		[adminUserId] // Exclude the admin who triggered this notification if they're in the list
+	);
+
+	if (!granted.length) return [];
+
+	const numObjects = attendeeIds.length;
+	const message = createNotificationMessage(NotificationType.UNSEEN_INVITATIONS, numObjects);
+	const pushNotificationPayload = {
+		title: 'Unseen Invitations',
+		body: message
+	};
+
+	const notifications: Notification[] = [];
+
+	// Create notifications for admin users
+	for (const userId of granted) {
+		notifications.push(
+			new Notification(
+				eventId,
+				userId,
+				message,
+				NotificationType.UNSEEN_INVITATIONS,
+				attendeeIds,
+				new Set(attendeeIds),
+				pushNotificationPayload,
+				[NotificationPermissions.event_activity],
+				false // isInAppOnly = false
+			)
+		);
+	}
+
+	return notifications;
+}
+
+export async function createUnseenAnnouncementsNotifications(
+	adminUserId: string,
+	eventId: string,
+	attendeeIds: string[]
+): Promise<Notification[]> {
+	if (!attendeeIds.length) return [];
+
+	// Only send to admins of the event
+	const { granted } = await getAdminUserIdsOfEvent(
+		eventId,
+		notificationTypeToPermMap[NotificationType.ADMIN_UPDATES] as NotificationType,
+		[adminUserId] // Exclude the admin who triggered this notification if they're in the list
+	);
+
+	if (!granted.length) return [];
+
+	const numObjects = attendeeIds.length;
+	const message = createNotificationMessage(NotificationType.UNSEEN_ANNOUNCEMENTS, numObjects);
+	const pushNotificationPayload = {
+		title: 'Unseen Announcements',
+		body: message
+	};
+
+	const notifications: Notification[] = [];
+
+	// Create notifications for admin users
+	for (const userId of granted) {
+		notifications.push(
+			new Notification(
+				eventId,
+				userId,
+				message,
+				NotificationType.UNSEEN_ANNOUNCEMENTS,
+				attendeeIds,
+				new Set(attendeeIds),
+				pushNotificationPayload,
+				[NotificationPermissions.event_activity],
+				false // isInAppOnly = false
 			)
 		);
 	}

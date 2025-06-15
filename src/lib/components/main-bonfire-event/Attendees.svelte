@@ -123,6 +123,15 @@
 						{allAttendeesRemoved}
 						{showMaxNumPeople}
 						{isCurrenUserEventAdmin}
+						{eventId}
+						{eventTitle}
+						{eventStartTime}
+						{eventEndTime}
+						{eventDescription}
+						{eventLocation}
+						{maxNumGuestsAllowedPerAttendee}
+						{eventCreatorUserId}
+						{adminUserIds}
 						numAttendeesGoing={totalGoing}
 						numAttendeesMaybeGoing={totalMaybe}
 						numAttendeesNotGoing={totalNotGoing}

@@ -5,6 +5,7 @@
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import { ArrowRightFromLine, Frown, Meh, Smile } from '@lucide/svelte';
 	import SearchableAttendeeList from './SearchableAttendeeList.svelte';
+	import InvitationStatusView from './InvitationStatusView.svelte';
 
 	let {
 		numAttendeesGoing,
@@ -21,6 +22,7 @@
 		allAttendeesRemoved,
 		showMaxNumPeople = 30,
 		isCurrenUserEventAdmin = false,
+		eventId = '',
 		eventTitle = '',
 		eventStartTime = '',
 		eventEndTime = '',
@@ -95,6 +97,9 @@
 							>
 						{/if}
 						{#if isCurrenUserEventAdmin}
+							<Tabs.Trigger value="admin-invitation-status-dialog"
+								>👁️ Invitations</Tabs.Trigger
+							>
 							<Tabs.Trigger value="admin-attendees-removed-dialog"
 								>{numAttendeesRemoved} <Trash2 class="pl-1" /></Tabs.Trigger
 							>
@@ -179,6 +184,12 @@
 							{eventLocation}
 							{eventCreatorUserId}
 							{adminUserIds}
+						/>
+					</Tabs.Content>
+					<Tabs.Content value="admin-invitation-status-dialog">
+						<InvitationStatusView
+							{eventId}
+							{allAttendeesInvited}
 						/>
 					</Tabs.Content>
 					<Tabs.Content value="admin-attendees-left-dialog">

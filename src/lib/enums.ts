@@ -67,7 +67,9 @@ export enum EventStatus {
 export enum TaskName {
 	PROCESS_NOTIFICATION_QUEUE = 'process_notification_queue',
 	SEND_REMINDER_NOTIFICATIONS = 'send_reminder_notifications',
-	FREE_LOGS_REWARDS = 'free_logs_rewards'
+	FREE_LOGS_REWARDS = 'free_logs_rewards',
+	CHECK_UNSEEN_INVITATIONS = 'check_unseen_invitations',
+	CHECK_UNSEEN_ANNOUNCEMENTS = 'check_unseen_announcements'
 }
 
 export enum EventFormType {
@@ -164,7 +166,9 @@ export enum NotificationType {
 	EVENT_CANCELLED = 'event_cancelled',
 	EVENT_DELETED = 'event_deleted',
 	SUPPORT_MESSAGE = 'support_message',
-	TICKET_PURCHASED = 'ticket_purchased'
+	TICKET_PURCHASED = 'ticket_purchased',
+	UNSEEN_INVITATIONS = 'unseen_invitations',
+	UNSEEN_ANNOUNCEMENTS = 'unseen_announcements'
 }
 
 export const NotificationPermissions = {
@@ -199,7 +203,9 @@ export const notificationTypeToPermMap: {
 	[NotificationType.EVENT_CANCELLED]: NotificationPermissions.event_activity,
 	[NotificationType.EVENT_DELETED]: NotificationPermissions.event_activity,
 	[NotificationType.SUPPORT_MESSAGE]: null, // Support messages don't require user permission
-	[NotificationType.TICKET_PURCHASED]: NotificationPermissions.event_activity
+	[NotificationType.TICKET_PURCHASED]: NotificationPermissions.event_activity,
+	[NotificationType.UNSEEN_INVITATIONS]: NotificationPermissions.event_activity,
+	[NotificationType.UNSEEN_ANNOUNCEMENTS]: NotificationPermissions.event_activity
 };
 
 export const notificationTypesNoRateLimit = new Set([NotificationPermissions.event_reminders]);
@@ -270,6 +276,14 @@ export const notificationTypeToDeliveryMap: {
 	[NotificationType.TICKET_PURCHASED]: [
 		DeliveryPermissions.push_notifications,
 		DeliveryPermissions.email_notifications
+	],
+	[NotificationType.UNSEEN_INVITATIONS]: [
+		DeliveryPermissions.push_notifications,
+		DeliveryPermissions.email_notifications
+	],
+	[NotificationType.UNSEEN_ANNOUNCEMENTS]: [
+		DeliveryPermissions.push_notifications,
+		DeliveryPermissions.email_notifications
 	]
 };
 
@@ -298,7 +312,9 @@ export const notificationTypeToSubject: { [key in NotificationType]: string } = 
 	[NotificationType.EVENT_CANCELLED]: 'Event Cancelled',
 	[NotificationType.EVENT_DELETED]: 'Event Deleted',
 	[NotificationType.SUPPORT_MESSAGE]: 'New Support Message',
-	[NotificationType.TICKET_PURCHASED]: 'Ticket Purchase Confirmation'
+	[NotificationType.TICKET_PURCHASED]: 'Ticket Purchase Confirmation',
+	[NotificationType.UNSEEN_INVITATIONS]: 'Unseen Invitations Alert',
+	[NotificationType.UNSEEN_ANNOUNCEMENTS]: 'Unseen Announcements Alert'
 };
 
 type NotificationTypeMapping = {
@@ -368,6 +384,14 @@ export const notificationTypeMapping: NotificationTypeMapping = {
 	[NotificationType.TICKET_PURCHASED]: {
 		singularObjectName: 'ticket purchase',
 		pluralObjectName: 'ticket purchases'
+	},
+	[NotificationType.UNSEEN_INVITATIONS]: {
+		singularObjectName: 'attendee with unseen invitation',
+		pluralObjectName: 'attendees with unseen invitations'
+	},
+	[NotificationType.UNSEEN_ANNOUNCEMENTS]: {
+		singularObjectName: 'attendee with unseen announcement',
+		pluralObjectName: 'attendees with unseen announcements'
 	}
 	// Add other notification types as needed
 };

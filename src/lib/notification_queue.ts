@@ -329,3 +329,61 @@ export async function createNewSupportMessageNotificationQueueObject(
 		object_ids_set: [supportMessageId]
 	});
 }
+
+/**
+ * Create a new notification queue object for unseen invitations.
+ * This notifies admins when invitations haven't been seen by attendees.
+ * @param client - TriplitClient instance.
+ * @param adminUserId - The ID of the admin user.
+ * @param eventId - The ID of the event.
+ * @param attendeeIds - List of attendee IDs with unseen invitations.
+ */
+export async function createNewUnseenInvitationsNotificationQueueObject(
+	client: TriplitClient | WorkerClient | HttpClient,
+	adminUserId: string,
+	eventId: string,
+	attendeeIds: string[]
+): Promise<void> {
+	if (!isNonEmptyArray(attendeeIds)) {
+		throw new Error(
+			'attendeeIds in createNewUnseenInvitationsNotificationQueueObject cannot be empty.'
+		);
+	}
+
+	await client.insert('notifications_queue', {
+		user_id: adminUserId,
+		event_id: eventId,
+		object_type: NotificationType.UNSEEN_INVITATIONS,
+		object_ids: JSON.stringify(attendeeIds),
+		object_ids_set: attendeeIds
+	});
+}
+
+/**
+ * Create a new notification queue object for unseen announcements.
+ * This notifies admins when announcements haven't been seen by attendees.
+ * @param client - TriplitClient instance.
+ * @param adminUserId - The ID of the admin user.
+ * @param eventId - The ID of the event.
+ * @param attendeeIds - List of attendee IDs with unseen announcements.
+ */
+export async function createNewUnseenAnnouncementsNotificationQueueObject(
+	client: TriplitClient | WorkerClient | HttpClient,
+	adminUserId: string,
+	eventId: string,
+	attendeeIds: string[]
+): Promise<void> {
+	if (!isNonEmptyArray(attendeeIds)) {
+		throw new Error(
+			'attendeeIds in createNewUnseenAnnouncementsNotificationQueueObject cannot be empty.'
+		);
+	}
+
+	await client.insert('notifications_queue', {
+		user_id: adminUserId,
+		event_id: eventId,
+		object_type: NotificationType.UNSEEN_ANNOUNCEMENTS,
+		object_ids: JSON.stringify(attendeeIds),
+		object_ids_set: attendeeIds
+	});
+}

@@ -4,6 +4,7 @@ import { runNotificationProcessor } from './notifications/notification_engine';
 import { runReminderNotificationTask } from './notifications/reminders';
 import { unlockAllTasks } from './tasks';
 import { runGiveFreeLogToInitialInviterTask } from './notifications/free_logs';
+import { runUnseenInvitationsCheck, runUnseenAnnouncementsCheck } from './notifications/unseen_checker';
 
 const scheduler = new ToadScheduler();
 
@@ -71,6 +72,28 @@ const giveFreeLogToInitialInviterTask = new Task(
 	}
 );
 
+const unseenInvitationsTask = new Task(
+	'Check for unseen invitations and notify admins',
+	async () => {
+		try {
+			runUnseenInvitationsCheck();
+		} catch (error) {
+			console.error('Error while checking unseen invitations:', error);
+		}
+	}
+);
+
+const unseenAnnouncementsTask = new Task(
+	'Check for unseen announcements and notify admins',
+	async () => {
+		try {
+			runUnseenAnnouncementsCheck();
+		} catch (error) {
+			console.error('Error while checking unseen announcements:', error);
+		}
+	}
+);
+
 export const taskRunner = async () => {
 	try {
 		// Schedule the task
@@ -84,11 +107,21 @@ export const taskRunner = async () => {
 			{ hours: 12 },
 			giveFreeLogToInitialInviterTask
 		);
+		const unseenInvitationsJob = new SimpleIntervalJob(
+			{ hours: 6 },
+			unseenInvitationsTask
+		);
+		const unseenAnnouncementsJob = new SimpleIntervalJob(
+			{ hours: 6 },
+			unseenAnnouncementsTask
+		);
 
 		scheduler.addSimpleIntervalJob(notificationJob);
 		scheduler.addSimpleIntervalJob(cleanupJob);
 		scheduler.addSimpleIntervalJob(reminderNotificationsJob);
 		scheduler.addSimpleIntervalJob(giveFreeLogToInitialInviterJob);
+		scheduler.addSimpleIntervalJob(unseenInvitationsJob);
+		scheduler.addSimpleIntervalJob(unseenAnnouncementsJob);
 
 		// Graceful shutdown handler
 		const handleShutdown = async () => {

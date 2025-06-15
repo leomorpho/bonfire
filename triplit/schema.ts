@@ -536,6 +536,9 @@ export const schema = S.Collections({
 			seen_announcements: S.RelationMany('seen_announcements', {
 				where: [['attendee_id', '=', '$id']] // Link to seen_announcements
 			}),
+			seen_invitations: S.RelationMany('seen_invitations', {
+				where: [['attendee_id', '=', '$id']] // Link to seen_invitations
+			}),
 			seen_gallery_items: S.RelationMany('seen_gallery_items', {
 				where: [['attendee_id', '=', '$id']] // Link to seen_gallery_items
 			}),
@@ -1005,6 +1008,29 @@ export const schema = S.Collections({
 			},
 			anon: {
 				read: { filter: [false] } // Anonymous users cannot access seen announcements
+			}
+		}
+	},
+	seen_invitations: {
+		schema: S.Schema({
+			id: S.Id(),
+			attendee_id: S.String(), // ID of the attendee
+			notification_id: S.String(), // ID of the seen invitation notification
+			seen_at: S.Date({ default: S.Default.now() }) // Timestamp when the invitation was seen
+		}),
+		relationships: {
+			attendee: S.RelationById('attendees', '$attendee_id'), // Link to the attendee
+			notification: S.RelationById('notifications', '$notification_id') // Link to the invitation notification
+		},
+		permissions: {
+			user: {
+				read: { filter: [['attendee.user_id', '=', '$role.userId']] }, // Only the user can read their seen invitations
+				insert: { filter: [['attendee.user_id', '=', '$role.userId']] }, // Only the user can mark an invitation as seen
+				update: { filter: [['attendee.user_id', '=', '$role.userId']] }, // Only the user can update their seen invitations
+				delete: { filter: [['attendee.user_id', '=', '$role.userId']] } // Only the user can delete their seen invitations
+			},
+			anon: {
+				read: { filter: [false] } // Anonymous users cannot access seen invitations
 			}
 		}
 	},
