@@ -103,6 +103,7 @@
 	let organizationsLoading = $state(false);
 	let organizationModalOpen = $state(false);
 	let ticketTypes: any[] = $state([]);
+	let hasTicketsSold = $state(false);
 
 	// ✅ State Variables
 	let client: TriplitClient;
@@ -163,6 +164,9 @@
 			if (response.ok) {
 				const data = await response.json();
 				ticketTypes = data.ticketTypes || [];
+
+				// Check if any tickets have been sold by looking at quantity_sold
+				hasTicketsSold = ticketTypes.some((ticketType) => (ticketType.quantity_sold || 0) > 0);
 			} else {
 				console.error('Failed to load ticket types');
 			}
@@ -987,11 +991,11 @@
 						disabled={!eventCreated}
 					/>
 
-					{#if isTicketed && eventCreated}
+					{#if isTicketed}
 						<CurrencySelector
 							bind:currency={ticketCurrency}
 							oninput={debouncedUpdateEvent}
-							disabled={ticketTypes.length > 0}
+							disabled={eventCreated && hasTicketsSold}
 						/>
 					{/if}
 

@@ -7,44 +7,35 @@
 
 	let { currency = $bindable('usd'), oninput, disabled = false } = $props();
 
-	// Group currencies by region for better UX
-	const currencyGroups = [
-		{
-			label: 'Popular',
-			currencies: ['usd', 'eur', 'gbp', 'cad', 'aud', 'jpy']
-		},
-		{
-			label: 'Americas',
-			currencies: ['mxn', 'brl']
-		},
-		{
-			label: 'Europe',
-			currencies: ['chf', 'sek', 'dkk', 'nok']
-		},
-		{
-			label: 'Asia Pacific',
-			currencies: ['cny', 'hkd', 'sgd', 'inr', 'krw', 'nzd']
-		},
-		{
-			label: 'Middle East & Africa',
-			currencies: ['aed', 'zar']
+	// Ensure currency is a valid option, default to 'usd' if not set or invalid
+	$effect(() => {
+		if (!currency || !ALLOWED_EVENT_CURRENCIES.includes(currency)) {
+			currency = 'usd';
 		}
-	];
+	});
 
-	function getGroupedCurrencies() {
-		// Filter groups to only include allowed currencies
-		return currencyGroups
-			.map((group) => ({
-				...group,
-				currencies: group.currencies
-					.filter((code) => ALLOWED_EVENT_CURRENCIES.includes(code))
-					.map((code) => getCurrency(code))
-					.filter(Boolean)
-			}))
-			.filter((group) => group.currencies.length > 0);
+	// Create flat array of all currencies with labels
+	const allCurrencies = ALLOWED_EVENT_CURRENCIES.map((code) => {
+		const curr = getCurrency(code);
+		return {
+			value: code,
+			label: `${curr?.symbol} ${curr?.name} (${code.toUpperCase()})`
+		};
+	}).filter(Boolean);
+
+	// Get display text for the trigger
+	const triggerContent = $derived(() => {
+		const selectedCurrency = allCurrencies.find((c) => c.value === currency);
+		return selectedCurrency?.label ?? 'Select a currency';
+	});
+
+	// Handle value changes and trigger save
+	function handleValueChange(newValue: string | undefined) {
+		if (newValue && newValue !== currency) {
+			currency = newValue;
+			oninput?.();
+		}
 	}
-
-	const groupedCurrencies = getGroupedCurrencies();
 </script>
 
 <div class="mt-4 rounded-lg bg-slate-200 bg-opacity-70 p-4 dark:bg-slate-800 dark:bg-opacity-70">
@@ -60,26 +51,25 @@
 				: 'Choose the currency for all ticket prices. This cannot be changed after tickets are created.'}
 		</p>
 
-		<Select.Root bind:selected={currency} onSelectedChange={() => oninput?.()} {disabled}>
+		<Select.Root
+			type="single"
+			name="event-currency"
+			bind:value={currency}
+			onValueChange={handleValueChange}
+			{disabled}
+		>
 			<Select.Trigger id="currency-select" class="w-full" {disabled}>
-				<Select.Value placeholder="Select a currency" />
+				{triggerContent()}
 			</Select.Trigger>
 			<Select.Content>
-				{#each groupedCurrencies as group}
-					<Select.Group>
-						<Select.Label>{group.label}</Select.Label>
-						{#each group.currencies as curr}
-							<Select.Item value={curr.code}>
-								<div class="flex w-full items-center justify-between">
-									<span>{curr.symbol} {curr.name}</span>
-									<span class="ml-2 text-xs text-muted-foreground">
-										{curr.code.toUpperCase()}
-									</span>
-								</div>
-							</Select.Item>
-						{/each}
-					</Select.Group>
-				{/each}
+				<Select.Group>
+					<Select.Label>Available Currencies</Select.Label>
+					{#each allCurrencies as curr (curr.value)}
+						<Select.Item value={curr.value} label={curr.label}>
+							{curr.label}
+						</Select.Item>
+					{/each}
+				</Select.Group>
 			</Select.Content>
 		</Select.Root>
 

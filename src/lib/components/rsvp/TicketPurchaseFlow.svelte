@@ -178,38 +178,57 @@
 					</div>
 
 					{#if selectedTicketType}
-						<div>
-							<Label for="quantity">Quantity</Label>
-							<Input
-								id="quantity"
-								type="number"
-								min="1"
-								max="10"
-								bind:value={quantity}
-								class="w-full"
-							/>
+						<div class="space-y-4">
+							<div>
+								<Label for="quantity">Number of Tickets</Label>
+								<Input
+									id="quantity"
+									type="number"
+									min="1"
+									max="10"
+									bind:value={quantity}
+									class="w-full"
+									placeholder="How many tickets?"
+								/>
+								<p class="mt-1 text-xs text-gray-500">
+									Maximum {selectedTicketType.quantity_available || 'unlimited'} available
+								</p>
+							</div>
+
+							<Card.Root>
+								<Card.Content class="p-4">
+									<div class="space-y-2">
+										<div class="flex justify-between text-sm">
+											<span>Price per ticket:</span>
+											<span
+												>{formatPrice(selectedTicketType.price, selectedTicketType.currency)}</span
+											>
+										</div>
+										<div class="flex justify-between text-sm">
+											<span>Quantity:</span>
+											<span>{quantity}</span>
+										</div>
+										<hr class="my-2" />
+										<div class="flex items-center justify-between">
+											<span class="font-medium">Total:</span>
+											<span class="text-lg font-bold">
+												{formatPrice(getTotalPrice(), selectedTicketType.currency)}
+											</span>
+										</div>
+									</div>
+								</Card.Content>
+							</Card.Root>
+
+							<Button onclick={createHold} disabled={isCreatingHold || quantity < 1} class="w-full">
+								{#if isCreatingHold}
+									<div class="loading loading-spinner loading-xs mr-2"></div>
+									Reserving Tickets...
+								{:else}
+									<ShoppingCart class="mr-2 h-4 w-4" />
+									Reserve {quantity} Ticket{quantity === 1 ? '' : 's'}
+								{/if}
+							</Button>
 						</div>
-
-						<Card.Root>
-							<Card.Content class="p-4">
-								<div class="flex items-center justify-between">
-									<span class="font-medium">Total:</span>
-									<span class="text-lg font-bold">
-										{formatPrice(getTotalPrice(), selectedTicketType.currency)}
-									</span>
-								</div>
-							</Card.Content>
-						</Card.Root>
-
-						<Button onclick={createHold} disabled={isCreatingHold} class="w-full">
-							{#if isCreatingHold}
-								<div class="loading loading-spinner loading-xs mr-2"></div>
-								Reserving Tickets...
-							{:else}
-								<ShoppingCart class="mr-2 h-4 w-4" />
-								Reserve Tickets
-							{/if}
-						</Button>
 					{/if}
 				</div>
 			{:else}

@@ -79,6 +79,8 @@ npm run start    # Start production server
 
 **IMPORTANT: This project uses Svelte 5 - Always use Svelte 5 syntax and patterns**
 
+**UI Components: Always use shadcn-svelte components (https://www.shadcn-svelte.com/docs/) that are already installed in `src/lib/components/ui/`. Check existing components first before creating new ones.**
+
 1. **Server-side forms**: Use `+page.server.ts` for form actions and data loading
 2. **Real-time sync**: Triplit client in `src/lib/triplit.ts` for collaborative features
 3. **File uploads**: TUS protocol implementation for resumable uploads
