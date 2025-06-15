@@ -11,12 +11,22 @@
 
 	let { eventId, ticketTypes = [], open = $bindable(false), onTicketsPurchased } = $props();
 
+	let selectedTicketTypeId = $state('');
 	let selectedTicketType = $state(null);
 	let quantity = $state(1);
 	let isCreatingHold = $state(false);
 	let holdInfo = $state(null);
 	let timeRemaining = $state(0);
 	let countdownInterval = $state(null);
+
+	// Update selectedTicketType when selectedTicketTypeId changes
+	$effect(() => {
+		if (selectedTicketTypeId) {
+			selectedTicketType = ticketTypes.find((t) => t.id === selectedTicketTypeId) || null;
+		} else {
+			selectedTicketType = null;
+		}
+	});
 
 	// Reset state when dialog opens/closes
 	$effect(() => {
@@ -26,6 +36,7 @@
 	});
 
 	function resetState() {
+		selectedTicketTypeId = '';
 		selectedTicketType = null;
 		quantity = 1;
 		holdInfo = null;
@@ -132,6 +143,18 @@
 		if (!selectedTicketType || !quantity) return 0;
 		return selectedTicketType.price * quantity;
 	}
+
+	// Handle ticket type selection
+	function handleTicketTypeChange(value: string | undefined) {
+		if (value && value !== selectedTicketTypeId) {
+			selectedTicketTypeId = value;
+		}
+	}
+
+	// Get display text for the trigger
+	const triggerContent = $derived(() => {
+		return selectedTicketType ? selectedTicketType.name : 'Choose a ticket type';
+	});
 </script>
 
 <Dialog.Root bind:open>
@@ -152,27 +175,36 @@
 				<div class="space-y-4">
 					<div>
 						<Label for="ticket-type">Select Ticket Type</Label>
-						<Select.Root bind:selected={selectedTicketType}>
-							<Select.Trigger id="ticket-type">
-								<Select.Value placeholder="Choose a ticket type" />
+						<Select.Root
+							type="single"
+							name="ticket-type"
+							bind:value={selectedTicketTypeId}
+							onValueChange={handleTicketTypeChange}
+						>
+							<Select.Trigger id="ticket-type" class="w-full">
+								{triggerContent()}
 							</Select.Trigger>
 							<Select.Content>
-								{#each ticketTypes as ticketType}
-									<Select.Item value={ticketType}>
-										<div class="flex w-full items-center justify-between">
-											<div class="flex flex-col">
-												<span class="font-medium">{ticketType.name}</span>
-												{#if ticketType.description}
-													<span class="text-xs text-muted-foreground">{ticketType.description}</span
-													>
-												{/if}
+								<Select.Group>
+									<Select.Label>Available Tickets</Select.Label>
+									{#each ticketTypes as ticketType (ticketType.id)}
+										<Select.Item value={ticketType.id} label={ticketType.name}>
+											<div class="flex w-full items-center justify-between">
+												<div class="flex flex-col">
+													<span class="font-medium">{ticketType.name}</span>
+													{#if ticketType.description}
+														<span class="text-xs text-muted-foreground"
+															>{ticketType.description}</span
+														>
+													{/if}
+												</div>
+												<span class="font-semibold">
+													{formatPrice(ticketType.price, ticketType.currency)}
+												</span>
 											</div>
-											<span class="font-semibold">
-												{formatPrice(ticketType.price, ticketType.currency)}
-											</span>
-										</div>
-									</Select.Item>
-								{/each}
+										</Select.Item>
+									{/each}
+								</Select.Group>
 							</Select.Content>
 						</Select.Root>
 					</div>
