@@ -18,12 +18,20 @@
 	$effect(() => {
 		if (checked !== isTicketed) {
 			isTicketed = checked;
+			// Call oninput to trigger debounced save when checkbox changes
+			if (oninput) {
+				oninput();
+			}
 		}
 	});
 
 	$effect(() => {
 		if (!checked) {
 			isTicketed = false;
+			// Call oninput to trigger debounced save when checkbox is unchecked
+			if (oninput) {
+				oninput();
+			}
 		}
 	});
 </script>

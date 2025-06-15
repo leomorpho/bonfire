@@ -131,16 +131,24 @@
 			}
 			goto(loginUrl.pathname + loginUrl.search);
 		} else if ($page.data.user) {
-			// Check if user needs tickets before allowing RSVP
-			if (
-				ticketInfo.isTicketed &&
-				!ticketInfo.hasTickets &&
-				(newValue === Status.GOING || newValue === Status.MAYBE)
-			) {
-				// Show ticket purchase flow instead of RSVP
-				dropdownOpen = false;
-				showTicketPurchaseFlow = true;
-				return;
+			// For GOING or MAYBE status, always check ticket requirements fresh
+			if (newValue === Status.GOING || newValue === Status.MAYBE) {
+				try {
+					// Check ticket requirements every time for these statuses
+					const freshTicketInfo = await checkIfTicketRequired(eventId);
+					ticketInfo = freshTicketInfo; // Update cached info
+
+					if (ticketInfo.isTicketed && !ticketInfo.hasTickets) {
+						// Show ticket purchase flow instead of RSVP
+						dropdownOpen = false;
+						newRsvpStatusToSave = newValue; // Store the desired status
+						showTicketPurchaseFlow = true;
+						return;
+					}
+				} catch (error) {
+					console.error('Error checking ticket requirements:', error);
+					// Continue with RSVP if check fails (could be a free event)
+				}
 			}
 
 			if (
@@ -327,10 +335,12 @@
 				showTicketPurchaseFlow = false;
 				// Trigger RSVP after tickets are purchased
 				if (newRsvpStatusToSave) {
+					const statusToSave = newRsvpStatusToSave;
+					newRsvpStatusToSave = null; // Clear the saved status
 					updateRSVP(
 						new Event('click'),
 						rsvpStatus,
-						newRsvpStatusToSave,
+						statusToSave,
 						numGuestsCurrentAttendeeIsBringing
 					);
 				}
