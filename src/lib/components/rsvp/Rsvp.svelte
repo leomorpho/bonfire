@@ -63,7 +63,8 @@
 		isTicketed: false,
 		hasTickets: false,
 		ticketTypes: [],
-		redirectToTickets: false
+		redirectToTickets: false,
+		isIncomplete: false
 	});
 
 	let client: TriplitClient;
@@ -137,6 +138,15 @@
 					// Check ticket requirements every time for these statuses
 					const freshTicketInfo = await checkIfTicketRequired(eventId);
 					ticketInfo = freshTicketInfo; // Update cached info
+
+					if (ticketInfo.isTicketed && ticketInfo.isIncomplete) {
+						// Event is ticketed but incomplete - prevent RSVP
+						dropdownOpen = false;
+						toast.error(
+							'This event requires tickets, but ticket setup is incomplete. Please contact the event organizer.'
+						);
+						return;
+					}
 
 					if (ticketInfo.isTicketed && !ticketInfo.hasTickets) {
 						// Show ticket purchase flow instead of RSVP

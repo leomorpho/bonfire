@@ -51,7 +51,15 @@
 	import CurrencySelector from './feature-enablers/CurrencySelector.svelte';
 	import { upsertUserAttendance } from '$lib/rsvp';
 	import type { FontSelection } from '$lib/types';
-	import { BellRing, Info, PaintBucket, RefreshCw, TypeOutline, Ticket } from '@lucide/svelte';
+	import {
+		BellRing,
+		Info,
+		PaintBucket,
+		RefreshCw,
+		TypeOutline,
+		Ticket,
+		CircleAlert
+	} from '@lucide/svelte';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import { ALLOWED_EVENT_CURRENCIES } from '$lib/enums';
 	import EventReminders from './reminders/EventReminders.svelte';
@@ -115,6 +123,8 @@
 	let errorMessage = $state('');
 	let showError = $state(false);
 	let eventCreated = $state(mode == EventFormType.CREATE ? false : true);
+	let showIncompleteTicketWarning = $state(false);
+	let incompleteTicketWarningMessage = $state('');
 
 	// Make sure event actually exists before enabling any BE processing
 	let submitDisabled = $derived(
@@ -526,6 +536,26 @@
 				errorMessage = 'Please fill in all required fields';
 				showError = true;
 				return;
+			}
+
+			// Additional validation for ticketed events
+			if (isTicketed && isPublished) {
+				let missingItems = [];
+
+				if (!ticketCurrency || !ALLOWED_EVENT_CURRENCIES.includes(ticketCurrency)) {
+					missingItems.push('Select a currency for ticket prices');
+				}
+
+				if (ticketTypes.length === 0) {
+					missingItems.push('Create at least one ticket type');
+				}
+
+				if (missingItems.length > 0) {
+					isEventSaving = false;
+					incompleteTicketWarningMessage = missingItems.join('\n• ');
+					showIncompleteTicketWarning = true;
+					return;
+				}
 			}
 
 			const userId: string = (await waitForUserId()) as string;
@@ -1103,6 +1133,64 @@
 		</div>
 	{/if}
 </div>
+
+<!-- Incomplete Ticket Setup Warning Dialog -->
+<Dialog.Root bind:open={showIncompleteTicketWarning}>
+	<Dialog.Content class="sm:max-w-md">
+		<Dialog.Header>
+			<Dialog.Title class="flex items-center gap-2 text-orange-600">
+				<CircleAlert class="h-5 w-5" />
+				Cannot Publish - Incomplete Ticket Setup
+			</Dialog.Title>
+			<Dialog.Description>
+				Your ticketed event is missing required information. Please complete the following before
+				publishing:
+			</Dialog.Description>
+		</Dialog.Header>
+
+		<div class="space-y-4">
+			<div class="rounded-lg bg-orange-50 p-4 dark:bg-orange-900/20">
+				<ul class="space-y-2 text-sm">
+					{#each incompleteTicketWarningMessage.split('\n') as item}
+						{#if item.trim()}
+							<li class="flex items-start gap-2 text-orange-700 dark:text-orange-300">
+								<span class="mt-0.5">•</span>
+								<span>{item.replace('• ', '')}</span>
+							</li>
+						{/if}
+					{/each}
+				</ul>
+			</div>
+
+			<div class="text-sm text-gray-600 dark:text-gray-400">
+				<p class="font-medium">How to fix:</p>
+				<ol class="mt-2 list-inside list-decimal space-y-1">
+					{#if !ticketCurrency || !ALLOWED_EVENT_CURRENCIES.includes(ticketCurrency)}
+						<li>Go to the currency selector and choose a currency</li>
+					{/if}
+					{#if ticketTypes.length === 0}
+						<li>Click the "Tickets" tab and create at least one ticket type</li>
+					{/if}
+				</ol>
+			</div>
+		</div>
+
+		<Dialog.Footer>
+			<Button
+				variant="outline"
+				onclick={() => {
+					showIncompleteTicketWarning = false;
+					// If no ticket types, switch to tickets tab
+					if (ticketTypes.length === 0 && eventCreated) {
+						updateURL(BonfireEditingTabs.Tickets);
+					}
+				}}
+			>
+				{ticketTypes.length === 0 && eventCreated ? 'Go to Tickets Tab' : 'OK'}
+			</Button>
+		</Dialog.Footer>
+	</Dialog.Content>
+</Dialog.Root>
 
 <!-- Organization Selection Modal -->
 <Dialog.Root bind:open={organizationModalOpen}>

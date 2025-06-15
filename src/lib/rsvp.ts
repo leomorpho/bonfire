@@ -125,6 +125,7 @@ export async function checkIfTicketRequired(eventId: string): Promise<{
 	hasTickets: boolean;
 	ticketTypes: any[];
 	redirectToTickets: boolean;
+	isIncomplete: boolean;
 }> {
 	try {
 		// First check if event is ticketed
@@ -144,9 +145,13 @@ export async function checkIfTicketRequired(eventId: string): Promise<{
 				isTicketed: false,
 				hasTickets: false,
 				ticketTypes: [],
-				redirectToTickets: false
+				redirectToTickets: false,
+				isIncomplete: false
 			};
 		}
+
+		// Check if ticketed event is incomplete (no currency or no ticket types)
+		const isIncomplete = !eventData.ticket_currency || !eventData.ticket_currency.trim();
 
 		// Check if user already has tickets
 		const ticketsResponse = await fetch(`/api/user/tickets?eventId=${eventId}`, {
@@ -172,11 +177,15 @@ export async function checkIfTicketRequired(eventId: string): Promise<{
 			ticketTypes = typesData.ticketTypes || [];
 		}
 
+		// Update isIncomplete check to include no ticket types
+		const finalIsIncomplete = isIncomplete || ticketTypes.length === 0;
+
 		return {
 			isTicketed: true,
 			hasTickets,
 			ticketTypes,
-			redirectToTickets: !hasTickets // Redirect to tickets if user doesn't have any
+			redirectToTickets: !hasTickets && !finalIsIncomplete, // Only redirect if event is complete
+			isIncomplete: finalIsIncomplete
 		};
 	} catch (error) {
 		console.error('Error checking ticket requirements:', error);
@@ -184,7 +193,8 @@ export async function checkIfTicketRequired(eventId: string): Promise<{
 			isTicketed: false,
 			hasTickets: false,
 			ticketTypes: [],
-			redirectToTickets: false
+			redirectToTickets: false,
+			isIncomplete: false
 		};
 	}
 }

@@ -42,7 +42,7 @@
 	import { EventStatus } from '$lib/enums';
 	import { formatHumanReadable, scrollElementIntoView } from '$lib/utils';
 	import { fetchBannerInfo } from '$lib/gallery';
-	import { isStartDateBeforeCutoff } from '$lib/rsvp';
+	import { isStartDateBeforeCutoff, checkIfTicketRequired } from '$lib/rsvp';
 	import FontStyleApplicator from '../FontStyleApplicator.svelte';
 	// import EventStylerBottomSheet from '../event-styles/EventStylerBottomSheet.svelte';
 
@@ -88,6 +88,7 @@
 	let eventLoading = $state(true);
 	let eventFailedLoading = $state(false);
 	let rsvpStatus: string | null = $state(null);
+	let incompleteTicketSetup = $state(false);
 
 	let tempAttendee: any = $state(null);
 	let currentUserAttendee: any = $state();
@@ -338,6 +339,19 @@
 							);
 						}
 
+						// Check if ticketed event is incomplete
+						if (event.is_ticketed) {
+							checkIfTicketRequired(eventId)
+								.then((ticketInfo) => {
+									incompleteTicketSetup = ticketInfo.isIncomplete;
+								})
+								.catch((error) => {
+									console.error('Error checking ticket setup:', error);
+								});
+						} else {
+							incompleteTicketSetup = false;
+						}
+
 						if (
 							event.banner_media?.blurr_hash &&
 							event.banner_media.blurr_hash != bannerInfo.bannerBlurHash
@@ -569,6 +583,26 @@
 		<div class="bonfire-event-content mx-4 flex flex-col items-center justify-center">
 			{#if !isUnverifiedUser && !isAnonymousUser}
 				<SetProfilePicAlert {currUserId} />
+			{/if}
+			{#if incompleteTicketSetup && isCurrenUserEventAdmin}
+				<div class="animate-fadeIn mt-4 w-full max-w-md">
+					<div
+						class="mb-4 rounded-lg border-l-4 border-orange-500 bg-orange-100 p-4 dark:bg-orange-900/70"
+					>
+						<div class="flex items-center">
+							<CircleAlert class="mr-2 h-5 w-5 text-orange-500" />
+							<h3 class="text-sm font-medium text-orange-800 dark:text-orange-200">
+								Incomplete Ticket Setup
+							</h3>
+						</div>
+						<div class="mt-2 text-sm text-orange-700 dark:text-orange-300">
+							<p>
+								This event requires tickets but the setup is incomplete. Please set a currency and
+								create at least one ticket type before publishing.
+							</p>
+						</div>
+					</div>
+				</div>
 			{/if}
 			{#if isAnonymousUser || isUnverifiedUser}
 				<SignUpMsg />
