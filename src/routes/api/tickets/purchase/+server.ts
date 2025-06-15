@@ -1,12 +1,7 @@
 import { json, type RequestEvent } from '@sveltejs/kit';
 import { triplitHttpClient } from '$lib/server/triplit';
-import {
-	canUserPurchaseTickets,
-	getAvailableTicketTypes,
-	getUserTicketHold,
-	getTicketAvailability
-} from '$lib/server/tickets';
-import { stripeClient } from '../../../../stripe/stripe';
+import { canUserPurchaseTickets, getTicketAvailability } from '$lib/server/tickets';
+import { stripeClient } from '../../../stripe/stripe';
 
 // POST - Initiate ticket purchase (create Stripe checkout session)
 export async function POST({ request, locals }: RequestEvent): Promise<Response> {
@@ -40,6 +35,9 @@ export async function POST({ request, locals }: RequestEvent): Promise<Response>
 		}
 
 		const event = ticketType.event;
+		if (!event) {
+			return json({ error: 'Event not found' }, { status: 400 });
+		}
 		if (!event.is_ticketed) {
 			return json({ error: 'Event is not ticketed' }, { status: 400 });
 		}

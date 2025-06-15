@@ -35,7 +35,26 @@
 		}
 	});
 
+	async function cleanupHold() {
+		if (!holdInfo?.hold?.id) return;
+
+		try {
+			await fetch('/api/tickets/hold/cleanup', {
+				method: 'DELETE',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ holdId: holdInfo.hold.id })
+			});
+		} catch (error) {
+			console.error('Error cleaning up hold:', error);
+		}
+	}
+
 	function resetState() {
+		// Clean up hold if it exists
+		if (holdInfo?.hold?.id) {
+			cleanupHold();
+		}
+
 		selectedTicketTypeId = '';
 		selectedTicketType = null;
 		quantity = 1;
@@ -312,7 +331,8 @@
 					<div class="flex gap-2">
 						<Button
 							variant="outline"
-							onclick={() => {
+							onclick={async () => {
+								await cleanupHold();
 								holdInfo = null;
 								if (countdownInterval) {
 									clearInterval(countdownInterval);
