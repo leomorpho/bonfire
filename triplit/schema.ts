@@ -250,6 +250,10 @@ export const schema = S.Collections({
 					default: EventStatus.ACTIVE
 				})
 			),
+			// Ticketing fields
+			is_ticketed: S.Optional(S.Boolean({ default: false })), // Whether this event requires tickets
+			max_tickets_per_user: S.Optional(S.Number({ default: 5, nullable: true })), // Max tickets one user can buy
+			ticket_currency: S.Optional(S.String({ default: 'usd' })), // Currency for all tickets in this event
 			isReal: S.Optional(S.Boolean({ default: true }))
 		}),
 		relationships: {
@@ -301,6 +305,13 @@ export const schema = S.Collections({
 			non_profit: S.RelationById('non_profits', '$1.non_profit_id'),
 			private_data: S.RelationOne('events_private_data', {
 				where: [and([['event_id', '=', '$1.id']])]
+			}),
+			// Ticketing relationships
+			ticket_types: S.RelationMany('ticket_types', {
+				where: [['event_id', '=', '$1.id']]
+			}),
+			ticket_purchases: S.RelationMany('ticket_purchases', {
+				where: [['event_id', '=', '$1.id']]
 			})
 		},
 		permissions: {
@@ -533,6 +544,15 @@ export const schema = S.Collections({
 					and([
 						['user_id', '=', '$user_id'],
 						['event_id', '=', '$event_id']
+					])
+				]
+			}),
+			// Ticket relationship for ticketed events
+			tickets: S.RelationMany('tickets', {
+				where: [
+					and([
+						['user_id', '=', '$user_id'],
+						['ticket_type.event_id', '=', '$event_id']
 					])
 				]
 			})
@@ -2052,6 +2072,177 @@ export const schema = S.Collections({
 				},
 				insert: { filter: [['user_id', '=', '$role.userId']] }, // Users can mark messages as seen
 				delete: { filter: [['user_id', '=', '$role.userId']] }
+			},
+			temp: {},
+			anon: {}
+		}
+	},
+	ticket_types: {
+		schema: S.Schema({
+			id: S.Id(),
+			event_id: S.String(), // Event this ticket type belongs to
+			name: S.String(), // e.g., "General Admission", "VIP", "Early Bird"
+			description: S.Optional(S.String({ nullable: true })),
+			price: S.Number(), // Price in cents (e.g., 2500 = $25.00)
+			currency: S.String({ default: 'usd' }), // Currency code
+			quantity_available: S.Optional(S.Number({ nullable: true })), // null = unlimited
+			quantity_sold: S.Number({ default: 0 }), // Track how many sold
+			is_active: S.Boolean({ default: true }), // Can be disabled
+			sale_start_date: S.Optional(S.Date({ nullable: true })), // When sales start
+			sale_end_date: S.Optional(S.Date({ nullable: true })), // When sales end
+			created_at: S.Date({ default: S.Default.now() }),
+			updated_at: S.Date({ default: S.Default.now() })
+		}),
+		relationships: {
+			event: S.RelationById('events', '$event_id'),
+			tickets: S.RelationMany('tickets', {
+				where: [['ticket_type_id', '=', '$id']]
+			})
+		},
+		permissions: {
+			admin: {
+				read: { filter: [true] },
+				insert: { filter: [true] },
+				update: { filter: [true] }
+			},
+			user: {
+				read: {
+					filter: [
+						or([
+							['event.user_id', '=', '$role.userId'], // Event creator can manage ticket types
+							['event.event_admins.user_id', '=', '$role.userId'], // Event admins can manage
+							['event.attendees.user_id', '=', '$role.userId'], // Attendees can see available tickets
+							['event.viewers.user_id', '=', '$role.userId'] // Event viewers can see tickets
+						])
+					]
+				},
+				insert: {
+					filter: [
+						or([
+							['event.user_id', '=', '$role.userId'],
+							['event.event_admins.user_id', '=', '$role.userId']
+						])
+					]
+				},
+				update: {
+					filter: [
+						or([
+							['event.user_id', '=', '$role.userId'],
+							['event.event_admins.user_id', '=', '$role.userId']
+						])
+					]
+				},
+				delete: {
+					filter: [
+						or([
+							['event.user_id', '=', '$role.userId'],
+							['event.event_admins.user_id', '=', '$role.userId']
+						])
+					]
+				}
+			},
+			temp: {},
+			anon: {}
+		}
+	},
+	tickets: {
+		schema: S.Schema({
+			id: S.Id(), // Unique ticket ID (can be used as QR code content)
+			ticket_type_id: S.String(), // Reference to ticket type
+			user_id: S.String(), // Owner of the ticket
+			purchase_id: S.String(), // Reference to the purchase transaction
+			status: S.String({
+				enum: ['active', 'used', 'refunded', 'transferred'] as const,
+				default: 'active'
+			}),
+			purchase_price: S.Number(), // Price paid for this specific ticket (in cents)
+			currency: S.String({ default: 'usd' }),
+			purchased_at: S.Date({ default: S.Default.now() }),
+			used_at: S.Optional(S.Date({ nullable: true })), // When ticket was scanned/used
+			metadata: S.Optional(S.Json({ nullable: true })) // Additional ticket data
+		}),
+		relationships: {
+			ticket_type: S.RelationById('ticket_types', '$ticket_type_id'),
+			user: S.RelationById('user', '$user_id'),
+			purchase: S.RelationById('ticket_purchases', '$purchase_id')
+		},
+		permissions: {
+			admin: {
+				read: { filter: [true] },
+				update: { filter: [true] } // Admins can mark tickets as used, etc.
+			},
+			user: {
+				read: {
+					filter: [
+						or([
+							['user_id', '=', '$role.userId'], // Users can see their own tickets
+							['ticket_type.event.user_id', '=', '$role.userId'], // Event creators can see all tickets
+							['ticket_type.event.event_admins.user_id', '=', '$role.userId'] // Event admins can see all tickets
+						])
+					]
+				},
+				update: {
+					filter: [
+						or([
+							['ticket_type.event.user_id', '=', '$role.userId'], // Event creators can update tickets
+							['ticket_type.event.event_admins.user_id', '=', '$role.userId'] // Event admins can update tickets
+						])
+					]
+				}
+			},
+			temp: {},
+			anon: {}
+		}
+	},
+	ticket_purchases: {
+		schema: S.Schema({
+			id: S.Id(),
+			user_id: S.String(), // Purchaser
+			event_id: S.String(), // Event the tickets are for
+			stripe_payment_intent_id: S.String(), // Stripe payment reference
+			stripe_checkout_session_id: S.Optional(S.String({ nullable: true })),
+			total_amount: S.Number(), // Total paid in cents
+			currency: S.String({ default: 'usd' }),
+			quantity: S.Number(), // Number of tickets purchased
+			status: S.String({
+				enum: ['pending', 'completed', 'failed', 'refunded'] as const,
+				default: 'pending'
+			}),
+			purchased_at: S.Date({ default: S.Default.now() }),
+			metadata: S.Optional(S.Json({ nullable: true })) // Additional purchase data
+		}),
+		relationships: {
+			user: S.RelationById('user', '$user_id'),
+			event: S.RelationById('events', '$event_id'),
+			tickets: S.RelationMany('tickets', {
+				where: [['purchase_id', '=', '$id']]
+			})
+		},
+		permissions: {
+			admin: {
+				read: { filter: [true] },
+				insert: { filter: [true] },
+				update: { filter: [true] }
+			},
+			user: {
+				read: {
+					filter: [
+						or([
+							['user_id', '=', '$role.userId'], // Users can see their own purchases
+							['event.user_id', '=', '$role.userId'], // Event creators can see purchases
+							['event.event_admins.user_id', '=', '$role.userId'] // Event admins can see purchases
+						])
+					]
+				},
+				insert: { filter: [['user_id', '=', '$role.userId']] }, // Users can create their own purchases
+				update: {
+					filter: [
+						or([
+							['event.user_id', '=', '$role.userId'], // Event creators can update purchases
+							['event.event_admins.user_id', '=', '$role.userId'] // Event admins can update purchases
+						])
+					]
+				}
 			},
 			temp: {},
 			anon: {}

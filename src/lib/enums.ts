@@ -163,7 +163,8 @@ export enum NotificationType {
 	EVENT_INVITATION = 'event_invitation',
 	EVENT_CANCELLED = 'event_cancelled',
 	EVENT_DELETED = 'event_deleted',
-	SUPPORT_MESSAGE = 'support_message'
+	SUPPORT_MESSAGE = 'support_message',
+	TICKET_PURCHASED = 'ticket_purchased'
 }
 
 export const NotificationPermissions = {
@@ -197,7 +198,8 @@ export const notificationTypeToPermMap: {
 	[NotificationType.EVENT_INVITATION]: NotificationPermissions.event_activity,
 	[NotificationType.EVENT_CANCELLED]: NotificationPermissions.event_activity,
 	[NotificationType.EVENT_DELETED]: NotificationPermissions.event_activity,
-	[NotificationType.SUPPORT_MESSAGE]: null // Support messages don't require user permission
+	[NotificationType.SUPPORT_MESSAGE]: null, // Support messages don't require user permission
+	[NotificationType.TICKET_PURCHASED]: NotificationPermissions.event_activity
 };
 
 export const notificationTypesNoRateLimit = new Set([NotificationPermissions.event_reminders]);
@@ -264,6 +266,10 @@ export const notificationTypeToDeliveryMap: {
 	[NotificationType.SUPPORT_MESSAGE]: [
 		DeliveryPermissions.push_notifications,
 		DeliveryPermissions.email_notifications
+	],
+	[NotificationType.TICKET_PURCHASED]: [
+		DeliveryPermissions.push_notifications,
+		DeliveryPermissions.email_notifications
 	]
 };
 
@@ -291,7 +297,8 @@ export const notificationTypeToSubject: { [key in NotificationType]: string } = 
 	[NotificationType.EVENT_INVITATION]: "You're Invited to an Event!",
 	[NotificationType.EVENT_CANCELLED]: 'Event Cancelled',
 	[NotificationType.EVENT_DELETED]: 'Event Deleted',
-	[NotificationType.SUPPORT_MESSAGE]: 'New Support Message'
+	[NotificationType.SUPPORT_MESSAGE]: 'New Support Message',
+	[NotificationType.TICKET_PURCHASED]: 'Ticket Purchase Confirmation'
 };
 
 type NotificationTypeMapping = {
@@ -357,6 +364,10 @@ export const notificationTypeMapping: NotificationTypeMapping = {
 	[NotificationType.SUPPORT_MESSAGE]: {
 		singularObjectName: 'support message',
 		pluralObjectName: 'support messages'
+	},
+	[NotificationType.TICKET_PURCHASED]: {
+		singularObjectName: 'ticket purchase',
+		pluralObjectName: 'ticket purchases'
 	}
 	// Add other notification types as needed
 };
@@ -375,6 +386,32 @@ export enum eventInputTypes {
 }
 
 export const mainDemoEventId = 'the-coolest-demo-event';
+
+// Allowed currencies for events (subset of what Stripe supports)
+export const ALLOWED_EVENT_CURRENCIES = [
+	'usd', // US Dollar
+	'eur', // Euro
+	'gbp', // British Pound
+	'cad', // Canadian Dollar
+	'aud', // Australian Dollar
+	'jpy', // Japanese Yen
+	'cny', // Chinese Yuan
+	'inr', // Indian Rupee
+	'mxn', // Mexican Peso
+	'brl', // Brazilian Real
+	'krw', // South Korean Won
+	'sgd', // Singapore Dollar
+	'hkd', // Hong Kong Dollar
+	'nzd', // New Zealand Dollar
+	'chf', // Swiss Franc
+	'sek', // Swedish Krona
+	'nok', // Norwegian Krone
+	'dkk', // Danish Krone
+	'aed', // UAE Dirham
+	'zar'  // South African Rand
+] as const;
+
+export type AllowedCurrency = typeof ALLOWED_EVENT_CURRENCIES[number];
 
 // Define an enum for platform and browser types
 export enum PlatformBrowser {
@@ -419,7 +456,8 @@ export enum BonfireEditingTabs {
 	Info = 'info',
 	Styles = 'styles',
 	Admins = 'admins',
-	Reminders = 'reminders'
+	Reminders = 'reminders',
+	Tickets = 'tickets'
 }
 
 export enum QuestionnaireStep {

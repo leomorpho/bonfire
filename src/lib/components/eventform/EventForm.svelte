@@ -46,10 +46,14 @@
 	import TipTapTextEditor from '../input/tiptap/TipTapTextEditor.svelte';
 	import MaxCapacity from './feature-enablers/MaxCapacity.svelte';
 	import GuestCountFeature from './feature-enablers/GuestCountFeature.svelte';
+	import TicketingFeature from './feature-enablers/TicketingFeature.svelte';
+	import TicketTypeManager from '../tickets/TicketTypeManager.svelte';
+	import CurrencySelector from './feature-enablers/CurrencySelector.svelte';
 	import { upsertUserAttendance } from '$lib/rsvp';
 	import type { FontSelection } from '$lib/types';
-	import { BellRing, Info, PaintBucket, RefreshCw, TypeOutline } from '@lucide/svelte';
+	import { BellRing, Info, PaintBucket, RefreshCw, TypeOutline, Ticket } from '@lucide/svelte';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
+	import { ALLOWED_EVENT_CURRENCIES } from '$lib/enums';
 	import EventReminders from './reminders/EventReminders.svelte';
 	import RequiredBringItemForAttendance from './feature-enablers/RequiredBringItemForAttendance.svelte';
 	import BetaDevAlert from '../BetaDevAlert.svelte';
@@ -92,9 +96,13 @@
 	let latitude: number | null = $state(event?.latitude);
 	let longitude: number | null = $state(event?.longitude);
 	let selectedOrganizationId: string | null = $state(event?.organization_id ?? null);
+	let isTicketed: boolean = $state(event?.is_ticketed ?? false);
+	let maxTicketsPerUser: number = $state(event?.max_tickets_per_user ?? 5);
+	let ticketCurrency: string = $state(event?.ticket_currency ?? 'usd');
 	let userOrganizations: any[] = $state([]);
 	let organizationsLoading = $state(false);
 	let organizationModalOpen = $state(false);
+	let ticketTypes: any[] = $state([]);
 
 	// ✅ State Variables
 	let client: TriplitClient;
@@ -123,6 +131,45 @@
 	let needToUpdateReminderDates: boolean = $state(false);
 	let eventStartDatetime: Date | null = $state(null);
 	let eventEndDatetime: Date | null = $state(null);
+
+	// Reactive effect: When ticketing is enabled, guests should be disabled
+	$effect(() => {
+		if (isTicketed) {
+			maxNumGuest = 0;
+			// Ensure valid currency
+			if (!ALLOWED_EVENT_CURRENCIES.includes(ticketCurrency)) {
+				ticketCurrency = 'usd';
+			}
+		}
+		
+		// Reset ticketing if event is not created
+		if (!eventCreated && isTicketed) {
+			isTicketed = false;
+		}
+	});
+
+	// Load ticket types when event is ticketed and created
+	$effect(() => {
+		if (isTicketed && eventCreated && eventId) {
+			loadTicketTypes();
+		}
+	});
+
+	async function loadTicketTypes() {
+		if (!eventId) return;
+		
+		try {
+			const response = await fetch(`/api/tickets/types?eventId=${eventId}`);
+			if (response.ok) {
+				const data = await response.json();
+				ticketTypes = data.ticketTypes || [];
+			} else {
+				console.error('Failed to load ticket types');
+			}
+		} catch (error) {
+			console.error('Error loading ticket types:', error);
+		}
+	}
 
 	// let numLogs = $state(0);
 	// let numLogsLoading = $state(true);
@@ -322,13 +369,17 @@
 				overlay_opacity: overlayOpacity || 0.4,
 				font: JSON.stringify(font) || null,
 				max_capacity: maxCapacity || null,
-				max_num_guests_per_attendee: maxNumGuest || 0,
+				max_num_guests_per_attendee: isTicketed ? 0 : (maxNumGuest || 0),
 				is_bring_list_enabled: isBringListEnabled || false,
 				is_gallery_enabled: isGalleryEnabled,
 				is_messaging_enabled: isMessagingEnabled,
 				require_guest_bring_item: requireGuestBringItem,
 				is_cut_off_date_enabled: isCuttoffDateEnabled,
 				cut_off_date: cuttoffDate,
+				// Ticketing fields
+				is_ticketed: isTicketed || false,
+				max_tickets_per_user: isTicketed ? maxTicketsPerUser : null,
+				ticket_currency: isTicketed ? ticketCurrency : 'usd',
 				// non_profit_id: userFavoriteNonProfitId || null,
 				latitude: latitude,
 				longitude: longitude
@@ -378,13 +429,17 @@
 				e.overlay_opacity = overlayOpacity;
 				e.font = JSON.stringify(font) || null;
 				e.max_capacity = maxCapacity;
-				e.max_num_guests_per_attendee = maxNumGuest || 0;
+				e.max_num_guests_per_attendee = isTicketed ? 0 : (maxNumGuest || 0);
 				e.is_bring_list_enabled = isBringListEnabled || false;
 				e.is_gallery_enabled = isGalleryEnabled;
 				e.is_messaging_enabled = isMessagingEnabled;
 				e.require_guest_bring_item = requireGuestBringItem;
 				e.is_cut_off_date_enabled = isCuttoffDateEnabled;
 				e.cut_off_date = cuttoffDate;
+				// Ticketing fields
+				e.is_ticketed = isTicketed || false;
+				e.max_tickets_per_user = isTicketed ? maxTicketsPerUser : null;
+				e.ticket_currency = isTicketed ? ticketCurrency : 'usd';
 				e.latitude = latitude;
 				e.longitude = longitude;
 				e.is_published = isEventPublished || publishEventNow;
@@ -633,6 +688,15 @@
 							onclick={() => updateURL(BonfireEditingTabs.Reminders)}
 							><BellRing class="h-5 w-5 sm:h-6 sm:w-6" /></Tabs.Trigger
 						>
+						{#if isTicketed && eventCreated}
+							<Tabs.Trigger
+								id="event-tickets-tab"
+								value={BonfireEditingTabs.Tickets}
+								class="focus:outline-none focus-visible:ring-0 data-[state=active]:bg-cyan-500 data-[state=active]:text-white dark:data-[state=active]:bg-cyan-600"
+								onclick={() => updateURL(BonfireEditingTabs.Tickets)}
+								><Ticket class="h-5 w-5 sm:h-6 sm:w-6" /></Tabs.Trigger
+							>
+						{/if}
 					</Tabs.List>
 					<div></div>
 				</div>
@@ -910,7 +974,27 @@
 						class="mt-1 min-h-40 w-full rounded-lg border bg-white p-2 text-xs dark:bg-slate-900"
 					/>
 					<MaxCapacity oninput={debouncedUpdateEvent} bind:value={maxCapacity} />
-					<GuestCountFeature oninput={debouncedUpdateEvent} bind:value={maxNumGuest} />
+					<!-- Note: Ticketing and guests are mutually exclusive -->
+					{#if !isTicketed}
+						<GuestCountFeature oninput={debouncedUpdateEvent} bind:value={maxNumGuest} />
+					{/if}
+					
+					<TicketingFeature 
+						oninput={debouncedUpdateEvent} 
+						bind:isTicketed={isTicketed}
+						bind:maxTicketsPerUser={maxTicketsPerUser}
+						bind:currency={ticketCurrency}
+						disabled={!eventCreated}
+					/>
+					
+					{#if isTicketed && eventCreated}
+						<CurrencySelector 
+							bind:currency={ticketCurrency}
+							oninput={debouncedUpdateEvent}
+							disabled={ticketTypes.length > 0}
+						/>
+					{/if}
+					
 					<ToggleBringList oninput={debouncedUpdateEvent} bind:checked={isBringListEnabled} />
 
 					{#if isBringListEnabled}
@@ -1001,6 +1085,16 @@
 			<Tabs.Content value={BonfireEditingTabs.Reminders}>
 				<EventReminders {eventId} {eventName} />
 			</Tabs.Content>
+			{#if isTicketed && eventCreated}
+				<Tabs.Content value={BonfireEditingTabs.Tickets}>
+					<TicketTypeManager 
+						{eventId} 
+						bind:ticketTypes={ticketTypes}
+						currency={ticketCurrency}
+						canEdit={true}
+					/>
+				</Tabs.Content>
+			{/if}
 		</Tabs.Root>
 	</section>
 
