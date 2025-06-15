@@ -827,7 +827,7 @@ export async function fetchAccessibleEventFiles(
 			);
 			// console.log('attendance --->', attendance);
 			if (!attendance) {
-				return;
+				return { files: [], isOwner: false };
 			}
 		} catch (e) {
 			console.error('failed to fetch attendance object', e);
