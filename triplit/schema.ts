@@ -2097,6 +2097,9 @@ export const schema = S.Collections({
 			event: S.RelationById('events', '$event_id'),
 			tickets: S.RelationMany('tickets', {
 				where: [['ticket_type_id', '=', '$id']]
+			}),
+			ticket_holds: S.RelationMany('ticket_holds', {
+				where: [['ticket_type_id', '=', '$id']]
 			})
 		},
 		permissions: {
@@ -2240,6 +2243,60 @@ export const schema = S.Collections({
 						or([
 							['event.user_id', '=', '$role.userId'], // Event creators can update purchases
 							['event.event_admins.user_id', '=', '$role.userId'] // Event admins can update purchases
+						])
+					]
+				}
+			},
+			temp: {},
+			anon: {}
+		}
+	},
+	ticket_holds: {
+		schema: S.Schema({
+			id: S.Id(),
+			user_id: S.String(), // User holding the tickets
+			ticket_type_id: S.String(), // Type of ticket being held
+			quantity: S.Number(), // Number of tickets being held
+			expires_at: S.Date(), // When this hold expires (10 minutes from creation)
+			created_at: S.Date({ default: S.Default.now() })
+		}),
+		relationships: {
+			user: S.RelationById('user', '$user_id'),
+			ticket_type: S.RelationById('ticket_types', '$ticket_type_id')
+		},
+		permissions: {
+			admin: {
+				read: { filter: [true] },
+				insert: { filter: [true] },
+				update: { filter: [true] },
+				delete: { filter: [true] }
+			},
+			user: {
+				read: {
+					filter: [
+						or([
+							['user_id', '=', '$role.userId'], // Users can see their own holds
+							['ticket_type.event.user_id', '=', '$role.userId'], // Event creators can see holds
+							['ticket_type.event.event_admins.user_id', '=', '$role.userId'] // Event admins can see holds
+						])
+					]
+				},
+				insert: { filter: [['user_id', '=', '$role.userId']] }, // Users can create their own holds
+				update: {
+					filter: [
+						or([
+							['user_id', '=', '$role.userId'], // Users can update their own holds
+							['ticket_type.event.user_id', '=', '$role.userId'], // Event creators can update holds
+							['ticket_type.event.event_admins.user_id', '=', '$role.userId'] // Event admins can update holds
+						])
+					]
+				},
+				delete: {
+					filter: [
+						or([
+							['user_id', '=', '$role.userId'], // Users can delete their own holds
+							['ticket_type.event.user_id', '=', '$role.userId'], // Event creators can delete holds
+							['ticket_type.event.event_admins.user_id', '=', '$role.userId'] // Event admins can delete holds
 						])
 					]
 				}

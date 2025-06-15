@@ -28,7 +28,7 @@
 	const handleBlockUser = async (e) => {
 		e.stopPropagation();
 		if (isBlocking) return;
-		
+
 		isBlocking = true;
 		try {
 			const response = await fetch('/api/users/block', {
@@ -48,7 +48,7 @@
 
 			toast.success(`Blocked ${user.username}`);
 			showDropdown = false;
-			
+
 			// Notify parent component to remove user from list
 			if (onUserBlocked) {
 				onUserBlocked(user.id);
@@ -103,7 +103,7 @@
 		</Button>
 
 		<!-- 3-dot menu -->
-		<div class="relative" use:clickOutside={() => showDropdown = false}>
+		<div class="relative" use:clickOutside={() => (showDropdown = false)}>
 			<Button
 				variant="ghost"
 				size="sm"
@@ -118,12 +118,12 @@
 			</Button>
 
 			{#if showDropdown}
-				<div 
-					class="absolute right-0 top-full mt-1 z-[60] min-w-[140px] rounded-md border bg-white p-1 shadow-md dark:bg-gray-800 dark:border-gray-700"
+				<div
+					class="absolute right-0 top-full z-[60] mt-1 min-w-[140px] rounded-md border bg-white p-1 shadow-md dark:border-gray-700 dark:bg-gray-800"
 					onclick={(e) => e.stopPropagation()}
 				>
 					<button
-						class="flex w-full items-center px-2 py-1.5 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950 rounded-sm transition-colors disabled:opacity-50"
+						class="flex w-full items-center rounded-sm px-2 py-1.5 text-sm text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50 dark:hover:bg-red-950"
 						onclick={handleBlockUser}
 						disabled={isBlocking}
 					>

@@ -408,10 +408,10 @@ export const ALLOWED_EVENT_CURRENCIES = [
 	'nok', // Norwegian Krone
 	'dkk', // Danish Krone
 	'aed', // UAE Dirham
-	'zar'  // South African Rand
+	'zar' // South African Rand
 ] as const;
 
-export type AllowedCurrency = typeof ALLOWED_EVENT_CURRENCIES[number];
+export type AllowedCurrency = (typeof ALLOWED_EVENT_CURRENCIES)[number];
 
 // Define an enum for platform and browser types
 export enum PlatformBrowser {

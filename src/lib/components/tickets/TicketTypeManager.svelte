@@ -7,7 +7,14 @@
 	import * as Card from '$lib/components/ui/card/index.js';
 	import { Plus, Edit, Trash2, Ticket, DollarSign } from 'lucide-svelte';
 	import { toast } from 'svelte-sonner';
-	import { formatPrice, toSmallestUnit, fromSmallestUnit, getCurrency, getMinimumAmountText, meetsMinimumAmount } from '$lib/currencies';
+	import {
+		formatPrice,
+		toSmallestUnit,
+		fromSmallestUnit,
+		getCurrency,
+		getMinimumAmountText,
+		meetsMinimumAmount
+	} from '$lib/currencies';
 
 	let { eventId, ticketTypes = $bindable([]), canEdit = false, currency = 'usd' } = $props();
 
@@ -45,16 +52,18 @@
 		description = ticketType.description || '';
 		price = fromSmallestUnit(ticketType.price, currency).toString();
 		quantityAvailable = ticketType.quantity_available?.toString() || '';
-		saleStartDate = ticketType.sale_start_date ? 
-			new Date(ticketType.sale_start_date).toISOString().slice(0, 16) : '';
-		saleEndDate = ticketType.sale_end_date ? 
-			new Date(ticketType.sale_end_date).toISOString().slice(0, 16) : '';
+		saleStartDate = ticketType.sale_start_date
+			? new Date(ticketType.sale_start_date).toISOString().slice(0, 16)
+			: '';
+		saleEndDate = ticketType.sale_end_date
+			? new Date(ticketType.sale_end_date).toISOString().slice(0, 16)
+			: '';
 		dialogOpen = true;
 	}
 
 	async function submitForm(event) {
 		event.preventDefault();
-		
+
 		if (!name || !name.trim() || !price || !price.toString().trim()) {
 			toast.error('Name and price are required');
 			return;
@@ -112,10 +121,10 @@
 			}
 
 			const result = await response.json();
-			
+
 			if (editingTicketType) {
 				// Update existing ticket type in the list
-				const index = ticketTypes.findIndex(tt => tt.id === editingTicketType.id);
+				const index = ticketTypes.findIndex((tt) => tt.id === editingTicketType.id);
 				if (index !== -1) {
 					ticketTypes[index] = result.ticketType;
 				}
@@ -155,7 +164,7 @@
 			}
 
 			// Remove from list
-			ticketTypes = ticketTypes.filter(tt => tt.id !== ticketType.id);
+			ticketTypes = ticketTypes.filter((tt) => tt.id !== ticketType.id);
 			toast.success('Ticket type deleted successfully');
 		} catch (error) {
 			console.error('Error deleting ticket type:', error);
@@ -181,7 +190,7 @@
 			}
 
 			// Update status in list
-			const index = ticketTypes.findIndex(tt => tt.id === ticketType.id);
+			const index = ticketTypes.findIndex((tt) => tt.id === ticketType.id);
 			if (index !== -1) {
 				ticketTypes[index].is_active = !ticketTypes[index].is_active;
 			}
@@ -218,7 +227,7 @@
 	</div>
 
 	{#if ticketTypes.length === 0}
-		<div class="text-center py-8 text-muted-foreground">
+		<div class="py-8 text-center text-muted-foreground">
 			{#if canEdit}
 				No ticket types created yet. Click "Add Ticket Type" to get started.
 			{:else}
@@ -232,17 +241,17 @@
 					<Card.Content class="p-4">
 						<div class="flex items-start justify-between">
 							<div class="flex-1">
-								<div class="flex items-center gap-2 mb-2">
+								<div class="mb-2 flex items-center gap-2">
 									<h4 class="font-semibold">{ticketType.name}</h4>
 									{#if !ticketType.is_active}
-										<span class="px-2 py-1 text-xs bg-red-100 text-red-800 rounded-full">
+										<span class="rounded-full bg-red-100 px-2 py-1 text-xs text-red-800">
 											Disabled
 										</span>
 									{/if}
 								</div>
-								
+
 								{#if ticketType.description}
-									<p class="text-sm text-muted-foreground mb-2">{ticketType.description}</p>
+									<p class="mb-2 text-sm text-muted-foreground">{ticketType.description}</p>
 								{/if}
 
 								<div class="flex items-center gap-4 text-sm">
@@ -250,14 +259,14 @@
 										<DollarSign class="h-4 w-4" />
 										<span class="font-medium">{formatTicketPrice(ticketType.price)}</span>
 									</div>
-									
+
 									<div>
 										<span class="text-muted-foreground">Available:</span>
-										{ticketType.quantity_available ? 
-											`${ticketType.quantity_available - ticketType.quantity_sold}` : 
-											'Unlimited'}
+										{ticketType.quantity_available
+											? `${ticketType.quantity_available - ticketType.quantity_sold}`
+											: 'Unlimited'}
 									</div>
-									
+
 									<div>
 										<span class="text-muted-foreground">Sold:</span>
 										{ticketType.quantity_sold || 0}
@@ -265,38 +274,36 @@
 								</div>
 
 								{#if ticketType.sale_start_date || ticketType.sale_end_date}
-									<div class="flex gap-4 text-xs text-muted-foreground mt-2">
+									<div class="mt-2 flex gap-4 text-xs text-muted-foreground">
 										<div>
-											<span>Sale starts:</span> {formatDate(ticketType.sale_start_date)}
+											<span>Sale starts:</span>
+											{formatDate(ticketType.sale_start_date)}
 										</div>
 										<div>
-											<span>Sale ends:</span> {formatDate(ticketType.sale_end_date)}
+											<span>Sale ends:</span>
+											{formatDate(ticketType.sale_end_date)}
 										</div>
 									</div>
 								{/if}
 							</div>
 
 							{#if canEdit}
-								<div class="flex items-center gap-2 ml-4">
-									<Button 
-										variant="outline" 
+								<div class="ml-4 flex items-center gap-2">
+									<Button
+										variant="outline"
 										size="sm"
 										onclick={() => toggleTicketTypeStatus(ticketType)}
 									>
 										{ticketType.is_active ? 'Disable' : 'Enable'}
 									</Button>
-									
-									<Button 
-										variant="outline" 
-										size="sm"
-										onclick={() => openEditDialog(ticketType)}
-									>
+
+									<Button variant="outline" size="sm" onclick={() => openEditDialog(ticketType)}>
 										<Edit class="h-4 w-4" />
 									</Button>
-									
+
 									{#if ticketType.quantity_sold === 0}
-										<Button 
-											variant="outline" 
+										<Button
+											variant="outline"
 											size="sm"
 											onclick={() => deleteTicketType(ticketType)}
 										>
@@ -324,12 +331,7 @@
 			<form onsubmit={submitForm} class="space-y-4">
 				<div>
 					<Label for="name">Name *</Label>
-					<Input
-						id="name"
-						bind:value={name}
-						placeholder="e.g., General Admission, VIP"
-						required
-					/>
+					<Input id="name" bind:value={name} placeholder="e.g., General Admission, VIP" required />
 				</div>
 
 				<div>
@@ -343,15 +345,17 @@
 				</div>
 
 				<div>
-					<Label for="price">Price ({getCurrency(currency)?.name || currency.toUpperCase()}) *</Label>
+					<Label for="price"
+						>Price ({getCurrency(currency)?.name || currency.toUpperCase()}) *</Label
+					>
 					<div class="space-y-2">
 						<Input
 							id="price"
 							type="number"
-							step={getCurrency(currency)?.decimalPlaces === 0 ? "1" : "0.01"}
+							step={getCurrency(currency)?.decimalPlaces === 0 ? '1' : '0.01'}
 							min="0"
 							bind:value={price}
-							placeholder={getCurrency(currency)?.decimalPlaces === 0 ? "100" : "25.00"}
+							placeholder={getCurrency(currency)?.decimalPlaces === 0 ? '100' : '25.00'}
 							required
 						/>
 						<p class="text-xs text-muted-foreground">
@@ -374,28 +378,20 @@
 				<div class="grid grid-cols-2 gap-4">
 					<div>
 						<Label for="saleStart">Sale Start Date</Label>
-						<Input
-							id="saleStart"
-							type="datetime-local"
-							bind:value={saleStartDate}
-						/>
+						<Input id="saleStart" type="datetime-local" bind:value={saleStartDate} />
 					</div>
 
 					<div>
 						<Label for="saleEnd">Sale End Date</Label>
-						<Input
-							id="saleEnd"
-							type="datetime-local"
-							bind:value={saleEndDate}
-						/>
+						<Input id="saleEnd" type="datetime-local" bind:value={saleEndDate} />
 					</div>
 				</div>
 
 				<div class="flex justify-end gap-3 pt-4">
-					<Button 
-						type="button" 
+					<Button
+						type="button"
 						variant="outline"
-						onclick={() => dialogOpen = false}
+						onclick={() => (dialogOpen = false)}
 						disabled={isSubmitting}
 					>
 						Cancel

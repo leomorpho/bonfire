@@ -141,7 +141,7 @@
 				ticketCurrency = 'usd';
 			}
 		}
-		
+
 		// Reset ticketing if event is not created
 		if (!eventCreated && isTicketed) {
 			isTicketed = false;
@@ -157,7 +157,7 @@
 
 	async function loadTicketTypes() {
 		if (!eventId) return;
-		
+
 		try {
 			const response = await fetch(`/api/tickets/types?eventId=${eventId}`);
 			if (response.ok) {
@@ -369,7 +369,7 @@
 				overlay_opacity: overlayOpacity || 0.4,
 				font: JSON.stringify(font) || null,
 				max_capacity: maxCapacity || null,
-				max_num_guests_per_attendee: isTicketed ? 0 : (maxNumGuest || 0),
+				max_num_guests_per_attendee: isTicketed ? 0 : maxNumGuest || 0,
 				is_bring_list_enabled: isBringListEnabled || false,
 				is_gallery_enabled: isGalleryEnabled,
 				is_messaging_enabled: isMessagingEnabled,
@@ -429,7 +429,7 @@
 				e.overlay_opacity = overlayOpacity;
 				e.font = JSON.stringify(font) || null;
 				e.max_capacity = maxCapacity;
-				e.max_num_guests_per_attendee = isTicketed ? 0 : (maxNumGuest || 0);
+				e.max_num_guests_per_attendee = isTicketed ? 0 : maxNumGuest || 0;
 				e.is_bring_list_enabled = isBringListEnabled || false;
 				e.is_gallery_enabled = isGalleryEnabled;
 				e.is_messaging_enabled = isMessagingEnabled;
@@ -978,23 +978,23 @@
 					{#if !isTicketed}
 						<GuestCountFeature oninput={debouncedUpdateEvent} bind:value={maxNumGuest} />
 					{/if}
-					
-					<TicketingFeature 
-						oninput={debouncedUpdateEvent} 
-						bind:isTicketed={isTicketed}
-						bind:maxTicketsPerUser={maxTicketsPerUser}
+
+					<TicketingFeature
+						oninput={debouncedUpdateEvent}
+						bind:isTicketed
+						bind:maxTicketsPerUser
 						bind:currency={ticketCurrency}
 						disabled={!eventCreated}
 					/>
-					
+
 					{#if isTicketed && eventCreated}
-						<CurrencySelector 
+						<CurrencySelector
 							bind:currency={ticketCurrency}
 							oninput={debouncedUpdateEvent}
 							disabled={ticketTypes.length > 0}
 						/>
 					{/if}
-					
+
 					<ToggleBringList oninput={debouncedUpdateEvent} bind:checked={isBringListEnabled} />
 
 					{#if isBringListEnabled}
@@ -1087,12 +1087,7 @@
 			</Tabs.Content>
 			{#if isTicketed && eventCreated}
 				<Tabs.Content value={BonfireEditingTabs.Tickets}>
-					<TicketTypeManager 
-						{eventId} 
-						bind:ticketTypes={ticketTypes}
-						currency={ticketCurrency}
-						canEdit={true}
-					/>
+					<TicketTypeManager {eventId} bind:ticketTypes currency={ticketCurrency} canEdit={true} />
 				</Tabs.Content>
 			{/if}
 		</Tabs.Root>

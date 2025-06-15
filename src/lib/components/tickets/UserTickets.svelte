@@ -63,7 +63,7 @@
 	{#if tickets.length === 0}
 		<Card.Root>
 			<Card.Content class="p-6 text-center">
-				<Ticket class="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+				<Ticket class="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
 				<p class="text-muted-foreground">You don't have any tickets for this event yet.</p>
 			</Card.Content>
 		</Card.Root>
@@ -74,7 +74,7 @@
 					<Card.Content class="p-4">
 						<div class="flex items-start justify-between">
 							<div class="flex-1">
-								<div class="flex items-center gap-2 mb-2">
+								<div class="mb-2 flex items-center gap-2">
 									<h4 class="font-semibold">
 										{ticket.ticket_type?.name || 'Ticket'}
 									</h4>
@@ -84,7 +84,7 @@
 								</div>
 
 								{#if ticket.ticket_type?.description}
-									<p class="text-sm text-muted-foreground mb-2">
+									<p class="mb-2 text-sm text-muted-foreground">
 										{ticket.ticket_type.description}
 									</p>
 								{/if}
@@ -94,12 +94,12 @@
 										<DollarSign class="h-4 w-4" />
 										<span>{formatTicketPrice(ticket.purchase_price, ticket.currency)}</span>
 									</div>
-									
+
 									<div class="flex items-center gap-1">
 										<Calendar class="h-4 w-4" />
 										<span>Purchased {formatDate(ticket.purchased_at)}</span>
 									</div>
-									
+
 									{#if ticket.status === 'used' && ticket.used_at}
 										<div class="flex items-center gap-1">
 											<CheckCircle class="h-4 w-4" />
@@ -108,18 +108,16 @@
 									{/if}
 								</div>
 
-								<div class="mt-3 p-2 bg-muted rounded text-xs font-mono">
+								<div class="mt-3 rounded bg-muted p-2 font-mono text-xs">
 									Ticket ID: {ticket.id}
 								</div>
 							</div>
 
 							<div class="ml-4 text-right">
-								<div class="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center">
+								<div class="flex h-16 w-16 items-center justify-center rounded-lg bg-primary/10">
 									<Ticket class="h-8 w-8 text-primary" />
 								</div>
-								<p class="text-xs text-muted-foreground mt-1 text-center">
-									QR Code
-								</p>
+								<p class="mt-1 text-center text-xs text-muted-foreground">QR Code</p>
 							</div>
 						</div>
 					</Card.Content>
@@ -127,12 +125,12 @@
 			{/each}
 		</div>
 
-		<div class="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+		<div class="rounded-lg border border-blue-200 bg-blue-50 p-4">
 			<div class="flex items-start gap-2">
-				<Ticket class="h-5 w-5 text-blue-600 mt-0.5" />
+				<Ticket class="mt-0.5 h-5 w-5 text-blue-600" />
 				<div class="text-sm">
-					<p class="font-medium text-blue-900 mb-1">Important Information</p>
-					<ul class="text-blue-800 space-y-1">
+					<p class="mb-1 font-medium text-blue-900">Important Information</p>
+					<ul class="space-y-1 text-blue-800">
 						<li>• Please bring your ticket ID or a screenshot of this page to the event</li>
 						<li>• QR code scanning will be available soon for easier check-in</li>
 						<li>• Contact support if you have any issues with your tickets</li>

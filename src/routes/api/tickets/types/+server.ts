@@ -45,7 +45,16 @@ export async function POST({ request, locals }: RequestEvent): Promise<Response>
 
 	try {
 		const body = await request.json();
-		const { eventId, name, description, price, currency, quantity_available, sale_start_date, sale_end_date } = body;
+		const {
+			eventId,
+			name,
+			description,
+			price,
+			currency,
+			quantity_available,
+			sale_start_date,
+			sale_end_date
+		} = body;
 
 		if (!eventId || !name || price === undefined) {
 			return json({ error: 'eventId, name, and price are required' }, { status: 400 });
@@ -57,7 +66,10 @@ export async function POST({ request, locals }: RequestEvent): Promise<Response>
 
 		// Validate currency if provided
 		if (currency && !ALLOWED_EVENT_CURRENCIES.includes(currency.toLowerCase())) {
-			return json({ error: 'Invalid currency. Please use one of the allowed currencies.' }, { status: 400 });
+			return json(
+				{ error: 'Invalid currency. Please use one of the allowed currencies.' },
+				{ status: 400 }
+			);
 		}
 
 		// Check if user has permission to create ticket types for this event
@@ -72,7 +84,8 @@ export async function POST({ request, locals }: RequestEvent): Promise<Response>
 		// Check permissions (event creator or admin)
 		if (event.user_id !== user.id) {
 			const isAdmin = await triplitHttpClient.fetchOne(
-				triplitHttpClient.query('event_admins')
+				triplitHttpClient
+					.query('event_admins')
 					.Where([['event_id', '=', eventId]])
 					.Where([['user_id', '=', user.id]])
 			);
@@ -116,7 +129,8 @@ export async function PUT({ request, locals }: RequestEvent): Promise<Response> 
 
 		// Get the ticket type to check permissions
 		const ticketType = await triplitHttpClient.fetchOne(
-			triplitHttpClient.query('ticket_types')
+			triplitHttpClient
+				.query('ticket_types')
 				.Where([['id', '=', ticketTypeId]])
 				.Include('event')
 		);
@@ -128,7 +142,8 @@ export async function PUT({ request, locals }: RequestEvent): Promise<Response> 
 		// Check permissions
 		if (ticketType.event.user_id !== user.id) {
 			const isAdmin = await triplitHttpClient.fetchOne(
-				triplitHttpClient.query('event_admins')
+				triplitHttpClient
+					.query('event_admins')
 					.Where([['event_id', '=', ticketType.event_id]])
 					.Where([['user_id', '=', user.id]])
 			);
@@ -147,7 +162,11 @@ export async function PUT({ request, locals }: RequestEvent): Promise<Response> 
 			processedUpdates.sale_end_date = new Date(updates.sale_end_date);
 		}
 
-		const updatedTicketType = await updateTicketType(triplitHttpClient, ticketTypeId, processedUpdates);
+		const updatedTicketType = await updateTicketType(
+			triplitHttpClient,
+			ticketTypeId,
+			processedUpdates
+		);
 
 		return json({ ticketType: updatedTicketType });
 	} catch (error) {
@@ -173,7 +192,8 @@ export async function DELETE({ request, locals }: RequestEvent): Promise<Respons
 
 		// Get the ticket type to check permissions and if it has sold tickets
 		const ticketType = await triplitHttpClient.fetchOne(
-			triplitHttpClient.query('ticket_types')
+			triplitHttpClient
+				.query('ticket_types')
 				.Where([['id', '=', ticketTypeId]])
 				.Include('event')
 		);
@@ -185,7 +205,8 @@ export async function DELETE({ request, locals }: RequestEvent): Promise<Respons
 		// Check permissions
 		if (ticketType.event.user_id !== user.id) {
 			const isAdmin = await triplitHttpClient.fetchOne(
-				triplitHttpClient.query('event_admins')
+				triplitHttpClient
+					.query('event_admins')
 					.Where([['event_id', '=', ticketType.event_id]])
 					.Where([['user_id', '=', user.id]])
 			);

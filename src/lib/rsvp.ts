@@ -119,6 +119,76 @@ export async function upsertUserAttendance(
 	}
 }
 
+// Check if user needs to purchase tickets for this event
+export async function checkIfTicketRequired(eventId: string): Promise<{
+	isTicketed: boolean;
+	hasTickets: boolean;
+	ticketTypes: any[];
+	redirectToTickets: boolean;
+}> {
+	try {
+		// First check if event is ticketed
+		const eventResponse = await fetch(`/api/events/${eventId}/basic`, {
+			method: 'GET',
+			headers: { 'Content-Type': 'application/json' }
+		});
+
+		if (!eventResponse.ok) {
+			throw new Error('Failed to fetch event details');
+		}
+
+		const eventData = await eventResponse.json();
+
+		if (!eventData.is_ticketed) {
+			return {
+				isTicketed: false,
+				hasTickets: false,
+				ticketTypes: [],
+				redirectToTickets: false
+			};
+		}
+
+		// Check if user already has tickets
+		const ticketsResponse = await fetch(`/api/user/tickets?eventId=${eventId}`, {
+			method: 'GET',
+			headers: { 'Content-Type': 'application/json' }
+		});
+
+		let hasTickets = false;
+		if (ticketsResponse.ok) {
+			const ticketsData = await ticketsResponse.json();
+			hasTickets = ticketsData.tickets && ticketsData.tickets.length > 0;
+		}
+
+		// Get available ticket types
+		const ticketTypesResponse = await fetch(`/api/tickets/types?eventId=${eventId}`, {
+			method: 'GET',
+			headers: { 'Content-Type': 'application/json' }
+		});
+
+		let ticketTypes = [];
+		if (ticketTypesResponse.ok) {
+			const typesData = await ticketTypesResponse.json();
+			ticketTypes = typesData.ticketTypes || [];
+		}
+
+		return {
+			isTicketed: true,
+			hasTickets,
+			ticketTypes,
+			redirectToTickets: !hasTickets // Redirect to tickets if user doesn't have any
+		};
+	} catch (error) {
+		console.error('Error checking ticket requirements:', error);
+		return {
+			isTicketed: false,
+			hasTickets: false,
+			ticketTypes: [],
+			redirectToTickets: false
+		};
+	}
+}
+
 // updateRSVPForLoggedInUser calls upsertUserAttendance which calls the server behind the scenes.
 // Offloads some work to the FE.
 export const updateRSVPForLoggedInUser = async (

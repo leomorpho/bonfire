@@ -9,12 +9,12 @@
 	import { goto } from '$app/navigation';
 	import { formatPrice, getCurrency } from '$lib/currencies';
 
-	let { 
-		eventId, 
-		availableTicketTypes = [], 
-		userTicketCount = 0, 
+	let {
+		eventId,
+		availableTicketTypes = [],
+		userTicketCount = 0,
 		maxTicketsPerUser = 5,
-		isAuthenticated = false 
+		isAuthenticated = false
 	} = $props();
 
 	let selectedTicketTypeId = $state('');
@@ -29,21 +29,19 @@
 	});
 
 	let selectedTicketType = $derived(
-		availableTicketTypes.find(tt => tt.id === selectedTicketTypeId)
+		availableTicketTypes.find((tt) => tt.id === selectedTicketTypeId)
 	);
 
-	let totalPrice = $derived(
-		selectedTicketType ? selectedTicketType.price * quantity : 0
-	);
+	let totalPrice = $derived(selectedTicketType ? selectedTicketType.price * quantity : 0);
 
 	let maxQuantity = $derived(() => {
 		if (!selectedTicketType) return 0;
-		
+
 		const remainingUserSlots = maxTicketsPerUser - userTicketCount;
-		const availableTickets = selectedTicketType.quantity_available ? 
-			selectedTicketType.quantity_available - selectedTicketType.quantity_sold : 
-			Infinity;
-		
+		const availableTickets = selectedTicketType.quantity_available
+			? selectedTicketType.quantity_available - selectedTicketType.quantity_sold
+			: Infinity;
+
 		return Math.min(remainingUserSlots, availableTickets, 10); // Cap at 10 for UI
 	});
 
@@ -60,9 +58,9 @@
 		const now = new Date();
 		const saleStarted = !ticketType.sale_start_date || new Date(ticketType.sale_start_date) <= now;
 		const saleNotEnded = !ticketType.sale_end_date || new Date(ticketType.sale_end_date) >= now;
-		const hasAvailability = !ticketType.quantity_available || 
-			ticketType.quantity_sold < ticketType.quantity_available;
-		
+		const hasAvailability =
+			!ticketType.quantity_available || ticketType.quantity_sold < ticketType.quantity_available;
+
 		return saleStarted && saleNotEnded && hasAvailability;
 	}
 
@@ -103,7 +101,7 @@
 			}
 
 			const result = await response.json();
-			
+
 			// Redirect to Stripe checkout
 			if (result.checkout_url) {
 				window.location.href = result.checkout_url;
@@ -129,7 +127,7 @@
 		<Card.Root class="border-amber-200 bg-amber-50">
 			<Card.Content class="p-4">
 				<p class="text-amber-800">
-					Please <a href="/login" class="underline font-medium">log in</a> to purchase tickets.
+					Please <a href="/login" class="font-medium underline">log in</a> to purchase tickets.
 				</p>
 			</Card.Content>
 		</Card.Root>
@@ -144,7 +142,7 @@
 	{:else if availableTicketTypes.length === 0}
 		<Card.Root>
 			<Card.Content class="p-6 text-center">
-				<Ticket class="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+				<Ticket class="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
 				<p class="text-muted-foreground">No tickets are currently available for purchase.</p>
 			</Card.Content>
 		</Card.Root>
@@ -167,7 +165,7 @@
 						<Select.Content>
 							{#each availableTicketTypes as ticketType (ticketType.id)}
 								<Select.Item value={ticketType.id}>
-									<div class="flex items-center justify-between w-full">
+									<div class="flex w-full items-center justify-between">
 										<div>
 											<span class="font-medium">{ticketType.name}</span>
 											{#if ticketType.description}
@@ -188,12 +186,14 @@
 
 				<!-- Selected Ticket Details -->
 				{#if selectedTicketType}
-					<div class="p-4 bg-muted rounded-lg space-y-2">
+					<div class="space-y-2 rounded-lg bg-muted p-4">
 						<div class="flex items-center justify-between">
 							<span class="font-medium">{selectedTicketType.name}</span>
-							<span class="font-bold">{formatTicketPrice(selectedTicketType.price, selectedTicketType.currency)} each</span>
+							<span class="font-bold"
+								>{formatTicketPrice(selectedTicketType.price, selectedTicketType.currency)} each</span
+							>
 						</div>
-						
+
 						{#if selectedTicketType.description}
 							<p class="text-sm text-muted-foreground">{selectedTicketType.description}</p>
 						{/if}
@@ -231,25 +231,25 @@
 							{/each}
 						</Select.Content>
 					</Select.Root>
-					
+
 					{#if userTicketCount > 0}
-						<p class="text-sm text-muted-foreground mt-1">
-							You currently have {userTicketCount} ticket{userTicketCount === 1 ? '' : 's'} for this event.
-							You can purchase {maxTicketsPerUser - userTicketCount} more.
+						<p class="mt-1 text-sm text-muted-foreground">
+							You currently have {userTicketCount} ticket{userTicketCount === 1 ? '' : 's'} for this
+							event. You can purchase {maxTicketsPerUser - userTicketCount} more.
 						</p>
 					{/if}
 				</div>
 
 				<!-- Total Price -->
-				<div class="flex items-center justify-between p-4 bg-primary/10 rounded-lg">
+				<div class="flex items-center justify-between rounded-lg bg-primary/10 p-4">
 					<span class="font-medium">Total Price:</span>
-					<span class="text-xl font-bold flex items-center gap-1">
+					<span class="flex items-center gap-1 text-xl font-bold">
 						{formatTicketPrice(totalPrice, selectedTicketType?.currency || 'usd')}
 					</span>
 				</div>
 
 				<!-- Purchase Button -->
-				<Button 
+				<Button
 					onclick={purchaseTickets}
 					disabled={isPurchasing || !selectedTicketType || quantity <= 0 || quantity > maxQuantity}
 					class="w-full"
@@ -262,7 +262,7 @@
 					{/if}
 				</Button>
 
-				<p class="text-xs text-muted-foreground text-center">
+				<p class="text-center text-xs text-muted-foreground">
 					You will be redirected to Stripe to complete your purchase securely.
 				</p>
 			</Card.Content>

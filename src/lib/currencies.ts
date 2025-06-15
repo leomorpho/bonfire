@@ -44,7 +44,7 @@ export const SUPPORTED_CURRENCIES: Currency[] = [
 
 // Get currency by code
 export function getCurrency(code: string): Currency | undefined {
-	return SUPPORTED_CURRENCIES.find(c => c.code === code.toLowerCase());
+	return SUPPORTED_CURRENCIES.find((c) => c.code === code.toLowerCase());
 }
 
 // Format price with currency
@@ -56,9 +56,10 @@ export function formatPrice(amountInSmallestUnit: number, currencyCode: string):
 	}
 
 	// Convert from smallest unit to major unit
-	const amount = currency.decimalPlaces === 0 
-		? amountInSmallestUnit 
-		: amountInSmallestUnit / Math.pow(10, currency.decimalPlaces);
+	const amount =
+		currency.decimalPlaces === 0
+			? amountInSmallestUnit
+			: amountInSmallestUnit / Math.pow(10, currency.decimalPlaces);
 
 	// Use Intl.NumberFormat for proper localization
 	try {
@@ -81,9 +82,9 @@ export function toSmallestUnit(amount: number, currencyCode: string): number {
 		// Default to 2 decimal places
 		return Math.round(amount * 100);
 	}
-	
-	return currency.decimalPlaces === 0 
-		? Math.round(amount) 
+
+	return currency.decimalPlaces === 0
+		? Math.round(amount)
 		: Math.round(amount * Math.pow(10, currency.decimalPlaces));
 }
 
@@ -94,9 +95,9 @@ export function fromSmallestUnit(amountInSmallestUnit: number, currencyCode: str
 		// Default to 2 decimal places
 		return amountInSmallestUnit / 100;
 	}
-	
-	return currency.decimalPlaces === 0 
-		? amountInSmallestUnit 
+
+	return currency.decimalPlaces === 0
+		? amountInSmallestUnit
 		: amountInSmallestUnit / Math.pow(10, currency.decimalPlaces);
 }
 
@@ -107,7 +108,7 @@ export function meetsMinimumAmount(amountInSmallestUnit: number, currencyCode: s
 		// Default to 50 cents minimum
 		return amountInSmallestUnit >= 50;
 	}
-	
+
 	return amountInSmallestUnit >= currency.minAmount;
 }
 
@@ -117,6 +118,6 @@ export function getMinimumAmountText(currencyCode: string): string {
 	if (!currency) {
 		return 'Minimum: $0.50';
 	}
-	
+
 	return `Minimum: ${formatPrice(currency.minAmount, currencyCode)}`;
 }

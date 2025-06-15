@@ -5,8 +5,8 @@
 	import { slide } from 'svelte/transition';
 	import { Ticket } from 'lucide-svelte';
 
-	let { 
-		oninput, 
+	let {
+		oninput,
 		isTicketed = $bindable(false),
 		maxTicketsPerUser = $bindable(5),
 		currency = $bindable('usd'),
@@ -39,9 +39,9 @@
 			<Ticket class="mx-1 h-5 w-5" /> Enable paid ticketing
 		</Label>
 	</div>
-	
+
 	{#if disabled}
-		<p class="text-xs text-amber-600 dark:text-amber-400 mt-2">
+		<p class="mt-2 text-xs text-amber-600 dark:text-amber-400">
 			Save the event first before enabling ticketing
 		</p>
 	{/if}
@@ -50,13 +50,12 @@
 		<!-- Description + Input -->`
 		<div transition:slide={{ duration: 300 }} class="mt-4 flex flex-col items-center space-y-3">
 			<p class="text-center text-sm text-gray-700 dark:text-gray-300">
-				Enable ticketing to sell paid tickets for your event. Note: Guests are not allowed for ticketed events - attendees must purchase individual tickets.
+				Enable ticketing to sell paid tickets for your event. Note: Guests are not allowed for
+				ticketed events - attendees must purchase individual tickets.
 			</p>
-			
+
 			<div class="flex flex-col items-center space-y-2">
-				<Label for="maxTicketsPerUserInput" class="text-sm">
-					Maximum tickets per person
-				</Label>
+				<Label for="maxTicketsPerUserInput" class="text-sm">Maximum tickets per person</Label>
 				<Input
 					id="maxTicketsPerUserInput"
 					type="number"
@@ -70,7 +69,7 @@
 				/>
 			</div>
 
-			<div class="text-xs text-gray-600 dark:text-gray-400 text-center space-y-1">
+			<div class="space-y-1 text-center text-xs text-gray-600 dark:text-gray-400">
 				<p>• You'll be able to create different ticket types with custom prices</p>
 				<p>• Attendees cannot bring guests - they must buy multiple tickets instead</p>
 				<p>• Payment processing is handled securely through Stripe</p>

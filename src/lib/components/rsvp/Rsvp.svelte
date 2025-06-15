@@ -13,8 +13,13 @@
 	import { goto } from '$app/navigation';
 	import PlusOneSelect from './PlusOneSelect.svelte';
 	import UpdatePlusOneSelect from './UpdatePlusOneSelect.svelte';
-	import { updateRSVPForLoggedInUser, updateRSVPForTempUser } from '$lib/rsvp';
+	import {
+		updateRSVPForLoggedInUser,
+		updateRSVPForTempUser,
+		checkIfTicketRequired
+	} from '$lib/rsvp';
 	import RsvpNameWithLoader from './RsvpNameWithLoader.svelte';
+	import TicketPurchaseFlow from './TicketPurchaseFlow.svelte';
 
 	let {
 		rsvpStatus = Status.DEFAULT,
@@ -53,11 +58,27 @@
 
 	let isProcessingRsvp = $state(false);
 	let showAddToCalendar = $state(false);
+	let showTicketPurchaseFlow = $state(false);
+	let ticketInfo = $state({
+		isTicketed: false,
+		hasTickets: false,
+		ticketTypes: [],
+		redirectToTickets: false
+	});
 
 	let client: TriplitClient;
 
-	onMount(() => {
+	onMount(async () => {
 		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
+
+		// Check if this event requires tickets when component loads
+		if (!isAnonymousUser && userId) {
+			try {
+				ticketInfo = await checkIfTicketRequired(eventId);
+			} catch (error) {
+				console.error('Error checking ticket requirements:', error);
+			}
+		}
 	});
 
 	let showAddToCalendarStatuses = new Set([Status.GOING, Status.MAYBE]);
@@ -110,10 +131,23 @@
 			}
 			goto(loginUrl.pathname + loginUrl.search);
 		} else if ($page.data.user) {
+			// Check if user needs tickets before allowing RSVP
+			if (
+				ticketInfo.isTicketed &&
+				!ticketInfo.hasTickets &&
+				(newValue === Status.GOING || newValue === Status.MAYBE)
+			) {
+				// Show ticket purchase flow instead of RSVP
+				dropdownOpen = false;
+				showTicketPurchaseFlow = true;
+				return;
+			}
+
 			if (
 				rsvpStatus == Status.DEFAULT &&
 				!isPlusOneSelectDialogOpenForFullUser &&
-				maxNumGuestsAllowedPerAttendee > 0
+				maxNumGuestsAllowedPerAttendee > 0 &&
+				(!ticketInfo.isTicketed || ticketInfo.hasTickets) // Only show plus one if they have tickets or event is free
 			) {
 				// NOTE: updateRSVP will be called again from the opened dialog once the number of guests has been selected
 				dropdownOpen = false;
@@ -279,6 +313,31 @@
 		{@render rsvpButton()}
 	{/if}
 </div>
+
+<!-- Ticket Purchase Flow Dialog -->
+{#if showTicketPurchaseFlow}
+	<TicketPurchaseFlow
+		{eventId}
+		ticketTypes={ticketInfo.ticketTypes}
+		bind:open={showTicketPurchaseFlow}
+		onTicketsPurchased={() => {
+			// Refresh ticket info and allow RSVP
+			checkIfTicketRequired(eventId).then((info) => {
+				ticketInfo = info;
+				showTicketPurchaseFlow = false;
+				// Trigger RSVP after tickets are purchased
+				if (newRsvpStatusToSave) {
+					updateRSVP(
+						new Event('click'),
+						rsvpStatus,
+						newRsvpStatusToSave,
+						numGuestsCurrentAttendeeIsBringing
+					);
+				}
+			});
+		}}
+	/>
+{/if}
 
 <Dialog.Root bind:open={isPlusOneSelectDialogOpenForFullUser}>
 	<Dialog.Content class="sm:max-w-[425px]">

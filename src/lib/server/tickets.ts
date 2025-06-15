@@ -18,16 +18,14 @@ export async function createTicketType(
 	}
 ): Promise<any> {
 	// Get the event to inherit its currency
-	const event = await client.fetchOne(
-		client.query('events').Where([['id', '=', eventId]])
-	);
-	
+	const event = await client.fetchOne(client.query('events').Where([['id', '=', eventId]]));
+
 	if (!event) {
 		throw new Error('Event not found');
 	}
-	
+
 	const currency = ticketTypeData.currency || event.ticket_currency || 'usd';
-	
+
 	return await client.insert('ticket_types', {
 		event_id: eventId,
 		name: ticketTypeData.name,
@@ -66,7 +64,8 @@ export async function updateTicketType(
 		if (updates.description !== undefined) ticketType.description = updates.description;
 		if (updates.price !== undefined) ticketType.price = updates.price;
 		if (updates.currency !== undefined) ticketType.currency = updates.currency;
-		if (updates.quantity_available !== undefined) ticketType.quantity_available = updates.quantity_available;
+		if (updates.quantity_available !== undefined)
+			ticketType.quantity_available = updates.quantity_available;
 		if (updates.is_active !== undefined) ticketType.is_active = updates.is_active;
 		if (updates.sale_start_date !== undefined) ticketType.sale_start_date = updates.sale_start_date;
 		if (updates.sale_end_date !== undefined) ticketType.sale_end_date = updates.sale_end_date;
@@ -82,7 +81,10 @@ export async function getEventTicketTypes(
 	eventId: string
 ): Promise<any[]> {
 	return await client.fetch(
-		client.query('ticket_types').Where([['event_id', '=', eventId]]).Order('created_at', 'ASC')
+		client
+			.query('ticket_types')
+			.Where([['event_id', '=', eventId]])
+			.Order('created_at', 'ASC')
 	);
 }
 
@@ -95,7 +97,8 @@ export async function getAvailableTicketTypes(
 ): Promise<any[]> {
 	const now = new Date();
 	const ticketTypes = await client.fetch(
-		client.query('ticket_types')
+		client
+			.query('ticket_types')
 			.Where([['event_id', '=', eventId]])
 			.Where([['is_active', '=', true]])
 			.Order('created_at', 'ASC')
@@ -105,8 +108,9 @@ export async function getAvailableTicketTypes(
 	return ticketTypes.filter((ticketType) => {
 		const saleStarted = !ticketType.sale_start_date || ticketType.sale_start_date <= now;
 		const saleNotEnded = !ticketType.sale_end_date || ticketType.sale_end_date >= now;
-		const hasAvailability = !ticketType.quantity_available || ticketType.quantity_sold < ticketType.quantity_available;
-		
+		const hasAvailability =
+			!ticketType.quantity_available || ticketType.quantity_sold < ticketType.quantity_available;
+
 		return saleStarted && saleNotEnded && hasAvailability;
 	});
 }
@@ -121,9 +125,7 @@ export async function canUserPurchaseTickets(
 	requestedQuantity: number
 ): Promise<{ canPurchase: boolean; reason?: string; currentTicketCount: number }> {
 	// Get the event to check max_tickets_per_user
-	const event = await client.fetchOne(
-		client.query('events').Where([['id', '=', eventId]])
-	);
+	const event = await client.fetchOne(client.query('events').Where([['id', '=', eventId]]));
 
 	if (!event) {
 		return { canPurchase: false, reason: 'Event not found', currentTicketCount: 0 };
@@ -135,7 +137,8 @@ export async function canUserPurchaseTickets(
 
 	// Count current tickets owned by user for this event
 	const currentTickets = await client.fetch(
-		client.query('tickets')
+		client
+			.query('tickets')
 			.Where([['user_id', '=', userId]])
 			.Where([['ticket_type.event_id', '=', eventId]])
 			.Where([['status', '=', 'active']])
@@ -168,7 +171,7 @@ export async function createTicketsForPurchase(
 	currency: string = 'usd'
 ): Promise<any[]> {
 	const tickets = [];
-	
+
 	for (let i = 0; i < quantity; i++) {
 		const ticket = await client.insert('tickets', {
 			ticket_type_id: ticketTypeId,
@@ -202,7 +205,8 @@ export async function getUserEventTickets(
 	eventId: string
 ): Promise<any[]> {
 	return await client.fetch(
-		client.query('tickets')
+		client
+			.query('tickets')
 			.Where([['user_id', '=', userId]])
 			.Where([['ticket_type.event_id', '=', eventId]])
 			.Include('ticket_type')
@@ -213,10 +217,7 @@ export async function getUserEventTickets(
 /**
  * Mark tickets as used (for scanning/check-in)
  */
-export async function markTicketsAsUsed(
-	client: HttpClient,
-	ticketIds: string[]
-): Promise<void> {
+export async function markTicketsAsUsed(client: HttpClient, ticketIds: string[]): Promise<void> {
 	for (const ticketId of ticketIds) {
 		await client.update('tickets', ticketId, (ticket) => {
 			ticket.status = 'used';
@@ -242,7 +243,8 @@ export async function getEventTicketStats(
 }> {
 	const ticketTypes = await getEventTicketTypes(client, eventId);
 	const purchases = await client.fetch(
-		client.query('ticket_purchases')
+		client
+			.query('ticket_purchases')
 			.Where([['event_id', '=', eventId]])
 			.Where([['status', '=', 'completed']])
 	);
@@ -250,10 +252,10 @@ export async function getEventTicketStats(
 	let totalTicketsSold = 0;
 	let totalRevenue = 0;
 
-	const ticketTypeStats = ticketTypes.map(ticketType => {
+	const ticketTypeStats = ticketTypes.map((ticketType) => {
 		const sold = ticketType.quantity_sold || 0;
 		const revenue = sold * ticketType.price;
-		
+
 		totalTicketsSold += sold;
 		totalRevenue += revenue;
 
@@ -269,4 +271,182 @@ export async function getEventTicketStats(
 		totalRevenue,
 		ticketTypeStats
 	};
+}
+
+/**
+ * Create a temporary hold for tickets
+ */
+export async function createTicketHold(
+	client: WorkerClient | HttpClient,
+	userId: string,
+	ticketTypeId: string,
+	quantity: number
+): Promise<{ hold: any; available: number } | { error: string }> {
+	// Clean up expired holds first
+	await cleanupExpiredHolds(client);
+
+	// Check available tickets (considering current holds)
+	const availability = await getTicketAvailability(client, ticketTypeId);
+
+	if (availability.available < quantity) {
+		return {
+			error: `Only ${availability.available} tickets available. You requested ${quantity}.`
+		};
+	}
+
+	// Remove any existing hold by this user for this ticket type
+	await removeUserTicketHolds(client, userId, ticketTypeId);
+
+	// Create new hold (expires in 10 minutes)
+	const expiresAt = new Date();
+	expiresAt.setMinutes(expiresAt.getMinutes() + 10);
+
+	const hold = await client.insert('ticket_holds', {
+		user_id: userId,
+		ticket_type_id: ticketTypeId,
+		quantity: quantity,
+		expires_at: expiresAt
+	});
+
+	return {
+		hold,
+		available: availability.available - quantity
+	};
+}
+
+/**
+ * Remove all holds for a user on a specific ticket type
+ */
+export async function removeUserTicketHolds(
+	client: WorkerClient | HttpClient,
+	userId: string,
+	ticketTypeId: string
+): Promise<void> {
+	const holds = await client.fetch(
+		client
+			.query('ticket_holds')
+			.Where([['user_id', '=', userId]])
+			.Where([['ticket_type_id', '=', ticketTypeId]])
+	);
+
+	for (const hold of holds) {
+		await client.delete('ticket_holds', hold.id);
+	}
+}
+
+/**
+ * Get ticket availability considering holds
+ */
+export async function getTicketAvailability(
+	client: WorkerClient | HttpClient,
+	ticketTypeId: string
+): Promise<{ total: number | null; sold: number; held: number; available: number }> {
+	// Clean up expired holds first
+	await cleanupExpiredHolds(client);
+
+	const ticketType = await client.fetchOne(
+		client.query('ticket_types').Where([['id', '=', ticketTypeId]])
+	);
+
+	if (!ticketType) {
+		throw new Error('Ticket type not found');
+	}
+
+	// Get current holds
+	const holds = await client.fetch(
+		client
+			.query('ticket_holds')
+			.Where([['ticket_type_id', '=', ticketTypeId]])
+			.Where([['expires_at', '>', new Date()]])
+	);
+
+	const held = holds.reduce((sum, hold) => sum + hold.quantity, 0);
+	const sold = ticketType.quantity_sold || 0;
+	const total = ticketType.quantity_available; // null means unlimited
+
+	let available: number;
+	if (total === null) {
+		available = Infinity; // Unlimited tickets
+	} else {
+		available = Math.max(0, total - sold - held);
+	}
+
+	return {
+		total,
+		sold,
+		held,
+		available: available === Infinity ? Number.MAX_SAFE_INTEGER : available
+	};
+}
+
+/**
+ * Clean up expired holds
+ */
+export async function cleanupExpiredHolds(client: WorkerClient | HttpClient): Promise<void> {
+	const expiredHolds = await client.fetch(
+		client.query('ticket_holds').Where([['expires_at', '<', new Date()]])
+	);
+
+	for (const hold of expiredHolds) {
+		await client.delete('ticket_holds', hold.id);
+	}
+}
+
+/**
+ * Get user's current hold for a ticket type
+ */
+export async function getUserTicketHold(
+	client: WorkerClient | HttpClient,
+	userId: string,
+	ticketTypeId: string
+): Promise<any | null> {
+	// Clean up expired holds first
+	await cleanupExpiredHolds(client);
+
+	const hold = await client.fetchOne(
+		client
+			.query('ticket_holds')
+			.Where([['user_id', '=', userId]])
+			.Where([['ticket_type_id', '=', ticketTypeId]])
+			.Where([['expires_at', '>', new Date()]])
+	);
+
+	return hold;
+}
+
+/**
+ * Convert hold to actual tickets after successful payment
+ */
+export async function convertHoldToTickets(
+	client: HttpClient,
+	holdId: string,
+	purchaseId: string,
+	pricePerTicket: number,
+	currency: string = 'usd'
+): Promise<any[]> {
+	const hold = await client.fetchOne(client.query('ticket_holds').Where([['id', '=', holdId]]));
+
+	if (!hold) {
+		throw new Error('Hold not found');
+	}
+
+	if (hold.expires_at <= new Date()) {
+		throw new Error('Hold has expired');
+	}
+
+	// Create tickets
+	const tickets = await createTicketsForPurchase(
+		client,
+		purchaseId,
+		hold.ticket_type_id,
+		hold.user_id,
+		hold.quantity,
+		pricePerTicket,
+		currency
+	);
+
+	// Remove the hold
+	await client.delete('ticket_holds', holdId);
+
+	return tickets;
 }

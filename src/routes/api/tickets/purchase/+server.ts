@@ -1,6 +1,11 @@
 import { json, type RequestEvent } from '@sveltejs/kit';
 import { triplitHttpClient } from '$lib/server/triplit';
-import { canUserPurchaseTickets, getAvailableTicketTypes } from '$lib/server/tickets';
+import {
+	canUserPurchaseTickets,
+	getAvailableTicketTypes,
+	getUserTicketHold,
+	getTicketAvailability
+} from '$lib/server/tickets';
 import { stripeClient } from '../../../../stripe/stripe';
 
 // POST - Initiate ticket purchase (create Stripe checkout session)
@@ -12,53 +17,72 @@ export async function POST({ request, locals }: RequestEvent): Promise<Response>
 
 	try {
 		const body = await request.json();
-		const { eventId, ticketTypeId, quantity } = body;
+		const { eventId, ticketTypeId, quantity, holdId } = body;
 
-		if (!eventId || !ticketTypeId || !quantity) {
-			return json({ error: 'eventId, ticketTypeId, and quantity are required' }, { status: 400 });
+		if (!ticketTypeId || !quantity) {
+			return json({ error: 'ticketTypeId and quantity are required' }, { status: 400 });
 		}
 
 		if (quantity <= 0 || quantity > 20) {
 			return json({ error: 'Quantity must be between 1 and 20' }, { status: 400 });
 		}
 
-		// Check if event exists and is ticketed
-		const event = await triplitHttpClient.fetchOne(
-			triplitHttpClient.query('events').where([['id', '=', eventId]])
+		// Get the ticket type first to find the event
+		const ticketType = await triplitHttpClient.fetchOne(
+			triplitHttpClient
+				.query('ticket_types')
+				.Where([['id', '=', ticketTypeId]])
+				.Include('event')
 		);
 
-		if (!event) {
-			return json({ error: 'Event not found' }, { status: 404 });
+		if (!ticketType) {
+			return json({ error: 'Ticket type not found' }, { status: 404 });
 		}
 
+		const event = ticketType.event;
 		if (!event.is_ticketed) {
 			return json({ error: 'Event is not ticketed' }, { status: 400 });
 		}
 
-		// Check if user can purchase more tickets
-		const { canPurchase, reason } = await canUserPurchaseTickets(
-			triplitHttpClient,
-			user.id,
-			eventId,
-			quantity
-		);
+		// If holdId is provided, verify the hold exists and belongs to this user
+		let hold = null;
+		if (holdId) {
+			hold = await triplitHttpClient.fetchOne(
+				triplitHttpClient
+					.query('ticket_holds')
+					.Where([['id', '=', holdId]])
+					.Where([['user_id', '=', user.id]])
+			);
 
-		if (!canPurchase) {
-			return json({ error: reason }, { status: 400 });
-		}
+			if (!hold) {
+				return json({ error: 'Hold not found or expired' }, { status: 400 });
+			}
 
-		// Get the ticket type and verify it's available
-		const availableTicketTypes = await getAvailableTicketTypes(triplitHttpClient, eventId);
-		const ticketType = availableTicketTypes.find(tt => tt.id === ticketTypeId);
+			if (hold.expires_at <= new Date()) {
+				return json({ error: 'Hold has expired' }, { status: 400 });
+			}
 
-		if (!ticketType) {
-			return json({ error: 'Ticket type not available for purchase' }, { status: 400 });
-		}
+			if (hold.ticket_type_id !== ticketTypeId || hold.quantity !== quantity) {
+				return json({ error: 'Hold details do not match purchase request' }, { status: 400 });
+			}
+		} else {
+			// Without a hold, check availability normally
+			const { canPurchase, reason } = await canUserPurchaseTickets(
+				triplitHttpClient,
+				user.id,
+				event.id,
+				quantity
+			);
 
-		// Check quantity availability
-		if (ticketType.quantity_available && 
-			(ticketType.quantity_sold + quantity) > ticketType.quantity_available) {
-			return json({ error: 'Not enough tickets available' }, { status: 400 });
+			if (!canPurchase) {
+				return json({ error: reason }, { status: 400 });
+			}
+
+			// Check current availability
+			const availability = await getTicketAvailability(triplitHttpClient, ticketTypeId);
+			if (availability.available < quantity) {
+				return json({ error: 'Not enough tickets available' }, { status: 400 });
+			}
 		}
 
 		// Calculate total amount
@@ -67,7 +91,7 @@ export async function POST({ request, locals }: RequestEvent): Promise<Response>
 		// Create pending purchase record
 		const purchase = await triplitHttpClient.insert('ticket_purchases', {
 			user_id: user.id,
-			event_id: eventId,
+			event_id: event.id,
 			stripe_payment_intent_id: '', // Will be updated after Stripe session creation
 			stripe_checkout_session_id: '',
 			total_amount: totalAmount,
@@ -78,7 +102,8 @@ export async function POST({ request, locals }: RequestEvent): Promise<Response>
 			metadata: {
 				ticket_type_id: ticketTypeId,
 				ticket_type_name: ticketType.name,
-				price_per_ticket: ticketType.price
+				price_per_ticket: ticketType.price,
+				hold_id: holdId || null
 			}
 		});
 
@@ -93,22 +118,23 @@ export async function POST({ request, locals }: RequestEvent): Promise<Response>
 						currency: ticketType.currency.toLowerCase(), // Stripe requires lowercase currency codes
 						product_data: {
 							name: `${event.title} - ${ticketType.name}`,
-							description: ticketType.description || `Ticket for ${event.title}`,
+							description: ticketType.description || `Ticket for ${event.title}`
 						},
-						unit_amount: ticketType.price, // Must be in smallest unit for the currency
+						unit_amount: ticketType.price // Must be in smallest unit for the currency
 					},
-					quantity: quantity,
-				},
+					quantity: quantity
+				}
 			],
-			success_url: `${process.env.ORIGIN}/events/${eventId}?purchase=success&session_id={CHECKOUT_SESSION_ID}`,
-			cancel_url: `${process.env.ORIGIN}/events/${eventId}?purchase=cancelled`,
+			success_url: `${process.env.ORIGIN}/bonfire/${event.id}?purchase=success&session_id={CHECKOUT_SESSION_ID}`,
+			cancel_url: `${process.env.ORIGIN}/bonfire/${event.id}?purchase=cancelled`,
 			metadata: {
 				purchase_id: purchase.id,
-				event_id: eventId,
+				event_id: event.id,
 				ticket_type_id: ticketTypeId,
 				user_id: user.id,
 				quantity: quantity.toString(),
-				currency: ticketType.currency
+				currency: ticketType.currency,
+				hold_id: holdId || ''
 			},
 			customer_email: user.email,
 			// Allow customers to change currency if they prefer (Stripe handles conversion)
@@ -127,7 +153,6 @@ export async function POST({ request, locals }: RequestEvent): Promise<Response>
 			total_amount: totalAmount,
 			currency: ticketType.currency
 		});
-
 	} catch (error) {
 		console.error('Error creating ticket purchase:', error);
 		return json({ error: 'Failed to create ticket purchase' }, { status: 500 });

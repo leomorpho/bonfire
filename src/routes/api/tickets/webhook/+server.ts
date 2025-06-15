@@ -1,8 +1,8 @@
 import { json, type RequestEvent } from '@sveltejs/kit';
 import { stripeClient } from '../../../../stripe/stripe';
 import { triplitHttpClient } from '$lib/server/triplit';
-import { createTicketsForPurchase } from '$lib/server/tickets';
-import { upsertUserAttendance } from '$lib/rsvp';
+import { createTicketsForPurchase, convertHoldToTickets } from '$lib/server/tickets';
+import { createUserAttendance } from '$lib/rsvp';
 import { Status, NotificationType } from '$lib/enums';
 
 const endpointSecret = process.env.STRIPE_TICKET_WEBHOOK_SECRET;
@@ -53,6 +53,7 @@ async function handleCheckoutSessionCompleted(session: any) {
 		const ticketTypeId = session.metadata?.ticket_type_id;
 		const userId = session.metadata?.user_id;
 		const quantity = parseInt(session.metadata?.quantity || '1');
+		const holdId = session.metadata?.hold_id;
 
 		if (!purchaseId || !eventId || !ticketTypeId || !userId) {
 			console.error('Missing metadata in Stripe session:', session.metadata);
@@ -61,7 +62,7 @@ async function handleCheckoutSessionCompleted(session: any) {
 
 		// Get the purchase record
 		const purchase = await triplitHttpClient.fetchOne(
-			triplitHttpClient.query('ticket_purchases').where([['id', '=', purchaseId]])
+			triplitHttpClient.query('ticket_purchases').Where([['id', '=', purchaseId]])
 		);
 
 		if (!purchase) {
@@ -76,7 +77,7 @@ async function handleCheckoutSessionCompleted(session: any) {
 
 		// Get the ticket type for price information
 		const ticketType = await triplitHttpClient.fetchOne(
-			triplitHttpClient.query('ticket_types').where([['id', '=', ticketTypeId]])
+			triplitHttpClient.query('ticket_types').Where([['id', '=', ticketTypeId]])
 		);
 
 		if (!ticketType) {
@@ -90,24 +91,48 @@ async function handleCheckoutSessionCompleted(session: any) {
 			p.stripe_payment_intent_id = session.payment_intent;
 		});
 
-		// Create individual tickets
-		await createTicketsForPurchase(
-			triplitHttpClient,
-			purchaseId,
-			ticketTypeId,
-			userId,
-			quantity,
-			ticketType.price,
-			ticketType.currency
-		);
+		// Create individual tickets, handling holds if present
+		let tickets;
+		if (holdId) {
+			// Convert hold to tickets
+			tickets = await convertHoldToTickets(
+				triplitHttpClient,
+				holdId,
+				purchaseId,
+				ticketType.price,
+				ticketType.currency
+			);
+		} else {
+			// Create tickets normally
+			tickets = await createTicketsForPurchase(
+				triplitHttpClient,
+				purchaseId,
+				ticketTypeId,
+				userId,
+				quantity,
+				ticketType.price,
+				ticketType.currency
+			);
+		}
 
 		// Create or update attendee record - user is now going since they bought tickets
-		await upsertUserAttendance(triplitHttpClient, userId, eventId, Status.GOING, 0); // 0 guests for ticketed events
+		try {
+			await createUserAttendance(
+				triplitHttpClient,
+				userId,
+				eventId,
+				Status.GOING,
+				0 // 0 guests for ticketed events
+			);
+		} catch (error) {
+			// Attendance might already exist, that's ok
+			console.log('Attendance already exists or error creating:', error);
+		}
 
 		// Create notification for ticket purchase confirmation
 		const { formatPrice } = await import('$lib/currencies');
 		const formattedTotal = formatPrice(purchase.total_amount, purchase.currency || 'usd');
-		
+
 		await triplitHttpClient.insert('notifications_queue', {
 			user_id: userId,
 			event_id: eventId,
@@ -119,8 +144,9 @@ async function handleCheckoutSessionCompleted(session: any) {
 			created_at: new Date()
 		});
 
-		console.log(`✅ Successfully processed ticket purchase: ${quantity} tickets for user ${userId} at event ${eventId}`);
-
+		console.log(
+			`✅ Successfully processed ticket purchase: ${quantity} tickets for user ${userId} at event ${eventId}`
+		);
 	} catch (error) {
 		console.error('Error handling checkout session completed:', error);
 		throw error;
@@ -131,8 +157,9 @@ async function handlePaymentFailed(paymentIntent: any) {
 	try {
 		// Find purchase by payment intent
 		const purchases = await triplitHttpClient.fetch(
-			triplitHttpClient.query('ticket_purchases')
-				.where([['stripe_payment_intent_id', '=', paymentIntent.id]])
+			triplitHttpClient
+				.query('ticket_purchases')
+				.Where([['stripe_payment_intent_id', '=', paymentIntent.id]])
 		);
 
 		for (const purchase of purchases) {
