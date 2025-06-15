@@ -49,7 +49,7 @@
 	import TicketingFeature from './feature-enablers/TicketingFeature.svelte';
 	import TicketTypeManager from '../tickets/TicketTypeManager.svelte';
 	import CurrencySelector from './feature-enablers/CurrencySelector.svelte';
-	import { upsertUserAttendance } from '$lib/rsvp';
+	import { createEvent as createEventShared, updateEvent as updateEventShared, triggerUpdateReminders, type CreateEventData, type UpdateEventData } from '$lib/event-operations';
 	import type { FontSelection } from '$lib/types';
 	import {
 		BellRing,
@@ -70,7 +70,7 @@
 	import ToggleGallery from './feature-enablers/ToggleGallery.svelte';
 	import ToggleMessaging from './feature-enablers/ToggleMessaging.svelte';
 	import ToggleCuttoffRsvpDate from './feature-enablers/ToggleCuttoffRsvpDate.svelte';
-	import { getUserOrganizations, addOrgAdminsToNewEvent } from '$lib/organizations';
+	import { getUserOrganizations } from '$lib/organizations';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { Building2, ExternalLink } from 'lucide-svelte';
@@ -342,15 +342,6 @@
 		}
 	}
 
-	function generateSecureId(length = 12) {
-		const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-		let result = '';
-		const charactersLength = characters.length;
-		for (let i = 0; i < length; i++) {
-			result += characters.charAt(crypto.getRandomValues(new Uint32Array(1))[0] % charactersLength);
-		}
-		return result;
-	}
 
 	const createEvent = async (createTransaction = false) => {
 		if (isEventSaving) {
@@ -360,30 +351,21 @@
 		try {
 			eventCreated = true;
 
-			const userId: string = (await waitForUserId()) as string;
-			if (!userId) {
-				errorMessage = 'User authentication failed';
-				showError = true;
-				return;
-			}
-			eventId = await generateSecureId(20);
 
-			const eventData = {
-				id: eventId,
+			const eventData: CreateEventData = {
 				title: eventName || '',
 				description: details || '',
 				location: location || '',
-				geocoded_location: JSON.stringify(geocodedLocation) || null,
-				start_time: eventStartDatetime,
+				geocoded_location: geocodedLocation,
+				start_time: eventStartDatetime!,
 				end_time: eventEndDatetime,
-				user_id: userId,
-				organization_id: selectedOrganizationId || null,
+				organization_id: selectedOrganizationId,
 				style: finalStyleCss || '',
 				overlay_color: overlayColor || '#000000',
 				overlay_opacity: overlayOpacity || 0.4,
-				font: JSON.stringify(font) || null,
-				max_capacity: maxCapacity || null,
-				max_num_guests_per_attendee: isTicketed ? 0 : maxNumGuest || 0,
+				font: font,
+				max_capacity: maxCapacity,
+				max_num_guests_per_attendee: maxNumGuest || 0,
 				is_bring_list_enabled: isBringListEnabled || false,
 				is_gallery_enabled: isGalleryEnabled,
 				is_messaging_enabled: isMessagingEnabled,
@@ -394,18 +376,13 @@
 				is_ticketed: isTicketed || false,
 				max_tickets_per_user: isTicketed ? maxTicketsPerUser : null,
 				ticket_currency: isTicketed ? ticketCurrency : 'usd',
-				// non_profit_id: userFavoriteNonProfitId || null,
 				latitude: latitude,
 				longitude: longitude
 			};
-			console.log('🔍 Event Data being sent to insert:', JSON.stringify(eventData, null, 2));
 
-			event = await client.http.insert('events', eventData);
-
-			// If event is part of an organization, add all org admins as event admins
-			if (selectedOrganizationId) {
-				await addOrgAdminsToNewEvent(client, eventId, selectedOrganizationId, userId);
-			}
+			const result = await createEventShared(client, eventData);
+			event = result.event;
+			eventId = result.eventId;
 
 			// // Create a transaction if the user has enough logs remaining
 			// if (checkCanCreateTransaction(userIsOutOfLogs, createTransaction, isEventPublished)) {
@@ -416,10 +393,7 @@
 			// 		duration: 4000
 			// 	});
 			// }
-			// Add user as attendee
-			await upsertUserAttendance(eventId, Status.GOING, 0);
 			isEventCreated = true;
-			console.log('✅ Event created successfully');
 		} catch (error) {
 			eventCreated = false;
 			console.error('❌ Error creating event:', error);
@@ -430,34 +404,36 @@
 
 	const updateEvent = async (createTransaction = false, publishEventNow = false) => {
 		try {
-			await client.http.update('events', event.id, async (e) => {
-				e.title = eventName;
-				e.description = details || null;
-				e.location = location;
-				e.geocoded_location = JSON.stringify(geocodedLocation) || null;
-				e.start_time = eventStartDatetime?.toISOString();
-				e.end_time = eventEndDatetime?.toISOString();
-				e.organization_id = selectedOrganizationId || null;
-				e.style = finalStyleCss;
-				e.overlay_color = overlayColor;
-				e.overlay_opacity = overlayOpacity;
-				e.font = JSON.stringify(font) || null;
-				e.max_capacity = maxCapacity;
-				e.max_num_guests_per_attendee = isTicketed ? 0 : maxNumGuest || 0;
-				e.is_bring_list_enabled = isBringListEnabled || false;
-				e.is_gallery_enabled = isGalleryEnabled;
-				e.is_messaging_enabled = isMessagingEnabled;
-				e.require_guest_bring_item = requireGuestBringItem;
-				e.is_cut_off_date_enabled = isCuttoffDateEnabled;
-				e.cut_off_date = cuttoffDate;
+			const eventData: UpdateEventData = {
+				title: eventName,
+				description: details || null,
+				location: location,
+				geocoded_location: geocodedLocation,
+				start_time: eventStartDatetime!,
+				end_time: eventEndDatetime,
+				organization_id: selectedOrganizationId,
+				style: finalStyleCss,
+				overlay_color: overlayColor,
+				overlay_opacity: overlayOpacity,
+				font: font,
+				max_capacity: maxCapacity,
+				max_num_guests_per_attendee: maxNumGuest || 0,
+				is_bring_list_enabled: isBringListEnabled || false,
+				is_gallery_enabled: isGalleryEnabled,
+				is_messaging_enabled: isMessagingEnabled,
+				require_guest_bring_item: requireGuestBringItem,
+				is_cut_off_date_enabled: isCuttoffDateEnabled,
+				cut_off_date: cuttoffDate,
 				// Ticketing fields
-				e.is_ticketed = isTicketed || false;
-				e.max_tickets_per_user = isTicketed ? maxTicketsPerUser : null;
-				e.ticket_currency = isTicketed ? ticketCurrency : 'usd';
-				e.latitude = latitude;
-				e.longitude = longitude;
-				e.is_published = isEventPublished || publishEventNow;
-			});
+				is_ticketed: isTicketed || false,
+				max_tickets_per_user: isTicketed ? maxTicketsPerUser : null,
+				ticket_currency: isTicketed ? ticketCurrency : 'usd',
+				latitude: latitude,
+				longitude: longitude,
+				is_published: isEventPublished || publishEventNow
+			};
+
+			await updateEventShared(client, event.id, eventData);
 
 			if (needToUpdateReminderDates) {
 				// No need to await for this, leave it in background change
@@ -468,34 +444,11 @@
 			// if (checkCanCreateTransaction(userIsOutOfLogs, createTransaction, isEventPublished)) {
 			// 	event = await createBonfireTransaction(eventId);
 			// }
-			console.log('🔄 Event updated successfully');
 		} catch (error) {
 			console.error('❌ Error updating event:', error);
 		}
 	};
 
-	// Function to trigger the updateRemindersObjects endpoint
-	export async function triggerUpdateReminders(eventId: string) {
-		try {
-			const response = await fetch(`/bonfire/${eventId}/update/reminders`, {
-				method: 'GET',
-				headers: {
-					'Content-Type': 'application/json'
-				}
-			});
-
-			if (!response.ok) {
-				throw new Error('Failed to trigger update');
-			}
-
-			const data = await response.json();
-			console.log('Update triggered successfully:', data);
-			return data;
-		} catch (error) {
-			console.error('Error triggering update:', error);
-			throw error;
-		}
-	}
 
 	const checkCanCreateTransaction = (
 		userIsOutOfLogs: boolean,

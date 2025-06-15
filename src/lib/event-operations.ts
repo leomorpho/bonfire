@@ -1,19 +1,16 @@
 import type { TriplitClient } from '@triplit/client';
-import { getFeWorkerTriplitClient, waitForUserId } from '$lib/triplit';
-import { generatePassphraseId } from '$lib/utils';
+import { waitForUserId } from '$lib/triplit';
 import { addOrgAdminsToNewEvent } from '$lib/organizations';
 import { upsertUserAttendance } from '$lib/rsvp';
 import { Status } from '$lib/enums';
 
-export interface EventData {
-	id?: string;
+export interface CreateEventData {
 	title: string;
 	description?: string;
 	location?: string;
 	geocoded_location?: any;
 	start_time: Date;
 	end_time?: Date | null;
-	user_id: string;
 	organization_id?: string | null;
 	style?: string;
 	overlay_color?: string;
@@ -32,41 +29,65 @@ export interface EventData {
 	ticket_currency?: string;
 	latitude?: number | null;
 	longitude?: number | null;
+}
+
+export interface UpdateEventData extends Partial<CreateEventData> {
 	is_published?: boolean;
+}
+
+function generateSecureId(length = 12) {
+	const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+	let result = '';
+	const charactersLength = characters.length;
+	for (let i = 0; i < length; i++) {
+		result += characters.charAt(crypto.getRandomValues(new Uint32Array(1))[0] % charactersLength);
+	}
+	return result;
 }
 
 /**
  * Creates a new event using the provided Triplit client
+ * Extracted from EventForm.svelte
  */
 export async function createEvent(
 	client: TriplitClient,
-	eventData: Omit<EventData, 'id' | 'user_id'>
+	eventData: CreateEventData
 ): Promise<{ event: any; eventId: string }> {
 	const userId = await waitForUserId();
 	if (!userId) {
 		throw new Error('User authentication failed');
 	}
 
-	const eventId = await generatePassphraseId();
+	const eventId = await generateSecureId(20);
 	
 	const fullEventData = {
 		id: eventId,
+		title: eventData.title || '',
+		description: eventData.description || '',
+		location: eventData.location || '',
+		geocoded_location: eventData.geocoded_location ? JSON.stringify(eventData.geocoded_location) : null,
+		start_time: eventData.start_time,
+		end_time: eventData.end_time,
 		user_id: userId,
-		is_published: false, // Always start as draft
-		// Default values
-		style: '',
-		overlay_color: '#000000',
-		overlay_opacity: 0.4,
-		font: null,
-		max_num_guests_per_attendee: 0,
-		is_bring_list_enabled: false,
-		is_gallery_enabled: true,
-		is_messaging_enabled: true,
-		require_guest_bring_item: false,
-		is_cut_off_date_enabled: false,
-		is_ticketed: false,
-		ticket_currency: 'usd',
-		...eventData
+		organization_id: eventData.organization_id || null,
+		style: eventData.style || '',
+		overlay_color: eventData.overlay_color || '#000000',
+		overlay_opacity: eventData.overlay_opacity || 0.4,
+		font: eventData.font ? JSON.stringify(eventData.font) : null,
+		max_capacity: eventData.max_capacity || null,
+		max_num_guests_per_attendee: eventData.is_ticketed ? 0 : (eventData.max_num_guests_per_attendee || 0),
+		is_bring_list_enabled: eventData.is_bring_list_enabled || false,
+		is_gallery_enabled: eventData.is_gallery_enabled ?? true,
+		is_messaging_enabled: eventData.is_messaging_enabled ?? true,
+		require_guest_bring_item: eventData.require_guest_bring_item || false,
+		is_cut_off_date_enabled: eventData.is_cut_off_date_enabled || false,
+		cut_off_date: eventData.cut_off_date || null,
+		// Ticketing fields
+		is_ticketed: eventData.is_ticketed || false,
+		max_tickets_per_user: eventData.is_ticketed ? eventData.max_tickets_per_user : null,
+		ticket_currency: eventData.is_ticketed ? eventData.ticket_currency : 'usd',
+		latitude: eventData.latitude || null,
+		longitude: eventData.longitude || null
 	};
 
 	console.log('🔍 Event Data being sent to insert:', JSON.stringify(fullEventData, null, 2));
@@ -88,24 +109,22 @@ export async function createEvent(
 
 /**
  * Updates an existing event using the provided Triplit client
+ * Extracted from EventForm.svelte
  */
 export async function updateEvent(
 	client: TriplitClient,
 	eventId: string,
-	eventData: Partial<EventData>
+	eventData: UpdateEventData
 ): Promise<void> {
 	await client.http.update('events', eventId, async (e: any) => {
-		// Only update fields that are provided
 		if (eventData.title !== undefined) e.title = eventData.title;
 		if (eventData.description !== undefined) e.description = eventData.description || null;
 		if (eventData.location !== undefined) e.location = eventData.location;
 		if (eventData.geocoded_location !== undefined) {
 			e.geocoded_location = eventData.geocoded_location ? JSON.stringify(eventData.geocoded_location) : null;
 		}
-		if (eventData.start_time !== undefined) e.start_time = eventData.start_time.toISOString();
-		if (eventData.end_time !== undefined) {
-			e.end_time = eventData.end_time ? eventData.end_time.toISOString() : null;
-		}
+		if (eventData.start_time !== undefined) e.start_time = eventData.start_time?.toISOString();
+		if (eventData.end_time !== undefined) e.end_time = eventData.end_time?.toISOString();
 		if (eventData.organization_id !== undefined) e.organization_id = eventData.organization_id || null;
 		if (eventData.style !== undefined) e.style = eventData.style;
 		if (eventData.overlay_color !== undefined) e.overlay_color = eventData.overlay_color;
@@ -113,17 +132,22 @@ export async function updateEvent(
 		if (eventData.font !== undefined) e.font = eventData.font ? JSON.stringify(eventData.font) : null;
 		if (eventData.max_capacity !== undefined) e.max_capacity = eventData.max_capacity;
 		if (eventData.max_num_guests_per_attendee !== undefined) {
-			e.max_num_guests_per_attendee = eventData.max_num_guests_per_attendee;
+			e.max_num_guests_per_attendee = eventData.is_ticketed ? 0 : (eventData.max_num_guests_per_attendee || 0);
 		}
-		if (eventData.is_bring_list_enabled !== undefined) e.is_bring_list_enabled = eventData.is_bring_list_enabled;
+		if (eventData.is_bring_list_enabled !== undefined) e.is_bring_list_enabled = eventData.is_bring_list_enabled || false;
 		if (eventData.is_gallery_enabled !== undefined) e.is_gallery_enabled = eventData.is_gallery_enabled;
 		if (eventData.is_messaging_enabled !== undefined) e.is_messaging_enabled = eventData.is_messaging_enabled;
 		if (eventData.require_guest_bring_item !== undefined) e.require_guest_bring_item = eventData.require_guest_bring_item;
 		if (eventData.is_cut_off_date_enabled !== undefined) e.is_cut_off_date_enabled = eventData.is_cut_off_date_enabled;
 		if (eventData.cut_off_date !== undefined) e.cut_off_date = eventData.cut_off_date;
-		if (eventData.is_ticketed !== undefined) e.is_ticketed = eventData.is_ticketed;
-		if (eventData.max_tickets_per_user !== undefined) e.max_tickets_per_user = eventData.max_tickets_per_user;
-		if (eventData.ticket_currency !== undefined) e.ticket_currency = eventData.ticket_currency;
+		// Ticketing fields
+		if (eventData.is_ticketed !== undefined) e.is_ticketed = eventData.is_ticketed || false;
+		if (eventData.max_tickets_per_user !== undefined) {
+			e.max_tickets_per_user = eventData.is_ticketed ? eventData.max_tickets_per_user : null;
+		}
+		if (eventData.ticket_currency !== undefined) {
+			e.ticket_currency = eventData.is_ticketed ? eventData.ticket_currency : 'usd';
+		}
 		if (eventData.latitude !== undefined) e.latitude = eventData.latitude;
 		if (eventData.longitude !== undefined) e.longitude = eventData.longitude;
 		if (eventData.is_published !== undefined) e.is_published = eventData.is_published;
@@ -132,22 +156,25 @@ export async function updateEvent(
 	console.log('🔄 Event updated successfully');
 }
 
-/**
- * Gets a user-role JWT for event operations (useful for admin users)
- */
-export async function getUserJWTForEventOperations(): Promise<string> {
-	const response = await fetch('/(user)/jwt');
-	if (!response.ok) {
-		throw new Error('Failed to get user JWT');
-	}
-	const data = await response.json();
-	return data.jwt;
-}
+// Function to trigger the updateRemindersObjects endpoint
+export async function triggerUpdateReminders(eventId: string) {
+	try {
+		const response = await fetch(`/bonfire/${eventId}/update/reminders`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		});
 
-/**
- * Creates a Triplit client with user-role JWT for event operations
- */
-export async function getEventOperationsClient(): Promise<TriplitClient> {
-	const userJWT = await getUserJWTForEventOperations();
-	return getFeWorkerTriplitClient(userJWT);
+		if (!response.ok) {
+			throw new Error('Failed to trigger update');
+		}
+
+		const data = await response.json();
+		console.log('Update triggered successfully:', data);
+		return data;
+	} catch (error) {
+		console.error('Error triggering update:', error);
+		throw error;
+	}
 }

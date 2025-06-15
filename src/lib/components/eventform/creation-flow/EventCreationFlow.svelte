@@ -9,7 +9,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { ArrowLeft, ArrowRight } from 'lucide-svelte';
 	import { toast } from 'svelte-sonner';
-	import { createEvent, updateEvent, getEventOperationsClient, type EventData } from '$lib/event-operations';
+	import { createEvent, updateEvent, type CreateEventData, type UpdateEventData } from '$lib/event-operations';
 	import KeyBoardShortcut from '$lib/components/KeyBoardShortcut.svelte';
 	
 	// Step components
@@ -21,7 +21,6 @@
 	import DescriptionStep from './steps/DescriptionStep.svelte';
 	import EventOptionsStep from './steps/EventOptionsStep.svelte';
 
-	let client: TriplitClient;
 	let eventClient: TriplitClient; // Client with user JWT for event operations
 	let currentStepId = $state<FlowStepId>(FlowStepId.EVENT_NAME);
 	let flowData = $state<FlowData>({});
@@ -51,17 +50,15 @@
 	onMount(async () => {
 		isLoading = true;
 		try {
-			client = getFeWorkerTriplitClient($page.data.jwt);
-			
-			// Get event operations client with user JWT
-			eventClient = await getEventOperationsClient();
-			
+			eventClient = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
 			const userId = await waitForUserId();
+
 			if (!userId) {
 				toast.error('Please log in to create an event');
 				goto('/login');
 				return;
 			}
+			
 			flowData.userId = userId;
 		} catch (error) {
 			console.error('Error initializing flow:', error);
@@ -105,7 +102,7 @@
 				throw new Error('Invalid start time');
 			}
 
-			const eventData: Omit<EventData, 'id' | 'user_id'> = {
+			const eventData: CreateEventData = {
 				title: flowData.eventName!,
 				description: flowData.description || '',
 				location: flowData.location || '',
@@ -149,7 +146,7 @@
 				throw new Error('Invalid start time');
 			}
 
-			const updateData: Partial<EventData> = {
+			const updateData: UpdateEventData = {
 				title: flowData.eventName!,
 				description: flowData.description || '',
 				location: flowData.location || '',

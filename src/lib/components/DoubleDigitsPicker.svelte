@@ -7,6 +7,7 @@
 		value = $bindable<string>(),
 		styleClass = 'bg-white',
 		maxValue = 59,
+		minValue = 0,
 		placeholder = 'HH',
 		disabled = false
 	} = $props();
@@ -20,11 +21,14 @@
 		// Ensure it's not longer than 2 digits
 		inputValue = inputValue.slice(0, 2);
 
-		// Check against maxValue if we have a number
+		// Check against min/max values if we have a number
 		if (inputValue) {
 			const numericValue = parseInt(inputValue, 10);
 			if (numericValue > maxValue) {
 				return maxValue.toString();
+			}
+			if (numericValue < minValue) {
+				return minValue.toString();
 			}
 		}
 		return inputValue;

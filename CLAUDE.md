@@ -59,6 +59,7 @@ npm run start    # Start production server
 ### Tech Stack
 
 - **Frontend**: Svelte 5 + SvelteKit 2 with TypeScript
+  - **IMPORTANT**: This project uses Svelte 5 with runes mode - always use Svelte 5 syntax and patterns
 - **Styling**: Tailwind CSS + DaisyUI + custom UI components in `src/lib/components/ui`
 - **Database**: SQLite (dev) / Turso (prod) with Drizzle ORM
 - **Real-time**: Triplit for collaborative features
