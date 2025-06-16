@@ -170,7 +170,10 @@ export enum NotificationType {
 	TICKET_PURCHASED = 'ticket_purchased',
 	UNSEEN_INVITATIONS = 'unseen_invitations',
 	UNSEEN_ANNOUNCEMENTS = 'unseen_announcements',
-	GROUP_PHOTO = 'group_photo'
+	GROUP_PHOTO = 'group_photo',
+	ORGANIZATION_JOIN_REQUEST = 'organization_join_request',
+	ORGANIZATION_JOIN_REQUEST_APPROVED = 'organization_join_request_approved',
+	ORGANIZATION_JOIN_REQUEST_REJECTED = 'organization_join_request_rejected'
 }
 
 export const NotificationPermissions = {

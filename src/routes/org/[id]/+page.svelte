@@ -11,19 +11,44 @@
 		Plus,
 		ExternalLink,
 		Globe,
-		Clock
+		Clock,
+		UserPlus,
+		Loader2
 	} from 'lucide-svelte';
 	import { formatDistanceToNow, format } from 'date-fns';
 	import { goto } from '$app/navigation';
 	import OrganizationBanner from '$lib/components/organization/OrganizationBanner.svelte';
+	import { toast } from 'svelte-sonner';
+	import * as Dialog from '$lib/components/ui/dialog/index.js';
+	import { Textarea } from '$lib/components/ui/textarea/index.js';
+	import { Label } from '$lib/components/ui/label/index.js';
 
 	const { data } = $props();
-	const { organization, futureEvents, pastEvents, userRole, isViewer, user, bannerInfo } = data;
+	const {
+		organization,
+		futureEvents,
+		pastEvents,
+		userRole,
+		isViewer,
+		pendingJoinRequest,
+		user,
+		bannerInfo
+	} = data;
+
+	// Handle case where organization doesn't exist
+	if (!organization) {
+		// This will be handled in the template
+	}
 
 	// User permissions
 	const isAdmin = userRole === 'admin';
 	const isMember = !!userRole;
-	const canManage = isAdmin || organization.created_by_user_id === user?.id;
+	const canManage = organization ? (isAdmin || organization.created_by_user_id === user?.id) : false;
+
+	// Join request state
+	let joinRequestDialogOpen = $state(false);
+	let joinRequestMessage = $state('');
+	let joinRequestLoading = $state(false);
 
 	function formatEventDate(dateString: string) {
 		const date = new Date(dateString);
@@ -53,14 +78,68 @@
 				return 'bg-gray-100 text-gray-800';
 		}
 	}
+
+	async function submitJoinRequest() {
+		if (!user || !organization) return;
+
+		joinRequestLoading = true;
+		try {
+			const response = await fetch(`/api/organizations/${organization.id}/join-request`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ message: joinRequestMessage.trim() || undefined })
+			});
+
+			const data = await response.json();
+
+			if (response.ok) {
+				toast.success(data.message || 'Join request submitted successfully');
+				joinRequestDialogOpen = false;
+				joinRequestMessage = '';
+				// Refresh the page to show updated status
+				window.location.reload();
+			} else {
+				toast.error(data.error || 'Failed to submit join request');
+			}
+		} catch (error) {
+			toast.error('Failed to submit join request');
+			console.error('Error submitting join request:', error);
+		} finally {
+			joinRequestLoading = false;
+		}
+	}
 </script>
 
-<!-- <svelte:head>
-	<title>{organization.name}</title>
-	<meta name="description" content={organization.description || `Events and activities by ${organization.name}`} />
-</svelte:head> -->
+<!-- Organization Not Found State -->
+{#if !organization}
+	<div class="mx-4 mb-48 flex flex-col items-center justify-center sm:mb-20">
+		<section class="mt-8 w-full sm:w-2/3 md:w-[700px] lg:w-[900px] xl:w-[1000px]">
+			<div class="mx-auto mt-10 flex w-full max-w-md flex-col items-center justify-center gap-4 rounded-lg bg-slate-200 p-8 text-center dark:bg-slate-800">
+				<div class="flex h-16 w-16 items-center justify-center rounded-full bg-gray-300 text-2xl text-gray-600 dark:bg-gray-600 dark:text-gray-300">
+					?
+				</div>
+				<h1 class="text-2xl font-bold text-gray-900 dark:text-white">Organization Not Found</h1>
+				<p class="text-gray-600 dark:text-gray-400">
+					The organization you're looking for doesn't exist or may have been removed.
+				</p>
+				<div class="flex gap-3">
+					<Button variant="outline" onclick={() => history.back()}>
+						Go Back
+					</Button>
+					<Button href="/">
+						Go Home
+					</Button>
+				</div>
+			</div>
+		</section>
+	</div>
+{:else}
+	<!-- <svelte:head>
+		<title>{organization.name}</title>
+		<meta name="description" content={organization.description || `Events and activities by ${organization.name}`} />
+	</svelte:head> -->
 
-<div class="mx-4 mb-48 flex flex-col items-center justify-center sm:mb-20">
+	<div class="mx-4 mb-48 flex flex-col items-center justify-center sm:mb-20">
 	<section class="mt-8 w-full sm:w-2/3 md:w-[700px] lg:w-[900px] xl:w-[1000px]">
 		<!-- Organization Header -->
 		<div class="mb-8 rounded-lg bg-slate-200 p-8 dark:bg-slate-800">
@@ -149,7 +228,32 @@
 							</Badge>
 						{:else if isViewer}
 							<Badge variant="secondary" class="bg-blue-100 text-blue-800">Viewer</Badge>
+						{:else if organization.allow_join_requests && organization.is_public}
+							<!-- Non-member can request to join -->
+							{#if pendingJoinRequest}
+								<Badge variant="secondary" class="bg-orange-100 text-orange-800">
+									Join Request Pending
+								</Badge>
+							{:else}
+								<Button
+									onclick={() => (joinRequestDialogOpen = true)}
+									class="flex items-center gap-2"
+								>
+									<UserPlus class="h-4 w-4" />
+									Request to Join
+								</Button>
+							{/if}
 						{/if}
+					{:else if organization.allow_join_requests && organization.is_public}
+						<!-- Non-logged-in users can see join is available -->
+						<Button
+							onclick={() => goto('/login')}
+							variant="outline"
+							class="flex items-center gap-2"
+						>
+							<UserPlus class="h-4 w-4" />
+							Sign in to Join
+						</Button>
 					{/if}
 				</div>
 			</div>
@@ -400,6 +504,47 @@
 		</div>
 	</section>
 </div>
+{/if}
+
+{#if organization}
+	<!-- Join Request Dialog -->
+	<Dialog.Root bind:open={joinRequestDialogOpen}>
+		<Dialog.Content class="sm:max-w-[425px]">
+			<Dialog.Header>
+				<Dialog.Title>Request to Join {organization.name}</Dialog.Title>
+				<Dialog.Description>
+					Send a request to join this organization. Organization leaders will review your request.
+				</Dialog.Description>
+			</Dialog.Header>
+			<div class="grid gap-4 py-4">
+				<div class="grid gap-2">
+					<Label for="message">Message (optional)</Label>
+					<Textarea
+						id="message"
+						placeholder="Tell the organization leaders why you'd like to join..."
+						bind:value={joinRequestMessage}
+						rows={3}
+					/>
+				</div>
+			</div>
+			<Dialog.Footer>
+				<Button
+					variant="outline"
+					onclick={() => (joinRequestDialogOpen = false)}
+					disabled={joinRequestLoading}
+				>
+					Cancel
+				</Button>
+				<Button onclick={submitJoinRequest} disabled={joinRequestLoading}>
+					{#if joinRequestLoading}
+						<Loader2 class="mr-2 h-4 w-4 animate-spin" />
+					{/if}
+					Send Request
+				</Button>
+			</Dialog.Footer>
+		</Dialog.Content>
+	</Dialog.Root>
+{/if}
 
 <style>
 	.line-clamp-2 {

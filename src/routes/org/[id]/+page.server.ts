@@ -6,20 +6,50 @@ export const load = async ({ params, locals }) => {
 	const { id } = params;
 
 	if (!id) {
-		throw error(404, 'Organization not found');
+		return {
+			organization: null,
+			futureEvents: [],
+			pastEvents: [],
+			userRole: null,
+			isViewer: false,
+			pendingJoinRequest: null,
+			user: locals.user,
+			bannerInfo: null
+		};
 	}
 
 	const client = triplitHttpClient;
 
+	// Fetch organization data
+	let organization = null;
 	try {
-		// Fetch organization data
-		const organization = await client.fetchOne(
+		organization = await client.fetchOne(
 			client
 				.query('organizations')
 				.Where([['id', '=', id]])
 				.Include('creator')
 				.Include('members', (rel) => rel('members').Include('user'))
 		);
+	} catch (fetchError) {
+		// If fetchOne throws an error when no results found, return null
+		console.log('Organization fetch error:', fetchError);
+		organization = null;
+	}
+
+	if (!organization) {
+		return {
+			organization: null,
+			futureEvents: [],
+			pastEvents: [],
+			userRole: null,
+			isViewer: false,
+			pendingJoinRequest: null,
+			user: locals.user,
+			bannerInfo: null
+		};
+	}
+
+	try {
 
 		// Fetch banner_media separately to avoid Include permission issues
 		let banner_media = null;
@@ -34,10 +64,6 @@ export const load = async ({ params, locals }) => {
 		// Manually attach banner_media to organization
 		if (banner_media) {
 			organization.banner_media = banner_media;
-		}
-
-		if (!organization) {
-			throw error(404, 'Organization not found');
 		}
 
 		// Process banner info
@@ -78,6 +104,7 @@ export const load = async ({ params, locals }) => {
 		// Check if current user is a member/viewer of this organization
 		let userRole = null;
 		let isViewer = false;
+		let pendingJoinRequest = null;
 
 		if (locals.user) {
 			// Check membership
@@ -102,6 +129,15 @@ export const load = async ({ params, locals }) => {
 				if (viewership) {
 					isViewer = true;
 				}
+
+				// Check for pending join request
+				pendingJoinRequest = await client.fetchOne(
+					client.query('organization_join_requests').Where([
+						['organization_id', '=', id],
+						['user_id', '=', locals.user.id],
+						['status', '=', 'pending']
+					])
+				);
 			}
 		}
 
@@ -111,11 +147,23 @@ export const load = async ({ params, locals }) => {
 			pastEvents,
 			userRole,
 			isViewer,
+			pendingJoinRequest,
 			user: locals.user,
 			bannerInfo
 		};
 	} catch (err) {
-		console.error('Error loading organization:', err);
-		throw error(500, 'Failed to load organization');
+		console.error('Error loading organization - full error object:', err);
+		console.error('Error type:', typeof err);
+		console.error('Error constructor:', err?.constructor?.name);
+		console.error('Error status:', err?.status);
+		console.error('Error has status property:', 'status' in (err || {}));
+		
+		// Re-throw SvelteKit errors (like 404) without changing them
+		if (err?.status) {
+			console.log('Re-throwing error with status:', err.status);
+			throw err;
+		}
+		console.error('Converting to 500 error');
+		error(500, 'Failed to load organization');
 	}
 };

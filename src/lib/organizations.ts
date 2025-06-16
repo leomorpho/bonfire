@@ -1,5 +1,9 @@
 import { TriplitClient, HttpClient } from '@triplit/client';
 import { generatePassphraseId } from './utils';
+import {
+	createNewOrganizationJoinRequestNotificationQueueObject,
+	createNewOrganizationJoinResponseNotificationQueueObject
+} from './notification_queue';
 
 /**
  * Creates a new organization
@@ -395,4 +399,186 @@ export async function getUserOrganizations(client: TriplitClient | HttpClient, u
 	}
 
 	return organizations;
+}
+
+/**
+ * Submits a join request for an organization
+ */
+export async function submitOrganizationJoinRequest(
+	client: TriplitClient | HttpClient,
+	organizationId: string,
+	userId: string,
+	message?: string
+) {
+	// Check if user is already a member or has pending request
+	const [existingMembership, existingRequest] = await Promise.all([
+		client.fetchOne(
+			client.query('organization_members').Where([
+				['organization_id', '=', organizationId],
+				['user_id', '=', userId]
+			])
+		),
+		client.fetchOne(
+			client.query('organization_join_requests').Where([
+				['organization_id', '=', organizationId],
+				['user_id', '=', userId],
+				['status', '=', 'pending']
+			])
+		)
+	]);
+
+	if (existingMembership) {
+		throw new Error('User is already a member of this organization');
+	}
+
+	if (existingRequest) {
+		throw new Error('User already has a pending join request for this organization');
+	}
+
+	// Get organization settings
+	const organization = await client.fetchOne(
+		client.query('organizations').Where([['id', '=', organizationId]])
+	);
+
+	if (!organization) {
+		throw new Error('Organization not found');
+	}
+
+	if (!organization.allow_join_requests) {
+		throw new Error('This organization does not allow join requests');
+	}
+
+	// Create join request
+	const joinRequest = await client.insert('organization_join_requests', {
+		organization_id: organizationId,
+		user_id: userId,
+		message: message || null,
+		status: 'pending'
+	});
+
+	// If auto-approve is enabled, automatically approve and add as member
+	if (organization.auto_approve_join_requests) {
+		await approveOrganizationJoinRequest(
+			client,
+			joinRequest.id,
+			organization.created_by_user_id, // Use org creator as reviewer
+			organization.default_join_role as 'leader' | 'event_manager' | 'member'
+		);
+	} else {
+		// Create notification for organization leaders
+		await createNewOrganizationJoinRequestNotificationQueueObject(client, userId, organizationId, [
+			joinRequest.id
+		]);
+	}
+
+	return joinRequest;
+}
+
+/**
+ * Approves a join request and adds user as member
+ */
+export async function approveOrganizationJoinRequest(
+	client: TriplitClient | HttpClient,
+	joinRequestId: string,
+	reviewerUserId: string,
+	role: 'leader' | 'event_manager' | 'member' = 'member'
+) {
+	const joinRequest = await client.fetchOne(
+		client.query('organization_join_requests').Where([['id', '=', joinRequestId]])
+	);
+
+	if (!joinRequest) {
+		throw new Error('Join request not found');
+	}
+
+	if (joinRequest.status !== 'pending') {
+		throw new Error('Join request has already been reviewed');
+	}
+
+	// Update join request status
+	await client.update('organization_join_requests', joinRequestId, {
+		status: 'approved',
+		reviewed_at: new Date(),
+		reviewed_by_user_id: reviewerUserId
+	});
+
+	// Add user as organization member
+	await addOrganizationMember(
+		client,
+		joinRequest.organization_id,
+		joinRequest.user_id,
+		role,
+		reviewerUserId
+	);
+
+	// Create notification for the requester
+	await createNewOrganizationJoinResponseNotificationQueueObject(
+		client,
+		reviewerUserId,
+		joinRequest.organization_id,
+		[joinRequestId],
+		'approved'
+	);
+
+	return joinRequest;
+}
+
+/**
+ * Rejects a join request
+ */
+export async function rejectOrganizationJoinRequest(
+	client: TriplitClient | HttpClient,
+	joinRequestId: string,
+	reviewerUserId: string
+) {
+	const joinRequest = await client.fetchOne(
+		client.query('organization_join_requests').Where([['id', '=', joinRequestId]])
+	);
+
+	if (!joinRequest) {
+		throw new Error('Join request not found');
+	}
+
+	if (joinRequest.status !== 'pending') {
+		throw new Error('Join request has already been reviewed');
+	}
+
+	// Update join request status
+	await client.update('organization_join_requests', joinRequestId, {
+		status: 'rejected',
+		reviewed_at: new Date(),
+		reviewed_by_user_id: reviewerUserId
+	});
+
+	// Create notification for the requester
+	await createNewOrganizationJoinResponseNotificationQueueObject(
+		client,
+		reviewerUserId,
+		joinRequest.organization_id,
+		[joinRequestId],
+		'rejected'
+	);
+
+	return joinRequest;
+}
+
+/**
+ * Gets organization join requests for admin view
+ */
+export async function getOrganizationJoinRequests(
+	client: TriplitClient | HttpClient,
+	organizationId: string,
+	status?: 'pending' | 'approved' | 'rejected'
+) {
+	const query = client
+		.query('organization_join_requests')
+		.Where([['organization_id', '=', organizationId]])
+		.Include('user')
+		.Include('reviewed_by');
+
+	if (status) {
+		query.Where([['status', '=', status]]);
+	}
+
+	return await client.fetch(query.Order('created_at', 'DESC'));
 }

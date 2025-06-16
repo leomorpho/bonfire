@@ -30,7 +30,9 @@
 	import {
 		updateOrganizationMemberRole,
 		removeOrganizationMember,
-		addOrganizationMember
+		addOrganizationMember,
+		approveOrganizationJoinRequest,
+		rejectOrganizationJoinRequest
 	} from '$lib/organizations';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import { goto } from '$app/navigation';
@@ -49,6 +51,10 @@
 	let currentLeaders: any[] = $state([]);
 	let currentEventManagers: any[] = $state([]);
 	let currentMembers: any[] = $state([]);
+
+	// Join requests state
+	let joinRequests: any[] = $state([]);
+	let joinRequestsLoading = $state(true);
 
 	// User search state
 	let searchQuery = $state('');
@@ -130,8 +136,35 @@
 			}
 		);
 
+		// Subscribe to join requests
+		const unsubscribeFromJoinRequestsQuery = client.subscribe(
+			client
+				.query('organization_join_requests')
+				.Where([['organization_id', '=', organization.id]])
+				.Include('user')
+				.Include('reviewed_by'),
+			(results) => {
+				joinRequests = results.filter((request) => request.user && request.user.id);
+				joinRequests.sort(
+					(a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+				);
+				joinRequestsLoading = false;
+			},
+			(error) => {
+				console.error('Error fetching join requests:', error);
+				joinRequestsLoading = true;
+			},
+			{
+				localOnly: false,
+				onRemoteFulfilled: () => {
+					joinRequestsLoading = false;
+				}
+			}
+		);
+
 		return () => {
 			unsubscribeFromMembersQuery();
+			unsubscribeFromJoinRequestsQuery();
 		};
 	});
 
@@ -482,6 +515,26 @@
 		}
 	}
 
+	async function approveJoinRequest(requestId: string, requestUsername: string, role = 'member') {
+		try {
+			await approveOrganizationJoinRequest(client, requestId, user.id, role);
+			toast.success(`Approved ${requestUsername}'s join request`);
+		} catch (error) {
+			toast.error(`Failed to approve join request: ${error.message}`);
+			console.error('Error approving join request:', error);
+		}
+	}
+
+	async function rejectJoinRequest(requestId: string, requestUsername: string) {
+		try {
+			await rejectOrganizationJoinRequest(client, requestId, user.id);
+			toast.success(`Rejected ${requestUsername}'s join request`);
+		} catch (error) {
+			toast.error(`Failed to reject join request: ${error.message}`);
+			console.error('Error rejecting join request:', error);
+		}
+	}
+
 	function getRoleColor(role: string) {
 		switch (role) {
 			case 'leader':
@@ -539,9 +592,10 @@
 		</div>
 
 		<Tabs.Root value="invite" class="w-full">
-			<Tabs.List class="grid w-full grid-cols-2">
+			<Tabs.List class="grid w-full grid-cols-3">
 				<Tabs.Trigger value="invite">Invite Members</Tabs.Trigger>
 				<Tabs.Trigger value="manage">Manage Members</Tabs.Trigger>
+				<Tabs.Trigger value="requests">Join Requests</Tabs.Trigger>
 			</Tabs.List>
 
 			<!-- Invite Members Tab -->
@@ -1002,6 +1056,172 @@
 						</div>
 					{/if}
 				{/if}
+			</Tabs.Content>
+
+			<!-- Join Requests Tab -->
+			<Tabs.Content value="requests" class="space-y-6">
+				<div class="space-y-6">
+					<!-- Organization Join Settings -->
+					<Card.Root>
+						<Card.Header>
+							<Card.Title>Join Request Settings</Card.Title>
+							<Card.Description>Configure how people can join your organization</Card.Description>
+						</Card.Header>
+						<Card.Content class="space-y-4">
+							<div class="flex items-center justify-between">
+								<div>
+									<div class="font-medium">Allow Join Requests</div>
+									<div class="text-sm text-gray-500">
+										Allow non-members to request to join your organization
+									</div>
+								</div>
+								<Badge variant={organization.allow_join_requests ? 'default' : 'secondary'}>
+									{organization.allow_join_requests ? 'Enabled' : 'Disabled'}
+								</Badge>
+							</div>
+
+							{#if organization.allow_join_requests}
+								<div class="flex items-center justify-between">
+									<div>
+										<div class="font-medium">Auto-Approve Requests</div>
+										<div class="text-sm text-gray-500">
+											Automatically approve join requests without review
+										</div>
+									</div>
+									<Badge
+										variant={organization.auto_approve_join_requests ? 'default' : 'secondary'}
+									>
+										{organization.auto_approve_join_requests ? 'Enabled' : 'Disabled'}
+									</Badge>
+								</div>
+
+								<div class="flex items-center justify-between">
+									<div>
+										<div class="font-medium">Default Join Role</div>
+										<div class="text-sm text-gray-500">Role assigned to approved join requests</div>
+									</div>
+									<Badge variant="outline">
+										{organization.default_join_role
+											.charAt(0)
+											.toUpperCase()}{organization.default_join_role.slice(1)}
+									</Badge>
+								</div>
+							{/if}
+						</Card.Content>
+					</Card.Root>
+
+					<!-- Join Requests List -->
+					{#if joinRequestsLoading}
+						<div class="flex justify-center p-8">
+							<div class="text-sm text-gray-500 dark:text-gray-400">Loading join requests...</div>
+						</div>
+					{:else if joinRequests.length === 0}
+						<Card.Root>
+							<Card.Content class="flex flex-col items-center justify-center py-12">
+								<UserPlus class="mb-4 h-12 w-12 text-gray-400" />
+								<h3 class="mb-2 text-lg font-medium text-gray-900 dark:text-white">
+									No Join Requests
+								</h3>
+								<p class="text-center text-sm text-gray-500">
+									{#if !organization.allow_join_requests}
+										Join requests are currently disabled for this organization.
+									{:else}
+										No one has requested to join your organization yet.
+									{/if}
+								</p>
+							</Card.Content>
+						</Card.Root>
+					{:else}
+						<div class="space-y-4">
+							<h2 class="text-lg font-semibold dark:text-white">
+								Join Requests ({joinRequests.filter((r) => r.status === 'pending').length} pending)
+							</h2>
+
+							{#each joinRequests as request (request.id)}
+								<Card.Root
+									class="border-l-4 {request.status === 'pending'
+										? 'border-l-orange-500'
+										: request.status === 'approved'
+											? 'border-l-green-500'
+											: 'border-l-red-500'}"
+								>
+									<Card.Header>
+										<Card.Title class="flex items-center justify-between">
+											<div class="flex items-center gap-3">
+												<ProfileAvatar userId={request.user?.id} baseHeightPx={40} />
+												<div>
+													<span class="text-base">{request.user?.username || 'Loading...'}</span>
+													<Badge
+														class="ml-2"
+														variant={request.status === 'pending'
+															? 'secondary'
+															: request.status === 'approved'
+																? 'default'
+																: 'destructive'}
+													>
+														{request.status.charAt(0).toUpperCase()}{request.status.slice(1)}
+													</Badge>
+												</div>
+											</div>
+											<div class="text-right">
+												<div class="text-sm text-gray-500">
+													{formatHumanReadable(request.created_at)}
+												</div>
+											</div>
+										</Card.Title>
+										{#if request.message}
+											<Card.Description class="mt-2">
+												<strong>Message:</strong>
+												{request.message}
+											</Card.Description>
+										{/if}
+										{#if request.status !== 'pending' && request.reviewed_by}
+											<Card.Description class="mt-2 text-xs">
+												{request.status === 'approved' ? 'Approved' : 'Rejected'} by {request
+													.reviewed_by.username}
+												on {formatHumanReadable(request.reviewed_at)}
+											</Card.Description>
+										{/if}
+									</Card.Header>
+
+									{#if request.status === 'pending'}
+										<Card.Footer class="flex justify-between">
+											<div class="flex gap-2">
+												<Button
+													size="sm"
+													onclick={() =>
+														approveJoinRequest(request.id, request.user?.username || 'User')}
+												>
+													Approve as Member
+												</Button>
+												<Button
+													variant="outline"
+													size="sm"
+													onclick={() =>
+														approveJoinRequest(
+															request.id,
+															request.user?.username || 'User',
+															'event_manager'
+														)}
+												>
+													Approve as Event Manager
+												</Button>
+											</div>
+											<Button
+												variant="destructive"
+												size="sm"
+												onclick={() =>
+													rejectJoinRequest(request.id, request.user?.username || 'User')}
+											>
+												Reject
+											</Button>
+										</Card.Footer>
+									{/if}
+								</Card.Root>
+							{/each}
+						</div>
+					{/if}
+				</div>
 			</Tabs.Content>
 		</Tabs.Root>
 	</section>

@@ -1655,7 +1655,10 @@ export const schema = S.Collections({
 			created_by_user_id: S.String(),
 			created_at: S.Date({ default: S.Default.now() }),
 			updated_at: S.Date({ default: S.Default.now() }),
-			is_public: S.Boolean({ default: false }) // Whether org is discoverable
+			is_public: S.Boolean({ default: false }), // Whether org is discoverable
+			allow_join_requests: S.Boolean({ default: false }), // Whether non-members can request to join
+			auto_approve_join_requests: S.Boolean({ default: false }), // Auto-approve requests vs manual review
+			default_join_role: S.String({ default: 'member' }) // Default role for approved requests
 		}),
 		relationships: {
 			creator: S.RelationById('user', '$created_by_user_id'),
@@ -1666,6 +1669,9 @@ export const schema = S.Collections({
 				where: [['organization_id', '=', '$id']]
 			}),
 			viewers: S.RelationMany('organization_viewers', {
+				where: [['organization_id', '=', '$id']]
+			}),
+			join_requests: S.RelationMany('organization_join_requests', {
 				where: [['organization_id', '=', '$id']]
 			}),
 			banner_media: S.RelationOne('banner_media', {
@@ -1823,6 +1829,75 @@ export const schema = S.Collections({
 							['user_id', '=', '$role.userId'], // Users can remove themselves
 							['organization.created_by_user_id', '=', '$role.userId'], // Org creator can remove viewers
 							['organization.members.user_id', '=', '$role.userId'] // Org members can remove viewers
+						])
+					]
+				}
+			},
+			temp: {},
+			anon: {}
+		}
+	},
+	organization_join_requests: {
+		schema: S.Schema({
+			id: S.Id(),
+			organization_id: S.String(),
+			user_id: S.String(),
+			message: S.Optional(S.String()),
+			status: S.String({ default: 'pending' }), // 'pending', 'approved', 'rejected'
+			created_at: S.Date({ default: S.Default.now() }),
+			reviewed_at: S.Optional(S.Date()),
+			reviewed_by_user_id: S.Optional(S.String())
+		}),
+		relationships: {
+			organization: S.RelationById('organizations', '$organization_id'),
+			user: S.RelationById('user', '$user_id'),
+			reviewed_by: S.RelationById('user', '$reviewed_by_user_id')
+		},
+		permissions: {
+			admin: {
+				read: { filter: [true] },
+				insert: { filter: [true] },
+				update: { filter: [true] },
+				delete: { filter: [true] }
+			},
+			user: {
+				read: {
+					filter: [
+						or([
+							['user_id', '=', '$role.userId'], // Users can see their own requests
+							['organization.created_by_user_id', '=', '$role.userId'], // Org creators can see all requests
+							and([
+								['organization.members.user_id', '=', '$role.userId'],
+								['organization.members.role', 'in', ['leader', 'admin']] // Org leaders can see requests
+							])
+						])
+					]
+				},
+				insert: {
+					filter: [
+						['user_id', '=', '$role.userId'] // Users can only create their own join requests
+					]
+				},
+				update: {
+					filter: [
+						or([
+							['organization.created_by_user_id', '=', '$role.userId'], // Org creator can update requests
+							and([
+								['organization.members.user_id', '=', '$role.userId'],
+								['organization.members.role', 'in', ['leader', 'admin']] // Org leaders can update requests
+							])
+						])
+					]
+				},
+				delete: {
+					filter: [
+						or([
+							['user_id', '=', '$role.userId'], // Users can delete their own requests
+							['organization.created_by_user_id', '=', '$role.userId'], // Org creator can delete requests
+							and([
+								['organization.members.user_id', '=', '$role.userId'],
+								['organization.members.role', 'in', ['leader', 'admin']] // Org leaders can delete requests
+							])
 						])
 					]
 				}
