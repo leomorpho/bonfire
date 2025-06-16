@@ -2330,5 +2330,25 @@ export const schema = S.Collections({
 			temp: {},
 			anon: {}
 		}
+	},
+	group_photo_notifications_sent: {
+		schema: S.Schema({
+			id: S.Id(),
+			event_id: S.String(),
+			attendee_id: S.String(), // The attendee (user) ID who was notified
+			sent_at: S.Date({ default: S.Default.now() })
+		}),
+		relationships: {
+			event: S.RelationById('events', '$event_id'),
+			attendee: S.RelationById('attendees', '$attendee_id')
+		},
+		permissions: {
+			admin: {
+				read: { filter: [true] }
+			},
+			user: {},
+			temp: {},
+			anon: {}
+		}
 	}
 });

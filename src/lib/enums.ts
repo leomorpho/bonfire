@@ -69,7 +69,8 @@ export enum TaskName {
 	SEND_REMINDER_NOTIFICATIONS = 'send_reminder_notifications',
 	FREE_LOGS_REWARDS = 'free_logs_rewards',
 	CHECK_UNSEEN_INVITATIONS = 'check_unseen_invitations',
-	CHECK_UNSEEN_ANNOUNCEMENTS = 'check_unseen_announcements'
+	CHECK_UNSEEN_ANNOUNCEMENTS = 'check_unseen_announcements',
+	SEND_GROUP_PHOTO_NOTIFICATIONS = 'send_group_photo_notifications'
 }
 
 export enum EventFormType {
@@ -168,7 +169,8 @@ export enum NotificationType {
 	SUPPORT_MESSAGE = 'support_message',
 	TICKET_PURCHASED = 'ticket_purchased',
 	UNSEEN_INVITATIONS = 'unseen_invitations',
-	UNSEEN_ANNOUNCEMENTS = 'unseen_announcements'
+	UNSEEN_ANNOUNCEMENTS = 'unseen_announcements',
+	GROUP_PHOTO = 'group_photo'
 }
 
 export const NotificationPermissions = {
@@ -205,7 +207,8 @@ export const notificationTypeToPermMap: {
 	[NotificationType.SUPPORT_MESSAGE]: null, // Support messages don't require user permission
 	[NotificationType.TICKET_PURCHASED]: NotificationPermissions.event_activity,
 	[NotificationType.UNSEEN_INVITATIONS]: NotificationPermissions.event_activity,
-	[NotificationType.UNSEEN_ANNOUNCEMENTS]: NotificationPermissions.event_activity
+	[NotificationType.UNSEEN_ANNOUNCEMENTS]: NotificationPermissions.event_activity,
+	[NotificationType.GROUP_PHOTO]: NotificationPermissions.event_activity
 };
 
 export const notificationTypesNoRateLimit = new Set([NotificationPermissions.event_reminders]);
@@ -284,6 +287,10 @@ export const notificationTypeToDeliveryMap: {
 	[NotificationType.UNSEEN_ANNOUNCEMENTS]: [
 		DeliveryPermissions.push_notifications,
 		DeliveryPermissions.email_notifications
+	],
+	[NotificationType.GROUP_PHOTO]: [
+		DeliveryPermissions.push_notifications,
+		DeliveryPermissions.email_notifications
 	]
 };
 
@@ -314,7 +321,8 @@ export const notificationTypeToSubject: { [key in NotificationType]: string } = 
 	[NotificationType.SUPPORT_MESSAGE]: 'New Support Message',
 	[NotificationType.TICKET_PURCHASED]: 'Ticket Purchase Confirmation',
 	[NotificationType.UNSEEN_INVITATIONS]: 'Unseen Invitations Alert',
-	[NotificationType.UNSEEN_ANNOUNCEMENTS]: 'Unseen Announcements Alert'
+	[NotificationType.UNSEEN_ANNOUNCEMENTS]: 'Unseen Announcements Alert',
+	[NotificationType.GROUP_PHOTO]: 'Time for a Group Photo!'
 };
 
 type NotificationTypeMapping = {
@@ -392,6 +400,10 @@ export const notificationTypeMapping: NotificationTypeMapping = {
 	[NotificationType.UNSEEN_ANNOUNCEMENTS]: {
 		singularObjectName: 'attendee with unseen announcement',
 		pluralObjectName: 'attendees with unseen announcements'
+	},
+	[NotificationType.GROUP_PHOTO]: {
+		singularObjectName: 'group photo notification',
+		pluralObjectName: 'group photo notifications'
 	}
 	// Add other notification types as needed
 };

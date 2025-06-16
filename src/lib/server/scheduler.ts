@@ -4,7 +4,11 @@ import { runNotificationProcessor } from './notifications/notification_engine';
 import { runReminderNotificationTask } from './notifications/reminders';
 import { unlockAllTasks } from './tasks';
 import { runGiveFreeLogToInitialInviterTask } from './notifications/free_logs';
-import { runUnseenInvitationsCheck, runUnseenAnnouncementsCheck } from './notifications/unseen_checker';
+import {
+	runUnseenInvitationsCheck,
+	runUnseenAnnouncementsCheck
+} from './notifications/unseen_checker';
+import { runGroupPhotoNotificationTask } from './notifications/group_photo';
 
 const scheduler = new ToadScheduler();
 
@@ -94,6 +98,17 @@ const unseenAnnouncementsTask = new Task(
 	}
 );
 
+const groupPhotoNotificationsTask = new Task(
+	'Send group photo notifications for events with many attendees',
+	async () => {
+		try {
+			runGroupPhotoNotificationTask();
+		} catch (error) {
+			console.error('Error while sending group photo notifications:', error);
+		}
+	}
+);
+
 export const taskRunner = async () => {
 	try {
 		// Schedule the task
@@ -107,13 +122,11 @@ export const taskRunner = async () => {
 			{ hours: 12 },
 			giveFreeLogToInitialInviterTask
 		);
-		const unseenInvitationsJob = new SimpleIntervalJob(
-			{ hours: 6 },
-			unseenInvitationsTask
-		);
-		const unseenAnnouncementsJob = new SimpleIntervalJob(
-			{ hours: 6 },
-			unseenAnnouncementsTask
+		const unseenInvitationsJob = new SimpleIntervalJob({ hours: 6 }, unseenInvitationsTask);
+		const unseenAnnouncementsJob = new SimpleIntervalJob({ hours: 6 }, unseenAnnouncementsTask);
+		const groupPhotoNotificationsJob = new SimpleIntervalJob(
+			{ minutes: 20 },
+			groupPhotoNotificationsTask
 		);
 
 		scheduler.addSimpleIntervalJob(notificationJob);
@@ -122,6 +135,7 @@ export const taskRunner = async () => {
 		scheduler.addSimpleIntervalJob(giveFreeLogToInitialInviterJob);
 		scheduler.addSimpleIntervalJob(unseenInvitationsJob);
 		scheduler.addSimpleIntervalJob(unseenAnnouncementsJob);
+		scheduler.addSimpleIntervalJob(groupPhotoNotificationsJob);
 
 		// Graceful shutdown handler
 		const handleShutdown = async () => {
