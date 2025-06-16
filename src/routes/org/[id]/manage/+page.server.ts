@@ -32,12 +32,12 @@ export const load = async ({ params, locals }) => {
 		const isCreator = organization.created_by_user_id === locals.user.id;
 
 		if (!isCreator) {
-			// Check if user is an admin
+			// Check if user is a leader (or legacy admin)
 			const membership = await client.fetchOne(
 				client.query('organization_members').Where([
 					['organization_id', '=', id],
 					['user_id', '=', locals.user.id],
-					['role', '=', 'admin']
+					['role', 'in', ['leader', 'admin']] // Support legacy 'admin' role
 				])
 			);
 

@@ -10,12 +10,13 @@
 
 	function getRoleColor(role: string) {
 		switch (role) {
-			case 'admin':
+			case 'leader':
+			case 'admin': // legacy support
 				return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
-			case 'editor':
-				return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300';
-			case 'member':
-				return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
+			case 'event_manager':
+			case 'editor': // legacy support
+			case 'member': // legacy support
+				return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
 			default:
 				return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
 		}
@@ -84,7 +85,11 @@
 										</h3>
 										<div class="flex items-center gap-2">
 											<Badge class={getRoleColor(org.userRole)} variant="secondary">
-												{org.userRole}
+												{org.userRole === 'leader'
+													? 'Organization Leader'
+													: org.userRole === 'event_manager'
+														? 'Event Manager'
+														: org.userRole}
 											</Badge>
 											{#if org.is_public}
 												<Badge variant="outline" class="text-xs">
@@ -125,7 +130,7 @@
 								>
 									View Details
 								</Button>
-								{#if org.userRole === 'admin'}
+								{#if org.userRole === 'leader' || org.userRole === 'admin'}
 									<Button
 										variant="outline"
 										size="sm"

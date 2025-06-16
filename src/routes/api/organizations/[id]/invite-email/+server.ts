@@ -21,7 +21,7 @@ export const POST = async ({ params, request, locals }) => {
 		}
 
 		// Validate role
-		if (!['admin', 'editor', 'member'].includes(role)) {
+		if (!['leader', 'event_manager'].includes(role)) {
 			return json({ error: 'Invalid role' }, { status: 400 });
 		}
 
@@ -38,12 +38,12 @@ export const POST = async ({ params, request, locals }) => {
 		let hasPermission = isCreator;
 
 		if (!isCreator) {
-			// Check if user is an admin of the organization
+			// Check if user is a leader of the organization
 			const membership = await triplitHttpClient.fetchOne(
 				triplitHttpClient.query('organization_members').Where([
 					['organization_id', '=', organizationId],
 					['user_id', '=', user.id],
-					['role', '=', 'admin']
+					['role', 'in', ['leader', 'admin']] // Support legacy 'admin' role
 				])
 			);
 			hasPermission = !!membership;

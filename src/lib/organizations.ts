@@ -25,8 +25,8 @@ export async function createOrganization(
 		is_public: isPublic
 	});
 
-	// Automatically add the creator as an admin member
-	await addOrganizationMember(client, orgId, createdByUserId, 'admin', createdByUserId);
+	// Automatically add the creator as a leader member
+	await addOrganizationMember(client, orgId, createdByUserId, 'leader', createdByUserId);
 
 	return organization;
 }
@@ -38,7 +38,7 @@ export async function addOrganizationMember(
 	client: TriplitClient | HttpClient,
 	organizationId: string,
 	userId: string,
-	role: 'admin' | 'editor' | 'member' = 'member',
+	role: 'leader' | 'event_manager' = 'event_manager',
 	addedByUserId: string
 ) {
 	const membership = await client.insert('organization_members', {
@@ -48,8 +48,8 @@ export async function addOrganizationMember(
 		added_by_user_id: addedByUserId
 	});
 
-	// If the new member is being made an admin, add them as admin to all org events
-	if (role === 'admin') {
+	// If the new member is being made a leader, add them as admin to all org events
+	if (role === 'leader') {
 		await addAdminToAllOrgEvents(client, organizationId, userId, addedByUserId);
 	}
 
@@ -107,7 +107,7 @@ export async function updateOrganizationMemberRole(
 	client: TriplitClient | HttpClient,
 	organizationId: string,
 	userId: string,
-	newRole: 'admin' | 'editor' | 'member',
+	newRole: 'leader' | 'event_manager',
 	updatedByUserId: string
 ) {
 	const existingMember = await client.fetchOne(
@@ -128,12 +128,15 @@ export async function updateOrganizationMemberRole(
 		role: newRole
 	});
 
-	// Handle admin role changes
-	if (oldRole !== 'admin' && newRole === 'admin') {
-		// User became admin - add to all org events
+	// Handle leader role changes (leaders get admin access to all org events)
+	const oldIsLeader = oldRole === 'leader' || oldRole === 'admin'; // Support legacy admin role
+	const newIsLeader = newRole === 'leader';
+
+	if (!oldIsLeader && newIsLeader) {
+		// User became leader - add to all org events as admin
 		await addAdminToAllOrgEvents(client, organizationId, userId, updatedByUserId);
-	} else if (oldRole === 'admin' && newRole !== 'admin') {
-		// User lost admin role - remove from all org events
+	} else if (oldIsLeader && !newIsLeader) {
+		// User lost leader role - remove from all org events
 		await removeAdminFromAllOrgEvents(client, organizationId, userId);
 	}
 }
@@ -204,29 +207,29 @@ export async function addOrgAdminsToNewEvent(
 	organizationId: string,
 	eventCreatorId: string
 ) {
-	// Get all org admins
-	const orgAdmins = await client.fetch(
+	// Get all org leaders (they become admins of org events)
+	const orgLeaders = await client.fetch(
 		client.query('organization_members').Where([
 			['organization_id', '=', organizationId],
-			['role', '=', 'admin']
+			['role', 'in', ['leader', 'admin']] // Support legacy 'admin' role
 		])
 	);
 
-	// Add each org admin as event admin (except if they're already the event creator)
-	for (const orgAdmin of orgAdmins) {
-		if (orgAdmin.user_id !== eventCreatorId) {
+	// Add each org leader as event admin (except if they're already the event creator)
+	for (const orgLeader of orgLeaders) {
+		if (orgLeader.user_id !== eventCreatorId) {
 			// Check if they're already an event admin
 			const existingAdmin = await client.fetchOne(
 				client.query('event_admins').Where([
 					['event_id', '=', eventId],
-					['user_id', '=', orgAdmin.user_id]
+					['user_id', '=', orgLeader.user_id]
 				])
 			);
 
 			if (!existingAdmin) {
 				await client.insert('event_admins', {
 					event_id: eventId,
-					user_id: orgAdmin.user_id,
+					user_id: orgLeader.user_id,
 					added_by_user_id: eventCreatorId,
 					role: 'admin'
 				});

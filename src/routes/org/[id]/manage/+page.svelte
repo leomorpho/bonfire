@@ -10,7 +10,15 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { cn, formatHumanReadable } from '$lib/utils.js';
-	import { UserRoundMinus, UserRoundPlus, ChevronUp, ChevronDown, Mail, ArrowLeft, Search } from 'lucide-svelte';
+	import {
+		UserRoundMinus,
+		UserRoundPlus,
+		ChevronUp,
+		ChevronDown,
+		Mail,
+		ArrowLeft,
+		Search
+	} from 'lucide-svelte';
 	import { toast } from 'svelte-sonner';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
@@ -19,7 +27,11 @@
 	import { slide } from 'svelte/transition';
 	import CollapsibleContent from '$lib/components/CollapsibleContent.svelte';
 	import { Badge } from '$lib/components/ui/badge/index.js';
-	import { updateOrganizationMemberRole, removeOrganizationMember, addOrganizationMember } from '$lib/organizations';
+	import {
+		updateOrganizationMemberRole,
+		removeOrganizationMember,
+		addOrganizationMember
+	} from '$lib/organizations';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import { goto } from '$app/navigation';
 	import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
@@ -34,25 +46,23 @@
 	let emailInviteLoading = $state(false);
 
 	// Member management state
-	let currentAdmins: any[] = $state([]);
-	let currentEditors: any[] = $state([]);
-	let currentMembers: any[] = $state([]);
+	let currentLeaders: any[] = $state([]);
+	let currentEventManagers: any[] = $state([]);
 
 	// User search state
 	let searchQuery = $state('');
 	let searchResults: any[] = $state([]);
 	let selectedUser = $state<any>(null);
-	let selectedRole = $state<'admin' | 'editor' | 'member'>('member');
+	let selectedRole = $state<'leader' | 'event_manager'>('event_manager');
 
 	// Email invite state
 	let inviteEmail = $state('');
-	let inviteRole = $state<'admin' | 'editor' | 'member'>('member');
+	let inviteRole = $state<'leader' | 'event_manager'>('event_manager');
 
 	// Role options for dropdowns
 	const roleOptions = [
-		{ value: 'member', label: 'Member' },
-		{ value: 'editor', label: 'Editor' },
-		{ value: 'admin', label: 'Admin' }
+		{ value: 'event_manager', label: 'Event Manager' },
+		{ value: 'leader', label: 'Organization Leader' }
 	];
 
 	// Derived content for selects
@@ -89,14 +99,17 @@
 				.Include('added_by', (rel) => rel('added_by')),
 			(results) => {
 				// Separate members by role
-				currentAdmins = results.filter((member) => member.role === 'admin');
-				currentEditors = results.filter((member) => member.role === 'editor');
-				currentMembers = results.filter((member) => member.role === 'member');
+				currentLeaders = results.filter(
+					(member) => member.role === 'leader' || member.role === 'admin'
+				); // Support legacy 'admin' role
+				currentEventManagers = results.filter(
+					(member) =>
+						member.role === 'event_manager' || member.role === 'editor' || member.role === 'member'
+				); // Support legacy roles
 
 				// Sort by username
-				currentAdmins.sort((a, b) => a.user.username.localeCompare(b.user.username));
-				currentEditors.sort((a, b) => a.user.username.localeCompare(b.user.username));
-				currentMembers.sort((a, b) => a.user.username.localeCompare(b.user.username));
+				currentLeaders.sort((a, b) => a.user.username.localeCompare(b.user.username));
+				currentEventManagers.sort((a, b) => a.user.username.localeCompare(b.user.username));
 
 				membersLoading = false;
 			},
@@ -130,13 +143,25 @@
 			const url = `/api/users/search-connected?q=${encodeURIComponent(searchQuery)}&limit=10`;
 			const response = await fetch(url);
 			const data = await response.json();
-			console.log('📡 API Response:', { status: response.status, users: data.users?.length || 0, data });
-			
+			console.log('📡 API Response:', {
+				status: response.status,
+				users: data.users?.length || 0,
+				data
+			});
+
 			if (response.ok && data.users) {
 				// Filter out users who are already members
-				const existingMemberIds = [...currentAdmins, ...currentEditors, ...currentMembers].map(m => m.user_id);
-				const filteredUsers = data.users.filter(user => !existingMemberIds.includes(user.id));
-				console.log('✅ Found users:', filteredUsers.length, 'after filtering out', existingMemberIds.length, 'existing members');
+				const existingMemberIds = [...currentLeaders, ...currentEventManagers].map(
+					(m) => m.user_id
+				);
+				const filteredUsers = data.users.filter((user) => !existingMemberIds.includes(user.id));
+				console.log(
+					'✅ Found users:',
+					filteredUsers.length,
+					'after filtering out',
+					existingMemberIds.length,
+					'existing members'
+				);
 				searchResults = filteredUsers;
 			} else {
 				console.log('❌ API error:', response.status, data);
@@ -159,7 +184,7 @@
 		if (searchTimeout) {
 			clearTimeout(searchTimeout);
 		}
-		
+
 		// Only search if there's a query
 		if (searchQuery.trim()) {
 			searchTimeout = setTimeout(() => {
@@ -168,7 +193,7 @@
 		} else {
 			searchResults = [];
 		}
-		
+
 		// Cleanup function
 		return () => {
 			if (searchTimeout) {
@@ -178,7 +203,12 @@
 	});
 
 	// Helper function to show confirmation dialog
-	function showConfirmation(title: string, description: string, action: () => void, destructive = false) {
+	function showConfirmation(
+		title: string,
+		description: string,
+		action: () => void,
+		destructive = false
+	) {
 		confirmationDialog = {
 			open: true,
 			title,
@@ -197,15 +227,16 @@
 		closeConfirmation();
 	}
 
-	function confirmInviteUser(userId: string, username: string, role: 'admin' | 'editor' | 'member') {
+	function confirmInviteUser(userId: string, username: string, role: 'leader' | 'event_manager') {
+		const roleLabel = roleOptions.find((r) => r.value === role)?.label || role;
 		showConfirmation(
 			'Invite User',
-			`Are you sure you want to invite ${username} as ${role}?`,
+			`Are you sure you want to invite ${username} as ${roleLabel}?`,
 			() => inviteUser(userId, role)
 		);
 	}
 
-	async function inviteUser(userId: string, role: 'admin' | 'editor' | 'member') {
+	async function inviteUser(userId: string, role: 'leader' | 'event_manager') {
 		try {
 			await addOrganizationMember(client, organization.id, userId, role, user.id);
 			toast.success(`Successfully invited user as ${role}`);
@@ -229,9 +260,9 @@
 			const response = await fetch(`/api/organizations/${organization.id}/invite-email`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ 
-					email: inviteEmail, 
-					role: inviteRole 
+				body: JSON.stringify({
+					email: inviteEmail,
+					role: inviteRole
 				})
 			});
 
@@ -255,107 +286,77 @@
 		}
 	}
 
-	function confirmPromoteToAdmin(userId: string, username: string) {
+	function confirmPromoteToLeader(userId: string, username: string) {
 		showConfirmation(
-			'Promote to Admin',
-			`Are you sure you want to promote ${username} to admin? They will have full organization management privileges.`,
-			() => promoteToAdmin(userId)
+			'Promote to Organization Leader',
+			`Are you sure you want to promote ${username} to Organization Leader? They will have full organization management privileges and admin access to all organization events.`,
+			() => promoteToLeader(userId)
 		);
 	}
 
-	async function promoteToAdmin(userId: string) {
+	async function promoteToLeader(userId: string) {
 		try {
-			await updateOrganizationMemberRole(client, organization.id, userId, 'admin', user.id);
-			toast.success('Successfully promoted member to admin');
+			await updateOrganizationMemberRole(client, organization.id, userId, 'leader', user.id);
+			toast.success('Successfully promoted member to Organization Leader');
 		} catch (error) {
 			toast.error('Failed to promote member, please try again later or contact support');
-			console.error('Error promoting member to admin:', error);
+			console.error('Error promoting member to leader:', error);
 		}
 	}
 
-	function confirmPromoteToEditor(userId: string, username: string) {
-		showConfirmation(
-			'Promote to Editor',
-			`Are you sure you want to promote ${username} to editor? They will be able to create and manage events.`,
-			() => promoteToEditor(userId)
-		);
-	}
-
-	async function promoteToEditor(userId: string) {
-		try {
-			await updateOrganizationMemberRole(client, organization.id, userId, 'editor', user.id);
-			toast.success('Successfully promoted member to editor');
-		} catch (error) {
-			toast.error('Failed to promote member, please try again later or contact support');
-			console.error('Error promoting member to editor:', error);
-		}
-	}
-
-	function confirmDemoteToEditor(userId: string, username: string) {
-		// Check if this would leave no admins
+	function confirmDemoteToEventManager(userId: string, username: string) {
+		// Check if this would leave no leaders
 		const isSelfDemotion = userId === user.id;
-		const isOnlyAdmin = currentAdmins.length === 1;
+		const isOnlyLeader = currentLeaders.length === 1;
 		const isCreator = organization.created_by_user_id === userId;
-		
-		if (isSelfDemotion && isOnlyAdmin && !isCreator) {
-			toast.error('You cannot demote yourself as you are the only admin. Promote another member to admin first.');
+
+		if (isSelfDemotion && isOnlyLeader && !isCreator) {
+			toast.error(
+				'You cannot demote yourself as you are the only Organization Leader. Promote another member to Leader first.'
+			);
 			return;
 		}
-		
+
 		showConfirmation(
-			'Demote to Editor',
-			`Are you sure you want to demote ${username} from admin to editor? They will lose admin privileges.`,
-			() => demoteToEditor(userId)
+			'Demote to Event Manager',
+			`Are you sure you want to demote ${username} from Organization Leader to Event Manager? They will lose organization management privileges but can still manage events.`,
+			() => demoteToEventManager(userId)
 		);
 	}
 
-	async function demoteToEditor(userId: string) {
+	async function demoteToEventManager(userId: string) {
 		try {
-			await updateOrganizationMemberRole(client, organization.id, userId, 'editor', user.id);
-			toast.success('Successfully demoted admin to editor');
-		} catch (error) {
-			toast.error('Failed to demote admin, please try again later or contact support');
-			console.error('Error demoting admin to editor:', error);
-		}
-	}
-
-	function confirmDemoteToMember(userId: string, username: string, currentRole: string) {
-		showConfirmation(
-			'Demote to Member',
-			`Are you sure you want to demote ${username} from ${currentRole} to member? They will lose their current privileges.`,
-			() => demoteToMember(userId)
-		);
-	}
-
-	async function demoteToMember(userId: string) {
-		try {
-			await updateOrganizationMemberRole(client, organization.id, userId, 'member', user.id);
-			toast.success('Successfully demoted to member');
+			await updateOrganizationMemberRole(client, organization.id, userId, 'event_manager', user.id);
+			toast.success('Successfully demoted to Event Manager');
 		} catch (error) {
 			toast.error('Failed to demote member, please try again later or contact support');
-			console.error('Error demoting to member:', error);
+			console.error('Error demoting to event manager:', error);
 		}
 	}
 
 	function confirmRemoveMember(userId: string, username: string) {
 		// Check if this is the user trying to remove themselves
 		const isSelfRemoval = userId === user.id;
-		
-		// Check if this user is an admin and would be the last admin
-		const userIsAdmin = currentAdmins.some(admin => admin.user_id === userId);
-		const isOnlyAdmin = userIsAdmin && currentAdmins.length === 1;
+
+		// Check if this user is a leader and would be the last leader
+		const userIsLeader = currentLeaders.some((leader) => leader.user_id === userId);
+		const isOnlyLeader = userIsLeader && currentLeaders.length === 1;
 		const isCreator = organization.created_by_user_id === userId;
-		
-		if (isSelfRemoval && isOnlyAdmin && !isCreator) {
-			toast.error('You cannot remove yourself as you are the only admin. Promote another member to admin first.');
+
+		if (isSelfRemoval && isOnlyLeader && !isCreator) {
+			toast.error(
+				'You cannot remove yourself as you are the only Organization Leader. Promote another member to Leader first.'
+			);
 			return;
 		}
-		
+
 		if (isSelfRemoval && isCreator) {
-			toast.error('The organization creator cannot be removed. Transfer ownership first if needed.');
+			toast.error(
+				'The organization creator cannot be removed. Transfer ownership first if needed.'
+			);
 			return;
 		}
-		
+
 		showConfirmation(
 			'Remove Member',
 			`Are you sure you want to remove ${username} from this organization? This action cannot be undone.`,
@@ -376,12 +377,13 @@
 
 	function getRoleColor(role: string) {
 		switch (role) {
-			case 'admin':
+			case 'leader':
+			case 'admin': // legacy support
 				return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
-			case 'editor':
-				return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
-			case 'member':
-				return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+			case 'event_manager':
+			case 'editor': // legacy support
+			case 'member': // legacy support
+				return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
 			default:
 				return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
 		}
@@ -394,18 +396,18 @@
 		});
 	}
 
-	// Helper function to check if admin actions are allowed
-	function canRemoveOrDemoteAdmin(userId: string) {
+	// Helper function to check if leader actions are allowed
+	function canRemoveOrDemoteLeader(userId: string) {
 		const isSelfAction = userId === user.id;
-		const isOnlyAdmin = currentAdmins.length === 1;
+		const isOnlyLeader = currentLeaders.length === 1;
 		const isCreator = organization.created_by_user_id === userId;
-		
+
 		// Creator can always be demoted/removed (though removal will be blocked with a message)
 		if (isCreator) return true;
-		
-		// If it's self-action and they're the only admin, block it
-		if (isSelfAction && isOnlyAdmin) return false;
-		
+
+		// If it's self-action and they're the only leader, block it
+		if (isSelfAction && isOnlyLeader) return false;
+
 		return true;
 	}
 </script>
@@ -419,17 +421,15 @@
 		<!-- Header -->
 		<div class="mb-6 flex items-center justify-between">
 			<div class="flex items-center gap-4">
-				<Button
-					variant="outline"
-					size="sm"
-					onclick={() => goto(`/org/${organization.id}`)}
-				>
+				<Button variant="outline" size="sm" onclick={() => goto(`/org/${organization.id}`)}>
 					<ArrowLeft class="mr-2 h-4 w-4" />
 					Back to Organization
 				</Button>
 				<div>
 					<h1 class="text-2xl font-bold dark:text-white">Manage {organization.name}</h1>
-					<p class="text-sm text-gray-600 dark:text-gray-400">Invite new members and manage existing ones</p>
+					<p class="text-sm text-gray-600 dark:text-gray-400">
+						Invite new members and manage existing ones
+					</p>
 				</div>
 			</div>
 		</div>
@@ -467,15 +467,17 @@
 								<Button
 									variant="outline"
 									disabled={!selectedUser}
-									onclick={() => selectedUser && confirmInviteUser(selectedUser.id, selectedUser.username, selectedRole)}
+									onclick={() =>
+										selectedUser &&
+										confirmInviteUser(selectedUser.id, selectedUser.username, selectedRole)}
 								>
 									<UserRoundPlus class="mr-2 h-4 w-4" />
-									Invite as {selectedRole}
+									Invite as {roleOptions.find(r => r.value === selectedRole)?.label || selectedRole}
 								</Button>
 							</div>
 
 							{#if searchQuery.trim()}
-								<div class="space-y-2 max-h-64 overflow-y-auto">
+								<div class="max-h-64 space-y-2 overflow-y-auto">
 									{#if searchLoading}
 										<div class="p-4 text-center text-sm text-gray-500">Searching...</div>
 									{:else if searchResults.length === 0}
@@ -485,8 +487,11 @@
 									{:else}
 										{#each searchResults as searchUser}
 											<div
-												class="flex items-center justify-between p-3 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 {selectedUser?.id === searchUser.id ? 'bg-blue-50 border-blue-200 dark:bg-blue-950 dark:border-blue-800' : ''}"
-												onclick={() => selectedUser = searchUser}
+												class="flex cursor-pointer items-center justify-between rounded-lg border p-3 hover:bg-gray-50 dark:hover:bg-gray-800 {selectedUser?.id ===
+												searchUser.id
+													? 'border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950'
+													: ''}"
+												onclick={() => (selectedUser = searchUser)}
 											>
 												<div class="flex items-center gap-3">
 													<ProfileAvatar userId={searchUser.id} baseHeightPx={32} />
@@ -507,10 +512,10 @@
 							{/if}
 
 							{#if selectedUser}
-								<div class="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-950 rounded-lg">
+								<div class="flex items-center gap-2 rounded-lg bg-blue-50 p-3 dark:bg-blue-950">
 									<span class="text-sm">Invite <strong>{selectedUser.username}</strong> as:</span>
-									<Select.Root bind:value={selectedRole}>
-										<Select.Trigger class="w-[120px] h-8 text-sm">
+									<Select.Root type="single" bind:value={selectedRole}>
+										<Select.Trigger class="h-8 w-[180px] text-sm">
 											{selectedRoleTriggerContent}
 										</Select.Trigger>
 										<Select.Content>
@@ -547,8 +552,8 @@
 									bind:value={inviteEmail}
 									class="flex-1"
 								/>
-								<Select.Root bind:value={inviteRole}>
-									<Select.Trigger class="w-[120px]">
+								<Select.Root type="single" bind:value={inviteRole}>
+									<Select.Trigger class="w-[180px]">
 										{inviteRoleTriggerContent}
 									</Select.Trigger>
 									<Select.Content>
@@ -587,36 +592,36 @@
 				{:else}
 					<!-- Role Explanation -->
 					<Collapsible.Root class="rounded-lg bg-slate-200/80 dark:bg-slate-800/80 dark:text-white">
-						<Collapsible.Trigger class="flex w-full items-center justify-between space-x-4 px-4 py-3">
+						<Collapsible.Trigger
+							class="flex w-full items-center justify-between space-x-4 px-4 py-3"
+						>
 							<h4 class="text-sm font-semibold">What can different roles do?</h4>
 							<ChevronsUpDown class="h-4 w-4" />
 						</Collapsible.Trigger>
 						<CollapsibleContent duration={300}>
 							<div transition:slide={{ duration: 300 }} class="px-4 pb-3">
-								<div class="grid gap-4 md:grid-cols-3">
+								<div class="grid gap-4 md:grid-cols-2">
 									<div>
-										<div class="mb-2 text-sm font-medium text-red-600 dark:text-red-400">Admins</div>
-										<ul class="text-xs space-y-1">
+										<div class="mb-2 text-sm font-medium text-red-600 dark:text-red-400">
+											Organization Leaders
+										</div>
+										<ul class="space-y-1 text-xs">
 											<li>• Full organization management</li>
 											<li>• Manage members and roles</li>
-											<li>• Admin access to all org events</li>
-											<li>• Edit organization details</li>
+											<li>• Admin access to all organization events</li>
+											<li>• Edit organization details and settings</li>
+											<li>• Can do anything that Event Managers can do</li>
 										</ul>
 									</div>
 									<div>
-										<div class="mb-2 text-sm font-medium text-yellow-600 dark:text-yellow-400">Editors</div>
-										<ul class="text-xs space-y-1">
+										<div class="mb-2 text-sm font-medium text-blue-600 dark:text-blue-400">
+											Event Managers
+										</div>
+										<ul class="space-y-1 text-xs">
 											<li>• Create and manage events</li>
-											<li>• Edit organization content</li>
-											<li>• View all members</li>
-										</ul>
-									</div>
-									<div>
-										<div class="mb-2 text-sm font-medium text-green-600 dark:text-green-400">Members</div>
-										<ul class="text-xs space-y-1">
-											<li>• Participate in organization events</li>
 											<li>• View organization information</li>
-											<li>• Basic interaction permissions</li>
+											<li>• Participate in organization events</li>
+											<li>• Basic member interaction permissions</li>
 										</ul>
 									</div>
 								</div>
@@ -632,71 +637,78 @@
 									<ProfileAvatar userId={organization.creator?.id} baseHeightPx={40} />
 									<div>
 										<span class="text-base">{organization.creator?.username}</span>
-										<Badge class="ml-2 bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200" size="sm">
+										<Badge
+											class="ml-2 bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200"
+											size="sm"
+										>
 											Creator
 										</Badge>
 									</div>
 								</div>
 							</Card.Title>
-							<Card.Description>
-								Organization founder with full ownership rights
-							</Card.Description>
+							<Card.Description>Organization founder with full ownership rights</Card.Description>
 						</Card.Header>
 					</Card.Root>
 
-					<!-- Admins Section -->
-					{#if currentAdmins.length > 0}
+					<!-- Leaders Section -->
+					{#if currentLeaders.length > 0}
 						<div>
 							<h2 class="mb-3 text-lg font-semibold dark:text-white">
-								Admins ({currentAdmins.length})
+								Organization Leaders ({currentLeaders.length})
 							</h2>
 							<div class="space-y-3">
-								{#each currentAdmins as admin (admin.user.id)}
+								{#each currentLeaders as leader (leader.user.id)}
 									<Card.Root class="bg-red-50 dark:bg-red-950/20">
 										<Card.Header>
 											<Card.Title class="flex items-center justify-between">
 												<div class="flex items-center gap-3">
-													<ProfileAvatar userId={admin.user?.id} baseHeightPx={40} />
+													<ProfileAvatar userId={leader.user?.id} baseHeightPx={40} />
 													<div>
-														<span class="text-base">{admin.user.username}</span>
-														<Badge class="{getRoleColor('admin')} ml-2" size="sm">Admin</Badge>
+														<span class="text-base">{leader.user.username}</span>
+														<Badge class="{getRoleColor(leader.role)} ml-2" size="sm"
+															>Organization Leader</Badge
+														>
 													</div>
 												</div>
 											</Card.Title>
 											<Card.Description>
-												Added on {formatHumanReadable(admin.created_at)}
-												{#if admin.added_by}
+												Added on {formatHumanReadable(leader.created_at)}
+												{#if leader.added_by}
 													by <span class="font-bold">
-														{#if user.id == admin.added_by_user_id}
+														{#if user.id == leader.added_by_user_id}
 															you
 														{:else}
-															{admin.added_by.username}
+															{leader.added_by.username}
 														{/if}
 													</span>
 												{/if}
 											</Card.Description>
 										</Card.Header>
 										<Card.Footer class="flex flex-col gap-2">
-											{#if !canRemoveOrDemoteAdmin(admin.user_id)}
-												<div class="text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/20 px-2 py-1 rounded">
-													⚠️ Cannot remove/demote the only admin. Promote another member first.
+											{#if !canRemoveOrDemoteLeader(leader.user_id)}
+												<div
+													class="rounded bg-amber-50 px-2 py-1 text-xs text-amber-600 dark:bg-amber-950/20 dark:text-amber-400"
+												>
+													⚠️ Cannot remove/demote the only Organization Leader. Promote another
+													member first.
 												</div>
 											{/if}
 											<div class="flex justify-between">
-												<Button 
-													variant="outline" 
-													size="sm" 
-													disabled={!canRemoveOrDemoteAdmin(admin.user_id)}
-													onclick={() => confirmDemoteToEditor(admin.user_id, admin.user.username)}
+												<Button
+													variant="outline"
+													size="sm"
+													disabled={!canRemoveOrDemoteLeader(leader.user_id)}
+													onclick={() =>
+														confirmDemoteToEventManager(leader.user_id, leader.user.username)}
 												>
 													<ChevronDown class="mr-1 h-4 w-4" />
-													Demote to Editor
+													Demote to Event Manager
 												</Button>
-												<Button 
-													variant="destructive" 
-													size="sm" 
-													disabled={!canRemoveOrDemoteAdmin(admin.user_id)}
-													onclick={() => confirmRemoveMember(admin.user_id, admin.user.username)}
+												<Button
+													variant="destructive"
+													size="sm"
+													disabled={!canRemoveOrDemoteLeader(leader.user_id)}
+													onclick={() => confirmRemoveMember(leader.user_id, leader.user.username)}
 												>
 													<UserRoundMinus class="mr-1 h-4 w-4" />
 													Remove
@@ -709,33 +721,35 @@
 						</div>
 					{/if}
 
-					<!-- Editors Section -->
-					{#if currentEditors.length > 0}
+					<!-- Event Managers Section -->
+					{#if currentEventManagers.length > 0}
 						<div>
 							<h2 class="mb-3 text-lg font-semibold dark:text-white">
-								Editors ({currentEditors.length})
+								Event Managers ({currentEventManagers.length})
 							</h2>
 							<div class="space-y-3">
-								{#each currentEditors as editor (editor.user.id)}
-									<Card.Root class="bg-yellow-50 dark:bg-yellow-950/20">
+								{#each currentEventManagers as eventManager (eventManager.user.id)}
+									<Card.Root class="bg-blue-50 dark:bg-blue-950/20">
 										<Card.Header>
 											<Card.Title class="flex items-center justify-between">
 												<div class="flex items-center gap-3">
-													<ProfileAvatar userId={editor.user?.id} baseHeightPx={40} />
+													<ProfileAvatar userId={eventManager.user?.id} baseHeightPx={40} />
 													<div>
-														<span class="text-base">{editor.user.username}</span>
-														<Badge class="{getRoleColor('editor')} ml-2" size="sm">Editor</Badge>
+														<span class="text-base">{eventManager.user.username}</span>
+														<Badge class="{getRoleColor(eventManager.role)} ml-2" size="sm"
+															>Event Manager</Badge
+														>
 													</div>
 												</div>
 											</Card.Title>
 											<Card.Description>
-												Added on {formatHumanReadable(editor.created_at)}
-												{#if editor.added_by}
+												Added on {formatHumanReadable(eventManager.created_at)}
+												{#if eventManager.added_by}
 													by <span class="font-bold">
-														{#if user.id == editor.added_by_user_id}
+														{#if user.id == eventManager.added_by_user_id}
 															you
 														{:else}
-															{editor.added_by.username}
+															{eventManager.added_by.username}
 														{/if}
 													</span>
 												{/if}
@@ -743,70 +757,25 @@
 										</Card.Header>
 										<Card.Footer class="flex justify-between">
 											<div class="flex gap-2">
-												<Button variant="outline" size="sm" onclick={() => confirmPromoteToAdmin(editor.user_id, editor.user.username)}>
+												<Button
+													variant="outline"
+													size="sm"
+													onclick={() =>
+														confirmPromoteToLeader(
+															eventManager.user_id,
+															eventManager.user.username
+														)}
+												>
 													<ChevronUp class="mr-1 h-4 w-4" />
-													Promote to Admin
-												</Button>
-												<Button variant="outline" size="sm" onclick={() => confirmDemoteToMember(editor.user_id, editor.user.username, 'editor')}>
-													<ChevronDown class="mr-1 h-4 w-4" />
-													Demote to Member
+													Promote to Organization Leader
 												</Button>
 											</div>
-											<Button variant="destructive" size="sm" onclick={() => confirmRemoveMember(editor.user_id, editor.user.username)}>
-												<UserRoundMinus class="mr-1 h-4 w-4" />
-												Remove
-											</Button>
-										</Card.Footer>
-									</Card.Root>
-								{/each}
-							</div>
-						</div>
-					{/if}
-
-					<!-- Members Section -->
-					{#if currentMembers.length > 0}
-						<div>
-							<h2 class="mb-3 text-lg font-semibold dark:text-white">
-								Members ({currentMembers.length})
-							</h2>
-							<div class="space-y-3">
-								{#each currentMembers as member (member.user.id)}
-									<Card.Root class="bg-green-50 dark:bg-green-950/20">
-										<Card.Header>
-											<Card.Title class="flex items-center justify-between">
-												<div class="flex items-center gap-3">
-													<ProfileAvatar userId={member.user?.id} baseHeightPx={40} />
-													<div>
-														<span class="text-base">{member.user.username}</span>
-														<Badge class="{getRoleColor('member')} ml-2" size="sm">Member</Badge>
-													</div>
-												</div>
-											</Card.Title>
-											<Card.Description>
-												Added on {formatHumanReadable(member.created_at)}
-												{#if member.added_by}
-													by <span class="font-bold">
-														{#if user.id == member.added_by_user_id}
-															you
-														{:else}
-															{member.added_by.username}
-														{/if}
-													</span>
-												{/if}
-											</Card.Description>
-										</Card.Header>
-										<Card.Footer class="flex justify-between">
-											<div class="flex gap-2">
-												<Button variant="outline" size="sm" onclick={() => confirmPromoteToEditor(member.user_id, member.user.username)}>
-													<ChevronUp class="mr-1 h-4 w-4" />
-													Promote to Editor
-												</Button>
-												<Button variant="outline" size="sm" onclick={() => confirmPromoteToAdmin(member.user_id, member.user.username)}>
-													<ChevronUp class="mr-1 h-4 w-4" />
-													Promote to Admin
-												</Button>
-											</div>
-											<Button variant="destructive" size="sm" onclick={() => confirmRemoveMember(member.user_id, member.user.username)}>
+											<Button
+												variant="destructive"
+												size="sm"
+												onclick={() =>
+													confirmRemoveMember(eventManager.user_id, eventManager.user.username)}
+											>
 												<UserRoundMinus class="mr-1 h-4 w-4" />
 												Remove
 											</Button>
@@ -818,10 +787,11 @@
 					{/if}
 
 					<!-- No Members State -->
-					{#if currentAdmins.length === 0 && currentEditors.length === 0 && currentMembers.length === 0}
-						<div class="text-center py-8">
+					{#if currentLeaders.length === 0 && currentEventManagers.length === 0}
+						<div class="py-8 text-center">
 							<div class="text-gray-500 dark:text-gray-400">
-								No members yet besides the organization creator. Use the "Invite Members" tab to add your first members!
+								No members yet besides the organization creator. Use the "Invite Members" tab to add
+								your first members!
 							</div>
 						</div>
 					{/if}
@@ -842,7 +812,7 @@
 		</AlertDialog.Header>
 		<AlertDialog.Footer>
 			<AlertDialog.Cancel onclick={closeConfirmation}>Cancel</AlertDialog.Cancel>
-			<AlertDialog.Action 
+			<AlertDialog.Action
 				onclick={executeConfirmedAction}
 				class={confirmationDialog.destructive ? 'bg-red-600 hover:bg-red-700' : ''}
 			>

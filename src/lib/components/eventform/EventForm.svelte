@@ -763,9 +763,9 @@
 											<Select.Item value={org.id} onclick={debouncedUpdateEvent}>
 												<div class="flex w-full items-center justify-between">
 													<span>{org.name}</span>
-													{#if org.userRole === 'admin'}
+													{#if org.userRole === 'leader' || org.userRole === 'admin'}
 														<span class="ml-2 rounded bg-blue-100 px-2 py-1 text-xs text-blue-800"
-															>Admin</span
+															>Leader</span
 														>
 													{:else if org.userRole}
 														<span class="ml-2 rounded bg-gray-100 px-2 py-1 text-xs text-gray-600"

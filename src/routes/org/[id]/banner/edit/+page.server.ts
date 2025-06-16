@@ -25,18 +25,18 @@ export const load = async ({ params, locals }) => {
 		}
 
 		// Check if current user has permission to edit banner
-		// User must be creator or admin
+		// User must be creator or leader
 		let canEditBanner = false;
 
 		if (organization.created_by_user_id === locals.user.id) {
 			canEditBanner = true;
 		} else {
-			// Check if user is an admin
+			// Check if user is a leader
 			const membership = await client.fetchOne(
 				client.query('organization_members').Where([
 					['organization_id', '=', id],
 					['user_id', '=', locals.user.id],
-					['role', '=', 'admin']
+					['role', 'in', ['leader', 'admin']] // Support legacy 'admin' role
 				])
 			);
 
