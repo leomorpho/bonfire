@@ -23,6 +23,7 @@
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import { goto } from '$app/navigation';
 	import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
+	import * as Select from '$lib/components/ui/select/index.js';
 
 	const { data } = $props();
 	const { organization, members: initialMembers, userRole, user } = data;
@@ -46,6 +47,22 @@
 	// Email invite state
 	let inviteEmail = $state('');
 	let inviteRole = $state<'admin' | 'editor' | 'member'>('member');
+
+	// Role options for dropdowns
+	const roleOptions = [
+		{ value: 'member', label: 'Member' },
+		{ value: 'editor', label: 'Editor' },
+		{ value: 'admin', label: 'Admin' }
+	];
+
+	// Derived content for selects
+	const inviteRoleTriggerContent = $derived(
+		roleOptions.find((r) => r.value === inviteRole)?.label ?? 'Select role'
+	);
+
+	const selectedRoleTriggerContent = $derived(
+		roleOptions.find((r) => r.value === selectedRole)?.label ?? 'Select role'
+	);
 
 	// Search dropdown state
 	let searchOpen = $state(false);
@@ -492,11 +509,20 @@
 							{#if selectedUser}
 								<div class="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-950 rounded-lg">
 									<span class="text-sm">Invite <strong>{selectedUser.username}</strong> as:</span>
-									<select bind:value={selectedRole} class="text-sm border rounded px-2 py-1">
-										<option value="member">Member</option>
-										<option value="editor">Editor</option>
-										<option value="admin">Admin</option>
-									</select>
+									<Select.Root bind:value={selectedRole}>
+										<Select.Trigger class="w-[120px] h-8 text-sm">
+											{selectedRoleTriggerContent}
+										</Select.Trigger>
+										<Select.Content>
+											<Select.Group>
+												{#each roleOptions as role (role.value)}
+													<Select.Item value={role.value} label={role.label}>
+														{role.label}
+													</Select.Item>
+												{/each}
+											</Select.Group>
+										</Select.Content>
+									</Select.Root>
 								</div>
 							{/if}
 						</Card.Content>
@@ -521,11 +547,20 @@
 									bind:value={inviteEmail}
 									class="flex-1"
 								/>
-								<select bind:value={inviteRole} class="border rounded px-3 py-2">
-									<option value="member">Member</option>
-									<option value="editor">Editor</option>
-									<option value="admin">Admin</option>
-								</select>
+								<Select.Root bind:value={inviteRole}>
+									<Select.Trigger class="w-[120px]">
+										{inviteRoleTriggerContent}
+									</Select.Trigger>
+									<Select.Content>
+										<Select.Group>
+											{#each roleOptions as role (role.value)}
+												<Select.Item value={role.value} label={role.label}>
+													{role.label}
+												</Select.Item>
+											{/each}
+										</Select.Group>
+									</Select.Content>
+								</Select.Root>
 								<Button
 									disabled={!inviteEmail.trim() || emailInviteLoading}
 									onclick={inviteByEmail}
