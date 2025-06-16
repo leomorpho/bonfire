@@ -1715,7 +1715,7 @@ export const schema = S.Collections({
 			id: S.Id(),
 			organization_id: S.String(),
 			user_id: S.String(),
-			role: S.String({ default: 'event_manager' }), // leader, event_manager
+			role: S.String({ default: 'member' }), // leader, event_manager, member
 			added_by_user_id: S.String(),
 			created_at: S.Date({ default: S.Default.now() })
 		}),

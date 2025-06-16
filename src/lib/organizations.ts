@@ -38,7 +38,7 @@ export async function addOrganizationMember(
 	client: TriplitClient | HttpClient,
 	organizationId: string,
 	userId: string,
-	role: 'leader' | 'event_manager' = 'event_manager',
+	role: 'leader' | 'event_manager' | 'member' = 'member',
 	addedByUserId: string
 ) {
 	const membership = await client.insert('organization_members', {
@@ -91,7 +91,7 @@ export async function removeOrganizationMember(
 	userId: string
 ) {
 	console.log('🔄 removeOrganizationMember called with:', { organizationId, userId });
-	
+
 	// First, check if the membership exists
 	const existingMembership = await client.fetchOne(
 		client.query('organization_members').Where([
@@ -99,12 +99,40 @@ export async function removeOrganizationMember(
 			['user_id', '=', userId]
 		])
 	);
-	
+
 	console.log('📋 Existing membership found:', existingMembership);
-	
+
 	if (!existingMembership) {
 		console.log('⚠️ No membership found to delete');
 		return;
+	}
+
+	// Get organization to check creator
+	const organization = await client.fetchOne(
+		client.query('organizations').Where([['id', '=', organizationId]])
+	);
+
+	// Prevent removing the organization creator
+	if (organization?.created_by_user_id === userId) {
+		throw new Error('The organization creator cannot be removed from the organization');
+	}
+
+	// Check if this would remove the last leader
+	const isLeader = existingMembership.role === 'leader' || existingMembership.role === 'admin';
+	if (isLeader) {
+		// Check if they're the last leader (including creators)
+		const allLeaders = await client.fetch(
+			client.query('organization_members').Where([
+				['organization_id', '=', organizationId],
+				['role', 'in', ['leader', 'admin']] // Support legacy 'admin' role
+			])
+		);
+
+		if (allLeaders.length === 1) {
+			throw new Error(
+				'Cannot remove the last Organization Leader. Promote another member to Leader first.'
+			);
+		}
 	}
 
 	// Remove membership
@@ -125,7 +153,7 @@ export async function updateOrganizationMemberRole(
 	client: TriplitClient | HttpClient,
 	organizationId: string,
 	userId: string,
-	newRole: 'leader' | 'event_manager',
+	newRole: 'leader' | 'event_manager' | 'member',
 	updatedByUserId: string
 ) {
 	const existingMember = await client.fetchOne(
@@ -139,7 +167,39 @@ export async function updateOrganizationMemberRole(
 		throw new Error('User is not a member of this organization');
 	}
 
+	// Get organization to check creator
+	const organization = await client.fetchOne(
+		client.query('organizations').Where([['id', '=', organizationId]])
+	);
+
+	// Prevent demoting the organization creator from leader role
+	if (
+		organization?.created_by_user_id === userId &&
+		existingMember.role === 'leader' &&
+		newRole !== 'leader'
+	) {
+		throw new Error('The organization creator cannot be demoted from the Organization Leader role');
+	}
+
 	const oldRole = existingMember.role;
+
+	// Check if this would demote the last leader
+	const isBecomingNonLeader = (oldRole === 'leader' || oldRole === 'admin') && newRole !== 'leader';
+	if (isBecomingNonLeader) {
+		// Check if they're the last leader (including creators)
+		const allLeaders = await client.fetch(
+			client.query('organization_members').Where([
+				['organization_id', '=', organizationId],
+				['role', 'in', ['leader', 'admin']] // Support legacy 'admin' role
+			])
+		);
+
+		if (allLeaders.length === 1) {
+			throw new Error(
+				'Cannot demote the last Organization Leader. Promote another member to Leader first.'
+			);
+		}
+	}
 
 	// Update the role
 	await client.update('organization_members', existingMember.id, {

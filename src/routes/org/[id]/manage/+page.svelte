@@ -48,19 +48,21 @@
 	// Member management state
 	let currentLeaders: any[] = $state([]);
 	let currentEventManagers: any[] = $state([]);
+	let currentMembers: any[] = $state([]);
 
 	// User search state
 	let searchQuery = $state('');
 	let searchResults: any[] = $state([]);
 	let selectedUser = $state<any>(null);
-	let selectedRole = $state<'leader' | 'event_manager'>('event_manager');
+	let selectedRole = $state<'leader' | 'event_manager' | 'member'>('member');
 
 	// Email invite state
 	let inviteEmail = $state('');
-	let inviteRole = $state<'leader' | 'event_manager'>('event_manager');
+	let inviteRole = $state<'leader' | 'event_manager' | 'member'>('member');
 
 	// Role options for dropdowns
 	const roleOptions = [
+		{ value: 'member', label: 'Member' },
 		{ value: 'event_manager', label: 'Event Manager' },
 		{ value: 'leader', label: 'Organization Leader' }
 	];
@@ -100,18 +102,19 @@
 			(results) => {
 				// Filter out members without loaded user data and separate by role
 				const validMembers = results.filter((member) => member.user && member.user.id);
-				
+
 				currentLeaders = validMembers.filter(
 					(member) => member.role === 'leader' || member.role === 'admin'
 				); // Support legacy 'admin' role
 				currentEventManagers = validMembers.filter(
-					(member) =>
-						member.role === 'event_manager' || member.role === 'editor' || member.role === 'member'
+					(member) => member.role === 'event_manager' || member.role === 'editor'
 				); // Support legacy roles
+				currentMembers = validMembers.filter((member) => member.role === 'member');
 
 				// Sort by username
 				currentLeaders.sort((a, b) => a.user.username.localeCompare(b.user.username));
 				currentEventManagers.sort((a, b) => a.user.username.localeCompare(b.user.username));
+				currentMembers.sort((a, b) => a.user.username.localeCompare(b.user.username));
 
 				membersLoading = false;
 			},
@@ -153,9 +156,11 @@
 
 			if (response.ok && data.users) {
 				// Filter out users who are already members
-				const existingMemberIds = [...currentLeaders, ...currentEventManagers].map(
-					(m) => m.user_id
-				);
+				const existingMemberIds = [
+					...currentLeaders,
+					...currentEventManagers,
+					...currentMembers
+				].map((m) => m.user_id);
 				const filteredUsers = data.users.filter((user) => !existingMemberIds.includes(user.id));
 				console.log(
 					'✅ Found users:',
@@ -229,7 +234,11 @@
 		closeConfirmation();
 	}
 
-	function confirmInviteUser(userId: string, username: string, role: 'leader' | 'event_manager') {
+	function confirmInviteUser(
+		userId: string,
+		username: string,
+		role: 'leader' | 'event_manager' | 'member'
+	) {
 		const roleLabel = roleOptions.find((r) => r.value === role)?.label || role;
 		showConfirmation(
 			'Invite User',
@@ -238,7 +247,7 @@
 		);
 	}
 
-	async function inviteUser(userId: string, role: 'leader' | 'event_manager') {
+	async function inviteUser(userId: string, role: 'leader' | 'event_manager' | 'member') {
 		try {
 			await addOrganizationMember(client, organization.id, userId, role, user.id);
 			toast.success(`Successfully invited user as ${role}`);
@@ -299,18 +308,18 @@
 	async function promoteToLeader(userId: string) {
 		try {
 			// Optimistically move user from event managers to leaders
-			const memberToPromote = currentEventManagers.find(manager => manager.user_id === userId);
+			const memberToPromote = currentEventManagers.find((manager) => manager.user_id === userId);
 			if (memberToPromote) {
-				currentEventManagers = currentEventManagers.filter(manager => manager.user_id !== userId);
+				currentEventManagers = currentEventManagers.filter((manager) => manager.user_id !== userId);
 				currentLeaders = [...currentLeaders, { ...memberToPromote, role: 'leader' }];
 			}
-			
+
 			await updateOrganizationMemberRole(client, organization.id, userId, 'leader', user.id);
 			toast.success('Successfully promoted member to Organization Leader');
 		} catch (error) {
 			toast.error('Failed to promote member, please try again later or contact support');
 			console.error('Error promoting member to leader:', error);
-			
+
 			// Force refresh on error
 			membersLoading = true;
 		}
@@ -318,13 +327,12 @@
 
 	function confirmDemoteToEventManager(userId: string, username: string) {
 		// Check if this would leave no leaders
-		const isSelfDemotion = userId === user.id;
 		const isOnlyLeader = currentLeaders.length === 1;
-		const isCreator = organization.created_by_user_id === userId;
 
-		if (isSelfDemotion && isOnlyLeader && !isCreator) {
+		// Prevent demoting the last leader (including creators)
+		if (isOnlyLeader) {
 			toast.error(
-				'You cannot demote yourself as you are the only Organization Leader. Promote another member to Leader first.'
+				`Cannot demote ${username} as they are the only Organization Leader. Promote another member to Leader first.`
 			);
 			return;
 		}
@@ -339,18 +347,80 @@
 	async function demoteToEventManager(userId: string) {
 		try {
 			// Optimistically move user from leaders to event managers
-			const memberToDemote = currentLeaders.find(leader => leader.user_id === userId);
+			const memberToDemote = currentLeaders.find((leader) => leader.user_id === userId);
 			if (memberToDemote) {
-				currentLeaders = currentLeaders.filter(leader => leader.user_id !== userId);
-				currentEventManagers = [...currentEventManagers, { ...memberToDemote, role: 'event_manager' }];
+				currentLeaders = currentLeaders.filter((leader) => leader.user_id !== userId);
+				currentEventManagers = [
+					...currentEventManagers,
+					{ ...memberToDemote, role: 'event_manager' }
+				];
 			}
-			
+
 			await updateOrganizationMemberRole(client, organization.id, userId, 'event_manager', user.id);
 			toast.success('Successfully demoted to Event Manager');
 		} catch (error) {
 			toast.error('Failed to demote member, please try again later or contact support');
 			console.error('Error demoting to event manager:', error);
-			
+
+			// Force refresh on error
+			membersLoading = true;
+		}
+	}
+
+	function confirmPromoteToEventManager(userId: string, username: string) {
+		showConfirmation(
+			'Promote to Event Manager',
+			`Are you sure you want to promote ${username} to Event Manager? They will be able to create and manage events.`,
+			() => promoteToEventManager(userId)
+		);
+	}
+
+	async function promoteToEventManager(userId: string) {
+		try {
+			// Optimistically move user from members to event managers
+			const memberToPromote = currentMembers.find((member) => member.user_id === userId);
+			if (memberToPromote) {
+				currentMembers = currentMembers.filter((member) => member.user_id !== userId);
+				currentEventManagers = [
+					...currentEventManagers,
+					{ ...memberToPromote, role: 'event_manager' }
+				];
+			}
+
+			await updateOrganizationMemberRole(client, organization.id, userId, 'event_manager', user.id);
+			toast.success('Successfully promoted to Event Manager');
+		} catch (error) {
+			toast.error('Failed to promote member, please try again later or contact support');
+			console.error('Error promoting to event manager:', error);
+
+			// Force refresh on error
+			membersLoading = true;
+		}
+	}
+
+	function confirmDemoteToMember(userId: string, username: string) {
+		showConfirmation(
+			'Demote to Member',
+			`Are you sure you want to demote ${username} from Event Manager to Member? They will only be able to view organization events.`,
+			() => demoteToMember(userId)
+		);
+	}
+
+	async function demoteToMember(userId: string) {
+		try {
+			// Optimistically move user from event managers to members
+			const memberToDemote = currentEventManagers.find((manager) => manager.user_id === userId);
+			if (memberToDemote) {
+				currentEventManagers = currentEventManagers.filter((manager) => manager.user_id !== userId);
+				currentMembers = [...currentMembers, { ...memberToDemote, role: 'member' }];
+			}
+
+			await updateOrganizationMemberRole(client, organization.id, userId, 'member', user.id);
+			toast.success('Successfully demoted to Member');
+		} catch (error) {
+			toast.error('Failed to demote member, please try again later or contact support');
+			console.error('Error demoting to member:', error);
+
 			// Force refresh on error
 			membersLoading = true;
 		}
@@ -365,13 +435,16 @@
 		const isOnlyLeader = userIsLeader && currentLeaders.length === 1;
 		const isCreator = organization.created_by_user_id === userId;
 
-		if (isSelfRemoval && isOnlyLeader && !isCreator) {
+		// Prevent removing the last leader (even if they're the creator)
+		if (isOnlyLeader) {
+			const actionText = isSelfRemoval ? 'remove yourself' : `remove ${username}`;
 			toast.error(
-				'You cannot remove yourself as you are the only Organization Leader. Promote another member to Leader first.'
+				`Cannot ${actionText} as they are the only Organization Leader. Promote another member to Leader first.`
 			);
 			return;
 		}
 
+		// Prevent creator removal (separate from leader protection)
 		if (isSelfRemoval && isCreator) {
 			toast.error(
 				'The organization creator cannot be removed. Transfer ownership first if needed.'
@@ -390,11 +463,12 @@
 	async function removeMember(userId: string) {
 		try {
 			console.log('🗑️ Removing member:', { userId, organizationId: organization.id });
-			
+
 			// Optimistically remove from local state
-			currentLeaders = currentLeaders.filter(leader => leader.user_id !== userId);
-			currentEventManagers = currentEventManagers.filter(manager => manager.user_id !== userId);
-			
+			currentLeaders = currentLeaders.filter((leader) => leader.user_id !== userId);
+			currentEventManagers = currentEventManagers.filter((manager) => manager.user_id !== userId);
+			currentMembers = currentMembers.filter((member) => member.user_id !== userId);
+
 			await removeOrganizationMember(client, organization.id, userId);
 			console.log('✅ Member removal completed successfully');
 			toast.success('Successfully removed member from organization');
@@ -402,7 +476,7 @@
 			console.error('❌ Error removing member:', error);
 			// Revert optimistic update on error by re-triggering the subscription
 			toast.error('Failed to remove member, please try again later or contact support');
-			
+
 			// Force refresh the data - the subscription should restore the correct state
 			membersLoading = true;
 		}
@@ -415,8 +489,9 @@
 				return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
 			case 'event_manager':
 			case 'editor': // legacy support
-			case 'member': // legacy support
 				return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+			case 'member':
+				return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
 			default:
 				return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
 		}
@@ -431,15 +506,11 @@
 
 	// Helper function to check if leader actions are allowed
 	function canRemoveOrDemoteLeader(userId: string) {
-		const isSelfAction = userId === user.id;
 		const isOnlyLeader = currentLeaders.length === 1;
-		const isCreator = organization.created_by_user_id === userId;
 
-		// Creator can always be demoted/removed (though removal will be blocked with a message)
-		if (isCreator) return true;
-
-		// If it's self-action and they're the only leader, block it
-		if (isSelfAction && isOnlyLeader) return false;
+		// If they're the only leader, block ANY demotion to ensure at least 1 leader
+		// (This includes creators - they must promote someone else first)
+		if (isOnlyLeader) return false;
 
 		return true;
 	}
@@ -505,7 +576,8 @@
 										confirmInviteUser(selectedUser.id, selectedUser.username, selectedRole)}
 								>
 									<UserRoundPlus class="mr-2 h-4 w-4" />
-									Invite as {roleOptions.find(r => r.value === selectedRole)?.label || selectedRole}
+									Invite as {roleOptions.find((r) => r.value === selectedRole)?.label ||
+										selectedRole}
 								</Button>
 							</div>
 
@@ -633,7 +705,7 @@
 						</Collapsible.Trigger>
 						<CollapsibleContent duration={300}>
 							<div transition:slide={{ duration: 300 }} class="px-4 pb-3">
-								<div class="grid gap-4 md:grid-cols-2">
+								<div class="grid gap-4 md:grid-cols-3">
 									<div>
 										<div class="mb-2 text-sm font-medium text-red-600 dark:text-red-400">
 											Organization Leaders
@@ -655,6 +727,17 @@
 											<li>• View organization information</li>
 											<li>• Participate in organization events</li>
 											<li>• Basic member interaction permissions</li>
+										</ul>
+									</div>
+									<div>
+										<div class="mb-2 text-sm font-medium text-green-600 dark:text-green-400">
+											Members
+										</div>
+										<ul class="space-y-1 text-xs">
+											<li>• View organization events</li>
+											<li>• Participate in organization events</li>
+											<li>• No admin privileges</li>
+											<li>• Cannot create or manage events</li>
 										</ul>
 									</div>
 								</div>
@@ -732,7 +815,10 @@
 													size="sm"
 													disabled={!canRemoveOrDemoteLeader(leader.user_id)}
 													onclick={() =>
-														confirmDemoteToEventManager(leader.user_id, leader.user?.username || 'Unknown User')}
+														confirmDemoteToEventManager(
+															leader.user_id,
+															leader.user?.username || 'Unknown User'
+														)}
 												>
 													<ChevronDown class="mr-1 h-4 w-4" />
 													Demote to Event Manager
@@ -741,7 +827,11 @@
 													variant="destructive"
 													size="sm"
 													disabled={!canRemoveOrDemoteLeader(leader.user_id)}
-													onclick={() => confirmRemoveMember(leader.user_id, leader.user?.username || 'Unknown User')}
+													onclick={() =>
+														confirmRemoveMember(
+															leader.user_id,
+															leader.user?.username || 'Unknown User'
+														)}
 												>
 													<UserRoundMinus class="mr-1 h-4 w-4" />
 													Remove
@@ -768,7 +858,9 @@
 												<div class="flex items-center gap-3">
 													<ProfileAvatar userId={eventManager.user?.id} baseHeightPx={40} />
 													<div>
-														<span class="text-base">{eventManager.user?.username || 'Loading...'}</span>
+														<span class="text-base"
+															>{eventManager.user?.username || 'Loading...'}</span
+														>
 														<Badge class="{getRoleColor(eventManager.role)} ml-2" size="sm"
 															>Event Manager</Badge
 														>
@@ -802,12 +894,93 @@
 													<ChevronUp class="mr-1 h-4 w-4" />
 													Promote to Organization Leader
 												</Button>
+												<Button
+													variant="outline"
+													size="sm"
+													onclick={() =>
+														confirmDemoteToMember(
+															eventManager.user_id,
+															eventManager.user?.username || 'Unknown User'
+														)}
+												>
+													<ChevronDown class="mr-1 h-4 w-4" />
+													Demote to Member
+												</Button>
 											</div>
 											<Button
 												variant="destructive"
 												size="sm"
 												onclick={() =>
-													confirmRemoveMember(eventManager.user_id, eventManager.user?.username || 'Unknown User')}
+													confirmRemoveMember(
+														eventManager.user_id,
+														eventManager.user?.username || 'Unknown User'
+													)}
+											>
+												<UserRoundMinus class="mr-1 h-4 w-4" />
+												Remove
+											</Button>
+										</Card.Footer>
+									</Card.Root>
+								{/each}
+							</div>
+						</div>
+					{/if}
+
+					<!-- Members Section -->
+					{#if currentMembers.length > 0}
+						<div>
+							<h2 class="mb-3 text-lg font-semibold dark:text-white">
+								Members ({currentMembers.length})
+							</h2>
+							<div class="space-y-3">
+								{#each currentMembers as member (member.user?.id || member.id)}
+									<Card.Root class="bg-green-50 dark:bg-green-950/20">
+										<Card.Header>
+											<Card.Title class="flex items-center justify-between">
+												<div class="flex items-center gap-3">
+													<ProfileAvatar userId={member.user?.id} baseHeightPx={40} />
+													<div>
+														<span class="text-base">{member.user?.username || 'Loading...'}</span>
+														<Badge class="{getRoleColor(member.role)} ml-2" size="sm">Member</Badge>
+													</div>
+												</div>
+											</Card.Title>
+											<Card.Description>
+												Added on {formatHumanReadable(member.created_at)}
+												{#if member.added_by}
+													by <span class="font-bold">
+														{#if user.id == member.added_by_user_id}
+															you
+														{:else}
+															{member.added_by?.username || 'Unknown'}
+														{/if}
+													</span>
+												{/if}
+											</Card.Description>
+										</Card.Header>
+										<Card.Footer class="flex justify-between">
+											<div class="flex gap-2">
+												<Button
+													variant="outline"
+													size="sm"
+													onclick={() =>
+														confirmPromoteToEventManager(
+															member.user_id,
+															member.user?.username || 'Unknown User'
+														)}
+												>
+													<ChevronUp class="mr-1 h-4 w-4" />
+													Promote to Event Manager
+												</Button>
+											</div>
+											<Button
+												variant="destructive"
+												size="sm"
+												onclick={() =>
+													confirmRemoveMember(
+														member.user_id,
+														member.user?.username || 'Unknown User'
+													)}
 											>
 												<UserRoundMinus class="mr-1 h-4 w-4" />
 												Remove
@@ -820,7 +993,7 @@
 					{/if}
 
 					<!-- No Members State -->
-					{#if currentLeaders.length === 0 && currentEventManagers.length === 0}
+					{#if currentLeaders.length === 0 && currentEventManagers.length === 0 && currentMembers.length === 0}
 						<div class="py-8 text-center">
 							<div class="text-gray-500 dark:text-gray-400">
 								No members yet besides the organization creator. Use the "Invite Members" tab to add
