@@ -107,35 +107,57 @@
 			return;
 		}
 
+		console.log('🔍 Searching for:', searchQuery);
 		searchLoading = true;
 		try {
-			const response = await fetch(`/api/users/search-connected?q=${encodeURIComponent(searchQuery)}&limit=10`);
+			const url = `/api/users/search-connected?q=${encodeURIComponent(searchQuery)}&limit=10`;
+			const response = await fetch(url);
 			const data = await response.json();
+			console.log('📡 API Response:', { status: response.status, users: data.users?.length || 0, data });
 			
-			if (response.ok) {
+			if (response.ok && data.users) {
 				// Filter out users who are already members
 				const existingMemberIds = [...currentAdmins, ...currentEditors, ...currentMembers].map(m => m.user_id);
-				searchResults = data.users.filter(user => !existingMemberIds.includes(user.id));
+				const filteredUsers = data.users.filter(user => !existingMemberIds.includes(user.id));
+				console.log('✅ Found users:', filteredUsers.length, 'after filtering out', existingMemberIds.length, 'existing members');
+				searchResults = filteredUsers;
 			} else {
+				console.log('❌ API error:', response.status, data);
 				searchResults = [];
-				toast.error('Failed to search users');
+				toast.error(data.error || 'Failed to search users');
 			}
 		} catch (error) {
+			console.error('💥 Search error:', error);
 			searchResults = [];
 			toast.error('Failed to search users');
-			console.error('Error searching users:', error);
 		} finally {
 			searchLoading = false;
 		}
 	}
 
-	// Debounced search
+	// Debounced search - watch searchQuery changes
 	let searchTimeout: NodeJS.Timeout;
 	$effect(() => {
-		if (searchTimeout) clearTimeout(searchTimeout);
-		searchTimeout = setTimeout(() => {
-			searchUsers();
-		}, 300);
+		// Clear previous timeout
+		if (searchTimeout) {
+			clearTimeout(searchTimeout);
+		}
+		
+		// Only search if there's a query
+		if (searchQuery.trim()) {
+			searchTimeout = setTimeout(() => {
+				searchUsers();
+			}, 300);
+		} else {
+			searchResults = [];
+		}
+		
+		// Cleanup function
+		return () => {
+			if (searchTimeout) {
+				clearTimeout(searchTimeout);
+			}
+		};
 	});
 
 	// Helper function to show confirmation dialog
@@ -418,11 +440,11 @@
 						<Card.Content class="space-y-4">
 							<div class="flex gap-2">
 								<div class="flex-1">
-									<Input
+									<input
 										type="text"
 										placeholder="Search by username..."
 										bind:value={searchQuery}
-										class="w-full"
+										class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
 									/>
 								</div>
 								<Button
