@@ -1272,7 +1272,7 @@ test('Event cancellation', async ({ browser }) => {
 	// Cancel the event from the edit page
 	await eventCreatorPage.locator('#edit-bonfire').click();
 	await eventCreatorPage.locator('#cancel-event-btn').click();
-	await eventCreatorPage.locator('#confirm-cancel-event').click();
+	await eventCreatorPage.getByRole('button', { name: 'Cancel Event' }).click();
 
 	// Should show cancelled status on the event page
 	await expect(eventCreatorPage.getByText('❌ EVENT CANCELLED')).toBeVisible();
@@ -1299,7 +1299,7 @@ test('Event cancellation', async ({ browser }) => {
 	// Cancel the event - should be deleted completely since only creator is attending
 	await eventCreatorPage.locator('#edit-bonfire').click();
 	await eventCreatorPage.locator('#cancel-event-btn').click();
-	await eventCreatorPage.locator('#confirm-cancel-event').click();
+	await eventCreatorPage.getByRole('button', { name: 'Cancel Event' }).click();
 
 	// Should be redirected to dashboard since event no longer exists
 	await expect(eventCreatorPage.url()).toContain('/dashboard');
@@ -1331,7 +1331,7 @@ test('Event cancellation', async ({ browser }) => {
 	// Force delete the event using delete button
 	await eventCreatorPage.locator('#edit-bonfire').click();
 	await eventCreatorPage.locator('#delete-event-btn').click();
-	await eventCreatorPage.locator('#confirm-delete-event').click();
+	await eventCreatorPage.getByRole('button', { name: 'Delete Event' }).click();
 
 	// Should be redirected to dashboard since event is deleted
 	await expect(eventCreatorPage.url()).toContain('/dashboard');
