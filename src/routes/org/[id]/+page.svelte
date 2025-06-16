@@ -126,6 +126,14 @@
 								<Settings class="h-4 w-4" />
 								Manage Organization
 							</Button>
+							<Button
+								variant="outline"
+								class="flex items-center gap-2"
+								onclick={() => goto(`/org/${organization.id}/manage`)}
+							>
+								<Users class="h-4 w-4" />
+								Manage Members
+							</Button>
 						{/if}
 
 						{#if isMember}
