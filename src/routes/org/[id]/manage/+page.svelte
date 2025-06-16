@@ -22,6 +22,7 @@
 	import { updateOrganizationMemberRole, removeOrganizationMember, addOrganizationMember } from '$lib/organizations';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import { goto } from '$app/navigation';
+	import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
 
 	const { data } = $props();
 	const { organization, members: initialMembers, userRole, user } = data;
@@ -50,6 +51,15 @@
 	let searchOpen = $state(false);
 	let searchTriggerRef = $state<HTMLButtonElement>(null!);
 	let searchInputRef = $state<HTMLInputElement>(null!);
+
+	// Confirmation dialog state
+	let confirmationDialog = $state({
+		open: false,
+		title: '',
+		description: '',
+		action: () => {},
+		destructive: false
+	});
 
 	onMount(() => {
 		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
@@ -128,6 +138,34 @@
 		}, 300);
 	});
 
+	// Helper function to show confirmation dialog
+	function showConfirmation(title: string, description: string, action: () => void, destructive = false) {
+		confirmationDialog = {
+			open: true,
+			title,
+			description,
+			action,
+			destructive
+		};
+	}
+
+	function closeConfirmation() {
+		confirmationDialog.open = false;
+	}
+
+	function executeConfirmedAction() {
+		confirmationDialog.action();
+		closeConfirmation();
+	}
+
+	function confirmInviteUser(userId: string, username: string, role: 'admin' | 'editor' | 'member') {
+		showConfirmation(
+			'Invite User',
+			`Are you sure you want to invite ${username} as ${role}?`,
+			() => inviteUser(userId, role)
+		);
+	}
+
 	async function inviteUser(userId: string, role: 'admin' | 'editor' | 'member') {
 		try {
 			await addOrganizationMember(client, organization.id, userId, role, user.id);
@@ -178,6 +216,14 @@
 		}
 	}
 
+	function confirmPromoteToAdmin(userId: string, username: string) {
+		showConfirmation(
+			'Promote to Admin',
+			`Are you sure you want to promote ${username} to admin? They will have full organization management privileges.`,
+			() => promoteToAdmin(userId)
+		);
+	}
+
 	async function promoteToAdmin(userId: string) {
 		try {
 			await updateOrganizationMemberRole(client, organization.id, userId, 'admin', user.id);
@@ -186,6 +232,14 @@
 			toast.error('Failed to promote member, please try again later or contact support');
 			console.error('Error promoting member to admin:', error);
 		}
+	}
+
+	function confirmPromoteToEditor(userId: string, username: string) {
+		showConfirmation(
+			'Promote to Editor',
+			`Are you sure you want to promote ${username} to editor? They will be able to create and manage events.`,
+			() => promoteToEditor(userId)
+		);
 	}
 
 	async function promoteToEditor(userId: string) {
@@ -198,6 +252,14 @@
 		}
 	}
 
+	function confirmDemoteToEditor(userId: string, username: string) {
+		showConfirmation(
+			'Demote to Editor',
+			`Are you sure you want to demote ${username} from admin to editor? They will lose admin privileges.`,
+			() => demoteToEditor(userId)
+		);
+	}
+
 	async function demoteToEditor(userId: string) {
 		try {
 			await updateOrganizationMemberRole(client, organization.id, userId, 'editor', user.id);
@@ -208,6 +270,14 @@
 		}
 	}
 
+	function confirmDemoteToMember(userId: string, username: string, currentRole: string) {
+		showConfirmation(
+			'Demote to Member',
+			`Are you sure you want to demote ${username} from ${currentRole} to member? They will lose their current privileges.`,
+			() => demoteToMember(userId)
+		);
+	}
+
 	async function demoteToMember(userId: string) {
 		try {
 			await updateOrganizationMemberRole(client, organization.id, userId, 'member', user.id);
@@ -216,6 +286,15 @@
 			toast.error('Failed to demote member, please try again later or contact support');
 			console.error('Error demoting to member:', error);
 		}
+	}
+
+	function confirmRemoveMember(userId: string, username: string) {
+		showConfirmation(
+			'Remove Member',
+			`Are you sure you want to remove ${username} from this organization? This action cannot be undone.`,
+			() => removeMember(userId),
+			true // destructive action
+		);
 	}
 
 	async function removeMember(userId: string) {
@@ -306,7 +385,7 @@
 								<Button
 									variant="outline"
 									disabled={!selectedUser}
-									onclick={() => selectedUser && inviteUser(selectedUser.id, selectedRole)}
+									onclick={() => selectedUser && confirmInviteUser(selectedUser.id, selectedUser.username, selectedRole)}
 								>
 									<UserRoundPlus class="mr-2 h-4 w-4" />
 									Invite as {selectedRole}
@@ -498,11 +577,11 @@
 											</Card.Description>
 										</Card.Header>
 										<Card.Footer class="flex justify-between">
-											<Button variant="outline" size="sm" onclick={() => demoteToEditor(admin.user_id)}>
+											<Button variant="outline" size="sm" onclick={() => confirmDemoteToEditor(admin.user_id, admin.user.username)}>
 												<ChevronDown class="mr-1 h-4 w-4" />
 												Demote to Editor
 											</Button>
-											<Button variant="destructive" size="sm" onclick={() => removeMember(admin.user_id)}>
+											<Button variant="destructive" size="sm" onclick={() => confirmRemoveMember(admin.user_id, admin.user.username)}>
 												<UserRoundMinus class="mr-1 h-4 w-4" />
 												Remove
 											</Button>
@@ -547,16 +626,16 @@
 										</Card.Header>
 										<Card.Footer class="flex justify-between">
 											<div class="flex gap-2">
-												<Button variant="outline" size="sm" onclick={() => promoteToAdmin(editor.user_id)}>
+												<Button variant="outline" size="sm" onclick={() => confirmPromoteToAdmin(editor.user_id, editor.user.username)}>
 													<ChevronUp class="mr-1 h-4 w-4" />
 													Promote to Admin
 												</Button>
-												<Button variant="outline" size="sm" onclick={() => demoteToMember(editor.user_id)}>
+												<Button variant="outline" size="sm" onclick={() => confirmDemoteToMember(editor.user_id, editor.user.username, 'editor')}>
 													<ChevronDown class="mr-1 h-4 w-4" />
 													Demote to Member
 												</Button>
 											</div>
-											<Button variant="destructive" size="sm" onclick={() => removeMember(editor.user_id)}>
+											<Button variant="destructive" size="sm" onclick={() => confirmRemoveMember(editor.user_id, editor.user.username)}>
 												<UserRoundMinus class="mr-1 h-4 w-4" />
 												Remove
 											</Button>
@@ -601,16 +680,16 @@
 										</Card.Header>
 										<Card.Footer class="flex justify-between">
 											<div class="flex gap-2">
-												<Button variant="outline" size="sm" onclick={() => promoteToEditor(member.user_id)}>
+												<Button variant="outline" size="sm" onclick={() => confirmPromoteToEditor(member.user_id, member.user.username)}>
 													<ChevronUp class="mr-1 h-4 w-4" />
 													Promote to Editor
 												</Button>
-												<Button variant="outline" size="sm" onclick={() => promoteToAdmin(member.user_id)}>
+												<Button variant="outline" size="sm" onclick={() => confirmPromoteToAdmin(member.user_id, member.user.username)}>
 													<ChevronUp class="mr-1 h-4 w-4" />
 													Promote to Admin
 												</Button>
 											</div>
-											<Button variant="destructive" size="sm" onclick={() => removeMember(member.user_id)}>
+											<Button variant="destructive" size="sm" onclick={() => confirmRemoveMember(member.user_id, member.user.username)}>
 												<UserRoundMinus class="mr-1 h-4 w-4" />
 												Remove
 											</Button>
@@ -634,3 +713,24 @@
 		</Tabs.Root>
 	</section>
 </div>
+
+<!-- Confirmation Dialog -->
+<AlertDialog.Root bind:open={confirmationDialog.open}>
+	<AlertDialog.Content>
+		<AlertDialog.Header>
+			<AlertDialog.Title>{confirmationDialog.title}</AlertDialog.Title>
+			<AlertDialog.Description>
+				{confirmationDialog.description}
+			</AlertDialog.Description>
+		</AlertDialog.Header>
+		<AlertDialog.Footer>
+			<AlertDialog.Cancel onclick={closeConfirmation}>Cancel</AlertDialog.Cancel>
+			<AlertDialog.Action 
+				onclick={executeConfirmedAction}
+				class={confirmationDialog.destructive ? 'bg-red-600 hover:bg-red-700' : ''}
+			>
+				Confirm
+			</AlertDialog.Action>
+		</AlertDialog.Footer>
+	</AlertDialog.Content>
+</AlertDialog.Root>
