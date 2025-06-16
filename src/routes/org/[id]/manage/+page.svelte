@@ -253,6 +253,16 @@
 	}
 
 	function confirmDemoteToEditor(userId: string, username: string) {
+		// Check if this would leave no admins
+		const isSelfDemotion = userId === user.id;
+		const isOnlyAdmin = currentAdmins.length === 1;
+		const isCreator = organization.created_by_user_id === userId;
+		
+		if (isSelfDemotion && isOnlyAdmin && !isCreator) {
+			toast.error('You cannot demote yourself as you are the only admin. Promote another member to admin first.');
+			return;
+		}
+		
 		showConfirmation(
 			'Demote to Editor',
 			`Are you sure you want to demote ${username} from admin to editor? They will lose admin privileges.`,
@@ -289,6 +299,24 @@
 	}
 
 	function confirmRemoveMember(userId: string, username: string) {
+		// Check if this is the user trying to remove themselves
+		const isSelfRemoval = userId === user.id;
+		
+		// Check if this user is an admin and would be the last admin
+		const userIsAdmin = currentAdmins.some(admin => admin.user_id === userId);
+		const isOnlyAdmin = userIsAdmin && currentAdmins.length === 1;
+		const isCreator = organization.created_by_user_id === userId;
+		
+		if (isSelfRemoval && isOnlyAdmin && !isCreator) {
+			toast.error('You cannot remove yourself as you are the only admin. Promote another member to admin first.');
+			return;
+		}
+		
+		if (isSelfRemoval && isCreator) {
+			toast.error('The organization creator cannot be removed. Transfer ownership first if needed.');
+			return;
+		}
+		
 		showConfirmation(
 			'Remove Member',
 			`Are you sure you want to remove ${username} from this organization? This action cannot be undone.`,
@@ -325,6 +353,21 @@
 		tick().then(() => {
 			searchTriggerRef?.focus();
 		});
+	}
+
+	// Helper function to check if admin actions are allowed
+	function canRemoveOrDemoteAdmin(userId: string) {
+		const isSelfAction = userId === user.id;
+		const isOnlyAdmin = currentAdmins.length === 1;
+		const isCreator = organization.created_by_user_id === userId;
+		
+		// Creator can always be demoted/removed (though removal will be blocked with a message)
+		if (isCreator) return true;
+		
+		// If it's self-action and they're the only admin, block it
+		if (isSelfAction && isOnlyAdmin) return false;
+		
+		return true;
 	}
 </script>
 
@@ -576,15 +619,32 @@
 												{/if}
 											</Card.Description>
 										</Card.Header>
-										<Card.Footer class="flex justify-between">
-											<Button variant="outline" size="sm" onclick={() => confirmDemoteToEditor(admin.user_id, admin.user.username)}>
-												<ChevronDown class="mr-1 h-4 w-4" />
-												Demote to Editor
-											</Button>
-											<Button variant="destructive" size="sm" onclick={() => confirmRemoveMember(admin.user_id, admin.user.username)}>
-												<UserRoundMinus class="mr-1 h-4 w-4" />
-												Remove
-											</Button>
+										<Card.Footer class="flex flex-col gap-2">
+											{#if !canRemoveOrDemoteAdmin(admin.user_id)}
+												<div class="text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/20 px-2 py-1 rounded">
+													⚠️ Cannot remove/demote the only admin. Promote another member first.
+												</div>
+											{/if}
+											<div class="flex justify-between">
+												<Button 
+													variant="outline" 
+													size="sm" 
+													disabled={!canRemoveOrDemoteAdmin(admin.user_id)}
+													onclick={() => confirmDemoteToEditor(admin.user_id, admin.user.username)}
+												>
+													<ChevronDown class="mr-1 h-4 w-4" />
+													Demote to Editor
+												</Button>
+												<Button 
+													variant="destructive" 
+													size="sm" 
+													disabled={!canRemoveOrDemoteAdmin(admin.user_id)}
+													onclick={() => confirmRemoveMember(admin.user_id, admin.user.username)}
+												>
+													<UserRoundMinus class="mr-1 h-4 w-4" />
+													Remove
+												</Button>
+											</div>
 										</Card.Footer>
 									</Card.Root>
 								{/each}
