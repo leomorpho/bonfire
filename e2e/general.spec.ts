@@ -1357,44 +1357,44 @@ test('Guided event creation flow', async ({ page }) => {
 	await navigateTo(page, `${WEBSITE_URL}/bonfire/create/guided`);
 
 	// Step 1: Event Name
-	await expect(page.getByRole('heading', { name: 'What\'s your event called?' })).toBeVisible();
+	await expect(page.getByRole('heading', { name: "What's your event called?" })).toBeVisible();
 	await expect(page.getByText('1 of 6')).toBeVisible();
-	
+
 	const eventName = `${faker.animal.dog()} birthday party!`;
 	await page.getByPlaceholder('Summer BBQ Party').fill(eventName);
-	
+
 	// Test Enter key navigation
 	await page.keyboard.press('Enter');
 
 	// Step 2: Paid Event
 	await expect(page.getByRole('heading', { name: 'Is this a paid event?' })).toBeVisible();
 	await expect(page.getByText('2 of 6')).toBeVisible();
-	
+
 	// Test free event path
-	await page.getByRole('button', { name: 'No, it\'s free' }).click();
+	await page.getByRole('button', { name: "No, it's free" }).click();
 	await page.keyboard.press('Enter');
 
 	// Step 3: Date & Time (skipping ticketing since it's free)
 	await expect(page.getByRole('heading', { name: 'When is your event?' })).toBeVisible();
 	await expect(page.getByText('3 of 6')).toBeVisible();
-	
+
 	// Pick a date
 	await page.getByRole('button', { name: 'Pick a date' }).click();
 	await page.getByLabel('Next').click();
 	await page.click('[data-bits-calendar-cell][data-value$="-01"]:not([data-outside-month])');
-	
+
 	// Set time - test 12-hour format restriction
 	await page.getByPlaceholder('HH').fill('8');
 	await page.getByPlaceholder('mm').fill('30');
 	await page.getByRole('button', { name: 'PM' }).click();
-	
+
 	// Test Next button instead of Enter for this step (due to popover interactions)
 	await page.getByRole('button', { name: 'Next' }).click();
 
 	// Step 4: Location
 	await expect(page.getByRole('heading', { name: 'Where is your event?' })).toBeVisible();
 	await expect(page.getByText('4 of 6')).toBeVisible();
-	
+
 	await page.getByPlaceholder('Enter event address...').fill('15 rue du luxembourg, mouscron');
 	await page.getByText('Rue du Luxembourg 15, 7700').click();
 	await page.keyboard.press('Enter');
@@ -1402,7 +1402,7 @@ test('Guided event creation flow', async ({ page }) => {
 	// Step 5: Description
 	await expect(page.getByRole('heading', { name: 'Tell us about your event' })).toBeVisible();
 	await expect(page.getByText('5 of 6')).toBeVisible();
-	
+
 	const eventDetails = `Join us for ${eventName}! It will be an amazing celebration.`;
 	await page.getByRole('textbox').fill(eventDetails);
 	await page.keyboard.press('Enter');
@@ -1410,10 +1410,10 @@ test('Guided event creation flow', async ({ page }) => {
 	// Step 6: Event Options
 	await expect(page.getByRole('heading', { name: 'Event options' })).toBeVisible();
 	await expect(page.getByText('6 of 6')).toBeVisible();
-	
+
 	// Enable bring list
 	await page.getByRole('checkbox', { name: 'Enable bring list' }).click();
-	
+
 	// Test final Create Event button
 	await page.getByRole('button', { name: 'Create Event' }).click();
 
@@ -1421,10 +1421,10 @@ test('Guided event creation flow', async ({ page }) => {
 	await expect(page.locator('#event-title')).toBeVisible();
 	await expect(page.getByText(eventName)).toBeVisible();
 	await expect(page.getByText(eventDetails)).toBeVisible();
-	
+
 	// Verify event was created with correct settings
 	await expect(page.getByText('Going').first()).toBeVisible(); // Creator is automatically going
-	
+
 	// Test that bring list was enabled
 	await expect(page.getByText('Bring List')).toBeVisible();
 });
@@ -1450,7 +1450,7 @@ test('Guided event creation flow - paid event path', async ({ page }) => {
 	// Step 3: Ticketing Setup (only shows for paid events)
 	await expect(page.getByRole('heading', { name: 'Set up your ticketing' })).toBeVisible();
 	await expect(page.getByText('3 of 7')).toBeVisible(); // Now 7 steps total
-	
+
 	// Configure ticketing
 	await page.getByPlaceholder('25.00').fill('15.00');
 	await page.getByPlaceholder('100').fill('50');
@@ -1459,7 +1459,7 @@ test('Guided event creation flow - paid event path', async ({ page }) => {
 	// Step 4: Date & Time
 	await expect(page.getByRole('heading', { name: 'When is your event?' })).toBeVisible();
 	await expect(page.getByText('4 of 7')).toBeVisible();
-	
+
 	// Set date and time
 	await page.getByRole('button', { name: 'Pick a date' }).click();
 	await page.getByLabel('Next').click();
@@ -1483,14 +1483,16 @@ test('Guided event creation flow - paid event path', async ({ page }) => {
 
 	// Step 7: Event Options
 	// For paid events, guests are disabled by default
-	await expect(page.getByRole('checkbox', { name: 'Let attendees bring guests' })).not.toBeChecked();
+	await expect(
+		page.getByRole('checkbox', { name: 'Let attendees bring guests' })
+	).not.toBeChecked();
 	await page.getByRole('button', { name: 'Create Event' }).click();
 
 	// Should redirect to the created event
 	await expect(page.locator('#event-title')).toBeVisible();
 	await expect(page.getByText(eventName)).toBeVisible();
 	await expect(page.getByText(eventDetails)).toBeVisible();
-	
+
 	// Verify it's a ticketed event
 	await expect(page.getByText('$15.00')).toBeVisible(); // Ticket price should be visible
 });
@@ -1511,29 +1513,29 @@ test('Guided event creation flow - back navigation', async ({ page }) => {
 
 	// Step 2: Verify back button changes to Cancel on first step
 	await expect(page.getByRole('button', { name: 'Back' })).toBeVisible();
-	
+
 	// Go forward to step 3
-	await page.getByRole('button', { name: 'No, it\'s free' }).click();
+	await page.getByRole('button', { name: "No, it's free" }).click();
 	await page.keyboard.press('Enter');
 
 	// Step 3: Test back navigation
 	await page.getByRole('button', { name: 'Back' }).click();
-	
+
 	// Should be back to step 2
 	await expect(page.getByRole('heading', { name: 'Is this a paid event?' })).toBeVisible();
 	await expect(page.getByText('2 of 6')).toBeVisible();
-	
+
 	// Go back to step 1
 	await page.getByRole('button', { name: 'Back' }).click();
-	
+
 	// Should be back to step 1 with Cancel button
-	await expect(page.getByRole('heading', { name: 'What\'s your event called?' })).toBeVisible();
+	await expect(page.getByRole('heading', { name: "What's your event called?" })).toBeVisible();
 	await expect(page.getByText('1 of 6')).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Cancel' })).toBeVisible();
-	
+
 	// Test cancel button
 	await page.getByRole('button', { name: 'Cancel' }).click();
-	
+
 	// Should redirect to dashboard
 	await expect(page.url()).toContain('/dashboard');
 });

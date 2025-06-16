@@ -18,18 +18,20 @@
 
 	// Filter attendees based on search
 	let filteredSeenAttendees = $derived(
-		attendeesSeenStatus.filter(attendee =>
-			attendee.user?.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			attendee.user?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			attendee.name?.toLowerCase().includes(searchTerm.toLowerCase())
+		attendeesSeenStatus.filter(
+			(attendee) =>
+				attendee.user?.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+				attendee.user?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+				attendee.name?.toLowerCase().includes(searchTerm.toLowerCase())
 		)
 	);
 
 	let filteredUnseenAttendees = $derived(
-		attendeesUnseenStatus.filter(attendee =>
-			attendee.user?.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			attendee.user?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			attendee.name?.toLowerCase().includes(searchTerm.toLowerCase())
+		attendeesUnseenStatus.filter(
+			(attendee) =>
+				attendee.user?.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+				attendee.user?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+				attendee.name?.toLowerCase().includes(searchTerm.toLowerCase())
 		)
 	);
 
@@ -60,8 +62,8 @@
 						.Select(['id', 'user_id', 'name'])
 				);
 
-				const attendeesByUserId = new Map(attendeesWithUsers.map(att => [att.user_id, att]));
-				
+				const attendeesByUserId = new Map(attendeesWithUsers.map((att) => [att.user_id, att]));
+
 				const seenAttendees = [];
 				const unseenAttendees = [];
 
@@ -95,9 +97,13 @@
 					}
 				}
 
-				attendeesSeenStatus = seenAttendees.sort((a, b) => new Date(b.seenAt).getTime() - new Date(a.seenAt).getTime());
-				attendeesUnseenStatus = unseenAttendees.sort((a, b) => new Date(b.invitationSentAt).getTime() - new Date(a.invitationSentAt).getTime());
-				
+				attendeesSeenStatus = seenAttendees.sort(
+					(a, b) => new Date(b.seenAt).getTime() - new Date(a.seenAt).getTime()
+				);
+				attendeesUnseenStatus = unseenAttendees.sort(
+					(a, b) => new Date(b.invitationSentAt).getTime() - new Date(a.invitationSentAt).getTime()
+				);
+
 				loading = false;
 			},
 			(error) => {
@@ -111,19 +117,14 @@
 </script>
 
 <div class="p-4">
-	<div class="flex items-center justify-between mb-4">
+	<div class="mb-4 flex items-center justify-between">
 		<div class="flex items-center">
 			<h3 class="text-lg font-semibold">Invitation Status</h3>
 			<AdminOnlySign text="Only admins can see who has seen invitations" class="ml-2" />
 		</div>
 		<div class="flex items-center">
-			<Search class="h-4 w-4 mr-2" />
-			<Input
-				type="text"
-				placeholder="Search attendees..."
-				bind:value={searchTerm}
-				class="w-64"
-			/>
+			<Search class="mr-2 h-4 w-4" />
+			<Input type="text" placeholder="Search attendees..." bind:value={searchTerm} class="w-64" />
 		</div>
 	</div>
 
@@ -135,26 +136,30 @@
 		<Tabs.Root value="seen-invitations" class="w-full">
 			<Tabs.List class="grid w-full grid-cols-2">
 				<Tabs.Trigger value="seen-invitations" class="flex items-center">
-					<Check class="h-4 w-4 mr-2 text-green-500" />
+					<Check class="mr-2 h-4 w-4 text-green-500" />
 					Seen ({attendeesSeenStatus.length})
 				</Tabs.Trigger>
 				<Tabs.Trigger value="unseen-invitations" class="flex items-center">
-					<X class="h-4 w-4 mr-2 text-red-500" />
+					<X class="mr-2 h-4 w-4 text-red-500" />
 					Unseen ({attendeesUnseenStatus.length})
 				</Tabs.Trigger>
 			</Tabs.List>
 
 			<Tabs.Content value="seen-invitations" class="mt-4">
 				{#if filteredSeenAttendees.length === 0}
-					<div class="text-center py-8 text-gray-500">
-						{searchTerm ? 'No seen invitations match your search.' : 'No invitations have been seen yet.'}
+					<div class="py-8 text-center text-gray-500">
+						{searchTerm
+							? 'No seen invitations match your search.'
+							: 'No invitations have been seen yet.'}
 					</div>
 				{:else}
 					<div class="space-y-3">
 						{#each filteredSeenAttendees as attendee}
-							<div class="flex items-center justify-between p-3 border rounded-lg bg-green-50 border-green-200">
+							<div
+								class="flex items-center justify-between rounded-lg border border-green-200 bg-green-50 p-3"
+							>
 								<div class="flex items-center">
-									<Check class="h-5 w-5 text-green-500 mr-3" />
+									<Check class="mr-3 h-5 w-5 text-green-500" />
 									<div>
 										<div class="font-medium">
 											{attendee.user?.username || attendee.name || 'Unknown User'}
@@ -176,15 +181,19 @@
 
 			<Tabs.Content value="unseen-invitations" class="mt-4">
 				{#if filteredUnseenAttendees.length === 0}
-					<div class="text-center py-8 text-gray-500">
-						{searchTerm ? 'No unseen invitations match your search.' : 'All invitations have been seen!'}
+					<div class="py-8 text-center text-gray-500">
+						{searchTerm
+							? 'No unseen invitations match your search.'
+							: 'All invitations have been seen!'}
 					</div>
 				{:else}
 					<div class="space-y-3">
 						{#each filteredUnseenAttendees as attendee}
-							<div class="flex items-center justify-between p-3 border rounded-lg bg-red-50 border-red-200">
+							<div
+								class="flex items-center justify-between rounded-lg border border-red-200 bg-red-50 p-3"
+							>
 								<div class="flex items-center">
-									<X class="h-5 w-5 text-red-500 mr-3" />
+									<X class="mr-3 h-5 w-5 text-red-500" />
 									<div>
 										<div class="font-medium">
 											{attendee.user?.username || attendee.name || 'Unknown User'}

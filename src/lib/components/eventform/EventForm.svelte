@@ -49,7 +49,13 @@
 	import TicketingFeature from './feature-enablers/TicketingFeature.svelte';
 	import TicketTypeManager from '../tickets/TicketTypeManager.svelte';
 	import CurrencySelector from './feature-enablers/CurrencySelector.svelte';
-	import { createEvent as createEventShared, updateEvent as updateEventShared, triggerUpdateReminders, type CreateEventData, type UpdateEventData } from '$lib/event-operations';
+	import {
+		createEvent as createEventShared,
+		updateEvent as updateEventShared,
+		triggerUpdateReminders,
+		type CreateEventData,
+		type UpdateEventData
+	} from '$lib/event-operations';
 	import type { FontSelection } from '$lib/types';
 	import {
 		BellRing,
@@ -342,7 +348,6 @@
 		}
 	}
 
-
 	const createEvent = async (createTransaction = false) => {
 		if (isEventSaving) {
 			return;
@@ -350,7 +355,6 @@
 		isEventSaving = true;
 		try {
 			eventCreated = true;
-
 
 			const eventData: CreateEventData = {
 				title: eventName || '',
@@ -448,7 +452,6 @@
 			console.error('❌ Error updating event:', error);
 		}
 	};
-
 
 	const checkCanCreateTransaction = (
 		userIsOutOfLogs: boolean,

@@ -97,9 +97,7 @@
 							>
 						{/if}
 						{#if isCurrenUserEventAdmin}
-							<Tabs.Trigger value="admin-invitation-status-dialog"
-								>👁️ Invitations</Tabs.Trigger
-							>
+							<Tabs.Trigger value="admin-invitation-status-dialog">👁️ Invitations</Tabs.Trigger>
 							<Tabs.Trigger value="admin-attendees-removed-dialog"
 								>{numAttendeesRemoved} <Trash2 class="pl-1" /></Tabs.Trigger
 							>
@@ -187,10 +185,7 @@
 						/>
 					</Tabs.Content>
 					<Tabs.Content value="admin-invitation-status-dialog">
-						<InvitationStatusView
-							{eventId}
-							{allAttendeesInvited}
-						/>
+						<InvitationStatusView {eventId} {allAttendeesInvited} />
 					</Tabs.Content>
 					<Tabs.Content value="admin-attendees-left-dialog">
 						<SearchableAttendeeList

@@ -18,11 +18,7 @@ export async function POST({ request }: RequestEvent): Promise<Response> {
 		}
 
 		// Verify webhook signature
-		event = stripeClient.webhooks.constructEvent(
-			body,
-			signature,
-			privateEnv.STRIPE_WEBHOOK_SECRET
-		);
+		event = stripeClient.webhooks.constructEvent(body, signature, privateEnv.STRIPE_WEBHOOK_SECRET);
 	} catch (err) {
 		console.error('Webhook signature verification failed:', err);
 		return json({ error: 'Invalid signature' }, { status: 400 });
@@ -85,7 +81,7 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
 		// Update purchase status to completed
 		await triplitHttpClient.update('ticket_purchases', purchaseId, (purchase) => {
 			purchase.status = 'completed';
-			purchase.stripe_payment_intent_id = session.payment_intent as string || '';
+			purchase.stripe_payment_intent_id = (session.payment_intent as string) || '';
 		});
 
 		// Get ticket type to get price information

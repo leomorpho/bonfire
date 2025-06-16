@@ -19,19 +19,20 @@
 
 <div class="space-y-4">
 	<div>
-		<TipTapTextEditor 
+		<TipTapTextEditor
 			bind:content={description}
 			on:contentChange={handleDescriptionChange}
 			placeholder="Describe your event... What should attendees expect? What should they bring? Any special instructions?"
 			class="min-h-[200px]"
 		/>
-		<p class="text-sm text-gray-500 mt-2">
-			💡 Tip: Include what attendees should expect, what to bring, parking info, or any special instructions
+		<p class="mt-2 text-sm text-gray-500">
+			💡 Tip: Include what attendees should expect, what to bring, parking info, or any special
+			instructions
 		</p>
 	</div>
 
 	{#if description && description.length > 10}
-		<div class="p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
+		<div class="rounded-lg bg-blue-50 p-4 dark:bg-blue-950">
 			<div class="flex items-center gap-2 text-sm text-blue-800 dark:text-blue-200">
 				<FileText class="h-4 w-4" />
 				<span class="font-medium">Looking good!</span>

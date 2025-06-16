@@ -171,7 +171,11 @@
 
 		<!-- Quick Actions -->
 		<div class="mb-6 flex w-full justify-center gap-3">
-			<Button variant="outline" class="max-w-48 flex-1" onclick={() => goto('/bonfire/create/guided')}>
+			<Button
+				variant="outline"
+				class="max-w-48 flex-1"
+				onclick={() => goto('/bonfire/create/guided')}
+			>
 				<Plus class="mr-2 h-4 w-4" />
 				Create Event
 			</Button>

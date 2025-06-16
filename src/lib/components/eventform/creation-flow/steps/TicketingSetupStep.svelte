@@ -24,7 +24,7 @@
 		}
 	});
 
-	const currencyOptions = ALLOWED_EVENT_CURRENCIES.map(currency => ({
+	const currencyOptions = ALLOWED_EVENT_CURRENCIES.map((currency) => ({
 		value: currency,
 		label: currency.toUpperCase()
 	}));
@@ -43,9 +43,7 @@
 				{/each}
 			</Select.Content>
 		</Select.Root>
-		<p class="text-sm text-gray-500 mt-1">
-			Choose the currency for your event tickets
-		</p>
+		<p class="mt-1 text-sm text-gray-500">Choose the currency for your event tickets</p>
 	</div>
 
 	<div>
@@ -58,15 +56,14 @@
 			max="20"
 			class="mt-2"
 		/>
-		<p class="text-sm text-gray-500 mt-1">
-			Limit how many tickets one person can purchase
-		</p>
+		<p class="mt-1 text-sm text-gray-500">Limit how many tickets one person can purchase</p>
 	</div>
 
-	<div class="p-4 bg-amber-50 dark:bg-amber-950 rounded-lg">
-		<h4 class="font-medium text-amber-800 dark:text-amber-200 mb-2">Next steps</h4>
+	<div class="rounded-lg bg-amber-50 p-4 dark:bg-amber-950">
+		<h4 class="mb-2 font-medium text-amber-800 dark:text-amber-200">Next steps</h4>
 		<p class="text-sm text-amber-700 dark:text-amber-300">
-			After creating your event, you'll be able to add specific ticket types with names, descriptions, prices, and quantities.
+			After creating your event, you'll be able to add specific ticket types with names,
+			descriptions, prices, and quantities.
 		</p>
 	</div>
 </div>

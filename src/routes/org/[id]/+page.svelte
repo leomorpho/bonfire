@@ -129,7 +129,10 @@
 						{/if}
 
 						{#if isMember}
-							<Button onclick={() => goto('/bonfire/create/guided')} class="flex items-center gap-2">
+							<Button
+								onclick={() => goto('/bonfire/create/guided')}
+								class="flex items-center gap-2"
+							>
 								<Plus class="h-4 w-4" />
 								Create Event
 							</Button>

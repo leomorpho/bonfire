@@ -30,11 +30,11 @@
 <div class="space-y-6">
 	<!-- Capacity Settings -->
 	<Card class="p-4">
-		<h3 class="font-semibold mb-4 flex items-center gap-2">
+		<h3 class="mb-4 flex items-center gap-2 font-semibold">
 			<Users class="h-5 w-5" />
 			Capacity & Guests
 		</h3>
-		
+
 		<div class="space-y-4">
 			<div>
 				<Label for="max-capacity">Maximum attendees (optional)</Label>
@@ -46,7 +46,7 @@
 					min="1"
 					class="mt-1"
 				/>
-				<p class="text-xs text-gray-500 mt-1">
+				<p class="mt-1 text-xs text-gray-500">
 					Set a limit on how many people can attend your event
 				</p>
 			</div>
@@ -62,9 +62,7 @@
 						max="10"
 						class="mt-1"
 					/>
-					<p class="text-xs text-gray-500 mt-1">
-						How many guests can each attendee bring?
-					</p>
+					<p class="mt-1 text-xs text-gray-500">How many guests can each attendee bring?</p>
 				</div>
 
 				{#if maxNumGuests && maxNumGuests > 0}
@@ -76,7 +74,9 @@
 					</div>
 				{/if}
 			{:else}
-				<div class="p-3 bg-amber-50 dark:bg-amber-950 rounded text-sm text-amber-700 dark:text-amber-300">
+				<div
+					class="rounded bg-amber-50 p-3 text-sm text-amber-700 dark:bg-amber-950 dark:text-amber-300"
+				>
 					💳 Paid events don't allow plus-ones to simplify ticket management
 				</div>
 			{/if}
@@ -85,8 +85,8 @@
 
 	<!-- Event Features -->
 	<Card class="p-4">
-		<h3 class="font-semibold mb-4">Event Features</h3>
-		
+		<h3 class="mb-4 font-semibold">Event Features</h3>
+
 		<div class="space-y-4">
 			<div class="flex items-center justify-between">
 				<div class="flex items-center gap-3">
@@ -124,9 +124,9 @@
 	</Card>
 
 	<!-- Summary -->
-	<div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-		<h4 class="font-medium mb-2">Event Summary</h4>
-		<div class="text-sm space-y-1 text-gray-600 dark:text-gray-400">
+	<div class="rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
+		<h4 class="mb-2 font-medium">Event Summary</h4>
+		<div class="space-y-1 text-sm text-gray-600 dark:text-gray-400">
 			<p>• <strong>{data.eventName || 'Untitled Event'}</strong></p>
 			<p>• {data.isPaid ? 'Paid event' : 'Free event'}</p>
 			{#if maxCapacity}
@@ -137,11 +137,15 @@
 			{#if !data.isPaid && maxNumGuests && maxNumGuests > 0}
 				<p>• Up to {maxNumGuests} guest{maxNumGuests > 1 ? 's' : ''} per attendee</p>
 			{/if}
-			<p>• Features: {[
-				isBringListEnabled ? 'Bring List' : null,
-				isGalleryEnabled ? 'Gallery' : null,
-				isMessagingEnabled ? 'Chat' : null
-			].filter(Boolean).join(', ') || 'None selected'}</p>
+			<p>
+				• Features: {[
+					isBringListEnabled ? 'Bring List' : null,
+					isGalleryEnabled ? 'Gallery' : null,
+					isMessagingEnabled ? 'Chat' : null
+				]
+					.filter(Boolean)
+					.join(', ') || 'None selected'}
+			</p>
 		</div>
 	</div>
 </div>

@@ -12,7 +12,7 @@
 	$effect(() => {
 		data.location = location;
 		data.geocodedLocation = geocodedLocation;
-		
+
 		// Extract coordinates if available
 		if (geocodedLocation?.geometry?.location) {
 			data.latitude = geocodedLocation.geometry.location.lat;
@@ -28,18 +28,14 @@
 
 <div class="space-y-4">
 	<div>
-		<LocationInput 
-			bind:location={location}
-			bind:geocodedLocation={geocodedLocation}
-			on:locationChange={handleLocationChange}
-		/>
-		<p class="text-sm text-gray-500 mt-2">
+		<LocationInput bind:location bind:geocodedLocation on:locationChange={handleLocationChange} />
+		<p class="mt-2 text-sm text-gray-500">
 			Enter an address, venue name, or landmark. We'll help attendees find your event.
 		</p>
 	</div>
 
 	{#if geocodedLocation}
-		<div class="p-4 bg-green-50 dark:bg-green-950 rounded-lg">
+		<div class="rounded-lg bg-green-50 p-4 dark:bg-green-950">
 			<div class="flex items-center gap-2 text-sm text-green-800 dark:text-green-200">
 				<MapPin class="h-4 w-4" />
 				<span class="font-medium">Location verified</span>

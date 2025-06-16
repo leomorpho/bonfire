@@ -23,7 +23,7 @@
 			class="mt-2 text-lg"
 			autofocus
 		/>
-		<p class="text-sm text-gray-500 mt-1">
+		<p class="mt-1 text-sm text-gray-500">
 			Choose a clear, descriptive name that will grab attention
 		</p>
 	</div>

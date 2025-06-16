@@ -59,13 +59,15 @@ export async function createEvent(
 	}
 
 	const eventId = await generateSecureId(20);
-	
+
 	const fullEventData = {
 		id: eventId,
 		title: eventData.title || '',
 		description: eventData.description || '',
 		location: eventData.location || '',
-		geocoded_location: eventData.geocoded_location ? JSON.stringify(eventData.geocoded_location) : null,
+		geocoded_location: eventData.geocoded_location
+			? JSON.stringify(eventData.geocoded_location)
+			: null,
 		start_time: eventData.start_time,
 		end_time: eventData.end_time,
 		user_id: userId,
@@ -75,7 +77,9 @@ export async function createEvent(
 		overlay_opacity: eventData.overlay_opacity || 0.4,
 		font: eventData.font ? JSON.stringify(eventData.font) : null,
 		max_capacity: eventData.max_capacity || null,
-		max_num_guests_per_attendee: eventData.is_ticketed ? 0 : (eventData.max_num_guests_per_attendee || 0),
+		max_num_guests_per_attendee: eventData.is_ticketed
+			? 0
+			: eventData.max_num_guests_per_attendee || 0,
 		is_bring_list_enabled: eventData.is_bring_list_enabled || false,
 		is_gallery_enabled: eventData.is_gallery_enabled ?? true,
 		is_messaging_enabled: eventData.is_messaging_enabled ?? true,
@@ -103,7 +107,7 @@ export async function createEvent(
 	await upsertUserAttendance(eventId, Status.GOING, 0);
 
 	console.log('✅ Event created successfully');
-	
+
 	return { event, eventId };
 }
 
@@ -121,24 +125,35 @@ export async function updateEvent(
 		if (eventData.description !== undefined) e.description = eventData.description || null;
 		if (eventData.location !== undefined) e.location = eventData.location;
 		if (eventData.geocoded_location !== undefined) {
-			e.geocoded_location = eventData.geocoded_location ? JSON.stringify(eventData.geocoded_location) : null;
+			e.geocoded_location = eventData.geocoded_location
+				? JSON.stringify(eventData.geocoded_location)
+				: null;
 		}
 		if (eventData.start_time !== undefined) e.start_time = eventData.start_time?.toISOString();
 		if (eventData.end_time !== undefined) e.end_time = eventData.end_time?.toISOString();
-		if (eventData.organization_id !== undefined) e.organization_id = eventData.organization_id || null;
+		if (eventData.organization_id !== undefined)
+			e.organization_id = eventData.organization_id || null;
 		if (eventData.style !== undefined) e.style = eventData.style;
 		if (eventData.overlay_color !== undefined) e.overlay_color = eventData.overlay_color;
 		if (eventData.overlay_opacity !== undefined) e.overlay_opacity = eventData.overlay_opacity;
-		if (eventData.font !== undefined) e.font = eventData.font ? JSON.stringify(eventData.font) : null;
+		if (eventData.font !== undefined)
+			e.font = eventData.font ? JSON.stringify(eventData.font) : null;
 		if (eventData.max_capacity !== undefined) e.max_capacity = eventData.max_capacity;
 		if (eventData.max_num_guests_per_attendee !== undefined) {
-			e.max_num_guests_per_attendee = eventData.is_ticketed ? 0 : (eventData.max_num_guests_per_attendee || 0);
+			e.max_num_guests_per_attendee = eventData.is_ticketed
+				? 0
+				: eventData.max_num_guests_per_attendee || 0;
 		}
-		if (eventData.is_bring_list_enabled !== undefined) e.is_bring_list_enabled = eventData.is_bring_list_enabled || false;
-		if (eventData.is_gallery_enabled !== undefined) e.is_gallery_enabled = eventData.is_gallery_enabled;
-		if (eventData.is_messaging_enabled !== undefined) e.is_messaging_enabled = eventData.is_messaging_enabled;
-		if (eventData.require_guest_bring_item !== undefined) e.require_guest_bring_item = eventData.require_guest_bring_item;
-		if (eventData.is_cut_off_date_enabled !== undefined) e.is_cut_off_date_enabled = eventData.is_cut_off_date_enabled;
+		if (eventData.is_bring_list_enabled !== undefined)
+			e.is_bring_list_enabled = eventData.is_bring_list_enabled || false;
+		if (eventData.is_gallery_enabled !== undefined)
+			e.is_gallery_enabled = eventData.is_gallery_enabled;
+		if (eventData.is_messaging_enabled !== undefined)
+			e.is_messaging_enabled = eventData.is_messaging_enabled;
+		if (eventData.require_guest_bring_item !== undefined)
+			e.require_guest_bring_item = eventData.require_guest_bring_item;
+		if (eventData.is_cut_off_date_enabled !== undefined)
+			e.is_cut_off_date_enabled = eventData.is_cut_off_date_enabled;
 		if (eventData.cut_off_date !== undefined) e.cut_off_date = eventData.cut_off_date;
 		// Ticketing fields
 		if (eventData.is_ticketed !== undefined) e.is_ticketed = eventData.is_ticketed || false;

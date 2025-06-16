@@ -14,10 +14,10 @@ export const FLOW_STEPS: FlowStepConfig[] = [
 		id: FlowStepId.PAID_EVENT,
 		title: 'Is this a paid event?',
 		subtitle: 'Let us know if attendees will need to purchase tickets',
-		component: 'PaidEventStep', 
+		component: 'PaidEventStep',
 		required: true,
 		validates: (data) => typeof data.isPaid === 'boolean',
-		nextStep: (data) => data.isPaid ? FlowStepId.TICKETING_SETUP : FlowStepId.DATE_TIME
+		nextStep: (data) => (data.isPaid ? FlowStepId.TICKETING_SETUP : FlowStepId.DATE_TIME)
 	},
 	{
 		id: FlowStepId.TICKETING_SETUP,
@@ -66,30 +66,30 @@ export const FLOW_STEPS: FlowStepConfig[] = [
 ];
 
 export function getStepConfig(stepId: FlowStepId): FlowStepConfig | undefined {
-	return FLOW_STEPS.find(step => step.id === stepId);
+	return FLOW_STEPS.find((step) => step.id === stepId);
 }
 
 export function getNextStep(currentStepId: FlowStepId, data: any): FlowStepId | null {
 	const step = getStepConfig(currentStepId);
 	if (!step?.nextStep) return null;
-	
+
 	if (typeof step.nextStep === 'function') {
 		return step.nextStep(data);
 	}
-	
+
 	return step.nextStep;
 }
 
 export function shouldShowStep(stepId: FlowStepId, data: any): boolean {
 	const step = getStepConfig(stepId);
 	if (!step?.showIf) return true;
-	
+
 	return step.showIf(data);
 }
 
 export function isStepValid(stepId: FlowStepId, data: any): boolean {
 	const step = getStepConfig(stepId);
 	if (!step?.validates) return !step?.required; // If no validation and not required, it's valid
-	
+
 	return step.validates(data);
 }

@@ -5,13 +5,24 @@
 	import { getFeWorkerTriplitClient, waitForUserId } from '$lib/triplit';
 	import type { TriplitClient } from '@triplit/client';
 	import { FlowStepId, type FlowData } from './flow-enums';
-	import { FLOW_STEPS, getStepConfig, getNextStep, shouldShowStep, isStepValid } from './flow-config';
+	import {
+		FLOW_STEPS,
+		getStepConfig,
+		getNextStep,
+		shouldShowStep,
+		isStepValid
+	} from './flow-config';
 	import { Button } from '$lib/components/ui/button';
 	import { ArrowLeft, ArrowRight } from 'lucide-svelte';
 	import { toast } from 'svelte-sonner';
-	import { createEvent, updateEvent, type CreateEventData, type UpdateEventData } from '$lib/event-operations';
+	import {
+		createEvent,
+		updateEvent,
+		type CreateEventData,
+		type UpdateEventData
+	} from '$lib/event-operations';
 	import KeyBoardShortcut from '$lib/components/KeyBoardShortcut.svelte';
-	
+
 	// Step components
 	import EventNameStep from './steps/EventNameStep.svelte';
 	import PaidEventStep from './steps/PaidEventStep.svelte';
@@ -38,14 +49,22 @@
 	};
 
 	let currentStepConfig = $derived(getStepConfig(currentStepId));
-	let currentComponent = $derived(currentStepConfig ? stepComponents[currentStepConfig.component as keyof typeof stepComponents] : null);
-	let isCurrentStepValid = $derived(currentStepConfig ? isStepValid(currentStepId, flowData) : false);
+	let currentComponent = $derived(
+		currentStepConfig
+			? stepComponents[currentStepConfig.component as keyof typeof stepComponents]
+			: null
+	);
+	let isCurrentStepValid = $derived(
+		currentStepConfig ? isStepValid(currentStepId, flowData) : false
+	);
 	let canProceed = $derived(isCurrentStepValid && !isLoading && !isSaving);
 
 	// Progress calculation
-	let visibleSteps = $derived(FLOW_STEPS.filter(step => shouldShowStep(step.id, flowData)));
-	let currentStepIndex = $derived(visibleSteps.findIndex(step => step.id === currentStepId));
-	let progressPercentage = $derived(Math.round(((currentStepIndex + 1) / visibleSteps.length) * 100));
+	let visibleSteps = $derived(FLOW_STEPS.filter((step) => shouldShowStep(step.id, flowData)));
+	let currentStepIndex = $derived(visibleSteps.findIndex((step) => step.id === currentStepId));
+	let progressPercentage = $derived(
+		Math.round(((currentStepIndex + 1) / visibleSteps.length) * 100)
+	);
 
 	onMount(async () => {
 		isLoading = true;
@@ -58,7 +77,7 @@
 				goto('/login');
 				return;
 			}
-			
+
 			flowData.userId = userId;
 		} catch (error) {
 			console.error('Error initializing flow:', error);
@@ -85,16 +104,12 @@
 	function hasMinimumRequiredFields(): boolean {
 		// Required fields from schema: title, start_time, user_id
 		const hasValidDateTime = combineDateTime(flowData.startDate, flowData.startTime) !== null;
-		return !!(
-			flowData.eventName?.trim() &&
-			hasValidDateTime &&
-			flowData.userId
-		);
+		return !!(flowData.eventName?.trim() && hasValidDateTime && flowData.userId);
 	}
 
 	async function createDraftEvent() {
 		if (!flowData.userId) return;
-		
+
 		isSaving = true;
 		try {
 			const startTime = combineDateTime(flowData.startDate, flowData.startTime);
@@ -108,13 +123,15 @@
 				location: flowData.location || '',
 				geocoded_location: flowData.geocodedLocation,
 				start_time: startTime,
-				end_time: flowData.hasEndTime ? combineDateTime(flowData.endDate || flowData.startDate, flowData.endTime) : null,
+				end_time: flowData.hasEndTime
+					? combineDateTime(flowData.endDate || flowData.startDate, flowData.endTime)
+					: null,
 				organization_id: flowData.organizationId || null,
 				is_ticketed: flowData.isPaid || false,
 				ticket_currency: flowData.ticketCurrency || 'usd',
 				max_tickets_per_user: flowData.maxTicketsPerUser || 5,
 				max_capacity: flowData.maxCapacity || null,
-				max_num_guests_per_attendee: flowData.isPaid ? 0 : (flowData.maxNumGuests || 0),
+				max_num_guests_per_attendee: flowData.isPaid ? 0 : flowData.maxNumGuests || 0,
 				is_bring_list_enabled: flowData.isBringListEnabled || false,
 				is_gallery_enabled: flowData.isGalleryEnabled ?? true,
 				is_messaging_enabled: flowData.isMessagingEnabled ?? true,
@@ -152,13 +169,15 @@
 				location: flowData.location || '',
 				geocoded_location: flowData.geocodedLocation,
 				start_time: startTime,
-				end_time: flowData.hasEndTime ? combineDateTime(flowData.endDate || flowData.startDate, flowData.endTime) : null,
+				end_time: flowData.hasEndTime
+					? combineDateTime(flowData.endDate || flowData.startDate, flowData.endTime)
+					: null,
 				organization_id: flowData.organizationId || null,
 				is_ticketed: flowData.isPaid || false,
 				ticket_currency: flowData.ticketCurrency || 'usd',
 				max_tickets_per_user: flowData.maxTicketsPerUser || 5,
 				max_capacity: flowData.maxCapacity || null,
-				max_num_guests_per_attendee: flowData.isPaid ? 0 : (flowData.maxNumGuests || 0),
+				max_num_guests_per_attendee: flowData.isPaid ? 0 : flowData.maxNumGuests || 0,
 				is_bring_list_enabled: flowData.isBringListEnabled || false,
 				is_gallery_enabled: flowData.isGalleryEnabled ?? true,
 				is_messaging_enabled: flowData.isMessagingEnabled ?? true,
@@ -179,18 +198,21 @@
 		}
 	}
 
-	function combineDateTime(date: Date | undefined, time: { hour: string; minute: string; ampm: string } | undefined): Date | null {
+	function combineDateTime(
+		date: Date | undefined,
+		time: { hour: string; minute: string; ampm: string } | undefined
+	): Date | null {
 		if (!date || !time?.hour || !time?.minute) return null;
-		
+
 		const combined = new Date(date);
 		let hour = parseInt(time.hour);
-		
+
 		if (time.ampm === 'PM' && hour !== 12) {
 			hour += 12;
 		} else if (time.ampm === 'AM' && hour === 12) {
 			hour = 0;
 		}
-		
+
 		combined.setHours(hour, parseInt(time.minute), 0, 0);
 		return combined;
 	}
@@ -214,7 +236,7 @@
 	}
 
 	function handleBack() {
-		const currentIndex = visibleSteps.findIndex(step => step.id === currentStepId);
+		const currentIndex = visibleSteps.findIndex((step) => step.id === currentStepId);
 		if (currentIndex > 0) {
 			currentStepId = visibleSteps[currentIndex - 1].id;
 		}
@@ -249,15 +271,15 @@
 
 <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
 	<!-- Progress bar -->
-	<div class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-		<div class="max-w-2xl mx-auto px-4 py-4">
-			<div class="flex items-center justify-between mb-2">
+	<div class="border-b border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+		<div class="mx-auto max-w-2xl px-4 py-4">
+			<div class="mb-2 flex items-center justify-between">
 				<h1 class="text-lg font-semibold text-gray-900 dark:text-white">Create Event</h1>
 				<span class="text-sm text-gray-500">{currentStepIndex + 1} of {visibleSteps.length}</span>
 			</div>
-			<div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-				<div 
-					class="bg-blue-500 h-2 rounded-full transition-all duration-300 ease-out"
+			<div class="h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700">
+				<div
+					class="h-2 rounded-full bg-blue-500 transition-all duration-300 ease-out"
 					style="width: {progressPercentage}%"
 				></div>
 			</div>
@@ -265,15 +287,17 @@
 	</div>
 
 	<!-- Step content -->
-	<div class="max-w-2xl mx-auto px-4 py-8">
+	<div class="mx-auto max-w-2xl px-4 py-8">
 		{#if isLoading}
 			<div class="flex justify-center py-12">
 				<div class="text-gray-500">Initializing...</div>
 			</div>
 		{:else if currentStepConfig && currentComponent}
-			<div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+			<div
+				class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+			>
 				<div class="mb-6">
-					<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+					<h2 class="mb-2 text-2xl font-bold text-gray-900 dark:text-white">
 						{currentStepConfig.title}
 					</h2>
 					{#if currentStepConfig.subtitle}
@@ -287,7 +311,7 @@
 				{#if currentComponent}
 					{@render renderCurrentStep()}
 				{/if}
-				
+
 				{#snippet renderCurrentStep()}
 					{#if currentStepId === FlowStepId.EVENT_NAME}
 						<EventNameStep bind:data={flowData} />
@@ -308,17 +332,15 @@
 			</div>
 
 			<!-- Navigation buttons -->
-			<div class="flex justify-between items-center mt-6">
+			<div class="mt-6 flex items-center justify-between">
 				<div>
 					{#if currentStepIndex > 0}
 						<Button variant="outline" onclick={handleBack} disabled={isSaving}>
-							<ArrowLeft class="h-4 w-4 mr-2" />
+							<ArrowLeft class="mr-2 h-4 w-4" />
 							Back
 						</Button>
 					{:else}
-						<Button variant="outline" onclick={handleCancel}>
-							Cancel
-						</Button>
+						<Button variant="outline" onclick={handleCancel}>Cancel</Button>
 					{/if}
 				</div>
 
@@ -329,7 +351,7 @@
 					<Button onclick={handleNext} disabled={!canProceed}>
 						{#if getNextStep(currentStepId, flowData)}
 							Next
-							<ArrowRight class="h-4 w-4 ml-2" />
+							<ArrowRight class="ml-2 h-4 w-4" />
 						{:else}
 							Create Event
 						{/if}
@@ -337,7 +359,7 @@
 				</div>
 			</div>
 		{:else}
-			<div class="text-center py-12">
+			<div class="py-12 text-center">
 				<p class="text-red-600">Invalid step configuration</p>
 			</div>
 		{/if}

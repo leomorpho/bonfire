@@ -1,7 +1,10 @@
 import { TaskName, NotificationType } from '$lib/enums';
 import { triplitHttpClient } from '$lib/server/triplit';
 import { getTaskLockState, updateTaskLockState } from '../tasks';
-import { createNewUnseenInvitationsNotificationQueueObject, createNewUnseenAnnouncementsNotificationQueueObject } from '$lib/notification_queue';
+import {
+	createNewUnseenInvitationsNotificationQueueObject,
+	createNewUnseenAnnouncementsNotificationQueueObject
+} from '$lib/notification_queue';
 
 /**
  * Check for unseen invitations and notify admins if needed
@@ -84,21 +87,25 @@ export const runUnseenAnnouncementsCheck = async () => {
 /**
  * Check for unseen invitations for a specific event
  */
-async function checkUnseenInvitationsForEvent(eventId: string, eventStartTime: Date, eventCreatedAt: Date) {
+async function checkUnseenInvitationsForEvent(
+	eventId: string,
+	eventStartTime: Date,
+	eventCreatedAt: Date
+) {
 	// Calculate the notification time: (event_created_date - event_date) / 2
 	// But ensure it's at least 1 day after creation and at least 1 day before event
 	const now = new Date();
 	const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 	const eventCreated = new Date(eventCreatedAt);
 	const eventStart = new Date(eventStartTime);
-	
+
 	const timeDiff = eventStart.getTime() - eventCreated.getTime();
 	const halfwayPoint = new Date(eventCreated.getTime() + timeDiff / 2);
-	
+
 	// Ensure at least 1 day after creation and at least 1 day before event
 	const earliestNotificationTime = new Date(eventCreated.getTime() + 24 * 60 * 60 * 1000);
 	const latestNotificationTime = new Date(eventStart.getTime() - 24 * 60 * 60 * 1000);
-	
+
 	let notificationTime = halfwayPoint;
 	if (notificationTime < earliestNotificationTime) {
 		notificationTime = earliestNotificationTime;
@@ -106,7 +113,7 @@ async function checkUnseenInvitationsForEvent(eventId: string, eventStartTime: D
 	if (notificationTime > latestNotificationTime) {
 		notificationTime = latestNotificationTime;
 	}
-	
+
 	// Only proceed if we're past the notification time
 	if (now < notificationTime) {
 		return;
@@ -135,7 +142,7 @@ async function checkUnseenInvitationsForEvent(eventId: string, eventStartTime: D
 			.Select(['id', 'user_id'])
 	);
 
-	const attendeesByUserId = new Map(attendees.map(att => [att.user_id, att.id]));
+	const attendeesByUserId = new Map(attendees.map((att) => [att.user_id, att.id]));
 
 	// Check which invitations haven't been seen
 	const unseenAttendeeIds: string[] = [];
@@ -178,7 +185,7 @@ async function checkUnseenInvitationsForEvent(eventId: string, eventStartTime: D
 
 		// Include event creator as admin
 		const adminUserIds = new Set([
-			...eventAdmins.map(admin => admin.user_id),
+			...eventAdmins.map((admin) => admin.user_id),
 			...(event?.user_id ? [event.user_id] : [])
 		]);
 
@@ -192,7 +199,9 @@ async function checkUnseenInvitationsForEvent(eventId: string, eventStartTime: D
 			);
 		}
 
-		console.log(`Created unseen invitations notification for event ${eventId}: ${unseenAttendeeIds.length} attendees haven't seen their invitations`);
+		console.log(
+			`Created unseen invitations notification for event ${eventId}: ${unseenAttendeeIds.length} attendees haven't seen their invitations`
+		);
 	}
 }
 
@@ -226,15 +235,15 @@ async function checkUnseenAnnouncementsForEvent(eventId: string, eventStartTime:
 
 	for (const announcement of announcements) {
 		const announcementCreated = new Date(announcement.created_at);
-		
+
 		// Calculate notification time: (announcement_created_date - event_date) / 2
 		const timeDiff = eventStart.getTime() - announcementCreated.getTime();
 		const halfwayPoint = new Date(announcementCreated.getTime() + timeDiff / 2);
-		
+
 		// Ensure at least 1 day after announcement creation and at least 1 day before event
 		const earliestNotificationTime = new Date(announcementCreated.getTime() + 24 * 60 * 60 * 1000);
 		const latestNotificationTime = new Date(eventStart.getTime() - 24 * 60 * 60 * 1000);
-		
+
 		let notificationTime = halfwayPoint;
 		if (notificationTime < earliestNotificationTime) {
 			notificationTime = earliestNotificationTime;
@@ -242,7 +251,7 @@ async function checkUnseenAnnouncementsForEvent(eventId: string, eventStartTime:
 		if (notificationTime > latestNotificationTime) {
 			notificationTime = latestNotificationTime;
 		}
-		
+
 		// Only proceed if we're past the notification time
 		if (now < notificationTime) {
 			continue;
@@ -286,7 +295,7 @@ async function checkUnseenAnnouncementsForEvent(eventId: string, eventStartTime:
 
 			// Include event creator as admin
 			const adminUserIds = new Set([
-				...eventAdmins.map(admin => admin.user_id),
+				...eventAdmins.map((admin) => admin.user_id),
 				...(event?.user_id ? [event.user_id] : [])
 			]);
 
@@ -300,7 +309,9 @@ async function checkUnseenAnnouncementsForEvent(eventId: string, eventStartTime:
 				);
 			}
 
-			console.log(`Created unseen announcements notification for event ${eventId}, announcement ${announcement.id}: ${unseenAttendeeIds.length} attendees haven't seen it`);
+			console.log(
+				`Created unseen announcements notification for event ${eventId}, announcement ${announcement.id}: ${unseenAttendeeIds.length} attendees haven't seen it`
+			);
 		}
 	}
 }
