@@ -98,11 +98,13 @@
 				.Include('user')
 				.Include('added_by', (rel) => rel('added_by')),
 			(results) => {
-				// Separate members by role
-				currentLeaders = results.filter(
+				// Filter out members without loaded user data and separate by role
+				const validMembers = results.filter((member) => member.user && member.user.id);
+				
+				currentLeaders = validMembers.filter(
 					(member) => member.role === 'leader' || member.role === 'admin'
 				); // Support legacy 'admin' role
-				currentEventManagers = results.filter(
+				currentEventManagers = validMembers.filter(
 					(member) =>
 						member.role === 'event_manager' || member.role === 'editor' || member.role === 'member'
 				); // Support legacy roles
@@ -296,11 +298,21 @@
 
 	async function promoteToLeader(userId: string) {
 		try {
+			// Optimistically move user from event managers to leaders
+			const memberToPromote = currentEventManagers.find(manager => manager.user_id === userId);
+			if (memberToPromote) {
+				currentEventManagers = currentEventManagers.filter(manager => manager.user_id !== userId);
+				currentLeaders = [...currentLeaders, { ...memberToPromote, role: 'leader' }];
+			}
+			
 			await updateOrganizationMemberRole(client, organization.id, userId, 'leader', user.id);
 			toast.success('Successfully promoted member to Organization Leader');
 		} catch (error) {
 			toast.error('Failed to promote member, please try again later or contact support');
 			console.error('Error promoting member to leader:', error);
+			
+			// Force refresh on error
+			membersLoading = true;
 		}
 	}
 
@@ -326,11 +338,21 @@
 
 	async function demoteToEventManager(userId: string) {
 		try {
+			// Optimistically move user from leaders to event managers
+			const memberToDemote = currentLeaders.find(leader => leader.user_id === userId);
+			if (memberToDemote) {
+				currentLeaders = currentLeaders.filter(leader => leader.user_id !== userId);
+				currentEventManagers = [...currentEventManagers, { ...memberToDemote, role: 'event_manager' }];
+			}
+			
 			await updateOrganizationMemberRole(client, organization.id, userId, 'event_manager', user.id);
 			toast.success('Successfully demoted to Event Manager');
 		} catch (error) {
 			toast.error('Failed to demote member, please try again later or contact support');
 			console.error('Error demoting to event manager:', error);
+			
+			// Force refresh on error
+			membersLoading = true;
 		}
 	}
 
@@ -367,11 +389,22 @@
 
 	async function removeMember(userId: string) {
 		try {
+			console.log('🗑️ Removing member:', { userId, organizationId: organization.id });
+			
+			// Optimistically remove from local state
+			currentLeaders = currentLeaders.filter(leader => leader.user_id !== userId);
+			currentEventManagers = currentEventManagers.filter(manager => manager.user_id !== userId);
+			
 			await removeOrganizationMember(client, organization.id, userId);
+			console.log('✅ Member removal completed successfully');
 			toast.success('Successfully removed member from organization');
 		} catch (error) {
+			console.error('❌ Error removing member:', error);
+			// Revert optimistic update on error by re-triggering the subscription
 			toast.error('Failed to remove member, please try again later or contact support');
-			console.error('Error removing member:', error);
+			
+			// Force refresh the data - the subscription should restore the correct state
+			membersLoading = true;
 		}
 	}
 
@@ -657,14 +690,14 @@
 								Organization Leaders ({currentLeaders.length})
 							</h2>
 							<div class="space-y-3">
-								{#each currentLeaders as leader (leader.user.id)}
+								{#each currentLeaders as leader (leader.user?.id || leader.id)}
 									<Card.Root class="bg-red-50 dark:bg-red-950/20">
 										<Card.Header>
 											<Card.Title class="flex items-center justify-between">
 												<div class="flex items-center gap-3">
 													<ProfileAvatar userId={leader.user?.id} baseHeightPx={40} />
 													<div>
-														<span class="text-base">{leader.user.username}</span>
+														<span class="text-base">{leader.user?.username || 'Loading...'}</span>
 														<Badge class="{getRoleColor(leader.role)} ml-2" size="sm"
 															>Organization Leader</Badge
 														>
@@ -678,7 +711,7 @@
 														{#if user.id == leader.added_by_user_id}
 															you
 														{:else}
-															{leader.added_by.username}
+															{leader.added_by?.username || 'Unknown'}
 														{/if}
 													</span>
 												{/if}
@@ -699,7 +732,7 @@
 													size="sm"
 													disabled={!canRemoveOrDemoteLeader(leader.user_id)}
 													onclick={() =>
-														confirmDemoteToEventManager(leader.user_id, leader.user.username)}
+														confirmDemoteToEventManager(leader.user_id, leader.user?.username || 'Unknown User')}
 												>
 													<ChevronDown class="mr-1 h-4 w-4" />
 													Demote to Event Manager
@@ -708,7 +741,7 @@
 													variant="destructive"
 													size="sm"
 													disabled={!canRemoveOrDemoteLeader(leader.user_id)}
-													onclick={() => confirmRemoveMember(leader.user_id, leader.user.username)}
+													onclick={() => confirmRemoveMember(leader.user_id, leader.user?.username || 'Unknown User')}
 												>
 													<UserRoundMinus class="mr-1 h-4 w-4" />
 													Remove
@@ -728,14 +761,14 @@
 								Event Managers ({currentEventManagers.length})
 							</h2>
 							<div class="space-y-3">
-								{#each currentEventManagers as eventManager (eventManager.user.id)}
+								{#each currentEventManagers as eventManager (eventManager.user?.id || eventManager.id)}
 									<Card.Root class="bg-blue-50 dark:bg-blue-950/20">
 										<Card.Header>
 											<Card.Title class="flex items-center justify-between">
 												<div class="flex items-center gap-3">
 													<ProfileAvatar userId={eventManager.user?.id} baseHeightPx={40} />
 													<div>
-														<span class="text-base">{eventManager.user.username}</span>
+														<span class="text-base">{eventManager.user?.username || 'Loading...'}</span>
 														<Badge class="{getRoleColor(eventManager.role)} ml-2" size="sm"
 															>Event Manager</Badge
 														>
@@ -749,7 +782,7 @@
 														{#if user.id == eventManager.added_by_user_id}
 															you
 														{:else}
-															{eventManager.added_by.username}
+															{eventManager.added_by?.username || 'Unknown'}
 														{/if}
 													</span>
 												{/if}
@@ -763,7 +796,7 @@
 													onclick={() =>
 														confirmPromoteToLeader(
 															eventManager.user_id,
-															eventManager.user.username
+															eventManager.user?.username || 'Unknown User'
 														)}
 												>
 													<ChevronUp class="mr-1 h-4 w-4" />
@@ -774,7 +807,7 @@
 												variant="destructive"
 												size="sm"
 												onclick={() =>
-													confirmRemoveMember(eventManager.user_id, eventManager.user.username)}
+													confirmRemoveMember(eventManager.user_id, eventManager.user?.username || 'Unknown User')}
 											>
 												<UserRoundMinus class="mr-1 h-4 w-4" />
 												Remove

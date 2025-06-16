@@ -90,14 +90,32 @@ export async function removeOrganizationMember(
 	organizationId: string,
 	userId: string
 ) {
+	console.log('🔄 removeOrganizationMember called with:', { organizationId, userId });
+	
+	// First, check if the membership exists
+	const existingMembership = await client.fetchOne(
+		client.query('organization_members').Where([
+			['organization_id', '=', organizationId],
+			['user_id', '=', userId]
+		])
+	);
+	
+	console.log('📋 Existing membership found:', existingMembership);
+	
+	if (!existingMembership) {
+		console.log('⚠️ No membership found to delete');
+		return;
+	}
+
 	// Remove membership
-	await client.delete('organization_members', [
-		['organization_id', '=', organizationId],
-		['user_id', '=', userId]
-	]);
+	console.log('🗑️ Deleting membership with ID:', existingMembership.id);
+	await client.delete('organization_members', existingMembership.id);
+	console.log('✅ Membership deleted successfully');
 
 	// Remove as admin from all org events
+	console.log('🔄 Removing admin from all org events...');
 	await removeAdminFromAllOrgEvents(client, organizationId, userId);
+	console.log('✅ Removed from org events successfully');
 }
 
 /**
