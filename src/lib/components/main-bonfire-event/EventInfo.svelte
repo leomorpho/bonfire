@@ -28,7 +28,7 @@
 		latitude = null,
 		longitude = null,
 		tempAttendeeSecret = null,
-		organization = null,
+		group = null,
 		eventStatus = EventStatus.ACTIVE
 	} = $props();
 
@@ -102,15 +102,15 @@
 					{/if}
 				</div>
 
-				{#if organization}
+				{#if group}
 					<div class="my-2 flex items-center justify-center font-light">
 						<div class="flex flex-wrap items-center">
 							<span class="flex-shrink-0 text-sm text-gray-600 dark:text-gray-400">Event by</span>
 							<a
-								href="/org/{organization.id}"
+								href="/group/{group.id}"
 								class="ml-1 flex-shrink-0 font-semibold text-blue-600 hover:underline dark:text-blue-400"
 							>
-								{organization.name}
+								{group.name}
 							</a>
 						</div>
 					</div>

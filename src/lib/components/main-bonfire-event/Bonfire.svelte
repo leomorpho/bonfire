@@ -79,7 +79,7 @@
 		showMaxNumPeople = 30,
 		isCuttoffDateEnabled = false,
 		cuttoffDate = null,
-		organization = null,
+		group = null,
 		eventStatus = EventStatus.ACTIVE
 	} = $props();
 
@@ -709,7 +709,7 @@
 								{eventLocation}
 								{latitude}
 								{longitude}
-								{organization}
+								{group}
 								{eventStatus}
 							/>
 

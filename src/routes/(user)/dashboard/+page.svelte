@@ -179,9 +179,9 @@
 				<Plus class="mr-2 h-4 w-4" />
 				Create Event
 			</Button>
-			<Button variant="outline" class="max-w-48 flex-1" onclick={() => goto('/organizations')}>
+			<Button variant="outline" class="max-w-48 flex-1" onclick={() => goto('/groups')}>
 				<Building2 class="mr-2 h-4 w-4" />
-				Organizations
+				Groups
 			</Button>
 		</div>
 

@@ -389,64 +389,64 @@ export async function createNewUnseenAnnouncementsNotificationQueueObject(
 }
 
 /**
- * Create a new notification queue object for organization join requests.
- * This notifies organization leaders when someone requests to join their organization.
+ * Create a new notification queue object for group join requests.
+ * This notifies group leaders when someone requests to join their group.
  * @param client - TriplitClient instance.
  * @param requesterId - The ID of the user requesting to join.
- * @param organizationId - The ID of the organization.
+ * @param groupId - The ID of the group.
  * @param joinRequestIds - List of join request IDs.
  */
-export async function createNewOrganizationJoinRequestNotificationQueueObject(
+export async function createNewGroupJoinRequestNotificationQueueObject(
 	client: TriplitClient | WorkerClient | HttpClient,
 	requesterId: string,
-	organizationId: string,
+	groupId: string,
 	joinRequestIds: string[]
 ): Promise<void> {
 	if (!isNonEmptyArray(joinRequestIds)) {
 		throw new Error(
-			'joinRequestIds in createNewOrganizationJoinRequestNotificationQueueObject cannot be empty.'
+			'joinRequestIds in createNewGroupJoinRequestNotificationQueueObject cannot be empty.'
 		);
 	}
 
 	await client.insert('notifications_queue', {
 		user_id: requesterId,
-		event_id: organizationId, // Use event_id field for organization_id for join requests
-		object_type: NotificationType.ORGANIZATION_JOIN_REQUEST,
+		event_id: groupId, // Use event_id field for group_id for join requests
+		object_type: NotificationType.GROUP_JOIN_REQUEST,
 		object_ids: JSON.stringify(joinRequestIds),
 		object_ids_set: joinRequestIds
 	});
 }
 
 /**
- * Create a new notification queue object for organization join request responses.
+ * Create a new notification queue object for group join request responses.
  * This notifies users when their join request has been approved or rejected.
  * @param client - TriplitClient instance.
  * @param reviewerUserId - The ID of the admin who reviewed the request.
- * @param organizationId - The ID of the organization.
+ * @param groupId - The ID of the group.
  * @param joinRequestIds - List of join request IDs.
  * @param status - The status of the response ('approved' or 'rejected').
  */
-export async function createNewOrganizationJoinResponseNotificationQueueObject(
+export async function createNewGroupJoinResponseNotificationQueueObject(
 	client: TriplitClient | WorkerClient | HttpClient,
 	reviewerUserId: string,
-	organizationId: string,
+	groupId: string,
 	joinRequestIds: string[],
 	status: 'approved' | 'rejected'
 ): Promise<void> {
 	if (!isNonEmptyArray(joinRequestIds)) {
 		throw new Error(
-			'joinRequestIds in createNewOrganizationJoinResponseNotificationQueueObject cannot be empty.'
+			'joinRequestIds in createNewGroupJoinResponseNotificationQueueObject cannot be empty.'
 		);
 	}
 
 	const notificationType =
 		status === 'approved'
-			? NotificationType.ORGANIZATION_JOIN_REQUEST_APPROVED
-			: NotificationType.ORGANIZATION_JOIN_REQUEST_REJECTED;
+			? NotificationType.GROUP_JOIN_REQUEST_APPROVED
+			: NotificationType.GROUP_JOIN_REQUEST_REJECTED;
 
 	await client.insert('notifications_queue', {
 		user_id: reviewerUserId,
-		event_id: organizationId, // Use event_id field for organization_id for join requests
+		event_id: groupId, // Use event_id field for group_id for join requests
 		object_type: notificationType,
 		object_ids: JSON.stringify(joinRequestIds),
 		object_ids_set: joinRequestIds

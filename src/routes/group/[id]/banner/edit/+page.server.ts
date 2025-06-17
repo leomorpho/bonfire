@@ -1,0 +1,63 @@
+import { error, redirect } from '@sveltejs/kit';
+import { triplitHttpClient } from '$lib/server/triplit';
+
+export const load = async ({ params, locals }) => {
+	const { id } = params;
+
+	if (!id) {
+		throw error(404, 'Group not found');
+	}
+
+	if (!locals.user) {
+		redirect(302, '/login');
+	}
+
+	const client = triplitHttpClient;
+
+	try {
+		// Fetch group data
+		const group = await client.fetchOne(
+			client.query('groups').Where([['id', '=', id]])
+		);
+
+		if (!group) {
+			throw error(404, 'Group not found');
+		}
+
+		// Check if current user has permission to edit banner
+		// User must be creator or leader
+		let canEditBanner = false;
+
+		if (group.created_by_user_id === locals.user.id) {
+			canEditBanner = true;
+		} else {
+			// Check if user is a leader
+			const membership = await client.fetchOne(
+				client.query('group_members').Where([
+					['group_id', '=', id],
+					['user_id', '=', locals.user.id],
+					['role', 'in', ['leader', 'admin']] // Support legacy 'admin' role
+				])
+			);
+
+			if (membership) {
+				canEditBanner = true;
+			}
+		}
+
+		if (!canEditBanner) {
+			throw error(403, 'You do not have permission to edit this group banner');
+		}
+
+		return {
+			group,
+			user: locals.user
+		};
+	} catch (err) {
+		console.error('Error loading group banner edit page:', err);
+		if (err.status) {
+			throw err;
+		}
+		throw error(500, 'Failed to load group');
+	}
+};

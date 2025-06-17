@@ -1,6 +1,6 @@
 import type { TriplitClient } from '@triplit/client';
 import { waitForUserId } from '$lib/triplit';
-import { addOrgAdminsToNewEvent } from '$lib/organizations';
+import { addGroupAdminsToNewEvent } from '$lib/groups';
 import { upsertUserAttendance } from '$lib/rsvp';
 import { Status } from '$lib/enums';
 
@@ -11,7 +11,7 @@ export interface CreateEventData {
 	geocoded_location?: any;
 	start_time: Date;
 	end_time?: Date | null;
-	organization_id?: string | null;
+	group_id?: string | null;
 	style?: string;
 	overlay_color?: string;
 	overlay_opacity?: number;
@@ -71,7 +71,7 @@ export async function createEvent(
 		start_time: eventData.start_time,
 		end_time: eventData.end_time,
 		user_id: userId,
-		organization_id: eventData.organization_id || null,
+		group_id: eventData.group_id || null,
 		style: eventData.style || '',
 		overlay_color: eventData.overlay_color || '#000000',
 		overlay_opacity: eventData.overlay_opacity || 0.4,
@@ -98,9 +98,9 @@ export async function createEvent(
 
 	const event = await client.http.insert('events', fullEventData);
 
-	// If event is part of an organization, add all org admins as event admins
-	if (eventData.organization_id) {
-		await addOrgAdminsToNewEvent(client, eventId, eventData.organization_id, userId);
+	// If event is part of a group, add all group admins as event admins
+	if (eventData.group_id) {
+		await addGroupAdminsToNewEvent(client, eventId, eventData.group_id, userId);
 	}
 
 	// Add user as attendee
@@ -131,8 +131,8 @@ export async function updateEvent(
 		}
 		if (eventData.start_time !== undefined) e.start_time = eventData.start_time?.toISOString();
 		if (eventData.end_time !== undefined) e.end_time = eventData.end_time?.toISOString();
-		if (eventData.organization_id !== undefined)
-			e.organization_id = eventData.organization_id || null;
+		if (eventData.group_id !== undefined)
+			e.group_id = eventData.group_id || null;
 		if (eventData.style !== undefined) e.style = eventData.style;
 		if (eventData.overlay_color !== undefined) e.overlay_color = eventData.overlay_color;
 		if (eventData.overlay_opacity !== undefined) e.overlay_opacity = eventData.overlay_opacity;

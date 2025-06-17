@@ -227,7 +227,7 @@ export const schema = S.Collections({
 			latitude: S.Optional(S.Number()),
 			longitude: S.Optional(S.Number()),
 			user_id: S.String(),
-			organization_id: S.Optional(S.String({ nullable: true })), // Organization this event belongs to
+			group_id: S.Optional(S.String({ nullable: true })), // Group this event belongs to
 			max_num_guests_per_attendee: S.Optional(S.Number({ default: 0 })),
 			require_guest_bring_item: S.Optional(S.Boolean({ default: false })),
 			transaction_id: S.Optional(S.String()),
@@ -258,7 +258,7 @@ export const schema = S.Collections({
 		}),
 		relationships: {
 			user: S.RelationById('user', '$user_id'),
-			organization: S.RelationById('organizations', '$organization_id'),
+			group: S.RelationById('groups', '$group_id'),
 			event_reminders: S.RelationMany('event_reminders', {
 				where: [['event_id', '=', '$1.id']]
 			}),
@@ -325,8 +325,8 @@ export const schema = S.Collections({
 							['user_id', '=', '$role.userId'], // User can read their own events
 							['attendees.user_id', '=', '$role.userId'], // A user can see events they are attending
 							['viewers.user_id', '=', '$role.userId'], // Event viewers can see event
-							['organization.members.user_id', '=', '$role.userId'], // Organization members can see org events
-							['organization.viewers.user_id', '=', '$role.userId'] // Organization viewers can see org events
+							['group.members.user_id', '=', '$role.userId'], // Group members can see group events
+							['group.viewers.user_id', '=', '$role.userId'] // Group viewers can see group events
 						])
 					]
 				},
@@ -337,8 +337,8 @@ export const schema = S.Collections({
 							['user_id', '=', '$role.userId'],
 							['event_admins.user_id', '=', '$role.userId'],
 							and([
-								['organization.members.user_id', '=', '$role.userId'],
-								['organization.members.role', '=', 'admin']
+								['group.members.user_id', '=', '$role.userId'],
+								['group.members.role', '=', 'admin']
 							])
 						])
 					]
@@ -877,12 +877,12 @@ export const schema = S.Collections({
 			uploaded_at: S.Date({ default: S.Default.now() }),
 			uploader_id: S.String({ nullable: true, default: null, optional: true }), // ID of the attendee
 			event_id: S.Optional(S.String({ nullable: true })), // ID of the event
-			organization_id: S.Optional(S.String({ nullable: true })) // ID of the organization
+			group_id: S.Optional(S.String({ nullable: true })) // ID of the group
 		}),
 		relationships: {
 			uploader: S.RelationById('user', '$user_id'), // Link to the user
 			event: S.RelationById('events', '$event_id'), // Link to the event
-			organization: S.RelationById('organizations', '$organization_id') // Link to the organization
+			group: S.RelationById('groups', '$group_id') // Link to the group
 		},
 		permissions: {
 			user: {
@@ -892,12 +892,12 @@ export const schema = S.Collections({
 							['uploader_id', '=', '$role.userId'], // User can read their own profile
 							// A user should be able to only query for files of events they are attending:
 							['event.attendees.user_id', '=', '$role.userId'],
-							// A user should be able to read organization banners if they can view the organization:
-							['organization.viewers.user_id', '=', '$role.userId'],
-							['organization.members.user_id', '=', '$role.userId'],
-							['organization.created_by_user_id', '=', '$role.userId'],
-							// Allow reading organization banners for public organizations:
-							['organization.is_public', '=', true]
+							// A user should be able to read group banners if they can view the group:
+							['group.viewers.user_id', '=', '$role.userId'],
+							['group.members.user_id', '=', '$role.userId'],
+							['group.created_by_user_id', '=', '$role.userId'],
+							// Allow reading group banners for public groups:
+							['group.is_public', '=', true]
 						])
 					]
 				},
@@ -919,8 +919,8 @@ export const schema = S.Collections({
 			anon: {
 				read: {
 					filter: [
-						// Anonymous users can read organization banners for public organizations:
-						['organization.is_public', '=', true]
+						// Anonymous users can read group banners for public groups:
+						['group.is_public', '=', true]
 					]
 				}
 			}
@@ -1645,7 +1645,7 @@ export const schema = S.Collections({
 			anon: {}
 		}
 	},
-	organizations: {
+	groups: {
 		schema: S.Schema({
 			id: S.Id(),
 			name: S.String(),
@@ -1655,27 +1655,27 @@ export const schema = S.Collections({
 			created_by_user_id: S.String(),
 			created_at: S.Date({ default: S.Default.now() }),
 			updated_at: S.Date({ default: S.Default.now() }),
-			is_public: S.Boolean({ default: false }), // Whether org is discoverable
+			is_public: S.Boolean({ default: false }), // Whether group is discoverable
 			allow_join_requests: S.Boolean({ default: false }), // Whether non-members can request to join
 			auto_approve_join_requests: S.Boolean({ default: false }), // Auto-approve requests vs manual review
 			default_join_role: S.String({ default: 'member' }) // Default role for approved requests
 		}),
 		relationships: {
 			creator: S.RelationById('user', '$created_by_user_id'),
-			members: S.RelationMany('organization_members', {
-				where: [['organization_id', '=', '$id']]
+			members: S.RelationMany('group_members', {
+				where: [['group_id', '=', '$id']]
 			}),
 			events: S.RelationMany('events', {
-				where: [['organization_id', '=', '$id']]
+				where: [['group_id', '=', '$id']]
 			}),
-			viewers: S.RelationMany('organization_viewers', {
-				where: [['organization_id', '=', '$id']]
+			viewers: S.RelationMany('group_viewers', {
+				where: [['group_id', '=', '$id']]
 			}),
-			join_requests: S.RelationMany('organization_join_requests', {
-				where: [['organization_id', '=', '$id']]
+			join_requests: S.RelationMany('group_join_requests', {
+				where: [['group_id', '=', '$id']]
 			}),
 			banner_media: S.RelationOne('banner_media', {
-				where: [['organization_id', '=', '$id']]
+				where: [['group_id', '=', '$id']]
 			})
 		},
 		permissions: {
@@ -1688,14 +1688,14 @@ export const schema = S.Collections({
 				read: {
 					filter: [
 						or([
-							['is_public', '=', true], // Public orgs can be seen by anyone
-							['created_by_user_id', '=', '$role.userId'], // Creator can see org
-							['members.user_id', '=', '$role.userId'], // Members can see org
-							['viewers.user_id', '=', '$role.userId'] // Viewers can see org
+							['is_public', '=', true], // Public groups can be seen by anyone
+							['created_by_user_id', '=', '$role.userId'], // Creator can see group
+							['members.user_id', '=', '$role.userId'], // Members can see group
+							['viewers.user_id', '=', '$role.userId'] // Viewers can see group
 						])
 					]
 				},
-				insert: { filter: [true] }, // Anyone can create an organization
+				insert: { filter: [true] }, // Anyone can create a group
 				update: {
 					filter: [
 						or([
@@ -1711,22 +1711,22 @@ export const schema = S.Collections({
 			temp: {},
 			anon: {
 				read: {
-					filter: [['is_public', '=', true]] // Anonymous users can only see public orgs
+					filter: [['is_public', '=', true]] // Anonymous users can only see public groups
 				}
 			}
 		}
 	},
-	organization_members: {
+	group_members: {
 		schema: S.Schema({
 			id: S.Id(),
-			organization_id: S.String(),
+			group_id: S.String(),
 			user_id: S.String(),
 			role: S.String({ default: 'member' }), // leader, event_manager, member
 			added_by_user_id: S.String(),
 			created_at: S.Date({ default: S.Default.now() })
 		}),
 		relationships: {
-			organization: S.RelationById('organizations', '$organization_id'),
+			group: S.RelationById('groups', '$group_id'),
 			user: S.RelationById('user', '$user_id'),
 			added_by: S.RelationById('user', '$added_by_user_id')
 		},
@@ -1742,19 +1742,19 @@ export const schema = S.Collections({
 					filter: [
 						or([
 							['user_id', '=', '$role.userId'], // Users can see their own memberships
-							['organization.created_by_user_id', '=', '$role.userId'], // Org creators can see all members
-							['organization.members.user_id', '=', '$role.userId'], // Org members can see other members
-							['organization.viewers.user_id', '=', '$role.userId'] // Org viewers can see members
+							['group.created_by_user_id', '=', '$role.userId'], // Group creators can see all members
+							['group.members.user_id', '=', '$role.userId'], // Group members can see other members
+							['group.viewers.user_id', '=', '$role.userId'] // Group viewers can see members
 						])
 					]
 				},
 				insert: {
 					filter: [
 						or([
-							['organization.created_by_user_id', '=', '$role.userId'], // Org creator can add members
+							['group.created_by_user_id', '=', '$role.userId'], // Group creator can add members
 							and([
-								['organization.members.user_id', '=', '$role.userId'],
-								['organization.members.role', '=', 'admin'] // Org admins can add members
+								['group.members.user_id', '=', '$role.userId'],
+								['group.members.role', '=', 'admin'] // Group admins can add members
 							])
 						])
 					]
@@ -1762,10 +1762,10 @@ export const schema = S.Collections({
 				update: {
 					filter: [
 						or([
-							['organization.created_by_user_id', '=', '$role.userId'], // Org creator can update any member
+							['group.created_by_user_id', '=', '$role.userId'], // Group creator can update any member
 							and([
-								['organization.members.user_id', '=', '$role.userId'],
-								['organization.members.role', '=', 'admin'] // Org admins can update members
+								['group.members.user_id', '=', '$role.userId'],
+								['group.members.role', '=', 'admin'] // Group admins can update members
 							])
 						])
 					]
@@ -1774,10 +1774,10 @@ export const schema = S.Collections({
 					filter: [
 						or([
 							['user_id', '=', '$role.userId'], // Users can remove themselves
-							['organization.created_by_user_id', '=', '$role.userId'], // Org creator can remove anyone
+							['group.created_by_user_id', '=', '$role.userId'], // Group creator can remove anyone
 							and([
-								['organization.members.user_id', '=', '$role.userId'],
-								['organization.members.role', '=', 'admin'] // Org admins can remove members
+								['group.members.user_id', '=', '$role.userId'],
+								['group.members.role', '=', 'admin'] // Group admins can remove members
 							])
 						])
 					]
@@ -1787,15 +1787,15 @@ export const schema = S.Collections({
 			anon: {}
 		}
 	},
-	organization_viewers: {
+	group_viewers: {
 		schema: S.Schema({
 			id: S.Id(),
-			organization_id: S.String(),
+			group_id: S.String(),
 			user_id: S.String(),
 			created_at: S.Date({ default: S.Default.now() })
 		}),
 		relationships: {
-			organization: S.RelationById('organizations', '$organization_id'),
+			group: S.RelationById('groups', '$group_id'),
 			user: S.RelationById('user', '$user_id')
 		},
 		permissions: {
@@ -1810,16 +1810,16 @@ export const schema = S.Collections({
 					filter: [
 						or([
 							['user_id', '=', '$role.userId'], // Users can see their own viewer status
-							['organization.created_by_user_id', '=', '$role.userId'], // Org creators can see all viewers
-							['organization.members.user_id', '=', '$role.userId'] // Org members can see viewers
+							['group.created_by_user_id', '=', '$role.userId'], // Group creators can see all viewers
+							['group.members.user_id', '=', '$role.userId'] // Group members can see viewers
 						])
 					]
 				},
 				insert: {
 					filter: [
 						or([
-							['organization.created_by_user_id', '=', '$role.userId'], // Org creator can add viewers
-							['organization.members.user_id', '=', '$role.userId'] // Org members can add viewers
+							['group.created_by_user_id', '=', '$role.userId'], // Group creator can add viewers
+							['group.members.user_id', '=', '$role.userId'] // Group members can add viewers
 						])
 					]
 				},
@@ -1827,8 +1827,8 @@ export const schema = S.Collections({
 					filter: [
 						or([
 							['user_id', '=', '$role.userId'], // Users can remove themselves
-							['organization.created_by_user_id', '=', '$role.userId'], // Org creator can remove viewers
-							['organization.members.user_id', '=', '$role.userId'] // Org members can remove viewers
+							['group.created_by_user_id', '=', '$role.userId'], // Group creator can remove viewers
+							['group.members.user_id', '=', '$role.userId'] // Group members can remove viewers
 						])
 					]
 				}
@@ -1837,10 +1837,10 @@ export const schema = S.Collections({
 			anon: {}
 		}
 	},
-	organization_join_requests: {
+	group_join_requests: {
 		schema: S.Schema({
 			id: S.Id(),
-			organization_id: S.String(),
+			group_id: S.String(),
 			user_id: S.String(),
 			message: S.Optional(S.String()),
 			status: S.String({ default: 'pending' }), // 'pending', 'approved', 'rejected'
@@ -1849,7 +1849,7 @@ export const schema = S.Collections({
 			reviewed_by_user_id: S.Optional(S.String())
 		}),
 		relationships: {
-			organization: S.RelationById('organizations', '$organization_id'),
+			group: S.RelationById('groups', '$group_id'),
 			user: S.RelationById('user', '$user_id'),
 			reviewed_by: S.RelationById('user', '$reviewed_by_user_id')
 		},
@@ -1865,10 +1865,10 @@ export const schema = S.Collections({
 					filter: [
 						or([
 							['user_id', '=', '$role.userId'], // Users can see their own requests
-							['organization.created_by_user_id', '=', '$role.userId'], // Org creators can see all requests
+							['group.created_by_user_id', '=', '$role.userId'], // Group creators can see all requests
 							and([
-								['organization.members.user_id', '=', '$role.userId'],
-								['organization.members.role', 'in', ['leader', 'admin']] // Org leaders can see requests
+								['group.members.user_id', '=', '$role.userId'],
+								['group.members.role', 'in', ['leader', 'admin']] // Group leaders can see requests
 							])
 						])
 					]
@@ -1881,10 +1881,10 @@ export const schema = S.Collections({
 				update: {
 					filter: [
 						or([
-							['organization.created_by_user_id', '=', '$role.userId'], // Org creator can update requests
+							['group.created_by_user_id', '=', '$role.userId'], // Group creator can update requests
 							and([
-								['organization.members.user_id', '=', '$role.userId'],
-								['organization.members.role', 'in', ['leader', 'admin']] // Org leaders can update requests
+								['group.members.user_id', '=', '$role.userId'],
+								['group.members.role', 'in', ['leader', 'admin']] // Group leaders can update requests
 							])
 						])
 					]
@@ -1893,10 +1893,10 @@ export const schema = S.Collections({
 					filter: [
 						or([
 							['user_id', '=', '$role.userId'], // Users can delete their own requests
-							['organization.created_by_user_id', '=', '$role.userId'], // Org creator can delete requests
+							['group.created_by_user_id', '=', '$role.userId'], // Group creator can delete requests
 							and([
-								['organization.members.user_id', '=', '$role.userId'],
-								['organization.members.role', 'in', ['leader', 'admin']] // Org leaders can delete requests
+								['group.members.user_id', '=', '$role.userId'],
+								['group.members.role', 'in', ['leader', 'admin']] // Group leaders can delete requests
 							])
 						])
 					]

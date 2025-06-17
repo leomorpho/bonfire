@@ -458,27 +458,27 @@ export async function uploadBannerImage(
 	return { largeImageKey, smallImageKey };
 }
 
-export async function uploadOrganizationBannerImage(
+export async function uploadGroupBannerImage(
 	filePath: string,
 	userId: string | null,
-	organizationId: string | null,
+	groupId: string | null,
 	overwrite: boolean = true,
 	unsplashAuthorName: string | null = '',
 	unsplashUsername: string | null = ''
 ) {
 	if (!userId) {
-		throw new Error('userId should be set in call to uploadOrganizationBannerImage');
+		throw new Error('userId should be set in call to uploadGroupBannerImage');
 	}
-	if (!organizationId) {
-		throw new Error('organizationId should be set in call to uploadOrganizationBannerImage');
+	if (!groupId) {
+		throw new Error('groupId should be set in call to uploadGroupBannerImage');
 	}
 
 	verifyFilePathExists(filePath);
 
 	// Generate keys
 	const cacheBusterRandomId = generateId(5);
-	const largeImageKey = `organization-banner/${organizationId}/lg_cb${cacheBusterRandomId}.jpg`;
-	const smallImageKey = `organization-banner/${organizationId}/sm_cb${cacheBusterRandomId}.jpg`;
+	const largeImageKey = `group-banner/${groupId}/lg_cb${cacheBusterRandomId}.jpg`;
+	const smallImageKey = `group-banner/${groupId}/sm_cb${cacheBusterRandomId}.jpg`;
 
 	if (
 		!overwrite &&
@@ -549,10 +549,10 @@ export async function uploadOrganizationBannerImage(
 		throw new Error(`Upload failed for ${smallImageKey}`);
 	}
 
-	// Check if a banner media entry exists for the organization
+	// Check if a banner media entry exists for the group
 	const query = triplitHttpClient
 		.query('banner_media')
-		.Where(['organization_id', '=', organizationId]);
+		.Where(['group_id', '=', groupId]);
 	const existingEntry = await triplitHttpClient.fetchOne(query);
 
 	if (existingEntry) {
@@ -573,7 +573,7 @@ export async function uploadOrganizationBannerImage(
 			e.unsplash_author_name = unsplashAuthorName;
 			e.unsplash_author_username = unsplashUsername;
 			e.uploader_id = userId;
-			e.organization_id = organizationId;
+			e.group_id = groupId;
 		});
 
 		// Delete old banner files from S3
@@ -593,7 +593,7 @@ export async function uploadOrganizationBannerImage(
 			unsplash_author_name: unsplashAuthorName,
 			unsplash_author_username: unsplashUsername,
 			uploader_id: userId,
-			organization_id: organizationId
+			group_id: groupId
 		});
 	}
 

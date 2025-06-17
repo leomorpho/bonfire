@@ -128,7 +128,7 @@ export const UploadFileTypes = {
 	GALLERY: 'gallery',
 	BONFIRE_COVER_PHOTO: 'bonfire_cover_photo',
 	PROFILE_PHOTO: 'profile_photo',
-	ORGANIZATION_COVER_PHOTO: 'organization_cover_photo'
+	GROUP_COVER_PHOTO: 'group_cover_photo'
 };
 
 export const TransactionType = {
@@ -171,9 +171,9 @@ export enum NotificationType {
 	UNSEEN_INVITATIONS = 'unseen_invitations',
 	UNSEEN_ANNOUNCEMENTS = 'unseen_announcements',
 	GROUP_PHOTO = 'group_photo',
-	ORGANIZATION_JOIN_REQUEST = 'organization_join_request',
-	ORGANIZATION_JOIN_REQUEST_APPROVED = 'organization_join_request_approved',
-	ORGANIZATION_JOIN_REQUEST_REJECTED = 'organization_join_request_rejected'
+	GROUP_JOIN_REQUEST = 'group_join_request',
+	GROUP_JOIN_REQUEST_APPROVED = 'group_join_request_approved',
+	GROUP_JOIN_REQUEST_REJECTED = 'group_join_request_rejected'
 }
 
 export const NotificationPermissions = {
@@ -211,7 +211,10 @@ export const notificationTypeToPermMap: {
 	[NotificationType.TICKET_PURCHASED]: NotificationPermissions.event_activity,
 	[NotificationType.UNSEEN_INVITATIONS]: NotificationPermissions.event_activity,
 	[NotificationType.UNSEEN_ANNOUNCEMENTS]: NotificationPermissions.event_activity,
-	[NotificationType.GROUP_PHOTO]: NotificationPermissions.event_activity
+	[NotificationType.GROUP_PHOTO]: NotificationPermissions.event_activity,
+	[NotificationType.GROUP_JOIN_REQUEST]: NotificationPermissions.event_activity,
+	[NotificationType.GROUP_JOIN_REQUEST_APPROVED]: NotificationPermissions.event_activity,
+	[NotificationType.GROUP_JOIN_REQUEST_REJECTED]: NotificationPermissions.event_activity
 };
 
 export const notificationTypesNoRateLimit = new Set([NotificationPermissions.event_reminders]);
@@ -294,6 +297,18 @@ export const notificationTypeToDeliveryMap: {
 	[NotificationType.GROUP_PHOTO]: [
 		DeliveryPermissions.push_notifications,
 		DeliveryPermissions.email_notifications
+	],
+	[NotificationType.GROUP_JOIN_REQUEST]: [
+		DeliveryPermissions.push_notifications,
+		DeliveryPermissions.email_notifications
+	],
+	[NotificationType.GROUP_JOIN_REQUEST_APPROVED]: [
+		DeliveryPermissions.push_notifications,
+		DeliveryPermissions.email_notifications
+	],
+	[NotificationType.GROUP_JOIN_REQUEST_REJECTED]: [
+		DeliveryPermissions.push_notifications,
+		DeliveryPermissions.email_notifications
 	]
 };
 
@@ -325,7 +340,10 @@ export const notificationTypeToSubject: { [key in NotificationType]: string } = 
 	[NotificationType.TICKET_PURCHASED]: 'Ticket Purchase Confirmation',
 	[NotificationType.UNSEEN_INVITATIONS]: 'Unseen Invitations Alert',
 	[NotificationType.UNSEEN_ANNOUNCEMENTS]: 'Unseen Announcements Alert',
-	[NotificationType.GROUP_PHOTO]: 'Time for a Group Photo!'
+	[NotificationType.GROUP_PHOTO]: 'Time for a Group Photo!',
+	[NotificationType.GROUP_JOIN_REQUEST]: 'New Group Join Request',
+	[NotificationType.GROUP_JOIN_REQUEST_APPROVED]: 'Group Join Request Approved',
+	[NotificationType.GROUP_JOIN_REQUEST_REJECTED]: 'Group Join Request Rejected'
 };
 
 type NotificationTypeMapping = {
@@ -407,6 +425,18 @@ export const notificationTypeMapping: NotificationTypeMapping = {
 	[NotificationType.GROUP_PHOTO]: {
 		singularObjectName: 'group photo notification',
 		pluralObjectName: 'group photo notifications'
+	},
+	[NotificationType.GROUP_JOIN_REQUEST]: {
+		singularObjectName: 'group join request',
+		pluralObjectName: 'group join requests'
+	},
+	[NotificationType.GROUP_JOIN_REQUEST_APPROVED]: {
+		singularObjectName: 'approved group join request',
+		pluralObjectName: 'approved group join requests'
+	},
+	[NotificationType.GROUP_JOIN_REQUEST_REJECTED]: {
+		singularObjectName: 'rejected group join request',
+		pluralObjectName: 'rejected group join requests'
 	}
 	// Add other notification types as needed
 };

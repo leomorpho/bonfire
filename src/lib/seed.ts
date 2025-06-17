@@ -81,46 +81,46 @@ export const seedEvent = async (
 
 	await triplitHttpClient.insert('user', { id: userId, username: eventCreatorName, isReal: false });
 
-	// Create an organization for Mike (not linked to the birthday party)
-	const mikeOrgId = await generatePassphraseId('org_');
-	console.log('Creating organization with ID:', mikeOrgId);
+	// Create a group for Mike (not linked to the birthday party)
+	const mikeGroupId = await generatePassphraseId('group_');
+	console.log('Creating group with ID:', mikeGroupId);
 
-	const org1 = await triplitHttpClient.insert('organizations', {
-		id: mikeOrgId,
+	const group1 = await triplitHttpClient.insert('groups', {
+		id: mikeGroupId,
 		name: 'Tech Innovators Vancouver',
 		description:
 			'A community of tech professionals and enthusiasts in Vancouver focused on innovation, networking, and collaborative learning.',
 		created_by_user_id: userId,
 		is_public: true
 	});
-	console.log('Created organization:', org1);
+	console.log('Created group:', group1);
 
-	// Add Mike as an admin member of his organization
-	const membership1 = await triplitHttpClient.insert('organization_members', {
-		organization_id: mikeOrgId,
+	// Add Mike as an admin member of his group
+	const membership1 = await triplitHttpClient.insert('group_members', {
+		group_id: mikeGroupId,
 		user_id: userId,
 		role: 'admin',
 		added_by_user_id: userId // Mike adds himself
 	});
 	console.log('Created membership:', membership1);
 
-	// Create a second public organization for variety
-	const communityOrgId = await generatePassphraseId('org_');
-	console.log('Creating second organization with ID:', communityOrgId);
+	// Create a second public group for variety
+	const communityGroupId = await generatePassphraseId('group_');
+	console.log('Creating second group with ID:', communityGroupId);
 
-	const org2 = await triplitHttpClient.insert('organizations', {
-		id: communityOrgId,
+	const group2 = await triplitHttpClient.insert('groups', {
+		id: communityGroupId,
 		name: 'Vancouver Community Gardens',
 		description:
 			'Bringing people together through urban gardening and sustainable living practices.',
 		created_by_user_id: userId,
 		is_public: true
 	});
-	console.log('Created second organization:', org2);
+	console.log('Created second group:', group2);
 
-	// Add Mike as admin to the community organization too
-	const membership2 = await triplitHttpClient.insert('organization_members', {
-		organization_id: communityOrgId,
+	// Add Mike as admin to the community group too
+	const membership2 = await triplitHttpClient.insert('group_members', {
+		group_id: communityGroupId,
 		user_id: userId,
 		role: 'admin',
 		added_by_user_id: userId

@@ -30,7 +30,7 @@
 	let isMessagingEnabled: boolean = $state(event?.is_messaging_enabled ?? false);
 	let isCuttoffDateEnabled: boolean = $state(event?.is_cut_off_date_enabled ?? false);
 	let cuttoffDate = $state(event?.cut_off_date);
-	let organization = $state(event?.organization);
+	let group = $state(event?.group);
 	let eventStatus = $derived(event?.status ?? EventStatus.ACTIVE);
 
 	if (tempAttendeeId) {
@@ -72,6 +72,6 @@
 	{isMessagingEnabled}
 	{isCuttoffDateEnabled}
 	{cuttoffDate}
-	{organization}
+	{group}
 	{eventStatus}
 />

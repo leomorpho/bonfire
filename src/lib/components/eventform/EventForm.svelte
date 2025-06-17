@@ -76,7 +76,7 @@
 	import ToggleGallery from './feature-enablers/ToggleGallery.svelte';
 	import ToggleMessaging from './feature-enablers/ToggleMessaging.svelte';
 	import ToggleCuttoffRsvpDate from './feature-enablers/ToggleCuttoffRsvpDate.svelte';
-	import { getUserOrganizations } from '$lib/organizations';
+	import { getUserGroups } from '$lib/groups';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { Building2, ExternalLink } from 'lucide-svelte';
@@ -109,13 +109,13 @@
 	let cuttoffDate = $state(event?.cut_off_date);
 	let latitude: number | null = $state(event?.latitude);
 	let longitude: number | null = $state(event?.longitude);
-	let selectedOrganizationId: string | null = $state(event?.organization_id ?? null);
+	let selectedGroupId: string | null = $state(event?.group_id ?? null);
 	let isTicketed: boolean = $state(event?.is_ticketed ?? false);
 	let maxTicketsPerUser: number = $state(event?.max_tickets_per_user ?? 5);
 	let ticketCurrency: string = $state(event?.ticket_currency ?? 'usd');
-	let userOrganizations: any[] = $state([]);
-	let organizationsLoading = $state(false);
-	let organizationModalOpen = $state(false);
+	let userGroups: any[] = $state([]);
+	let groupsLoading = $state(false);
+	let groupModalOpen = $state(false);
 	let ticketTypes: any[] = $state([]);
 	let hasTicketsSold = $state(false);
 
@@ -363,7 +363,7 @@
 				geocoded_location: geocodedLocation,
 				start_time: eventStartDatetime!,
 				end_time: eventEndDatetime,
-				organization_id: selectedOrganizationId,
+				group_id: selectedGroupId,
 				style: finalStyleCss || '',
 				overlay_color: overlayColor || '#000000',
 				overlay_opacity: overlayOpacity || 0.4,
@@ -415,7 +415,7 @@
 				geocoded_location: geocodedLocation,
 				start_time: eventStartDatetime!,
 				end_time: eventEndDatetime,
-				organization_id: selectedOrganizationId,
+				group_id: selectedGroupId,
 				style: finalStyleCss,
 				overlay_color: overlayColor,
 				overlay_opacity: overlayOpacity,
@@ -616,27 +616,27 @@
 		}
 	}
 
-	// Load user's organizations
-	const loadUserOrganizations = async () => {
+	// Load user's groups
+	const loadUserGroups = async () => {
 		if (!client) return;
 
-		organizationsLoading = true;
+		groupsLoading = true;
 		try {
 			const userId = await waitForUserId();
 			if (userId) {
-				userOrganizations = await getUserOrganizations(client, userId as string);
+				userGroups = await getUserGroups(client, userId as string);
 			}
 		} catch (error) {
-			console.error('Error loading user organizations:', error);
+			console.error('Error loading user groups:', error);
 		} finally {
-			organizationsLoading = false;
+			groupsLoading = false;
 		}
 	};
 
 	onMount(async () => {
 		loadStepFromURL();
 		client = getFeWorkerTriplitClient($page.data.jwt) as TriplitClient;
-		await loadUserOrganizations();
+		await loadUserGroups();
 	});
 </script>
 
@@ -742,24 +742,24 @@
 						oninput={debouncedUpdateEvent}
 					/>
 
-					<!-- Organization Selector -->
+					<!-- Group Selector -->
 					<div class="w-full space-y-2">
-						{#if mode === EventFormType.CREATE && userOrganizations.length > 0}
-							<Select.Root bind:value={selectedOrganizationId}>
+						{#if mode === EventFormType.CREATE && userGroups.length > 0}
+							<Select.Root bind:value={selectedGroupId}>
 								<Select.Trigger class="w-full bg-white dark:bg-slate-900">
-									{#if selectedOrganizationId}
-										{userOrganizations.find((org) => org.id === selectedOrganizationId)?.name ||
-											'Select organization'}
+									{#if selectedGroupId}
+										{userGroups.find((org) => org.id === selectedGroupId)?.name ||
+											'Select group'}
 									{:else}
-										Select organization (optional)
+										Select group (optional)
 									{/if}
 								</Select.Trigger>
 								<Select.Content class="bg-white dark:bg-slate-900">
 									<Select.Group>
 										<Select.Item value={null} onclick={debouncedUpdateEvent}>
-											<span class="italic text-gray-500">No organization</span>
+											<span class="italic text-gray-500">No group</span>
 										</Select.Item>
-										{#each userOrganizations as org}
+										{#each userGroups as org}
 											<Select.Item value={org.id} onclick={debouncedUpdateEvent}>
 												<div class="flex w-full items-center justify-between">
 													<span>{org.name}</span>
@@ -779,15 +779,15 @@
 								</Select.Content>
 							</Select.Root>
 						{:else if mode === EventFormType.UPDATE}
-							{#if selectedOrganizationId}
+							{#if selectedGroupId}
 								<div
 									class="flex w-full items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-slate-800"
 								>
 									<div class="flex items-center gap-2">
 										<Building2 class="h-4 w-4 text-gray-500" />
 										<span class="font-medium">
-											{userOrganizations.find((org) => org.id === selectedOrganizationId)?.name ||
-												'Unknown Organization'}
+											{userGroups.find((org) => org.id === selectedGroupId)?.name ||
+												'Unknown Group'}
 										</span>
 									</div>
 									<Button
@@ -795,7 +795,7 @@
 										variant="ghost"
 										size="sm"
 										class="text-xs"
-										onclick={() => (organizationModalOpen = true)}
+										onclick={() => (groupModalOpen = true)}
 									>
 										Change
 									</Button>
@@ -807,10 +807,10 @@
 										variant="outline"
 										size="sm"
 										class="text-xs"
-										onclick={() => (organizationModalOpen = true)}
+										onclick={() => (groupModalOpen = true)}
 									>
 										<Building2 class="mr-1 h-4 w-4" />
-										Link Organization
+										Link Group
 									</Button>
 								</div>
 							{/if}
@@ -823,9 +823,9 @@
 									variant="outline"
 									size="sm"
 									class="text-xs"
-									onclick={() => goto('/organizations')}
+									onclick={() => goto('/groups')}
 								>
-									{userOrganizations.length > 0 ? 'Manage Organizations' : 'Create Organization'}
+									{userGroups.length > 0 ? 'Manage Groups' : 'Create Group'}
 								</Button>
 							</div>
 						{/if}
@@ -1148,54 +1148,54 @@
 	</Dialog.Content>
 </Dialog.Root>
 
-<!-- Organization Selection Modal -->
-<Dialog.Root bind:open={organizationModalOpen}>
+<!-- Group Selection Modal -->
+<Dialog.Root bind:open={groupModalOpen}>
 	<Dialog.Content class="sm:max-w-md">
 		<Dialog.Header>
 			<Dialog.Title class="flex items-center gap-2">
 				<Building2 class="h-5 w-5" />
-				Link Organization
+				Link Group
 			</Dialog.Title>
 			<Dialog.Description>
-				Select an organization for this event or create a new one.
+				Select an group for this event or create a new one.
 			</Dialog.Description>
 		</Dialog.Header>
 
 		<div class="space-y-4">
-			{#if userOrganizations.length > 0}
+			{#if userGroups.length > 0}
 				<div class="space-y-2">
-					<label class="text-sm font-medium">Your Organizations</label>
+					<label class="text-sm font-medium">Your Groups</label>
 					<div class="max-h-48 space-y-2 overflow-y-auto">
 						<!-- None option -->
 						<button
-							class="w-full rounded-lg border p-3 text-left transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 {selectedOrganizationId ===
+							class="w-full rounded-lg border p-3 text-left transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 {selectedGroupId ===
 							null
 								? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
 								: 'border-gray-200 dark:border-gray-700'}"
 							onclick={() => {
-								selectedOrganizationId = null;
+								selectedGroupId = null;
 								debouncedUpdateEvent();
-								organizationModalOpen = false;
+								groupModalOpen = false;
 							}}
 						>
 							<div class="flex items-center justify-between">
-								<span class="italic text-gray-500">No organization</span>
-								{#if selectedOrganizationId === null}
+								<span class="italic text-gray-500">No group</span>
+								{#if selectedGroupId === null}
 									<div class="h-2 w-2 rounded-full bg-blue-500"></div>
 								{/if}
 							</div>
 						</button>
 
-						{#each userOrganizations as org}
+						{#each userGroups as org}
 							<button
-								class="w-full rounded-lg border p-3 text-left transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 {selectedOrganizationId ===
+								class="w-full rounded-lg border p-3 text-left transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 {selectedGroupId ===
 								org.id
 									? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
 									: 'border-gray-200 dark:border-gray-700'}"
 								onclick={() => {
-									selectedOrganizationId = org.id;
+									selectedGroupId = org.id;
 									debouncedUpdateEvent();
-									organizationModalOpen = false;
+									groupModalOpen = false;
 								}}
 							>
 								<div class="flex items-center justify-between">
@@ -1220,7 +1220,7 @@
 											{/if}
 										</div>
 									</div>
-									{#if selectedOrganizationId === org.id}
+									{#if selectedGroupId === org.id}
 										<div class="h-2 w-2 rounded-full bg-blue-500"></div>
 									{/if}
 								</div>
@@ -1231,14 +1231,14 @@
 				<div class="border-t pt-4">
 					{#if mode === EventFormType.CREATE && !eventCreated}
 						<div class="p-3 text-center text-sm text-gray-600 dark:text-gray-400">
-							Save your event first to create organizations
+							Save your event first to create groups
 						</div>
 					{:else}
 						{#if mode === EventFormType.UPDATE}
 							<div
 								class="mb-3 rounded bg-amber-50 p-2 text-xs text-amber-600 dark:bg-amber-900/20 dark:text-amber-400"
 							>
-								⚠️ Creating an organization will navigate away. Make sure to save your changes
+								⚠️ Creating an group will navigate away. Make sure to save your changes
 								first.
 							</div>
 						{/if}
@@ -1246,29 +1246,29 @@
 							variant="outline"
 							class="w-full"
 							onclick={() => {
-								organizationModalOpen = false;
-								goto('/organizations/create');
+								groupModalOpen = false;
+								goto('/groups/create');
 							}}
 						>
 							<ExternalLink class="mr-2 h-4 w-4" />
-							Create New Organization
+							Create New Group
 						</Button>
 					{/if}
 				</div>
 			{:else}
 				<div class="py-6 text-center">
 					<Building2 class="mx-auto mb-3 h-12 w-12 text-gray-400" />
-					<p class="mb-4 text-gray-600 dark:text-gray-400">You don't have any organizations yet.</p>
+					<p class="mb-4 text-gray-600 dark:text-gray-400">You don't have any groups yet.</p>
 					{#if mode === EventFormType.CREATE && !eventCreated}
 						<div class="p-3 text-sm text-gray-600 dark:text-gray-400">
-							Save your event first to create organizations
+							Save your event first to create groups
 						</div>
 					{:else}
 						{#if mode === EventFormType.UPDATE}
 							<div
 								class="mb-3 rounded bg-amber-50 p-2 text-xs text-amber-600 dark:bg-amber-900/20 dark:text-amber-400"
 							>
-								⚠️ Creating an organization will navigate away. Make sure to save your changes
+								⚠️ Creating an group will navigate away. Make sure to save your changes
 								first.
 							</div>
 						{/if}
@@ -1276,12 +1276,12 @@
 							variant="outline"
 							class="w-full"
 							onclick={() => {
-								organizationModalOpen = false;
-								goto('/organizations/create');
+								groupModalOpen = false;
+								goto('/groups/create');
 							}}
 						>
 							<ExternalLink class="mr-2 h-4 w-4" />
-							Create New Organization
+							Create New Group
 						</Button>
 					{/if}
 				</div>

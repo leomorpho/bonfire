@@ -9,7 +9,7 @@ import {
 	processGalleryFile,
 	uploadBannerImage,
 	uploadProfileImage,
-	uploadOrganizationBannerImage
+	uploadGroupBannerImage
 } from '$lib/server/filestorage';
 import { tempAttendeeSecretParam, UploadFileTypes } from '$lib/enums';
 import { triplitHttpClient } from '$lib/server/triplit';
@@ -61,7 +61,7 @@ tusServer.on(EVENTS.POST_FINISH, async (req, res, upload) => {
 		const userId = upload?.metadata?.userId || null;
 		const tempAttendeeSecret = upload?.metadata?.tempAttendeeSecret || null;
 		const eventId = upload?.metadata?.eventId;
-		const organizationId = upload?.metadata?.organizationId;
+		const groupId = upload?.metadata?.groupId;
 		const uploadFileType = upload?.metadata?.uploadFileType;
 		const unsplashImageDownloadCounterCallback =
 			upload?.metadata?.unsplashImageDownloadCounterCallback;
@@ -74,7 +74,7 @@ tusServer.on(EVENTS.POST_FINISH, async (req, res, upload) => {
 			userId,
 			tempAttendeeSecret,
 			eventId,
-			organizationId,
+			groupId,
 			filename,
 			filetype
 		});
@@ -131,12 +131,12 @@ tusServer.on(EVENTS.POST_FINISH, async (req, res, upload) => {
 			case UploadFileTypes.PROFILE_PHOTO:
 				await uploadProfileImage(filePath, userId);
 				break;
-			case UploadFileTypes.ORGANIZATION_COVER_PHOTO:
-				if (!userId || !organizationId) return;
-				await uploadOrganizationBannerImage(
+			case UploadFileTypes.GROUP_COVER_PHOTO:
+				if (!userId || !groupId) return;
+				await uploadGroupBannerImage(
 					filePath,
 					userId,
-					organizationId,
+					groupId,
 					true,
 					unsplashAuthorName,
 					unsplashUsername
@@ -234,7 +234,7 @@ export const tusHandler: Handle = async ({ event, resolve }) => {
 			event.url.searchParams.get(tempAttendeeSecretParam) ||
 			'';
 		const eventId = event.url.searchParams.get('eventId');
-		const organizationId = event.url.searchParams.get('organizationId');
+		const groupId = event.url.searchParams.get('groupId');
 
 		let validUser = false;
 
@@ -284,7 +284,7 @@ export const tusHandler: Handle = async ({ event, resolve }) => {
 		if (userId) headers.set('x-user-id', userId);
 		if (tempAttendeeSecret) headers.set('x-temp-attendee-secret', tempAttendeeSecret);
 		if (eventId) headers.set('x-event-id', eventId);
-		if (organizationId) headers.set('x-organization-id', organizationId);
+		if (groupId) headers.set('x-group-id', groupId);
 
 		const req = await toNodeRequest(event.request);
 		const res = new ServerResponse(req);

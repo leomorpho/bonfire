@@ -91,10 +91,10 @@ export const load = async ({ params, locals, url }) => {
 						.Select(['username', 'id'])
 				)
 				.SubqueryOne(
-					'organization',
+					'group',
 					triplitHttpClient
-						.query('organizations')
-						.Where(['id', '=', '$1.organization_id'])
+						.query('groups')
+						.Where(['id', '=', '$1.group_id'])
 						.Select(['id', 'name', 'description'])
 				)
 		);
