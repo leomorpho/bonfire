@@ -201,7 +201,11 @@
 				<div class="flex flex-col gap-3">
 					{#if user}
 						{#if canManage}
-							<Button variant="outline" class="flex items-center gap-2">
+							<Button 
+								variant="outline" 
+								class="flex items-center gap-2"
+								onclick={() => goto(`/group/${group.id}/settings`)}
+							>
 								<Settings class="h-4 w-4" />
 								Manage Group
 							</Button>
