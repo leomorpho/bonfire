@@ -16,6 +16,10 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
 			return json({ error: 'Authentication required' }, { status: 401 });
 		}
 
+		// Parse request body to get confirmation details
+		const body = await request.json().catch(() => ({}));
+		const { eventName, confirmationName } = body;
+
 		// Verify the user is the event creator or an admin
 		const event = await triplitHttpClient.fetch(
 			triplitHttpClient
@@ -47,6 +51,17 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
 
 		if (!isAuthorized) {
 			return json({ error: 'Not authorized to delete this event' }, { status: 403 });
+		}
+
+		// Verify name confirmation if provided
+		if (eventName && confirmationName) {
+			if (eventName !== confirmationName) {
+				return json({ error: 'Event name confirmation does not match' }, { status: 400 });
+			}
+			
+			if (eventTitle !== eventName) {
+				return json({ error: 'Provided event name does not match the actual event name' }, { status: 400 });
+			}
 		}
 
 		// Get all attendees (regular and temporary) to notify

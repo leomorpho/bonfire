@@ -7,7 +7,8 @@
 	import { Switch } from '$lib/components/ui/switch/index.js';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import * as Select from '$lib/components/ui/select/index.js';
-	import { ArrowLeft, Save, Trash2, Globe, Lock } from 'lucide-svelte';
+	import * as Dialog from '$lib/components/ui/dialog/index.js';
+	import { ArrowLeft, Save, Trash2, Globe, Lock, AlertTriangle } from 'lucide-svelte';
 	import { goto } from '$app/navigation';
 	import { toast } from 'svelte-sonner';
 
@@ -27,6 +28,11 @@
 	let saving = $state(false);
 	let deleting = $state(false);
 
+	// Deletion dialog state
+	let deleteDialogOpen = $state(false);
+	let deleteConfirmationName = $state('');
+	let deleteEvents = $state(false);
+
 	// Role options for join requests
 	const roleOptions = [
 		{ value: 'member', label: 'Member' },
@@ -35,6 +41,11 @@
 
 	const defaultJoinRoleTriggerContent = $derived(
 		roleOptions.find((r) => r.value === defaultJoinRole)?.label ?? 'Select role'
+	);
+
+	// Enable delete button only when confirmation name matches
+	const deleteButtonEnabled = $derived(
+		deleteConfirmationName.trim() === group.name && !deleting
 	);
 
 	async function saveSettings() {
@@ -75,21 +86,28 @@
 	}
 
 	async function deleteGroup() {
-		if (!confirm('Are you sure you want to delete this group? This action cannot be undone.')) {
+		if (!deleteButtonEnabled) {
 			return;
 		}
 
 		deleting = true;
 		try {
 			const response = await fetch(`/api/groups/${group.id}`, {
-				method: 'DELETE'
+				method: 'DELETE',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					groupName: group.name,
+					confirmationName: deleteConfirmationName.trim(),
+					deleteEvents
+				})
 			});
 
 			const result = await response.json();
 
 			if (response.ok) {
-				toast.success('Group deleted successfully');
-				goto('/groups');
+				toast.success(result.message || 'Group deleted successfully');
+				deleteDialogOpen = false;
+				goto('/');
 			} else {
 				toast.error(result.error || 'Failed to delete group');
 			}
@@ -99,6 +117,12 @@
 		} finally {
 			deleting = false;
 		}
+	}
+
+	function openDeleteDialog() {
+		deleteConfirmationName = '';
+		deleteEvents = false;
+		deleteDialogOpen = true;
 	}
 </script>
 
@@ -245,12 +269,11 @@
 			<div class="flex justify-between">
 				<Button
 					variant="destructive"
-					onclick={deleteGroup}
-					disabled={deleting}
+					onclick={openDeleteDialog}
 					class="flex items-center gap-2"
 				>
 					<Trash2 class="h-4 w-4" />
-					{deleting ? 'Deleting...' : 'Delete Group'}
+					Delete Group
 				</Button>
 
 				<Button onclick={saveSettings} disabled={saving} class="flex items-center gap-2">
@@ -261,3 +284,75 @@
 		</div>
 	</section>
 </div>
+
+<!-- Delete Confirmation Dialog -->
+<Dialog.Root bind:open={deleteDialogOpen}>
+	<Dialog.Content class="sm:max-w-[500px]">
+		<Dialog.Header>
+			<Dialog.Title class="flex items-center gap-2 text-red-600 dark:text-red-400">
+				<AlertTriangle class="h-5 w-5" />
+				Permanently Delete Group?
+			</Dialog.Title>
+			<Dialog.Description>
+				<div class="space-y-4">
+					<p class="font-semibold text-red-600 dark:text-red-400">
+						This action is irreversible and will permanently delete the group.
+					</p>
+					
+					<div class="space-y-3">
+						<div class="flex items-center gap-3">
+							<Switch id="delete-events" bind:checked={deleteEvents} />
+							<Label for="delete-events" class="text-sm font-medium">
+								Also delete all group events and their data
+							</Label>
+						</div>
+						
+						{#if deleteEvents}
+							<div class="ml-6 rounded-lg bg-red-50 p-3 dark:bg-red-950/20">
+								<p class="text-xs text-red-700 dark:text-red-300">
+									⚠️ This will permanently delete ALL events in this group and ALL associated data including messages, files, attendees, and RSVPs.
+								</p>
+							</div>
+						{:else}
+							<div class="ml-6 rounded-lg bg-blue-50 p-3 dark:bg-blue-950/20">
+								<p class="text-xs text-blue-700 dark:text-blue-300">
+									ℹ️ Events will be preserved but unlinked from this group. They will become independent events.
+								</p>
+							</div>
+						{/if}
+					</div>
+
+					<div class="space-y-2">
+						<p class="text-sm font-medium">
+							To confirm deletion, please type the group name:
+						</p>
+						<p class="rounded bg-gray-100 px-2 py-1 font-mono text-sm dark:bg-gray-800">
+							{group.name}
+						</p>
+						<Input
+							bind:value={deleteConfirmationName}
+							placeholder="Type the group name here"
+							class="font-mono"
+						/>
+					</div>
+				</div>
+			</Dialog.Description>
+		</Dialog.Header>
+		<Dialog.Footer class="flex flex-col gap-2 sm:flex-row">
+			<Dialog.Close>
+				<Button variant="outline" class="w-full sm:w-auto">
+					Cancel
+				</Button>
+			</Dialog.Close>
+			<Button
+				variant="destructive"
+				onclick={deleteGroup}
+				disabled={!deleteButtonEnabled}
+				class="flex w-full items-center gap-2 sm:w-auto"
+			>
+				<Trash2 class="h-4 w-4" />
+				{deleting ? 'Deleting...' : 'Delete Group'}
+			</Button>
+		</Dialog.Footer>
+	</Dialog.Content>
+</Dialog.Root>

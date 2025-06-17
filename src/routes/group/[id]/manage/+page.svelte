@@ -1072,11 +1072,22 @@
 						</Card.Header>
 						<Card.Content class="space-y-4">
 							<div class="flex items-center justify-between">
-								<div>
+								<div class="flex-1">
 									<div class="font-medium">Allow Join Requests</div>
 									<div class="text-sm text-gray-500">
 										Allow non-members to request to join your group
 									</div>
+									{#if !group.allow_join_requests}
+										<div class="mt-2">
+											<Button 
+												variant="outline" 
+												size="sm"
+												onclick={() => goto(`/group/${group.id}/settings`)}
+											>
+												Enable in Settings
+											</Button>
+										</div>
+									{/if}
 								</div>
 								<Badge variant={group.allow_join_requests ? 'default' : 'secondary'}>
 									{group.allow_join_requests ? 'Enabled' : 'Disabled'}
@@ -1132,6 +1143,16 @@
 										No one has requested to join your group yet.
 									{/if}
 								</p>
+								{#if !group.allow_join_requests}
+									<Button 
+										variant="outline" 
+										size="sm"
+										onclick={() => goto(`/group/${group.id}/settings`)}
+										class="mt-4"
+									>
+										Enable Join Requests
+									</Button>
+								{/if}
 							</Card.Content>
 						</Card.Root>
 					{:else}

@@ -1061,6 +1061,7 @@
 								{currUserId}
 								eventCreatorUserId={event.user_id}
 								eventId={event.id}
+								eventTitle={event.title}
 							/>
 						{/if}
 					</div>
