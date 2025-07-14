@@ -86,6 +86,7 @@ npm run start    # Start production server
 2. **Real-time sync**: Triplit client in `src/lib/triplit.ts` for collaborative features
 3. **File uploads**: TUS protocol implementation for resumable uploads
 4. **Notifications**: Queue-based system supporting email, SMS, and push
+5. **Routing**: Avoid `/api/` routes - place server logic in the appropriate route's `+page.server.ts` or `+layout.server.ts`. Treat `/api/` routes as a last resort utility pattern only.
 
 ### Triplit Client Usage
 
