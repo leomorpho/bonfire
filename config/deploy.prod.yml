@@ -2,7 +2,7 @@ service: bonfire-prod
 image: leomorpho/bonfire
 
 servers:
-  - 5.78.67.78
+  - 134.199.211.26
 
 registry:
   server: ghcr.io
