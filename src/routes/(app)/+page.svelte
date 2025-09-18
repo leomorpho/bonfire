@@ -15,7 +15,6 @@
 	<!-- <About /> -->
 	<Features />
 	<Pricing />
-	<AboutUs />
 	<FAQ />
 	<Footer></Footer>
 </div>

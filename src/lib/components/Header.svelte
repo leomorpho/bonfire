@@ -54,19 +54,7 @@
 		...(isAdmin ? [{ icon: Shield, name: 'Admin Panel', href: '/admin', id: 'admin-panel' }] : [])
 	];
 
-	const unauthLinks: Array<Link> = [
-		{ icon: BrickWall, name: 'Features', href: '/#features', id: 'features' },
-		{ icon: DollarSign, name: 'Pricing', href: '/#pricing', id: 'pricing' },
-		{ icon: CircleUserRound, name: 'About', href: '/#about-us', id: 'about' },
-		{ icon: CircleHelp, name: 'FAQ', href: '/#faq', id: 'faq' },
-		{
-			icon: BookOpenText,
-			name: 'Blog',
-			href: 'https://tobyluxembourg.com/tags/bonfire',
-			id: 'blog',
-			blank: true
-		}
-	];
+	const unauthLinks: Array<Link> = [];
 
 	let links = $state(unauthLinks);
 
@@ -129,6 +117,7 @@
 				{#each links as link}
 					<a
 						href={link.href}
+						rel="external"
 						id={`${link.id}-header-menu-item`}
 						target={link.blank ? '_blank' : ''}
 					>
@@ -169,6 +158,7 @@
 						<li class="flex items-center">
 							<a
 								href={link.href}
+								rel="external"
 								id={`${link.id}-header-menu-item`}
 								target={link.blank ? '_blank' : ''}
 							>
