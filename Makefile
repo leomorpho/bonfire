@@ -1,3 +1,6 @@
+.PHONY: all
+all: help
+
 # Define a function to check for docker compose command
 define find_docker_compose
   if command -v docker-compose >/dev/null 2>&1; then \
@@ -13,9 +16,9 @@ endef
 # Determine if you have docker-compose or docker compose installed locally
 # If this does not work on your system, just set the name of the executable you have installed
 DCO_BIN := $(shell $(find_docker_compose))
-define Comment
-	- Run `make help` to see all the available options.
-endef
+.PHONY: help
+help: ## Display this help message.
+	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
 
 .PHONY: clean
 clean: ## Clean db and reseed
@@ -27,7 +30,7 @@ dev: ## Start the dev server
 
 .PHONY: up
 up: ## Start the Docker containers
-	$(DCO_BIN) up -d --remove-orphans
+	$(DCO_BIN) up -d --no-recreate --remove-orphans 2>&1 | grep -v "Conflict. The container name \"/mailpit\" is already in use" || true
 	sleep 3
 
 .PHONY: stop
